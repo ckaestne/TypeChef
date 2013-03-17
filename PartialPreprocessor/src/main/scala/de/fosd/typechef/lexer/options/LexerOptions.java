@@ -1,6 +1,5 @@
 package de.fosd.typechef.lexer.options;
 
-import de.fosd.typechef.featureexpr.FeatureModel;
 import de.fosd.typechef.lexer.Feature;
 import de.fosd.typechef.lexer.Warning;
 import de.fosd.typechef.lexer.macrotable.MacroFilter;
@@ -30,6 +29,7 @@ public class LexerOptions extends FeatureModelOptions implements ILexerOptions {
     private static final char PP_NOSTDOUT = Options.genOptionId();
     private static final char TY_VERSION = Options.genOptionId();
     private static final char TY_HELP = Options.genOptionId();
+    private final static char PP_XTC = Options.genOptionId();
 
     @Override
     protected List<Options.OptionGroup> getOptionGroups() {
@@ -47,7 +47,9 @@ public class LexerOptions extends FeatureModelOptions implements ILexerOptions {
                 new Option("iquote", LongOpt.REQUIRED_ARGUMENT, PP_IQUOTE, "dir",
                         "Adds the directory dir to the list of directories to be searched for header files included using \"\"."),
                 new Option("lexOutput", LongOpt.REQUIRED_ARGUMENT, PP_LEXOUT, "file",
-                        "Output file (typically .pi).")
+                        "Output file (typically .pi)."),
+                new Option("xtc", LongOpt.NO_ARGUMENT, PP_XTC, null,
+                        "Use xtc/SuperC lexer instead of TypeChef lexer (experimental).")
         ));
 
         r.add(new OptionGroup("Preprocessor flag filter", 60,
@@ -133,6 +135,7 @@ public class LexerOptions extends FeatureModelOptions implements ILexerOptions {
     protected String lexOutputFile = "";
     protected boolean printVersion = false;
     protected boolean lexPrintToStdout = true;
+    protected boolean xtc = false;
 
     @Override
     protected boolean interpretOption(int c, Getopt g) throws OptionException {
@@ -216,6 +219,8 @@ public class LexerOptions extends FeatureModelOptions implements ILexerOptions {
         } else if (c == TY_HELP) {//--help
             printUsage();
             printVersion = true;
+        } else if (c == PP_XTC) {
+            xtc = true;
         } else {
             return super.interpretOption(c, g);
         }
@@ -297,5 +302,10 @@ public class LexerOptions extends FeatureModelOptions implements ILexerOptions {
 
     public void setPrintToStdOutput(boolean printToStdOutput) {
         this.lexPrintToStdout = printToStdOutput;
+    }
+
+    @Override
+    public boolean useXtcLexer() {
+        return xtc;
     }
 }

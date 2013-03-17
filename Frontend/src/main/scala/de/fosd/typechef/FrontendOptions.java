@@ -27,8 +27,7 @@ public class FrontendOptions extends LexerOptions implements ParserOptions {
             recordTiming = false,
             parserStatistics = false,
             parserResults = true,
-            writePI = false,
-            xtc = false;
+            writePI = false;
     protected File errorXMLFile = null;
     private final File _autoErrorXMLFile = new File(".");
     String outputStem = "";
@@ -47,7 +46,6 @@ public class FrontendOptions extends LexerOptions implements ParserOptions {
     private final static char F_PARSERSTATS = Options.genOptionId();
     private final static char F_HIDEPARSERRESULTS = Options.genOptionId();
     private final static char F_BDD = Options.genOptionId();
-    private final static char F_XTC = Options.genOptionId();
     private final static char F_ERRORXML = Options.genOptionId();
     private Function3<FeatureExpr, String, Position, Object> _renderParserError;
 
@@ -89,8 +87,6 @@ public class FrontendOptions extends LexerOptions implements ParserOptions {
                         "Presence condition for the file (format like --featureModelFExpr). Default 'file.pc'."),
                 new Option("bdd", LongOpt.NO_ARGUMENT, F_BDD, null,
                         "Use BDD engine instead of SAT engine (provide as first parameter)."),
-                new Option("xtc", LongOpt.NO_ARGUMENT, F_XTC, null,
-                        "Use SuperC lexer instead of TypeChef lexer."),
 
                 new Option("errorXML", LongOpt.OPTIONAL_ARGUMENT, F_ERRORXML, "file",
                         "File to store syntax and type errors in XML format.")
@@ -143,8 +139,6 @@ public class FrontendOptions extends LexerOptions implements ParserOptions {
             writePI = true;
         } else if (c == F_BDD) {
             de.fosd.typechef.featureexpr.FeatureExprFactory$.MODULE$.setDefault(de.fosd.typechef.featureexpr.FeatureExprFactory$.MODULE$.bdd());
-        } else if (c == F_XTC) {
-            xtc = true;
         } else if (c == F_ERRORXML) {//--errorXML=file
             if (g.getOptarg() == null)
                 errorXMLFile = _autoErrorXMLFile;
@@ -248,4 +242,5 @@ public class FrontendOptions extends LexerOptions implements ParserOptions {
         else
             return errorXMLFile;
     }
+
 }

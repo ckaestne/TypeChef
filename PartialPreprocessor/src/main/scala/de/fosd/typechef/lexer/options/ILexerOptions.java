@@ -34,4 +34,6 @@ public interface ILexerOptions extends IFeatureModelOptions {
     List<String> getFiles();
 
     boolean isLexPrintToStdout();
+
+    boolean useXtcLexer();
 }

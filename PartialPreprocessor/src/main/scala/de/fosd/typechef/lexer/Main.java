@@ -50,14 +50,14 @@ public class Main {
         options.setFeatureModel(featureModel);
         options.setPrintToStdOutput(printToStdOutput);
         options.parseOptions(args);
-        return run(false, options, returnTokenList);
+        return run(options, returnTokenList);
     }
 
-    public List<LexerToken> run(final boolean isXtcLexer, final ILexerOptions options, boolean returnTokenList) throws Exception {
+    public List<LexerToken> run(final ILexerOptions options, boolean returnTokenList) throws Exception {
         return run(new VALexer.LexerFactory() {
             @Override
             public VALexer create(FeatureModel featureModel) {
-                if (isXtcLexer)
+                if (options.useXtcLexer())
                     return new XtcPreprocessor(options.getMacroFilter(), featureModel);
                 return new Preprocessor(options.getMacroFilter(), featureModel);
             }
