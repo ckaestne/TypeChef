@@ -75,7 +75,7 @@ object PrettyPrinter {
     writer
   }
 
-  def printF(ast: AST, path: String, newLines: Boolean = false) = {
+  def printF(ast: AST, path: String, newLines: Boolean = true) = {
     newLineForIfdefs = newLines
     val writer = new FileWriter(path)
     layoutW(prettyPrint(ast), writer)
@@ -228,7 +228,7 @@ object PrettyPrinter {
       case VolatileSpecifier() => "volatile"
       case ExternSpecifier() => "extern"
       case ConstSpecifier() => "const"
-      case RestrictSpecifier() => "restrict"
+      case RestrictSpecifier() => "__restrict "
       case StaticSpecifier() => "static"
 
       case AtomicAttribute(n: String) => n
@@ -286,7 +286,7 @@ object PrettyPrinter {
       case TypeName(specifiers, decl) => spaceSep(specifiers) ~~ opt(decl)
 
       case GnuAttributeSpecifier(attributeList) => "__attribute__((" ~ commaSep(attributeList) ~ "))"
-      case AsmAttributeSpecifier(stringConst) => stringConst
+      case AsmAttributeSpecifier(stringConst) => "__asm__( " ~ stringConst ~ ")"
       case LcurlyInitializer(inits) => "{" ~ commaSep(inits) ~ "}"
       case AlignOfExprT(typeName: TypeName) => "__alignof__(" ~ typeName ~ ")"
       case AlignOfExprU(expr: Expr) => "__alignof__" ~~ expr
