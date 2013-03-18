@@ -568,10 +568,10 @@ object InlineFunction extends ASTSelection with Refactor {
     statements.flatMap(statement => {
       val feature = statement.feature.and(call.feature)
       feature.isSatisfiable() match {
-        case true => Some(statement, statement.copy(feature = feature))
+        case true => Some(statement.copy(feature = feature))
         case _ => None
       }
-    }).foldLeft(statements)((stmt, entry) => replaceInAST(stmt, entry._1, entry._2))
+    })
   }
 
   private def getReturnStmts(statements: List[Opt[Statement]]): List[Opt[ReturnStatement]] = {
