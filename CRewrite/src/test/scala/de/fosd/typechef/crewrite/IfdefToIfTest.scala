@@ -7,13 +7,13 @@ import de.fosd.typechef.parser.c._
 import de.fosd.typechef.crewrite.CASTEnv._
 import de.fosd.typechef.typesystem._
 import java.io._
-import collection.mutable.ListBuffer
 import java.util
 import util.IdentityHashMap
 import scala.Some
 import scala.Tuple2
 import io.Source
-import de.fosd.typechef.conditional.{ConditionalLib, One, Opt}
+import de.fosd.typechef.conditional.{One, Opt}
+import de.fosd.typechef.featureexpr.FeatureExprFactory
 
 class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDeclUse with CTypeSystem with TestHelper {
   val makeAnalysis = true
@@ -75,23 +75,30 @@ val time = tb.getCurrentThreadCpuTime // Type long; beware in nanoseconds */
   def testFile(file: File, writeAst: Boolean = false) {
     new File(singleFilePath).mkdirs()
     val fileNameWithoutExtension = getFileNameWithoutExtension(file)
-    println("++Analyse: " + file.getName + "++")
+    val analyseString = "++Analyse: " + file.getName + "++"
+    print(analyseString)
+    for (i <- (analyseString.size / 4) until 15) {
+      print("\t")
+    }
     val startParsingAndTypeChecking = System.currentTimeMillis()
     val source_ast = getAstFromPi(file)
     //val env = createASTEnv(source_ast)
     typecheckTranslationUnit(source_ast)
     val defUseMap = getDeclUseMap
     val timeToParseAndTypeCheck = System.currentTimeMillis() - startParsingAndTypeChecking
+    print("--Parsed--")
 
     val optionsAst = i.getOptionFile(source_ast)
 
     val startTransformation = System.currentTimeMillis()
     val tempAst = i.transformAst(source_ast, defUseMap, file.getName())
     val timeToTransform = System.currentTimeMillis() - startTransformation
+    print("\t--Transformed--")
 
     val startPrettyPrinting = System.currentTimeMillis()
     PrettyPrinter.printF(tempAst._1, singleFilePath ++ fileNameWithoutExtension ++ ".ifdeftoif")
     val timeToPrettyPrint = System.currentTimeMillis() - startPrettyPrinting
+    print("\t--Printed--\n")
     if (writeAst) {
       writeToTextFile(fileNameWithoutExtension ++ "_ast.txt", source_ast.toString())
     }
@@ -138,122 +145,6 @@ val time = tb.getCurrentThreadCpuTime // Type long; beware in nanoseconds */
   private def getDefUse(ast: TranslationUnit): IdentityHashMap[Id, List[Id]] = {
     typecheckTranslationUnit(ast)
     getDeclUseMap
-  }
-
-  @Test def test_folder() {
-    val folderPath = "C:\\users\\flo\\dropbox\\hiwi\\flo\\TypeChef\\ifdeftoif"
-    val folder = new File(folderPath)
-    val asts = analyseDir(folder)
-
-    val tri = asts.map(x => (x._1, getDefUse(x._1), x._2))
-    val newAsts = i.transformAsts(tri)
-    newAsts.foreach(x => writeToTextFile(x._2 ++ "_tmp", PrettyPrinter.print(x._1)))
-  }
-
-  @Test def test_replace() {
-    val e1 = Opt(True,
-      DeclarationStatement(
-        Declaration(
-          List(Opt(True, IntSpecifier())),
-          List(Opt(True, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("e1"), List()), List(), None))))))
-    val e2 = Opt(True,
-      DeclarationStatement(
-        Declaration(
-          List(Opt(True, IntSpecifier())),
-          List(Opt(True, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("e2"), List()), List(), None))))))
-    val e21 = Opt(True,
-      DeclarationStatement(
-        Declaration(
-          List(Opt(True, IntSpecifier())),
-          List(Opt(True, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("e21"), List()), List(), None))))))
-    val e22 = Opt(True,
-      DeclarationStatement(
-        Declaration(
-          List(Opt(True, IntSpecifier())),
-          List(Opt(True, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("e22"), List()), List(), None))))))
-    val e3 = Opt(fx,
-      DeclarationStatement(
-        Declaration(
-          List(Opt(True, IntSpecifier())),
-          List(Opt(True, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("e3"), List()), List(), None))))))
-    val e4 = Opt(fx.not(),
-      DeclarationStatement(
-        Declaration(
-          List(Opt(True, IntSpecifier())),
-          List(Opt(True, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("e4"), List()), List(), None))))))
-    val e5 = Opt(True,
-      DeclarationStatement(
-        Declaration(
-          List(Opt(True, IntSpecifier())),
-          List(Opt(True, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("e5"), List()), List(), None))))))
-    val e6 = Opt(True,
-      DeclarationStatement(
-        Declaration(
-          List(Opt(fx.not(), IntSpecifier())),
-          List(Opt(True, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("e5"), List()), List(), None))))))
-
-    val t1 = Opt(True, Declaration(List(Opt(True, ExternSpecifier()), Opt(True, TypeDefTypeSpecifier(Id("smallint")))), List(Opt(True, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("wrote_pidfile"), List()), List(), None)))))
-
-
-    val c = One(CompoundStatement(List(e1, e2, e3, e4, e5)))
-    val d = CompoundStatement(List(e1, e2, e6))
-
-    println(PrettyPrinter.print(c.value))
-    println(PrettyPrinter.print(i.replace(c.value, e2, List(e21, e22))))
-
-
-    val t2 = Opt(True, Declaration(List(Opt(True, ExternSpecifier()), Opt(True, TypeDefTypeSpecifier(Id("smallint")))), List(Opt(fa, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("wrote_pidfile"), List()), List(), None)))))
-    val t3 = Opt(True, Declaration(List(Opt(fa, ExternSpecifier()), Opt(True, TypeDefTypeSpecifier(Id("smallint")))), List(Opt(True, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("wrote_pidfile"), List()), List(), None)))))
-    println("T1 next level variablity: " + i.nextLevelContainsVariability(t1.entry))
-    println("T2 next level variablity: " + i.nextLevelContainsVariability(t2.entry))
-    println("T3 next level variablity: " + i.nextLevelContainsVariability(t3.entry))
-    println("C next level variablity: " + i.nextLevelContainsVariability(c.value))
-    println("D next level variablity: " + i.nextLevelContainsVariability(d))
-    println("E6 next level variablity: " + i.nextLevelContainsVariability(e6.entry))
-  }
-
-  @Test def test_replace_same() {
-    val e1 = Opt(True,
-      DeclarationStatement(
-        Declaration(
-          List(Opt(True, IntSpecifier())),
-          List(Opt(True, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("e1"), List()), List(), None))))))
-    val e2 = Opt(True,
-      DeclarationStatement(
-        Declaration(
-          List(Opt(True, IntSpecifier())),
-          List(Opt(True, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("e2"), List()), List(), None))))))
-    val e21 = Opt(True,
-      DeclarationStatement(
-        Declaration(
-          List(Opt(True, IntSpecifier())),
-          List(Opt(True, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("e21"), List()), List(), None))))))
-    val e22 = Opt(True,
-      DeclarationStatement(
-        Declaration(
-          List(Opt(True, IntSpecifier())),
-          List(Opt(True, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("e22"), List()), List(), None))))))
-    val e3 = Opt(fx,
-      DeclarationStatement(
-        Declaration(
-          List(Opt(True, IntSpecifier())),
-          List(Opt(True, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("e3"), List()), List(), None))))))
-    val e4 = Opt(fx.not(),
-      DeclarationStatement(
-        Declaration(
-          List(Opt(True, IntSpecifier())),
-          List(Opt(True, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("e4"), List()), List(), None))))))
-    val e5 = Opt(True,
-      DeclarationStatement(
-        Declaration(
-          List(Opt(True, IntSpecifier())),
-          List(Opt(True, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("e5"), List()), List(), None))))))
-
-    val c = One(CompoundStatement(List(e1, e2, e3, e4, e5)))
-
-    println(PrettyPrinter.print(c.value))
-    println(PrettyPrinter.print(i.replaceSame(c.value, e2, e4)))
-
   }
 
   @Test def test_function() {
@@ -1125,6 +1016,11 @@ val time = tb.getCurrentThreadCpuTime // Type long; beware in nanoseconds */
     testFile(file)
   }
 
+  @Test def test_lineedit_pi() {
+    val file = new File("C:\\Users\\Flo\\Dropbox\\HiWi\\busybox\\TypeChef-BusyboxAnalysis\\busybox-1.18.5\\libbb\\lineedit.pi")
+    testFile(file)
+  }
+
   @Test def test_cdrom_pi() {
     val file = new File("C:\\users\\flo\\dropbox\\hiwi\\flo\\pifiles\\cdrom.pi")
     //testFile(file)
@@ -1468,8 +1364,6 @@ val time = tb.getCurrentThreadCpuTime // Type long; beware in nanoseconds */
             transformPiFiles(dir)
           }
         }
-      } else {
-        println("--Finished--")
       }
     }
     new File(path).mkdirs()
@@ -1618,6 +1512,10 @@ val time = tb.getCurrentThreadCpuTime // Type long; beware in nanoseconds */
     val oneVariableComputation = FunctionDef(List(Opt(fa, StaticSpecifier())), AtomicNamedDeclarator(List(), Id("main"), List()), List(), CompoundStatement(List()))
     val twoVariableComputation = FunctionDef(List(Opt(fb, StaticSpecifier()), Opt(fa.not(), VoidSpecifier())), AtomicNamedDeclarator(List(), Id("main"), List()), List(), CompoundStatement(List()))
     val threeVariableComputation = FunctionDef(List(Opt(fb, StaticSpecifier()), Opt(fc.not(), StaticSpecifier()), Opt(fa.not(), VoidSpecifier())), AtomicNamedDeclarator(List(), Id("main"), List()), List(), CompoundStatement(List()))
+    val fiveVariableComputation = FunctionDef(List(Opt(fb, StaticSpecifier()), Opt(fc.not(), StaticSpecifier()), Opt(fa.not(), VoidSpecifier()), Opt(fx.not(), VoidSpecifier()), Opt(fy.not(), VoidSpecifier()), Opt(fc, StaticSpecifier())), AtomicNamedDeclarator(List(), Id("main"), List()), List(), CompoundStatement(List()))
+
+    val mixedVariableContradiction = FunctionDef(List(Opt(fa, StaticSpecifier()), Opt(fa.not().and(fb.not()), VoidSpecifier()), Opt(fc.and(fa.not()).and(fb).and(fb.or(fa)), IntSpecifier()), Opt(fa.not().and(fb).and(fc.not().or(fa).or(fb.not())).and(fb.or(fa)), DoubleSpecifier()), Opt(fx, StaticSpecifier())), AtomicNamedDeclarator(List(), Id("main"), List()), List(), CompoundStatement(List()))
+
 
     val oneContradictionResult = i.computeNextRelevantFeatures(oneVariableContradiction)
     val twoContradictionResult = i.computeNextRelevantFeatures(twoVariableContradiction)
@@ -1627,6 +1525,8 @@ val time = tb.getCurrentThreadCpuTime // Type long; beware in nanoseconds */
     val twoComputationResult = i.computeNextRelevantFeatures(twoVariableComputation)
     val threeComputationResult = i.computeNextRelevantFeatures(threeVariableComputation)
 
+    val mixedComputationResult = i.computeNextRelevantFeatures(mixedVariableContradiction)
+
     println("Amount of feature expressions: " + oneContradictionResult.size + ", in: " + oneContradictionResult)
     println("Amount of feature expressions: " + twoContradictionResult.size + ", in: " + twoContradictionResult)
     println("Amount of feature expressions: " + threeContradictionResult.size + ", in: " + threeContradictionResult)
@@ -1635,70 +1535,13 @@ val time = tb.getCurrentThreadCpuTime // Type long; beware in nanoseconds */
     println("Amount of feature expressions: " + twoComputationResult.size + ", in: " + twoComputationResult)
     println("Amount of feature expressions: " + threeComputationResult.size + ", in: " + threeComputationResult)
 
-    /*val featureList = List(fc.and(fa), fc.and(fa.not().and(fb.not())), fc.and(fa.not().and(fb).and(fb.or(fa))))
-    println("C: " + i.debugNextRelevantFeatures(featureList))
-    val featureList2 = List(fa, (fa.not().and(fb.not())), fa.not().and(fb).and(fb.or(fa)))
-    println(i.debugNextRelevantFeatures(featureList2))
-    println((fa.and(fb.not())))*/
-  }
-
-  @Test def debug_features() {
-    val oneVariableContradiction = FunctionDef(List(Opt(fa, StaticSpecifier()), Opt(fa.not(), VoidSpecifier())), AtomicNamedDeclarator(List(), Id("main"), List()), List(), CompoundStatement(List()))
-    val twoVariableContradiction = FunctionDef(List(Opt(fa, StaticSpecifier()), Opt(fa.not().and(fb.not()), VoidSpecifier()), Opt((fb.and(fa.not()).and(fb.or(fa))), VoidSpecifier())), AtomicNamedDeclarator(List(), Id("main"), List()), List(), CompoundStatement(List()))
-    val threeVariableContradiction = FunctionDef(List(Opt(fa, StaticSpecifier()), Opt(fa.not().and(fb.not()), VoidSpecifier()), Opt(fc.and(fa.not()).and(fb).and(fb.or(fa)), IntSpecifier()), Opt(fa.not().and(fb).and(fc.not().or(fa).or(fb.not())).and(fb.or(fa)), DoubleSpecifier())), AtomicNamedDeclarator(List(), Id("main"), List()), List(), CompoundStatement(List()))
-
-    val oneContradictionResult2 = i.computeDebug2(oneVariableContradiction)
-    val twoContradictionResult2 = i.computeDebug2(twoVariableContradiction)
-    val threeContradictionResult2 = i.computeDebug2(threeVariableContradiction)
-
-    println("Amount of feature expressions: " + oneContradictionResult2.size + ", in: " + oneContradictionResult2)
-    println("Amount of feature expressions: " + twoContradictionResult2.size + ", in: " + twoContradictionResult2)
-    println("Amount of feature expressions: " + threeContradictionResult2.size + ", in: " + threeContradictionResult2)
-
-
-    val oneVariableComputation = FunctionDef(List(Opt(fa, StaticSpecifier())), AtomicNamedDeclarator(List(), Id("main"), List()), List(), CompoundStatement(List()))
-    val twoVariableComputation = FunctionDef(List(Opt(fb, StaticSpecifier()), Opt(fa.not(), VoidSpecifier())), AtomicNamedDeclarator(List(), Id("main"), List()), List(), CompoundStatement(List()))
-    val threeVariableComputation = FunctionDef(List(Opt(fb, StaticSpecifier()), Opt(fc.not(), StaticSpecifier()), Opt(fa.not(), VoidSpecifier())), AtomicNamedDeclarator(List(), Id("main"), List()), List(), CompoundStatement(List()))
-    val fiveVariableComputation = FunctionDef(List(Opt(fb, StaticSpecifier()), Opt(fc.not(), StaticSpecifier()), Opt(fa.not(), VoidSpecifier()), Opt(fx.not(), VoidSpecifier()), Opt(fy.not(), VoidSpecifier()), Opt(fc, StaticSpecifier())), AtomicNamedDeclarator(List(), Id("main"), List()), List(), CompoundStatement(List()))
-
-    val oneComputationResult2 = i.computeDebug2(oneVariableComputation)
-    val twoComputationResult2 = i.computeDebug2(twoVariableComputation)
-    val threeComputationResult2 = i.computeDebug2(threeVariableComputation)
-    val fiveComputationResult2 = i.computeDebug2(fiveVariableComputation)
-
-    println("Amount of feature expressions: " + oneComputationResult2.size + ", in: " + oneComputationResult2)
-    println("Amount of feature expressions: " + twoComputationResult2.size + ", in: " + twoComputationResult2)
-    println("Amount of feature expressions: " + threeComputationResult2.size + ", in: " + threeComputationResult2)
-    println("Amount of feature expressions: " + fiveComputationResult2.size + ", in: " + fiveComputationResult2)
-
-
-    val mixedVariableContradiction = FunctionDef(List(Opt(fa, StaticSpecifier()), Opt(fa.not().and(fb.not()), VoidSpecifier()), Opt(fc.and(fa.not()).and(fb).and(fb.or(fa)), IntSpecifier()), Opt(fa.not().and(fb).and(fc.not().or(fa).or(fb.not())).and(fb.or(fa)), DoubleSpecifier()), Opt(fx, StaticSpecifier())), AtomicNamedDeclarator(List(), Id("main"), List()), List(), CompoundStatement(List()))
-
-    val mixedComputationResult = i.computeDebug2(mixedVariableContradiction)
-
     println("Amount of feature expressions: " + mixedComputationResult.size + ", in: " + mixedComputationResult)
 
-    assert(oneContradictionResult2.size == 2)
-    assert(twoContradictionResult2.size == 3)
-    assert(threeContradictionResult2.size == 4)
-
-    assert(oneComputationResult2.size == 2)
-    assert(twoComputationResult2.size == 4)
-    assert(threeComputationResult2.size == 8)
-    assert(fiveComputationResult2.size == 32)
-
-    assert(mixedComputationResult.size == 8)
     /*val featureList = List(fc.and(fa), fc.and(fa.not().and(fb.not())), fc.and(fa.not().and(fb).and(fb.or(fa))))
     println("C: " + i.debugNextRelevantFeatures(featureList))
     val featureList2 = List(fa, (fa.not().and(fb.not())), fa.not().and(fb).and(fb.or(fa)))
     println(i.debugNextRelevantFeatures(featureList2))
     println((fa.and(fb.not())))*/
-
-    println(ConditionalLib.explodeOptList(threeVariableComputation.specifiers))
-    println(ConditionalLib.explodeOptList(threeVariableContradiction.specifiers))
-    println(ConditionalLib.explodeOptList(fiveVariableComputation.specifiers))
-    val explode = ConditionalLib.explodeOptList(oneVariableComputation.specifiers)
-
   }
 
   @Test def lift_opt2_test() {
@@ -1839,9 +1682,6 @@ val time = tb.getCurrentThreadCpuTime // Type long; beware in nanoseconds */
     println("Eq: " + i1.eq(i2))
     println("Equals: " + i1.equals(i2))
 
-    var lb = ListBuffer(i1, i2, i4)
-    println("LB contains: " + i.eqContains(lb, i4))
-
     val m: util.IdentityHashMap[Product, Product] = new IdentityHashMap()
     m.put(i1, i2)
     println("Map contains: " + m.containsKey(i4))
@@ -1930,5 +1770,18 @@ val time = tb.getCurrentThreadCpuTime // Type long; beware in nanoseconds */
     val source_ast = getAstFromPi(file)
     println(" took: " + (System.currentTimeMillis() - parse_time) + " ms")
     i.analyseDeclarations(source_ast)
+  }
+
+  @Test def feature_explosion() {
+    val a = FeatureExprFactory.createDefinedExternal("A")
+    val b = FeatureExprFactory.createDefinedExternal("B")
+    val c = FeatureExprFactory.createDefinedExternal("C")
+    val context = a.and(b)
+    val typeChefMistake = a.or(b).or(c)
+    val fix = i.fixTypeChefsFeatureExpressions(typeChefMistake, context)
+    println("Wrong: " + typeChefMistake.implies(context).isTautology)
+    println("Right: " + fix.implies(context).isTautology)
+    println("Right: " + fix.implies(FeatureExprFactory.True).isTautology)
+    println("Dafuq: " + fix.mex(fix.not()).isTautology())
   }
 }
