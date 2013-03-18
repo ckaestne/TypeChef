@@ -296,10 +296,10 @@ public class TypeChefVsXtc {
         testFile("pi/blk-core.pi", false, true);
     }
 
-    @Test
-    public void testLinuxPI2() throws LexerException, IOException {
-        testFile("pi/blk-core2.pi", false, true);
-    }
+//    @Test
+//    public void testLinuxPI2() throws LexerException, IOException {
+//        testFile("pi/blk-core2.pi", false, true);
+//    }
 
     /**
      * parses a file and checks the result against the results specified in the

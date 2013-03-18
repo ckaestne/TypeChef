@@ -27,10 +27,10 @@ In all cases, the goal is to detect errors in all possible
 feature combinations, without resorting to a brute-force approach. 
 
 
+<a href="http://ckaestne.github.com/TypeChef/typechef-poster.png"><img alt="TypeChef Poster" src="http://ckaestne.github.com/TypeChef/typechef-poster-small.png" /></a>
+
 Architecture and Subprojects
 ----------------------------
-
-<a href="http://ckaestne.github.com/TypeChef/typechef-poster.png"><img alt="TypeChef Poster" src="http://ckaestne.github.com/TypeChef/typechef-poster-small.png" /></a>
 
 The TypeChef project contains of four main components 
 and several helper libraries.
