@@ -824,7 +824,7 @@ abstract class MultiFeatureParser(val featureModel: FeatureModel = null, debugOu
 
     def matchInput(p: (Elem, FeatureExpr, TypeContext) => Boolean, kind: String) = new AtomicParser[Elem](kind) {
         private def err(e: Option[Elem], ctx: TypeContext) = errorMsg(kind, e, ctx)
-        @tailrec
+        //        @tailrec
         def apply(in: Input, context: FeatureExpr): MultiParseResult[Elem] = {
             val parseResult: MultiParseResult[(Input, Elem)] = next(in, context)
             parseResult.mapfr(context, {
@@ -838,8 +838,7 @@ abstract class MultiFeatureParser(val featureModel: FeatureModel = null, debugOu
                         resultPair._2.countFailure
                         Failure(err(Some(resultPair._2), in.context), resultPair._1, List())
                     }
-                case (_, f: Failure) => f
-                case (_, e: Error) => e
+                case (_, f: NoSuccess) => f
             }).joinNoSuccess
         }
     }.named("matchInput " + kind)
