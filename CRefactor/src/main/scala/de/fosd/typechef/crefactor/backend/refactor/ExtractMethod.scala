@@ -126,6 +126,9 @@ object ExtractMethod extends ASTSelection with Refactor {
           case g: GotoStatement =>
             if (isElementOfSelectionRange(g, selection)) g
             else statement
+          case r: ReturnStatement =>
+            if (isElementOfSelectionRange(r, selection)) r
+            else statement
           case _ => statement
         }
       } catch {
@@ -159,7 +162,7 @@ object ExtractMethod extends ASTSelection with Refactor {
     } else parents = uniqueSelectedExpressions.toArray(Array[Expr]()).toList
 
     cachedSelectedElements = parents.sortWith(comparePosition)
-    logger.info("InlineFuncOptionSelector " + cachedSelectedElements)
+    logger.info("ExtractFuncSelection: " + cachedSelectedElements)
     cachedSelectedElements
   }
 
@@ -174,6 +177,7 @@ object ExtractMethod extends ASTSelection with Refactor {
     if (selectedElements.isEmpty) false
     else if (!selectedElements.par.forall(element => isPartOfAFunction(element, morpheus))) false
     else if (!isPartOfSameCompStmt(selectedElements, morpheus)) false
+    else if (!filterAllASTElems[ReturnStatement](selectedElements, morpheus.getFeatureModel, morpheus.getASTEnv).isEmpty) false
     else if (!selectedElements.par.forall(element => !isBadExtractStatement(element))) false
     // else if (!isConditionalComplete(selectedElements, getParentFunction(selectedElements, morpheus), morpheus)) false // Not Relevant?
     else true
@@ -203,10 +207,52 @@ object ExtractMethod extends ASTSelection with Refactor {
     }
   }
 
+  private def generateParamIds(liveIds: List[Id], selection: List[Opt[_]], morpheus: Morpheus): List[Id] = {
+    liveIds.flatMap(id => {
+      try {
+        // only lookup variables
+        // TODO Refactor & Choices
+        morpheus.getEnv(id).varEnv.lookup(id.name) match {
+          case o@One((CSigned(x), _, _)) =>
+            findPriorASTElem[Declaration](id, morpheus.getASTEnv) match {
+              case Some(_) => Some(id)
+              case x =>
+                logger.debug("Missed " + x)
+                None
+            }
+          case o@One((CStruct(_, _), _, _)) => {
+            findPriorASTElem[Declaration](id, morpheus.getASTEnv) match {
+              case Some(_) => Some(id)
+              case x =>
+                logger.debug("Missed " + x)
+                None
+            }
+          }
+          case o@One((CPointer(x), _, _)) =>
+            findPriorASTElem[Declaration](id, morpheus.getASTEnv) match {
+              case Some(_) => Some(id)
+              case x =>
+                logger.debug("Missed " + x)
+                None
+            }
+          case x =>
+            logger.warn("Missed " + x)
+            logger.debug(morpheus.getEnv(id).varEnv.lookup(id.name))
+            None
+        }
+      } catch {
+        case e: Exception =>
+          logger.warn("No entry found for: " + id)
+          None
+      }
+    }).sortWith(compareByName)
+  }
+
   private def extractStatements(morpheus: Morpheus, selection: List[AST], funcName: String): AST = {
     val parentFunction = getParentFunction(selection, morpheus)
+    val parentFunctionOpt: Opt[FunctionDef] = parentOpt(parentFunction, morpheus.getASTEnv).asInstanceOf[Opt[FunctionDef]]
 
-    val selectedOptStatements = selection.par.map(selected => parentOpt(selected, morpheus.getASTEnv)).toList
+    val selectedOptStatements = selection.par.map(selected => parentOpt(selected, morpheus.getASTEnv)).toList.asInstanceOf[List[Opt[Statement]]].sortWith(comparePosition)
     logger.debug(selectedOptStatements)
 
     /**
@@ -220,22 +266,47 @@ object ExtractMethod extends ASTSelection with Refactor {
 
     val externalUses = externalOccurrences(occurringIds, morpheus.getDeclUseMap())
     val externalDefs = externalOccurrences(occurringIds, morpheus.getUseDeclMap)
+    val allExtRefIds = externalDefs.flatMap(x => Some(x._1))
     val extRefIds = uniqueExtRefIds(externalDefs, externalUses)
     val toDeclare = getIdsToDeclare(externalUses)
+    val paramIds = generateParamIds(extRefIds, selectedOptStatements, morpheus)
+
 
     logger.info("Liveness Analysis: " + (tb.getCurrentThreadCpuTime() - startTime) / 1000000 + " ms")
     logger.debug("ExternalUses: " + externalUses)
     logger.debug("ExternalDecls: " + externalDefs)
     logger.debug("Parameters " + extRefIds)
 
+    // externalUses are currently refused
+    if (!toDeclare.isEmpty) assert(false, "Invalid selection, a declared variable in the selection gets used outside.")
+
     val specifiers = generateSpecifiers(parentFunction, morpheus)
     val parameters = generateParameters(parentFunction, extRefIds, selectedOptStatements, morpheus)
     val declarator = generateDeclarator(funcName, parameters)
-    val newFunc = generateFuncDef(specifiers, declarator, CompoundStatement(List[Opt[Statement]]()))
-    println(PrettyPrinter.print(newFunc))
-    // val funcOpt = generateFuncOpt(parentFunction, newFunc, morpheus)
-    morpheus.getAST
+    val compundStatement = generateCompoundStatement(selectedOptStatements, allExtRefIds, paramIds, morpheus)
+    val newFunc = generateFuncDef(specifiers, declarator, compundStatement)
+    val funcOpt = generateFuncOpt(parentFunction, newFunc, morpheus)
+    // logger.debug("Function: " + PrettyPrinter.print(funcOpt))
+
+    val callParameters = generateFuncCallParameter(paramIds, morpheus)
+    val functionCall = Opt[ExprStatement](funcOpt.feature, ExprStatement(PostfixExpr(Id(funcOpt.entry.getName), FunctionCall(ExprList(callParameters)))))
+    // Keep changes at the AST as local as possible
+    val ccStmt = parentFunctionOpt.entry.stmt
+    val ccStmtWCall = insertInAstBefore(ccStmt.innerStatements, selectedOptStatements.head, functionCall)
+    val ccStmtWCallOStmts = selectedOptStatements.foldLeft(ccStmtWCall)((ast, stmt) => removeFromAST(ast, stmt))
+    val refactoredFunc = parentFunctionOpt.copy(entry = parentFunctionOpt.entry.copy(stmt = ccStmt.copy(innerStatements = ccStmtWCallOStmts)))
+
+    val astWRefFunc = replaceInASTOnceTD(morpheus.getAST, parentOpt(parentFunction, morpheus.getASTEnv), refactoredFunc)
+    val astWFunc = insertInAstBefore(astWRefFunc, refactoredFunc, funcOpt)
+
+    astWFunc
   }
+
+  /**
+   * Generates the parameters requiered in the function stmt.
+   */
+  private def generateFuncCallParameter(params: List[Id], morpheus: Morpheus) = params.foldLeft(List[Opt[Expr]]())((callParams, id) => Opt(parentOpt(id, morpheus.getASTEnv).feature, PointerCreationExpr(Id(id.name))) :: callParams)
+
 
   private def uniqueExtRefIds(defs: List[(Id, List[Id])], uses: List[(Id, List[Id])]) = {
     val parameterIds = Collections.newSetFromMap[Id](new util.IdentityHashMap())
@@ -252,6 +323,25 @@ object ExtractMethod extends ASTSelection with Refactor {
     uses.foreach(id => declarationIds.add(id._1))
 
     declarationIds.toArray(Array[Id]()).toList.sortWith(compareByName)
+  }
+
+
+  private def generateCompoundStatement(statements: List[Opt[Statement]], externalRef: List[Id], parameters: List[Id], morpheus: Morpheus): CompoundStatement = {
+
+    def isPartOfParameter(id: Id, params: List[Id], morpheus: Morpheus): Boolean = {
+      val useDecl = morpheus.getUseDeclMap
+      if (!useDecl.containsKey(id)) false
+      useDecl.get(id).exists(decl => params.exists(param => param.eq(decl)))
+    }
+
+
+    val variables = externalRef.par.flatMap(id => isPartOfParameter(id, parameters, morpheus) match {
+      case true => Some(id)
+      case _ => None
+    }).toList
+    // Make Pointer
+    val statementElements = variables.foldLeft(statements)((stmts, id) => replaceIdInASTWithExpr(stmts, id, PointerDerefExpr(id)))
+    CompoundStatement(statementElements)
   }
 
 

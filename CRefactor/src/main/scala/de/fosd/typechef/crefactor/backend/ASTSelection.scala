@@ -3,6 +3,7 @@ package de.fosd.typechef.crefactor.backend
 import de.fosd.typechef.parser.c.{Id, AST}
 import de.fosd.typechef.crefactor.frontend.util.Selection
 import de.fosd.typechef.crefactor.{Logging, Morpheus}
+import de.fosd.typechef.conditional.Opt
 
 trait ASTSelection extends Logging {
 
@@ -23,6 +24,8 @@ trait ASTSelection extends Logging {
    * Compares the position between two ast elements.
    */
   def comparePosition(e1: AST, e2: AST) = (e1.getPositionFrom < e2.getPositionFrom)
+
+  def comparePosition(e1: Opt[AST], e2: Opt[AST]): Boolean = comparePosition(e1.entry, e2.entry)
 
   /**
    * Checks if an ast element is in a certain range.

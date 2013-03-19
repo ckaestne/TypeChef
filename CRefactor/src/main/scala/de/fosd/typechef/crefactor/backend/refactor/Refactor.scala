@@ -77,9 +77,9 @@ trait Refactor extends CEnvCache with ASTNavigation with ConditionalNavigation {
    */
   def isValidName(name: String): Boolean = (name.matches(VALID_NAME_PATTERN) && !name.startsWith("__") && !isReservedLanguageKeyword(name))
 
-  def generateValidName(id: Id, stmt: Opt[AST], morph: Morpheus, appendix: Int = 1): String = {
+  def generateValidNewName(id: Id, stmt: Opt[AST], morph: Morpheus, appendix: Int = 1): String = {
     val newName = id.name + "_" + appendix
-    if (isShadowed(newName, stmt.entry, morph)) generateValidName(id, stmt, morph, (appendix + 1))
+    if (isShadowed(newName, stmt.entry, morph)) generateValidNewName(id, stmt, morph, (appendix + 1))
     else newName
   }
 
@@ -161,6 +161,20 @@ trait Refactor extends CEnvCache with ASTNavigation with ConditionalNavigation {
     r(t).get.asInstanceOf[T]
   }
 
+  def insertInAstBeforeBU[T <: Product](t: T, mark: Opt[_], insert: List[Opt[_]]): T = {
+    val r = manytd(rule {
+      case l: List[Opt[_]] => l.flatMap(x => if (x.eq(mark)) insert ::: x :: Nil else x :: Nil)
+    })
+    r(t).get.asInstanceOf[T]
+  }
+
+  def insertInAstBeforeBU[T <: Product](t: T, mark: Opt[_], insert: Opt[_]): T = {
+    val r = manytd(rule {
+      case l: List[Opt[_]] => l.flatMap(x => if (x.eq(mark)) insert :: x :: Nil else x :: Nil)
+    })
+    r(t).get.asInstanceOf[T]
+  }
+
   def insertInAstBefore[T <: Product](t: T, mark: Opt[_], insert: List[Opt[_]]): T = {
     val r = oncetd(rule {
       case l: List[Opt[_]] => l.flatMap(x => if (x.eq(mark)) insert ::: x :: Nil else x :: Nil)
@@ -190,6 +204,13 @@ trait Refactor extends CEnvCache with ASTNavigation with ConditionalNavigation {
   }
 
   def replaceInAST[T <: Product](t: T, e: T, n: T): T = {
+    val r = manybu(rule {
+      case i: T => if (i.eq(e)) n else i
+    })
+    r(t).get.asInstanceOf[T]
+  }
+
+  def replaceIdInASTWithExpr[T <: Product](t: T, e: Id, n: Expr): T = {
     val r = manybu(rule {
       case i: T => if (i.eq(e)) n else i
     })
