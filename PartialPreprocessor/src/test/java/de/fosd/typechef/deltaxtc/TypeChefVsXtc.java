@@ -291,10 +291,10 @@ public class TypeChefVsXtc {
         testFile("varargs.c", false, true);
     }
 
-    @Test
-    public void testLinuxPI() throws LexerException, IOException {
-        testFile("pi/blk-core.pi", false, true);
-    }
+//    @Test
+//    public void testLinuxPI() throws LexerException, IOException {
+//        testFile("pi/blk-core.pi", false, true);
+//    }
 
 //    @Test
 //    public void testLinuxPI2() throws LexerException, IOException {
