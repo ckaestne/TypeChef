@@ -2,7 +2,7 @@ package de.fosd.typechef.crefactor.frontend.actions.refactor;
 
 
 import de.fosd.typechef.crefactor.Morpheus;
-import de.fosd.typechef.crefactor.backend.refactor.ExtractMethod;
+import de.fosd.typechef.crefactor.backend.refactor.ExtractFunction;
 import de.fosd.typechef.crefactor.backend.refactor.InlineFunction;
 import de.fosd.typechef.crefactor.backend.refactor.RenameIdentifier;
 import de.fosd.typechef.crefactor.frontend.util.InlineDialog;
@@ -44,7 +44,7 @@ public class RefactorAction {
                 try {
                     final ThreadMXBean tb = ManagementFactory.getThreadMXBean();
                     final long startTime = tb.getCurrentThreadCpuTime();
-                    final AST refactored = ExtractMethod.extract(morpheus, selection, box.getInput());
+                    final AST refactored = ExtractFunction.extract(morpheus, selection, box.getInput());
                     logger.info("Duration for transforming: " + (tb.getCurrentThreadCpuTime() - startTime) / 1000000 + "ms");
                     morpheus.update(refactored);
                 } catch (final AssertionError e) {

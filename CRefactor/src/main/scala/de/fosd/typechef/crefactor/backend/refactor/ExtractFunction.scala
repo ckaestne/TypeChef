@@ -40,7 +40,7 @@ import de.fosd.typechef.typesystem.{CPointer, CStruct, CSigned}
  * Implements the strategy of extracting a function.
  */
 // TODO Replace original ExtractFunction -> Delete and Refactor
-object ExtractMethod extends ASTSelection with Refactor {
+object ExtractFunction extends ASTSelection with Refactor {
 
   private var lastSelection: Selection = null
 
