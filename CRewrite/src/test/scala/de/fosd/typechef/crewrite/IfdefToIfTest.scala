@@ -1579,13 +1579,6 @@ val time = tb.getCurrentThreadCpuTime // Type long; beware in nanoseconds */
     println("+++Pretty printed+++\n" + PrettyPrinter.print(source_ast))
   }
 
-  @Test def pretty_printer_test() {
-    val declaration = Declaration(List(Opt(True, IntSpecifier())), List(Opt(True, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("printf_main"), List(Opt(True, DeclParameterDeclList(List(Opt(True, ParameterDeclarationD(List(Opt(True, IntSpecifier())), AtomicNamedDeclarator(List(), Id("argc"), List()))), Opt(True, ParameterDeclarationD(List(Opt(True, CharSpecifier())), AtomicNamedDeclarator(List(Opt(True, Pointer(List())), Opt(True, Pointer(List()))), Id("argv"), List())))))))), List(Opt(fx, GnuAttributeSpecifier(List(Opt(True, AttributeSequence(List(Opt(fx, AtomicAttribute("visibility")), Opt(fx, CompoundAttribute(List(Opt(True, AttributeSequence(List(Opt(fx, AtomicAttribute("default"))))))))))))))), None))))
-    println("+++Pretty printed+++\n" + PrettyPrinter.print(declaration))
-    val declaration2 = Declaration(List(Opt(True, IntSpecifier())), List(Opt(True, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("printf_main"), List(Opt(True, DeclParameterDeclList(List(Opt(True, ParameterDeclarationD(List(Opt(True, IntSpecifier())), AtomicNamedDeclarator(List(), Id("argc"), List()))), Opt(True, ParameterDeclarationD(List(Opt(True, CharSpecifier())), AtomicNamedDeclarator(List(Opt(True, Pointer(List())), Opt(True, Pointer(List()))), Id("argv"), List())))))))), List(), None))))
-    println("+++Pretty printed+++\n" + PrettyPrinter.print(declaration2))
-  }
-
   @Test def flo_ast_test() {
     val source_ast = getAstFromPi(new File("C:\\users\\flo\\dropbox\\hiwi\\flo\\test\\test2.pi"))
     println(source_ast)
@@ -1764,7 +1757,7 @@ val time = tb.getCurrentThreadCpuTime // Type long; beware in nanoseconds */
 
   @Test def declaration_test() {
     // val file = new File("C:\\users\\flo\\dropbox\\hiwi\\flo\\pifiles\\cdrom.pi")
-    val file = new File("C:\\users\\flo\\dropbox\\hiwi\\busybox\\TypeChef-BusyboxAnalysis\\busybox-1.18.5\\archival\\bbunzip.pi")
+    val file = new File("C:\\users\\flo\\dropbox\\hiwi\\busybox\\TypeChef-BusyboxAnalysis\\busybox-1.18.5\\libbb\\lineedit.pi")
     println("parsing")
     val parse_time = System.currentTimeMillis()
     val source_ast = getAstFromPi(file)
@@ -1782,6 +1775,18 @@ val time = tb.getCurrentThreadCpuTime // Type long; beware in nanoseconds */
     println("Wrong: " + typeChefMistake.implies(context).isTautology)
     println("Right: " + fix.implies(context).isTautology)
     println("Right: " + fix.implies(FeatureExprFactory.True).isTautology)
-    println("Dafuq: " + fix.mex(fix.not()).isTautology())
+  }
+
+  @Test def pretty_printer_test() {
+    val file = new File("C:\\users\\flo\\dropbox\\hiwi\\busybox\\TypeChef-BusyboxAnalysis\\busybox-1.18.5\\applets\\applets.pi")
+    val source_ast = getAstFromPi(file)
+    val newFullFilePath = singleFilePath ++ getFileNameWithoutExtension(file) ++ ".pp"
+
+    new File(singleFilePath).mkdirs()
+    PrettyPrinter.printF(source_ast, newFullFilePath)
+
+    val file2 = new File(newFullFilePath)
+    val source_ast2 = getAstFromPi(file2)
+    typecheckTranslationUnit(source_ast2)
   }
 }
