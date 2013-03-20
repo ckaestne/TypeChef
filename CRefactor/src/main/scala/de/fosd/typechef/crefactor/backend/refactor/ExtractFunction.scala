@@ -3,38 +3,63 @@ package de.fosd.typechef.crefactor.backend.refactor
 import de.fosd.typechef.crefactor.backend.ASTSelection
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.crefactor.frontend.util.Selection
-import de.fosd.typechef.parser.c.PostfixExpr
-import de.fosd.typechef.parser.c.Id
-import de.fosd.typechef.parser.c.Constant
-import de.fosd.typechef.parser.c.ReturnStatement
-import de.fosd.typechef.parser.c.SwitchStatement
-import de.fosd.typechef.parser.c.PointerDerefExpr
-import de.fosd.typechef.parser.c.ElifStatement
-import de.fosd.typechef.parser.c.ExprList
-import scala.Some
-import de.fosd.typechef.parser.c.FunctionDef
-import de.fosd.typechef.parser.c.SizeOfExprU
-import de.fosd.typechef.parser.c.NAryExpr
-import de.fosd.typechef.parser.c.DoStatement
-import de.fosd.typechef.parser.c.PointerCreationExpr
-import de.fosd.typechef.parser.c.AssignExpr
-import de.fosd.typechef.parser.c.CastExpr
-import de.fosd.typechef.parser.c.ConditionalExpr
-import de.fosd.typechef.parser.c.CaseStatement
-import de.fosd.typechef.parser.c.ForStatement
-import de.fosd.typechef.parser.c.IfStatement
-import de.fosd.typechef.parser.c.WhileStatement
-import de.fosd.typechef.parser.c.StringLit
-import de.fosd.typechef.parser.c.SizeOfExprT
-import de.fosd.typechef.parser.c.UnaryOpExpr
-import de.fosd.typechef.parser.c.UnaryExpr
 import java.util
 import de.fosd.typechef.crefactor.Morpheus
 import de.fosd.typechef.crefactor.util.Configuration
-import de.fosd.typechef.conditional.{One, Opt}
 import util.Collections
 import management.ManagementFactory
-import de.fosd.typechef.typesystem.{CPointer, CStruct, CSigned}
+import de.fosd.typechef.typesystem._
+import de.fosd.typechef.parser.c.PostfixExpr
+import de.fosd.typechef.parser.c.ReturnStatement
+import de.fosd.typechef.parser.c.SwitchStatement
+import de.fosd.typechef.typesystem.CSigned
+import de.fosd.typechef.parser.c.AtomicNamedDeclarator
+import de.fosd.typechef.parser.c.InlineSpecifier
+import de.fosd.typechef.parser.c.VolatileSpecifier
+import scala.Some
+import de.fosd.typechef.parser.c.NAryExpr
+import de.fosd.typechef.parser.c.DoStatement
+import de.fosd.typechef.parser.c.ExternSpecifier
+import de.fosd.typechef.parser.c.PointerCreationExpr
+import de.fosd.typechef.parser.c.AssignExpr
+import de.fosd.typechef.parser.c.VoidSpecifier
+import de.fosd.typechef.parser.c.ConditionalExpr
+import de.fosd.typechef.parser.c.FunctionCall
+import de.fosd.typechef.conditional.One
+import de.fosd.typechef.parser.c.RestrictSpecifier
+import de.fosd.typechef.parser.c.ForStatement
+import de.fosd.typechef.parser.c.IfStatement
+import de.fosd.typechef.parser.c.DeclParameterDeclList
+import de.fosd.typechef.parser.c.WhileStatement
+import de.fosd.typechef.parser.c.Pointer
+import de.fosd.typechef.parser.c.SizeOfExprT
+import de.fosd.typechef.parser.c.UnaryOpExpr
+import de.fosd.typechef.parser.c.Declaration
+import de.fosd.typechef.parser.c.ExprStatement
+import de.fosd.typechef.parser.c.Id
+import de.fosd.typechef.parser.c.Constant
+import de.fosd.typechef.parser.c.AutoSpecifier
+import de.fosd.typechef.parser.c.PointerDerefExpr
+import de.fosd.typechef.parser.c.GotoStatement
+import de.fosd.typechef.parser.c.ElifStatement
+import de.fosd.typechef.parser.c.ExprList
+import de.fosd.typechef.parser.c.FunctionDef
+import de.fosd.typechef.parser.c.SizeOfExprU
+import de.fosd.typechef.typesystem.CPointer
+import de.fosd.typechef.parser.c.NestedFunctionDef
+import de.fosd.typechef.parser.c.BreakStatement
+import de.fosd.typechef.parser.c.ContinueStatement
+import de.fosd.typechef.parser.c.ParameterDeclarationD
+import de.fosd.typechef.parser.c.CastExpr
+import de.fosd.typechef.parser.c.CompoundStatement
+import de.fosd.typechef.conditional.Opt
+import de.fosd.typechef.parser.c.CaseStatement
+import de.fosd.typechef.parser.c.RegisterSpecifier
+import de.fosd.typechef.typesystem.CStruct
+import de.fosd.typechef.parser.c.StringLit
+import de.fosd.typechef.parser.c.StaticSpecifier
+import de.fosd.typechef.parser.c.ConstSpecifier
+import de.fosd.typechef.parser.c.UnaryExpr
 
 /**
  * Implements the strategy of extracting a function.
@@ -255,6 +280,8 @@ object ExtractFunction extends ASTSelection with Refactor {
     }
 
   private def generateParamIds(liveIds: List[Id], selection: List[Opt[_]], morpheus: Morpheus): List[Id] = {
+    // def oneParam(one : One[])
+
     liveIds.flatMap(id => {
       try {
         // only lookup variables
@@ -264,14 +291,14 @@ object ExtractFunction extends ASTSelection with Refactor {
             findPriorASTElem[Declaration](id, morpheus.getASTEnv) match {
               case Some(_) => Some(id)
               case x =>
-                logger.debug("Missed " + x)
+                logger.debug("NoDecl for " + x)
                 None
             }
           case o@One((CStruct(_, _), _, _)) => {
             findPriorASTElem[Declaration](id, morpheus.getASTEnv) match {
               case Some(_) => Some(id)
               case x =>
-                logger.debug("Missed " + x)
+                logger.debug("NoDecl for " + x)
                 None
             }
           }
@@ -279,7 +306,14 @@ object ExtractFunction extends ASTSelection with Refactor {
             findPriorASTElem[Declaration](id, morpheus.getASTEnv) match {
               case Some(_) => Some(id)
               case x =>
-                logger.debug("Missed " + x)
+                logger.debug("NoDecl for " + x)
+                None
+            }
+          case o@One((CUnsigned(x), _, _)) =>
+            findPriorASTElem[Declaration](id, morpheus.getASTEnv) match {
+              case Some(_) => Some(id)
+              case x =>
+                logger.debug("NoDecl for " + x)
                 None
             }
           case x =>
@@ -471,37 +505,52 @@ object ExtractFunction extends ASTSelection with Refactor {
     }
 
     var declarations = List[Opt[ParameterDeclaration]]()
+
+    def addOne(entry: One[_], param: Id) = {
+      entry match {
+        case o@One((CSigned(x), _, _)) =>
+          // logger.debug("CSignedentry for  " + param + " " + x)
+          val decl = findPriorASTElem[Declaration](param, morpheus.getASTEnv)
+          decl match {
+            case Some(_) => declarations ::= Opt(parentOpt(param, morpheus.getASTEnv).feature, ParameterDeclarationD(decl.get.declSpecs, generateInit(decl.get, param)))
+            case x => //logger.debug("Missed " + x)
+          }
+        case o@One((CStruct(_, _), _, _)) => {
+          // logger.debug("Struct" + findPriorASTElem[Declaration](param, morpheus.getASTEnv))
+          val decl = findPriorASTElem[Declaration](param, morpheus.getASTEnv)
+          decl match {
+            case Some(_) =>
+              // logger.debug(Opt(parentOpt(param, morpheus.getASTEnv).feature, ParameterDeclarationD(decl.get.declSpecs, generateInit(decl.get, param))))
+              declarations ::= Opt(parentOpt(param, morpheus.getASTEnv).feature, ParameterDeclarationD(decl.get.declSpecs, generateInit(decl.get, param)))
+            case x => // logger.debug("Missed " + x)
+          }
+        }
+        case o@One((CPointer(x), _, _)) =>
+          // logger.debug("CPointer for  " + param + " " + x)
+          val decl = findPriorASTElem[Declaration](param, morpheus.getASTEnv)
+          decl match {
+            case Some(_) => declarations ::= Opt(parentOpt(param, morpheus.getASTEnv).feature, ParameterDeclarationD(decl.get.declSpecs, generateInit(decl.get, param)))
+            case x => // logger.debug("Missed " + x)
+          }
+        case o@One((CUnsigned(x), _, _)) =>
+          val decl = findPriorASTElem[Declaration](param, morpheus.getASTEnv)
+          decl match {
+            case Some(_) => declarations ::= Opt(parentOpt(param, morpheus.getASTEnv).feature, ParameterDeclarationD(decl.get.declSpecs, generateInit(decl.get, param)))
+            case x => // logger.debug("Missed " + x)
+          }
+        case x => logger.debug("Missed pattern: " + x)
+      }
+
+    }
+
     params.foreach(param => {
       try {
         // only lookUp variables
         // TODO Refactor & Choices
         morpheus.getEnv(param).varEnv.lookup(param.name) match {
-          case o@One((CSigned(x), _, _)) =>
-            // logger.debug("CSignedentry for  " + param + " " + x)
-            val decl = findPriorASTElem[Declaration](param, morpheus.getASTEnv)
-            decl match {
-              case Some(_) => declarations ::= Opt(parentOpt(param, morpheus.getASTEnv).feature, ParameterDeclarationD(decl.get.declSpecs, generateInit(decl.get, param)))
-              case x => //logger.debug("Missed " + x)
-            }
-          case o@One((CStruct(_, _), _, _)) => {
-            // logger.debug("Struct" + findPriorASTElem[Declaration](param, morpheus.getASTEnv))
-            val decl = findPriorASTElem[Declaration](param, morpheus.getASTEnv)
-            decl match {
-              case Some(_) =>
-                // logger.debug(Opt(parentOpt(param, morpheus.getASTEnv).feature, ParameterDeclarationD(decl.get.declSpecs, generateInit(decl.get, param))))
-                declarations ::= Opt(parentOpt(param, morpheus.getASTEnv).feature, ParameterDeclarationD(decl.get.declSpecs, generateInit(decl.get, param)))
-              case x => // logger.debug("Missed " + x)
-            }
-          }
-          case o@One((CPointer(x), _, _)) =>
-            // logger.debug("CPointer for  " + param + " " + x)
-            val decl = findPriorASTElem[Declaration](param, morpheus.getASTEnv)
-            decl match {
-              case Some(_) => declarations ::= Opt(parentOpt(param, morpheus.getASTEnv).feature, ParameterDeclarationD(decl.get.declSpecs, generateInit(decl.get, param)))
-              case x => // logger.debug("Missed " + x)
-            }
+          case o@One(_) => addOne(o, param)
           case x =>
-          // logger.warn("Missed " + x)
+            logger.warn("Missed pattern choice? " + x)
           // logger.debug(morpheus.getEnv(param).varEnv.lookup(param.name))
         }
       } catch {
