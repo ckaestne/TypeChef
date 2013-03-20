@@ -8,6 +8,7 @@ import de.fosd.typechef.conditional.Opt
 import java.util
 import de.fosd.typechef.lexer.FeatureExprLib
 import java.io.InputStreamReader
+import util.Collections
 
 class ConsistencyTest {
     def parseFile(fileName: String, featureModel: FeatureModel) {
@@ -15,7 +16,7 @@ class ConsistencyTest {
         assertNotNull("file not found " + fileName, inputStream)
         val p = new CParser(featureModel)
         val result = p.translationUnit(
-            CLexer.lexStream(inputStream, fileName, "testfiles/boa/", featureModel), FeatureExprFactory.True)
+            CLexer.lexStream(inputStream, fileName,Collections.singletonList("testfiles/boa/"), featureModel), FeatureExprFactory.True)
 
         println("parsing done.")
 

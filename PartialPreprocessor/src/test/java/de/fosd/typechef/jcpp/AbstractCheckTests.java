@@ -1,18 +1,21 @@
 package de.fosd.typechef.jcpp;
 
+import de.fosd.typechef.LexerToken;
+import de.fosd.typechef.VALexer;
 import de.fosd.typechef.featureexpr.FeatureExpr;
 import de.fosd.typechef.lexer.*;
-import de.fosd.typechef.lexer.macrotable.MacroContext$;
+import de.fosd.typechef.lexer.macrotable.MacroFilter;
 import junit.framework.Assert;
 
 import java.io.*;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
 public class AbstractCheckTests {
 
-    private Preprocessor pp;
+    private VALexer pp;
 
     public AbstractCheckTests() {
         super();
@@ -41,17 +44,19 @@ public class AbstractCheckTests {
 
         InputStream inputStream = getClass().getResourceAsStream(
                 "/" + folder + filename);
+        URL inputURI = getClass().getResource(
+                "/" + folder + filename);
         if (inputStream == null) {
             throw new FileNotFoundException("Input file not found: " + filename);
         }
 
-        List<Token> output = null;
+        List<LexerToken> output = null;
         String error = null;
         LexerException ex = null;
         try {
             //getResource() returns an URL containing escapes. toURI().getPath() is needed to unescape them.
             //Otherwise one gets a path where, e.g., spaces are represented by %20!
-            output = parse(new FileLexerSource(inputStream, folder + filename),
+            output = lex(new VALexer.StreamSource(inputStream, inputURI.getFile()),
                     debug, getClass().getResource("/" + folder).toURI().getPath(), ignoreWarning);
         } catch (LexerException e) {
             ex = e;
@@ -67,13 +72,13 @@ public class AbstractCheckTests {
 
     }
 
-    protected String parseCodeFragment(String code) throws LexerException,
+    protected String preprocessCodeFragment(String code) throws LexerException,
             IOException {
-        return serialize(parse(new StringLexerSource(code, true), false, null, false));
+        return serialize(lex(new VALexer.TextSource(code), false, null, false));
     }
 
     private boolean check(String filename, String folder,
-                          List<Token> tokenStream, String errorMsg)
+                          List<LexerToken> tokenStream, String errorMsg)
             throws FileNotFoundException, IOException {
         boolean containsErrorCheck = false;
         InputStream inputStream = getClass().getResourceAsStream(
@@ -135,7 +140,7 @@ public class AbstractCheckTests {
                 FeatureExpr expectedExpr = parseFeatureExpr(expectedFeature);
                 boolean foundToken = false;
 
-                for (Token t : tokenStream) {
+                for (LexerToken t : tokenStream) {
                     if (t.getText().equals(expectedName)) {
                         foundToken = true;
                         // expect equivalent presence conditions
@@ -166,7 +171,7 @@ public class AbstractCheckTests {
 
     private FeatureExpr parseFeatureExpr(String expectedFeature) {
         try {
-            return new Preprocessor(new StringLexerSource(expectedFeature
+            return new Preprocessor(new MacroFilter(), new StringLexerSource(expectedFeature
                     + "\n"), null).parse_featureExpr();
         } catch (IOException e) {
             e.printStackTrace();
@@ -182,17 +187,18 @@ public class AbstractCheckTests {
             pp.debugPreprocessorDone();
     }
 
-    private List<Token> parse(Source source, boolean debug, String folder, final boolean ignoreWarnings)
+    private List<LexerToken> lex(VALexer.LexerInput source, boolean debug, String folder, final boolean ignoreWarnings)
             throws LexerException, IOException {
         // XXX Why here? And isn't the whole thing duplicated from elsewhere?
-        MacroContext$.MODULE$.setPrefixFilter("CONFIG_");
 
-        pp = new Preprocessor();
+
+        pp = new Preprocessor(new MacroFilter().setPrefixFilter("CONFIG_"), null);
         pp.addFeature(Feature.DIGRAPHS);
         pp.addFeature(Feature.TRIGRAPHS);
         pp.addFeature(Feature.LINEMARKERS);
         pp.addFeature(Feature.GNUCEXTENSIONS);
-        pp.addWarnings(Warning.allWarnings());
+        for (Warning w : Warning.allWarnings())
+            pp.addWarning(w);
         pp.setListener(new PreprocessorListener(pp) {
             @Override
             public void handleWarning(Source source, int line, int column,
@@ -207,16 +213,16 @@ public class AbstractCheckTests {
 
         // include path
         if (folder != null)
-            pp.getSystemIncludePath().add(folder);
+            pp.addSystemIncludePath(folder);
 
         pp.addInput(source);
 
-        List<Token> output = new ArrayList<Token>();
+        List<LexerToken> output = new ArrayList<LexerToken>();
         for (; ; ) {
-            Token tok = pp.getNextToken();
+            LexerToken tok = pp.getNextToken();
             if (tok == null)
                 break;
-            if (tok.getType() == Token.EOF)
+            if (tok.isEOF())
                 break;
 
             output.add(tok);
@@ -226,11 +232,11 @@ public class AbstractCheckTests {
         return output;
     }
 
-    private String serialize(List<Token> tokenstream) {
+    private String serialize(List<LexerToken> tokenstream) {
         StringWriter strWriter = new StringWriter();
         PrintWriter writer = new PrintWriter(strWriter);
         if (tokenstream != null)
-            for (Token t : tokenstream)
+            for (LexerToken t : tokenstream)
                 t.lazyPrint(writer);
         return strWriter.getBuffer().toString();
     }

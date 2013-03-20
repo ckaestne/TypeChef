@@ -50,10 +50,18 @@ class TokenSequenceToken extends Token {
     }
 
     @Override
+    public void setLine(int Line) {
+        line=Line;
+    }
+
+    @Override
     public Source getSource() {
         return source;
     }
-
+    @Override
+    public String getSourceName() {
+        return source.toString();
+    }
     @Override
     public String getText() {
         StringWriter strWriter = new StringWriter();
@@ -91,7 +99,7 @@ class TokenSequenceToken extends Token {
     }
 
     @Override
-    void setLocation(int line, int column) {
+    public void setLocation(int line, int column) {
         firstToken().setLocation(line, column);
     }
 

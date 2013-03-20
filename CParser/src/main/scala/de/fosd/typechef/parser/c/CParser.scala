@@ -1,6 +1,5 @@
 package de.fosd.typechef.parser.c
 
-import de.fosd.typechef.lexer.Token
 
 import de.fosd.typechef.parser._
 import de.fosd.typechef.conditional._
@@ -13,13 +12,14 @@ import de.fosd.typechef.featureexpr.{FeatureModel, FeatureExpr}
  */
 
 class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = false) extends MultiFeatureParser(featureModel, debugOutput) {
-    type Elem = TokenWrapper
+    type Elem = CToken
+    type AbstractToken = CToken
     type TypeContext = CTypeContext
 
-    def parse[T](code: String, mainProduction: (TokenReader[TokenWrapper, CTypeContext], FeatureExpr) => MultiParseResult[T]): MultiParseResult[T] =
+    def parse[T](code: String, mainProduction: (TokenReader[AbstractToken, CTypeContext], FeatureExpr) => MultiParseResult[T]): MultiParseResult[T] =
         mainProduction(CLexer.lex(code, featureModel), True)
 
-    def parseAny(code: String, mainProduction: (TokenReader[TokenWrapper, CTypeContext], FeatureExpr) => MultiParseResult[Any]): MultiParseResult[Any] =
+    def parseAny(code: String, mainProduction: (TokenReader[AbstractToken, CTypeContext], FeatureExpr) => MultiParseResult[Any]): MultiParseResult[Any] =
         mainProduction(CLexer.lex(code, featureModel), True)
 
     //parser
@@ -345,7 +345,7 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = false) e
         case _ ~ e ~ _ => CaseStatement(e)
     })
         | (textToken("default") ~! COLON ^^ {
-      case _ => DefaultStatement()
+        case _ => DefaultStatement()
     })
         //// Selection statements:
         | (textToken("if") ~! LPAREN ~ (expr !) ~ RPAREN ~ statement ~
@@ -407,7 +407,7 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = false) e
     def additiveExpr: MultiParser[Expr] = nAryExpr(multExpr, PLUS | MINUS)
     def multExpr: MultiParser[Expr] = nAryExpr(castExpr, STAR | DIV | MOD)
 
-    def nAryExpr(innerExpr: MultiParser[Expr], operations: MultiParser[TokenWrapper]) =
+    def nAryExpr(innerExpr: MultiParser[Expr], operations: MultiParser[AbstractToken]) =
         innerExpr ~! repOpt(operations ~ innerExpr ^^ {
             case t ~ e => NArySubExpr(t.getText, e)
         }) ^^ {
@@ -575,20 +575,19 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = false) e
         t => Id(t.getText)
     }
 
-    def isIdentifier(token: TokenWrapper) = token.isIdentifier &&
-        !keywords.contains(token.getText)
+    def isIdentifier(token: AbstractToken) = token.isKeywordOrIdentifier && !keywords.contains(token.getText)
 
     def stringConst: MultiParser[StringLit] =
-        (rep1(token("string literal", _.getType == Token.STRING))
+        (rep1(token("string literal", _.isString))
             ^^ {
-            (list: List[Opt[TokenWrapper]]) => StringLit(list.map(o => Opt(o.feature, o.entry.getText)))
+            (list: List[Opt[AbstractToken]]) => StringLit(list.map(o => Opt(o.feature, o.entry.getText)))
         })
 
     def numConst: MultiParser[Constant] =
         ((token("number", _.isInteger) ^^ {
             t => Constant(t.getText)
         })
-            | (token("charConst", _.getType == Token.CHARACTER) ^^ {
+            | (token("charConst", _.isCharacter) ^^ {
             t => Constant(t.getText)
         }))
 

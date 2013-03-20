@@ -1,9 +1,9 @@
 #ifndef HEADER_FILE
 	#define HEADER_FILE
-#include <h1.h>
+#include "h1.h"
 
 this is the header
 
-#include <header.h>
+#include "header.h"
 
 #endif

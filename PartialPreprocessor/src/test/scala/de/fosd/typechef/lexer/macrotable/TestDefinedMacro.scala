@@ -46,8 +46,7 @@ class TestDefinedMacro extends TestCase {
 
     @Test
     def testMacroTable2() {
-        var macroTable = new MacroContext[String]()
-        MacroContext.setPostfixFilter("_")
+        var macroTable = new MacroContext[String](new MacroFilter().setPostfixFilter("_"))
 
         assertEquiv(x, macroTable.getMacroCondition("X"))
         macroTable = macroTable.undefine("X", b)
