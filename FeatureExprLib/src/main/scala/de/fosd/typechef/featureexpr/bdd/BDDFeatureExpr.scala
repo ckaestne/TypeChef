@@ -1,11 +1,9 @@
 package de.fosd.typechef.featureexpr.bdd
 
 import de.fosd.typechef.featureexpr._
-import scala.collection.mutable.{ WeakHashMap, Map}
 import bdd.FExprBuilder._
-import java.io.Writer
 import net.sf.javabdd._
-import collection.mutable.{HashMap, WeakHashMap, Map}
+import collection.mutable.{WeakHashMap, Map}
 import de.fosd.typechef.featureexpr._
 import annotation.tailrec
 
@@ -151,27 +149,27 @@ class BDDFeatureExpr(private[featureexpr] val bdd: BDD) extends FeatureExpr {
     // Be careful if that changes, though.
     override def equiv(that: FeatureExpr) = FExprBuilder.biimp(this, asBDDFeatureExpr(that))
 
-    def getSatisfiableAssignment(featureModel: FeatureModel, interestingFeatures : Set[SingleFeatureExpr], preferDisabledFeatures:Boolean): Option[Pair[List[SingleFeatureExpr],List[SingleFeatureExpr]]] = {
+    def getSatisfiableAssignment(featureModel: FeatureModel, interestingFeatures: Set[SingleFeatureExpr], preferDisabledFeatures: Boolean): Option[Pair[List[SingleFeatureExpr], List[SingleFeatureExpr]]] = {
         val fm = asBDDFeatureModel(featureModel)
         // optimization: if the interestingFeatures-Set is empty and this FeatureExpression is TRUE, we will always return empty sets
         // here we assume that the featureModel is satisfiable (which is checked at FM-instantiation)
         if (this.bdd.equals(TRUE) && interestingFeatures.isEmpty) {
-            return Some(Pair(List(),List())) // is satisfiable, but no interesting features in solution
+            return Some(Pair(List(), List())) // is satisfiable, but no interesting features in solution
         }
         val bddDNF = toDnfClauses(toScalaAllSat((bdd and fm.extraConstraints.bdd).not().allsat()))
         // get one satisfying assignment (a list of features set to true, and a list of features set to false)
-        val assignment : Option[(List[String], List[String])] = SatSolver.getSatAssignment(fm, bddDNF, FExprBuilder.lookupFeatureName)
+        val assignment: Option[(List[String], List[String])] = SatSolver.getSatAssignment(fm, bddDNF, FExprBuilder.lookupFeatureName)
         // we will subtract from this set until all interesting features are handled
         // the result will only contain interesting features. Even parts of this expression will be omitted if uninteresting.
         var remainingInterestingFeatures = interestingFeatures
         assignment match {
             case Some(Pair(trueFeatures, falseFeatures)) => {
                 if (preferDisabledFeatures) {
-                    var enabledFeatures : Set[SingleFeatureExpr] = Set()
+                    var enabledFeatures: Set[SingleFeatureExpr] = Set()
                     for (f <- trueFeatures) {
-                        val elem = remainingInterestingFeatures.find({fex:SingleFeatureExpr => fex.feature.equals(f)})
+                        val elem = remainingInterestingFeatures.find({ fex: SingleFeatureExpr => fex.feature.equals(f) })
                         elem match {
-                            case Some(fex : SingleFeatureExpr) => {
+                            case Some(fex: SingleFeatureExpr) => {
                                 remainingInterestingFeatures -= fex
                                 enabledFeatures += fex
                             }
@@ -180,18 +178,18 @@ class BDDFeatureExpr(private[featureexpr] val bdd: BDD) extends FeatureExpr {
                     }
                     return Some(enabledFeatures.toList, remainingInterestingFeatures.toList)
                 } else {
-                    var disabledFeatures : Set[SingleFeatureExpr] = Set()
+                    var disabledFeatures: Set[SingleFeatureExpr] = Set()
                     for (f <- falseFeatures) {
-                        val elem = remainingInterestingFeatures.find({fex:SingleFeatureExpr => fex.feature.equals(f)})
+                        val elem = remainingInterestingFeatures.find({ fex: SingleFeatureExpr => fex.feature.equals(f) })
                         elem match {
-                            case Some(fex : SingleFeatureExpr) => {
+                            case Some(fex: SingleFeatureExpr) => {
                                 remainingInterestingFeatures -= fex
                                 disabledFeatures += fex
                             }
                             case None => {}
                         }
                     }
-                    return Some(remainingInterestingFeatures.toList,disabledFeatures.toList)
+                    return Some(remainingInterestingFeatures.toList, disabledFeatures.toList)
                 }
             }
             case None => return None
@@ -294,10 +292,10 @@ class BDDFeatureExpr(private[featureexpr] val bdd: BDD) extends FeatureExpr {
     def collectDistinctFeatures: Set[String] =
         collectDistinctFeatureIds.map(FExprBuilder lookupFeatureName _)
 
-  def collectDistinctFeatureObjects: Set[SingleFeatureExpr] =
-      collectDistinctFeatureIds.map({
-          id: Int => new SingleBDDFeatureExpr(id)
-      })
+    def collectDistinctFeatureObjects: Set[SingleFeatureExpr] =
+        collectDistinctFeatureIds.map({
+            id: Int => new SingleBDDFeatureExpr(id)
+        })
 
     /**
      * counts the number of features in this expression for statistic
@@ -305,24 +303,24 @@ class BDDFeatureExpr(private[featureexpr] val bdd: BDD) extends FeatureExpr {
      */
     def countDistinctFeatures: Int = collectDistinctFeatureIds.size
     def evaluate(selectedFeatures: Set[String]): Boolean = FExprBuilder.evalBdd(bdd, selectedFeatures)
-    def getConfIfSimpleAndExpr() : Option[(Set[SingleFeatureExpr],Set[SingleFeatureExpr])] = {
+    def getConfIfSimpleAndExpr(): Option[(Set[SingleFeatureExpr], Set[SingleFeatureExpr])] = {
         // this should be no simpleBDDFeatureExpr, because there the function is inherited from SingleFeatureExpr
-        assert(! this.isInstanceOf[SingleFeatureExpr])
-        var enabled : Set[SingleFeatureExpr] = Set()
-        var disabled : Set[SingleFeatureExpr] = Set()
-        def isTrue(x:BDD) = x.isOne
-        def isFalse(x:BDD) = x.isZero
+        assert(!this.isInstanceOf[SingleFeatureExpr])
+        var enabled: Set[SingleFeatureExpr] = Set()
+        var disabled: Set[SingleFeatureExpr] = Set()
+        def isTrue(x: BDD) = x.isOne
+        def isFalse(x: BDD) = x.isZero
 
-        var currentBDD : BDD = this.bdd
-        while (! isTrue(currentBDD)) {
+        var currentBDD: BDD = this.bdd
+        while (!isTrue(currentBDD)) {
             if (isFalse(currentBDD)) {
                 // unsatisfiable
                 return None
             }
             // bdd.var should be the same int as in lookup-functions, hopefully
             val predicate = new SingleBDDFeatureExpr(currentBDD.`var`())
-            val thenbranch:BDD = currentBDD.high()
-            val elsebranch:BDD = currentBDD.low()
+            val thenbranch: BDD = currentBDD.high()
+            val elsebranch: BDD = currentBDD.low()
             if (isFalse(elsebranch)) {
                 enabled += predicate
                 currentBDD = thenbranch
@@ -334,26 +332,26 @@ class BDDFeatureExpr(private[featureexpr] val bdd: BDD) extends FeatureExpr {
                 return None
             }
         }
-        return Some(enabled,disabled)
+        return Some(enabled, disabled)
     }
-def getConfIfSimpleOrExpr() : Option[(Set[SingleFeatureExpr],Set[SingleFeatureExpr])] = {
+    def getConfIfSimpleOrExpr(): Option[(Set[SingleFeatureExpr], Set[SingleFeatureExpr])] = {
         // this should be no simpleBDDFeatureExpr, because there the function is inherited from SingleFeatureExpr
-        assert(! this.isInstanceOf[SingleFeatureExpr])
-        var enabled : Set[SingleFeatureExpr] = Set()
-        var disabled : Set[SingleFeatureExpr] = Set()
-        def isTrue(x:BDD) = x.isOne
-        def isFalse(x:BDD) = x.isZero
+        assert(!this.isInstanceOf[SingleFeatureExpr])
+        var enabled: Set[SingleFeatureExpr] = Set()
+        var disabled: Set[SingleFeatureExpr] = Set()
+        def isTrue(x: BDD) = x.isOne
+        def isFalse(x: BDD) = x.isZero
 
-        var currentBDD : BDD = this.bdd
-        while (! isFalse(currentBDD)) {
+        var currentBDD: BDD = this.bdd
+        while (!isFalse(currentBDD)) {
             if (isTrue(currentBDD)) {
                 // this is a tautology, but i have problems expressing it
                 return None
             }
             // bdd.var should be the same int as in lookup-functions, hopefully
             val predicate = new SingleBDDFeatureExpr(currentBDD.`var`())
-            val thenbranch:BDD = currentBDD.high()
-            val elsebranch:BDD = currentBDD.low()
+            val thenbranch: BDD = currentBDD.high()
+            val elsebranch: BDD = currentBDD.low()
             if (isTrue(thenbranch)) {
                 enabled += predicate
                 currentBDD = elsebranch
@@ -365,11 +363,11 @@ def getConfIfSimpleOrExpr() : Option[(Set[SingleFeatureExpr],Set[SingleFeatureEx
                 return None
             }
         }
-        return Some(enabled,disabled)
+        return Some(enabled, disabled)
     }
 }
 
-class SingleBDDFeatureExpr(id:Int) extends BDDFeatureExpr(lookupFeatureBDD(id)) with SingleFeatureExpr {
+class SingleBDDFeatureExpr(id: Int) extends BDDFeatureExpr(lookupFeatureBDD(id)) with SingleFeatureExpr {
     def feature = lookupFeatureName(id)
 }
 
@@ -390,7 +388,7 @@ private[bdd] object FExprBuilder {
 
 
     val bddCacheSize = 100000
-    var bddValNum = 4194304
+    var bddValNum: Int = 524288 / 2
     var bddVarNum = 100
     var maxFeatureId = 0
     //start with one, so we can distinguish -x and x for sat solving and tostring
@@ -400,7 +398,7 @@ private[bdd] object FExprBuilder {
     } catch {
         case e: OutOfMemoryError =>
             println("running with low memory. consider increasing heap size.")
-            var bddValNum = 524288
+            bddValNum = 524288
             bddFactory = BDDFactory.init(bddValNum, bddCacheSize)
     }
     bddFactory.setIncreaseFactor(.5) //50% increase each time
@@ -442,13 +440,13 @@ private[bdd] object FExprBuilder {
     }
 
     def containsFeatureID(id: Int): Boolean = featureNames.contains(id)
-    def lookupFeatureName(id: Int): String = {if (featureNames.contains(id)) featureNames(id) else "unknown"}
+    def lookupFeatureName(id: Int): String = { if (featureNames.contains(id)) featureNames(id) else "unknown" }
     def lookupFeatureID(name: String): Int = {
-      if (! featureIds.contains(name))
-        definedExternal(name)
-      featureIds(name)
+        if (!featureIds.contains(name))
+            definedExternal(name)
+        featureIds(name)
     }
-  private[bdd] def lookupFeatureBDD(id: Int): BDD = featureBDDs(id)
+    private[bdd] def lookupFeatureBDD(id: Int): BDD = featureBDDs(id)
 
     //create a macro definition (which expands to the current entry in the macro table; the current entry is stored in a closure-like way).
     //a form of caching provided by MacroTable, which we need to repeat here to create the same FeatureExpr object
@@ -466,7 +464,7 @@ private[bdd] object FExprBuilder {
             val featureId = bdd.`var`()
             val featureName = featureNames(featureId)
             evalBdd(if (set contains featureName) bdd.high() else bdd.low(), set)
-    }
+        }
 }
 
 
