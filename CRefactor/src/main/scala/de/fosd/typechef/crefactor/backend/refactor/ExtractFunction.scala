@@ -6,7 +6,7 @@ import de.fosd.typechef.crefactor.frontend.util.Selection
 import java.util
 import de.fosd.typechef.crefactor.Morpheus
 import de.fosd.typechef.crefactor.util.Configuration
-import util.Collections
+import util.{IdentityHashMap, Collections}
 import management.ManagementFactory
 import de.fosd.typechef.typesystem._
 import de.fosd.typechef.parser.c.PostfixExpr
@@ -25,7 +25,7 @@ import de.fosd.typechef.parser.c.AssignExpr
 import de.fosd.typechef.parser.c.VoidSpecifier
 import de.fosd.typechef.parser.c.ConditionalExpr
 import de.fosd.typechef.parser.c.FunctionCall
-import de.fosd.typechef.conditional.One
+import de.fosd.typechef.conditional.{Choice, One, Opt}
 import de.fosd.typechef.parser.c.RestrictSpecifier
 import de.fosd.typechef.parser.c.ForStatement
 import de.fosd.typechef.parser.c.IfStatement
@@ -52,7 +52,6 @@ import de.fosd.typechef.parser.c.ContinueStatement
 import de.fosd.typechef.parser.c.ParameterDeclarationD
 import de.fosd.typechef.parser.c.CastExpr
 import de.fosd.typechef.parser.c.CompoundStatement
-import de.fosd.typechef.conditional.Opt
 import de.fosd.typechef.parser.c.CaseStatement
 import de.fosd.typechef.parser.c.RegisterSpecifier
 import de.fosd.typechef.typesystem.CStruct
@@ -60,6 +59,7 @@ import de.fosd.typechef.parser.c.StringLit
 import de.fosd.typechef.parser.c.StaticSpecifier
 import de.fosd.typechef.parser.c.ConstSpecifier
 import de.fosd.typechef.parser.c.UnaryExpr
+import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
 
 /**
  * Implements the strategy of extracting a function.
@@ -244,34 +244,158 @@ object ExtractFunction extends ASTSelection with Refactor {
     val allExtRefIds = externalDefs.flatMap(x => Some(x._1))
     val extRefIds = uniqueExtRefIds(externalDefs, externalUses)
     val toDeclare = getIdsToDeclare(externalUses)
-    val paramIds = generateParamIds(extRefIds, selectedOptStatements, morpheus)
+
+    // externalUses of selected Decls are currently refused
+    if (!toDeclare.isEmpty) assert(false, "Invalid selection, a declared variable in the selection gets used outside.")
+    val paramIds = getParamterIds(extRefIds, morpheus)
 
     logger.info("Liveness Analysis: " + (tb.getCurrentThreadCpuTime() - startTime) / 1000000 + " ms")
     logger.debug("ExternalUses: " + externalUses)
     logger.debug("ExternalDecls: " + externalDefs)
     logger.debug("Parameters " + extRefIds)
 
-    // externalUses are currently refused
-    if (!toDeclare.isEmpty) assert(false, "Invalid selection, a declared variable in the selection gets used outside.")
+
 
     val specifiers = generateSpecifiers(parentFunction, morpheus)
-    val parameters = generateParameters(parentFunction, extRefIds, selectedOptStatements, morpheus)
+    val parameters = getParameterDecls(extRefIds, parentFunction, morpheus)
+    // For not expected behaviour of pretty printer...
+    /** val funcOpts = parameters.foldLeft(List[Opt[FunctionDef]]())((fDefs, funcParams) => {
+      val declarator = generateDeclarator(funcName, List(funcParams))
+      val compundStatement = generateCompoundStatement(selectedOptStatements, allExtRefIds, paramIds, morpheus)
+      val newFunc = generateFuncDef(specifiers, declarator, compundStatement)
+      val funcOpt = generateFuncOpt(parentFunction, newFunc, morpheus, funcParams.feature)
+      fDefs ::: List(funcOpt)
+    }) */
     val declarator = generateDeclarator(funcName, parameters)
     val compundStatement = generateCompoundStatement(selectedOptStatements, allExtRefIds, paramIds, morpheus)
     val newFunc = generateFuncDef(specifiers, declarator, compundStatement)
     val funcOpt = generateFuncOpt(parentFunction, newFunc, morpheus)
-    val callParameters = generateFuncCallParameter(paramIds, morpheus)
+
+    val callParameters = generateFuncCallParameter(extRefIds, morpheus)
     val functionCall = Opt[ExprStatement](funcOpt.feature, ExprStatement(PostfixExpr(Id(funcOpt.entry.getName), FunctionCall(ExprList(callParameters)))))
 
     // Keep changes at the AST as local as possible
+    //val insertCall2 = funcOpts.foldLeft()
     val insertedCall = insertBefore(compStmt.innerStatements, selectedOptStatements.head, functionCall)
     val ccStmtWithRemovedStmts = eqRemove(insertedCall, selectedOptStatements)
+    // val astWFunc = funcOpts.foldLeft(morpheus.getAST)((ast, func) => insertInAstBefore(ast, parentFunctionOpt, func))
     val astWFunc = insertInAstBefore(morpheus.getAST, parentFunctionOpt, funcOpt)
 
     val refAST = replaceInAST(astWFunc, compStmt, compStmt.copy(innerStatements = ccStmtWithRemovedStmts))
     refAST
   }
 
+  private def getParamterIds(liveParamIds: List[Id], morpheus: Morpheus) = retrieveParameters(liveParamIds, morpheus).flatMap(entry => Some(entry._3))
+
+  private def getParameterDecls(liveParamIds: List[Id], funcDef: FunctionDef, morpheus: Morpheus) = {
+    val decls = retrieveParameters(liveParamIds, morpheus).flatMap(entry => Some(entry._1))
+    /*Workaround for missing choices and bad behaviour of the prettyPrinter
+    val features = decls.foldLeft(List[FeatureExpr]())((l, decl) => {
+      if (!l.exists(f => f.equivalentTo(decl.feature))) l ::: List(decl.feature) else l
+    })
+    val declsFeature = features.foldLeft(List[Opt[DeclaratorExtension]]())((l, feature) => {
+      val nDecls = decls.foldLeft(List[Opt[ParameterDeclaration]]())((nl, entry) => if ((feature.implies(entry.feature).isTautology())) (nl ::: List(entry)) else nl)
+      l ::: List[Opt[DeclaratorExtension]](Opt(parentOpt(funcDef, morpheus.getASTEnv).feature.and(feature), DeclParameterDeclList(nDecls)))
+    })
+    declsFeature */
+    List[Opt[DeclaratorExtension]](Opt(parentOpt(funcDef, morpheus.getASTEnv).feature, DeclParameterDeclList(decls)))
+  }
+
+  private def retrieveParameters(liveParamIds: List[Id], morpheus: Morpheus): List[(Opt[ParameterDeclaration], Opt[Expr], Id)] = {
+    val declIdMap: IdentityHashMap[Declaration, Id] = new IdentityHashMap
+    def addTodeclIdMapMap(decl: Declaration, id: Id) = if (!declIdMap.containsKey(decl)) declIdMap.put(decl, id)
+    val declFeatureMap: IdentityHashMap[Declaration, FeatureExpr] = new IdentityHashMap
+    def addToDeclFeatureMap(decl: Declaration, declFeature: FeatureExpr) = {
+      if (declFeatureMap.containsKey(decl)) {
+        declFeatureMap.put(decl, declFeature.and(declFeatureMap.get(decl)))
+        logger.error(declFeature.and(declFeatureMap.get(decl)))
+      }
+      else declFeatureMap.put(decl, declFeature)
+    }
+    val declDeclPointerMap: IdentityHashMap[Declaration, Declarator] = new IdentityHashMap
+    def addTodeclDeclPointerMap(decl: Declaration, declarator: Declarator) = if (!declDeclPointerMap.containsKey(decl)) declDeclPointerMap.put(decl, declarator)
+
+    /**
+     * Generates the init declaration for variables declared in the method body.
+     */
+    def generateInit(decl: Declaration, param: Id): Declarator = {
+      // make pointer
+      var pointer = List[Opt[Pointer]]()
+      decl.declSpecs.foreach(declSpec => pointer :::= List[Opt[Pointer]](Opt(declSpec.feature, Pointer(List[Opt[Specifier]]()))))
+      decl.init.foreach(declInit => pointer :::= declInit.entry.declarator.pointers)
+      AtomicNamedDeclarator(pointer, Id(param.name), List[Opt[DeclaratorExtension]]())
+    }
+
+    def addChoice(c: Choice[_], id: Id, ft: FeatureExpr = FeatureExprFactory.True): Unit = {
+      c match {
+        case c@Choice(cft, o1@One(_), o2@One(_)) =>
+          addOne(o1, id)
+          addOne(o2, id /*, cft.not()*/)
+        case c@Choice(cft, c1@Choice(_, _, _), o2@One(_)) =>
+          addChoice(c1, id)
+          addOne(o2, id)
+        case c@Choice(cft, o1@One(_), c1@Choice(_, _, _)) =>
+          addChoice(c1, id)
+          addOne(o1, id)
+        case c@Choice(cft, c1@Choice(_, _, _), c2@Choice(_, _, _)) =>
+          addChoice(c1, id)
+          addChoice(c2, id)
+      }
+    }
+
+    def addOne(o: One[_], id: Id, ft: FeatureExpr = FeatureExprFactory.True) = {
+      o match {
+        // only variables are interesting
+        case o@One((CUnknown(_), _, _)) =>
+        case o@One((CFunction(_, _), _, _)) =>
+        case o =>
+          val decl = findPriorASTElem[Declaration](id, morpheus.getASTEnv)
+          decl match {
+            case Some(_) =>
+              logger.debug("O: " + o + " " + id)
+              logger.debug(decl.get)
+              var feature: FeatureExpr = FeatureExprFactory.True
+              if (ft.equivalentTo(FeatureExprFactory.True)) feature = parentOpt(decl.get, morpheus.getASTEnv).feature
+              else feature = ft
+              addToDeclFeatureMap(decl.get, feature)
+              addTodeclDeclPointerMap(decl.get, generateInit(decl.get, id))
+              addTodeclIdMapMap(decl.get, id)
+            case x => logger.error("Missed " + x)
+          }
+      }
+    }
+
+    liveParamIds.foreach(liveId =>
+      try {
+        // only lookUp variables
+        // TODO Refactor & Choices
+        morpheus.getEnv(liveId).varEnv.lookup(liveId.name) match {
+          case o@One(_) => addOne(o, liveId)
+          case c@Choice(_, _, _) => addChoice(c, liveId)
+          case x =>
+            logger.warn("Missed pattern choice? " + x)
+          // logger.debug(morpheus.getEnv(param).varEnv.lookup(param.name))
+        }
+      } catch {
+        case e: Exception => // logger.warn("No entry found for: " + param)
+      })
+    val decls = declFeatureMap.keySet().toArray(Array[Declaration]()).toList
+    decls.toList.flatMap(decl => {
+      val feature = decls.foldLeft(declFeatureMap.get(decl))((ft, otherDecl) => {
+        if (declDeclPointerMap.get(decl).getName.equals(declDeclPointerMap.get(otherDecl).getName) && !(decl.eq(otherDecl))) {
+          val andFeature = declFeatureMap.get(otherDecl).not()
+          if (!andFeature.equivalentTo(FeatureExprFactory.False)) ft.and(andFeature)
+          else ft
+        }
+        else ft
+      })
+      // val pD2 = Choice(feature, One(ParameterDeclarationD(decl.declSpecs, declDeclPointerMap.get(decl))), One(null))
+      val pD = Opt(feature, ParameterDeclarationD(decl.declSpecs, declDeclPointerMap.get(decl)))
+      val expr = Opt(feature, PointerCreationExpr(Id(declDeclPointerMap.get(decl).getName)))
+      val id = declIdMap.get(decl)
+      Some((pD, expr, id))
+    })
+  }
 
   private def isPartOfSameCompStmt(selectedElements: List[AST], morpheus: Morpheus): Boolean =
     findPriorASTElem[CompoundStatement](selectedElements.head, morpheus.getASTEnv) match {
@@ -332,7 +456,7 @@ object ExtractFunction extends ASTSelection with Refactor {
   /**
    * Generates the parameters requiered in the function stmt.
    */
-  private def generateFuncCallParameter(params: List[Id], morpheus: Morpheus) = params.foldLeft(List[Opt[Expr]]())((callParams, id) => Opt(parentOpt(id, morpheus.getASTEnv).feature, PointerCreationExpr(Id(id.name))) :: callParams).reverse
+  private def generateFuncCallParameter(extRefIds: List[Id], morpheus: Morpheus) = retrieveParameters(extRefIds, morpheus).flatMap(entry => Some(entry._2))
 
 
   private def uniqueExtRefIds(defs: List[(Id, List[Id])], uses: List[(Id, List[Id])]) = {
@@ -483,80 +607,12 @@ object ExtractFunction extends ASTSelection with Refactor {
   /**
    * Generates the opt node for the ast.
    */
-  private def generateFuncOpt(oldFunc: FunctionDef, newFunc: FunctionDef, morpheus: Morpheus) = Opt[FunctionDef](parentOpt(oldFunc, morpheus.getASTEnv).feature, newFunc)
+  private def generateFuncOpt(oldFunc: FunctionDef, newFunc: FunctionDef, morpheus: Morpheus, feature: FeatureExpr = FeatureExprFactory.True) = Opt[FunctionDef](parentOpt(oldFunc, morpheus.getASTEnv).feature.and(feature), newFunc)
 
   /**
-   * Genertates the decl.
+   * Generates the decl.
    */
   private def generateDeclarator(name: String /*, pointer: List[Opt[Pointer]] = List[Opt[Pointer]]()*/ , extensions: List[Opt[DeclaratorExtension]] = List[Opt[DeclaratorExtension]]()) =
     AtomicNamedDeclarator(List[Opt[Pointer]](), Id(name), extensions)
 
-  private def generateParameters(funcDef: FunctionDef, params: List[Id], selection: List[Opt[_]], morpheus: Morpheus): List[Opt[DeclaratorExtension]] = {
-
-    /**
-     * Generates the init declaration for variables declared in the method body.
-     */
-    def generateInit(decl: Declaration, param: Id): Declarator = {
-      // make pointer
-      var pointer = List[Opt[Pointer]]()
-      decl.declSpecs.foreach(declSpec => pointer :::= List[Opt[Pointer]](Opt(declSpec.feature, Pointer(List[Opt[Specifier]]()))))
-      decl.init.foreach(declInit => pointer :::= declInit.entry.declarator.pointers)
-      AtomicNamedDeclarator(pointer, Id(param.name), List[Opt[DeclaratorExtension]]())
-    }
-
-    var declarations = List[Opt[ParameterDeclaration]]()
-
-    def addOne(entry: One[_], param: Id) = {
-      entry match {
-        case o@One((CSigned(x), _, _)) =>
-          // logger.debug("CSignedentry for  " + param + " " + x)
-          val decl = findPriorASTElem[Declaration](param, morpheus.getASTEnv)
-          decl match {
-            case Some(_) => declarations ::= Opt(parentOpt(param, morpheus.getASTEnv).feature, ParameterDeclarationD(decl.get.declSpecs, generateInit(decl.get, param)))
-            case x => //logger.debug("Missed " + x)
-          }
-        case o@One((CStruct(_, _), _, _)) => {
-          // logger.debug("Struct" + findPriorASTElem[Declaration](param, morpheus.getASTEnv))
-          val decl = findPriorASTElem[Declaration](param, morpheus.getASTEnv)
-          decl match {
-            case Some(_) =>
-              // logger.debug(Opt(parentOpt(param, morpheus.getASTEnv).feature, ParameterDeclarationD(decl.get.declSpecs, generateInit(decl.get, param))))
-              declarations ::= Opt(parentOpt(param, morpheus.getASTEnv).feature, ParameterDeclarationD(decl.get.declSpecs, generateInit(decl.get, param)))
-            case x => // logger.debug("Missed " + x)
-          }
-        }
-        case o@One((CPointer(x), _, _)) =>
-          // logger.debug("CPointer for  " + param + " " + x)
-          val decl = findPriorASTElem[Declaration](param, morpheus.getASTEnv)
-          decl match {
-            case Some(_) => declarations ::= Opt(parentOpt(param, morpheus.getASTEnv).feature, ParameterDeclarationD(decl.get.declSpecs, generateInit(decl.get, param)))
-            case x => // logger.debug("Missed " + x)
-          }
-        case o@One((CUnsigned(x), _, _)) =>
-          val decl = findPriorASTElem[Declaration](param, morpheus.getASTEnv)
-          decl match {
-            case Some(_) => declarations ::= Opt(parentOpt(param, morpheus.getASTEnv).feature, ParameterDeclarationD(decl.get.declSpecs, generateInit(decl.get, param)))
-            case x => // logger.debug("Missed " + x)
-          }
-        case x => logger.debug("Missed pattern: " + x)
-      }
-
-    }
-
-    params.foreach(param => {
-      try {
-        // only lookUp variables
-        // TODO Refactor & Choices
-        morpheus.getEnv(param).varEnv.lookup(param.name) match {
-          case o@One(_) => addOne(o, param)
-          case x =>
-            logger.warn("Missed pattern choice? " + x)
-          // logger.debug(morpheus.getEnv(param).varEnv.lookup(param.name))
-        }
-      } catch {
-        case e: Exception => // logger.warn("No entry found for: " + param)
-      }
-    })
-    List[Opt[DeclaratorExtension]](Opt(parentOpt(funcDef, morpheus.getASTEnv).feature, DeclParameterDeclList(declarations.reverse)))
-  }
 }
