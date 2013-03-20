@@ -205,7 +205,7 @@ object ExtractFunction extends ASTSelection with Refactor {
     else if (!selectedElements.par.forall(element => isPartOfAFunction(element, morpheus))) false
     else if (!isPartOfSameCompStmt(selectedElements, morpheus)) false
     else if (!filterAllASTElems[ReturnStatement](selectedElements, morpheus.getFeatureModel, morpheus.getASTEnv).isEmpty) false
-    else if (!selectedElements.par.forall(element => !isBadExtractStatement(element))) false
+    else if (!selectedElements.par.forall(element => !isBadExtractStatement(element, selectedElements, morpheus))) false
     // else if (!isConditionalComplete(selectedElements, getParentFunction(selectedElements, morpheus), morpheus)) false // Not Relevant?
     else true
   }
@@ -539,12 +539,66 @@ object ExtractFunction extends ASTSelection with Refactor {
    */
   private def selectionIsConditional(selection: List[AST]) = selection.exists(x => (isVariable(x)))
 
-  private def isBadExtractStatement(element: AST) = element match {
+  private def isBadExtractStatement(element: AST, selection: List[AST], morpheus: Morpheus): Boolean = {
+
+    def filter[T <: AST](stmts: List[AST])(implicit m: ClassManifest[T]) = {
+      stmts.exists(stmt => {
+        findPriorASTElem[T](stmt, morpheus.getASTEnv) match {
+          case None => false
+          case Some(x) =>
+            selection.exists(s =>
+              if (s.eq(x)) true
+              else filterAllASTElems[T](s, morpheus.getASTEnv).par.exists(fs => fs.eq(x)))
+        }
+      })
+    }
+
+    val cStmt = filterAllASTElems[ContinueStatement](element)
+    cStmt.isEmpty match {
+      case true =>
+      case _ =>
+        if (filter[ForStatement](cStmt)) return false
+        if (filter[DoStatement](cStmt)) return false
+        if (filter[WhileStatement](cStmt)) return false
+        return true
+    }
+    val bStmt = filterAllASTElems[BreakStatement](element)
+    bStmt.isEmpty match {
+      case true =>
+      case _ =>
+        if (filter[DoStatement](bStmt)) return false
+        if (filter[WhileStatement](bStmt)) return false
+        if (filter[ForStatement](bStmt)) return false
+        if (filter[SwitchStatement](bStmt)) return false
+        return true
+    }
+    val caStmt = filterAllASTElems[CaseStatement](element)
+    caStmt.isEmpty match {
+      case true =>
+      case _ =>
+        if (filter[SwitchStatement](caStmt)) return false
+        return true
+    }
+    val gotoS = filterAllASTElems[GotoStatement](element)
+    gotoS.isEmpty match {
+      case true =>
+      case _ => return !gotoS.exists(goto => morpheus.getUseDeclMap.get(goto).exists(labels => filter[Id](gotoS)))
+    }
+    val labels = filterAllASTElems[LabelStatement](element)
+    labels.isEmpty match {
+      case true =>
+      case _ => return !labels.exists(label => morpheus.getDeclUseMap().get(label).exists(goto => filter[Id](labels)))
+    }
+    false
+
+    /**
+    element match {
     case c: ContinueStatement => true
     case b: BreakStatement => true
     case c: CaseStatement => true
-    case g: GotoStatement => true
+    case g: GotoStatement => true // TODO Target Find
     case _ => false
+  } */
   }
 
   private def getParentFunction(selection: List[AST], morpheus: Morpheus): FunctionDef = {
