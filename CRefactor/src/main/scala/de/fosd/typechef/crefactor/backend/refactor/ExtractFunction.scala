@@ -309,11 +309,13 @@ object ExtractFunction extends ASTSelection with Refactor {
     /**
      * Generates the init declaration for variables declared in the method body.
      */
-    def generateInit(decl: Declaration, param: Id): Declarator = {
+    def generateInit(decl: Declaration, param: Id, array: Boolean = false): Declarator = {
       // make pointer
       var pointer = List[Opt[Pointer]]()
       decl.declSpecs.foreach(declSpec => pointer :::= List[Opt[Pointer]](Opt(declSpec.feature, Pointer(List[Opt[Specifier]]()))))
       decl.init.foreach(declInit => pointer :::= declInit.entry.declarator.pointers)
+
+      //if (array) AtomicNamedDeclarator(pointer, Id(param.name), List[Opt[DeclaratorExtension]](Opt(FeatureExprFactory.True, DeclArrayAccess(None))))
       AtomicNamedDeclarator(pointer, Id(param.name), List[Opt[DeclaratorExtension]]())
     }
 
@@ -339,6 +341,25 @@ object ExtractFunction extends ASTSelection with Refactor {
         // only variables are interesting
         case o@One((CUnknown(_), _, _)) =>
         case o@One((CFunction(_, _), _, _)) =>
+
+        /** case o@One((CArray(_,_),_,_)) =>
+          val decl = findPriorASTElem[Declaration](id, morpheus.getASTEnv)
+          decl match {
+            case Some(_) =>
+              var feature: FeatureExpr = FeatureExprFactory.True
+              if (ft.equivalentTo(FeatureExprFactory.True)) feature = parentOpt(decl.get, morpheus.getASTEnv).feature
+              else feature = ft
+              addToDeclFeatureMap(decl.get, feature)
+              addTodeclDeclPointerMap(decl.get, generateInit(decl.get, id, true))
+              addTodeclIdMapMap(decl.get, id)
+            case x => logger.error("Missed " + x)
+          }  */
+        // TODO Better enum handling
+        case o@One((CSigned(CInt()), enumerate, _)) =>
+          if (morpheus.getUseDeclMap.get(id).exists(t => findPriorASTElem[CompoundStatement](t, morpheus.getASTEnv) match {
+            case None => false
+            case _ => true
+          })) assert(false, "Type Declaration for " + id.name + " would be invisible after extraction!")
         case o =>
           val decl = findPriorASTElem[Declaration](id, morpheus.getASTEnv)
           decl match {
@@ -380,6 +401,22 @@ object ExtractFunction extends ASTSelection with Refactor {
         }
         else ft
       })
+      decl.declSpecs.foreach(spec => {
+        spec.entry match {
+          case t@TypeDefTypeSpecifier(i@Id(_)) =>
+            if (morpheus.getUseDeclMap.get(i).exists(t => findPriorASTElem[CompoundStatement](t, morpheus.getASTEnv) match {
+              case None => false
+              case _ => true
+            })) assert(false, "Type Declaration for " + i + " would be invisible after extraction!")
+          case s@StructOrUnionSpecifier(_, Some(i@Id(_)), _) =>
+            if (morpheus.getUseDeclMap.get(i).exists(t => findPriorASTElem[CompoundStatement](t, morpheus.getASTEnv) match {
+              case None => false
+              case _ => true
+            })) assert(false, "Type Declaration for " + i + " would be invisible after extraction!")
+          case _ => logger.debug("Specs " + spec)
+        }
+      }
+      )
       val pD = Opt(feature, ParameterDeclarationD(decl.declSpecs, declDeclPointerMap.get(decl)))
       val expr = Opt(feature, PointerCreationExpr(Id(declDeclPointerMap.get(decl).getName)))
       val id = declIdMap.get(decl)
