@@ -87,7 +87,7 @@ Installation and Usage
 For simple experimentation, try our [online version](http://www.mathematik.uni-marburg.de/~kaestner/TypeChef/online/).
 
 Alternatively, you can download a .jar file including
-all necessary libraries [TypeChef.jar](http://ckaestne.github.com/TypeChef/deploy/TypeChef-0.3.3.jar). Run as usual
+all necessary libraries [TypeChef.jar](http://ckaestne.github.com/TypeChef/deploy/TypeChef-0.3.4.jar). Run as usual
 
     java -jar TypeChef.jar ...
 
@@ -95,7 +95,7 @@ TypeChef is also available as a [maven repository](http://search.maven.org/#sear
 With [sbt](http://code.google.com/p/simple-build-tool/) you can include TypeChef with the following line:
 
 ```scala
-libraryDependencies += "de.fosd.typechef" % "frontend_2.9.1" % "0.3.3"
+libraryDependencies += "de.fosd.typechef" %% "frontend" % "0.3.4"
 ```
 
 To build TypeChef from source, we use 
@@ -222,6 +222,21 @@ a technical report on the following webpage http://fosd.net/spl-strategies and t
 Finally, an early overview of the project with a very preliminary implementation (now terribly outdated and superseeded by the papers above) was published at
 
 > Andy Kenner, Christian Kästner, Steffen Haase, and Thomas Leich. [TypeChef: Toward Type Checking #ifdef Variability in C](http://www.informatik.uni-marburg.de/~kaestner/FOSD10-typechef.pdf). In Proceedings of the Second Workshop on Feature-Oriented Software Development (FOSD) (Eindhoven, The Netherlands), pages 25-32, New York, NY, USA, October 2010. ACM Press.
+
+Change Log
+-----------
+
+ * v0.3.4 (March 2013)
+   * Updated to Scala 2.10.1
+   * Various fixes and extensions to the type system (e.g., support for both styles of parameter declarations in C, better handling of ignored types, correct type for sizeOf)
+   * Fixed bug in parser that caused duplicated subtrees and subtrees with unsatisfiable conditions in some cases of undisciplined ifdefs
+   * Report #error and #warning tags again during lexing
+   * Experimental integration of Xtc/SuperC lexer
+   * Changed defaults of several command line parameters
+   * Supports now the entire X86 setup for the Linux kernel
+   * And several more
+ * v0.3.3 (June 2012)
+ * v0.3.2 (May 2012)
 
 
 License

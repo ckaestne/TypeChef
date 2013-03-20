@@ -10,7 +10,7 @@ object BuildSettings {
     import Dependencies._
 
     val buildOrganization = "de.fosd.typechef"
-    val buildVersion = "0.3.4"
+    val buildVersion = "0.3.5"
     val buildScalaVersion = "2.10.1"
 
     val testEnvironment = Seq(junit, junitInterface, scalatest, scalacheck)
