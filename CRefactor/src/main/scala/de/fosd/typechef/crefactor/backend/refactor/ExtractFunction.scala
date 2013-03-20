@@ -12,7 +12,6 @@ import de.fosd.typechef.typesystem._
 import de.fosd.typechef.parser.c.PostfixExpr
 import de.fosd.typechef.parser.c.ReturnStatement
 import de.fosd.typechef.parser.c.SwitchStatement
-import de.fosd.typechef.typesystem.CSigned
 import de.fosd.typechef.parser.c.AtomicNamedDeclarator
 import de.fosd.typechef.parser.c.InlineSpecifier
 import de.fosd.typechef.parser.c.VolatileSpecifier
@@ -45,7 +44,6 @@ import de.fosd.typechef.parser.c.ElifStatement
 import de.fosd.typechef.parser.c.ExprList
 import de.fosd.typechef.parser.c.FunctionDef
 import de.fosd.typechef.parser.c.SizeOfExprU
-import de.fosd.typechef.typesystem.CPointer
 import de.fosd.typechef.parser.c.NestedFunctionDef
 import de.fosd.typechef.parser.c.BreakStatement
 import de.fosd.typechef.parser.c.ContinueStatement
@@ -54,7 +52,6 @@ import de.fosd.typechef.parser.c.CastExpr
 import de.fosd.typechef.parser.c.CompoundStatement
 import de.fosd.typechef.parser.c.CaseStatement
 import de.fosd.typechef.parser.c.RegisterSpecifier
-import de.fosd.typechef.typesystem.CStruct
 import de.fosd.typechef.parser.c.StringLit
 import de.fosd.typechef.parser.c.StaticSpecifier
 import de.fosd.typechef.parser.c.ConstSpecifier
@@ -303,16 +300,10 @@ object ExtractFunction extends ASTSelection with Refactor {
 
   private def retrieveParameters(liveParamIds: List[Id], morpheus: Morpheus): List[(Opt[ParameterDeclaration], Opt[Expr], Id)] = {
     val declIdMap: IdentityHashMap[Declaration, Id] = new IdentityHashMap
-    def addTodeclIdMapMap(decl: Declaration, id: Id) = if (!declIdMap.containsKey(decl)) declIdMap.put(decl, id)
     val declFeatureMap: IdentityHashMap[Declaration, FeatureExpr] = new IdentityHashMap
-    def addToDeclFeatureMap(decl: Declaration, declFeature: FeatureExpr) = {
-      if (declFeatureMap.containsKey(decl)) {
-        declFeatureMap.put(decl, declFeature.and(declFeatureMap.get(decl)))
-        logger.error(declFeature.and(declFeatureMap.get(decl)))
-      }
-      else declFeatureMap.put(decl, declFeature)
-    }
     val declDeclPointerMap: IdentityHashMap[Declaration, Declarator] = new IdentityHashMap
+    def addTodeclIdMapMap(decl: Declaration, id: Id) = if (!declIdMap.containsKey(decl)) declIdMap.put(decl, id)
+    def addToDeclFeatureMap(decl: Declaration, declFeature: FeatureExpr) = if (declFeatureMap.containsKey(decl)) declFeatureMap.put(decl, declFeature.and(declFeatureMap.get(decl))) else declFeatureMap.put(decl, declFeature)
     def addTodeclDeclPointerMap(decl: Declaration, declarator: Declarator) = if (!declDeclPointerMap.containsKey(decl)) declDeclPointerMap.put(decl, declarator)
 
     /**
@@ -368,7 +359,7 @@ object ExtractFunction extends ASTSelection with Refactor {
     liveParamIds.foreach(liveId =>
       try {
         // only lookUp variables
-        // TODO Refactor & Choices
+        // TODO Refactor
         morpheus.getEnv(liveId).varEnv.lookup(liveId.name) match {
           case o@One(_) => addOne(o, liveId)
           case c@Choice(_, _, _) => addChoice(c, liveId)
@@ -380,7 +371,7 @@ object ExtractFunction extends ASTSelection with Refactor {
         case e: Exception => // logger.warn("No entry found for: " + param)
       })
     val decls = declFeatureMap.keySet().toArray(Array[Declaration]()).toList
-    decls.toList.flatMap(decl => {
+    decls.flatMap(decl => {
       val feature = decls.foldLeft(declFeatureMap.get(decl))((ft, otherDecl) => {
         if (declDeclPointerMap.get(decl).getName.equals(declDeclPointerMap.get(otherDecl).getName) && !(decl.eq(otherDecl))) {
           val andFeature = declFeatureMap.get(otherDecl).not()
@@ -389,7 +380,6 @@ object ExtractFunction extends ASTSelection with Refactor {
         }
         else ft
       })
-      // val pD2 = Choice(feature, One(ParameterDeclarationD(decl.declSpecs, declDeclPointerMap.get(decl))), One(null))
       val pD = Opt(feature, ParameterDeclarationD(decl.declSpecs, declDeclPointerMap.get(decl)))
       val expr = Opt(feature, PointerCreationExpr(Id(declDeclPointerMap.get(decl).getName)))
       val id = declIdMap.get(decl)
@@ -402,56 +392,6 @@ object ExtractFunction extends ASTSelection with Refactor {
       case Some(c) => selectedElements.par.forall(element => isElementOfEqCompStmt(element, c, morpheus))
       case _ => false // not element of an ccStmt
     }
-
-  private def generateParamIds(liveIds: List[Id], selection: List[Opt[_]], morpheus: Morpheus): List[Id] = {
-    // def oneParam(one : One[])
-
-    liveIds.flatMap(id => {
-      try {
-        // only lookup variables
-        // TODO Refactor & Choices
-        morpheus.getEnv(id).varEnv.lookup(id.name) match {
-          case o@One((CSigned(x), _, _)) =>
-            findPriorASTElem[Declaration](id, morpheus.getASTEnv) match {
-              case Some(_) => Some(id)
-              case x =>
-                logger.debug("NoDecl for " + x)
-                None
-            }
-          case o@One((CStruct(_, _), _, _)) => {
-            findPriorASTElem[Declaration](id, morpheus.getASTEnv) match {
-              case Some(_) => Some(id)
-              case x =>
-                logger.debug("NoDecl for " + x)
-                None
-            }
-          }
-          case o@One((CPointer(x), _, _)) =>
-            findPriorASTElem[Declaration](id, morpheus.getASTEnv) match {
-              case Some(_) => Some(id)
-              case x =>
-                logger.debug("NoDecl for " + x)
-                None
-            }
-          case o@One((CUnsigned(x), _, _)) =>
-            findPriorASTElem[Declaration](id, morpheus.getASTEnv) match {
-              case Some(_) => Some(id)
-              case x =>
-                logger.debug("NoDecl for " + x)
-                None
-            }
-          case x =>
-            logger.warn("Missed " + x)
-            logger.debug(morpheus.getEnv(id).varEnv.lookup(id.name))
-            None
-        }
-      } catch {
-        case e: Exception =>
-          logger.warn("No entry found for: " + id)
-          None
-      }
-    }).sortWith(compareByName)
-  }
 
   /**
    * Generates the parameters requiered in the function stmt.
@@ -489,7 +429,7 @@ object ExtractFunction extends ASTSelection with Refactor {
   }
 
 
-  private def externalOccurrences(ids: List[Id], map: util.IdentityHashMap[Id, List[Id]]) = {
+  private def externalOccurrences(ids: List[Id], map: util.IdentityHashMap[Id, List[Id]]) =
     ids.par.flatMap(id => {
       if (map.containsKey(id)) {
         val external = map.get(id).par.flatMap(aId => {
@@ -500,23 +440,20 @@ object ExtractFunction extends ASTSelection with Refactor {
         else Some(id, external)
       } else None
     }).toList
-  }
 
-  private def isPartOfAFunction(toValidate: AST, morpheus: Morpheus): Boolean = {
+  private def isPartOfAFunction(toValidate: AST, morpheus: Morpheus): Boolean =
     findPriorASTElem[FunctionDef](toValidate, morpheus.getASTEnv) match {
       case Some(f) => true
       case _ => false
     }
-  }
 
   private def isElementOfEqCompStmt(element: AST, compStmt: CompoundStatement, morpheus: Morpheus) = getCompoundStatement(element, morpheus).eq(compStmt)
 
-  private def getCompoundStatement(element: AST, morpheus: Morpheus): CompoundStatement = {
+  private def getCompoundStatement(element: AST, morpheus: Morpheus): CompoundStatement =
     findPriorASTElem[CompoundStatement](element, morpheus.getASTEnv) match {
       case Some(c) => c
       case _ => null
     }
-  }
 
   private def verifyFunctionName(funcName: String, selection: List[AST], morpheus: Morpheus) {
     assert(isValidName(funcName), Configuration.getInstance().getConfig("refactor.extractFunction.failed.shadowing"))
@@ -601,8 +538,7 @@ object ExtractFunction extends ASTSelection with Refactor {
   /**
    * Generates the function definition.
    */
-  private def generateFuncDef(specs: List[Opt[Specifier]], decl: Declarator, stmts: CompoundStatement, oldStyleParameters: List[Opt[OldParameterDeclaration]] = List[Opt[OldParameterDeclaration]]()) =
-    FunctionDef(specs, decl, oldStyleParameters, stmts)
+  private def generateFuncDef(specs: List[Opt[Specifier]], decl: Declarator, stmts: CompoundStatement, oldStyleParameters: List[Opt[OldParameterDeclaration]] = List[Opt[OldParameterDeclaration]]()) = FunctionDef(specs, decl, oldStyleParameters, stmts)
 
   /**
    * Generates the opt node for the ast.
@@ -612,7 +548,5 @@ object ExtractFunction extends ASTSelection with Refactor {
   /**
    * Generates the decl.
    */
-  private def generateDeclarator(name: String /*, pointer: List[Opt[Pointer]] = List[Opt[Pointer]]()*/ , extensions: List[Opt[DeclaratorExtension]] = List[Opt[DeclaratorExtension]]()) =
-    AtomicNamedDeclarator(List[Opt[Pointer]](), Id(name), extensions)
-
+  private def generateDeclarator(name: String /*, pointer: List[Opt[Pointer]] = List[Opt[Pointer]]()*/ , extensions: List[Opt[DeclaratorExtension]] = List[Opt[DeclaratorExtension]]()) = AtomicNamedDeclarator(List[Opt[Pointer]](), Id(name), extensions)
 }
