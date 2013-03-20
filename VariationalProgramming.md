@@ -30,7 +30,8 @@ Feature expressions can be combined with the usual operators and, not, or, impli
 ```scala
 val fa = FeatureExprFactory.createDefinedExternal("a")
 val fb = FeatureExprFactory.createDefinedExternal("b")
-val fx = (fa or fb) implies fa
+val t  = FeatureExprFactory.True
+val fx = (fa or fb and t) implies fa
 ```    
 
 

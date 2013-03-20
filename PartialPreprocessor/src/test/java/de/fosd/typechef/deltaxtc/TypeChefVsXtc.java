@@ -30,6 +30,7 @@ import java.util.Stack;
  *
  * @author kaestner
  */
+@Ignore
 public class TypeChefVsXtc {
 
 
@@ -291,15 +292,15 @@ public class TypeChefVsXtc {
         testFile("varargs.c", false, true);
     }
 
-    @Test
-    public void testLinuxPI() throws LexerException, IOException {
-        testFile("pi/blk-core.pi", false, true);
-    }
+//    @Test
+//    public void testLinuxPI() throws LexerException, IOException {
+//        testFile("pi/blk-core.pi", false, true);
+//    }
 
-    @Test
-    public void testLinuxPI2() throws LexerException, IOException {
-        testFile("pi/blk-core2.pi", false, true);
-    }
+//    @Test
+//    public void testLinuxPI2() throws LexerException, IOException {
+//        testFile("pi/blk-core2.pi", false, true);
+//    }
 
     /**
      * parses a file and checks the result against the results specified in the

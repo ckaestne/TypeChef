@@ -62,4 +62,4 @@ Parameters:
     --version                      Prints version number
     --help                         Displays help and usage information.
 
-TypeChef version 0.3.4_20130317161420
+TypeChef version 0.3.4_20130317184601
