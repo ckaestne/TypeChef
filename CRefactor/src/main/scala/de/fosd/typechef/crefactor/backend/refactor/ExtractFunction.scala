@@ -124,7 +124,9 @@ object ExtractFunction extends ASTSelection with Refactor {
           case f: FunctionDef => statement
           case nf: NestedFunctionDef => statement
           case p =>
-            if (isElementOfSelectionRange(p, selection)) exploitStatements(p.asInstanceOf[Statement])
+            if (isElementOfSelectionRange(p, selection)) {
+              exploitStatements(p.asInstanceOf[Statement])
+            }
             else statement
         }
       } catch {
@@ -165,7 +167,11 @@ object ExtractFunction extends ASTSelection with Refactor {
       parent match {
         case null =>
         case _ =>
-          if (parent.get.isInstanceOf[Statement]) uniqueSelectedStatements.add(parent.get.asInstanceOf[Statement])
+          if (parent.get.isInstanceOf[Statement]) {
+            uniqueSelectedStatements.add(parent.get.asInstanceOf[Statement])
+            uniqueSelectedStatements.add(lookupControlStatements(parent.get.asInstanceOf[Statement]))
+
+          }
           else if (parent.get.isInstanceOf[Expr]) uniqueSelectedExpressions.add(parent.get.asInstanceOf[Expr])
       }
     })
@@ -178,7 +184,6 @@ object ExtractFunction extends ASTSelection with Refactor {
       parents.foreach(statement => {
         val exploitedStatement = exploitStatements(statement.asInstanceOf[Statement])
         uniqueSelectedStatements.add(exploitedStatement)
-        uniqueSelectedStatements.add(lookupControlStatements(exploitedStatement))
       })
       parents = uniqueSelectedStatements.toArray(Array[Statement]()).toList
     } else parents = uniqueSelectedExpressions.toArray(Array[Expr]()).toList
