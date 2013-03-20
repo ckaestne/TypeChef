@@ -78,6 +78,17 @@ class InterfaceInferenceTest extends TestHelper {
         assert(interface.exports.exists(x => x.name == "partialstatic" && (x.fexpr equivalentTo (d("STAT").not))))
         assert(!interface.imports.exists(_.name == "partialstatic"))
 
+
+        //test inline behavior, static inline and extern inline are not exported, whereas inline is
+        //(see also http://stackoverflow.com/questions/216510/extern-inline)
+        assert(interface.exports.exists(_.name == "inlinefun"))
+        assert(!interface.exports.exists(_.name == "externinlinefun"))
+        assert(!interface.exports.exists(_.name == "staticinlinefun"))
+        assert(!interface.imports.exists(_.name == "inlinefun"))
+        assert(interface.imports.exists(_.name == "externinlinefun"))
+        assert(!interface.imports.exists(_.name == "staticinlinefun"))
+
+
     }
 
     @Test

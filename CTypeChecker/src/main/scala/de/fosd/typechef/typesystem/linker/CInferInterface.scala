@@ -68,24 +68,37 @@ trait CInferInterface extends CTypeSystem with InterfaceWriter {
     }
 
     /**
-     * all function definitions are considered as exports
+     * all nonstatic function definitions are considered as exports
+     *
+     * actually the behavior of "extern inline" is slightly complicated, see also
+     * http://stackoverflow.com/questions/216510/extern-inline
+     * "extern inline" means neither static nor exported
      */
     override def typedFunction(fun: FunctionDef, funType: Conditional[CType], featureExpr: FeatureExpr) {
         super.typedFunction(fun, funType, featureExpr)
 
-        val staticCondition = FeatureExprFactory.True andNot getStaticCondition(fun.specifiers)
+        val staticSpec = getStaticCondition(fun.specifiers)
+        val externSpec = getSpecifierCondition(fun.specifiers, ExternSpecifier())
+        val inlineSpec = getSpecifierCondition(fun.specifiers, InlineSpecifier())
+
+
+        //exportCondition and staticCondition are disjoint, but may not cover all cases (they are both false for "extern inline")
+        val exportCondition = staticSpec.not andNot (externSpec and inlineSpec)
+        val staticCondition = staticSpec andNot (externSpec and inlineSpec)
 
         funType.simplify(featureExpr).mapf(featureExpr, {
             (fexpr, ctype) =>
+                if ((fexpr and exportCondition).isSatisfiable())
+                    exports = CSignature(fun.getName, ctype, fexpr and exportCondition, Seq(fun.getPositionFrom)) :: exports
                 if ((fexpr and staticCondition).isSatisfiable())
-                    exports = CSignature(fun.getName, ctype, fexpr and staticCondition, Seq(fun.getPositionFrom)) :: exports
-                if ((fexpr andNot staticCondition).isSatisfiable())
-                    staticFunctions = CSignature(fun.getName, ctype, fexpr andNot staticCondition, Seq(fun.getPositionFrom)) :: staticFunctions
+                    staticFunctions = CSignature(fun.getName, ctype, fexpr and staticCondition, Seq(fun.getPositionFrom)) :: staticFunctions
         })
     }
 
-    private def getStaticCondition(specifiers: List[Opt[Specifier]]): FeatureExpr =
-        specifiers.filter(_.entry == StaticSpecifier()).foldLeft(FeatureExprFactory.False)((f, o) => f or o.feature)
+    private def getStaticCondition(specifiers: List[Opt[Specifier]]): FeatureExpr = getSpecifierCondition(specifiers, StaticSpecifier())
+    private def getExternCondition(specifiers: List[Opt[Specifier]]): FeatureExpr = getSpecifierCondition(specifiers, ExternSpecifier())
+    private def getSpecifierCondition(specifiers: List[Opt[Specifier]], specifier: Specifier): FeatureExpr =
+        specifiers.filter(_.entry == specifier).foldLeft(FeatureExprFactory.False)((f, o) => f or o.feature)
 
 
     /**
