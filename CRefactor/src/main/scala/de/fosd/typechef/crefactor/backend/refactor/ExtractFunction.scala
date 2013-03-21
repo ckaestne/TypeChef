@@ -360,7 +360,7 @@ object ExtractFunction extends ASTSelection with Refactor {
             case x => logger.error("Missed " + x)
           }  */
         // TODO Better enum handling
-        case o@One((CSigned(CInt()), enumerate, _)) =>
+        case o@One((CSigned(CInt()), KEnumVar, _)) =>
           if (morpheus.getUseDeclMap.get(id).exists(t => findPriorASTElem[CompoundStatement](t, morpheus.getASTEnv) match {
             case None => false
             case _ => true
@@ -369,8 +369,6 @@ object ExtractFunction extends ASTSelection with Refactor {
           val decl = findPriorASTElem[Declaration](id, morpheus.getASTEnv)
           decl match {
             case Some(_) =>
-              logger.debug("O: " + o + " " + id)
-              logger.debug(decl.get)
               var feature: FeatureExpr = FeatureExprFactory.True
               if (ft.equivalentTo(FeatureExprFactory.True)) feature = parentOpt(decl.get, morpheus.getASTEnv).feature
               else feature = ft
