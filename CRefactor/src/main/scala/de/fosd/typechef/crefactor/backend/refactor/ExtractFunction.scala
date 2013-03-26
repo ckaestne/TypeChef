@@ -124,7 +124,9 @@ object ExtractFunction extends ASTSelection with Refactor {
           case f: FunctionDef => statement
           case nf: NestedFunctionDef => statement
           case p =>
-            if (isElementOfSelectionRange(p, selection)) exploitStatements(p.asInstanceOf[Statement])
+            if (isElementOfSelectionRange(p, selection)) {
+              exploitStatements(p.asInstanceOf[Statement])
+            }
             else statement
         }
       } catch {
@@ -165,7 +167,11 @@ object ExtractFunction extends ASTSelection with Refactor {
       parent match {
         case null =>
         case _ =>
-          if (parent.get.isInstanceOf[Statement]) uniqueSelectedStatements.add(parent.get.asInstanceOf[Statement])
+          if (parent.get.isInstanceOf[Statement]) {
+            uniqueSelectedStatements.add(parent.get.asInstanceOf[Statement])
+            uniqueSelectedStatements.add(lookupControlStatements(parent.get.asInstanceOf[Statement]))
+
+          }
           else if (parent.get.isInstanceOf[Expr]) uniqueSelectedExpressions.add(parent.get.asInstanceOf[Expr])
       }
     })
@@ -178,7 +184,6 @@ object ExtractFunction extends ASTSelection with Refactor {
       parents.foreach(statement => {
         val exploitedStatement = exploitStatements(statement.asInstanceOf[Statement])
         uniqueSelectedStatements.add(exploitedStatement)
-        uniqueSelectedStatements.add(lookupControlStatements(exploitedStatement))
       })
       parents = uniqueSelectedStatements.toArray(Array[Statement]()).toList
     } else parents = uniqueSelectedExpressions.toArray(Array[Expr]()).toList
@@ -200,7 +205,7 @@ object ExtractFunction extends ASTSelection with Refactor {
     else if (!selectedElements.par.forall(element => isPartOfAFunction(element, morpheus))) false
     else if (!isPartOfSameCompStmt(selectedElements, morpheus)) false
     else if (!filterAllASTElems[ReturnStatement](selectedElements, morpheus.getFeatureModel, morpheus.getASTEnv).isEmpty) false
-    else if (!selectedElements.par.forall(element => !isBadExtractStatement(element))) false
+    else if (!selectedElements.par.forall(element => !isBadExtractStatement(element, selectedElements, morpheus))) false
     // else if (!isConditionalComplete(selectedElements, getParentFunction(selectedElements, morpheus), morpheus)) false // Not Relevant?
     else true
   }
@@ -309,11 +314,13 @@ object ExtractFunction extends ASTSelection with Refactor {
     /**
      * Generates the init declaration for variables declared in the method body.
      */
-    def generateInit(decl: Declaration, param: Id): Declarator = {
+    def generateInit(decl: Declaration, param: Id, array: Boolean = false): Declarator = {
       // make pointer
       var pointer = List[Opt[Pointer]]()
       decl.declSpecs.foreach(declSpec => pointer :::= List[Opt[Pointer]](Opt(declSpec.feature, Pointer(List[Opt[Specifier]]()))))
       decl.init.foreach(declInit => pointer :::= declInit.entry.declarator.pointers)
+
+      //if (array) AtomicNamedDeclarator(pointer, Id(param.name), List[Opt[DeclaratorExtension]](Opt(FeatureExprFactory.True, DeclArrayAccess(None))))
       AtomicNamedDeclarator(pointer, Id(param.name), List[Opt[DeclaratorExtension]]())
     }
 
@@ -339,12 +346,29 @@ object ExtractFunction extends ASTSelection with Refactor {
         // only variables are interesting
         case o@One((CUnknown(_), _, _)) =>
         case o@One((CFunction(_, _), _, _)) =>
+
+        /** case o@One((CArray(_,_),_,_)) =>
+          val decl = findPriorASTElem[Declaration](id, morpheus.getASTEnv)
+          decl match {
+            case Some(_) =>
+              var feature: FeatureExpr = FeatureExprFactory.True
+              if (ft.equivalentTo(FeatureExprFactory.True)) feature = parentOpt(decl.get, morpheus.getASTEnv).feature
+              else feature = ft
+              addToDeclFeatureMap(decl.get, feature)
+              addTodeclDeclPointerMap(decl.get, generateInit(decl.get, id, true))
+              addTodeclIdMapMap(decl.get, id)
+            case x => logger.error("Missed " + x)
+          }  */
+        // TODO Better enum handling
+        case o@One((CSigned(CInt()), KEnumVar, _)) =>
+          if (morpheus.getUseDeclMap.get(id).exists(t => findPriorASTElem[CompoundStatement](t, morpheus.getASTEnv) match {
+            case None => false
+            case _ => true
+          })) assert(false, "Type Declaration for " + id.name + " would be invisible after extraction!")
         case o =>
           val decl = findPriorASTElem[Declaration](id, morpheus.getASTEnv)
           decl match {
             case Some(_) =>
-              logger.debug("O: " + o + " " + id)
-              logger.debug(decl.get)
               var feature: FeatureExpr = FeatureExprFactory.True
               if (ft.equivalentTo(FeatureExprFactory.True)) feature = parentOpt(decl.get, morpheus.getASTEnv).feature
               else feature = ft
@@ -380,6 +404,22 @@ object ExtractFunction extends ASTSelection with Refactor {
         }
         else ft
       })
+      decl.declSpecs.foreach(spec => {
+        spec.entry match {
+          case t@TypeDefTypeSpecifier(i@Id(_)) =>
+            if (morpheus.getUseDeclMap.get(i).exists(t => findPriorASTElem[CompoundStatement](t, morpheus.getASTEnv) match {
+              case None => false
+              case _ => true
+            })) assert(false, "Type Declaration for " + i + " would be invisible after extraction!")
+          case s@StructOrUnionSpecifier(_, Some(i@Id(_)), _) =>
+            if (morpheus.getUseDeclMap.get(i).exists(t => findPriorASTElem[CompoundStatement](t, morpheus.getASTEnv) match {
+              case None => false
+              case _ => true
+            })) assert(false, "Type Declaration for " + i + " would be invisible after extraction!")
+          case _ => logger.debug("Specs " + spec)
+        }
+      }
+      )
       val pD = Opt(feature, ParameterDeclarationD(decl.declSpecs, declDeclPointerMap.get(decl)))
       val expr = Opt(feature, PointerCreationExpr(Id(declDeclPointerMap.get(decl).getName)))
       val id = declIdMap.get(decl)
@@ -497,12 +537,66 @@ object ExtractFunction extends ASTSelection with Refactor {
    */
   private def selectionIsConditional(selection: List[AST]) = selection.exists(x => (isVariable(x)))
 
-  private def isBadExtractStatement(element: AST) = element match {
+  private def isBadExtractStatement(element: AST, selection: List[AST], morpheus: Morpheus): Boolean = {
+
+    def filter[T <: AST](stmts: List[AST])(implicit m: ClassManifest[T]) = {
+      stmts.exists(stmt => {
+        findPriorASTElem[T](stmt, morpheus.getASTEnv) match {
+          case None => false
+          case Some(x) =>
+            selection.exists(s =>
+              if (s.eq(x)) true
+              else filterAllASTElems[T](s, morpheus.getASTEnv).par.exists(fs => fs.eq(x)))
+        }
+      })
+    }
+
+    val cStmt = filterAllASTElems[ContinueStatement](element)
+    cStmt.isEmpty match {
+      case true =>
+      case _ =>
+        if (filter[ForStatement](cStmt)) return false
+        if (filter[DoStatement](cStmt)) return false
+        if (filter[WhileStatement](cStmt)) return false
+        return true
+    }
+    val bStmt = filterAllASTElems[BreakStatement](element)
+    bStmt.isEmpty match {
+      case true =>
+      case _ =>
+        if (filter[DoStatement](bStmt)) return false
+        if (filter[WhileStatement](bStmt)) return false
+        if (filter[ForStatement](bStmt)) return false
+        if (filter[SwitchStatement](bStmt)) return false
+        return true
+    }
+    val caStmt = filterAllASTElems[CaseStatement](element)
+    caStmt.isEmpty match {
+      case true =>
+      case _ =>
+        if (filter[SwitchStatement](caStmt)) return false
+        return true
+    }
+    val gotoS = filterAllASTElems[GotoStatement](element)
+    gotoS.isEmpty match {
+      case true =>
+      case _ => return !gotoS.exists(goto => morpheus.getUseDeclMap.get(goto).exists(labels => filter[Id](gotoS)))
+    }
+    val labels = filterAllASTElems[LabelStatement](element)
+    labels.isEmpty match {
+      case true =>
+      case _ => return !labels.exists(label => morpheus.getDeclUseMap().get(label).exists(goto => filter[Id](labels)))
+    }
+    false
+
+    /**
+    element match {
     case c: ContinueStatement => true
     case b: BreakStatement => true
     case c: CaseStatement => true
-    case g: GotoStatement => true
+    case g: GotoStatement => true // TODO Target Find
     case _ => false
+  } */
   }
 
   private def getParentFunction(selection: List[AST], morpheus: Morpheus): FunctionDef = {
