@@ -10,8 +10,8 @@ object BuildSettings {
     import Dependencies._
 
     val buildOrganization = "de.fosd.typechef"
-    val buildVersion = "0.3.3"
-    val buildScalaVersion = "2.9.1"
+    val buildVersion = "0.3.5"
+    val buildScalaVersion = "2.10.1"
 
     val testEnvironment = Seq(junit, junitInterface, scalatest, scalacheck)
 
@@ -23,8 +23,10 @@ object BuildSettings {
 
         testListeners <<= target.map(t => Seq(new eu.henkelmann.sbt.JUnitXmlTestsListener(t.getAbsolutePath))),
 
-        javacOptions ++= Seq("-source", "1.5", "-Xlint:unchecked"),
+        javacOptions ++= Seq("-Xlint:unchecked"),
         scalacOptions ++= Seq("-deprecation", "-unchecked", "-optimise", "-explaintypes"),
+
+        crossScalaVersions := Seq("2.9.1", "2.9.2", "2.10.1"),
 
         libraryDependencies ++= testEnvironment,
 
@@ -44,7 +46,7 @@ object BuildSettings {
         },
         publishMavenStyle := true,
         publishArtifact in Test := false,
-
+        pomIncludeRepository := { _ => false },
         pomExtra :=
             <parent>
                 <groupId>org.sonatype.oss</groupId>
@@ -57,7 +59,7 @@ object BuildSettings {
                 </scm> ++
                 <developers>
                     <developer>
-                        <id>ckaestne</id> <name>Christian Kaestner</name> <url>http://www.uni-marburg.de/fb12/ps/team/kaestner</url>
+                        <id>ckaestne</id> <name>Christian Kaestner</name> <url>http://www.cs.cmu.edu/~ckaestne/</url>
                     </developer>
                 </developers>,
 
@@ -93,8 +95,12 @@ object ShellPrompt {
 object Dependencies {
     val junit = "junit" % "junit" % "4.8.2" % "test"
     val junitInterface = "com.novocode" % "junit-interface" % "0.6" % "test"
-    val scalacheck = "org.scala-tools.testing" %% "scalacheck" % "1.9" % "test"
-    val scalatest = "org.scalatest" %% "scalatest" % "1.6.1" % "test"
+    val scalacheck = "org.scalacheck" %% "scalacheck" % "1.10.0" % "test"
+    val scalatest = "org.scalatest" %% "scalatest" % "1.8" % "test" cross CrossVersion.binaryMapped {
+        case "2.10" => "2.10.0" // useful if a%b was released with the old style
+        case "2.10.1" => "2.10.0" // useful if a%b was released with the old style
+        case x => x
+    }
 }
 
 object VersionGen {
@@ -177,7 +183,9 @@ object TypeChef extends Build {
     lazy val cparser = Project(
         "CParser",
         file("CParser"),
-        settings = buildSettings ++ Seq(parallelExecution in Test := false)
+        settings = buildSettings ++ 
+          Seq(parallelExecution in Test := false,
+            libraryDependencies <+= scalaVersion(kiamaDependency(_,true)))
     ) dependsOn(featureexpr, jcpp, parserexp, conditionallib)
 
 
@@ -202,7 +210,16 @@ object TypeChef extends Build {
     lazy val crewrite = Project(
         "CRewrite",
         file("CRewrite"),
-        settings = buildSettings
+        settings = buildSettings ++
+            Seq(libraryDependencies <+= scalaVersion(kiamaDependency(_)))
     ) dependsOn(cparser % "test->test;compile->compile", ctypechecker, conditionallib)
+
+    def kiamaDependency(scalaVersion: String, testOnly:Boolean=false) = {
+      val x=scalaVersion match {
+        case "2.9.1" => "com.googlecode.kiama" %% "kiama" % "1.2.0"
+        case _ => "com.googlecode.kiama" %% "kiama" % "1.4.0"
+      }
+      if (testOnly) x % "test" else x
+    }
 }
 

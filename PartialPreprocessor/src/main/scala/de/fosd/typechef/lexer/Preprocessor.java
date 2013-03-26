@@ -23,20 +23,23 @@
 
 package de.fosd.typechef.lexer;
 
+import de.fosd.typechef.VALexer;
 import de.fosd.typechef.featureexpr.FeatureExpr;
 import de.fosd.typechef.featureexpr.FeatureExprTree;
-import de.fosd.typechef.featureexpr.FeatureExprValue$;
 import de.fosd.typechef.featureexpr.FeatureModel;
 import de.fosd.typechef.lexer.MacroConstraint.MacroConstraintKind;
 import de.fosd.typechef.lexer.macrotable.MacroContext;
 import de.fosd.typechef.lexer.macrotable.MacroExpansion;
+import de.fosd.typechef.lexer.macrotable.MacroFilter;
 
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.util.*;
 
 import static de.fosd.typechef.lexer.Token.*;
+
 
 /**
  * modified C preprocessor with the following changes
@@ -91,7 +94,7 @@ import static de.fosd.typechef.lexer.Token.*;
  * being wrapped in an implicit extern "C" block.
  */
 
-public class Preprocessor extends DebuggingPreprocessor implements Closeable {
+public class Preprocessor extends DebuggingPreprocessor implements Closeable, VALexer {
 
     @SuppressWarnings("serial")
     private class ParseParamException extends Exception {
@@ -153,9 +156,9 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
 
     private List<MacroConstraint> macroConstraints = new ArrayList<MacroConstraint>();
 
-    public Preprocessor(FeatureModel fm) {
+    public Preprocessor(MacroFilter macroFilter, FeatureModel fm) {
         this.featureModel = fm;
-        macros = new MacroContext<MacroData>(featureModel);
+        macros = new MacroContext<MacroData>(featureModel, macroFilter);
         for (String name : new String[]{
                 "__LINE__", "__FILE__", "__BASE_FILE__", "__COUNTER__", "__TIME__", "__DATE__"
         }) {
@@ -176,19 +179,19 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
     }
 
     public Preprocessor() {
-        this(null);
+        this(new MacroFilter(), null);
     }
 
-    public Preprocessor(Source initial, FeatureModel fm) {
-        this(fm);
+    public Preprocessor(MacroFilter macroFilter, Source initial, FeatureModel fm) {
+        this(macroFilter, fm);
         addInput(initial);
     }
 
     /**
      * Equivalent to 'new Preprocessor(new {@link FileLexerSource}(file))'
      */
-    public Preprocessor(File file, FeatureModel fm) throws IOException {
-        this(new FileLexerSource(file), fm);
+    public Preprocessor(MacroFilter macroFilter, File file, FeatureModel fm) throws IOException {
+        this(macroFilter, new FileLexerSource(file), fm);
     }
 
     /**
@@ -232,6 +235,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
     public Set<Feature> getFeatures() {
         return features;
     }
+
 
     /**
      * Adds a feature to the feature-set of this Preprocessor.
@@ -422,6 +426,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
             throws LexerException {
         addMacro(name, feature, "1");
     }
+
 
     /**
      * Sets the user include path used by this Preprocessor.
@@ -1789,6 +1794,11 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
             }
             tok = retrieveTokenFromSource();
         }
+        if (is_error)
+            error(pptok, buf.toString());
+        else
+            warning(pptok, buf.toString());
+
         return new SimpleToken(P_LINE, pptok.getLine(), pptok.getColumn(), buf
                 .toString(), null);
     }
@@ -2653,7 +2663,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
                             // return source_skipline(false);
                     }
                 default:
-                    throw new InternalException("Bad token, type: " + tok.getType() + ", token: " + tok + ", source: " + tok.getSource());
+                    throw new InternalException("Bad token, type: " + tok.getType() + ", token: " + tok + ", source: " + tok.getSourceName());
                     // break;
             }
         }
@@ -2789,4 +2799,54 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable {
             return tok.getText();
         }
     }
+
+
+    /**
+     * for compatibility with the VALexer interface
+     *
+     * @param folder
+     */
+    @Override
+    public void addSystemIncludePath(String folder) {
+        getSystemIncludePath().add(folder);
+    }
+
+    /**
+     * for compatibility with the VALexer interface
+     *
+     * @param folder
+     */
+    @Override
+    public void addQuoteIncludePath(String folder) {
+        getQuoteIncludePath().add(folder);
+    }
+
+
+    /**
+     * * for compatibility with the VALexer interface
+     *
+     * @param source
+     */
+    @Override
+    public void addInput(LexerInput source) throws IOException {
+        //ugly but will do for now
+        if (source instanceof FileSource)
+            addInput(new FileLexerSource(((FileSource) source).file));
+        else if (source instanceof StreamSource)
+            addInput(new FileLexerSource(((StreamSource) source).inputStream, ((StreamSource) source).filename));
+        else if (source instanceof TextSource)
+            addInput(new StringLexerSource(((TextSource) source).code, true));
+        else
+            throw new RuntimeException("unexpected input");
+    }
+
+    @Override
+    public void printSourceStack(PrintStream stream) {
+        Source s = getSource();
+        while (s != null) {
+            stream.println(" -> " + s);
+            s = s.getParent();
+        }
+    }
+
 }

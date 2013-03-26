@@ -5,6 +5,7 @@ import junit.framework.Assert._
 import de.fosd.typechef.featureexpr._
 import org.junit.Test
 import org.kiama.rewriting.Rewriter._
+import java.util.Collections
 
 
 class CGramFilesTest extends TestCase {
@@ -15,7 +16,7 @@ class CGramFilesTest extends TestCase {
         println(inputStream.toString)
         assertNotNull("file not found " + fileName, inputStream)
         val result = p.phrase(p.translationUnit)(
-            CLexer.lexStream(inputStream, fileName, "", null), FeatureExprFactory.True)
+            CLexer.lexStream(inputStream, fileName, Collections.emptyList(), null), FeatureExprFactory.True)
         System.out.println(result)
         (result: @unchecked) match {
             case p.Success(ast, unparsed) => {

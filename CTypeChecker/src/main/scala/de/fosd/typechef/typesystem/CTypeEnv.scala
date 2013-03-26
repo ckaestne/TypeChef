@@ -11,14 +11,14 @@ trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTypi
      * get the parameters from the innermost declarator. all outer (nested) declarators describe only
      * arrays or parameters of the return type, if the function returns a function
      */
-    protected final def parameterTypes(decl: Declarator, featureExpr: FeatureExpr, env: Env): List[(String, FeatureExpr, AST, Conditional[CType])] =
+    protected final def parameterTypes(decl: Declarator, featureExpr: FeatureExpr, env: Env, oldStyleParam: ConditionalTypeMap): List[(String, FeatureExpr, AST, Conditional[CType])] =
         decl match {
-            case NestedNamedDeclarator(_, nestedDecl, _) => parameterTypes(nestedDecl, featureExpr, env)
-            case atomicDecl: AtomicNamedDeclarator => parameterTypesAtomic(atomicDecl, featureExpr, env)
+            case NestedNamedDeclarator(_, nestedDecl, _) => parameterTypes(nestedDecl, featureExpr, env, oldStyleParam)
+            case atomicDecl: AtomicNamedDeclarator => parameterTypesAtomic(atomicDecl, featureExpr, env, oldStyleParam)
         }
 
 
-    private def parameterTypesAtomic(decl: AtomicNamedDeclarator, featureExpr: FeatureExpr, env: Env): List[(String, FeatureExpr, AST, Conditional[CType])] = {
+    private def parameterTypesAtomic(decl: AtomicNamedDeclarator, featureExpr: FeatureExpr, env: Env, oldStyleParam: ConditionalTypeMap): List[(String, FeatureExpr, AST, Conditional[CType])] = {
         var result = List[(String, FeatureExpr, AST, Conditional[CType])]()
         for (Opt(extensionFeature, extension) <- decl.extensions) extension match {
             case DeclIdentifierList(List()) => //declarations with empty parameter lists
@@ -37,6 +37,14 @@ trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTypi
                         case VarArgs() => //TODO not accessible as parameter?
                     }
                 }
+            case DeclIdentifierList(idList) =>
+                //old style parameters are read previously into the oldStyleParam map, so here we only need to look up the corresponding types
+                for (Opt(paramFeature, id) <- idList) {
+                    assert(oldStyleParam != null)
+                    val paramType = oldStyleParam.getOrElse(id.name, CUnsigned(CInt()))
+                    val f = featureExpr and extensionFeature and paramFeature
+                    result = (id.name, f, id, paramType) :: result
+                }
             case e => assertTypeSystemConstraint(false, featureExpr and extensionFeature, "other extensions not supported yet: " + e, e)
         }
         result
@@ -44,9 +52,9 @@ trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTypi
 
     }
 
-    /***
-     * Structs
-     */
+    /** *
+      * Structs
+      */
     def addStructDeclarationToEnv(e: Declaration, featureExpr: FeatureExpr, env: Env): Env = addStructDeclarationToEnv(e.declSpecs, featureExpr, env, e.init.isEmpty)
     def addStructDeclarationToEnv(e: StructDeclaration, featureExpr: FeatureExpr, env: Env): Env = addStructDeclarationToEnv(e.qualifierList, featureExpr, env, e.declaratorList.isEmpty)
     def addStructDeclarationToEnv(specifiers: List[Opt[Specifier]], featureExpr: FeatureExpr, initEnv: Env, declareIncompleteTypes: Boolean): Env = {
@@ -57,14 +65,14 @@ trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTypi
         env
     }
 
-    def checkStructRedeclaration(name: String, isUnion: Boolean, featureExpr: FeatureExpr, scope: Int, env: Env, where:AST) {
+    def checkStructRedeclaration(name: String, isUnion: Boolean, featureExpr: FeatureExpr, scope: Int, env: Env, where: AST) {
         //TODO disabled for now. need to merge addStructDeclarationToEnv with getDeclaredVariables first
-//        val mayRedeclare=env.structEnv.mayDeclare(name, isUnion, scope)
-//        if ((featureExpr andNot mayRedeclare).isSatisfiable())
-//            reportTypeError(featureExpr andNot mayRedeclare,"redefinition of \"%s %s\"".format(if(isUnion)"union" else "struct", name),where, Severity.RedeclarationError)
+        //        val mayRedeclare=env.structEnv.mayDeclare(name, isUnion, scope)
+        //        if ((featureExpr andNot mayRedeclare).isSatisfiable())
+        //            reportTypeError(featureExpr andNot mayRedeclare,"redefinition of \"%s %s\"".format(if(isUnion)"union" else "struct", name),where, Severity.RedeclarationError)
     }
 
-    def addStructDeclarationToEnv(specifier: Specifier, featureExpr: FeatureExpr, initEnv: Env, declareIncompleteTypes:Boolean): Env = specifier match {
+    def addStructDeclarationToEnv(specifier: Specifier, featureExpr: FeatureExpr, initEnv: Env, declareIncompleteTypes: Boolean): Env = specifier match {
         case e@StructOrUnionSpecifier(isUnion, Some(Id(name)), Some(attributes)) => {
             //for parsing the inner members, the struct itself is available incomplete
             var env = initEnv.updateStructEnv(initEnv.structEnv.addIncomplete(name, isUnion, featureExpr, initEnv.scope))
@@ -88,10 +96,10 @@ trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTypi
         case _ => initEnv
     }
 
-    private def addInnerStructDeclarationsToEnv(fields: List[Opt[StructDeclaration]], featureExpr: FeatureExpr, initEnv: Env): Env ={
-        var env=initEnv
-        for (Opt(f,field)<-fields) {
-            env=addStructDeclarationToEnv(field, featureExpr and f, env)
+    private def addInnerStructDeclarationsToEnv(fields: List[Opt[StructDeclaration]], featureExpr: FeatureExpr, initEnv: Env): Env = {
+        var env = initEnv
+        for (Opt(f, field) <- fields) {
+            env = addStructDeclarationToEnv(field, featureExpr and f, env)
         }
         env
     }
@@ -126,7 +134,6 @@ trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTypi
                 lastParam(param.lastOption) //last param may be varargs
             case CVarArgs() => false
             case CStruct(name, isUnion) => {
-                true
                 //TODO check struct welltypeness
                 if (structEnv.isComplete(name, isUnion).isSatisfiable())
                     nonEmptyWellformedEnv(structEnv.getFieldsMerged(name, isUnion), Some(name))

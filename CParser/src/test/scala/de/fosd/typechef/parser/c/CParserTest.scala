@@ -6,6 +6,7 @@ import de.fosd.typechef.featureexpr._
 import de.fosd.typechef.parser._
 import de.fosd.typechef.conditional._
 import org.junit.{Ignore, Test}
+import FeatureExprFactory._
 
 class CParserTest {
     val p = new CParser()
@@ -44,7 +45,7 @@ class CParserTest {
             assertParseResult(expected, code, production)
     }
 
-    def assertParseable(code: String, mainProduction: (TokenReader[TokenWrapper, CTypeContext], FeatureExpr) => p.MultiParseResult[Any]): Unit = {
+    def assertParseable(code: String, mainProduction: (TokenReader[CToken, CTypeContext], FeatureExpr) => p.MultiParseResult[Any]): Unit = {
         val actual = p.parseAny(code.stripMargin, mainProduction)
         System.out.println(actual)
         (actual: @unchecked) match {
@@ -62,7 +63,7 @@ class CParserTest {
         }
     }
 
-    def assertParseableAST[T](code: String, mainProduction: (TokenReader[TokenWrapper, CTypeContext], FeatureExpr) => p.MultiParseResult[T]): Option[T] = {
+    def assertParseableAST[T](code: String, mainProduction: (TokenReader[CToken, CTypeContext], FeatureExpr) => p.MultiParseResult[T]): Option[T] = {
         val actual = p.parse(code.stripMargin, mainProduction)
         System.out.println(actual)
         (actual: @unchecked) match {
@@ -77,7 +78,7 @@ class CParserTest {
         }
     }
 
-    def assertParseAnyResult(expected: Any, code: String, mainProduction: (TokenReader[TokenWrapper, CTypeContext], FeatureExpr) => p.MultiParseResult[Any]) {
+    def assertParseAnyResult(expected: Any, code: String, mainProduction: (TokenReader[CToken, CTypeContext], FeatureExpr) => p.MultiParseResult[Any]) {
         val actual = p.parseAny(code.stripMargin, mainProduction)
         System.out.println(actual)
         (actual: @unchecked) match {
@@ -90,7 +91,7 @@ class CParserTest {
         }
     }
 
-    def assertParseError(code: String, mainProduction: (TokenReader[TokenWrapper, CTypeContext], FeatureExpr) => p.MultiParseResult[Any], expectErrorMsg: Boolean = false) {
+    def assertParseError(code: String, mainProduction: (TokenReader[CToken, CTypeContext], FeatureExpr) => p.MultiParseResult[Any], expectErrorMsg: Boolean = false) {
         val actual = p.parseAny(code.stripMargin, mainProduction)
         System.out.println(actual)
         (actual: @unchecked) match {
@@ -102,7 +103,7 @@ class CParserTest {
         }
     }
 
-    def assertParseError(code: String, productions: List[(TokenReader[TokenWrapper, CTypeContext], FeatureExpr) => p.MultiParseResult[Any]]) {
+    def assertParseError(code: String, productions: List[(TokenReader[CToken, CTypeContext], FeatureExpr) => p.MultiParseResult[Any]]) {
         for (production <- productions)
             assertParseError(code, production)
     }
@@ -133,10 +134,10 @@ class CParserTest {
     def testId() {
         assertParseResultL(Id("test"), "test", List(p.primaryExpr, p.ID))
         assertParseResultL(Choice(fa, Id("test"), Id("bar")), """|#ifdef a
-        					|test
-        					|#else
-        					|bar
-        					|#endif""", List(p.primaryExpr !, p.ID !))
+                                                                	 				|test
+                                                                	 				|#else
+                                                                	 				|bar
+                                                                	 				|#endif""", List(p.primaryExpr !, p.ID !))
         assertParseError("case", List(p.primaryExpr, p.ID))
     }
 
@@ -144,10 +145,10 @@ class CParserTest {
     def testStringLit() {
         assertParseResultL(StringLit(lo("\"test\"")), "\"test\"", List(p.primaryExpr, p.stringConst))
         assertParseResultL(Choice(fa, StringLit(lo("\"test\"")), StringLit(lo("\"ba\\\"r\""))), """|#ifdef a
-        					|"test"
-        					|#else
-        					|"ba\"r"
-        					|#endif""", List(p.primaryExpr !, p.stringConst !))
+                                                                                                  	 				|"test"
+                                                                                                  	 				|#else
+                                                                                                  	 				|"ba\"r"
+                                                                                                  	 				|#endif""", List(p.primaryExpr !, p.stringConst !))
         assertParseError("'c'", List(p.stringConst))
     }
 
@@ -192,10 +193,10 @@ class CParserTest {
         parseConstant("L'a'")
         parseString("L\"a\"")
         assertParseResultL(Choice(fa, Constant("1"), Constant("2")), """|#ifdef a
-        					|1
-        					|#else
-        					|2
-        					|#endif""", List(p.primaryExpr !, p.numConst !))
+                                                                       	 				|1
+                                                                       	 				|#else
+                                                                       	 				|2
+                                                                       	 				|#endif""", List(p.primaryExpr !, p.numConst !))
     }
 
     @Test def testDots() {
@@ -217,9 +218,9 @@ class CParserTest {
     @Test def testPostfixExpr {
         assertParseResult(Choice(fa, PostfixExpr(Id("b"), SimplePostfixSuffix("++")), Id("b")),
             """|b
-        					|#ifdef a
-        					|++
-        					|#endif""", p.postfixExpr !)
+              	 				|#ifdef a
+              	 				|++
+              	 				|#endif""", p.postfixExpr !)
 
         assertParseResultL(PostfixExpr(Id("b"), PointerPostfixSuffix("->", Id("a"))), "b->a", List(p.postfixExpr, p.unaryExpr))
         assertParseResultL(Id("b"), "b", List(p.postfixExpr, p.unaryExpr))
@@ -244,12 +245,12 @@ class CParserTest {
             PostfixExpr(Id("b"), PointerPostfixSuffix(".", Id("a"))),
             PostfixExpr(Id("b"), PointerPostfixSuffix("->", Id("a")))),
             """|b
-        					|#ifdef a
-        					|.
-        					|#else
-        					|->
-        					|#endif
-        					|a""", p.postfixExpr !)
+              	 				|#ifdef a
+              	 				|.
+              	 				|#else
+              	 				|->
+              	 				|#endif
+              	 				|a""", p.postfixExpr !)
         assertParseable("++", p.postfixSuffix)
         assertParseable("b++", p.postfixExpr)
         assertParseable("__builtin_offsetof(void,a.b)", p.primaryExpr)
@@ -297,25 +298,25 @@ class CParserTest {
     @Test def testAltExpr {
         assertParseResult(Choice(fa, a, b),
             """|#ifdef a
-        					|a
-        					|#else
-        					|b
-        					|#endif""", p.expr !)
-        assertParseResult(Choice(fa, NAryExpr(a, List(Opt(fa, NArySubExpr("+", c)))), NAryExpr(b, List(Opt(fa.not, (NArySubExpr("+", c)))))),
+              	 				|a
+              	 				|#else
+              	 				|b
+              	 				|#endif""", p.expr !)
+        assertParseResult(Choice(fa, NAryExpr(a, List(Opt(True, NArySubExpr("+", c)))), NAryExpr(b, List(Opt(True, (NArySubExpr("+", c)))))),
             """|#ifdef a
-        					|a +
-        					|#else
-        					|b +
-        					|#endif
-        					|c""", p.expr !)
+              	 				|a +
+              	 				|#else
+              	 				|b +
+              	 				|#endif
+              	 				|c""", p.expr !)
         assertParseResult(Choice(fa, AssignExpr(a, "=", ConditionalExpr(b, Some(b), d)), AssignExpr(a, "=", ConditionalExpr(b, Some(c), d))),
             """|a=b?
-        					|#ifdef a
-        					|b
-        					|#else
-        					|c
-        					|#endif
-        					|:d""", p.expr !)
+              	 				|#ifdef a
+              	 				|b
+              	 				|#else
+              	 				|c
+              	 				|#endif
+              	 				|:d""", p.expr !)
     }
 
     private implicit def makeConditionalOne[T <: AST](a: T): Conditional[T] = One(a)
@@ -338,35 +339,35 @@ class CParserTest {
         assertParseable("goto x;", p.statement)
         assertParseResult(Choice(fa, One(IfStatement(a, ExprStatement(b), List(), None)), One(ExprStatement(b))),
             """|#ifdef a
-        					|if (a)
-        					|#endif
-    			  			|b;""", p.statement)
+              	 				|if (a)
+              	 				|#endif
+              	 		  			|b;""", p.statement)
         assertParseResult(IfStatement(a, Choice(fa, One(ExprStatement(b)), One(ExprStatement(c))), List(), None),
             """|if (a)
-    			  			|#ifdef a
-        					|b;
-        					|#else
-    			  			|c;
-        					|#endif""", p.statement)
+              	 		  			|#ifdef a
+              	 				|b;
+              	 				|#else
+              	 		  			|c;
+              	 				|#endif""", p.statement)
         assertParseAnyResult(One(CompoundStatement(List(
             Opt(fa, IfStatement(a, ExprStatement(b), List(), None)),
             Opt(fa.not, IfStatement(a, ExprStatement(c), List(), None)),
             Opt(fa, ExprStatement(c))
         ))),
             """|{
-        		|if (a)
-    			  			|#ifdef a
-        					|b;
-        					|#endif
-    			  			|c;}""", p.statement)
+              	 	|if (a)
+              	 		  			|#ifdef a
+              	 				|b;
+              	 				|#endif
+              	 		  			|c;}""", p.statement)
 
         assertParseAnyResult(One(CompoundStatement(List(o(ExprStatement(a)), Opt(fa, ExprStatement(b)), o(ExprStatement(c))))),
             """|{
-        		|a;
-    			  			|#ifdef a
-        					|b;
-        					|#endif
-    			  			|c;}""", p.statement)
+              	 	|a;
+              	 		  			|#ifdef a
+              	 				|b;
+              	 				|#endif
+              	 		  			|c;}""", p.statement)
     }
 
     @Test def testLocalDeclarations {
@@ -446,17 +447,17 @@ class CParserTest {
         assertParseable("void foo(){}", p.functionDef)
         assertParseable("void foo(){a;}", p.functionDef)
         assertParseable("void foo(int a) { a; }", p.functionDef)
-        assertParseable("""|void
-        				|#ifdef X
-        				|foo
-        				|#else
-        				|bar
-        				|#endif
-        				|(){}
-        				|void x(){}""", p.translationUnit)
+        assertParseable( """|void
+                           	 			|#ifdef X
+                           	 			|foo
+                           	 			|#else
+                           	 			|bar
+                           	 			|#endif
+                           	 			|(){}
+                           	 			|void x(){}""", p.translationUnit)
         assertParseable("main(){}", p.functionDef)
         assertParseable("main(){int T=100, a=(T)+1;}", p.functionDef)
-        assertParseable("""
+        assertParseable( """
         int
 main (int argc, char **argv)
 {
@@ -472,12 +473,12 @@ main (int argc, char **argv)
   test();
   return 0;
 }
-        """, p.functionDef)
-      assertParseable("""main(){
+                         """, p.functionDef)
+        assertParseable( """main(){
           for (;1;) ;
         }
-      """, p.functionDef)
-      assertParseable("""
+                         """, p.functionDef)
+        assertParseable( """
       int foo(void) {
         a = 0;
         l1: b = a + 1;
@@ -486,7 +487,7 @@ main (int argc, char **argv)
         if (a) goto l1;
         return c;
       }
-      """, p.functionDef)
+                         """, p.functionDef)
 
     }
 
@@ -542,7 +543,7 @@ main (int argc, char **argv)
     }
 
     @Test def testInitializerAlt =
-        assertParseable("""{
+        assertParseable( """{
         #ifdef X
         {3}
         #else
@@ -573,10 +574,10 @@ main (int argc, char **argv)
         assertParseable("extern int my_printf (void *my_object, const char *my_format) __attribute__ ((format (printf, 2, 3)));", p.externalDef)
         assertParseable("extern int my_printf (void *my_object, const char *my_format, ...) __attribute__ ((format (printf, 2, 3)));", p.phrase(p.externalDef))
         assertParseable("asm volatile (\".set noreorder\");", p.statement)
-        assertParseable("""asm volatile (".set noreorder\n"
+        assertParseable( """asm volatile (".set noreorder\n"
               ".set noat\n"
               ".set mips3");""", p.statement)
-        assertParseable("""
+        assertParseable( """
         asm volatile("rep ; movsl\n\t"
 		     "movl %4,%%ecx\n\t"
 		     "andl $3,%%ecx\n\t"
@@ -592,11 +593,11 @@ main (int argc, char **argv)
         assertParseable(" struct  pojeqsd {    char                        hgfretty[99 ];}", p.structOrUnionSpecifier)
     }
 
-    @Test def testMisc1a = assertParseable("""typedef struct  pojeqsd {
+    @Test def testMisc1a = assertParseable( """typedef struct  pojeqsd {
     			char                        hgfretty[99 ];
     		} pojeqsd_t;""", p.translationUnit)
 
-    @Test def testMisc1b = assertParseable("""typedef int hgfretty;
+    @Test def testMisc1b = assertParseable( """typedef int hgfretty;
 				typedef struct  pojeqsd {
 				char                        hgfretty[99 ];
     		} pojeqsd_t;""", p.translationUnit)
@@ -617,7 +618,7 @@ main (int argc, char **argv)
 
     @Test def testMisc3e = assertParseable("(void *) (++(int)q23w3->ll881ss[3])", p.expr)
 
-    @Test def testMisc4 = assertParseable("""if (x3 && x4) {
+    @Test def testMisc4 = assertParseable( """if (x3 && x4) {
         char gh554j[19];
         gh554j[0]='\n';
     }""", p.statement)
@@ -626,12 +627,12 @@ main (int argc, char **argv)
 
     @Test def testBoa2 = assertParseable("int (__attribute__((__cdecl__)) * _read) (struct _reent *, void *, char *, int);", p.structDeclaration)
 
-    @Test def testBoa3 = assertParseable("""typedef int FILE;
+    @Test def testBoa3 = assertParseable( """typedef int FILE;
 typedef __builtin_va_list __gnuc_va_list;
 int	__attribute__((__cdecl__)) vfprintf (FILE *, const char *, __gnuc_va_list)
  __attribute__ ((__format__(__printf__, 2, 0)));""", p.translationUnit)
 
-    @Test def testBoa4 = assertParseable("""struct alias {
+    @Test def testBoa4 = assertParseable( """struct alias {
     char *fakename;             /* URI path to file */
     char *realname;             /* Actual path to file */
     int type;                   /* ALIAS, SCRIPTALIAS, REDIRECT */
@@ -642,29 +643,29 @@ int	__attribute__((__cdecl__)) vfprintf (FILE *, const char *, __gnuc_va_list)
 
 typedef struct alias alias;""", p.translationUnit)
 
-    @Test def testBoa5 = assertParseable("""char *fakename;             /* URI path to file */
+    @Test def testBoa5 = assertParseable( """char *fakename;             /* URI path to file */
     char *realname;             /* Actual path to file */
     int type;                   /* ALIAS, SCRIPTALIAS, REDIRECT */
     int fake_len;               /* strlen of fakename */
     int real_len;               /* strlen of realname */
     struct alias *next;""", p.structDeclarationList0)
 
-    @Test def testOptListBoa1 = assertParseable("""
+    @Test def testOptListBoa1 = assertParseable( """
 typedef	char *	caddr_t;
 #if defined(GO32)
 typedef unsigned long vm_offset_t;
 #endif
 typedef unsigned long vm_size_t;
-""", p.translationUnit)
+                                                 """, p.translationUnit)
 
-    @Test def testEnsureError = assertParseError("""main()
+    @Test def testEnsureError = assertParseError( """main()
 {
   for(;;
 	{
       }
 }""", p.translationUnit)
 
-    @Test def testLinuxHeader = assertParseable("""
+    @Test def testLinuxHeader = assertParseable( """
 #define __restrict
 /* Convert a string to a long long integer.  */
 __extension__ extern long long int atoll (__const char *__nptr)
@@ -676,23 +677,23 @@ __extension__ extern long long int atoll (__const char *__nptr)
 extern double strtod (__const char *__restrict __nptr, char **__restrict __endptr)
      __attribute__ ((__nothrow__)) __attribute__ ((__nonnull__ (1))) ;""", p.translationUnit)
 
-    @Test def testDoubleMain = assertParseable("""
+    @Test def testDoubleMain = assertParseable( """
 int foo() {}
 #if defined(X)
 int main(void) {}
 #endif
-""", p.translationUnit)
+                                                """, p.translationUnit)
 
-    @Test def testDoubleMain2 = assertParseable("""
+    @Test def testDoubleMain2 = assertParseable( """
 int foo() {}
 #if defined(X)
 int main(void) {}
 #else
 int main(void) {}
 #endif
-""", p.translationUnit)
+                                                 """, p.translationUnit)
 
-    @Test def testIfdefInStatement = assertParseable("""
+    @Test def testIfdefInStatement = assertParseable( """
 int foo() {
   foo1();
   while (current) {
@@ -711,10 +712,10 @@ int foo() {
 #endif
   }
 }
-""", p.translationUnit)
+                                                      """, p.translationUnit)
 
     @Test def testBoaIp1 =
-        assertParseable("""
+        assertParseable( """
 {
 #if !(defined(INET6))
     memmove(dest, inet_ntoa(s->sin_addr), len);
@@ -723,7 +724,7 @@ int foo() {
 }""", p.compoundStatement)
 
     @Test def testBoaIp2 =
-        assertParseable("""
+        assertParseable( """
 char *ascii_sockaddr(struct
 #if defined(INET6)
 sockaddr_storage
@@ -740,10 +741,10 @@ sockaddr_in
 }""", p.translationUnit)
 
     @Test
-    def testBusyBox1 = assertParseable("""int grep_main(int argc __attribute__ ((__unused__)), char **argv){}""", p.functionDef)
+    def testBusyBox1 = assertParseable( """int grep_main(int argc __attribute__ ((__unused__)), char **argv){}""", p.functionDef)
 
     @Test
-    def testBusyBox2 = assertParseable("""
+    def testBusyBox2 = assertParseable( """
 static int  func_name(const char *fileName __attribute__ ((__unused__)), const struct stat *statbuf __attribute__ ((__unused__)), int* ap __attribute__ ((__unused__)))
 {
 	const char *tmp = bb_basename(fileName);
@@ -870,7 +871,7 @@ static int  func_name(const char *fileName __attribute__ ((__unused__)), const s
 
 
     @Test def testLinuxAddonCpuidFeature =
-        assertParseable("""
+        assertParseable( """
 struct cpuinfo_x86;
 void __attribute__ ((__section__(".cpuinit.text")))  detect_extended_topology(struct cpuinfo_x86 *c)
 {
@@ -879,11 +880,11 @@ void __attribute__ ((__section__(".cpuinit.text")))  detect_extended_topology(st
 	return;
 #endif
 }
-""", p.phrase(p.translationUnit))
+                         """, p.phrase(p.translationUnit))
 
 
     @Test def testLinuxSpinlockInitializer =
-        assertParseable("""
+        assertParseable( """
 typedef struct spinlock {} spinlock_t;
 
          void sema_init(struct semaphore *sem, int val)
@@ -896,19 +897,19 @@ typedef struct spinlock {} spinlock_t;
 .dep_map = { .name = "(*sem).lock" }
  } } }, .count = val, .wait_list = { &((*sem).wait_list), &((*sem).wait_list) }, };
  }
-""", p.phrase(p.translationUnit))
+                         """, p.phrase(p.translationUnit))
 
 
     @Test def testTypeDefSequence {
-        assertParseable("""
+        assertParseable( """
             __expectNotType[:a:]
             typedef int a;
             __expectType[:a:]
-            """, p.phrase(p.translationUnit))
-        assertParseError("""
+                         """, p.phrase(p.translationUnit))
+        assertParseError( """
             typedef int b;
             __expectType[:a:]
-            """, p.phrase(p.translationUnit))
+                          """, p.phrase(p.translationUnit))
         // currently this is not checked here! check at type system level!
         //        assertParseError("""
         //            #ifdef X
@@ -926,7 +927,7 @@ typedef struct spinlock {} spinlock_t;
         //            __expectType[:a:]
         //            __expectType[:b:]
         //            """, p.phrase(p.translationUnit))
-        assertParseable("""
+        assertParseable( """
             #ifdef X
             typedef int a;
             #endif
@@ -936,9 +937,9 @@ typedef struct spinlock {} spinlock_t;
             #else
             __expectNotType[:a:]
             #endif
-            """, p.phrase(p.translationUnit))
+                         """, p.phrase(p.translationUnit))
 
-        assertParseable("""
+        assertParseable( """
             #ifdef X
             typedef int a;
             #else
@@ -951,7 +952,7 @@ typedef struct spinlock {} spinlock_t;
             __expectType[:b:]
             __expectNotType[:a:]
             #endif
-            """, p.phrase(p.translationUnit))
+                         """, p.phrase(p.translationUnit))
 
 
     }
@@ -1006,7 +1007,7 @@ lockdep_init_map(&sem->lock.dep_map, "semaphore->lock", &__key, 0)
         """, p.phrase(p.translationUnit))
 
 
-    /**this code produced False AST nodes */
+    /** this code produced False AST nodes */
     @Ignore("TODO, remove False nodes from AST")
     @Test def testNoDeadAstNodes {
         val c = """
@@ -1035,14 +1036,14 @@ lockdep_init_map(&sem->lock.dep_map, "semaphore->lock", &__key, 0)
     }
 
     @Test def test_va_list {
-        assertParseableAST("""
+        assertParseableAST( """
 typedef __builtin_va_list __gnuc_va_list;
 typedef __gnuc_va_list va_list;
 extern int vsscanf(const char *, const char *, va_list)
 	__attribute__ ((format (scanf, 2, 0)));
          ;""", p.translationUnit)
 
-        assertParseableAST("""
+        assertParseableAST( """
 #ifdef A
 typedef __builtin_va_list __gnuc_va_list;
 typedef __gnuc_va_list va_list;
@@ -1055,25 +1056,25 @@ extern int vsscanf(const char *, const char *, va_list)
     @Ignore("TODO properly support conditional type declarations to enable conditional error messages")
     @Test def test_conditional_typedecl {
         //expect error only if X is not selected
-        assertParseableAST("""
+        assertParseableAST( """
 #ifdef X
 typedef char *foo;
 #endif
 void bar() {
     foo x;
 }
-         """, p.translationUnit)
+                            """, p.translationUnit)
     }
 
     @Test def test_local_typedef {
-        assertParseableAST("""
+        assertParseableAST( """
             void foo(){
                 typedef int B;
                 B a;
                 int b;
             }
-  """, p.translationUnit)
-        assertParseableAST("""
+                            """, p.translationUnit)
+        assertParseableAST( """
             void copyt(int n)
             {
                 typedef int B[n];
@@ -1083,26 +1084,26 @@ void bar() {
                 for (i = 1; i < n; i++)
                     a[i-1] = b[i];
             }
-  """, p.translationUnit)
+                            """, p.translationUnit)
     }
 
     @Ignore("currently local typedefs are not scoped correctly")
     @Test
     def test_lexical_scope_of_typedef {
-        assertParseError("""
+        assertParseError( """
             void foo(){
                 typedef int B;
                 B a;
                 int b;
             }
             B x;
-  """, p.translationUnit)
+                          """, p.translationUnit)
     }
 
 
     @Test
     def test_conditionalTypeDef {
-        assertParseableAST("""
+        assertParseableAST( """
                     #if defined(A) && defined(B)
                     void foo();
                     #endif
@@ -1116,14 +1117,14 @@ void bar() {
                     a x;
                     #endif
                     int x;
-                """, p.translationUnit)
+                            """, p.translationUnit)
     }
 
     @Test
     def test_bug03 {
-        assertParseableAST("""
+        assertParseableAST( """
       a(){int**b[]={&&c};c:;}
-      """, p.translationUnit)
+                            """, p.translationUnit)
     }
 
     private def assertNoDeadNodes(ast: Product) {

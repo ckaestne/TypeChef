@@ -1,34 +1,23 @@
 package de.fosd.typechef.crewrite
 
 import org.junit.runner.RunWith
-import org.scalatest.FunSuite
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
-import org.kiama.attribution.DynamicAttribution._
-import org.kiama._
 import de.fosd.typechef.featureexpr._
 import de.fosd.typechef.conditional._
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.featureexpr.FeatureExprFactory._
-import org.junit.{Ignore, Test}
+import org.junit.Ignore
 
 @RunWith(classOf[JUnitRunner])
 class ASTNavigationTest extends ShouldMatchers with ASTNavigation with ConditionalNavigation with EnforceTreeHelper with TestHelper {
 
-    private def functionDef(functionName: String): AST ==> List[FunctionDef] =
-        attr {
-            case e@FunctionDef(_, decl, _, _) if (decl.getName == functionName) => List(e)
-            case TranslationUnit(extDefs) => extDefs.map(opt =>
-                functionDef(functionName)(opt.entry)
-            ).flatten
-            case e => List()
-        }
 
     val ast = getAST("void foo() {}" +
         ";" +
         "void bar(){foo();}")
-    val foo = functionDef("foo")(ast).head
-    val bar = functionDef("bar")(ast).head
+    val foo = ast.defs.head.entry
+    val bar = ast.defs.last.entry
 
     private val ga = FeatureExprFactory.createDefinedExternal("a")
     private val gb = FeatureExprFactory.createDefinedExternal("b")
@@ -128,7 +117,7 @@ class ASTNavigationTest extends ShouldMatchers with ASTNavigation with Condition
         //stmt8
         //stmt9
 
-      val env = CASTEnv.createASTEnv(root)
+        val env = CASTEnv.createASTEnv(root)
         prevOpt(optstmt7, env) should equal(optstmt6)
         nextOpt(optstmt6, env) should equal(optstmt7)
         nextOpt(optstmt7, env) should equal(optstmt8)

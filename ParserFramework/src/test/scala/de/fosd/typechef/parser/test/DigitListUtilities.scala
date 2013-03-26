@@ -10,6 +10,7 @@ trait DigitListUtilities {
     val l1 = Lit(1)
     val l2 = Lit(2)
     val l3 = Lit(3)
+    val True = FeatureExprFactory.True
 
     def t(text: String): MyToken = t(text, FeatureExprFactory.True)
     def t(text: String, feature: FeatureExpr): MyToken = new MyToken(text, feature)

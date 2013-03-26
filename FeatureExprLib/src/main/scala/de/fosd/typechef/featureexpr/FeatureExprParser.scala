@@ -83,19 +83,25 @@ class FeatureExprParser(featureFactory: AbstractFeatureExprFactory = FeatureExpr
         else l
     }
 
-
-    def parseFile(cfilename: String): FeatureExpr = {
-        val featureModelFile = new File(cfilename)
-        if (featureModelFile.exists) {
-            scala.io.Source.fromFile(featureModelFile).getLines().map(trimComment(_)).map(line =>
-                if (line.trim.isEmpty) featureFactory.True
-                else parse(line)
-            ).fold(featureFactory.True)(_ and _)
-        } else featureFactory.True
+    //* parse files with multiple lines considered as one big conjunction */
+    def parseFile(reader: BufferedReader): FeatureExpr = {
+        var line = reader.readLine()
+        var result = featureFactory.True
+        while (line != null) {
+            line = trimComment(line)
+            val lineExpr = if (line.trim.isEmpty) featureFactory.True else parse(line)
+            result = result and lineExpr
+            line = reader.readLine()
+        }
+        result
     }
 
-    def parseFile(file: File): FeatureExpr =
-        new FeatureExprParser().parse(new FileReader(file))
+
+    def parseFile(cfilename: String): FeatureExpr = parseFile(new BufferedReader(new FileReader(cfilename)))
+
+    def parseFile(stream: InputStream): FeatureExpr = parseFile(new BufferedReader(new InputStreamReader(stream)))
+
+    def parseFile(file: File): FeatureExpr = parseFile(new BufferedReader(new FileReader(file)))
 
 
     private def oneOf(features: List[FeatureExpr]): FeatureExpr = {

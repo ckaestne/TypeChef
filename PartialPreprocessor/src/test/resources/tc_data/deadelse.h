@@ -1,10 +1,10 @@
 
 #if 0
 
-  #ifdef X
-  X
+  #ifdef X___
+  X___
   #else
-  Y
+  Y___
   #endif
   
 #endif

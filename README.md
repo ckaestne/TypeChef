@@ -1,30 +1,52 @@
 TypeChef
 ========
 
-TypeChef is a research project with the goal of type checking 
-ifdef variability in C code with the target of
-type checking the entire Linux kernel with several thousand 
+TypeChef is a research project with the goal of analyzing 
+ifdef variability in C code with the goal of finding
+variability-induced bugs in large-scale real-world systems,
+such as the Linux kernel with several thousand 
 features (or configuration options).
 
-Instead of type checking each variant for each feature 
+Instead of analyzing each variant for each feature 
 combination in isolation, TypeChef parses the
 entire source code containing all variability in a 
 variability-aware fashion without preprocessing.
 The resulting abstract syntax tree contains the 
 variability in form of choice nodes. Eventually, a
 variability-aware type system performs type checking 
-on these trees.
+on these trees, variability-aware data-flow analysis
+performs data-flow analysis and so forth.
 
-TypeChef detects syntax and type errors in all possible 
-feature combinations. TypeChef was originally short for 
+TypeChef was started with the goal of building a type
+system for C code with compile-time configurations.
+TypeChef was originally short for
 *Type Checking Ifdef Variability*.
+Over time it has grown into an infrastructure of all
+kinds of analyses.
+In all cases, the goal is to detect errors in all possible 
+feature combinations, without resorting to a brute-force approach. 
 
+
+<a href="http://ckaestne.github.com/TypeChef/typechef-poster.png"><img alt="TypeChef Poster" src="http://ckaestne.github.com/TypeChef/typechef-poster-small.png" /></a>
 
 Architecture and Subprojects
 ----------------------------
 
 The TypeChef project contains of four main components 
 and several helper libraries.
+
+* A library for reasoning about **feature expressions** (subproject *FeatureExprLib*). 
+  The library allows to easily express and reason about expressions
+  in propositional logic. It supports also parsing feature expressions
+  and loading entire feature models (in textual format or a .dimacs file).
+  For reasoning, internally both BDDs and SAT solvers are used which
+  allows to scale reasoning even to feature models the size of the Linux kernel.
+  The library can be (and is) reused in very different contexts also in Java code.
+
+* A library of **conditional data structures** for variational programming 
+  (subproject *ConditionalLib*) with several useful operations on
+  conditional structures. Used heavily in all other subprojects.
+  For a short introduction see [VariationalProgramming.md](https://github.com/ckaestne/TypeChef/blob/XtcIntegration/VariationalProgramming.md).
 
 * A **variability-aware lexer** (also called partial preprocessor;
   subproject *PartialPreprocessor*) that
@@ -48,33 +70,24 @@ and several helper libraries.
   syntax tree. This will be supported by variability-aware 
   linker checks.
 
-* A **variability-aware control and data-flow implementation**
+* A **variability-aware control-flow and data-flow analysis**
   (subproject *CRewrite*) provides implementations for
   successor/predecessor determination of abstract syntax tree
   elements in the presence of choice nodes and on top of it
-  a variable liveness implementation. The implementation has been
-  evaluated in two case studies (BusyBox and Linux) and the result
-  of this evaluation is available from [http://fosd.net/vaa](http://fosd.net/vaa).
-  For an overview of variability-aware analysis, please refer to the
-  technical report from Thuem, Apel, Kaestner, Kuhlemann, Schaefer, and
-  Saake [http://www.cs.uni-magdeburg.de/inf_media/downloads/forschung/technical_reports_und_preprints/2012/04_2012.pdf](http://www.cs.uni-magdeburg.de/inf_media/downloads/forschung/technical_reports_und_preprints/2012/04_2012.pdf) and the corresponding website [http://fosd.net/spl-strategies](http://fosd.net/spl-strategies).
+  a variable liveness implementation. 
 
-* All tasks are supported by a library for feature 
-  expressions and reasoning about feature expressions
-  (subproject *FeatureExprLib*). Internally the library 
-  uses the SAT solver *sat4j*.
+* Setups for analyzing individual systems together with useful tooling  are available as
+  separate github projects (see section evaluation below).
 
-* Evaluation specific parts, mostly for Linux are provided 
-  in the frontend subproject *LinuxAnalysis*.
+
 
 Installation and Usage
 ----------------------
 
-For simple experimentation, try our online version at 
-[http://www.mathematik.uni-marburg.de/~kaestner/TypeChef/online/](http://www.mathematik.uni-marburg.de/~kaestner/TypeChef/online/).
+For simple experimentation, try our [online version](http://www.mathematik.uni-marburg.de/~kaestner/TypeChef/online/).
 
 Alternatively, you can download a .jar file including
-all necessary libraries [TypeChef.jar](http://ckaestne.github.com/TypeChef/deploy/TypeChef-0.3.3.jar). Run as usual
+all necessary libraries [TypeChef.jar](http://ckaestne.github.com/TypeChef/deploy/TypeChef-0.3.4.jar). Run as usual
 
     java -jar TypeChef.jar ...
 
@@ -82,7 +95,7 @@ TypeChef is also available as a [maven repository](http://search.maven.org/#sear
 With [sbt](http://code.google.com/p/simple-build-tool/) you can include TypeChef with the following line:
 
 ```scala
-libraryDependencies += "de.fosd.typechef" % "frontend_2.9.1" % "0.3.3"
+libraryDependencies += "de.fosd.typechef" %% "frontend" % "0.3.4"
 ```
 
 To build TypeChef from source, we use 
@@ -124,27 +137,39 @@ in an OOPSLA paper (see below).
 You find additional information on that evaluation at 
 [http://www.mathematik.uni-marburg.de/~kaestner/TypeChef/](http://www.mathematik.uni-marburg.de/~kaestner/TypeChef/)
 
+Details of the type checking and linker checking of Busybox were
+publishing in an subsequent OOPSLA paper (see below).
+
+The implementation of the data-flow analysis has been evaluated in two case studies (BusyBox and Linux) and the result of this evaluation is available from http://fosd.net/vaa
+
+The setups for running TypeChef on these projects are available
+as separate github projects, for example:
+
+ * https://github.com/ckaestne/TypeChef-LinuxAnalysis
+ * https://github.com/ckaestne/TypeChef-BusyboxAnalysis
 
 Credits
 -------
 
 The project was only possible with fruitful collaboration of many researchers.
 
-* [Christian Kaestner](http://www.uni-marburg.de/fb12/ps/team/kaestner) (Philipps University Marburg, project leader)
+* [Christian Kaestner](http://www.cs.cmu.edu/~ckaestne/) (Carnegie Mellon University, project lead)
+* [Joerg Liebig](http://www.infosun.fim.uni-passau.de/cl/staff/liebig/) (University of Passau)
 * [Paolo G. Giarrusso](http://www.informatik.uni-marburg.de/~pgiarrusso/) (Philipps University Marburg)
 * [Tillmann Rendel](http://www.informatik.uni-marburg.de/~rendel/) (Philipps University Marburg)
-* [Sebastian Erdweg](http://www.informatik.uni-marburg.de/~seba/) (Philipps University Marburg)
+* [Sebastian Erdweg](http://erdweg.org/) (Technical University Darmstadt)
 * [Klaus Ostermann](http://www.informatik.uni-marburg.de/~kos/) (Philipps University Marburg)
 * [Thorsten Berger](http://bis.uni-leipzig.de/ThorstenBerger) (University of Leipzig)
-* [Joerg Liebig](http://www.infosun.fim.uni-passau.de/cl/staff/liebig/) (University of Passau)
 * [Alexander von Rhein](http://www.infosun.fim.uni-passau.de/spl/people-rhein.php) (University of Passau)
+* [Sarah Nadi](http://swag.uwaterloo.ca/~snadi/index.html) (University of Waterloo)
 * Alex Eifler (Philipps University Marburg)
 * David Kraus (Philipps University Marburg)
 * Andy Kenner (Metop Research Institute, Magdeburg)
 * Steffen Haase (Metop Research Institute, Magdeburg)
+* [Sven Apel](http://www.infosun.fim.uni-passau.de/spl/apel/) (University of Passau)
 
 The variability-aware lexer is implemented on top of [jcpp](http://www.anarres.org/projects/jcpp/), an implementation of the
-C preprocessor in Java.
+C preprocessor in Java. An alternative based on [xtc/superc](http://cs.nyu.edu/xtc/) is included experimentally as well.
 
 For reasoning about propositional formulas, we use the SAT solver [sat4j](http://www.sat4j.org/).
 
@@ -153,16 +178,9 @@ The GNU C parser is based on an [ANTLR grammar for GNU C](http://www.antlr.org/g
 The Java parser is based on a grammar that can be traced back to the Java 1.5 grammar in the
 [JavaCC repository](http://java.net/projects/javacc/downloads/directory/contrib/grammars).
 
-For convenience, we include [sbt](http://code.google.com/p/simple-build-tool/) in the repository.
+For convenience, we include a binary of [sbt](http://code.google.com/p/simple-build-tool/) in the repository.
 
-Furthermore, we thank for their contributions and discussions:
-* [Steven She](http://www.eng.uwaterloo.ca/~shshe/) (University of Waterloo)
-* [Krzysztof Czarnecki](http://gsd.uwaterloo.ca/kczarnec) (University of Waterloo)
-* [Sven Apel](http://www.infosun.fim.uni-passau.de/spl/apel/) (University of Passau)
-* [Shriram Krishnamurthi](http://www.cs.brown.edu/~sk/) (Brown University)
-* Thomas Leich (Metop Research Institute, Magdeburg)
-
-This work is supported in part by the European Research Council, grant #203099.
+This work was supported in part by the European Research Council, grant #203099.
 
 Contributing
 ------------
@@ -173,22 +191,52 @@ Fork the project, write bug reports, contact us, .... We are open for collaborat
 Publications
 ------------
 
-An indepth discussion of the parsing approach and our experience with parsing Linux was published at OOPSLA:
+An indepth discussion of the **parsing** approach and our experience with parsing Linux was published at OOPSLA 2011:
 
-> Christian Kaestner, Paolo G. Giarrusso, Tillmann Rendel, Sebastian Erdweg, Klaus Ostermann, and Thorsten Berger. [Variability-Aware Parsing in the Presence of Lexical Macros and Conditional Compilation](http://www.informatik.uni-marburg.de/~kaestner/oopsla11_typechef.pdf). In Proceedings of the 26th Annual ACM SIGPLAN Conference on Object-Oriented Programming, Systems, Languages, and Applications (OOPSLA) (Portland, OR), New York, NY, October 2011. ACM Press.
+> Christian Kaestner, Paolo G. Giarrusso, Tillmann Rendel, Sebastian Erdweg, Klaus Ostermann, and Thorsten Berger. [Variability-Aware Parsing in the Presence of Lexical Macros and Conditional Compilation](http://www.cs.cmu.edu/~ckaestne/pdf/oopsla11_typechef.pdf). In Proceedings of the 26th Annual ACM SIGPLAN Conference on Object-Oriented Programming, Systems, Languages, and Applications (OOPSLA) (Portland, OR), New York, NY, October 2011. ACM Press.
 
-A discussion of a module system including type checks and linker checks built on top of TypeChef was published as technical report:
+In the context of a variability-aware **module system**, we discussed **type checking** and **linker checks** on the example of Busybox, published at OOPSLA 2012:
 
-> Christian Kästner, Klaus Ostermann, and Sebastian Erdweg. [A Variability-Aware Module System](http://www.informatik.uni-marburg.de/~kaestner/tr_modulesys12.pdf). Technical Report 01/2012, Department of Mathematics and Computer Science, Philipps University Marburg, April 2012.
+> Christian Kästner, Klaus Ostermann, and Sebastian Erdweg. [A Variability-Aware Module System](http://www.cs.cmu.edu/~ckaestne/pdf/oopsla12.pdf). In Proceedings of the 27th Annual ACM SIGPLAN Conference on Object-Oriented Programming, Systems, Languages, and Applications (OOPSLA), pages 773--792, New York, NY: ACM Press, October 2012.
 
-An early overview of the project with a very preliminary implementation was published at
+A more detailed discussion of the variability-aware **lexer** (or partial preprocessor) was presented at VaMoS 2011:
+
+> Christian Kästner, Paolo G. Giarrusso, and Klaus Ostermann. [Partial Preprocessing C Code for Variability Analysis](http://www.cs.cmu.edu/~ckaestne/pdf/vamos11.pdf). In Proceedings of the Fifth International Workshop on Variability Modelling of Software-intensive Systems (VaMoS) (Namur, Belgium), pages 137-140, New York, NY, USA, January 2011. ACM Press.
+
+More information on the performance of our **type system** and **data-flow analysis** can be found here:
+
+> J. Liebig, A. von Rhein, C. Kästner, S. Apel, J. Dörre, and C. Lengauer. [Large-Scale Variability-Aware Type Checking and Dataflow Analysis](http://www.cs.cmu.edu/~ckaestne/pdf/mip-1212.pdf). Technical Report MIP-1212, Passau, Germany: Department of Informatics and Mathematics, University of Passau, November 2012.
+
+A simple variability-aware **interpreter** for executing test cases was build on top of TypeChef and published at FOSD 2012:
+
+> C. Kästner, A. von Rhein, S. Erdweg, J. Pusch, S. Apel, T. Rendel, and K. Ostermann. [Toward Variability-Aware Testing](http://www.cs.cmu.edu/~ckaestne/pdf/FOSD12_testing.pdf). In Proceedings of the 4th International Workshop on Feature-Oriented Software Development (FOSD), pages 1--8, New York, NY: ACM Press, September 2012. 
+
+For an overview of variability-aware analysis in general, please refer to the
+a technical report on the following webpage http://fosd.net/spl-strategies and the following reports:
+
+> T. Thüm, S. Apel, C. Kästner, M. Kuhlemann, I. Schaefer, and G. Saake. [Analysis Strategies for Software Product Lines](http://www.cs.cmu.edu/~ckaestne/pdf/tr_analysis12.pdf). Technical Report FIN-2012-04, Magdeburg, Germany: University of Magdeburg, April 2012.
+
+> A. von Rhein, S. Apel, C. Kästner, T. Thüm, and I. Schaefer. [The PLA Model: On the Combination of Product-Line Analyses](). In Proceedings of the 7th Int'l Workshop on Variability Modelling of Software-Intensive Systems (VaMoS), pages 14:1--14:8, New York, NY: ACM Press, January 2013.
+
+
+Finally, an early overview of the project with a very preliminary implementation (now terribly outdated and superseeded by the papers above) was published at
 
 > Andy Kenner, Christian Kästner, Steffen Haase, and Thomas Leich. [TypeChef: Toward Type Checking #ifdef Variability in C](http://www.informatik.uni-marburg.de/~kaestner/FOSD10-typechef.pdf). In Proceedings of the Second Workshop on Feature-Oriented Software Development (FOSD) (Eindhoven, The Netherlands), pages 25-32, New York, NY, USA, October 2010. ACM Press.
 
-A more detailed discussion of the variability-aware lexer (or partial preprocessor) was presented at
+Change Log
+-----------
 
-> Christian Kästner, Paolo G. Giarrusso, and Klaus Ostermann. [Partial Preprocessing C Code for Variability Analysis](http://www.informatik.uni-marburg.de/~kaestner/vamos11.pdf). In Proceedings of the Fifth International Workshop on Variability Modelling of Software-intensive Systems (VaMoS) (Namur, Belgium), pages 137-140, New York, NY, USA, January 2011. ACM Press.
-
+ * v0.3.4 (March 2013)
+   * Updated to Scala 2.10.1
+   * Various fixes and extensions to the type system (e.g., support for both styles of parameter declarations in C, better handling of ignored types, correct type for sizeOf)
+   * Fixed bug in parser that caused duplicated subtrees and subtrees with unsatisfiable conditions in some cases of undisciplined ifdefs
+   * Report #error and #warning tags again during lexing
+   * Experimental integration of Xtc/SuperC lexer
+   * Changed defaults of several command line parameters
+   * Supports now the entire X86 setup for the Linux kernel
+   * And several more
+ * v0.3.3 (June 2012)
+ * v0.3.2 (May 2012)
 
 
 License
