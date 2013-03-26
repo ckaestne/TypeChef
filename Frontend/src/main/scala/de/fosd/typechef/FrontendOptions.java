@@ -25,7 +25,7 @@ public class FrontendOptions extends LexerOptions implements ParserOptions {
             dataFlow = false,
             serializeAST = false,
             writeDebugInterface = false,
-            recordTiming = false,
+            recordTiming = true,
             parserStatistics = false,
             parserResults = true,
             writePI = false;

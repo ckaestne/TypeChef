@@ -1,6 +1,5 @@
 package de.fosd.typechef.lexer.options;
 
-import de.fosd.typechef.featureexpr.FeatureModel;
 import de.fosd.typechef.lexer.Feature;
 import de.fosd.typechef.lexer.Warning;
 import gnu.getopt.Getopt;
@@ -131,7 +130,7 @@ public class LexerOptions extends FeatureModelOptions implements ILexerOptions {
     protected Set<Feature> features = getDefaultFeatures();
     protected String lexOutputFile = "";
     protected boolean printVersion = false;
-    protected boolean lexPrintToStdout = true;
+    protected boolean lexPrintToStdout = false;
 
     @Override
     protected boolean interpretOption(int c, Getopt g) throws OptionException {

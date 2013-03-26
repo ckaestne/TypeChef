@@ -48,7 +48,7 @@ val time = tb.getCurrentThreadCpuTime // Type long; beware in nanoseconds */
   }
 
   def getCSVHeader(): String = {
-    "File name,LoC before,LoC after,LoC difference,Features,Declarations,Optional declarations,Declarations duplicated,Functions,Optional functions,Functions duplicated,Statements,Optional statements,Statements duplicated,Parsing,Transformation,PrettyPrinting\n"
+    "File name,LoC before,LoC after,LoC difference,Features,Declarations,Optional declarations,Declarations duplicated,Functions,Optional functions,Functions duplicated,Statements,Optional statements,Statements duplicated,Renamings,Renaming usages,Choice Nodes,Parsing,Transformation,PrettyPrinting\n"
   }
 
   def writeToFile(fileName: String, data: String) =
@@ -183,7 +183,6 @@ val time = tb.getCurrentThreadCpuTime // Type long; beware in nanoseconds */
                       """)
     println(ast)
     println(testAst(ast))
-    println(Source.fromFile(new File("newLine.txt")).getLines().toList.filterNot(x => x.matches("\\s?#")).size)
   }
 
   @Test def test_function2() {
@@ -445,6 +444,7 @@ val time = tb.getCurrentThreadCpuTime // Type long; beware in nanoseconds */
       #endif
       }
                              """)
+    println(source_ast)
     println(testAst(source_ast))
 
   }
@@ -473,6 +473,7 @@ val time = tb.getCurrentThreadCpuTime // Type long; beware in nanoseconds */
         }
       }
                              """)
+    println(source_ast)
     println(testAst(source_ast))
 
   }
@@ -911,8 +912,18 @@ val time = tb.getCurrentThreadCpuTime // Type long; beware in nanoseconds */
     println(testAst(source_ast))
   }
 
+  @Test def test_pi() {
+    val file = new File("C:\\users\\flo\\dropbox\\hiwi\\busybox\\TypeChef-BusyboxAnalysis\\busybox-1.18.5\\applets\\applets.pi")
+    testFile(file)
+  }
+
   @Test def test_applets_pi() {
     val file = new File("C:\\users\\flo\\dropbox\\hiwi\\busybox\\TypeChef-BusyboxAnalysis\\busybox-1.18.5\\applets\\applets.pi")
+    testFile(file)
+  }
+
+  @Test def test_stat_pi() {
+    val file = new File("C:\\Users\\Flo\\Dropbox\\HiWi\\busybox\\TypeChef-BusyboxAnalysis\\busybox-1.18.5\\coreutils\\stat.pi")
     testFile(file)
   }
 
@@ -936,8 +947,8 @@ val time = tb.getCurrentThreadCpuTime // Type long; beware in nanoseconds */
     testFile(file)
   }
 
-  @Test def test_tar_pi() {
-    val file = new File("C:\\users\\flo\\dropbox\\hiwi\\busybox\\TypeChef-BusyboxAnalysis\\busybox-1.18.5\\archival\\tar.pi")
+  @Test def test_update_passwd_pi() {
+    val file = new File("C:\\Users\\Flo\\Dropbox\\HiWi\\busybox\\TypeChef-BusyboxAnalysis\\busybox-1.18.5\\libbb\\update_passwd.pi")
     testFile(file)
   }
 
@@ -1570,7 +1581,7 @@ val time = tb.getCurrentThreadCpuTime // Type long; beware in nanoseconds */
     println("\n\nDouble lifted:\n" + PrettyPrinter.print(newNewAst))
   }
 
-  @Test def option_file_test() {
+  @Test def option_ftest() {
     val source_ast = getAST( """
       #include "opt.h"
       extern struct sOpt opt;
@@ -1779,14 +1790,42 @@ val time = tb.getCurrentThreadCpuTime // Type long; beware in nanoseconds */
 
   @Test def pretty_printer_test() {
     val file = new File("C:\\users\\flo\\dropbox\\hiwi\\busybox\\TypeChef-BusyboxAnalysis\\busybox-1.18.5\\applets\\applets.pi")
+    //testFile(file)
+    val newFullFilePath = singleFilePath ++ getFileNameWithoutExtension(file) ++ ".ifdeftoif"
+    val source_ast = getAstFromPi(new File(newFullFilePath))
+    typecheckTranslationUnit(source_ast)
+  }
+
+  @Test def file_test() {
+    //val file = new File("C:\\Users\\Flo\\Dropbox\\HiWi\\Flo\\test\\annotated_typedef.c")
+    //val file = new File("C:\\Users\\Flo\\Dropbox\\HiWi\\Flo\\test\\test_decluse.c")
+    //val file = new File("C:\\Users\\Flo\\Dropbox\\HiWi\\Flo\\test\\test_type_error.c")
+    //val file = new File("C:\\Users\\Flo\\Dropbox\\HiWi\\Flo\\test\\test_typedef.c")
+    //val file = new File("C:\\Users\\Flo\\Dropbox\\HiWi\\Flo\\test\\typedef_struct.c")
+    //val file = new File("C:\\Users\\Flo\\Dropbox\\HiWi\\Flo\\test\\double_typedef.c")
+    //val file = new File("C:\\Users\\Flo\\Dropbox\\HiWi\\Flo\\ifdeftoif\\test_main.c")
+    //val file = new File("C:\\Users\\Flo\\Dropbox\\HiWi\\Flo\\test\\struct_typedef_test.c")
+    //val file = new File("C:\\Users\\Flo\\Dropbox\\HiWi\\Flo\\test\\struct_enum_test.c")
+    //val file = new File("C:\\Users\\Flo\\Dropbox\\HiWi\\Flo\\test\\declaration_functioncall.c")
+    //val file = new File("C:\\Users\\Flo\\Dropbox\\HiWi\\Flo\\test\\typedef_usage_in_struct.c")
+    //val file = new File("C:\\Users\\Flo\\Dropbox\\HiWi\\Flo\\test\\function_variable_specifiers.c")
+    //val file = new File("C:\\Users\\Flo\\Dropbox\\HiWi\\Flo\\test\\function_call_test.c")
+    //val file = new File("C:\\Users\\Flo\\Dropbox\\HiWi\\Flo\\single_files\\test_specifier.c")
+    //val file = new File("C:\\Users\\Flo\\Dropbox\\HiWi\\Flo\\test\\variable_struct_member_usage.c")
+    //val file = new File("C:\\Users\\Flo\\Dropbox\\HiWi\\Flo\\test\\char_trailer.c")
+    val file = new File("C:\\Users\\Flo\\Dropbox\\HiWi\\Flo\\test\\enum_test.c")
+
     val source_ast = getAstFromPi(file)
-    val newFullFilePath = singleFilePath ++ getFileNameWithoutExtension(file) ++ ".pp"
+    println(source_ast.toString() ++ "\n\n")
+    typecheckTranslationUnit(source_ast)
+    val defuse = getDeclUseMap()
+    println(PrettyPrinter.print(i.transformAst(source_ast, defuse)._1))
+  }
 
-    new File(singleFilePath).mkdirs()
-    PrettyPrinter.printF(source_ast, newFullFilePath)
-
-    val file2 = new File(newFullFilePath)
-    val source_ast2 = getAstFromPi(file2)
-    typecheckTranslationUnit(source_ast2)
+  @Test def declaration_transformation_test() {
+    val tu = TranslationUnit(List(Opt(True, Declaration(List(Opt(fx, SignedSpecifier()), Opt(True, IntSpecifier())), List(Opt(True, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("i"), List()), List(), None))))), Opt(True, Declaration(List(Opt(fx, IntSpecifier()), Opt(fx.not(), LongSpecifier())), List(Opt(True, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("j"), List()), List(), None))))), Opt(fx, Declaration(List(Opt(fx, IntSpecifier())), List(Opt(fx, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("k"), List()), List(), None))))), Opt(fx.not(), Declaration(List(Opt(fx, IntSpecifier()), Opt(True, LongSpecifier())), List(Opt(fx.not(), InitDeclaratorI(AtomicNamedDeclarator(List(), Id("k"), List()), List(), None)))))))
+    //val decl = Opt(True,Declaration(List(Opt(fx,SignedSpecifier()), Opt(True,IntSpecifier())),List(Opt(True,InitDeclaratorI(AtomicNamedDeclarator(List(),Id("i"),List()),List(),None)))))
+    //i.handleDeclarations(decl).foreach(x => println(PrettyPrinter.print(x.entry)))
+    tu.defs.foreach(x => i.handleDeclarations(x.asInstanceOf[Opt[Declaration]]).foreach(y => println(PrettyPrinter.print(y.entry) ++ "\n")))
   }
 }

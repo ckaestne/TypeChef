@@ -299,7 +299,7 @@ object PrettyPrinter {
       case InitializerDesignatorC(id: Id) => id ~ ":"
       case InitializerAssigment(desgs) => spaceSep(desgs) ~~ "="
       case BuiltinOffsetof(typeName: TypeName, offsetofMemberDesignator) => "__builtin_offsetof(" ~ typeName ~ "," ~~ spaceSep(offsetofMemberDesignator) ~ ")"
-      case OffsetofMemberDesignatorID(id: Id) => "." ~ id
+      case OffsetofMemberDesignatorID(id: Id) => id
       case OffsetofMemberDesignatorExpr(expr: Expr) => "[" ~ expr ~ "]"
       case BuiltinTypesCompatible(typeName1: TypeName, typeName2: TypeName) => "__builtin_types_compatible_p(" ~ typeName1 ~ "," ~~ typeName2 ~ ")"
       case BuiltinVaArgs(expr: Expr, typeName: TypeName) => "__builtin_va_arg(" ~ expr ~ "," ~~ typeName ~ ")"

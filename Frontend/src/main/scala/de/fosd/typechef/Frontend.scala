@@ -108,11 +108,13 @@ object Frontend {
         //Debug_FeatureModelExperiments.experiment(fm_ts)
 
         if (opt.typecheck || opt.writeInterface) {
-          //ProductGeneration.typecheckProducts(fm,fm_ts,ast,opt,
-          //logMessage=("Time for lexing(ms): " + (t2-t1) + "\nTime for parsing(ms): " + (t3-t2) + "\n"))
-          //ProductGeneration.estimateNumberOfVariants(ast, fm_ts)
+          println("type checking.")
+          val typeCheckStatus = ts.checkAST
           if (opt.ifdeftoif) {
-            if (ts.checkAST) {
+            if (typeCheckStatus) {
+              //ProductGeneration.typecheckProducts(fm,fm_ts,ast,opt,
+              //logMessage=("Time for lexing(ms): " + (t2-t1) + "\nTime for parsing(ms): " + (t3-t2) + "\n"))
+              //ProductGeneration.estimateNumberOfVariants(ast, fm_ts)
               val i = new IfdefToIf
               val defUseMap = ts.getDeclUseMap
               //println(("+++Feature Struct+++\n" + PrettyPrinter.print(optionsAst) + "\n\n+++New Code+++\n" + PrettyPrinter.print(i.transformAst(ast, env, defUseMap))))
@@ -121,16 +123,15 @@ object Frontend {
                 println(PrettyPrinter.print(i.transformAst(ast, defUseMap)._1))
               } else {
                 // write to file
-                val fw: FileWriter = new FileWriter(new File(opt.outputStem + ".ifdeftoif"))
-                fw.write(PrettyPrinter.print(i.transformAst(ast, defUseMap)._1))
-                fw.close() // don't know the safe writer closing pattern in scala
+                //val fw: FileWriter = new FileWriter(new File(opt.outputStem + ".ifdeftoif"))
+                val new_ast = i.transformAst(ast, defUseMap)._1
+                PrettyPrinter.printF(new_ast, opt.outputStem + ".ifdeftoif")
+                // don't know the safe writer closing pattern in scala
               }
             } else {
               println("#ifdef to if transformation unsuccessful because of type errors")
             }
           } else {
-            println("type checking.")
-            ts.checkAST
             ts.errors.map(errorXML.renderTypeError(_))
             t4 = System.currentTimeMillis()
             t5 = t4
