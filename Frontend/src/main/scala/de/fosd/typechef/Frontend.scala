@@ -117,17 +117,24 @@ object Frontend {
               //ProductGeneration.estimateNumberOfVariants(ast, fm_ts)
               val i = new IfdefToIf
               val defUseMap = ts.getDeclUseMap
-              //println(("+++Feature Struct+++\n" + PrettyPrinter.print(optionsAst) + "\n\n+++New Code+++\n" + PrettyPrinter.print(i.transformAst(ast, env, defUseMap))))
+
+              val ifdeftoifStart = System.currentTimeMillis()
+              val new_ast = i.transformAst(ast, defUseMap, fm)._1
+              val ifdeftoifDuration = System.currentTimeMillis() - ifdeftoifStart
+
+              val oldNumberOfAstElems = i.countNumberOfASTElements(ast)
+              val newNumberOfAstElems = i.countNumberOfASTElements(new_ast)
+              val difference = newNumberOfAstElems / oldNumberOfAstElems.toDouble
+
+              println("ifdeftoif time: " + ifdeftoifDuration)
               if (opt.outputStem.isEmpty) {
                 //write to console
-                println(PrettyPrinter.print(i.transformAst(ast, defUseMap)._1))
+                println(PrettyPrinter.print(new_ast))
               } else {
                 // write to file
-                //val fw: FileWriter = new FileWriter(new File(opt.outputStem + ".ifdeftoif"))
-                val new_ast = i.transformAst(ast, defUseMap)._1
                 PrettyPrinter.printF(new_ast, opt.outputStem + ".ifdeftoif")
-                // don't know the safe writer closing pattern in scala
               }
+              println()
             } else {
               println("#ifdef to if transformation unsuccessful because of type errors")
             }

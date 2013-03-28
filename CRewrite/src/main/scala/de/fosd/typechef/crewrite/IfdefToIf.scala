@@ -58,6 +58,7 @@ import de.fosd.typechef.parser.c.ElifStatement
 import de.fosd.typechef.parser.c.FunctionDef
 import de.fosd.typechef.parser.c.NestedFunctionDef
 import scala.Tuple2
+import de.fosd.typechef.lexer.FeatureExprLib
 
 /**
  * strategies to rewrite ifdefs to ifs
@@ -65,6 +66,7 @@ import scala.Tuple2
 
 class IfdefToIf extends ASTNavigation with ConditionalNavigation {
   val trueF = FeatureExprFactory.True
+  var fm = FeatureExprLib.featureModelFactory.empty
 
   val CONFIGPREFIX = "v_"
   var counter = 0
@@ -80,6 +82,9 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
   val idsToBeReplaced: IdentityHashMap[Id, List[FeatureExpr]] = new IdentityHashMap()
   val writeOptionsIntoFile = true
 
+  val f: FeatureExpr = new FeatureExprParser(FeatureExprLib.l).parseFile("C:\\Users\\Flo\\Dropbox\\HiWi\\busybox\\TypeChef-BusyboxAnalysis\\busybox\\featureModel")
+  val busyBoxFm = FeatureExprLib.featureModelFactory.create(f)
+  val isBusyBox = true
   // Variables for statistics
 
   // Features
@@ -194,7 +199,7 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
   /*
   Creates a csv friendly line with all the statistical information from one transformation
    */
-  def createCsvString(fileName: String): String = {
+  def createCsvString(): String = {
     val s = ","
     noOfFeatures + s + noOfDeclarations + s + noOfOptionalDeclarations + s + noOfDeclarationDuplications + s + noOfFunctions + s + noOfOptionalFunctions + s + noOfFunctionDuplications + s + noOfStatements + s + noOfStatementsVariable + s + noOfStatementDuplications + s + noOfRenamings + s + noOfRenamingUsages + s + noOfChoiceNodes
   }
@@ -484,7 +489,11 @@ Retrieves a list of tuples out of a choice node. Also takes choices inside choic
             case _ => r(o).get.asInstanceOf[T]
           }
         }
-      case _ => r(t).get.asInstanceOf[T]
+      case _ =>
+        r(t) match {
+          case None => t
+          case k => k.get.asInstanceOf[T]
+        }
     }
   }
 
@@ -708,10 +717,6 @@ Retrieves a list of tuples out of a choice node. Also takes choices inside choic
             List(o)
           })
       case i: Id =>
-        if (i.name.equals("unpack_Z_stream") && idsToBeReplaced.containsKey(i)) {
-          val tsttt = idsToBeReplaced.get(i)
-          debug = debug
-        }
         if (idsToBeReplaced.containsKey(i)) {
           // Increase number of expanded statements
           if (!IdMap.contains(feat)) {
@@ -762,6 +767,65 @@ Retrieves a list of tuples out of a choice node. Also takes choices inside choic
     }
   }
 
+  def replaceOptAndIdTest[T <: Product](t: T, feat: FeatureExpr): T = {
+    t match {
+      case o@Opt(feature, entry: Product) =>
+        Opt(trueF, replaceOptAndIdTest(entry, feat)).asInstanceOf[T]
+      case k =>
+        val withoutFeature = replaceFeatureByTrue(t, feat)
+        withoutFeature match {
+          case w@WhileStatement(expr, stmt) =>
+            WhileStatement(replaceIdTest(expr, feat), stmt).asInstanceOf[T]
+          case d@DoStatement(expr, stmt) =>
+            DoStatement(replaceIdTest(expr, feat), stmt).asInstanceOf[T]
+          case f@ForStatement(expr1, expr2, expr3, stmt) =>
+            ForStatement(replaceIdTest(expr1, feat), replaceIdTest(expr2, feat), replaceIdTest(expr3, feat), stmt).asInstanceOf[T]
+          case e@ExprStatement(expr) =>
+            ExprStatement(replaceIdTest(expr, feat)).asInstanceOf[T]
+          case i@IfStatement(expr, then, elif, els) =>
+            IfStatement(replaceIdTest(expr, feat), then, elif, els).asInstanceOf[T]
+          case e@ElifStatement(expr, stmt) =>
+            ElifStatement(replaceIdTest(expr, feat), stmt).asInstanceOf[T]
+          case l =>
+            replaceIdTest(l, feat)
+        }
+    }
+  }
+
+  def replaceIdTest[T <: Product](t: T, feat: FeatureExpr): T = {
+    val r = alltd(rule {
+      case s: Statement =>
+        s
+      case i: Id =>
+        if (idsToBeReplaced.containsKey(i)) {
+          // Increase number of expanded statements
+          if (!IdMap.contains(feat)) {
+            IdMap += (feat -> IdMap.size)
+          }
+          val matchingId = idsToBeReplaced.get(i).find(x => feat.implies(x).isTautology())
+          matchingId match {
+            case None =>
+              // TODO: this should not happen?
+              val lst = idsToBeReplaced.get(i)
+              val test = lst.filter(x => feat.implies(x).isTautology())
+              Id("_" + IdMap.get(feat).get + "_" + i.name)
+              i
+            case Some(x: FeatureExpr) =>
+              Id("_" + IdMap.get(x).get + "_" + i.name)
+            case k =>
+              Id("")
+          }
+        } else {
+          i
+        }
+    })
+
+    r(t) match {
+      case None => t
+      case k => k.get.asInstanceOf[T]
+    }
+  }
+
   def replaceTrueByFeature[T <: Product](t: T, feat: FeatureExpr): T = {
     val r = manytd(rule {
       case l: List[Opt[_]] =>
@@ -783,12 +847,17 @@ Retrieves a list of tuples out of a choice node. Also takes choices inside choic
   /*
   Makes #ifdef to if transformation on given AST element. Returns new AST element and a statistics String.
    */
-  def transformAst[T <: Product](t: T, decluse: IdentityHashMap[Id, List[Id]], fileName: String = ""): Tuple2[T, String] = {
+  def transformAst[T <: Product](t: T, decluse: IdentityHashMap[Id, List[Id]], featureModel: FeatureModel = FeatureExprLib.featureModelFactory.empty): Tuple2[T, String] = {
+    if (featureModel.equals(FeatureExprLib.featureModelFactory.empty) && isBusyBox) {
+      fm = busyBoxFm
+    } else {
+      fm = featureModel
+    }
     fillIdMap(t)
     defuse = decluse
     val result = transformRecursive(t)
     val features = filterFeatures(t)
-    val csvNumbers = createCsvString(fileName)
+    val csvNumbers = createCsvString()
     resetValues()
     if (writeOptionsIntoFile) {
       (TranslationUnit(definedExternalToAst(features).defs ++ result.asInstanceOf[TranslationUnit].defs).asInstanceOf[T], csvNumbers)
@@ -1018,7 +1087,7 @@ Retrieves a list of tuples out of a choice node. Also takes choices inside choic
                     if (currentContext.equivalentTo(trueF)) {
                       List(o)
                     } else {
-                      List(Opt(trueF, replaceOptAndId(e, currentContext)))
+                      List(Opt(trueF, ExprStatement(replaceOptAndId(e.expr, currentContext))))
                     }
                   }
                 case w@WhileStatement(expr: Expr, s: Conditional[_]) =>
@@ -1359,9 +1428,17 @@ Retrieves a list of tuples out of a choice node. Also takes choices inside choic
             featureBufferList.flatMap(x => x).filterNot(x => x.equivalentTo(FeatureExprFactory.False)).distinct
           } else {
             val result = featureBufferList.tail.foldLeft(featureBufferList.head)((first, second) => {
-              first.flatMap(x => second.map(y => y.and(x))).filterNot(x => x.equivalentTo(FeatureExprFactory.False)).distinct
+              if (!first.isEmpty) {
+                first.flatMap(x => second.map(y => y.and(x))).filterNot(x => x.equivalentTo(FeatureExprFactory.False) || !x.isSatisfiable(fm))
+              } else {
+                List()
+              }
             })
-            result
+            /*if (result.size > 100) {
+              val test = result.filterNot(x => !x.isSatisfiable(fm))
+              val debug = 0
+            }*/
+            result.distinct
           }
         }
       }
@@ -1611,7 +1688,7 @@ Retrieves a list of tuples out of a choice node. Also takes choices inside choic
         case i@IfStatement(c: Conditional[Expr], then, elif, els) =>
           val conditionalTuple = conditionalToTuple(c, currentContext)
           if (conditionalTuple.size == 1) {
-            List(opt)
+            List(optIf)
           } else {
             List(Opt(trueF, IfStatement(One(NAryExpr(featureToCExpr(conditionalTuple.head._1), List(Opt(trueF, NArySubExpr("&&", conditionalTuple.head._2))))), transformRecursive(replaceOptAndId(then, conditionalTuple.head._1), conditionalTuple.head._1), conditionalTuple.tail.map(x => Opt(trueF, ElifStatement(One(NAryExpr(featureToCExpr(x._1), List(Opt(trueF, NArySubExpr("&&", x._2))))), replaceOptAndId(then, x._1)))) ++ elif.flatMap(y => handleIfStatementsTest(y, currentContext).asInstanceOf[List[Opt[ElifStatement]]]), transformRecursive(els, currentContext))))
           }
@@ -1855,7 +1932,7 @@ Retrieves a list of tuples out of a choice node. Also takes choices inside choic
             // val features = computeNextRelevantFeatures(functionWithoutBody)
             // val features = getFeatureCombinations(removeList(getNextFeatures(fd).flatMap(x => x.collectDistinctFeatures2).toList, optFunction.feature.collectDistinctFeatures2.toList))
             val result = features.map(x => {
-              val tmpResult = filterOptsByFeature(convertStructId(replaceFeatureByTrue(optFunction, optFunction.feature), x.&(optFunction.feature)), x).asInstanceOf[Opt[FunctionDef]]
+              val tmpResult = replaceOptAndId(convertStructId(replaceFeatureByTrue(optFunction, optFunction.feature), x.&(optFunction.feature)), x).asInstanceOf[Opt[FunctionDef]]
               tmpResult.copy(entry = tmpResult.entry.copy(stmt = transformRecursive(tmpResult.entry.stmt)))
               //transformRecursive(filterOptsByFeature(convertId(replaceFeatureByTrue(optFunction, optFunction.feature), x.&(optFunction.feature), defuse), x), env, defuse)
             })
@@ -1872,7 +1949,8 @@ Retrieves a list of tuples out of a choice node. Also takes choices inside choic
             List(transformRecursive(optFunction))
           }
         } else {
-          val tempOpt = replaceFeatureByTrue(optFunction, optFunction.feature).asInstanceOf[Opt[FunctionDef]]
+          val tempOpt = replaceOptAndId(optFunction, optFunction.feature).asInstanceOf[Opt[FunctionDef]]
+          //println(PrettyPrinter.print(replaceOptAndIdTest(optFunction, optFunction.feature).entry.asInstanceOf[FunctionDef]))
           val functionWithoutBody = tempOpt.entry.copy(stmt = CompoundStatement(List()))
           if (isVariable(tempOpt.entry.specifiers) || isVariable(tempOpt.entry.oldStyleParameters) || isVariable(tempOpt.entry.declarator)) {
 
@@ -1997,6 +2075,18 @@ Retrieves a list of tuples out of a choice node. Also takes choices inside choic
         }
       case _ => List()
     }
+  }
+
+  def countNumberOfASTElements(ast: AST): Long = {
+    def countNumberOfASTElementsHelper(a: Any): Long = {
+      a match {
+        case l: List[_] => l.map(countNumberOfASTElementsHelper).sum
+        case _: FeatureExpr => 0
+        case p: Product => 1 + p.productIterator.toList.map(countNumberOfASTElementsHelper).sum
+        case _ => 1
+      }
+    }
+    countNumberOfASTElementsHelper(ast)
   }
 
   def analyseDeclarations[T <: Product](t: T) = {

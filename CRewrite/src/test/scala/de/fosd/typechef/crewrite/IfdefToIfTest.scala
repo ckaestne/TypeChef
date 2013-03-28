@@ -25,8 +25,8 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDeclU
   var filesTransformed = 0
 
   val i = new IfdefToIf
-  val path = new File("..").getCanonicalPath() ++ "\\ifdeftoif\\"
-  val singleFilePath = new File("..").getCanonicalPath() ++ "\\single_files\\"
+  val path = new File("..").getCanonicalPath() ++ "/ifdeftoif/"
+  val singleFilePath = new File("..").getCanonicalPath() ++ "/single_files/"
 
   /* val tb = java.lang.management.ManagementFactory.getThreadMXBean
 val time = tb.getCurrentThreadCpuTime // Type long; beware in nanoseconds */
@@ -47,8 +47,12 @@ val time = tb.getCurrentThreadCpuTime // Type long; beware in nanoseconds */
     ((after - before) / (before.toDouble))
   }
 
+  def computeDifference(before: Long, after: Long): Double = {
+    ((after - before) / (before.toDouble))
+  }
+
   def getCSVHeader(): String = {
-    "File name,LoC before,LoC after,LoC difference,Features,Declarations,Optional declarations,Declarations duplicated,Functions,Optional functions,Functions duplicated,Statements,Optional statements,Statements duplicated,Renamings,Renaming usages,Choice Nodes,Parsing,Transformation,PrettyPrinting\n"
+    "File name,Number of AST nodes before,Number of AST nodes after,AST node difference,Features,Declarations,Optional declarations,Declarations duplicated,Functions,Optional functions,Functions duplicated,Statements,Optional statements,Statements duplicated,Renamings,Renaming usages,Choice Nodes,Parsing,Transformation,PrettyPrinting\n"
   }
 
   def writeToFile(fileName: String, data: String) =
@@ -91,12 +95,12 @@ val time = tb.getCurrentThreadCpuTime // Type long; beware in nanoseconds */
     val optionsAst = i.getOptionFile(source_ast)
 
     val startTransformation = System.currentTimeMillis()
-    val tempAst = i.transformAst(source_ast, defUseMap, file.getName())
+    val new_ast = i.transformAst(source_ast, defUseMap)
     val timeToTransform = System.currentTimeMillis() - startTransformation
     print("\t--Transformed--")
 
     val startPrettyPrinting = System.currentTimeMillis()
-    PrettyPrinter.printF(tempAst._1, singleFilePath ++ fileNameWithoutExtension ++ ".ifdeftoif")
+    PrettyPrinter.printF(new_ast._1, singleFilePath ++ fileNameWithoutExtension ++ ".ifdeftoif")
     val timeToPrettyPrint = System.currentTimeMillis() - startPrettyPrinting
     print("\t--Printed--\n")
     if (writeAst) {
@@ -107,12 +111,18 @@ val time = tb.getCurrentThreadCpuTime // Type long; beware in nanoseconds */
       //if (!(new File(singleFilePath ++ fileNameWithoutExtension ++ ".src")).exists) {
       PrettyPrinter.printF(source_ast, singleFilePath ++ fileNameWithoutExtension ++ ".src")
       //}
-      val linesOfCodeBefore = Source.fromFile(new File(singleFilePath ++ fileNameWithoutExtension ++ ".src")).getLines().size
+      /*val linesOfCodeBefore = Source.fromFile(new File(singleFilePath ++ fileNameWithoutExtension ++ ".src")).getLines().size
       val linesOfCodeAfter = Source.fromFile(new File(singleFilePath ++ fileNameWithoutExtension ++ ".ifdeftoif")).getLines().size
       val codeDifference = computeDifference(linesOfCodeBefore, linesOfCodeAfter)
-      val csvBeginning = file.getName() + "," + linesOfCodeBefore + "," + linesOfCodeAfter + "," + codeDifference + ","
+      val csvBeginning = file.getName() + "," + linesOfCodeBefore + "," + linesOfCodeAfter + "," + codeDifference + ","*/
+
+      val astElementsBefore = i.countNumberOfASTElements(source_ast)
+      val astElementsAfter = i.countNumberOfASTElements(new_ast._1)
+      val astElementDifference = computeDifference(astElementsBefore, astElementsAfter)
+      val csvBeginning = file.getName() + "," + astElementsBefore + "," + astElementsAfter + "," + astElementDifference + ","
+
       val csvEnding = "," + timeToParseAndTypeCheck + "," + timeToTransform + "," + timeToPrettyPrint
-      writeToTextFile(singleFilePath ++ fileNameWithoutExtension ++ ".csv", getCSVHeader() + csvBeginning + tempAst._2 + csvEnding)
+      writeToTextFile(singleFilePath ++ fileNameWithoutExtension ++ ".csv", getCSVHeader() + csvBeginning + new_ast._2 + csvEnding)
     }
   }
 
@@ -913,22 +923,22 @@ val time = tb.getCurrentThreadCpuTime // Type long; beware in nanoseconds */
   }
 
   @Test def test_pi() {
-    val file = new File("C:\\users\\flo\\dropbox\\hiwi\\busybox\\TypeChef-BusyboxAnalysis\\busybox-1.18.5\\applets\\applets.pi")
+    val file = new File("C:/users/flo/dropbox/hiwi/busybox/TypeChef-BusyboxAnalysis/busybox-1.18.5/applets/applets.pi")
     testFile(file)
   }
 
   @Test def test_applets_pi() {
-    val file = new File("C:\\users\\flo\\dropbox\\hiwi\\busybox\\TypeChef-BusyboxAnalysis\\busybox-1.18.5\\applets\\applets.pi")
+    val file = new File("C:/users/flo/dropbox/hiwi/busybox/TypeChef-BusyboxAnalysis/busybox-1.18.5/applets/applets.pi")
     testFile(file)
   }
 
   @Test def test_stat_pi() {
-    val file = new File("C:\\Users\\Flo\\Dropbox\\HiWi\\busybox\\TypeChef-BusyboxAnalysis\\busybox-1.18.5\\coreutils\\stat.pi")
+    val file = new File("C:/Users/Flo/Dropbox/HiWi/busybox/TypeChef-BusyboxAnalysis/busybox-1.18.5/coreutils/stat.pi")
     testFile(file)
   }
 
   @Test def test_alex_pi() {
-    val file = new File("C:\\users\\flo\\dropbox\\hiwi\\flo\\pifiles\\alex.pi")
+    val file = new File("C:/users/flo/dropbox/hiwi/flo/pifiles/alex.pi")
     //testFile(file)
 
     de.fosd.typechef.featureexpr.FeatureExprFactory.setDefault(de.fosd.typechef.featureexpr.FeatureExprFactory.bdd)
@@ -938,102 +948,107 @@ val time = tb.getCurrentThreadCpuTime // Type long; beware in nanoseconds */
     println("Parsing took: " + ((System.currentTimeMillis() - parse) / 1000) + "s")
 
     val print = System.currentTimeMillis()
-    PrettyPrinter.printF(ast, "C:\\alex.src")
+    PrettyPrinter.printF(ast, "C:/alex.src")
     println("Printing took: " + ((System.currentTimeMillis() - print) / 1000) + "s")
   }
 
   @Test def test_cpio_pi() {
-    val file = new File("C:\\users\\flo\\dropbox\\hiwi\\busybox\\TypeChef-BusyboxAnalysis\\busybox-1.18.5\\archival\\cpio.pi")
+    val file = new File("C:/users/flo/dropbox/hiwi/busybox/TypeChef-BusyboxAnalysis/busybox-1.18.5/archival/cpio.pi")
     testFile(file)
   }
 
   @Test def test_update_passwd_pi() {
-    val file = new File("C:\\Users\\Flo\\Dropbox\\HiWi\\busybox\\TypeChef-BusyboxAnalysis\\busybox-1.18.5\\libbb\\update_passwd.pi")
+    val file = new File("C:/Users/Flo/Dropbox/HiWi/busybox/TypeChef-BusyboxAnalysis/busybox-1.18.5/libbb/update_passwd.pi")
     testFile(file)
   }
 
   @Test def test_tr_pi() {
-    val file = new File("C:\\Users\\Flo\\Dropbox\\HiWi\\busybox\\TypeChef-BusyboxAnalysis\\busybox-1.18.5\\coreutils\\tr.pi")
+    val file = new File("C:/Users/Flo/Dropbox/HiWi/busybox/TypeChef-BusyboxAnalysis/busybox-1.18.5/coreutils/tr.pi")
     testFile(file)
   }
 
   @Test def test_fold_pi() {
-    val file = new File("C:\\Users\\Flo\\Dropbox\\HiWi\\busybox\\TypeChef-BusyboxAnalysis\\busybox-1.18.5\\coreutils\\fold.pi")
+    val file = new File("C:/Users/Flo/Dropbox/HiWi/busybox/TypeChef-BusyboxAnalysis/busybox-1.18.5/coreutils/fold.pi")
     testFile(file)
   }
 
   @Test def test_lzop_pi() {
-    val file = new File("C:\\users\\flo\\dropbox\\hiwi\\busybox\\TypeChef-BusyboxAnalysis\\busybox-1.18.5\\archival\\lzop.pi")
+    val file = new File("C:/users/flo/dropbox/hiwi/busybox/TypeChef-BusyboxAnalysis/busybox-1.18.5/archival/lzop.pi")
     testFile(file)
   }
 
   @Test def test_rpm2cpio_pi() {
-    val file = new File("C:\\users\\flo\\dropbox\\hiwi\\busybox\\TypeChef-BusyboxAnalysis\\busybox-1.18.5\\archival\\rpm2cpio.pi")
+    val file = new File("C:/users/flo/dropbox/hiwi/busybox/TypeChef-BusyboxAnalysis/busybox-1.18.5/archival/rpm2cpio.pi")
     testFile(file)
   }
 
   @Test def test_filter_accept_all_pi() {
-    val file = new File("C:\\users\\flo\\dropbox\\hiwi\\busybox\\TypeChef-BusyboxAnalysis\\busybox-1.18.5\\archival\\libarchive\\filter_accept_all.pi")
+    val file = new File("C:/users/flo/dropbox/hiwi/busybox/TypeChef-BusyboxAnalysis/busybox-1.18.5/archival/libarchive/filter_accept_all.pi")
     testFile(file)
   }
 
   @Test def test_decompress_unzip_pi() {
-    val file = new File("C:\\users\\flo\\dropbox\\hiwi\\busybox\\TypeChef-BusyboxAnalysis\\busybox-1.18.5\\archival\\libarchive\\decompress_unzip.pi")
+    val file = new File("C:/users/flo/dropbox/hiwi/busybox/TypeChef-BusyboxAnalysis/busybox-1.18.5/archival/libarchive/decompress_unzip.pi")
     testFile(file)
   }
 
   @Test def test_ar_pi() {
-    val file = new File("C:\\users\\flo\\dropbox\\hiwi\\busybox\\TypeChef-BusyboxAnalysis\\busybox-1.18.5\\archival\\ar.pi")
+    val file = new File("C:/users/flo/dropbox/hiwi/busybox/TypeChef-BusyboxAnalysis/busybox-1.18.5/archival/ar.pi")
+    testFile(file)
+  }
+
+  @Test def test_tar_pi() {
+    val file = new File("C:/users/flo/dropbox/hiwi/busybox/TypeChef-BusyboxAnalysis/busybox-1.18.5/archival/tar.pi")
     testFile(file)
   }
 
   @Test def test_bbunzip_pi() {
-    val file = new File("C:\\users\\flo\\dropbox\\hiwi\\busybox\\TypeChef-BusyboxAnalysis\\busybox-1.18.5\\archival\\bbunzip.pi")
+    val file = new File("C:/users/flo/dropbox/hiwi/busybox/TypeChef-BusyboxAnalysis/busybox-1.18.5/archival/bbunzip.pi")
     testFile(file)
   }
 
   @Test def test_chpst_pi() {
-    val file = new File("C:\\users\\flo\\dropbox\\hiwi\\busybox\\TypeChef-BusyboxAnalysis\\busybox-1.18.5\\runit\\chpst.pi")
+    val file = new File("C:/users/flo/dropbox/hiwi/busybox/TypeChef-BusyboxAnalysis/busybox-1.18.5/runit/chpst.pi")
     testFile(file)
   }
 
   @Test def test_diff_pi() {
-    val file = new File("C:\\users\\flo\\dropbox\\hiwi\\busybox\\TypeChef-BusyboxAnalysis\\busybox-1.18.5\\editors\\diff.pi")
+    val file = new File("C:/users/flo/dropbox/hiwi/busybox/TypeChef-BusyboxAnalysis/busybox-1.18.5/editors/diff.pi")
     testFile(file)
   }
 
   @Test def test_ls_pi() {
-    val file = new File("C:\\users\\flo\\dropbox\\hiwi\\busybox\\TypeChef-BusyboxAnalysis\\busybox-1.18.5\\coreutils\\ls.pi")
+    val file = new File("C:/users/flo/dropbox/hiwi/busybox/TypeChef-BusyboxAnalysis/busybox-1.18.5/coreutils/ls.pi")
     testFile(file)
   }
 
   @Test def test_sed_pi() {
-    val file = new File("C:\\users\\flo\\dropbox\\hiwi\\busybox\\TypeChef-BusyboxAnalysis\\busybox-1.18.5\\editors\\sed.pi")
+    val file = new File("C:/users/flo/dropbox/hiwi/busybox/TypeChef-BusyboxAnalysis/busybox-1.18.5/editors/sed.pi")
     testFile(file)
   }
 
   @Test def test_linux_cciss_pi() {
-    val file = new File("D:\\drivers\\block\\cciss.pi")
+    val file = new File("D:/drivers/block/cciss.pi")
     testFile(file)
   }
 
   @Test def test_linux_battery_pi() {
-    val file = new File("D:\\drivers\\acpi\\battery.pi")
+    val file = new File("D:/drivers/acpi/battery.pi")
     testFile(file)
   }
 
   @Test def test_linux_ac_pi() {
-    val file = new File("D:\\drivers\\acpi\\ac.pi")
+    val file = new File("D:/drivers/acpi/ac.pi")
     testFile(file)
   }
 
   @Test def test_lineedit_pi() {
-    val file = new File("C:\\Users\\Flo\\Dropbox\\HiWi\\busybox\\TypeChef-BusyboxAnalysis\\busybox-1.18.5\\libbb\\lineedit.pi")
+    val file = new File("C:/Users/Flo/Dropbox/HiWi/busybox/TypeChef-BusyboxAnalysis/busybox-1.18.5/libbb/lineedit.pi")
     testFile(file)
   }
 
   @Test def test_cdrom_pi() {
-    val file = new File("C:\\users\\flo\\dropbox\\hiwi\\flo\\pifiles\\cdrom.pi")
+    val file = new File("C:/users/flo/dropbox/hiwi/flo/pifiles/cdrom.pi")
     //testFile(file)
 
     de.fosd.typechef.featureexpr.FeatureExprFactory.setDefault(de.fosd.typechef.featureexpr.FeatureExprFactory.bdd)
@@ -1043,22 +1058,22 @@ val time = tb.getCurrentThreadCpuTime // Type long; beware in nanoseconds */
     println("Parsing took: " + ((System.currentTimeMillis() - parse) / 1000) + "s")
 
     val print = System.currentTimeMillis()
-    PrettyPrinter.printF(ast, "C:\\cdrom.src")
+    PrettyPrinter.printF(ast, "C:/cdrom.src")
     println("Printing took: " + ((System.currentTimeMillis() - print) / 1000) + "s")
   }
 
   @Test def test_test_pi() {
-    val file = new File("C:\\Users\\Flo\\Dropbox\\HiWi\\Flo\\test\\test.pi")
+    val file = new File("C:/Users/Flo/Dropbox/HiWi/Flo/test/test.pi")
     testFile(file, true)
   }
 
   @Test def test_mpt2sas_base_pi() {
-    val file = new File("C:\\users\\flo\\dropbox\\hiwi\\flo\\pifiles\\cdrom.pi")
+    val file = new File("C:/users/flo/dropbox/hiwi/flo/pifiles/cdrom.pi")
     testFile(file)
   }
 
   @Test def test_mpt2sas_config_pi() {
-    val file = new File("C:\\users\\flo\\dropbox\\hiwi\\flo\\TypeChef\\ifdeftoif\\cdrom.pi")
+    val file = new File("C:/users/flo/dropbox/hiwi/flo/TypeChef/ifdeftoif/cdrom.pi")
     testFile(file)
   }
 
@@ -1313,7 +1328,7 @@ val time = tb.getCurrentThreadCpuTime // Type long; beware in nanoseconds */
   }
 
   @Test def struct_test() {
-    val file = new File("C:\\users\\flo\\dropbox\\hiwi\\flo\\random\\struct.pi")
+    val file = new File("C:/users/flo/dropbox/hiwi/flo/random/struct.pi")
     testFile(file)
   }
 
@@ -1408,12 +1423,12 @@ val time = tb.getCurrentThreadCpuTime // Type long; beware in nanoseconds */
         print("--Parsed--")
 
         val startTransformation = System.currentTimeMillis()
-        val tempAst = i.transformAst(source_ast, defUseMap, file.getName())
+        val new_ast = i.transformAst(source_ast, defUseMap)
         val timeToTransform = System.currentTimeMillis() - startTransformation
         print("\t--Transformed--")
 
         if (typeCheckResult) {
-          typecheckTranslationUnit(tempAst._1)
+          typecheckTranslationUnit(new_ast._1)
           print("\t--TypeChecked--")
         }
 
@@ -1421,10 +1436,10 @@ val time = tb.getCurrentThreadCpuTime // Type long; beware in nanoseconds */
         //val transformedCode = PrettyPrinter.print(tempAst._1)
         if (writeFilesIntoIfdeftoifFolder) {
           //writeToTextFile(path ++ fileNameWithoutExtension ++ ".ifdeftoif", transformedCode)
-          PrettyPrinter.printF(tempAst._1, path ++ fileNameWithoutExtension ++ ".ifdeftoif")
+          PrettyPrinter.printF(new_ast._1, path ++ fileNameWithoutExtension ++ ".ifdeftoif")
         } else {
           //writeToTextFile(filePathWithoutExtension ++ ".ifdeftoif", transformedCode)
-          PrettyPrinter.printF(tempAst._1, filePathWithoutExtension ++ ".ifdeftoif")
+          PrettyPrinter.printF(new_ast._1, filePathWithoutExtension ++ ".ifdeftoif")
         }
 
         val timeToPrettyPrint = System.currentTimeMillis() - startPrettyPrinting
@@ -1435,12 +1450,18 @@ val time = tb.getCurrentThreadCpuTime // Type long; beware in nanoseconds */
             if (!((new File(path ++ fileNameWithoutExtension ++ ".src")).exists)) {
               writeToTextFile(path ++ fileNameWithoutExtension ++ ".src", PrettyPrinter.print(source_ast))
             }
-            val linesOfCodeBefore = Source.fromFile(new File(path ++ fileNameWithoutExtension ++ ".src")).getLines().size
+            /*val linesOfCodeBefore = Source.fromFile(new File(path ++ fileNameWithoutExtension ++ ".src")).getLines().size
             val linesOfCodeAfter = Source.fromFile(new File(path ++ fileNameWithoutExtension ++ ".ifdeftoif")).getLines().size
             val codeDifference = computeDifference(linesOfCodeBefore, linesOfCodeAfter)
-            val csvBeginning = file.getName() + "," + linesOfCodeBefore + "," + linesOfCodeAfter + "," + codeDifference + ","
+            val csvBeginning = file.getName() + "," + linesOfCodeBefore + "," + linesOfCodeAfter + "," + codeDifference + ","*/
+            val astElementsBefore = i.countNumberOfASTElements(source_ast)
+            val astElementsAfter = i.countNumberOfASTElements(new_ast._1)
+            val astElementDifference = computeDifference(astElementsBefore, astElementsAfter)
+            val csvBeginning = file.getName() + "," + astElementsBefore + "," + astElementsAfter + "," + astElementDifference + ","
+
+
             val csvEnding = "," + timeToParseAndTypeCheck + "," + timeToTransform + "," + timeToPrettyPrint + "\n"
-            appendToFile(path ++ "results.csv", csvBeginning + tempAst._2 + csvEnding)
+            appendToFile(path ++ "results.csv", csvBeginning + new_ast._2 + csvEnding)
           } else {
             if (!(new File(filePathWithoutExtension ++ ".src")).exists) {
               writeToTextFile(filePathWithoutExtension ++ ".src", PrettyPrinter.print(source_ast))
@@ -1450,7 +1471,7 @@ val time = tb.getCurrentThreadCpuTime // Type long; beware in nanoseconds */
             val codeDifference = computeDifference(linesOfCodeBefore, linesOfCodeAfter)
             val csvBeginning = file.getName() + "," + linesOfCodeBefore + "," + linesOfCodeAfter + "," + codeDifference + ","
             val csvEnding = "," + timeToParseAndTypeCheck + "," + timeToTransform + "," + timeToPrettyPrint + "\n"
-            appendToFile(path ++ "results.csv", csvBeginning + tempAst._2 + csvEnding)
+            appendToFile(path ++ "results.csv", csvBeginning + new_ast._2 + csvEnding)
           }
         }
       }
@@ -1591,7 +1612,7 @@ val time = tb.getCurrentThreadCpuTime // Type long; beware in nanoseconds */
   }
 
   @Test def flo_ast_test() {
-    val source_ast = getAstFromPi(new File("C:\\users\\flo\\dropbox\\hiwi\\flo\\test\\test2.pi"))
+    val source_ast = getAstFromPi(new File("C:/users/flo/dropbox/hiwi/flo/test/test2.pi"))
     println(source_ast)
   }
 
@@ -1767,8 +1788,8 @@ val time = tb.getCurrentThreadCpuTime // Type long; beware in nanoseconds */
   }
 
   @Test def declaration_test() {
-    // val file = new File("C:\\users\\flo\\dropbox\\hiwi\\flo\\pifiles\\cdrom.pi")
-    val file = new File("C:\\users\\flo\\dropbox\\hiwi\\busybox\\TypeChef-BusyboxAnalysis\\busybox-1.18.5\\libbb\\lineedit.pi")
+    // val file = new File("C:/users/flo/dropbox/hiwi/flo/pifiles/cdrom.pi")
+    val file = new File("C:/users/flo/dropbox/hiwi/busybox/TypeChef-BusyboxAnalysis/busybox-1.18.5/libbb/lineedit.pi")
     println("parsing")
     val parse_time = System.currentTimeMillis()
     val source_ast = getAstFromPi(file)
@@ -1789,7 +1810,7 @@ val time = tb.getCurrentThreadCpuTime // Type long; beware in nanoseconds */
   }
 
   @Test def pretty_printer_test() {
-    val file = new File("C:\\users\\flo\\dropbox\\hiwi\\busybox\\TypeChef-BusyboxAnalysis\\busybox-1.18.5\\applets\\applets.pi")
+    val file = new File("C:/users/flo/dropbox/hiwi/busybox/TypeChef-BusyboxAnalysis/busybox-1.18.5/applets/applets.pi")
     //testFile(file)
     val newFullFilePath = singleFilePath ++ getFileNameWithoutExtension(file) ++ ".ifdeftoif"
     val source_ast = getAstFromPi(new File(newFullFilePath))
@@ -1797,23 +1818,24 @@ val time = tb.getCurrentThreadCpuTime // Type long; beware in nanoseconds */
   }
 
   @Test def file_test() {
-    //val file = new File("C:\\Users\\Flo\\Dropbox\\HiWi\\Flo\\test\\annotated_typedef.c")
-    //val file = new File("C:\\Users\\Flo\\Dropbox\\HiWi\\Flo\\test\\test_decluse.c")
-    //val file = new File("C:\\Users\\Flo\\Dropbox\\HiWi\\Flo\\test\\test_type_error.c")
-    //val file = new File("C:\\Users\\Flo\\Dropbox\\HiWi\\Flo\\test\\test_typedef.c")
-    //val file = new File("C:\\Users\\Flo\\Dropbox\\HiWi\\Flo\\test\\typedef_struct.c")
-    //val file = new File("C:\\Users\\Flo\\Dropbox\\HiWi\\Flo\\test\\double_typedef.c")
-    //val file = new File("C:\\Users\\Flo\\Dropbox\\HiWi\\Flo\\ifdeftoif\\test_main.c")
-    //val file = new File("C:\\Users\\Flo\\Dropbox\\HiWi\\Flo\\test\\struct_typedef_test.c")
-    //val file = new File("C:\\Users\\Flo\\Dropbox\\HiWi\\Flo\\test\\struct_enum_test.c")
-    //val file = new File("C:\\Users\\Flo\\Dropbox\\HiWi\\Flo\\test\\declaration_functioncall.c")
-    //val file = new File("C:\\Users\\Flo\\Dropbox\\HiWi\\Flo\\test\\typedef_usage_in_struct.c")
-    //val file = new File("C:\\Users\\Flo\\Dropbox\\HiWi\\Flo\\test\\function_variable_specifiers.c")
-    //val file = new File("C:\\Users\\Flo\\Dropbox\\HiWi\\Flo\\test\\function_call_test.c")
-    //val file = new File("C:\\Users\\Flo\\Dropbox\\HiWi\\Flo\\single_files\\test_specifier.c")
-    //val file = new File("C:\\Users\\Flo\\Dropbox\\HiWi\\Flo\\test\\variable_struct_member_usage.c")
-    //val file = new File("C:\\Users\\Flo\\Dropbox\\HiWi\\Flo\\test\\char_trailer.c")
-    val file = new File("C:\\Users\\Flo\\Dropbox\\HiWi\\Flo\\test\\enum_test.c")
+    //val file = new File("C:/Users/Flo/Dropbox/HiWi/Flo/test/annotated_typedef.c")
+    //val file = new File("C:/Users/Flo/Dropbox/HiWi/Flo/test/test_decluse.c")
+    //val file = new File("C:/Users/Flo/Dropbox/HiWi/Flo/test/test_type_error.c")
+    //val file = new File("C:/Users/Flo/Dropbox/HiWi/Flo/test/test_typedef.c")
+    //val file = new File("C:/Users/Flo/Dropbox/HiWi/Flo/test/typedef_struct.c")
+    //val file = new File("C:/Users/Flo/Dropbox/HiWi/Flo/test/double_typedef.c")
+    //val file = new File("C:/Users/Flo/Dropbox/HiWi/Flo/ifdeftoif/test_main.c")
+    //val file = new File("C:/Users/Flo/Dropbox/HiWi/Flo/test/struct_typedef_test.c")
+    //val file = new File("C:/Users/Flo/Dropbox/HiWi/Flo/test/struct_enum_test.c")
+    //val file = new File("C:/Users/Flo/Dropbox/HiWi/Flo/test/declaration_functioncall.c")
+    //val file = new File("C:/Users/Flo/Dropbox/HiWi/Flo/test/typedef_usage_in_struct.c")
+    //val file = new File("C:/Users/Flo/Dropbox/HiWi/Flo/test/function_variable_specifiers.c")
+    //val file = new File("C:/Users/Flo/Dropbox/HiWi/Flo/test/function_call_test.c")
+    //val file = new File("C:/Users/Flo/Dropbox/HiWi/Flo/single_files/test_specifier.c")
+    //val file = new File("C:/Users/Flo/Dropbox/HiWi/Flo/test/variable_struct_member_usage.c")
+    //val file = new File("C:/Users/Flo/Dropbox/HiWi/Flo/test/char_trailer.c")
+    //val file = new File("C:/Users/Flo/Dropbox/HiWi/Flo/test/enum_test.c")
+    val file = new File("C:/Users/Flo/Dropbox/HiWi/Flo/test/pretty_print.c")
 
     val source_ast = getAstFromPi(file)
     println(source_ast.toString() ++ "\n\n")

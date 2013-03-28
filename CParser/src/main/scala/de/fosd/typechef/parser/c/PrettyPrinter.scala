@@ -51,7 +51,7 @@ object PrettyPrinter {
   }
 
   // old version causing stack overflows and pretty slow
-  // def print(ast: AST): String = layout(prettyPrint(ast))
+  //def print(ast: AST): String = layout(prettyPrint(ast))
   // new awesome fast version using a string writer instance
   def print(ast: AST): String = printW(ast, new StringWriter()).toString
 
@@ -189,7 +189,7 @@ object PrettyPrinter {
       case EmptyStatement() => ";"
       case ExprStatement(expr: Expr) => expr ~ ";"
       case WhileStatement(expr: Expr, s) => "while (" ~ expr ~ ")" ~~ s
-      case DoStatement(expr: Expr, s) => "do" ~~ s ~~ "while (" ~ expr ~ ")"
+      case DoStatement(expr: Expr, s) => "do" ~~ s ~~ "while (" ~ expr ~ ")" ~ ";"
       case ForStatement(expr1, expr2, expr3, s) =>
         "for (" ~ opt(expr1) ~ ";" ~~ opt(expr2) ~ ";" ~~ opt(expr3) ~ ")" ~~ s
       case GotoStatement(target) => "goto" ~~ target ~ ";"
@@ -240,7 +240,7 @@ object PrettyPrinter {
 
       case InitDeclaratorI(declarator, lst, Some(i)) =>
         if (!lst.isEmpty) {
-          declarator ~~ "=" ~~ i ~~ sep(lst, _ ~~ _)
+          declarator ~~ sep(lst, _ ~~ _) ~~ "=" ~~ i
         } else {
           declarator ~~ "=" ~~ i
         }
