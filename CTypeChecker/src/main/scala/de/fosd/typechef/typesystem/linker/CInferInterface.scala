@@ -2,7 +2,7 @@ package de.fosd.typechef.typesystem.linker
 
 import de.fosd.typechef.conditional.{Opt, Conditional}
 import de.fosd.typechef.parser.c._
-import de.fosd.typechef.typesystem.{CType, CTypeSystem}
+import de.fosd.typechef.typesystem.{KParameter, CType, CTypeSystem}
 import de.fosd.typechef.parser.Position
 import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
 
@@ -109,14 +109,27 @@ trait CInferInterface extends CTypeSystem with InterfaceWriter {
         expr match {
             case identifier: Id =>
                 val deadCondition = env.isDeadCode
-                for ((fexpr, ctype) <- ctypes.toList)
-                    if (ctype.isFunction && ((fexpr and featureExpr andNot deadCondition) isSatisfiable))
-                        imports = CSignature(identifier.name, ctype, fexpr and featureExpr andNot deadCondition, Seq(identifier.getPositionFrom)) :: imports
+                for ((fexpr, ctype) <- ctypes.toList) {
+                    val localFexpr = fexpr and featureExpr andNot deadCondition
+                    if (ctype.isFunction && (localFexpr isSatisfiable))
+                        isParameter(identifier.name, env).mapf(localFexpr,
+                            (f, e) => if (!e)
+                                imports = CSignature(identifier.name, ctype, f, Seq(identifier.getPositionFrom)) :: imports
+                        )
+                }
             case _ =>
         }
 
 
     }
+
+    /**
+     * check that the id refers to a parameter instead of to a function or variable
+     *
+     * returns true if scope==0
+     */
+    private def isParameter(name: String, env: Env): Conditional[Boolean] =
+        env.varEnv.lookupKind(name).map(_ == KParameter)
 
 
 }
