@@ -121,7 +121,7 @@ object Frontend {
                 //Debug_FeatureModelExperiments.experiment(fm_ts)
 
                 if (opt.typecheck || opt.writeInterface) {
-                    //ProductGeneration.typecheckProducts(fm,fm_ts,ast,opt,
+                    ProductGeneration.typecheckProducts(fm,fm_ts,ast,opt,"")
                     //logMessage=("Time for lexing(ms): " + (t2-t1) + "\nTime for parsing(ms): " + (t3-t2) + "\n"))
                     //ProductGeneration.estimateNumberOfVariants(ast, fm_ts)
 
@@ -144,15 +144,7 @@ object Frontend {
 
                     val cf = new CAnalysisFrontend(ast.asInstanceOf[TranslationUnit], fm_ts)
                     cf.checkCfG()
-                    t6 = System.currentTimeMillis()
-                    t7 = t6
                 }
-                if (opt.dataFlow) {
-                    stopWatch.start("dataFlow")
-                    ProductGeneration.dataflowAnalysis(fm_ts, ast, opt,
-                        logMessage = ("Time for lexing(ms): " + (stopWatch.get("lexing")) + "\nTime for parsing(ms): " + (stopWatch.get("parsing")) + "\n"))
-                }
-
             }
 
         }
