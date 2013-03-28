@@ -4,22 +4,23 @@ import conditional.{One, Choice, Opt}
 import crewrite.{CAnalysisFrontend, EnforceTreeHelper, ProductDerivation}
 import featureexpr._
 
-import bdd.{BDDFeatureExpr, BDDFeatureModel, SatSolver}
+import bdd.{BDDFeatureModel, SatSolver}
 import parser.c._
 import parser.c.CTypeContext
 import parser.c.TranslationUnit
-import sat.{SATFeatureModel, SATFeatureExpr, SATFeatureExprFactory}
+import sat.{SATFeatureModel, SATFeatureExprFactory}
 import typesystem.CTypeSystemFrontend
 import scala.collection.immutable.HashMap
 import scala.Predef._
 import scala._
-import collection.mutable.{ListBuffer, HashSet, BitSet}
+import collection.mutable.ListBuffer
 import io.Source
 import java.util.regex.Pattern
 import java.lang.SuppressWarnings
 import java.io._
 import util.Random
 import scala.Some
+import java.util.Collections
 
 /**
  *
@@ -43,7 +44,7 @@ object ProductGeneration extends EnforceTreeHelper {
 
     def this(trueSet: List[SingleFeatureExpr], falseSet: List[SingleFeatureExpr]) = this(
     {
-      val ret: scala.collection.mutable.BitSet = BitSet()
+      val ret: scala.collection.mutable.BitSet = scala.collection.mutable.BitSet()
       for (tf: SingleFeatureExpr <- trueSet) ret.add(featureIDHashmap(tf))
       for (ff: SingleFeatureExpr <- falseSet) ret.remove(featureIDHashmap(ff))
       ret.toImmutable
@@ -517,7 +518,7 @@ object ProductGeneration extends EnforceTreeHelper {
 
   def parseFile(stream: InputStream, file: String, dir: String): TranslationUnit = {
     val ast: AST = new ParserMain(new CParser).parserMain(
-      () => CLexer.lexStream(stream, file, dir, null), new CTypeContext, SilentParserOptions)
+      () => CLexer.lexStream(stream, file, Collections.singletonList(dir), null), new CTypeContext, SilentParserOptions)
     ast.asInstanceOf[TranslationUnit]
   }
 
@@ -527,9 +528,9 @@ object ProductGeneration extends EnforceTreeHelper {
     ts.checkASTSilent
     ts.checkASTSilent
     val df = new CAnalysisFrontend(tu)
-    df.checkDataflow
-    df.checkDataflow
-    df.checkDataflow
+    df.checkDataflow()
+    df.checkDataflow()
+    df.checkDataflow()
   }
 
   def typecheckConfigurations(typecheckingTasks: List[Task],
@@ -1029,7 +1030,7 @@ object ProductGeneration extends EnforceTreeHelper {
 
     // now optNodes contains all Opt[..] nodes in the file, and choiceNodes all Choice nodes.
     // True node never needs to be handled
-    val handledExpressions: HashSet[FeatureExpr] = HashSet(FeatureExprFactory.True)
+    val handledExpressions = scala.collection.mutable.HashSet(FeatureExprFactory.True)
     var retList: List[SimpleConfiguration] = List()
     //inner function
     def handleFeatureExpression(fex: FeatureExpr) = {
