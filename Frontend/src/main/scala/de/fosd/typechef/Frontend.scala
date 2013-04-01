@@ -109,7 +109,7 @@ object Frontend {
 
         if (opt.typecheck || opt.writeInterface) {
           println("type checking.")
-          val typeCheckStatus = ts.checkAST
+          val typeCheckStatus = ts.checkASTSilent
           if (opt.ifdeftoif) {
             if (typeCheckStatus) {
               //ProductGeneration.typecheckProducts(fm,fm_ts,ast,opt,
@@ -117,26 +117,20 @@ object Frontend {
               //ProductGeneration.estimateNumberOfVariants(ast, fm_ts)
               val i = new IfdefToIf
               val defUseMap = ts.getDeclUseMap
-
-              val ifdeftoifStart = System.currentTimeMillis()
-              val new_ast = i.transformAst(ast, defUseMap, fm)._1
-              val ifdeftoifDuration = System.currentTimeMillis() - ifdeftoifStart
-
-              val oldNumberOfAstElems = i.countNumberOfASTElements(ast)
-              val newNumberOfAstElems = i.countNumberOfASTElements(new_ast)
-              val difference = newNumberOfAstElems / oldNumberOfAstElems.toDouble
-
-              println("ifdeftoif time: " + ifdeftoifDuration)
-              if (opt.outputStem.isEmpty) {
-                //write to console
-                println(PrettyPrinter.print(new_ast))
-              } else {
-                // write to file
-                PrettyPrinter.printF(new_ast, opt.outputStem + ".ifdeftoif")
+              val lexAndParse = t3 - t1
+              val fileName = i.outputStemToFileName(opt.outputStem)
+              val tuple = i.ifdeftoif(ast, defUseMap, fm, opt.outputStem, lexAndParse)
+              tuple._1 match {
+                case None =>
+                  println("!! Transformation of " ++ fileName ++ " unsuccessful because of type errors in transformation result !!")
+                case Some(x) =>
+                  if (!opt.outputStem.isEmpty()) {
+                    PrettyPrinter.printF(x, opt.outputStem ++ ".ifdeftoif")
+                    println("++Transformed: " ++ fileName ++ "++\t\t --in " + tuple._2 ++ " ms--")
+                  }
               }
-              println()
             } else {
-              println("#ifdef to if transformation unsuccessful because of type errors")
+              println("#ifdef to if transformation unsuccessful because of type errors in source file")
             }
           } else {
             ts.errors.map(errorXML.renderTypeError(_))

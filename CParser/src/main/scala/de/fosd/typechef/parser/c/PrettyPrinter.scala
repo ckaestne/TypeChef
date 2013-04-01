@@ -228,7 +228,7 @@ object PrettyPrinter {
       case VolatileSpecifier() => "volatile"
       case ExternSpecifier() => "extern"
       case ConstSpecifier() => "const"
-      case RestrictSpecifier() => "__restrict "
+      case RestrictSpecifier() => "__restrict"
       case StaticSpecifier() => "static"
 
       case AtomicAttribute(n: String) => n
@@ -254,6 +254,7 @@ object PrettyPrinter {
 
       case AtomicNamedDeclarator(pointers, id, extensions) =>
         sep(pointers, _ ~ _) ~ id ~ sep(extensions, _ ~ _)
+
       case NestedNamedDeclarator(pointers, nestedDecl, extensions) =>
         sep(pointers, _ ~ _) ~ "(" ~ nestedDecl ~ ")" ~ sep(extensions, _ ~ _)
       case AtomicAbstractDeclarator(pointers, extensions) =>
@@ -265,7 +266,12 @@ object PrettyPrinter {
       case DeclParameterDeclList(parameterDecls) => "(" ~ commaSep(parameterDecls) ~ ")"
       case DeclArrayAccess(expr) => "[" ~ opt(expr) ~ "]"
       case Initializer(initializerElementLabel, expr: Expr) => opt(initializerElementLabel) ~~ expr
-      case Pointer(specifier) => "*" ~ spaceSep(specifier)
+      case Pointer(specifier) =>
+        if (specifier.isEmpty) {
+          "*" ~ spaceSep(specifier)
+        } else {
+          "*" ~ spaceSep(specifier) ~ " "
+        }
       case PlainParameterDeclaration(specifiers) => spaceSep(specifiers)
       case ParameterDeclarationD(specifiers, decl) => spaceSep(specifiers) ~~ decl
       case ParameterDeclarationAD(specifiers, decl) => spaceSep(specifiers) ~~ decl

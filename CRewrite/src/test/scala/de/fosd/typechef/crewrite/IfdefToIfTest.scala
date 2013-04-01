@@ -12,14 +12,14 @@ import util.IdentityHashMap
 import scala.Some
 import scala.Tuple2
 import io.Source
-import de.fosd.typechef.conditional.{One, Opt}
+import de.fosd.typechef.conditional.{Choice, One, Opt}
 import de.fosd.typechef.featureexpr.FeatureExprFactory
 
 class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDeclUse with CTypeSystem with TestHelper {
   val makeAnalysis = true
   val writeFilesIntoIfdeftoifFolder = true
   val checkForExistingFiles = true
-  val typeCheckResult = false
+  val typeCheckResult = true
 
   val filesToAnalysePerRun = 15
   var filesTransformed = 0
@@ -43,16 +43,12 @@ val time = tb.getCurrentThreadCpuTime // Type long; beware in nanoseconds */
       param.close()
     }
 
-  def computeDifference(before: Int, after: Int): Double = {
-    ((after - before) / (before.toDouble))
-  }
-
-  def computeDifference(before: Long, after: Long): Double = {
-    ((after - before) / (before.toDouble))
-  }
-
   def getCSVHeader(): String = {
-    "File name,Number of AST nodes before,Number of AST nodes after,AST node difference,Features,Declarations,Optional declarations,Declarations duplicated,Functions,Optional functions,Functions duplicated,Statements,Optional statements,Statements duplicated,Renamings,Renaming usages,Choice Nodes,Parsing,Transformation,PrettyPrinting\n"
+    "File name,Number of AST nodes before,Number of AST nodes after,AST node difference,Features,Declarations,Optional declarations,Declarations duplicated,Functions,Optional functions,Functions duplicated,If statements before,If statements after,Renamings,Renaming usages,Parsing,Transformation,PrettyPrinting\n"
+  }
+
+  def getTypeSystem(ast: AST): CTypeSystemFrontend = {
+    new CTypeSystemFrontend(ast.asInstanceOf[TranslationUnit])
   }
 
   def writeToFile(fileName: String, data: String) =
@@ -85,17 +81,27 @@ val time = tb.getCurrentThreadCpuTime // Type long; beware in nanoseconds */
       print("\t")
     }
     val startParsingAndTypeChecking = System.currentTimeMillis()
-    val source_ast = getAstFromPi(file)
+    val source_ast = i.fixTypeChefsFeatureExpressions(getAstFromPi(file))
     //val env = createASTEnv(source_ast)
     typecheckTranslationUnit(source_ast)
+    println("\nTotal declarations: " + i.countNumberOfDeclarations(source_ast))
+    println("Functiondefs: " + i.countNumberOfElements[FunctionDef](source_ast))
+    println("Raw declarations: " + i.countNumberOfElements[Declaration](source_ast))
+    println("Ifs: " + i.countNumberOfElements[IfStatement](source_ast))
+    println("Variable Declarations: " + i.countNumberOfVariableDeclarations(source_ast))
+    println("Variable Functions: " + i.countNumberOfVariableElements[FunctionDef](source_ast))
     val defUseMap = getDeclUseMap
     val timeToParseAndTypeCheck = System.currentTimeMillis() - startParsingAndTypeChecking
     print("--Parsed--")
 
-    val optionsAst = i.getOptionFile(source_ast)
-
     val startTransformation = System.currentTimeMillis()
     val new_ast = i.transformAst(source_ast, defUseMap)
+    println("\nTotal declarations: " + i.countNumberOfDeclarations(new_ast._1))
+    println("Functiondefs: " + i.countNumberOfElements[FunctionDef](new_ast._1))
+    println("Raw declarations: " + i.countNumberOfElements[Declaration](new_ast._1))
+    println("Ifs: " + i.countNumberOfElements[IfStatement](new_ast._1))
+    println("Variable Declarations: " + i.countNumberOfVariableDeclarations(new_ast._1))
+    println("Variable Functions: " + i.countNumberOfVariableElements[FunctionDef](new_ast._1))
     val timeToTransform = System.currentTimeMillis() - startTransformation
     print("\t--Transformed--")
 
@@ -118,7 +124,7 @@ val time = tb.getCurrentThreadCpuTime // Type long; beware in nanoseconds */
 
       val astElementsBefore = i.countNumberOfASTElements(source_ast)
       val astElementsAfter = i.countNumberOfASTElements(new_ast._1)
-      val astElementDifference = computeDifference(astElementsBefore, astElementsAfter)
+      val astElementDifference = i.computeDifference(astElementsBefore, astElementsAfter)
       val csvBeginning = file.getName() + "," + astElementsBefore + "," + astElementsAfter + "," + astElementDifference + ","
 
       val csvEnding = "," + timeToParseAndTypeCheck + "," + timeToTransform + "," + timeToPrettyPrint
@@ -1105,7 +1111,11 @@ val time = tb.getCurrentThreadCpuTime // Type long; beware in nanoseconds */
     #endif
     i = i*i;
     }}""")
+    println(source_ast)
     println(testAst(source_ast))
+    println("DECLS: " + i.countNumberOfElements[Declaration](source_ast))
+    println("FUNCTIONDEFS: " + i.countNumberOfElements[FunctionDef](source_ast))
+    println("Declarations: " + i.countNumberOfDeclarations(source_ast))
   }
 
   @Test def test_if_choice() {
@@ -1158,6 +1168,7 @@ val time = tb.getCurrentThreadCpuTime // Type long; beware in nanoseconds */
     }
     }""")
     println(testAst(source_ast))
+    println("Declarations: " + i.countNumberOfDeclarations(source_ast))
   }
 
   @Test def enum_test() {
@@ -1372,6 +1383,27 @@ val time = tb.getCurrentThreadCpuTime // Type long; beware in nanoseconds */
     }
   }
 
+  private def countFiles(dirToAnalyse: File, fileExtension: String = ".pi"): Int = {
+    def countHelp(file: File): Int = {
+      if (file.isDirectory) {
+        val piFiles = file.listFiles(new FilenameFilter {
+          def accept(dir: File, fileName: String): Boolean = fileName.endsWith(fileExtension)
+        })
+        val dirs = file.listFiles(new FilenameFilter {
+          def accept(dir: File, fileName: String) = dir.isDirectory
+        })
+        var numberOfFiles = piFiles.size
+        for (dir <- dirs) {
+          numberOfFiles = numberOfFiles + countHelp(dir)
+        }
+        numberOfFiles
+      } else {
+        0
+      }
+    }
+    countHelp(dirToAnalyse)
+  }
+
   private def transformDir(dirToAnalyse: File) {
     def transformPiFiles(dirToAnalyse: File) {
       if (filesTransformed < filesToAnalysePerRun) {
@@ -1397,7 +1429,6 @@ val time = tb.getCurrentThreadCpuTime // Type long; beware in nanoseconds */
       writeToFile(path ++ "results.csv", getCSVHeader())
     }
     transformPiFiles(dirToAnalyse)
-    writeToFile(path ++ "options.h", PrettyPrinter.print(i.getTotalOptionFile()))
   }
 
   private def runIfdefToIfOnPi(file: File) {
@@ -1405,13 +1436,12 @@ val time = tb.getCurrentThreadCpuTime // Type long; beware in nanoseconds */
       val filePathWithoutExtension = getFileNameWithoutExtension(file.getPath())
       val fileNameWithoutExtension = getFileNameWithoutExtension(file)
       val transformedFileExists = (writeFilesIntoIfdeftoifFolder && new File(path ++ fileNameWithoutExtension ++ ".ifdeftoif").exists) || (!writeFilesIntoIfdeftoifFolder && new File(filePathWithoutExtension ++ ".ifdeftoif").exists)
+      var fileName = file.getName()
 
       if (!checkForExistingFiles || !transformedFileExists) {
-        val analyseString = "++Analyse: " + file.getName + "++"
-        print(analyseString)
-        for (i <- (analyseString.size / 4) until 15) {
+        /*for (i <- (analyseString.size / 4) until 15) {
           print("\t")
-        }
+        }*/
 
         filesTransformed = filesTransformed + 1
 
@@ -1420,17 +1450,21 @@ val time = tb.getCurrentThreadCpuTime // Type long; beware in nanoseconds */
         typecheckTranslationUnit(source_ast)
         val defUseMap = getDeclUseMap
         val timeToParseAndTypeCheck = System.currentTimeMillis() - startParsingAndTypeChecking
-        print("--Parsed--")
+        //print("--Parsed--")
+
+        val tuple = i.ifdeftoif(source_ast, defUseMap, i.busyBoxFm, fileNameWithoutExtension, timeToParseAndTypeCheck)
+        tuple._1 match {
+          case None =>
+            println("!! Transformation of " ++ fileName ++ " unsuccessful because of type errors in transformation result !!")
+          case Some(x) =>
+            PrettyPrinter.printF(x, fileNameWithoutExtension ++ ".ifdeftoif")
+            println("++Transformed: " ++ fileName ++ "++\t\t --in " + tuple._2 ++ " ms--")
+        }
 
         val startTransformation = System.currentTimeMillis()
         val new_ast = i.transformAst(source_ast, defUseMap)
         val timeToTransform = System.currentTimeMillis() - startTransformation
-        print("\t--Transformed--")
-
-        if (typeCheckResult) {
-          typecheckTranslationUnit(new_ast._1)
-          print("\t--TypeChecked--")
-        }
+        //print("\t--Transformed--")
 
         val startPrettyPrinting = System.currentTimeMillis()
         //val transformedCode = PrettyPrinter.print(tempAst._1)
@@ -1441,11 +1475,16 @@ val time = tb.getCurrentThreadCpuTime // Type long; beware in nanoseconds */
           //writeToTextFile(filePathWithoutExtension ++ ".ifdeftoif", transformedCode)
           PrettyPrinter.printF(new_ast._1, filePathWithoutExtension ++ ".ifdeftoif")
         }
-
         val timeToPrettyPrint = System.currentTimeMillis() - startPrettyPrinting
-        print("\t--Printed--\n")
+        //print("\t--Printed--\n")
 
         if (makeAnalysis) {
+          if (typeCheckResult) {
+            val typeCheckStart = System.currentTimeMillis()
+            if (!getTypeSystem(new_ast._1).checkASTSilent) {
+              return
+            }
+          }
           if (writeFilesIntoIfdeftoifFolder) {
             if (!((new File(path ++ fileNameWithoutExtension ++ ".src")).exists)) {
               writeToTextFile(path ++ fileNameWithoutExtension ++ ".src", PrettyPrinter.print(source_ast))
@@ -1456,8 +1495,8 @@ val time = tb.getCurrentThreadCpuTime // Type long; beware in nanoseconds */
             val csvBeginning = file.getName() + "," + linesOfCodeBefore + "," + linesOfCodeAfter + "," + codeDifference + ","*/
             val astElementsBefore = i.countNumberOfASTElements(source_ast)
             val astElementsAfter = i.countNumberOfASTElements(new_ast._1)
-            val astElementDifference = computeDifference(astElementsBefore, astElementsAfter)
-            val csvBeginning = file.getName() + "," + astElementsBefore + "," + astElementsAfter + "," + astElementDifference + ","
+            val astElementDifference = i.computeDifference(astElementsBefore, astElementsAfter)
+            val csvBeginning = fileName + "," + astElementsBefore + "," + astElementsAfter + "," + astElementDifference + ","
 
 
             val csvEnding = "," + timeToParseAndTypeCheck + "," + timeToTransform + "," + timeToPrettyPrint + "\n"
@@ -1468,7 +1507,7 @@ val time = tb.getCurrentThreadCpuTime // Type long; beware in nanoseconds */
             }
             val linesOfCodeBefore = Source.fromFile(new File(filePathWithoutExtension ++ ".src")).getLines().size
             val linesOfCodeAfter = Source.fromFile(new File(filePathWithoutExtension ++ ".ifdeftoif")).getLines().size
-            val codeDifference = computeDifference(linesOfCodeBefore, linesOfCodeAfter)
+            val codeDifference = i.computeDifference(linesOfCodeBefore, linesOfCodeAfter)
             val csvBeginning = file.getName() + "," + linesOfCodeBefore + "," + linesOfCodeAfter + "," + codeDifference + ","
             val csvEnding = "," + timeToParseAndTypeCheck + "," + timeToTransform + "," + timeToPrettyPrint + "\n"
             appendToFile(path ++ "results.csv", csvBeginning + new_ast._2 + csvEnding)
@@ -1617,7 +1656,8 @@ val time = tb.getCurrentThreadCpuTime // Type long; beware in nanoseconds */
   }
 
   @Test def busy_box_test() {
-    transformDir(new File("C:/users/flo/dropbox/hiwi/busybox/TypeChef-BusyboxAnalysis/busybox-1.18.5/"))
+    val busybox = new File("C:/users/flo/dropbox/hiwi/busybox/TypeChef-BusyboxAnalysis/busybox-1.18.5/")
+    transformDir(busybox)
   }
 
   @Test def directory_test() {
@@ -1835,19 +1875,36 @@ val time = tb.getCurrentThreadCpuTime // Type long; beware in nanoseconds */
     //val file = new File("C:/Users/Flo/Dropbox/HiWi/Flo/test/variable_struct_member_usage.c")
     //val file = new File("C:/Users/Flo/Dropbox/HiWi/Flo/test/char_trailer.c")
     //val file = new File("C:/Users/Flo/Dropbox/HiWi/Flo/test/enum_test.c")
-    val file = new File("C:/Users/Flo/Dropbox/HiWi/Flo/test/pretty_print.c")
+    //val file = new File("C:/Users/Flo/Dropbox/HiWi/Flo/test/pretty_print.c")
+    val file = new File("C:\\Users\\Flo\\Dropbox\\HiWi\\Flo\\test\\sizeof_enum.c")
 
     val source_ast = getAstFromPi(file)
     println(source_ast.toString() ++ "\n\n")
-    typecheckTranslationUnit(source_ast)
-    val defuse = getDeclUseMap()
-    println(PrettyPrinter.print(i.transformAst(source_ast, defuse)._1))
+    testFile(file)
   }
 
   @Test def declaration_transformation_test() {
+    val c = Choice((FeatureExprFactory.createDefinedExternal("CONFIG_FEATURE_TAR_CREATE").and((FeatureExprFactory.createDefinedExternal("CONFIG_FEATURE_TAR_FROM")).not())), One(Constant("0")), One(PostfixExpr(Id("exclude_file"), FunctionCall(ExprList(List(Opt((FeatureExprFactory.createDefinedExternal("CONFIG_FEATURE_TAR_FROM").and(FeatureExprFactory.createDefinedExternal("CONFIG_FEATURE_TAR_CREATE"))), PostfixExpr(Id("tbInfo"), PointerPostfixSuffix("->", Id("excludeList")))), Opt((FeatureExprFactory.createDefinedExternal("CONFIG_FEATURE_TAR_FROM").and(FeatureExprFactory.createDefinedExternal("CONFIG_FEATURE_TAR_CREATE"))), Id("header_name"))))))))
+
+    val tsts = i.conditionalToTuple(c, FeatureExprFactory.createDefinedExternal("CONFIG_FEATURE_TAR_CREATE"))
     val tu = TranslationUnit(List(Opt(True, Declaration(List(Opt(fx, SignedSpecifier()), Opt(True, IntSpecifier())), List(Opt(True, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("i"), List()), List(), None))))), Opt(True, Declaration(List(Opt(fx, IntSpecifier()), Opt(fx.not(), LongSpecifier())), List(Opt(True, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("j"), List()), List(), None))))), Opt(fx, Declaration(List(Opt(fx, IntSpecifier())), List(Opt(fx, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("k"), List()), List(), None))))), Opt(fx.not(), Declaration(List(Opt(fx, IntSpecifier()), Opt(True, LongSpecifier())), List(Opt(fx.not(), InitDeclaratorI(AtomicNamedDeclarator(List(), Id("k"), List()), List(), None)))))))
     //val decl = Opt(True,Declaration(List(Opt(fx,SignedSpecifier()), Opt(True,IntSpecifier())),List(Opt(True,InitDeclaratorI(AtomicNamedDeclarator(List(),Id("i"),List()),List(),None)))))
     //i.handleDeclarations(decl).foreach(x => println(PrettyPrinter.print(x.entry)))
     tu.defs.foreach(x => i.handleDeclarations(x.asInstanceOf[Opt[Declaration]]).foreach(y => println(PrettyPrinter.print(y.entry) ++ "\n")))
+  }
+
+  @Test def declaration_count_test() {
+    /*val context = fa.and((fb.or(fc))).and(fc.or(fb.or(fa.not())))
+    val choice_condition = fa.and((fb.or(fc))).and(fc.not().or(fb.not()))
+    val first_statement = One(ExprStatement(PostfixExpr(Id("vfork_compressor"),FunctionCall(ExprList(List(Opt((fa.and(fc.or(fb)).and(fc.or(fb).or(fa.not())).and(fc.not().or(fb.not()))),PostfixExpr(Id("tbInfo"),PointerPostfixSuffix(".",Id("tarFd"))))))))))
+    val second_statement = One(ExprStatement(PostfixExpr(Id("vfork_compressor"),FunctionCall(ExprList(List(Opt((fa.and(fc.or(fb)).and(fc.or(fb).or(fa.not())).and(fa.not().or(fc.not().and(fb.not())).or(fc.and(fb)))),PostfixExpr(Id("tbInfo"),PointerPostfixSuffix(".",Id("tarFd")))), Opt((fa.and(fc.or(fb)).and(fc.or(fb).or(fa.not())).and(fa.not().or(fc.not().and(fb.not()).or(fc.and(fb))))),Id("gzip"))))))))
+    val c = Choice(choice_condition, first_statement, second_statement)
+    val test = i.conditionalToTuple(c, context)
+    val debug = 0*/
+
+    val file = new File("C:\\Users\\Flo\\Dropbox\\HiWi\\Flo\\test\\function_call_test.c")
+    val source_ast = getAstFromPi(file)
+
+    println(i.countNumberOfDeclarations(source_ast))
   }
 }
