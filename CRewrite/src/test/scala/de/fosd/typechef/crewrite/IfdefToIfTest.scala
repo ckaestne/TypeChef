@@ -158,6 +158,25 @@ val time = tb.getCurrentThreadCpuTime // Type long; beware in nanoseconds */
     ast
   }
 
+  private def compareTypeChecking(file: File): Tuple2[Long, Long] = {
+    val source_ast = getAstFromPi(file)
+    val result_ast = i.transformAst(source_ast, getDefUse(source_ast))._1
+    val ts_source = getTypeSystem(source_ast)
+    val ts_result = getTypeSystem(result_ast)
+
+    val typeCheckSourceStart = System.currentTimeMillis()
+    ts_source.checkASTSilent
+    val typeCheckSourceDuration = System.currentTimeMillis() - typeCheckSourceStart
+    print("++" + file.getName() + "++\n" + "TypeCheck Source: \t\t" + typeCheckSourceDuration + "\t\t\t\t")
+
+    val typeCheckResultStart = System.currentTimeMillis()
+    ts_result.checkASTSilent
+    val typeCheckResultDuration = System.currentTimeMillis() - typeCheckResultStart
+    print("TypeCheck Result: \t\t" + typeCheckResultDuration + "\n\n")
+
+    (typeCheckSourceDuration, typeCheckResultDuration)
+  }
+
   private def getDefUse(ast: TranslationUnit): IdentityHashMap[Id, List[Id]] = {
     typecheckTranslationUnit(ast)
     getDeclUseMap
@@ -1906,5 +1925,25 @@ val time = tb.getCurrentThreadCpuTime // Type long; beware in nanoseconds */
     val source_ast = getAstFromPi(file)
 
     println(i.countNumberOfDeclarations(source_ast))
+  }
+
+  @Test def compareTypeCheckingTimes() {
+    val applets = new File("C:/users/flo/dropbox/hiwi/busybox/TypeChef-BusyboxAnalysis/busybox-1.18.5/applets/applets.pi")
+    val tr = new File("C:\\Users\\Flo\\Dropbox\\HiWi\\busybox\\TypeChef-BusyboxAnalysis\\busybox-1.18.5\\coreutils\\tr.pi")
+    val bbunzip = new File("C:\\Users\\Flo\\Dropbox\\HiWi\\busybox\\TypeChef-BusyboxAnalysis\\busybox-1.18.5\\archival\\bbunzip.pi")
+    val cal = new File("C:\\Users\\Flo\\Dropbox\\HiWi\\busybox\\TypeChef-BusyboxAnalysis\\busybox-1.18.5\\coreutils\\cal.pi")
+    val ln = new File("C:\\Users\\Flo\\Dropbox\\HiWi\\busybox\\TypeChef-BusyboxAnalysis\\busybox-1.18.5\\coreutils\\ln.pi")
+    val halt = new File("C:\\Users\\Flo\\Dropbox\\HiWi\\busybox\\TypeChef-BusyboxAnalysis\\busybox-1.18.5\\init\\halt.pi")
+    val dump = new File("C:\\Users\\Flo\\Dropbox\\HiWi\\busybox\\TypeChef-BusyboxAnalysis\\busybox-1.18.5\\libbb\\dump.pi")
+    val dc = new File("C:\\Users\\Flo\\Dropbox\\HiWi\\busybox\\TypeChef-BusyboxAnalysis\\busybox-1.18.5\\miscutils\\dc.pi")
+    val inotifyd = new File("C:\\Users\\Flo\\Dropbox\\HiWi\\busybox\\TypeChef-BusyboxAnalysis\\busybox-1.18.5\\miscutils\\inotifyd.pi")
+    val unzip = new File("C:\\Users\\Flo\\Dropbox\\HiWi\\busybox\\TypeChef-BusyboxAnalysis\\busybox-1.18.5\\archival\\unzip.pi")
+    val hdpam = new File("C:\\Users\\Flo\\Dropbox\\HiWi\\busybox\\TypeChef-BusyboxAnalysis\\busybox-1.18.5\\miscutils\\hdparm.pi")
+
+
+    val list = List(applets, tr, bbunzip, cal, ln, halt, dump, dc, inotifyd, unzip, hdpam)
+    val csvEntries = list.map(x => (x.getName(), compareTypeChecking(x))).map(y => y._1 + "," + y._2._1.toString + "," + y._2._2.toString + "," + i.computeDifference(y._2._1, y._2._2).toString + "\n") mkString
+    val csvHeader = "File name, Type check source, Type check result, Difference\n"
+    writeToTextFile(path ++ "type_check.csv", csvHeader + csvEntries)
   }
 }
