@@ -396,7 +396,7 @@ object ProductGeneration extends EnforceTreeHelper {
 
   private def loadConfigurationsFromCSVFile(csvFile: File, dimacsFile: File,
                                             features: List[SingleFeatureExpr],
-                                            fm: FeatureModel, fnamePrefix: String = "") : (List[SimpleConfiguration], String) = {
+                                            fm: FeatureModel, fnamePrefix: String = ""): (List[SimpleConfiguration], String) = {
     var retList: List[SimpleConfiguration] = List()
 
     // determine the feature ids used by the sat solver from the dimacs file
@@ -439,7 +439,7 @@ object ProductGeneration extends EnforceTreeHelper {
 
     // create and initialize product configurations array
     val pconfigurations = new Array[(List[SingleFeatureExpr], List[SingleFeatureExpr])](numProducts)
-    for (i <- 0 to numProducts-1) {
+    for (i <- 0 to numProducts - 1) {
       pconfigurations.update(i, (List(), List()))
     }
 
@@ -450,19 +450,19 @@ object ProductGeneration extends EnforceTreeHelper {
 
       for (i <- 1 to numProducts) {
         if (featureMap.contains(featureLine(0))) {
-          var product = pconfigurations(i-1)
+          var product = pconfigurations(i - 1)
           if (featureLine(i) == "X") {
             product = product.copy(_1 = featureMap(featureLine(0)) :: product._1)
           } else {
             product = product.copy(_2 = featureMap(featureLine(0)) :: product._2)
           }
-          pconfigurations.update(i-1, product)
+          pconfigurations.update(i - 1, product)
         }
       }
     }
 
     // create a single configuration from the true features and false features list
-    for (i <- 0 to pconfigurations.length-1) {
+    for (i <- 0 to pconfigurations.length - 1) {
       retList = new SimpleConfiguration(pconfigurations(i)._1, pconfigurations(i)._2) :: retList
     }
 
@@ -563,14 +563,14 @@ object ProductGeneration extends EnforceTreeHelper {
     val ts = new CTypeSystemFrontend(family_ast, fm)
 
     for (_ <- 0 until checkXTimes) {
-      lastTime    = tb.getCurrentThreadCpuTime
-      foundError |= ! ts.checkASTSilent
-      curTime     = (tb.getCurrentThreadCpuTime - lastTime)
-      times       = times.:+(curTime)
+      lastTime = tb.getCurrentThreadCpuTime
+      foundError |= !ts.checkASTSilent
+      curTime = (tb.getCurrentThreadCpuTime - lastTime)
+      times = times.:+(curTime)
     }
     val familyTime: Long = median(times) / nstoms
 
-    println("fam-time: " + (median(times)/nstoms))
+    println("fam-time: " + (median(times) / nstoms))
 
     // analysis initialization and warm-up
     val df = new CAnalysisFrontend(family_ast, fm)
@@ -617,7 +617,7 @@ object ProductGeneration extends EnforceTreeHelper {
 
         for (_ <- 0 until checkXTimes) {
           lastTime = tb.getCurrentThreadCpuTime
-          foundError |= ! ts.checkASTSilent
+          foundError |= !ts.checkASTSilent
           curTime = (tb.getCurrentThreadCpuTime - lastTime)
           times = times.:+(curTime)
         }
@@ -1267,7 +1267,7 @@ object ProductGeneration extends EnforceTreeHelper {
       } else {
         retList ::= config
       }
-//      retList ::= config
+      //      retList ::= config
     }
     (retList, "Generated Configs: " + retList.size + "\n")
   }
@@ -1317,9 +1317,9 @@ object ProductGeneration extends EnforceTreeHelper {
         } else
           println("csv file contains an element that is not \"X\" and not \"-\"! " + csvFile + " element: " + currentLineElements(i))
       }
-//      println("true Features : " + trueFeatures.size)
-//      println("false Features : " + falseFeatures.size)
-//      println("all: " + features.size)
+      //      println("true Features : " + trueFeatures.size)
+      //      println("false Features : " + falseFeatures.size)
+      //      println("all: " + features.size)
       if (!FeatureExprFactory.True.getSatisfiableAssignment(fm, features.toSet, 1 == 1).isDefined) {
         println("no satisfiable solution for product in line " + line)
       }
@@ -1542,7 +1542,7 @@ object ProductGeneration extends EnforceTreeHelper {
    * 1. load feature model fm
    * 2. create configuration based on selection/deselection of all features
    * 3. check whether configuration is satisfiable; increase tested
-   *    3.1 if satisfiable increase valid
+   * 3.1 if satisfiable increase valid
    * 4. repeat until timeout or after a number of tested configurations
    * 5. return pair (valid, tested)
    * @param fm input feature model (used for parsing; smaller than fmts)
