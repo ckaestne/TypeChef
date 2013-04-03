@@ -22,7 +22,7 @@ public class FrontendOptions extends LexerOptions implements ParserOptions {
     boolean parse = true,
             typecheck = false,
             writeInterface = false,
-            conditionalControlFlow = false,
+            dumpCFG = false,
             dataFlow = false,
             serializeAST = false,
             writeDebugInterface = false,
@@ -40,7 +40,7 @@ public class FrontendOptions extends LexerOptions implements ParserOptions {
     private final static char F_INTERFACE = Options.genOptionId();
     private final static char F_WRITEPI = Options.genOptionId();
     private final static char F_DEBUGINTERFACE = Options.genOptionId();
-    private final static char F_CONDITIONALCONTROLFLOW = Options.genOptionId();
+    private final static char F_DUMPCFG = Options.genOptionId();
     private final static char F_DATAFLOW = Options.genOptionId();
     private final static char F_SERIALIZEAST = Options.genOptionId();
     private final static char F_RECORDTIMING = Options.genOptionId();
@@ -66,8 +66,8 @@ public class FrontendOptions extends LexerOptions implements ParserOptions {
                 new Option("interface", LongOpt.NO_ARGUMENT, F_INTERFACE, null,
                         "Lex, parse, type check, and create interfaces."),
 
-                new Option("conditionalControlFlow", LongOpt.NO_ARGUMENT, F_CONDITIONALCONTROLFLOW, null,
-                        "Lex, parse, and check conditional control flow"),
+                new Option("conditionalControlFlow", LongOpt.NO_ARGUMENT, F_DUMPCFG, null,
+                        "Lex, parse, and dump control flow graph"),
 
                 new Option("dataFlow", LongOpt.NO_ARGUMENT, F_DATAFLOW, null,
                         "Lex, parse, and check data flow"),
@@ -118,8 +118,8 @@ public class FrontendOptions extends LexerOptions implements ParserOptions {
             writeInterface = false;
         } else if (c == F_INTERFACE) {//--interface
             parse = typecheck = writeInterface = true;
-        } else if (c == F_CONDITIONALCONTROLFLOW) {
-            parse = conditionalControlFlow = true;
+        } else if (c == F_DUMPCFG) {
+            parse = dumpCFG = true;
         } else if (c == F_DATAFLOW) {
             parse = dataFlow = true;
         } else if (c == F_SERIALIZEAST) {
