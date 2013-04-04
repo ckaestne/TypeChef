@@ -11,7 +11,7 @@ Parameters:
     --parse                        Lex and parse the file; no type checking (default).
     --typecheck (-t)               Lex, parse, and type check; but do not create interfaces.
     --interface                    Lex, parse, type check, and create interfaces.
-    --conditionalControlFlow       Lex, parse, and check conditional control flow
+    --dumpcfg                      Lex, parse, and dump control flow graph
     --dataFlow                     Lex, parse, and check data flow
     --output=file (-o)             Path to output files (no extension, creates .pi, .macrodbg etc files).
     --writePI                      Write lexer output into .pi file
@@ -62,4 +62,4 @@ Parameters:
     --version                      Prints version number
     --help                         Displays help and usage information.
 
-TypeChef version 0.3.5_20130320134650
+TypeChef version 0.3.5_20130404130741
