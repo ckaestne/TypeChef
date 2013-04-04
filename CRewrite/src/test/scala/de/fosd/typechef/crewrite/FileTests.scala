@@ -8,7 +8,7 @@ import org.kiama.rewriting.Rewriter._
 import de.fosd.typechef.conditional.{Opt, Choice}
 
 
-class FileTests extends TestHelper with EnforceTreeHelper with ConditionalControlFlow with ConditionalNavigation {
+class FileTests extends TestHelper with EnforceTreeHelper with ConditionalControlFlow with ConditionalNavigation with CFGHelper {
   val folder = "testfiles/"
 
   def deriveProductFromConfiguration[T <: Product](a: T, c: Configuration, env: ASTEnv): T = {
@@ -113,8 +113,8 @@ class FileTests extends TestHelper with EnforceTreeHelper with ConditionalContro
     //println("succ: " + DotGraph.map2file(s, env, List(), List()))
     //println("pred: " + DotGraph.map2file(p, env, List(), List()))
 
-    val errors = compareSuccWithPred(s, p, env)
-    CCFGErrorOutput.printCCFGErrors(s, p, errors, env)
+    val errors = CheckCFG.compareSuccWithPred(s, p, env)
+    CFGErrorOutput.printCCFGErrors(s, p, errors, env)
 
     errors.size > 0
   }

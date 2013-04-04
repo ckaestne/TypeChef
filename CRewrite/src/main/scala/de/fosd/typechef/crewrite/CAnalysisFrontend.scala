@@ -4,7 +4,7 @@ package de.fosd.typechef.crewrite
 import de.fosd.typechef.featureexpr._
 import org.kiama.rewriting.Rewriter._
 import de.fosd.typechef.conditional.{Opt, Choice}
-import de.fosd.typechef.parser.c.{PrettyPrinter, FunctionDef, AST}
+import de.fosd.typechef.parser.c.{PrettyPrinter, AST}
 
 class CAnalysisFrontend(tunit: AST, fm: FeatureModel = FeatureExprFactory.default.featureModelFactory.empty) extends ConditionalNavigation with ConditionalControlFlow with IOUtilities with Liveness with EnforceTreeHelper {
 
@@ -38,40 +38,5 @@ class CAnalysisFrontend(tunit: AST, fm: FeatureModel = FeatureExprFactory.defaul
     appendToFile("output.c", PrettyPrinter.print(x.asInstanceOf[AST]))
     assert(isVariable(x) == false, "product still contains variability")
     x
-  }
-
-  def checkCfG() {
-    val fdefs = filterAllASTElems[FunctionDef](tunit)
-    fdefs.map(intraCfGFunctionDef(_))
-  }
-
-  def checkDataflow() {
-    val fdefs = filterAllASTElems[FunctionDef](tunit)
-    fdefs.map(intraDataflowAnalysis(_))
-  }
-
-  private def intraCfGFunctionDef(f: FunctionDef) = {
-    val env = CASTEnv.createASTEnv(f)
-    val s = getAllSucc(f, fm, env)
-    val p = getAllPred(f, fm, env)
-
-    val errors = compareSuccWithPred(s, p, env)
-    CCFGErrorOutput.printCCFGErrors(s, p, errors, env)
-
-    errors.size > 0
-  }
-
-  private def intraDataflowAnalysis(f: FunctionDef) {
-    if (f.stmt.innerStatements.isEmpty) return
-
-    val env = CASTEnv.createASTEnv(f)
-    setEnv(env)
-    val ss = getAllSucc(f.stmt.innerStatements.head.entry, FeatureExprFactory.empty, env)
-    val udr = determineUseDeclareRelation(f)
-    setUdr(udr)
-    setFm(fm)
-
-    val nss = ss.map(_._1).filterNot(x => x.isInstanceOf[FunctionDef])
-    for (s <- nss) in(s)
   }
 }

@@ -142,7 +142,7 @@ object Frontend {
                 if (opt.dumpCFG) {
                     stopWatch.start("dumpCFG")
                     val cf = new CAnalysisFrontend(ast.asInstanceOf[TranslationUnit], fm_ts)
-                    cf.checkCfG()
+                    // cf.dumpCFG()
                 }
             }
 

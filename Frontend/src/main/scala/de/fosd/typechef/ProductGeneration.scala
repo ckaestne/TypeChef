@@ -528,9 +528,9 @@ object ProductGeneration extends EnforceTreeHelper {
     ts.checkASTSilent
     ts.checkASTSilent
     val df = new CAnalysisFrontend(tu)
-    df.checkDataflow()
-    df.checkDataflow()
-    df.checkDataflow()
+//    df.checkDataflow()
+//    df.checkDataflow()
+//    df.checkDataflow()
   }
 
   def typecheckConfigurations(typecheckingTasks: List[Task],
@@ -580,7 +580,7 @@ object ProductGeneration extends EnforceTreeHelper {
 
     for (_ <- 0 until checkXTimes) {
       lastTimeDf = tb.getCurrentThreadCpuTime
-      df.checkDataflow()
+//      df.checkDataflow()
       curTimeDf = (tb.getCurrentThreadCpuTime - lastTimeDf)
       timesDf = timesDf.:+(curTimeDf)
     }
@@ -632,7 +632,7 @@ object ProductGeneration extends EnforceTreeHelper {
         var timesDf = Seq[Long]()
         for (_ <- 0 until checkXTimes) {
           lastTimeDf = tb.getCurrentThreadCpuTime
-          df.checkDataflow()
+//          df.checkDataflow()
           curTimeDf = (tb.getCurrentThreadCpuTime - lastTimeDf)
           timesDf = timesDf.:+(curTimeDf)
         }
