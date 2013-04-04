@@ -64,7 +64,7 @@ public class FrontendOptions extends LexerOptions implements ParserOptions {
                 new Option("interface", LongOpt.NO_ARGUMENT, F_INTERFACE, null,
                         "Lex, parse, type check, and create interfaces."),
 
-                new Option("conditionalControlFlow", LongOpt.NO_ARGUMENT, F_DUMPCFG, null,
+                new Option("dumpcfg", LongOpt.NO_ARGUMENT, F_DUMPCFG, null,
                         "Lex, parse, and dump control flow graph"),
 
                 new Option("dataFlow", LongOpt.NO_ARGUMENT, F_DATAFLOW, null,
