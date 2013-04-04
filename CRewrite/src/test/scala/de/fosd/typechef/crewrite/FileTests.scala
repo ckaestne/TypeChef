@@ -3,9 +3,7 @@ package de.fosd.typechef.crewrite
 import java.io.{FileNotFoundException, InputStream}
 import org.junit.{Ignore, Test}
 import de.fosd.typechef.parser.c._
-import de.fosd.typechef.featureexpr.{Configuration, FeatureExprFactory, FeatureModel}
-import org.kiama.rewriting.Rewriter._
-import de.fosd.typechef.conditional.{Opt, Choice}
+import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureModel}
 
 
 class FileTests extends TestHelper with EnforceTreeHelper with ConditionalControlFlow with ConditionalNavigation with CFGHelper {
