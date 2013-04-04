@@ -29,7 +29,7 @@ import java.util.Collections
  * Time: 3:45 PM
  *
  */
-object ProductGeneration extends EnforceTreeHelper {
+class ProductGeneration(opt: Map[String, String]) extends EnforceTreeHelper {
   type Task = Pair[String, List[SimpleConfiguration]]
 
   /** Maps SingleFeatureExpr Objects to IDs (IDs only known/used in this file) */
@@ -263,15 +263,15 @@ object ProductGeneration extends EnforceTreeHelper {
         var dimacsFM: File = null
         var featureprefix = ""
         if (caseStudy == "linux") {
-          productsDir = new File(rootFolder + "TypeChef-LinuxAnalysis/generatedConfigs_henard/")
-          dimacsFM = new File(rootFolder + "TypeChef-LinuxAnalysis/generatedConfigs_henard/SuperFM.dimacs")
+          productsDir = new File(opt("rootfolder") + "TypeChef-LinuxAnalysis/generatedConfigs_henard/")
+          dimacsFM = new File(opt("rootfolder") + "TypeChef-LinuxAnalysis/generatedConfigs_henard/SuperFM.dimacs")
         } else if (caseStudy == "busybox") {
-          productsFile = new File(rootFolder + "TypeChef-BusyboxAnalysis/busybox_pairwise_configs.csv")
-          dimacsFM = new File(rootFolder + "TypeChef-BusyboxAnalysis/generatedConfigs_Henard/BB_fm.dimacs")
+          productsFile = new File(opt("rootfolder") + "TypeChef-BusyboxAnalysis/busybox_pairwise_configs.csv")
+          dimacsFM = new File(opt("rootfolder") + "TypeChef-BusyboxAnalysis/generatedConfigs_Henard/BB_fm.dimacs")
           featureprefix = "CONFIG_"
         } else if (caseStudy == "openssl") {
-          productsFile = new File(rootFolder + "TypeChef-OpenSSLAnalysis/openssl-1.0.1c/openssl_pairwise_configs.csv")
-          dimacsFM = new File(rootFolder + "TypeChef-OpenSSLAnalysis/openssl-1.0.1c/openssl.dimacs")
+          productsFile = new File(opt("rootfolder") + "TypeChef-OpenSSLAnalysis/openssl-1.0.1c/openssl_pairwise_configs.csv")
+          dimacsFM = new File(opt("rootfolder") + "TypeChef-OpenSSLAnalysis/openssl-1.0.1c/openssl.dimacs")
         } else {
           throw new Exception("unknown case Study, give linux, busybox, or openssl")
         }
@@ -481,10 +481,10 @@ object ProductGeneration extends EnforceTreeHelper {
     countNumberOfASTElementsHelper(ast)
   }
 
-  def typecheckProducts(fm_scanner: FeatureModel, fm_ts: FeatureModel, ast: AST, opt: FrontendOptions, logMessage: String) {
+  def typecheckProducts(fm_scanner: FeatureModel, fm_ts: FeatureModel, ast: AST, logMessage: String) {
     var caseStudy = ""
     var thisFilePath: String = ""
-    val fileAbsPath = new File(".").getAbsolutePath + opt.getFile
+    val fileAbsPath = new File(".").getAbsolutePath + opt("file")
     if (fileAbsPath.contains("linux-2.6.33.3")) {
       thisFilePath = fileAbsPath.substring(fileAbsPath.lastIndexOf("linux-2.6.33.3"))
       caseStudy = "linux"
@@ -495,7 +495,7 @@ object ProductGeneration extends EnforceTreeHelper {
       thisFilePath = fileAbsPath.substring(fileAbsPath.lastIndexOf("openssl-1.0.1c"))
       caseStudy = "openssl"
     } else {
-      thisFilePath = opt.getFile
+      thisFilePath = opt("file")
     }
 
     val fm = fm_ts // I got false positives while using the other fm
@@ -507,7 +507,7 @@ object ProductGeneration extends EnforceTreeHelper {
 
     val (configGenLog: String, typecheckingTasks: List[Task]) =
       buildConfigurations(family_ast, fm_ts, configSerializationDir, caseStudy)
-    saveSerializationOfTasks(typecheckingTasks, features, configSerializationDir, opt.getFile)
+    saveSerializationOfTasks(typecheckingTasks, features, configSerializationDir, opt("file"))
     typecheckConfigurations(typecheckingTasks, family_ast, fm, family_ast, thisFilePath, startLog = configGenLog)
   }
 
@@ -1600,5 +1600,49 @@ object ProductGeneration extends EnforceTreeHelper {
     println("|features|: " + featureMap.size)
     println("2^|features|: " + configsUpperBound)
     (valid, tested)
+  }
+}
+
+
+object FamilyBasedVsSamplingBased {
+  // http://stackoverflow.com/questions/2315912/scala-best-way-to-parse-command-line-parameters-cli
+  val usage = """
+    Usage: FamilyBasedVsSamplingBased ...
+    --rootFolder <folder>      root folder for output files; mandatory
+    --fileconfig               enable fileconfig sampling; default=false
+    --codecoverage             enable codecoverage sampling; default=false
+    --pairwise                 enable pairwise sampling; default=false
+    file                       input filename
+  """
+
+  type OptionMap = Map[String, String]
+  private def nextOption(map: OptionMap, list: List[String]): OptionMap = {
+    def isSwitch(s: String) = (s(0) == '-')
+
+    list match {
+      case Nil => map
+      case "--rootfolder" :: folder :: tail => nextOption(map ++ Map("rootfolder" -> folder), tail)
+      case "--fileconfig" :: tail => nextOption(map ++ Map("fileconfig" -> "true"), tail)
+      case "--codecoverage" :: tail => nextOption(map ++ Map("codecoverage" -> "true"), tail)
+      case "--pairwise" :: tail => nextOption(map ++ Map("pairwise" -> "true"), tail)
+      case string :: opt2 :: tail if isSwitch(opt2) => nextOption(map ++ Map("file" -> string), list.tail)
+      case string :: Nil => nextOption(map ++ Map("file" -> string), list.tail)
+      case option :: tail => {
+        println("Unknown option " + option)
+        sys.exit(1)
+      }
+    }
+  }
+
+
+  def main(args: Array[String]) {
+    if (args.length == 0) println(usage)
+
+    val arglist = args.toList
+    val defaultopt = Map("--fileconfig" -> "false",
+                         "--codecoverage" -> "false",
+                         "--pairwise" -> "false")
+    val opt = nextOption(defaultopt, arglist)
+
   }
 }

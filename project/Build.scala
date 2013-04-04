@@ -153,7 +153,8 @@ object TypeChef extends Build {
         ctypechecker,
         javaparser,
         crewrite,
-        frontend
+        frontend,
+        sampling
         )
 
     lazy val featureexpr = Project(
@@ -213,6 +214,13 @@ object TypeChef extends Build {
         settings = buildSettings ++
             Seq(libraryDependencies <+= scalaVersion(kiamaDependency(_)))
     ) dependsOn(cparser % "test->test;compile->compile", ctypechecker, conditionallib)
+
+    lazy val sampling = Project(
+        "Sampling",
+        file("Sampling"),
+        settings = buildSettings ++
+            Seq(libraryDependencies <+= scalaVersion(kiamaDependency(_)))
+    ) dependsOn(cparser, ctypechecker, crewrite, conditionallib)
 
     def kiamaDependency(scalaVersion: String, testOnly:Boolean=false) = {
       val x=scalaVersion match {

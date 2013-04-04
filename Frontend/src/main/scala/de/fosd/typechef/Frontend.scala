@@ -54,10 +54,6 @@ object Frontend {
         var currentPeriod: String = "none"
         var times: Map[String, Long] = Map()
 
-        private def measure(checkpoint: String) {
-            times = times + (checkpoint -> System.currentTimeMillis())
-        }
-
         def start(period: String) {
             val now = System.currentTimeMillis()
             val lastTime = now - lastStart
@@ -78,11 +74,11 @@ object Frontend {
         val stopWatch = new StopWatch()
         stopWatch.start("loadFM")
 
-        val fm = opt.getFeatureModel().and(opt.getLocalFeatureModel).and(opt.getFilePresenceCondition)
+        val fm = opt.getFeatureModel.and(opt.getLocalFeatureModel).and(opt.getFilePresenceCondition)
         opt.setFeatureModel(fm) //otherwise the lexer does not get the updated feature model with file presence conditions
         if (!opt.getFilePresenceCondition.isSatisfiable(fm)) {
             println("file has contradictory presence condition. existing.") //otherwise this can lead to strange parser errors, because True is satisfiable, but anything else isn't
-            return;
+            return
         }
         /*
                 val pcs = new FeatureExprParser(FeatureExprFactory.sat).parseFile("../TypeChef-LinuxAnalysis/tmpFolder/pcs.txt")
@@ -97,7 +93,7 @@ object Frontend {
                 }
                 if (true) return
         */
-        val tokens = new lexer.Main().run(opt, opt.parse)
+        new lexer.Main().run(opt, opt.parse)
 
         stopWatch.start("lexing")
         val in = lex(opt)
@@ -121,7 +117,7 @@ object Frontend {
                 //Debug_FeatureModelExperiments.experiment(fm_ts)
 
                 if (opt.typecheck || opt.writeInterface) {
-                    ProductGeneration.typecheckProducts(fm,fm_ts,ast,opt,"")
+                    //ProductGeneration.typecheckProducts(fm,fm_ts,ast,opt,"")
                     //logMessage=("Time for lexing(ms): " + (t2-t1) + "\nTime for parsing(ms): " + (t3-t2) + "\n"))
                     //ProductGeneration.estimateNumberOfVariants(ast, fm_ts)
 
@@ -142,7 +138,7 @@ object Frontend {
                 if (opt.dumpcfg) {
                     stopWatch.start("dumpCFG")
                     val cf = new CAnalysisFrontend(ast.asInstanceOf[TranslationUnit], fm_ts)
-                    val file = opt.getFile().replace(".c",".dot")
+                    val file = opt.getFile.replace(".c",".dot")
                     cf.dumpCFG(new FileWriter(file))
                     println("CFGDump written to (" + file + ")")
                 }
