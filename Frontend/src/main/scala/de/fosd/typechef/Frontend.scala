@@ -139,10 +139,12 @@ object Frontend {
                     if (opt.writeDebugInterface)
                         ts.debugInterface(interface, new File(opt.getDebugInterfaceFilename))
                 }
-                if (opt.dumpCFG) {
+                if (opt.dumpcfg) {
                     stopWatch.start("dumpCFG")
                     val cf = new CAnalysisFrontend(ast.asInstanceOf[TranslationUnit], fm_ts)
-                    cf.dumpCFG()
+                    val file = opt.getFile().replace(".c",".dot")
+                    cf.dumpCFG(new FileWriter(file))
+                    println("CFGDump written to (" + file + ")")
                 }
             }
 

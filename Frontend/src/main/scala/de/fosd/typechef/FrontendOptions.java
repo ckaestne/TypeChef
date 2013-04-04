@@ -20,7 +20,7 @@ public class FrontendOptions extends LexerOptions implements ParserOptions {
     boolean parse = true,
             typecheck = false,
             writeInterface = false,
-            dumpCFG = false,
+            dumpcfg = false,
             dataFlow = false,
             serializeAST = false,
             writeDebugInterface = false,
@@ -117,7 +117,7 @@ public class FrontendOptions extends LexerOptions implements ParserOptions {
         } else if (c == F_INTERFACE) {//--interface
             parse = typecheck = writeInterface = true;
         } else if (c == F_DUMPCFG) {
-            parse = dumpCFG = true;
+            parse = dumpcfg = true;
         } else if (c == F_DATAFLOW) {
             parse = dataFlow = true;
         } else if (c == F_SERIALIZEAST) {

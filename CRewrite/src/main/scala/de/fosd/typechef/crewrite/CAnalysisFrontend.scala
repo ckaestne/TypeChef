@@ -5,7 +5,7 @@ import de.fosd.typechef.featureexpr._
 import org.kiama.rewriting.Rewriter._
 import de.fosd.typechef.conditional.{Opt, Choice}
 import de.fosd.typechef.parser.c.{FunctionDef, PrettyPrinter, AST}
-import java.io.StringWriter
+import java.io.{Writer, StringWriter}
 
 class CAnalysisFrontend(tunit: AST, fm: FeatureModel = FeatureExprFactory.default.featureModelFactory.empty) extends ConditionalNavigation with ConditionalControlFlow with EnforceTreeHelper with IOUtilities with CFGHelper {
 
@@ -41,9 +41,8 @@ class CAnalysisFrontend(tunit: AST, fm: FeatureModel = FeatureExprFactory.defaul
     x
   }
 
-  def dumpCFG() {
+  def dumpCFG(writer: Writer = new StringWriter()) {
     val fdefs = filterAllASTElems[FunctionDef](tunit)
-    val writer = new StringWriter()
     val dump = new DotGraph(writer)
     val env = CASTEnv.createASTEnv(tunit)
     dump.writeHeader("CFGDump")
@@ -53,6 +52,8 @@ class CAnalysisFrontend(tunit: AST, fm: FeatureModel = FeatureExprFactory.defaul
     }
     dump.writeFooter()
     dump.close()
-    println(writer.toString)
+
+    if (writer.isInstanceOf[StringWriter])
+      println(writer.toString)
   }
 }
