@@ -24,7 +24,7 @@ object CFGErrorOutput {
   def printCFGErrors(s: List[(AST, List[Opt[AST]])], p: List[(AST, List[Opt[AST]])], errors: List[CFGError], env: ASTEnv) {
     val file = File.createTempFile("cfgerror", ".dot")
     val writer = new FileWriter(file)
-    val dot = new DotGraph(writer)
+    val dot = new DotGraphWithErrors(writer)
     dot.writeHeader("CFGErrorDump")
 
     if (errors.size > 0) {

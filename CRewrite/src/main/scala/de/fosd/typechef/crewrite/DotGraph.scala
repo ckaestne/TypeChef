@@ -42,25 +42,19 @@ trait CFGWriter {
 
 class DotGraph(fwriter: Writer) extends IOUtilities with CFGWriter {
 
-  private val normalNodeFontName = "Calibri"
-  private val normalNodeFontColor = "black"
-  private val normalNodeFillColor = "white"
+  protected val normalNodeFontName = "Calibri"
+  protected val normalNodeFontColor = "black"
+  protected val normalNodeFillColor = "white"
 
   private val externalDefNodeFontColor = "blue"
 
   private val featureNodeFillColor = "#CD5200"
 
-  private val normalConnectionEdgeColor = "black"
+  protected val normalConnectionEdgeColor = "black"
   // https://mailman.research.att.com/pipermail/graphviz-interest/2001q2/000042.html
-  private val normalConnectionEdgeThickness = "setlinewidth(1)"
+  protected val normalConnectionEdgeThickness = "setlinewidth(1)"
 
   private val featureConnectionEdgeColor = "red"
-
-  private val errorNodeFontName = "Calibri"
-  private val errorNodeFontColor = "black"
-  private val errorNodeFillColor = "#CD5200"
-  private val errorConnectionEdgeColor = "red"
-  private val errorConnectionEdgeThickness = "setlinewidth(4)"
 
   private def asText(o: AST): String = o match {
     case FunctionDef(_, decl, _, _) => "Function " + o.getPositionFrom.getLine + ": " + decl.getName
@@ -110,7 +104,7 @@ class DotGraph(fwriter: Writer) extends IOUtilities with CFGWriter {
     fwriter.write("node [shape=record];\n")
   }
 
-  private def esc(i: String) = {
+  protected def esc(i: String) = {
     i.replace("\n", "\\l").
       replace("{", "\\{").
       replace("}", "\\}").
@@ -128,50 +122,7 @@ class DotGraph(fwriter: Writer) extends IOUtilities with CFGWriter {
     fwriter.close()
   }
 
-  def writeMethodGraphWithErrors(m: List[(AST, List[Opt[AST]])], env: ASTEnv, errorNodes: List[AST] = List(), errorConnections: List[(AST, AST)] = List()) {
-    // iterate ast elements and its successors and add nodes in for each ast element
-    for ((o, csuccs) <- m) {
-      val op = esc(PrettyPrinter.print(o))
-      fwriter.write("\"" + System.identityHashCode(o) + "\"")
-      fwriter.write("[")
-      fwriter.write("label=\"{{" + op + "}|" + esc(env.featureExpr(o).toString()) + "}\", ")
 
-      // current node is one of the error nodes
-      // apply specific formatting
-      if (errorNodes.filter(_.eq(o)).size > 0) {
-        fwriter.write("color=\"" + errorNodeFontColor + "\", ")
-        fwriter.write("fontname=\"" + errorNodeFontName + "\", ")
-        fwriter.write("style=\"filled\"" + ", ")
-        fwriter.write("fillcolor=\"" + errorNodeFillColor + "\"")
-      } else {
-        fwriter.write("color=\"" + normalNodeFontColor + "\", ")
-        fwriter.write("fontname=\"" + normalNodeFontName + "\", ")
-        fwriter.write("style=\"filled\"" + ", ")
-        fwriter.write("fillcolor=\"" + normalNodeFillColor + "\"")
-      }
-
-      fwriter.write("];\n")
-
-      // iterate successors and add edges
-      for (Opt(f, succ) <- csuccs) {
-        fwriter.write("\"" + System.identityHashCode(o) + "\" -> \"" + System.identityHashCode(succ) + "\"")
-        fwriter.write("[")
-
-        // current connection is one of the erroneous connections
-        // apply specific formatting
-        if (errorConnections.filter({s => s._1.eq(succ) && s._2.eq(o)}).size > 0) {
-          fwriter.write("label=\"" + f.toTextExpr + "\", ")
-          fwriter.write("color=\"" + errorConnectionEdgeColor + "\", ")
-          fwriter.write("style=\"" + errorConnectionEdgeThickness + "\"")
-        } else {
-          fwriter.write("label=\"" + f.toTextExpr + "\", ")
-          fwriter.write("color=\"" + normalConnectionEdgeColor + "\", ")
-          fwriter.write("style=\"" + normalConnectionEdgeThickness + "\"")
-        }
-        fwriter.write("];\n")
-      }
-    }
-  }
 }
 
 
