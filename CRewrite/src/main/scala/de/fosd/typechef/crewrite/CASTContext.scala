@@ -53,6 +53,7 @@ class ASTEnv(private var astc: IdentityHashMap[Any, (Set[FeatureExpr], Product, 
     astc.put(elem, curelemc)
     this
   }
+  def isKnown(elem : Any): Boolean = astc.containsKey(elem)
 }
 
 object CASTEnv {

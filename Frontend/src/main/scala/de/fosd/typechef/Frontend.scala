@@ -142,7 +142,7 @@ object Frontend {
                 if (opt.dumpCFG) {
                     stopWatch.start("dumpCFG")
                     val cf = new CAnalysisFrontend(ast.asInstanceOf[TranslationUnit], fm_ts)
-                    // cf.dumpCFG()
+                    cf.dumpCFG()
                 }
             }
 
@@ -153,7 +153,6 @@ object Frontend {
             println("timing (lexer, parser, type system, interface inference, dump control flow graph, data flow)\n" + (stopWatch.get("lexing")) + ";" + (stopWatch.get("parsing")) + ";" + (stopWatch.get("typechecking")) + ";" + (stopWatch.get("interfaces")) + ";" + (stopWatch.get("dumpCFG")) + ";" + (stopWatch.get("dataFlow")))
 
     }
-
 
     def lex(opt: FrontendOptions): TokenReader[CToken, CTypeContext] = {
         val tokens = new lexer.Main().run(opt, opt.parse)

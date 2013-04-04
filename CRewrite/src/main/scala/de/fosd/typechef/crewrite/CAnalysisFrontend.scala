@@ -4,9 +4,10 @@ package de.fosd.typechef.crewrite
 import de.fosd.typechef.featureexpr._
 import org.kiama.rewriting.Rewriter._
 import de.fosd.typechef.conditional.{Opt, Choice}
-import de.fosd.typechef.parser.c.{PrettyPrinter, AST}
+import de.fosd.typechef.parser.c.{FunctionDef, PrettyPrinter, AST}
+import java.io.StringWriter
 
-class CAnalysisFrontend(tunit: AST, fm: FeatureModel = FeatureExprFactory.default.featureModelFactory.empty) extends ConditionalNavigation with ConditionalControlFlow with IOUtilities with Liveness with EnforceTreeHelper {
+class CAnalysisFrontend(tunit: AST, fm: FeatureModel = FeatureExprFactory.default.featureModelFactory.empty) extends ConditionalNavigation with ConditionalControlFlow with EnforceTreeHelper with IOUtilities with CFGHelper {
 
   // derive a specific product from a given configuration
   def deriveProductFromConfiguration[T <: Product](a: T, c: Configuration, env: ASTEnv): T = {
@@ -38,5 +39,20 @@ class CAnalysisFrontend(tunit: AST, fm: FeatureModel = FeatureExprFactory.defaul
     appendToFile("output.c", PrettyPrinter.print(x.asInstanceOf[AST]))
     assert(isVariable(x) == false, "product still contains variability")
     x
+  }
+
+  def dumpCFG() {
+    val fdefs = filterAllASTElems[FunctionDef](tunit)
+    val writer = new StringWriter()
+    val dump = new DotGraph(writer)
+    val env = CASTEnv.createASTEnv(tunit)
+    dump.writeHeader("CFGDump")
+
+    for (f <- fdefs) {
+      dump.writeMethodGraph(getAllSucc(f, fm, env), env, Map())
+    }
+    dump.writeFooter()
+    dump.close()
+    println(writer.toString)
   }
 }
