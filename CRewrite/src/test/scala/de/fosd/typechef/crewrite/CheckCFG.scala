@@ -16,7 +16,7 @@ object CheckCFG extends ConditionalControlFlow with CFGHelper {
     val p = getAllPred(f, fm, env)
 
     val errors = compareSuccWithPred(s, p, env)
-    CFGErrorOutput.printCCFGErrors(s, p, errors, env)
+    CFGErrorOutput.printCFGErrors(s, p, errors, env)
 
     errors.size > 0
   }

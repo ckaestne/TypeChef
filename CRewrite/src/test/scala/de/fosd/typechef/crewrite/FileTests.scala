@@ -114,7 +114,7 @@ class FileTests extends TestHelper with EnforceTreeHelper with ConditionalContro
     //println("pred: " + DotGraph.map2file(p, env, List(), List()))
 
     val errors = CheckCFG.compareSuccWithPred(s, p, env)
-    CFGErrorOutput.printCCFGErrors(s, p, errors, env)
+    CFGErrorOutput.printCFGErrors(s, p, errors, env)
 
     errors.size > 0
   }
