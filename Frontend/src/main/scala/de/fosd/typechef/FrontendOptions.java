@@ -17,17 +17,17 @@ import java.util.List;
 
 
 public class FrontendOptions extends LexerOptions implements ParserOptions {
-    boolean parse = true,
-            typecheck = false,
-            writeInterface = false,
-            dumpcfg = false,
-            dataFlow = false,
-            serializeAST = false,
-            writeDebugInterface = false,
-            recordTiming = false,
-            parserStatistics = false,
-            parserResults = true,
-            writePI = false;
+    public boolean parse = true,
+                   typecheck = false,
+                   writeInterface = false,
+                   dumpcfg = false,
+                   dataFlow = false,
+                   serializeAST = false,
+                   writeDebugInterface = false,
+                   recordTiming = false,
+                   parserStatistics = false,
+                   parserResults = true,
+                   writePI = false;
     protected File errorXMLFile = null;
     private final File _autoErrorXMLFile = new File(".");
     String outputStem = "";
@@ -166,7 +166,7 @@ public class FrontendOptions extends LexerOptions implements ParserOptions {
             lexOutputFile = outputStem + ".pi";
     }
 
-    String getFile() {
+    public String getFile() {
         return getFiles().iterator().next();
     }
 
@@ -187,7 +187,7 @@ public class FrontendOptions extends LexerOptions implements ParserOptions {
 
     private FeatureExpr filePC = null;
 
-    FeatureExpr getFilePresenceCondition() {
+    public FeatureExpr getFilePresenceCondition() {
         if (filePC == null) {
             File pcFile = new File(getFilePresenceConditionFilename());
             if (pcFile.exists())
@@ -204,7 +204,7 @@ public class FrontendOptions extends LexerOptions implements ParserOptions {
 
     private FeatureExpr localFM = null;
 
-    FeatureExpr getLocalFeatureModel() {
+    public FeatureExpr getLocalFeatureModel() {
         if (localFM == null) {
             File file = new File(getLocalFeatureModelFilename());
             if (file.exists())
