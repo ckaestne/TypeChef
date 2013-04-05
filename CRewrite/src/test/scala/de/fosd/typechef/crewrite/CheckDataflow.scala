@@ -3,7 +3,7 @@ package de.fosd.typechef.crewrite
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureModel}
 
-object CheckDataflow extends ConditionalControlFlow with CFGHelper with Liveness {
+object CheckDataflow extends IntraCFG with CFGHelper with Liveness {
 
     def checkDataflow(tunit: AST, fm: FeatureModel = FeatureExprFactory.default.featureModelFactory.empty) {
       val fdefs = filterAllASTElems[FunctionDef](tunit)

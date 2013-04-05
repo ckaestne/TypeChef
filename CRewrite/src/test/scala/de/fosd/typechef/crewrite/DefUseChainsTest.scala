@@ -3,7 +3,7 @@ package de.fosd.typechef.crewrite
 import de.fosd.typechef.parser.c.TestHelper
 import org.junit.Test
 
-class DefUseChainsTest extends TestHelper with DefUseChains with ConditionalControlFlow {
+class DefUseChainsTest extends TestHelper with DefUseChains with IntraCFG {
   @Test def test_ggt() {
     val a = parseFunctionDef("""
     int ggt(int a, int b) {

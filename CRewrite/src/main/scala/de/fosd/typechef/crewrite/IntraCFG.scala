@@ -43,7 +43,7 @@ import de.fosd.typechef.featureexpr.{FeatureModel, FeatureExprFactory, FeatureEx
 
 
 
-trait ConditionalControlFlow extends ASTNavigation with ConditionalNavigation {
+trait IntraCFG extends ASTNavigation with ConditionalNavigation {
 
   private implicit def optList2ASTList(l: List[Opt[AST]]) = l.map(_.entry)
   private implicit def opt2AST(s: Opt[AST]) = s.entry

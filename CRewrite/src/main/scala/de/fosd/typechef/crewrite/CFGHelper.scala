@@ -4,7 +4,7 @@ import de.fosd.typechef.parser.c.AST
 import de.fosd.typechef.featureexpr.FeatureModel
 import de.fosd.typechef.conditional.Opt
 
-trait CFGHelper extends ConditionalControlFlow {
+trait CFGHelper extends IntraCFG {
 
   // determine recursively all succs check
   def getAllSucc(i: AST, fm: FeatureModel, env: ASTEnv) = {

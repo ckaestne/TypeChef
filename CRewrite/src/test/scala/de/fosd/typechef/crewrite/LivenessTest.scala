@@ -6,7 +6,7 @@ import de.fosd.typechef.featureexpr.FeatureExprFactory
 import org.scalatest.matchers.ShouldMatchers
 import java.io.{FileWriter, File}
 
-class LivenessTest extends TestHelper with ShouldMatchers with ConditionalControlFlow with Liveness with CFGHelper {
+class LivenessTest extends TestHelper with ShouldMatchers with IntraCFG with Liveness with CFGHelper {
 
   private def getTmpFileName = File.createTempFile("/tmp", ".dot")
 

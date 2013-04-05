@@ -6,7 +6,7 @@ import de.fosd.typechef.parser.c._
 import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureModel}
 
 
-class FileTests extends TestHelper with EnforceTreeHelper with ConditionalControlFlow with ConditionalNavigation with CFGHelper {
+class FileTests extends TestHelper with EnforceTreeHelper with IntraCFG with ConditionalNavigation with CFGHelper {
   val folder = "testfiles/"
 
   private def checkCFG(filename: String, fm: FeatureModel = FeatureExprFactory.default.featureModelFactory.empty) = {

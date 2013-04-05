@@ -125,7 +125,7 @@ class IdentityHashMapCache[A] {
     }
 }
 
-trait Liveness extends AttributionBase with Variables with ConditionalControlFlow {
+trait Liveness extends AttributionBase with Variables with IntraCFG {
 
     type UsesDeclaresRel = java.util.IdentityHashMap[Id, Option[Conditional[Option[Id]]]]
 
