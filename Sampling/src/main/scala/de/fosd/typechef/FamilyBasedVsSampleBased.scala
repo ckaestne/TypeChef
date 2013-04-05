@@ -1,7 +1,10 @@
 package de.fosd.typechef
 
+import conditional.Choice
+import conditional.One
+import conditional.Opt
 import de.fosd.typechef.conditional.{One, Choice, Opt}
-import de.fosd.typechef.crewrite.{CAnalysisFrontend, EnforceTreeHelper, ProductDerivation}
+import crewrite._
 import de.fosd.typechef.featureexpr._
 
 import de.fosd.typechef.featureexpr.bdd.{BDDFeatureModel, SatSolver}
@@ -10,6 +13,9 @@ import de.fosd.typechef.parser.c._
 import de.fosd.typechef.parser.c.CTypeContext
 import de.fosd.typechef.parser.c.TranslationUnit
 import de.fosd.typechef.typesystem.CTypeSystemFrontend
+import parser.c.CTypeContext
+import parser.c.FunctionDef
+import parser.c.TranslationUnit
 import scala.collection.immutable.HashMap
 import scala.Predef._
 import scala._
@@ -21,6 +27,7 @@ import java.io._
 import util.Random
 import scala.Some
 import java.util.Collections
+import scala.Some
 
 /**
  *
@@ -29,7 +36,7 @@ import java.util.Collections
  * Time: 3:45 PM
  *
  */
-object FamilyBasedVsSampleBased extends EnforceTreeHelper {
+object FamilyBasedVsSampleBased extends EnforceTreeHelper with ASTNavigation with Liveness with CFGHelper {
   type Task = Pair[String, List[SimpleConfiguration]]
 
   /** Maps SingleFeatureExpr Objects to IDs (IDs only known/used in this file) */
@@ -566,10 +573,28 @@ object FamilyBasedVsSampleBased extends EnforceTreeHelper {
     ts.checkASTSilent
     ts.checkASTSilent
     ts.checkASTSilent
-    val df = new CAnalysisFrontend(tu)
-//    df.checkDataflow()
-//    df.checkDataflow()
-//    df.checkDataflow()
+    liveness(tu)
+    liveness(tu)
+    liveness(tu)
+  }
+
+  private def liveness(tunit: AST, fm: FeatureModel = FeatureExprFactory.empty) {
+    val fdefs = filterAllASTElems[FunctionDef](tunit)
+    fdefs.map(intraDataflowAnalysis(_, fm))
+  }
+
+  private def intraDataflowAnalysis(f: FunctionDef, fm: FeatureModel) {
+    if (f.stmt.innerStatements.isEmpty) return
+
+    val env = CASTEnv.createASTEnv(f)
+    setEnv(env)
+    val ss = getAllSucc(f.stmt.innerStatements.head.entry, FeatureExprFactory.empty, env)
+    val udr = determineUseDeclareRelation(f)
+    setUdr(udr)
+    setFm(fm)
+
+    val nss = ss.map(_._1).filterNot(x => x.isInstanceOf[FunctionDef])
+    for (s <- nss) in(s)
   }
 
   def analyzeTasks(tasks: List[Task], tunit: TranslationUnit, fm: FeatureModel, opt: FamilyBasedVsSampleBasedOptions,
@@ -611,14 +636,13 @@ object FamilyBasedVsSampleBased extends EnforceTreeHelper {
     println("fam-time: " + (median(times) / nstoms))
 
     // analysis initialization and warm-up
-    val df = new CAnalysisFrontend(tunit, fm)
     var timesDf = Seq[Long]()
     var lastTimeDf: Long = 0
     var curTimeDf: Long = 0
 
     for (_ <- 0 until checkXTimes) {
       lastTimeDf = tb.getCurrentThreadCpuTime
-//      df.checkDataflow()
+      liveness(tunit, fm)
       curTimeDf = (tb.getCurrentThreadCpuTime - lastTimeDf)
       timesDf = timesDf.:+(curTimeDf)
     }
@@ -648,10 +672,9 @@ object FamilyBasedVsSampleBased extends EnforceTreeHelper {
           "(" + selectedFeatures.size + ")"
         )
 
-        // analysis initialization and warm-up
-        val ts = new CTypeSystemFrontend(product, FeatureExprFactory.default.featureModelFactory.empty)
+        val ts = new CTypeSystemFrontend(product)
 
-        // measurement
+        // typechecking measurement
         var foundError: Boolean = false
         var lastTime: Long = 0
         var curTime: Long = 0
@@ -666,15 +689,15 @@ object FamilyBasedVsSampleBased extends EnforceTreeHelper {
         val productTime: Long = median(times) / nstoms
 
         tcProductTimes ::= productTime // append to the beginning of tcProductTimes
-        val df = new CAnalysisFrontend(product, FeatureExprFactory.empty)
 
-        // measurement
+
+        // liveness measurement
         var lastTimeDf: Long = 0
         var curTimeDf: Long = 0
         var timesDf = Seq[Long]()
         for (_ <- 0 until checkXTimes) {
           lastTimeDf = tb.getCurrentThreadCpuTime
-//          df.checkDataflow()
+          liveness(product)
           curTimeDf = (tb.getCurrentThreadCpuTime - lastTimeDf)
           timesDf = timesDf.:+(curTimeDf)
         }
@@ -683,27 +706,6 @@ object FamilyBasedVsSampleBased extends EnforceTreeHelper {
         dfProductTimes ::= timeDataFlowProduct // add to the head - reverse later
 
         if (foundError) configurationsWithErrors += 1
-        //                    var file: File = new File(outFilePrefix + "_" + taskDesc + "_errors" + current_config + ".txt")
-        //                    file.getParentFile.mkdirs()
-        //                    fw = new FileWriter(file)
-        //                    for (error <- ts.errors)
-        //                        fw.write("  - " + error + "\n")
-        //                    fw.close()
-        //                    // write product to file
-        //                    file = new File(outFilePrefix + "_" + taskDesc + "_" + current_config + "_product.c")
-        //                    fw = new FileWriter(file)
-        //                    fw.write(PrettyPrinter.print(product))
-        //                    fw.close()
-        //                    //write configuration to file
-        //                    file = new File(outFilePrefix + "_" + taskDesc + "_" + current_config + "_config.txt")
-        //                    fw = new FileWriter(file)
-        //                    fw.write(config.toString().replace("&&", "&&\n"))
-        //                    fw.close()
-        //                    // write ast to file
-        //                    file = new File(outFilePrefix + "_" + taskDesc + "_" + current_config + "_ast.txt")
-        //                    fw = new FileWriter(file)
-        //                    fw.write(product.toString)
-        //                    fw.close()
       }
       // reverse tcProductTimes to get the ordering correct
       configCheckingResults ::=(taskDesc, (configs.size, productDerivationTimes.reverse, configurationsWithErrors, dfProductTimes.reverse, tcProductTimes.reverse))

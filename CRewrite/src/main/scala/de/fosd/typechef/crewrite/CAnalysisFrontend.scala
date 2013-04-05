@@ -22,23 +22,4 @@ class CAnalysisFrontend(tunit: AST, fm: FeatureModel = FeatureExprFactory.defaul
     if (writer.isInstanceOf[StringWriter])
       println(writer.toString)
   }
-
-  def liveness() {
-    val fdefs = filterAllASTElems[FunctionDef](tunit)
-    fdefs.map(intraDataflowAnalysis(_))
-  }
-
-  private def intraDataflowAnalysis(f: FunctionDef) {
-    if (f.stmt.innerStatements.isEmpty) return
-
-    val env = CASTEnv.createASTEnv(f)
-    setEnv(env)
-    val ss = getAllSucc(f.stmt.innerStatements.head.entry, FeatureExprFactory.empty, env)
-    val udr = determineUseDeclareRelation(f)
-    setUdr(udr)
-    setFm(fm)
-
-    val nss = ss.map(_._1).filterNot(x => x.isInstanceOf[FunctionDef])
-    for (s <- nss) in(s)
-  }
 }
