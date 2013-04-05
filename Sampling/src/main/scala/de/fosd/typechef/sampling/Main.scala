@@ -204,91 +204,174 @@ class FamilyBasedVsSampleBased(opt: FamilyBasedVsSampleBasedOptions) extends Enf
     featureIDHashmap = new HashMap[SingleFeatureExpr, Int]().++(features.zipWithIndex)
   }
 
+  private def buildConfigurationsSingleConf(tunit: TranslationUnit, fm: FeatureModel, configDir: File, caseStudy: String)
+  : (String, List[Task]) = {
+    var tasks: List[Task] = List()
+    var log = ""
+    var msg = ""
+    var startTime: Long = 0
+    if (tasks.find(_._1.equals("singleconf")).isDefined) {
+      msg = "omitting FileConfig generation, because a serialized version was loaded"
+    } else {
+      val configFile = if (caseStudy.equals("linux"))
+        opt.getRootFolder + "Linux_allyes_modified.config"
+      else if (caseStudy.equals("busybox"))
+        opt.getRootFolder + "BusyboxBigConfig.config"
+      else if (caseStudy.equals("openssl"))
+        opt.getRootFolder + "OpenSSL.config"
+      else
+        throw new Exception("unknown case Study, give linux, busybox, or openssl")
+      startTime = System.currentTimeMillis()
+      val (configs, logmsg) = getConfigsFromFiles(features, fm, new File(configFile))
+      tasks :+= Pair("singleconf", configs)
+      msg = "Time for config generation (singleconf): " + (System.currentTimeMillis() - startTime) + " ms\n" + logmsg
+    }
+    println(msg)
+    log = log + msg + "\n"
+
+    (log, tasks)
+  }
+
+  private def buildConfigurationsPairwise(tunit: TranslationUnit, fm: FeatureModel, configDir: File, caseStudy: String)
+      : (String, List[Task]) = {
+    var tasks: List[Task] = List()
+    var log = ""
+    var msg = ""
+    var startTime: Long = 0
+
+    if (tasks.find(_._1.equals("pairwise")).isDefined) {
+      msg = "omitting pairwise loading, because a serialized version was loaded"
+    } else {
+      var productsFile: File = null
+      var dimacsFM: File = null
+      var featureprefix = ""
+      if (caseStudy == "linux") {
+        productsFile = new File(opt.getRootFolder + "TypeChef-LinuxAnalysis/linux_pairwise_configs.csv")
+        dimacsFM = new File(opt.getRootFolder + "TypeChef-LinuxAnalysis/generatedConfigs_henard/SuperFM.dimacs")
+      } else if (caseStudy == "busybox") {
+        productsFile = new File(opt.getRootFolder + "TypeChef-BusyboxAnalysis/busybox_pairwise_configs.csv")
+        dimacsFM = new File(opt.getRootFolder + "TypeChef-BusyboxAnalysis/generatedConfigs_Henard/BB_fm.dimacs")
+        featureprefix = "CONFIG_"
+      } else if (caseStudy == "openssl") {
+        productsFile = new File(opt.getRootFolder + "TypeChef-OpenSSLAnalysis/openssl-1.0.1c/openssl_pairwise_configs.csv")
+        dimacsFM = new File(opt.getRootFolder + "TypeChef-OpenSSLAnalysis/openssl-1.0.1c/openssl.dimacs")
+      } else {
+        throw new Exception("unknown case Study, give linux, busybox, or openssl")
+      }
+      startTime = System.currentTimeMillis()
+
+      val (configs, logmsg) = loadConfigurationsFromCSVFile(productsFile, dimacsFM, features, fm, featureprefix)
+
+      tasks :+= Pair("pairwise", configs)
+      msg = "Time for config generation (pairwise): " + (System.currentTimeMillis() - startTime) + " ms\n" + logmsg
+    }
+    println(msg)
+    log = log + msg + "\n"
+
+    (log, tasks)
+  }
+
+  private def buildConfigurationsCodecoverageNH(tunit: TranslationUnit, fm: FeatureModel, configDir: File, caseStudy: String)
+  : (String, List[Task]) = {
+    var tasks: List[Task] = List()
+    var log = ""
+    var msg = ""
+    var startTime: Long = 0
+    if (tasks.find(_._1.equals("coverage_noHeader")).isDefined) {
+      msg = "omitting coverage_noHeader generation, because a serialized version was loaded"
+    } else {
+      startTime = System.currentTimeMillis()
+      val (configs, logmsg) = configurationCoverage(tunit, fm, features, List(),
+        preferDisabledFeatures = false, includeVariabilityFromHeaderFiles = false)
+      tasks :+= Pair("coverage_noHeader", configs)
+      msg = "Time for config generation (coverage_noHeader): " + (System.currentTimeMillis() - startTime) + " ms\n" + logmsg
+    }
+    println(msg)
+    log = log + msg + "\n"
+
+    (log, tasks)
+  }
+
+  private def buildConfigurationsCodecoverage(tunit: TranslationUnit, fm: FeatureModel, configDir: File, caseStudy: String)
+  : (String, List[Task]) = {
+    var tasks: List[Task] = List()
+    var log = ""
+    var msg = ""
+    var startTime: Long = 0
+    if (caseStudy != "linux") {
+      if (tasks.find(_._1.equals("coverage")).isDefined) {
+        msg = "omitting coverage generation, because a serialized version was loaded"
+      } else {
+        startTime = System.currentTimeMillis()
+        val (configs, logmsg) = configurationCoverage(tunit, fm, features, List(),
+          preferDisabledFeatures = false, includeVariabilityFromHeaderFiles = true)
+        tasks :+= Pair("coverage", configs)
+        msg = "Time for config generation (coverage): " + (System.currentTimeMillis() - startTime) + " ms\n" + logmsg
+      }
+      println(msg)
+      log = log + msg + "\n"
+    } else {
+      println("omit code coverage for case study linux; computation is too expensive!")
+    }
+
+    (log, tasks)
+  }
+
   /**
    * returns: (log:String, configs: List[Pair[String,List[SimpleConfiguration] ] ])
    * log is a compilation of the log messages
    * the configs-list contains pairs of the name of the config-generation method and the respective generated configs
    *
    */
-  def buildConfigurations(tunit: TranslationUnit, fm: FeatureModel, configSerializationDir: File, caseStudy: String): (String, List[Task]) = {
+  def buildConfigurations(tunit: TranslationUnit, fm: FeatureModel, configdir: File, caseStudy: String): (String, List[Task]) = {
     var msg: String = ""
     var log: String = ""
     println("generating configurations.")
     var startTime: Long = 0
-
     initializeFeatureList(tunit)
 
-    /** Starting with no tasks */
     var tasks: List[Task] = List()
 
-    val useSerialization = true
-    if (useSerialization &&
-      configSerializationDir.exists() &&
-      new File(configSerializationDir, "featurehashmap.ser").exists()) {
-      /** Load serialized tasks */
-      {
-        startTime = System.currentTimeMillis()
-        println("loading tasks from serialized files")
-        tasks = loadSerializedTasks(features, configSerializationDir)
-        msg = "Time for serialization loading: " + (System.currentTimeMillis() - startTime) + " ms\n"
-        println(msg)
-        log = log + msg + "\n"
-      }
+    /** try to load tasks from exisiting files */
+    if (configdir.exists() && new File(configdir, "featurehashmap.ser").exists()) {
+
+      startTime = System.currentTimeMillis()
+      println("loading tasks from serialized files")
+      tasks = loadSerializedTasks(features, configdir)
+      msg = "Time for serialization loading: " + (System.currentTimeMillis() - startTime) + " ms\n"
+      println(msg)
+      log = log + msg + "\n"
     }
 
     /** singleconf */
-    {
-      if (tasks.find(_._1.equals("singleconf")).isDefined) {
-        msg = "omitting FileConfig generation, because a serialized version was loaded"
-      } else {
-        val configFile = if (caseStudy.equals("linux"))
-          opt.getRootFolder + "Linux_allyes_modified.config"
-        else if (caseStudy.equals("busybox"))
-          opt.getRootFolder + "BusyboxBigConfig.config"
-        else if (caseStudy.equals("openssl"))
-          opt.getRootFolder + "OpenSSL.config"
-        else
-          throw new Exception("unknown case Study, give linux, busybox, or openssl")
-        startTime = System.currentTimeMillis()
-        val (configs, logmsg) = getConfigsFromFiles(features, fm, new File(configFile))
-        tasks :+= Pair("singleconf", configs)
-        msg = "Time for config generation (singleconf): " + (System.currentTimeMillis() - startTime) + " ms\n" + logmsg
-      }
-      println(msg)
-      log = log + msg + "\n"
+    if (opt.fileconfig) {
+      val (flog, ftasks) = buildConfigurationsSingleConf(tunit, fm, configdir, caseStudy)
+      log = log + flog
+      tasks ++= ftasks
     }
 
     /** pairwise configurations */
+    if (opt.pairwise) {
+      val (plog, ptasks) = buildConfigurationsPairwise(tunit, fm, configdir, caseStudy)
+      log = log + plog
+      tasks ++= ptasks
+    }
 
-    {
-      if (tasks.find(_._1.equals("pairwise")).isDefined) {
-        msg = "omitting pairwise loading, because a serialized version was loaded"
-      } else {
-        var productsFile: File = null
-        var dimacsFM: File = null
-        var featureprefix = ""
-        if (caseStudy == "linux") {
-          productsFile = new File(opt.getRootFolder + "TypeChef-LinuxAnalysis/linux_pairwise_configs.csv")
-          dimacsFM = new File(opt.getRootFolder + "TypeChef-LinuxAnalysis/generatedConfigs_henard/SuperFM.dimacs")
-        } else if (caseStudy == "busybox") {
-          productsFile = new File(opt.getRootFolder + "TypeChef-BusyboxAnalysis/busybox_pairwise_configs.csv")
-          dimacsFM = new File(opt.getRootFolder + "TypeChef-BusyboxAnalysis/generatedConfigs_Henard/BB_fm.dimacs")
-          featureprefix = "CONFIG_"
-        } else if (caseStudy == "openssl") {
-          productsFile = new File(opt.getRootFolder + "TypeChef-OpenSSLAnalysis/openssl-1.0.1c/openssl_pairwise_configs.csv")
-          dimacsFM = new File(opt.getRootFolder + "TypeChef-OpenSSLAnalysis/openssl-1.0.1c/openssl.dimacs")
-        } else {
-          throw new Exception("unknown case Study, give linux, busybox, or openssl")
-        }
-        startTime = System.currentTimeMillis()
 
-        val (configs, logmsg) = loadConfigurationsFromCSVFile(productsFile, dimacsFM, features, fm, featureprefix)
+    /** code coverage - no Header files */
+    if (opt.codecoverageNH) {
+      val (clog, ctasks) = buildConfigurationsCodecoverageNH(tunit, fm, configdir, caseStudy)
+      log = log + clog
+      tasks ++= ctasks
+    }
 
-        tasks :+= Pair("pairwise", configs)
-        msg = "Time for config generation (pairwise): " + (System.currentTimeMillis() - startTime) + " ms\n" + logmsg
-      }
-      println(msg)
-      log = log + msg + "\n"
+
+
+    /** code coverage - including Header files */
+    if (opt.codecoverageNH) {
+      val (clog, ctasks) = buildConfigurationsCodecoverage(tunit, fm, configdir, caseStudy)
+      log = log + clog
+      tasks ++= ctasks
     }
 
     /** Single-wise */
@@ -309,42 +392,6 @@ class FamilyBasedVsSampleBased(opt: FamilyBasedVsSampleBasedOptions) extends Enf
                 log = log + msg + "\n"
             }
     */
-    /** code coverage - no Header files */
-
-    {
-      if (tasks.find(_._1.equals("coverage_noHeader")).isDefined) {
-        msg = "omitting coverage_noHeader generation, because a serialized version was loaded"
-      } else {
-        startTime = System.currentTimeMillis()
-        val (configs, logmsg) = configurationCoverage(tunit, fm, features, List(),
-          preferDisabledFeatures = false, includeVariabilityFromHeaderFiles = false)
-        tasks :+= Pair("coverage_noHeader", configs)
-        msg = "Time for config generation (coverage_noHeader): " + (System.currentTimeMillis() - startTime) + " ms\n" + logmsg
-      }
-      println(msg)
-      log = log + msg + "\n"
-    }
-
-    /** code coverage - including Header files */
-
-    {
-      if (caseStudy != "linux") {
-        if (tasks.find(_._1.equals("coverage")).isDefined) {
-          msg = "omitting coverage generation, because a serialized version was loaded"
-        } else {
-          startTime = System.currentTimeMillis()
-          val (configs, logmsg) = configurationCoverage(tunit, fm, features, List(),
-            preferDisabledFeatures = false, includeVariabilityFromHeaderFiles = true)
-          tasks :+= Pair("coverage", configs)
-          msg = "Time for config generation (coverage): " + (System.currentTimeMillis() - startTime) + " ms\n" + logmsg
-        }
-        println(msg)
-        log = log + msg + "\n"
-      } else {
-        println("omit code coverage for case study linux; computation is too expensive!")
-      }
-    }
-
 
     /** Pairwise MAX */
     /*

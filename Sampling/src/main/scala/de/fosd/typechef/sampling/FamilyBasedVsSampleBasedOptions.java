@@ -11,11 +11,13 @@ import java.util.List;
 public class FamilyBasedVsSampleBasedOptions extends FrontendOptions {
     boolean fileconfig = false,
             codecoverage = false,
+            codecoverageNH = false,
             pairwise = false;
     private String rootfolder = "";
 
     private final static char F_FILECONFIG = Options.genOptionId();
     private final static char F_CODECOVERAGE = Options.genOptionId();
+    private final static char F_CODECOVERAGENH = Options.genOptionId();
     private final static char F_PAIRWISE = Options.genOptionId();
     private final static char F_ROOTFOLDER = Options.genOptionId();
 
@@ -30,6 +32,8 @@ public class FamilyBasedVsSampleBasedOptions extends FrontendOptions {
                         "enable fileconfig sampling; default is disabled"),
                 new Option("codecoverage", LongOpt.NO_ARGUMENT, F_CODECOVERAGE, null,
                         "enable codecoverage sampling; default is disabled"),
+                new Option("codecoveragenh", LongOpt.NO_ARGUMENT, F_CODECOVERAGENH, null,
+                        "enable codecoverage (without header files) sampling; default is disabled"),
                 new Option("pairwise", LongOpt.NO_ARGUMENT, F_PAIRWISE, null,
                         "enable pairwise sampling; default is disabled")
         ));
@@ -52,5 +56,7 @@ public class FamilyBasedVsSampleBasedOptions extends FrontendOptions {
         return true;
     }
 
-    public String getRootFolder() { return rootfolder; }
+    public String getRootFolder() {
+        return rootfolder;
+    }
 }
