@@ -33,7 +33,7 @@ import de.fosd.typechef.parser.TokenReader
  * Time: 3:45 PM
  *
  */
-class SampleBasedAnalysis(opt: FamilyBasedVsSamplingBasedOptions) extends EnforceTreeHelper {
+class FamilyBasedVsSampleBased(opt: FamilyBasedVsSampleBasedOptions) extends EnforceTreeHelper {
   type Task = Pair[String, List[SimpleConfiguration]]
 
   /** Maps SingleFeatureExpr Objects to IDs (IDs only known/used in this file) */
@@ -1610,7 +1610,7 @@ class SampleBasedAnalysis(opt: FamilyBasedVsSamplingBasedOptions) extends Enforc
 object Main {
   def main(args: Array[String]) {
     // load options
-    val opt = new FamilyBasedVsSamplingBasedOptions()
+    val opt = new FamilyBasedVsSampleBasedOptions()
     try {
       try {
         opt.parseOptions(args)
@@ -1642,7 +1642,7 @@ object Main {
     processFile(opt)
   }
 
-  def processFile(opt: FamilyBasedVsSamplingBasedOptions) {
+  def processFile(opt: FamilyBasedVsSampleBasedOptions) {
     val errorXML = new ErrorXML(opt.getErrorXMLFile)
     opt.setRenderParserError(errorXML.renderParserError)
 
@@ -1665,7 +1665,7 @@ object Main {
     }
   }
 
-  def lex(opt: FamilyBasedVsSamplingBasedOptions): TokenReader[CToken, CTypeContext] = {
+  def lex(opt: FamilyBasedVsSampleBasedOptions): TokenReader[CToken, CTypeContext] = {
     val tokens = new lexer.Main().run(opt, opt.parse)
     val in = CLexer.prepareTokens(tokens)
     in

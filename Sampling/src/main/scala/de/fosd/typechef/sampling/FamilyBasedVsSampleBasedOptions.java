@@ -8,7 +8,7 @@ import gnu.getopt.LongOpt;
 
 import java.util.List;
 
-public class FamilyBasedVsSamplingBasedOptions extends FrontendOptions {
+public class FamilyBasedVsSampleBasedOptions extends FrontendOptions {
     boolean fileconfig = false,
             codecoverage = false,
             pairwise = false;
