@@ -264,12 +264,11 @@ class FamilyBasedVsSampleBased(opt: FamilyBasedVsSampleBasedOptions) extends Enf
       if (tasks.find(_._1.equals("pairwise")).isDefined) {
         msg = "omitting pairwise loading, because a serialized version was loaded"
       } else {
-        var productsDir: File = null
         var productsFile: File = null
         var dimacsFM: File = null
         var featureprefix = ""
         if (caseStudy == "linux") {
-          productsDir = new File(opt.getRootFolder + "TypeChef-LinuxAnalysis/generatedConfigs_henard/")
+          productsFile = new File(opt.getRootFolder + "TypeChef-LinuxAnalysis/linux_pairwise_configs.csv")
           dimacsFM = new File(opt.getRootFolder + "TypeChef-LinuxAnalysis/generatedConfigs_henard/SuperFM.dimacs")
         } else if (caseStudy == "busybox") {
           productsFile = new File(opt.getRootFolder + "TypeChef-BusyboxAnalysis/busybox_pairwise_configs.csv")
@@ -283,19 +282,7 @@ class FamilyBasedVsSampleBased(opt: FamilyBasedVsSampleBasedOptions) extends Enf
         }
         startTime = System.currentTimeMillis()
 
-        val (configs, logmsg) =
-          if (caseStudy == "linux") {
-            loadConfigurationsFromHenardFiles(
-              productsDir.list().map(new File(productsDir, _)).toList.
-                filter(!_.getName.endsWith(".dimacs")).
-                sortBy({
-                f: File => (f.getName.substring(f.getName.lastIndexOf("product") + "product".length)).toInt
-              }),
-              dimacsFM,
-              features, fm)
-          } else {
-            loadConfigurationsFromCSVFile(productsFile, dimacsFM, features, fm, featureprefix)
-          }
+        val (configs, logmsg) = loadConfigurationsFromCSVFile(productsFile, dimacsFM, features, fm, featureprefix)
 
         tasks :+= Pair("pairwise", configs)
         msg = "Time for config generation (pairwise): " + (System.currentTimeMillis() - startTime) + " ms\n" + logmsg
