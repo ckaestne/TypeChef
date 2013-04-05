@@ -117,10 +117,6 @@ object Frontend {
                 //Debug_FeatureModelExperiments.experiment(fm_ts)
 
                 if (opt.typecheck || opt.writeInterface) {
-                    //ProductGeneration.typecheckProducts(fm,fm_ts,ast,opt,"")
-                    //logMessage=("Time for lexing(ms): " + (t2-t1) + "\nTime for parsing(ms): " + (t3-t2) + "\n"))
-                    //ProductGeneration.estimateNumberOfVariants(ast, fm_ts)
-
                     stopWatch.start("typechecking")
                     println("type checking.")
                     ts.checkAST

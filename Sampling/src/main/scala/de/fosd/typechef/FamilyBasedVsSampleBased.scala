@@ -1,4 +1,4 @@
-package de.fosd.typechef.sampling
+package de.fosd.typechef
 
 import de.fosd.typechef.conditional.{One, Choice, Opt}
 import de.fosd.typechef.crewrite.{CAnalysisFrontend, EnforceTreeHelper, ProductDerivation}
@@ -6,7 +6,6 @@ import de.fosd.typechef.featureexpr._
 
 import de.fosd.typechef.featureexpr.bdd.{BDDFeatureModel, SatSolver}
 import de.fosd.typechef.featureexpr.sat.{SATFeatureModel, SATFeatureExprFactory}
-import de.fosd.typechef.lexer
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.parser.c.CTypeContext
 import de.fosd.typechef.parser.c.TranslationUnit
@@ -22,9 +21,6 @@ import java.io._
 import util.Random
 import scala.Some
 import java.util.Collections
-import de.fosd.typechef.{VersionInfo, ErrorXML}
-import de.fosd.typechef.lexer.options.OptionException
-import de.fosd.typechef.parser.TokenReader
 
 /**
  *
@@ -33,7 +29,7 @@ import de.fosd.typechef.parser.TokenReader
  * Time: 3:45 PM
  *
  */
-class FamilyBasedVsSampleBased(opt: FamilyBasedVsSampleBasedOptions) extends EnforceTreeHelper {
+object FamilyBasedVsSampleBased extends EnforceTreeHelper {
   type Task = Pair[String, List[SimpleConfiguration]]
 
   /** Maps SingleFeatureExpr Objects to IDs (IDs only known/used in this file) */
@@ -204,7 +200,8 @@ class FamilyBasedVsSampleBased(opt: FamilyBasedVsSampleBasedOptions) extends Enf
     featureIDHashmap = new HashMap[SingleFeatureExpr, Int]().++(features.zipWithIndex)
   }
 
-  private def buildConfigurationsSingleConf(tunit: TranslationUnit, fm: FeatureModel, configDir: File, caseStudy: String)
+  private def buildConfigurationsSingleConf(tunit: TranslationUnit, fm: FeatureModel, opt: FamilyBasedVsSampleBasedOptions,
+                                            configDir: File, caseStudy: String)
   : (String, List[Task]) = {
     var tasks: List[Task] = List()
     var log = ""
@@ -232,7 +229,8 @@ class FamilyBasedVsSampleBased(opt: FamilyBasedVsSampleBasedOptions) extends Enf
     (log, tasks)
   }
 
-  private def buildConfigurationsPairwise(tunit: TranslationUnit, fm: FeatureModel, configDir: File, caseStudy: String)
+  private def buildConfigurationsPairwise(tunit: TranslationUnit, fm: FeatureModel, opt: FamilyBasedVsSampleBasedOptions,
+                                          configDir: File, caseStudy: String)
       : (String, List[Task]) = {
     var tasks: List[Task] = List()
     var log = ""
@@ -323,7 +321,8 @@ class FamilyBasedVsSampleBased(opt: FamilyBasedVsSampleBasedOptions) extends Enf
    * the configs-list contains pairs of the name of the config-generation method and the respective generated configs
    *
    */
-  def buildConfigurations(tunit: TranslationUnit, fm: FeatureModel, configdir: File, caseStudy: String): (String, List[Task]) = {
+  def buildConfigurations(tunit: TranslationUnit, fm: FeatureModel, opt: FamilyBasedVsSampleBasedOptions,
+                          configdir: File, caseStudy: String): (String, List[Task]) = {
     var msg: String = ""
     var log: String = ""
     println("generating configurations.")
@@ -345,14 +344,14 @@ class FamilyBasedVsSampleBased(opt: FamilyBasedVsSampleBasedOptions) extends Enf
 
     /** singleconf */
     if (opt.fileconfig) {
-      val (flog, ftasks) = buildConfigurationsSingleConf(tunit, fm, configdir, caseStudy)
+      val (flog, ftasks) = buildConfigurationsSingleConf(tunit, fm, opt, configdir, caseStudy)
       log = log + flog
       tasks ++= ftasks
     }
 
     /** pairwise configurations */
     if (opt.pairwise) {
-      val (plog, ptasks) = buildConfigurationsPairwise(tunit, fm, configdir, caseStudy)
+      val (plog, ptasks) = buildConfigurationsPairwise(tunit, fm, opt, configdir, caseStudy)
       log = log + plog
       tasks ++= ptasks
     }
@@ -520,7 +519,8 @@ class FamilyBasedVsSampleBased(opt: FamilyBasedVsSampleBasedOptions) extends Enf
     countNumberOfASTElementsHelper(ast)
   }
 
-  def typecheckProducts(fm_scanner: FeatureModel, fm_ts: FeatureModel, ast: AST, logMessage: String) {
+  def typecheckProducts(fm_scanner: FeatureModel, fm_ts: FeatureModel, ast: AST, opt: FamilyBasedVsSampleBasedOptions,
+                        logMessage: String) {
     var caseStudy = ""
     var thisFilePath: String = ""
     val fileAbsPath = new File(".").getAbsolutePath + opt.getFile
@@ -545,9 +545,9 @@ class FamilyBasedVsSampleBased(opt: FamilyBasedVsSampleBasedOptions) extends Enf
     val configSerializationDir = new File(thisFilePath.substring(0, thisFilePath.length - 2))
 
     val (configGenLog: String, typecheckingTasks: List[Task]) =
-      buildConfigurations(family_ast, fm_ts, configSerializationDir, caseStudy)
+      buildConfigurations(family_ast, fm_ts, opt, configSerializationDir, caseStudy)
     saveSerializationOfTasks(typecheckingTasks, features, configSerializationDir, opt.getFile)
-    analyzeTasks(typecheckingTasks, family_ast, fm, thisFilePath, startLog = configGenLog)
+    analyzeTasks(typecheckingTasks, family_ast, fm, opt, thisFilePath, startLog = configGenLog)
   }
 
   def median(s: Seq[Long]) = {
@@ -572,7 +572,8 @@ class FamilyBasedVsSampleBased(opt: FamilyBasedVsSampleBasedOptions) extends Enf
 //    df.checkDataflow()
   }
 
-  def analyzeTasks(tasks: List[Task], tunit: TranslationUnit, fm: FeatureModel, fileID: String, startLog: String = "") {
+  def analyzeTasks(tasks: List[Task], tunit: TranslationUnit, fm: FeatureModel, opt: FamilyBasedVsSampleBasedOptions,
+                   fileID: String, startLog: String = "") {
     val log: String = startLog
     val checkXTimes = 1
     val nstoms = 1000000
@@ -591,7 +592,7 @@ class FamilyBasedVsSampleBased(opt: FamilyBasedVsSampleBasedOptions) extends Enf
     // warmup jvm
     {
       val folder = opt.getRootFolder + "TypeChef/CTypeChecker/src/test/resources/testfiles/"
-      val fname = folder + "mini.pi"
+      val fname = folder + "boa.pi"
       val istream: InputStream = new FileInputStream(fname)
       val ast = parseFile(istream, fname, folder)
       warmUp(ast)
@@ -638,7 +639,7 @@ class FamilyBasedVsSampleBased(opt: FamilyBasedVsSampleBasedOptions) extends Enf
 
         // product derivation
         val productDerivationStart = tb.getCurrentThreadCpuTime
-        val product: TranslationUnit = ProductDerivation.deriveProd[TranslationUnit](tunit, new Configuration(config.toFeatureExpr, fm))
+        val product: TranslationUnit = ProductDerivation.deriveProduct[TranslationUnit](tunit, config.getTrueSet.map(_.feature))
         val productDerivationDiff = (tb.getCurrentThreadCpuTime - productDerivationStart)
         productDerivationTimes ::= (productDerivationDiff / nstoms)
         println("checking configuration " + current_config + " of " + configs.size + " (" + fileID + " , " + taskDesc + ")" + "(" + countNumberOfASTElements(product) + ")")
@@ -1641,67 +1642,4 @@ class FamilyBasedVsSampleBased(opt: FamilyBasedVsSampleBasedOptions) extends Enf
 }
 
 
-object Main {
-  def main(args: Array[String]) {
-    // load options
-    val opt = new FamilyBasedVsSampleBasedOptions()
-    try {
-      try {
-        opt.parseOptions(args)
-      } catch {
-        case o: OptionException => if (!opt.isPrintVersion) throw o
-      }
 
-      if (opt.isPrintVersion) {
-        var version = "development build"
-        try {
-          val cl = Class.forName("de.fosd.typechef.Version")
-          version = "version " + cl.newInstance().asInstanceOf[VersionInfo].getVersion
-        } catch {
-          case e: ClassNotFoundException =>
-        }
-
-        println("TypeChef " + version)
-        return
-      }
-    }
-
-    catch {
-      case o: OptionException =>
-        println("Invocation error: " + o.getMessage)
-        println("use parameter --help for more information.")
-        return
-    }
-
-    processFile(opt)
-  }
-
-  def processFile(opt: FamilyBasedVsSampleBasedOptions) {
-    val errorXML = new ErrorXML(opt.getErrorXMLFile)
-    opt.setRenderParserError(errorXML.renderParserError)
-
-    val fm = opt.getFeatureModel.and(opt.getLocalFeatureModel).and(opt.getFilePresenceCondition)
-    opt.setFeatureModel(fm)
-    if (!opt.getFilePresenceCondition.isSatisfiable(fm)) {
-      println("file has contradictory presence condition. existing.")
-      return
-    }
-
-    new lexer.Main().run(opt, opt.parse)
-    val in = lex(opt)
-
-    // parse anyway no matter what the options say
-    val parserMain = new ParserMain(new CParser(fm))
-    val ast = parserMain.parserMain(in, opt)
-
-    if (ast != null) {
-      val fm_ts = opt.getFeatureModelTypeSystem.and(opt.getLocalFeatureModel).and(opt.getFilePresenceCondition)
-    }
-  }
-
-  def lex(opt: FamilyBasedVsSampleBasedOptions): TokenReader[CToken, CTypeContext] = {
-    val tokens = new lexer.Main().run(opt, opt.parse)
-    val in = CLexer.prepareTokens(tokens)
-    in
-  }
-}
