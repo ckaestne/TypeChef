@@ -18,7 +18,7 @@ trait EnforceTreeHelper {
   /**
    * unfortunately cloning loses position information, so we have to reassign it
    */
-  private def copyPositions(source: Product, target: Product) {
+  def copyPositions(source: Product, target: Product) {
     assert(source.getClass == target.getClass, "cloned tree should match exactly the original, typewise")
     if (source.isInstanceOf[WithPosition])
       target.asInstanceOf[WithPosition].range = source.asInstanceOf[WithPosition].range
