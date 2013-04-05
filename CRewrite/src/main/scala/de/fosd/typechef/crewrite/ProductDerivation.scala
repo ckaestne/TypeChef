@@ -28,20 +28,28 @@ object ProductDerivation {
 //  object WithPositionRewriter extends WithPositionRewriter
 
   // positions aren't copied so we loose them
-  def deriveProduct[T <: AST](ast: T, selectedFeatures: Set[String]): T = {
+  def deriveProduct[T <: Product](ast: T, selectedFeatures: Set[String]): T = {
     assert(ast != null)
 
-    val prod = everywheretd(rule {
-      case Opt(feature, entry) => {
-        if (feature.evaluate(selectedFeatures)) Opt(FeatureExprFactory.True, entry)
-        else Opt(FeatureExprFactory.False, entry)
+    val prod = manytd(rule {
+      case l: List[Opt[_]] => {
+        var res: List[Opt[_]] = List()
+        // use l.reverse here to omit later reverse on res or use += or ++= in the thenBranch
+        for (o <- l.reverse)
+          if (o.feature == FeatureExprFactory.True)
+            res ::= o
+          else if (o.feature.evaluate(selectedFeatures)) {
+            res ::= o.copy(feature = FeatureExprFactory.True)
+          }
+        res
       }
       case Choice(feature, thenBranch, elseBranch) => {
         if (feature.evaluate(selectedFeatures)) thenBranch
         else elseBranch
       }
+      case a: AST => a.clone()
     })
-    val cast = prod(ast)
-    cast.asInstanceOf[T]
+    val cast = prod(ast).get.asInstanceOf[T]
+    cast
   }
 }

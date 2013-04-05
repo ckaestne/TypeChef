@@ -639,10 +639,14 @@ object FamilyBasedVsSampleBased extends EnforceTreeHelper {
 
         // product derivation
         val productDerivationStart = tb.getCurrentThreadCpuTime
-        val product: TranslationUnit = ProductDerivation.deriveProduct[TranslationUnit](tunit, config.getTrueSet.map(_.feature))
+        val selectedFeatures = config.getTrueSet.map(_.feature)
+        val product: TranslationUnit = ProductDerivation.deriveProduct[TranslationUnit](tunit, selectedFeatures)
         val productDerivationDiff = (tb.getCurrentThreadCpuTime - productDerivationStart)
         productDerivationTimes ::= (productDerivationDiff / nstoms)
-        println("checking configuration " + current_config + " of " + configs.size + " (" + fileID + " , " + taskDesc + ")" + "(" + countNumberOfASTElements(product) + ")")
+        println("checking configuration " + current_config + " of " + configs.size + " (" +
+          fileID + " , " + taskDesc + ")" + "(" + countNumberOfASTElements(product) + ")" +
+          "(" + selectedFeatures.size + ")"
+        )
 
         // analysis initialization and warm-up
         val ts = new CTypeSystemFrontend(product, FeatureExprFactory.default.featureModelFactory.empty)
