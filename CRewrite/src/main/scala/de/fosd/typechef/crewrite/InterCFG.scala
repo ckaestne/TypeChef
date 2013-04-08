@@ -5,6 +5,16 @@ import de.fosd.typechef.conditional.{One, Conditional}
 import de.fosd.typechef.parser.c._
 import scala.Some
 
+// interprocedural control flow graph (cfg) implementation based on the
+// intraprocedural cfg implementation (see IntraCFG.scala)
+// To do so, we resolve function calls and add edges to function definitions
+// to our resulting list.
+//
+// ChK: search for function calls. we will never be able to be precise here, but we can detect
+// standard function calls "a(...)" at least. The type system will also detect types of parameters
+// and pointers, but that should not be necessary (with pointers we won't get the precise target
+// anyway without expensive dataflow analysis and parameters do not matter since C has no overloading)
+
 trait InterCFG extends IntraCFG {
 
   // provide a lookup mechanism for function defs (from the type system or selfimplemented)
@@ -29,8 +39,4 @@ trait InterCFG extends IntraCFG {
   override def getExprSucc(exp: Expr, ctx: FeatureExpr, oldres: CFGRes, fm: FeatureModel, env: ASTEnv): CFGRes = {
     findMethodCalls(exp, env, oldres, ctx, oldres) ++ super.getExprSucc(exp, ctx, oldres, fm, env)
   }
-}
-
-trait NoFunctionLookup {
-  def lookupFunctionDef(name: String): Conditional[Option[ExternalDef]] = One(None)
 }

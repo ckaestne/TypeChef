@@ -5,17 +5,17 @@ import de.fosd.typechef.conditional._
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.featureexpr.{FeatureModel, FeatureExprFactory, FeatureExpr}
 
-// implements conditional control flow (cfg) on top of the typechef
-// infrastructure
+// implements intraprocedural conditional control flow (cfg) on top of
+// the typechef infrastructure
 // at first sight the implementation of succ with a lot of private
 // function seems overly complicated; however the structure allows
 // also to implement pred
 // consider the following points:
 
-// the function definition an ast belongs to serves as the entry
-// and exit node of the cfg, because we do not have special ast
-// nodes for that, or we store everything in a cfg itself with
-// special nodes for entry and exit such as
+// the function definition serves as the entry and exit node of the
+// cfg, because we do not have special ast nodes for that, or we
+// store everything in a cfg itself with // special nodes for entry
+// and exit such as
 // [1] http://soot.googlecode.com/svn/DUA_Forensis/src/dua/method/CFG.java
 
 // normally pred succ are the same except for the following cases:
@@ -786,10 +786,6 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
           case t: Expr => followSucc(t, ctx, oldres, fm, env)
           case t: ReturnStatement => getReturnStatementSucc(t, ctx, oldres, fm, env)
           case t: Statement => {
-            //ChK: search for function calls. we will never be able to be precise here, but we can detect
-            //standard function calls "a(...)" at least. The type system will also detect types of parameters
-            //and pointers, but that should not be necessary (with pointers we won't get the precise target
-            //anyway without expensive dataflow analysis and parameters do not matter since C has no overloading)
             var res = getStmtSucc(t, ctx, oldres, fm, env)
             res = findMethodCalls(t, env, oldres, ctx, res)
             res
@@ -1264,3 +1260,6 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
   }
 }
 
+trait NoFunctionLookup {
+  def lookupFunctionDef(name: String): Conditional[Option[ExternalDef]] = One(None)
+}
