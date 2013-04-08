@@ -1,6 +1,6 @@
 package de.fosd.typechef.crewrite
 
-import de.fosd.typechef.featureexpr.{FeatureExprFactory, Configuration}
+import de.fosd.typechef.featureexpr.FeatureExprFactory
 import de.fosd.typechef.conditional.{Choice, Opt}
 import de.fosd.typechef.parser.c.AST
 import org.kiama.rewriting.Rewriter._

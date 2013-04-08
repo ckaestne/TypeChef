@@ -1,7 +1,7 @@
 package de.fosd.typechef.crewrite
 
 import de.fosd.typechef.featureexpr.{FeatureModel, FeatureExpr}
-import de.fosd.typechef.conditional.{One, Conditional}
+import de.fosd.typechef.conditional.Conditional
 import de.fosd.typechef.parser.c._
 import scala.Some
 

@@ -63,7 +63,7 @@ trait ConditionalNavigation {
       a match {
         case Opt(feature, entry) => List(feature) ++ (if (entry.isInstanceOf[Product]) entry.asInstanceOf[Product].productIterator.toList.flatMap(filterAllFeatureExprHelper)
                                                       else List())
-        case Choice(feature, thenBranch, elseBranch) => List(feature, feature.not) ++
+        case Choice(feature, thenBranch, elseBranch) => List(feature, feature.not()) ++
           thenBranch.asInstanceOf[Product].productIterator.toList.flatMap(filterAllFeatureExprHelper) ++
           elseBranch.asInstanceOf[Product].productIterator.toList.flatMap(filterAllFeatureExprHelper)
         case l: List[_] => l.flatMap(filterAllFeatureExprHelper)

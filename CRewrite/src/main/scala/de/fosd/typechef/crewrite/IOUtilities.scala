@@ -3,7 +3,7 @@ package de.fosd.typechef.crewrite
 import java.io.PrintWriter
 
 trait IOUtilities {
-    // http://stackoverflow.com/questions/4604237/how-to-write-to-a-file-in-scala
+  // http://stackoverflow.com/questions/4604237/how-to-write-to-a-file-in-scala
   import java.io.FileWriter
   def using[A <: {def close()}, B](param: A)(f: A => B): B =
     try { f(param) } finally { param.close() }

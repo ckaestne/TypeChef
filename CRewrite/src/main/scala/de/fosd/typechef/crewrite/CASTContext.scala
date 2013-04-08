@@ -1,12 +1,11 @@
 package de.fosd.typechef.crewrite
 
-import java.util.IdentityHashMap
 import de.fosd.typechef.conditional.{Choice, Opt}
 import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
 
 // store context of an AST entry
 // e: AST => (lfexp: Set[FeatureExpr] parent: AST, prev: AST, next: AST, children: List[AST])
-class ASTEnv(private var astc: IdentityHashMap[Any, (Set[FeatureExpr], Product, Product, Product, List[Any])]) {
+class ASTEnv(private var astc: java.util.IdentityHashMap[Any, (Set[FeatureExpr], Product, Product, Product, List[Any])]) {
 
   type ASTContext = (Set[FeatureExpr], Product, Product, Product, List[Any])
 
@@ -60,7 +59,7 @@ object CASTEnv {
   // create ast-neighborhood context for a given translation-unit
   def createASTEnv(a: Product, fexpset: Set[FeatureExpr] = Set(FeatureExprFactory.True)): ASTEnv = {
     assert(a != null, "ast elem is null!")
-    handleASTElem(a, null, fexpset, new ASTEnv(new IdentityHashMap[Any, (Set[FeatureExpr], Product, Product, Product, List[Any])]()))
+    handleASTElem(a, null, fexpset, new ASTEnv(new java.util.IdentityHashMap[Any, (Set[FeatureExpr], Product, Product, Product, List[Any])]()))
   }
 
   // handle single ast elements
