@@ -77,14 +77,14 @@ object CASTEnv {
       }
       case x:Product => {
         var curenv = env.add(e, (fexpset, parent, null, null, x.productIterator.toList))
-                for (elem <- x.productIterator.toList) {
+        for (elem <- x.productIterator.toList) {
           curenv = handleASTElem(elem, x, fexpset, curenv)
-                }
-                curenv
-            }
-            case _ => env
         }
+        curenv
+      }
+      case _ => env
     }
+  }
 
   // handle list of Opt nodes
   // sets prev-next connections for elements and recursively calls handleASTElems
@@ -96,26 +96,26 @@ object CASTEnv {
       e match {
         case (prev, Some(elem), next) => {
           curenv = curenv.add(elem, (fexpset, parent, prev.getOrElse(null), next.getOrElse(null), elem.asInstanceOf[Product].productIterator.toList))
-                }
-                case _ =>
-            }
         }
-
-        // recursive call
-        for (o@Opt(f, e) <- l) {
-          curenv = handleASTElem(e, o, fexpset + f, curenv)
-        }
-        curenv
+        case _ =>
+      }
     }
 
-    // since we do not have an neutral element that does not have any effect on ast
-    // we use null and Any to represent values of no reference
-    private def createPrevElemNextTuples[T](l: List[T]): List[(Option[T], Option[T], Option[T])] = {
-        val nl = l.map(Some(_))
-        val p = None :: None :: nl
-        val e = (None :: Nil) ++ (nl ++ (None :: Nil))
-        val n = nl ++ (None :: None :: Nil)
-
-        (p, e, n).zipped.toList
+    // recursive call
+    for (o@Opt(f, e) <- l) {
+      curenv = handleASTElem(e, o, fexpset + f, curenv)
     }
+    curenv
+  }
+
+  // since we do not have an neutral element that does not have any effect on ast
+  // we use null and Any to represent values of no reference
+  private def createPrevElemNextTuples[T](l: List[T]): List[(Option[T], Option[T], Option[T])] = {
+    val nl = l.map(Some(_))
+    val p = None :: None :: nl
+    val e = (None :: Nil) ++ (nl ++ (None :: Nil))
+    val n = nl ++ (None :: None :: Nil)
+
+    (p, e, n).zipped.toList
+  }
 }
