@@ -7,7 +7,7 @@ import de.fosd.typechef.featureexpr.FeatureExprFactory.True
 import org.junit.{Ignore, Test}
 import de.fosd.typechef.featureexpr.FeatureExprFactory
 
-class ConditionalControlFlowGraphTest extends EnforceTreeHelper with TestHelper with ShouldMatchers with IntraCFG with Liveness with Variables {
+class IntraCFGTest extends EnforceTreeHelper with TestHelper with ShouldMatchers with IntraCFG with Liveness with Variables {
 
 //  @Test def test_if_the_else() {
 //    val a = parseCompoundStmt("""

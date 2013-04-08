@@ -443,7 +443,7 @@ class LivenessTest extends TestHelper with ShouldMatchers with IntraCFG with Liv
                    """) should be(Map(FeatureExprFactory.True -> Set(Id("a"), Id("c")), fb -> Set(Id("b"))))
     runUsesExample("""a = (b < 2) ? c : d;
 
-                   """) should be (Map(FeatureExprFactory.True -> Set(Id("b")))) // TODO
+                   """) should be (Map(FeatureExprFactory.True -> Set(Id("b")))) // TODO conditional expressions.
 
     runUsesExample("&a;") should be (Map(FeatureExprFactory.True -> Set(Id("a"))))
     runUsesExample("*a;") should be (Map(FeatureExprFactory.True -> Set(Id("a"))))

@@ -6,7 +6,7 @@ import de.fosd.typechef.parser.c._
 import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureModel}
 
 
-class FileTests extends TestHelper with EnforceTreeHelper with IntraCFG with ConditionalNavigation with CFGHelper {
+class IntraCFGFileTests extends TestHelper with EnforceTreeHelper with IntraCFG with ConditionalNavigation with CFGHelper {
   val folder = "testfiles/"
 
   private def checkCFG(filename: String, fm: FeatureModel = FeatureExprFactory.default.featureModelFactory.empty) = {
@@ -860,7 +860,4 @@ class FileTests extends TestHelper with EnforceTreeHelper with IntraCFG with Con
   @Test def test_bug80() {assert(checkCFG("bug80.c") == false)}
   @Test def test_bug81() {assert(checkCFG("bug81.c") == false)}
   @Ignore def test_bug82() {assert(checkCFG("bug82.c") == false)}
-
-//  @Ignore def test_tar() {assert(checkCfg("tar.c") == false)}
-//  @Ignore def test_gzip() {assert(checkCfg("gzip.c") == false)}
 }
