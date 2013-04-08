@@ -67,7 +67,7 @@ object CASTEnv {
   // neighborhood settings is straight forward
   private def handleASTElem[T, U <: Product](e: T, parent: U, fexpset: Set[FeatureExpr], env: ASTEnv): ASTEnv = {
     e match {
-      case l: List[Opt[_]] => handleOptList(l, parent, fexpset, env)
+      case l: List[_] => handleOptList(l.asInstanceOf[List[Opt[_]]], parent, fexpset, env)
       case Some(o) => handleASTElem(o, parent, fexpset, env)
       case c@Choice(feature, thenBranch, elseBranch) => {
         var curenv = env.add(c, (fexpset, parent, null, null, c.productIterator.toList))
@@ -103,7 +103,7 @@ object CASTEnv {
 
         // recursive call
         for (o@Opt(f, e) <- l) {
-      curenv = handleASTElem(e, o, fexpset + f, curenv)
+          curenv = handleASTElem(e, o, fexpset + f, curenv)
         }
         curenv
     }
