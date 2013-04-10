@@ -5,7 +5,6 @@ import org.sat4j.specs.{IVec, IVecInt}
 import scala.collection.{mutable, immutable}
 import java.net.URI
 import java.io.File
-import java.io.FileWriter
 import de.fosd.typechef.featureexpr.{FeatureModelFactory, FeatureExpr, FeatureModel}
 
 /**
@@ -41,73 +40,80 @@ class SATFeatureModel(val variables: Map[String, Int], val clauses: IVec[IVecInt
     def assumeFalse(featurename: String) = this.and(SATFeatureExprFactory.createDefinedExternal(featurename).not)
 
     import java.io.FileWriter
-  def using[A <: {def close(): Unit}, B](param: A)(f: A => B): B =
-    try { f(param) } finally { param.close() }
 
-  def writeToFile(fileName:String, data:String) =
-    using (new FileWriter(fileName)) {
-      fileWriter => fileWriter.write(data)
+    def using[A <: {def close() : Unit}, B](param: A)(f: A => B): B =
+        try {
+            f(param)
+        } finally {
+            param.close()
+        }
+
+    def writeToFile(fileName: String, data: String) =
+        using(new FileWriter(fileName)) {
+            fileWriter => fileWriter.write(data)
+        }
+
+    // export given FeatureModel fm to file name fileName
+    // the format is:
+    // ((not A) and B) or C, where A, B, and C are feature
+    // names and not, and, and or are boolean functions
+    def exportFM2DNF(fm: FeatureModel, fileName: String) = {
+        // reverse the map of variables (fm.variables) Map[String, Int]
+        // so we get a Map[Int, String] and can lookup feature names
+        // using ids given from the system.
+        val mIdFlagg = Map() ++ variables.toList.map(_.swap)
+        var res = ""
+
+        // return feature name or negated feature name based on given id
+        def posNegFeatureName(id: Int) = {
+            if (mIdFlagg.isDefinedAt(id.abs))
+                Some("(" + (if (id > 0) "" else "not ") + mIdFlagg.get(id.abs).get + ")")
+            else
+                None
+        }
+
+        // adds element e between consecutive elements
+        // e.g., intersperse '-' "Hello" ~> "H-e-l-l-o"
+        def intersperse[T](e: T, l: List[T]): List[T] = {
+            l match {
+                case Nil => Nil
+                case x :: Nil => x :: Nil
+                case x :: xs => x :: e :: intersperse(e, xs)
+            }
+        }
+
+        // generate or clauses
+        var orcls: List[String] = List()
+        for (i <- 0 to (clauses.size - 1)) {
+            val cl = clauses.get(i)
+            val values = cl.toArray.toList.map(posNegFeatureName)
+            val definedValues = values.filter(_.isDefined).map(_.get)
+            orcls ::= "(" + intersperse(" and ", definedValues).fold("")(_ + _) + ")"
+        }
+
+        res += intersperse(" or ", orcls).fold("")(_ + _)
+
+        writeToFile(fileName, res)
     }
-
-  // export given FeatureModel fm to file name fileName
-  // the format is:
-  // ((not A) and B) or C, where A, B, and C are feature
-  // names and not, and, and or are boolean functions
-  def exportFM2DNF(fm: FeatureModel, fileName: String) = {
-    // reverse the map of variables (fm.variables) Map[String, Int]
-    // so we get a Map[Int, String] and can lookup feature names
-    // using ids given from the system.
-    val mIdFlagg = Map() ++ variables.toList.map(_.swap)
-    var res = ""
-
-    // return feature name or negated feature name based on given id
-    def posNegFeatureName(id: Int) = {
-      if (mIdFlagg.isDefinedAt(id.abs))
-        Some("(" + (if (id > 0) "" else "not ") + mIdFlagg.get(id.abs).get + ")")
-      else
-        None
-    }
-
-    // adds element e between consecutive elements
-    // e.g., intersperse '-' "Hello" ~> "H-e-l-l-o"
-    def intersperse[T](e: T, l: List[T]): List[T] = {
-      l match {
-        case Nil => Nil
-        case x :: Nil => x :: Nil
-        case x :: xs => x :: e :: intersperse(e, xs)
-      }
-    }
-
-    // generate or clauses
-    var orcls: List[String] = List()
-    for (i <- 0 to (clauses.size - 1)) {
-      val cl = clauses.get(i)
-      val values = cl.toArray.toList.map(posNegFeatureName)
-      val definedValues = values.filter(_.isDefined).map(_.get)
-      orcls ::= "(" + intersperse(" and ", definedValues).fold("")(_ + _) + ")"
-    }
-
-    res += intersperse(" or ", orcls).fold("")(_ + _)
-
-    writeToFile(fileName, res)
-  }
-    def writeToDimacsFile(file : File) {
-        var fw : FileWriter = null
+    def writeToDimacsFile(file: File) {
+        var fw: FileWriter = null
         try {
             fw = new FileWriter(file);
-            val vars :Array[(String,Int)] = new Array(variables.size)
+            val vars: Array[(String, Int)] = new Array(variables.size)
             variables.copyToArray(vars)
-            def sortFunction(a:Pair[String,Int],b:Pair[String,Int]):Boolean = {a._2<b._2}
-            for ((varname,varid) <-vars.sortWith(sortFunction)) {
-                val realVarname = if (varname.startsWith("CONFIG_")) varname.replaceFirst("CONFIG_","") else varname
-                fw.write("c " +  varid + " " + realVarname + "\n")
+            def sortFunction(a: Pair[String, Int], b: Pair[String, Int]): Boolean = {
+                a._2 < b._2
+            }
+            for ((varname, varid) <- vars.sortWith(sortFunction)) {
+                val realVarname = if (varname.startsWith("CONFIG_")) varname.replaceFirst("CONFIG_", "") else varname
+                fw.write("c " + varid + " " + realVarname + "\n")
             }
             var numClauses = 0;
             val clauseBuffer = new StringBuffer();
-            for (clause:IVecInt <- clauses.toArray) {
+            for (clause: IVecInt <- clauses.toArray) {
                 if (clause != null) {
-                    numClauses+=1;
-                    for (entry:Int <- clause.toArray) {
+                    numClauses += 1;
+                    for (entry: Int <- clause.toArray) {
                         clauseBuffer.append(entry + " ");
                     }
                     clauseBuffer.append("0\n");
@@ -115,7 +121,7 @@ class SATFeatureModel(val variables: Map[String, Int], val clauses: IVec[IVecInt
             }
             fw.write("p cnf " + vars.length + " " + numClauses + "\n")
             fw.write(clauseBuffer.toString)
-        } finally{
+        } finally {
             if (fw != null) fw.close()
         }
     }
@@ -149,6 +155,12 @@ object SATFeatureModel extends FeatureModelFactory {
         var varIdx = 0
         val clauses = new Vec[IVecInt]()
 
+        def lookupLiteral(literal: String, variables: Map[String, Int]) =
+            if (literal.startsWith("-"))
+                -variables.getOrElse("CONFIG_" + (literal.substring(1)), throw new Exception("variable not declared"))
+            else
+                variables.getOrElse("CONFIG_" + literal, throw new Exception("variable not declared"))
+
         for (line <- scala.io.Source.fromFile(file).getLines) {
             if ((line startsWith "@ ") || (line startsWith "$ ")) {
                 varIdx += 1
@@ -167,7 +179,7 @@ object SATFeatureModel extends FeatureModelFactory {
     /**
      * load a standard Dimacs file as feature model
      */
-    def createFromDimacsFile(file: String) = {
+    def createFromDimacsFile(file: String, variablePrefix: String = "CONFIG_"): FeatureModel = {
         var variables: Map[String, Int] = Map()
         val clauses = new Vec[IVecInt]()
         var maxId = 0
@@ -180,7 +192,7 @@ object SATFeatureModel extends FeatureModelFactory {
                 else
                     entries(0).toInt
                 maxId = scala.math.max(id, maxId)
-                variables = variables.updated("CONFIG_" + entries(1), id)
+                variables = variables.updated(variablePrefix + entries(1), id)
             } else if ((line startsWith "p ") || (line.trim.size == 0)) {
                 //comment, do nothing
             } else {
@@ -192,7 +204,7 @@ object SATFeatureModel extends FeatureModelFactory {
             }
 
         }
-        assert(maxId == variables.size)
+        assert(maxId == variables.size, "largest variable id " + maxId + " differs from number of variables " + variables.size)
         new SATFeatureModel(variables, clauses, maxId)
     }
     /**
@@ -228,15 +240,9 @@ object SATFeatureModel extends FeatureModelFactory {
             }
 
         }
-        assert(maxId == variables.size)
+        assert(maxId == variables.size, "largest variable id " + maxId + " differs from number of variables " + variables.size)
         new SATFeatureModel(variables, clauses, maxId)
     }
-
-    private def lookupLiteral(literal: String, variables: Map[String, Int]) =
-        if (literal.startsWith("-"))
-            -variables.getOrElse("CONFIG_" + (literal.substring(1)), throw new Exception("variable not declared"))
-        else
-            variables.getOrElse("CONFIG_" + literal, throw new Exception("variable not declared"))
 
 
     private[SATFeatureModel] def getVariables(expr: SATFeatureExpr /*CNF*/ , lastVarId: Int, oldMap: Map[String, Int] = Map()): (Map[String, Int], Int) = {
