@@ -147,3 +147,6 @@ class FeatureExprParser(
 
 }
 
+
+/** wrapper class for easier access from Java */
+class FeatureExprParserJava(featureFactory: AbstractFeatureExprFactory) extends FeatureExprParser(featureFactory)
