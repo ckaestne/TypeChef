@@ -7,7 +7,7 @@ import de.fosd.typechef.parser.java15.lexer._
 import de.fosd.typechef.parser.java15._
 import de.fosd.typechef.parser._
 import java.io._
-import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
+import de.fosd.typechef.featureexpr.FeatureExprFactory
 
 class LexerTest {
 
@@ -20,12 +20,12 @@ class LexerTest {
 
     @Test
     def testLexerBasic() {
-        val lexer = createLexer("""/* aa */
+        val lexer = createLexer( """/* aa */
         	class
         	//#ifdef X
         	test {}
         	//#endif
-        	""")
+                                 	""")
         var next = lexer.getNextToken
         while (next.kind != Java15ParserConstants.EOF) {
             println(next)
@@ -43,35 +43,35 @@ class LexerTest {
 
     @Test
     def testJavaLexerIfdef1() {
-        val result: TokenReader[TokenWrapper, Null] = JavaLexer.lex("""//#ifdef X
+        val result: TokenReader[TokenWrapper, Null] = JavaLexer.lex( """//#ifdef X
 class Test {}
 //#endif
-""")
+                                                                     """)
         assertEquals(4, result.tokens.size)
         assertTrue(result.tokens.forall(_.getFeature().equivalentTo(FeatureExprFactory.createDefinedExternal("X"))))
     }
     @Test
     def testJavaLexerIfdef2() {
-        val result: TokenReader[TokenWrapper, Null] = JavaLexer.lex("""//#ifdef X
+        val result: TokenReader[TokenWrapper, Null] = JavaLexer.lex( """//#ifdef X
 //docu
 class Test {}
 //#endif
-""")
+                                                                     """)
         assertEquals(4, result.tokens.size)
         assertTrue(result.tokens.forall(_.getFeature().equivalentTo(FeatureExprFactory.createDefinedExternal("X"))))
     }
 
     @Test
-    def unsupportedPreprocessorDirective1 = expectUnsupported("""//#define x 1
+    def unsupportedPreprocessorDirective1 = expectUnsupported( """//#define x 1
 x""")
     @Test
-    def unsupportedPreprocessorDirective2 = expectUnsupported("""//#if x==1" +
+    def unsupportedPreprocessorDirective2 = expectUnsupported( """//#if x==1" +
     		x""")
     @Test
-    def errorOnIllformedNesting = expectUnsupported("""//#ifdef X
+    def errorOnIllformedNesting = expectUnsupported( """//#ifdef X
     		class x {}""")
     @Test
-    def errorOnIllformedNesting2 = expectUnsupported("""//#endif
+    def errorOnIllformedNesting2 = expectUnsupported( """//#endif
     		class x{}""")
 
     @Test
@@ -89,7 +89,6 @@ x""")
 
         } catch {
             case e: PreprocessorException => println(e) //ok
-            case e => throw e
         }
     }
 

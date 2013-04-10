@@ -401,7 +401,7 @@ private[bdd] object FExprBuilder {
             bddValNum = 524288
             bddFactory = BDDFactory.init(bddValNum, bddCacheSize)
     }
-    bddFactory.setIncreaseFactor(.5) //50% increase each time
+    bddFactory.setIncreaseFactor(2) //200% increase each time
     bddFactory.setMaxIncrease(0) //no upper limit on increase size
     bddFactory.setVarNum(bddVarNum)
 
