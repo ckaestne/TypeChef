@@ -94,6 +94,51 @@ class FeatureExprTest extends TestCase {
 
     }
 
+    @Test def testAtMostLeastOne {
+        val (a, b, c) = (feature("a"), feature("b"), feature("c"))
+
+        val alo = new FeatureExprParser().atLeastOne(List(a, b, c))
+
+        assert(!alo.isTautology())
+        assert(alo.and(a).isSatisfiable())
+        assert(alo.andNot(a).isSatisfiable())
+        assert(alo.and(a).and(b).isSatisfiable())
+        assert(!alo.andNot(a).andNot(b).andNot(c).isSatisfiable())
+
+        val amo = new FeatureExprParser().atMostOne(List(a, b, c))
+        assert(!amo.isTautology())
+        assert(!amo.and(a).isTautology())
+        assert(amo.and(a).isSatisfiable())
+        assert(amo.andNot(a).isSatisfiable())
+        assert(amo.and(a).and(b).isContradiction())
+        assert(amo.and(a).and(c).isContradiction())
+        assert(amo.and(b).and(c).isContradiction())
+        assert(amo.and(a).andNot(b).andNot(c).isSatisfiable())
+        assert(amo.and(c).andNot(b).andNot(a).isSatisfiable())
+        assert(amo.andNot(a).andNot(b).andNot(c).isSatisfiable())
+
+        val one = new FeatureExprParser().oneOf(List(a, b, c))
+        assert(!one.isTautology())
+        assert(!one.and(a).isTautology())
+        assert(one.andNot(a).isSatisfiable())
+        assert(one.and(a).and(b).isContradiction())
+        assert(one.and(a).and(c).isContradiction())
+        assert(one.and(b).and(c).isContradiction())
+        assert(one.and(a).andNot(b).andNot(c).isSatisfiable())
+        assert(one.and(c).andNot(b).andNot(a).isSatisfiable())
+        assert(one.andNot(a).andNot(b).andNot(c).isContradiction())
+
+    }
+
+    @Test def testPairs {
+        val (a, b, c, d) = (feature("a"), feature("b"), feature("c"), feature("d"))
+
+        val pairs = new FeatureExprParser().pairs(List(a, b, c, d)).toList
+        //        println(pairs)
+        assertEquals(List((a, b), (a, c), (a, d), (b, c), (b, d), (c, d)), pairs)
+    }
+
+
     def v(value: Int): FeatureExprValue = d.createInteger(value)
     def not(v: FeatureExpr) = v.not
     //Leave these as def, not val, maybe (???) to test caching more.

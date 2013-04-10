@@ -66,6 +66,11 @@ static
 void partialstatic(void){}
 
 
+
+inline inlinefun() {}
+extern inline externinlinefun() {}
+static inline staticinlinefun() {}
+
 static void callStatic1() {
     staticfun();
 }
@@ -73,4 +78,30 @@ static void callStatic1() {
 void callStatic2() {
     staticfun();
     main();
+    inlinefun();
+    externinlinefun();
+    staticinlinefun();
+}
+
+
+
+typedef void (fun_t) (int, int);
+
+void funass(fun_t fun_t_p) {
+    fun_t pb;
+    pb = fun_t_p;
+}
+
+typedef void (fun_t2) (int, int);
+
+void funass2() {
+    fun_t2 fun_t_b;
+    fun_t2 pb;
+    pb = fun_t_b;
+}
+
+void funpoint(int a);
+
+void funass3() {
+    void* x = &funpoint;
 }

@@ -2,7 +2,7 @@ package de.fosd.typechef.typesystem
 
 import de.fosd.typechef.featureexpr.FeatureExpr
 import de.fosd.typechef.conditional._
-import de.fosd.typechef.parser.c.{CDef, AST}
+import de.fosd.typechef.parser.c.AST
 
 /**
  * basic types of C and definitions which types are compatible
@@ -57,7 +57,7 @@ sealed abstract class CType {
     def isUnknown: Boolean = false
     def isIgnore: Boolean = false
 
-    /**compares with of two types. if this<that, this type can be converted (widened) to that */
+    /** compares with of two types. if this<that, this type can be converted (widened) to that */
     def <(that: CType): Boolean = false
 
     def toXML: xml.Elem
@@ -185,11 +185,11 @@ case class CArray(t: CType, length: Int = -1) extends CType {
     </array>
 }
 
-/**struct and union are handled in the same construct but distinguished with a flag
- *
- * struct types have only a name. to decide whether a type is a complete type, we need
- * an environment (a complete type has known content, an incomplete type only has a name)
- * */
+/** struct and union are handled in the same construct but distinguished with a flag
+  *
+  * struct types have only a name. to decide whether a type is a complete type, we need
+  * an environment (a complete type has known content, an incomplete type only has a name)
+  * */
 case class CStruct(s: String, isUnion: Boolean = false) extends CType {
     override def toText = (if (isUnion) "union " else "struct ") + s
     def toXML = <struct isUnion={isUnion.toString}>
@@ -224,7 +224,7 @@ case class CVarArgs() extends CType {
     def toXML = <vargs/>
 }
 
-/**objects in memory */
+/** objects in memory */
 case class CObj(t: CType) extends CType {
     override def toObj = this
     //no CObj(CObj(...))
@@ -261,7 +261,7 @@ case class CIgnore() extends CType {
 }
 
 
-/**errors */
+/** errors */
 case class CUnknown(msg: String = "") extends CType {
     override def toObj = this
     override def equals(that: Any) = that match {
@@ -334,14 +334,26 @@ class ConditionalTypeMap(m: ConditionalMap[String, (AST, Conditional[CType])])
     def ++(that: ConditionalTypeMap) = if (that.isEmpty) this else new ConditionalTypeMap(this.m ++ that.m)
     def ++(l: Seq[(String, FeatureExpr, (AST, Conditional[CType]))]) = if (l.isEmpty) this else new ConditionalTypeMap(m ++ l)
     def +(name: String, f: FeatureExpr, a: AST, t: Conditional[CType]) = new ConditionalTypeMap(m.+(name, f, (a, t)))
-    def and(f:FeatureExpr ) = new ConditionalTypeMap(m.and(f))
+    def and(f: FeatureExpr) = new ConditionalTypeMap(m.and(f))
 }
 
+/**
+ * storing the following information per variable:
+ *
+ * * name
+ * * AST -> declaring AST element, for debugging purposes and giving error messages with locations
+ * * CType -> type
+ * * DeclarationKind -> declaration, definition, enum, or parameter
+ * * Int -> Scope (0=top level, 1 = function, ...)
+ */
 class ConditionalVarEnv(m: ConditionalMap[String, (AST, Conditional[(CType, DeclarationKind, Int)])])
     extends ConditionalCMap[(CType, DeclarationKind, Int)](m) {
     def this() = this(new ConditionalMap())
-    def apply(name: String): Conditional[CType] = lookup(name).map(_._1)
+    def apply(name: String): Conditional[CType] = lookupType(name)
     def lookup(name: String): Conditional[(CType, DeclarationKind, Int)] = getOrElse(name, (CUnknown(name), KDeclaration, -1))
+    def lookupType(name: String): Conditional[CType] = lookup(name).map(_._1)
+    def lookupKind(name: String): Conditional[DeclarationKind] = lookup(name).map(_._2)
+    def lookupScope(name: String): Conditional[Int] = lookup(name).map(_._3)
     def +(name: String, f: FeatureExpr, a: AST, t: Conditional[CType], kind: DeclarationKind, scope: Int) = new ConditionalVarEnv(m.+(name, f, (a, t.map(x => (x, kind, scope)))))
     def ++(v: Seq[(String, FeatureExpr, AST, Conditional[CType], DeclarationKind, Int)]) =
         v.foldLeft(this)((c, x) => c.+(x._1, x._2, x._3, x._4, x._5, x._6))
@@ -415,7 +427,7 @@ trait CTypes extends COptionProvider {
     }
 
     def isFunction(t: CType): Boolean = t.toValue match {
-        case CFunction(_,_) => true
+        case CFunction(_, _) => true
         case _ => false
     }
 
@@ -518,7 +530,7 @@ trait CTypes extends COptionProvider {
             def either(c: CType): Boolean = (a == c) || (b == c)
             priority.foldRight[CType](CSigned(CInt()))((ctype, result) => if (either(ctype)) ctype else result)
         } else a
-    /**promotion is what happens internally during conversion */
+    /** promotion is what happens internally during conversion */
     def promote(x: CType) = converse(x, x)
 
     /**
@@ -540,7 +552,7 @@ trait CTypes extends COptionProvider {
         addFunctionPointers(normalizeA(t))
 
 
-    /**helper function, part of normalize */
+    /** helper function, part of normalize */
     private def normalizeA(t: CType): CType = t.toValue match {
         case CPointer(x: CType) =>
             normalizeA(x) match {
@@ -553,7 +565,7 @@ trait CTypes extends COptionProvider {
         case c => c
     }
 
-    /**helper function, part of normalize */
+    /** helper function, part of normalize */
     private def addFunctionPointers(t: CType): CType = t match {
         case CFunction(p, rt) => CPointer(CFunction(p.map(addFunctionPointers), addFunctionPointers(rt)))
         //congruence:

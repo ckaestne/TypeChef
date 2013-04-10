@@ -10,8 +10,8 @@ object BuildSettings {
     import Dependencies._
 
     val buildOrganization = "de.fosd.typechef"
-    val buildVersion = "0.3.4"
-    val buildScalaVersion = "2.9.1"
+    val buildVersion = "0.3.5"
+    val buildScalaVersion = "2.10.1"
 
     val testEnvironment = Seq(junit, junitInterface, scalatest, scalacheck)
 
@@ -26,7 +26,7 @@ object BuildSettings {
         javacOptions ++= Seq("-Xlint:unchecked"),
         scalacOptions ++= Seq("-deprecation", "-unchecked", "-optimise", "-explaintypes"),
 
-        crossScalaVersions := Seq("2.9.1", "2.9.2" /*, "2.10.0"*/),
+        crossScalaVersions := Seq("2.9.1", "2.9.2", "2.10.1"),
 
         libraryDependencies ++= testEnvironment,
 
@@ -98,6 +98,7 @@ object Dependencies {
     val scalacheck = "org.scalacheck" %% "scalacheck" % "1.10.0" % "test"
     val scalatest = "org.scalatest" %% "scalatest" % "1.8" % "test" cross CrossVersion.binaryMapped {
         case "2.10" => "2.10.0" // useful if a%b was released with the old style
+        case "2.10.1" => "2.10.0" // useful if a%b was released with the old style
         case x => x
     }
 }
@@ -182,7 +183,9 @@ object TypeChef extends Build {
     lazy val cparser = Project(
         "CParser",
         file("CParser"),
-        settings = buildSettings ++ Seq(parallelExecution in Test := false)
+        settings = buildSettings ++ 
+          Seq(parallelExecution in Test := false,
+            libraryDependencies <+= scalaVersion(kiamaDependency(_,true)))
     ) dependsOn(featureexpr, jcpp, parserexp, conditionallib)
 
 
@@ -211,9 +214,12 @@ object TypeChef extends Build {
             Seq(libraryDependencies <+= scalaVersion(kiamaDependency(_)))
     ) dependsOn(cparser % "test->test;compile->compile", ctypechecker, conditionallib)
 
-    def kiamaDependency(scalaVersion: String) = scalaVersion match {
+    def kiamaDependency(scalaVersion: String, testOnly:Boolean=false) = {
+      val x=scalaVersion match {
         case "2.9.1" => "com.googlecode.kiama" %% "kiama" % "1.2.0"
         case _ => "com.googlecode.kiama" %% "kiama" % "1.4.0"
+      }
+      if (testOnly) x % "test" else x
     }
 }
 
