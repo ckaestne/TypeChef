@@ -88,9 +88,7 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
   val idsToBeReplaced: IdentityHashMap[Id, List[FeatureExpr]] = new IdentityHashMap()
   val writeOptionsIntoFile = true
 
-  val f: FeatureExpr = new FeatureExprParser(FeatureExprLib.l).parseFile("C:/Users/Flo/Dropbox/HiWi/busybox/TypeChef-BusyboxAnalysis/busybox/featureModel")
-  val busyBoxFm = FeatureExprLib.featureModelFactory.create(f)
-  val isBusyBox = true
+  val isBusyBox = false
   // Variables for statistics
 
   // Features
@@ -899,7 +897,7 @@ Retrieves a list of tuples out of a choice node. Also takes choices inside choic
   def ifdeftoif(source_ast: AST, decluse: IdentityHashMap[Id, List[Id]], featureModel: FeatureModel = FeatureExprLib.featureModelFactory.empty, outputStem: String = "unnamed", lexAndParseTime: Long = 0): Tuple2[Option[AST], Long] = {
     new File(path).mkdirs()
     if (featureModel.equals(FeatureExprLib.featureModelFactory.empty) && isBusyBox) {
-      fm = busyBoxFm
+      fm = FeatureExprLib.featureModelFactory.create(new FeatureExprParser(FeatureExprLib.l).parseFile("C:/Users/Flo/Dropbox/HiWi/busybox/TypeChef-BusyboxAnalysis/busybox/featureModel"))
     } else {
       fm = featureModel
     }
@@ -941,7 +939,7 @@ Retrieves a list of tuples out of a choice node. Also takes choices inside choic
    */
   def transformAst[T <: Product](t: T, decluse: IdentityHashMap[Id, List[Id]], featureModel: FeatureModel = FeatureExprLib.featureModelFactory.empty): Tuple2[T, String] = {
     if (featureModel.equals(FeatureExprLib.featureModelFactory.empty) && isBusyBox) {
-      fm = busyBoxFm
+      fm = FeatureExprLib.featureModelFactory.create(new FeatureExprParser(FeatureExprLib.l).parseFile("C:/Users/Flo/Dropbox/HiWi/busybox/TypeChef-BusyboxAnalysis/busybox/featureModel"))
     } else {
       fm = featureModel
     }
