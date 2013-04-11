@@ -1,4 +1,4 @@
-#include "Frontend/src/test/resources/testfiles/testHeader.h"
+#include "Sampling/src/test/resources/testfiles/testHeader.h"
 
 int main(int argc, char** argv) {
     #ifdef CONFIG_A

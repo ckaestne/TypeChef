@@ -6,7 +6,7 @@ import org.junit.Test
 import java.io.{FileNotFoundException, InputStream}
 
 class coverageGenerationTest extends TestHelper {
-    val folder = "testfiles"
+    val folder = "testfiles/"
 
     @Test def testNoVariabilityBDD() {
         de.fosd.typechef.featureexpr.FeatureExprFactory.setDefault(de.fosd.typechef.featureexpr.FeatureExprFactory.bdd)
