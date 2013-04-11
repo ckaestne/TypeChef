@@ -45,10 +45,9 @@ class IntraCFGFileTests extends TestHelper with EnforceTreeHelper with IntraCFG 
   // clang does not support nested function definitions; here we ignore tests with nested function definitions
   // we also ignore test cases that typechef cannot parse
   // we also ignore test cases that make use of assembler (prettyprinter fails here); these test cases are not
-  // interessting anyway
+  // interesting anyway
 
-  // test fails; dead code in succ determination
-  @Ignore def test_20000105_1() {assert(checkCFG("20000105-1.c") == false)}
+  @Test def test_20000105_1() {assert(checkCFG("20000105-1.c") == false)}
   @Test def test_20000105_2() {assert(checkCFG("20000105-2.c") == false)}
   @Ignore def test_20000120_1() {assert(checkCFG("20000120-1.c") == false)}
   @Test def test_20000120_2() {assert(checkCFG("20000120-2.c") == false)}

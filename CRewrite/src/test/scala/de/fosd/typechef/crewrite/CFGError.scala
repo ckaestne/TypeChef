@@ -3,7 +3,7 @@ package de.fosd.typechef.crewrite
 import de.fosd.typechef.parser.c.AST
 import de.fosd.typechef.featureexpr.FeatureExpr
 import de.fosd.typechef.conditional.Opt
-import java.io.{File, FileWriter}
+import java.io.{StringWriter, File, FileWriter}
 
 sealed abstract class CFGError
 
@@ -22,9 +22,8 @@ case class CFGErrorMis(msg: String, s: AST, sfexp: FeatureExpr) extends CFGError
 
 object CFGErrorOutput {
   def printCFGErrors(s: List[(AST, List[Opt[AST]])], p: List[(AST, List[Opt[AST]])], errors: List[CFGError], env: ASTEnv) {
-    val file = File.createTempFile("cfgerror", ".dot")
-    val writer = new FileWriter(file)
-    val dot = new DotGraphWithErrors(writer)
+    val sw = new StringWriter()
+    val dot = new DotGraphWithErrors(sw)
     dot.writeHeader("CFGErrorDump")
 
     if (errors.size > 0) {
@@ -40,6 +39,6 @@ object CFGErrorOutput {
 
     dot.writeFooter()
     dot.close()
-    println("CFGErrorDump written to (" + file.getAbsoluteFile + ")")
+    println("CFGDump: \n\n" + sw.toString)
   }
 }
