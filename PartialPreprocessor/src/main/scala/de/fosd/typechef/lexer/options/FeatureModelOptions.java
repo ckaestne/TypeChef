@@ -1,6 +1,8 @@
 package de.fosd.typechef.lexer.options;
 
-import de.fosd.typechef.featureexpr.*;
+import de.fosd.typechef.featureexpr.FeatureExpr;
+import de.fosd.typechef.featureexpr.FeatureExprParserJava;
+import de.fosd.typechef.featureexpr.FeatureModel;
 import de.fosd.typechef.lexer.FeatureExprLib;
 import gnu.getopt.Getopt;
 import gnu.getopt.LongOpt;
@@ -18,6 +20,7 @@ public class FeatureModelOptions extends Options implements IFeatureModelOptions
     protected FeatureModel featureModel = null;
     protected FeatureModel featureModel_typeSystem = null;
     protected PartialConfiguration partialConfig = null;
+
 
     @Override
     public FeatureModel getFeatureModel() {
@@ -71,7 +74,7 @@ public class FeatureModelOptions extends Options implements IFeatureModelOptions
             featureModel = FeatureExprLib.featureModelFactory().createFromDimacsFile_2Var(g.getOptarg());
         } else if (c == FM_FEXPR) {     //--featureModelFExpr
             checkFileExists(g.getOptarg());
-            FeatureExpr f = new FeatureExprParser(FeatureExprLib.l()).parseFile(g.getOptarg());
+            FeatureExpr f = new FeatureExprParserJava(FeatureExprLib.l()).parseFile(g.getOptarg());
             if (featureModel == null)
                 featureModel = FeatureExprLib.featureModelFactory().create(f);
             else featureModel = featureModel.and(f);
@@ -90,6 +93,7 @@ public class FeatureModelOptions extends Options implements IFeatureModelOptions
             if (partialConfig != null)
                 throw new OptionException("cannot load a second partial configuration");
             partialConfig = PartialConfigurationParser$.MODULE$.load(g.getOptarg());
+            FeatureExpr f = partialConfig.getFeatureExpr();
             if (featureModel_typeSystem == null)
                 featureModel_typeSystem = FeatureExprLib.featureModelFactory().empty();
 
