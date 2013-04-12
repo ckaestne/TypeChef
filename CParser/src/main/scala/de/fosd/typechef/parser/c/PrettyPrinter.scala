@@ -296,7 +296,13 @@ object PrettyPrinter {
       case LcurlyInitializer(inits) => "{" ~ commaSep(inits) ~ "}"
       case AlignOfExprT(typeName: TypeName) => "__alignof__(" ~ typeName ~ ")"
       case AlignOfExprU(expr: Expr) => "__alignof__" ~~ expr
-      case GnuAsmExpr(isVolatile: Boolean, isAuto, expr: StringLit, stuff: Any) => "asm"
+      case GnuAsmExpr(isVolatile: Boolean, isAuto, expr: StringLit, stuff: Any) =>
+        var ret = "asm" ~~ (if (isVolatile) "volatile " else "")
+        /*if(stuff.isInstanceOf[Some[AST]] || stuff.asInstanceOf[Some[AST]].isEmpty)
+          ret = ret ~ "(" ~ expr ~~ ":" ~~ "" ~~ ")" //TODO: this is not correct: the "" should be replaced with the contents of stuff
+        else*/
+          ret = ret ~ "(" ~ expr ~ ")"
+        ret
       case RangeExpr(from: Expr, to: Expr) => from ~~ "..." ~~ to
       case TypeOfSpecifierT(typeName: TypeName) => "typeof(" ~ typeName ~ ")"
       case TypeOfSpecifierU(e: Expr) => "typeof(" ~ e ~ ")"
