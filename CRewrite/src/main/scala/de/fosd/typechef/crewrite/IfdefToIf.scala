@@ -3,12 +3,13 @@ package de.fosd.typechef.crewrite
 import de.fosd.typechef.parser.c._
 import org.kiama.rewriting.Rewriter._
 import de.fosd.typechef.featureexpr._
+import bdd.BDDFeatureExpr
 import de.fosd.typechef.featureexpr.sat._
-import collection.mutable.ListBuffer
+import scala.collection.mutable.ListBuffer
 import java.util
-import util.IdentityHashMap
+import java.util.IdentityHashMap
 import de.fosd.typechef.conditional._
-import collection.mutable
+import scala.collection.mutable
 import de.fosd.typechef.parser.c.PlainParameterDeclaration
 import de.fosd.typechef.parser.c.SwitchStatement
 import de.fosd.typechef.parser.c.Enumerator
@@ -172,11 +173,16 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
    */
   def featureToCExpr(feature: FeatureExpr): Expr = feature match {
     case d: DefinedExternal => PostfixExpr(Id("options"), PointerPostfixSuffix(".", Id(d.feature.toLowerCase())))
+    case d: DefinedMacro => featureToCExpr(d.presenceCondition)
+    case b: BDDFeatureExpr =>
+      bddFexToCExpr(b,
+        ((fName : String) => PostfixExpr(Id("options"), PointerPostfixSuffix(".", Id(fName.toLowerCase()))))
+    )
     case a: And =>
       val l = a.clauses.toList
       var del = List[Opt[NArySubExpr]]()
       for (e <- l.tail)
-        del = del ++ List(Opt(True, NArySubExpr("&&", featureToCExpr(e))))
+        del = del ++ List(Opt(trueF, NArySubExpr("&&", featureToCExpr(e))))
       NAryExpr(featureToCExpr(l.head), del)
     case o: Or =>
       val l = o.clauses.toList
@@ -188,6 +194,29 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
         del = del ++ List(Opt(trueF, NArySubExpr("||", featureToCExpr(e))))
       NAryExpr(featureToCExpr(l.head), del)
     case Not(n) => UnaryOpExpr("!", featureToCExpr(n))
+  }
+
+  def bddFexToCExpr(bdd : BDDFeatureExpr, transformFName: String => Expr): Expr = {
+    if (bdd.isTautology()) Constant("1")
+    else if (bdd.isContradiction()) Constant("0")
+    else {
+      def clause(d: Array[(Byte,String)]) : Expr = NAryExpr(clauseForHead(d.head), clauseForTailElements(d.tail))
+      def clauseForTailElements(d: Array[(Byte,String)]): List[Opt[NArySubExpr]] = d.map(
+        x => (if (x._1 == 0)
+          List(Opt(trueF,NArySubExpr("&&", UnaryOpExpr("!", transformFName(x._2)))))
+        else
+          List(Opt(trueF,NArySubExpr("&&", transformFName(x._2))))
+          )).foldLeft(List():List[Opt[NArySubExpr]])( (a,b) =>  a++b )
+      def clauseForHead(x: (Byte,String)): Expr = (if (x._1 == 0)
+          UnaryOpExpr("!", transformFName(x._2))
+        else
+          transformFName(x._2)
+      )
+      val cnfClauses : List[Expr] = bdd.getBddAllSat.map(clause(_)).toList
+      return NAryExpr(cnfClauses.head,
+        cnfClauses.tail.foldLeft(List():List[Opt[NArySubExpr]])((a, b:Expr) => a++List(Opt(trueF,NArySubExpr("||", b))))
+      )
+    }
   }
 
   def computeDifference(before: Int, after: Int): Double = {
@@ -274,19 +303,19 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
   Converts a set of FeatureExpressions into an option struct
    */
   def definedExternalToAst(defExSet: Set[SingleFeatureExpr]): TranslationUnit = {
-    val externDeclaration = Opt(True, Declaration(List(Opt(True, ExternSpecifier()), Opt(True, IntSpecifier())), List(Opt(True, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("__VERIFIER_NONDET_INT"), List(Opt(True, DeclParameterDeclList(List(Opt(True, PlainParameterDeclaration(List(Opt(True, VoidSpecifier()))))))))), List(), None)))))
+    val externDeclaration = Opt(trueF, Declaration(List(Opt(trueF, ExternSpecifier()), Opt(trueF, IntSpecifier())), List(Opt(trueF, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("__VERIFIER_NONDET_INT"), List(Opt(trueF, DeclParameterDeclList(List(Opt(trueF, PlainParameterDeclaration(List(Opt(trueF, VoidSpecifier()))))))))), List(), None)))))
 
-    val function = Opt(True, FunctionDef(List(Opt(True, IntSpecifier())), AtomicNamedDeclarator(List(), Id("select_one"), List(Opt(True, DeclIdentifierList(List())))), List(), CompoundStatement(List(Opt(True, IfStatement(One(PostfixExpr(Id("__VERIFIER_NONDET_INT"), FunctionCall(ExprList(List())))), One(CompoundStatement(List(Opt(True, ReturnStatement(Some(Constant("1"))))))), List(), Some(One(CompoundStatement(List(Opt(True, ReturnStatement(Some(Constant("0"))))))))))))))
+    val function = Opt(trueF, FunctionDef(List(Opt(trueF, IntSpecifier())), AtomicNamedDeclarator(List(), Id("select_one"), List(Opt(trueF, DeclIdentifierList(List())))), List(), CompoundStatement(List(Opt(trueF, IfStatement(One(PostfixExpr(Id("__VERIFIER_NONDET_INT"), FunctionCall(ExprList(List())))), One(CompoundStatement(List(Opt(trueF, ReturnStatement(Some(Constant("1"))))))), List(), Some(One(CompoundStatement(List(Opt(trueF, ReturnStatement(Some(Constant("0"))))))))))))))
 
     val structDeclList = defExSet.map(x => {
-      Opt(True, StructDeclaration(List(Opt(True, IntSpecifier())), List(Opt(True, StructDeclarator(AtomicNamedDeclarator(List(), Id(x.feature.toLowerCase), List()), None, List())))))
+      Opt(trueF, StructDeclaration(List(Opt(trueF, IntSpecifier())), List(Opt(trueF, StructDeclarator(AtomicNamedDeclarator(List(), Id(x.feature.toLowerCase), List()), None, List())))))
     }).toList
-    val structDeclaration = Opt(True, Declaration(List(Opt(True, StructOrUnionSpecifier(false, Some(Id("ifdef_options")), Some(structDeclList)))), List(Opt(True, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("options"), List()), List(), None)))))
+    val structDeclaration = Opt(trueF, Declaration(List(Opt(trueF, StructOrUnionSpecifier(false, Some(Id("ifdef_options")), Some(structDeclList)))), List(Opt(trueF, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("options"), List()), List(), None)))))
 
     val cmpStmt = defExSet.map(x => {
-      Opt(True, ExprStatement(AssignExpr(PostfixExpr(Id("options"), PointerPostfixSuffix(".", Id(x.feature.toLowerCase()))), "=", PostfixExpr(Id("select_one"), FunctionCall(ExprList(List()))))))
+      Opt(trueF, ExprStatement(AssignExpr(PostfixExpr(Id("options"), PointerPostfixSuffix(".", Id(x.feature.toLowerCase()))), "=", PostfixExpr(Id("select_one"), FunctionCall(ExprList(List()))))))
     }).toList
-    val initFunction = Opt(True, FunctionDef(List(Opt(True, VoidSpecifier())), AtomicNamedDeclarator(List(), Id("initOptions"), List(Opt(True, DeclIdentifierList(List())))), List(), CompoundStatement(cmpStmt)))
+    val initFunction = Opt(trueF, FunctionDef(List(Opt(trueF, VoidSpecifier())), AtomicNamedDeclarator(List(), Id("initOptions"), List(Opt(trueF, DeclIdentifierList(List())))), List(), CompoundStatement(cmpStmt)))
 
     val result = TranslationUnit(List(externDeclaration, function, structDeclaration, initFunction))
     result

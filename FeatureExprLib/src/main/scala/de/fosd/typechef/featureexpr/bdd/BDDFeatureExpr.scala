@@ -257,6 +257,19 @@ class BDDFeatureExpr(private[featureexpr] val bdd: BDD) extends FeatureExpr {
   def toTextExpr: String =
     printbdd(bdd, "1", "0", " && ", " || ", i => "definedEx(" + FExprBuilder.lookupFeatureName(i) + ")")
 
+  /**
+   * Iterator[Array[(Byte,String)]]
+   * Returns a iterator. Each element of the iterator is a clause of the CNF formula.
+   * Each element of the clause-array is a single feature.
+   * The feature is given as tuple (a,b): a==0 means the feature is negated, b is the name of the feature.
+   */
+  def getBddAllSat : Iterator[Array[(Byte,String)]] = {
+    def clause(d: Array[Byte]): Array[(Byte, String)] = d.zip(0 to (d.length - 1)).filter(_._1 >= 0).map(
+      x => (x._1, FExprBuilder.lookupFeatureName(x._2))
+    )
+    bddAllSat.map(clause(_))
+  }
+
   override def toString: String =
     printbdd(bdd, "True", "False", " & ", " | ", FExprBuilder.lookupFeatureName(_))
 
