@@ -11,7 +11,7 @@ import de.fosd.typechef.parser._
 class CParserTest2 extends TestCase {
     val p = new CParser()
 
-    def assertParseable(code: String, mainProduction: (TokenReader[TokenWrapper, CTypeContext], FeatureExpr) => p.MultiParseResult[Any]) {
+    def assertParseable(code: String, mainProduction: (TokenReader[CToken, CTypeContext], FeatureExpr) => p.MultiParseResult[Any]) {
         val actual = p.parseAny(code.stripMargin, mainProduction)
         System.out.println(actual)
         (actual: @unchecked) match {

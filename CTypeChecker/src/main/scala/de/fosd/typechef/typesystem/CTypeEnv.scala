@@ -56,9 +56,7 @@ trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTypi
     * Structs
     */
   def addStructDeclarationToEnv(e: Declaration, featureExpr: FeatureExpr, env: Env): Env = addStructDeclarationToEnv(e.declSpecs, featureExpr, env, e.init.isEmpty)
-
   def addStructDeclarationToEnv(e: StructDeclaration, featureExpr: FeatureExpr, env: Env): Env = addStructDeclarationToEnv(e.qualifierList, featureExpr, env, e.declaratorList.isEmpty)
-
   def addStructDeclarationToEnv(specifiers: List[Opt[Specifier]], featureExpr: FeatureExpr, initEnv: Env, declareIncompleteTypes: Boolean): Env = {
     var env = initEnv
     for (Opt(specFeature, specifier) <- specifiers) {

@@ -64,9 +64,9 @@ object MacroTokenSource {
 
 class MacroTokenSource extends Source {
     private[lexer] def this(macroName: String, m: MacroData, args: jUtil.List[Argument], gnuCExtensions: Boolean) {
-        this ()
+        this()
         this.macroName = macroName
-        this.macro = m
+        this._macro = m
         this.tokenIter = m.getTokens.iterator
         this.args = args
         this.arg = null
@@ -184,8 +184,8 @@ class MacroTokenSource extends Source {
                         assert(",".equals(tok.getText))
                         queuedComma = Some(tok)
                     case _ =>
-                    //strToTokens()
-                    //tokens += tok
+                        //strToTokens()
+                        //tokens += tok
                         stringPasting = true
                         tok.lazyPrint(printWriter)
                 }
@@ -247,10 +247,10 @@ class MacroTokenSource extends Source {
     }
 
     private[lexer] def debug_getContent: String = {
-        return macro.getTokens.toString + " args: " + args
+        return _macro.getTokens.toString + " args: " + args
     }
 
-    private final var macro: MacroData = null
+    private final var _macro: MacroData = null
     private var tokenIter: Iterator[Token] = null
     private var args: jUtil.List[Argument] = null
     private var arg: Iterator[Token] = null

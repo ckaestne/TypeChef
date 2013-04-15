@@ -18,6 +18,11 @@
 
 #endif
 
+#if ((defined(X) ? 3 : 0) == 3) && !(VAL == 3)
+  dead code
+#endif
+
+
 
 #if defined (__GNU_LIBRARY__) ? defined (__USE_GNU) : !defined (__STRICT_ANSI__)
   other condition CC3

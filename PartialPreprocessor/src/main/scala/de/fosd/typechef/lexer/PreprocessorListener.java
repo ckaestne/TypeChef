@@ -23,6 +23,7 @@
 
 package de.fosd.typechef.lexer;
 
+import de.fosd.typechef.VALexer;
 import de.fosd.typechef.featureexpr.FeatureExpr;
 
 import java.util.logging.Level;
@@ -38,9 +39,9 @@ public class PreprocessorListener {
 
     private int errors;
     private int warnings;
-    private Preprocessor pp;
+    private VALexer pp;
 
-    public PreprocessorListener(Preprocessor pp) {
+    public PreprocessorListener(VALexer pp) {
         clear();
         this.pp = pp;
     }

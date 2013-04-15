@@ -1,14 +1,16 @@
 package de.fosd.typechef.typesystem.linker
 
-import org.junit._
-import de.fosd.typechef.parser.c.{TestHelper, TranslationUnit}
-import java.io.{File, InputStream, FileNotFoundException}
-import de.fosd.typechef.featureexpr.{FeatureExpr, FeatureExprFactory}
-import FeatureExprFactory._
+import de.fosd.typechef.parser.c.TestHelper
+import java.io.{InputStream, FileNotFoundException}
+import de.fosd.typechef.featureexpr.FeatureExprFactory
+import org.scalatest.FunSuite
+import org.scalatest.matchers.ShouldMatchers
+import de.fosd.typechef.parser.c.TranslationUnit
 
-class InterfaceInferenceTest extends TestHelper {
+class InterfaceInferenceTest extends TestHelper with FunSuite with ShouldMatchers {
 
     val folder = "testfiles/"
+
     private def parse(filename: String): TranslationUnit = {
         val start = System.currentTimeMillis
         println("parsing " + filename)
@@ -23,134 +25,72 @@ class InterfaceInferenceTest extends TestHelper {
     }
 
 
-    private def checkSerialization(i: CInterface) {
-        val inf = new InterfaceWriter {}
-        val f = new File("tmp.interface")
-        inf.writeInterface(i, f)
-        val interface2 = inf.readInterface(f)
+    private def d(x: String) = FeatureExprFactory.createDefinedExternal(x)
+
+    val ast = parse("mini.pi")
+    val interface = new CInferInterface {}.inferInterface(ast)
+    println(interface)
 
 
-        //
-        assert(i equals interface2)
-        assert(!(i eq interface2))
-
-        f.delete()
-    }
-
-
-    def d(x: String) = FeatureExprFactory.createDefinedExternal(x)
-    @Test
-    def testMini {
-        val ast = parse("mini.pi")
-        val interface = new CInferInterface {}.inferInterface(ast)
-        println(interface)
-        checkSerialization(interface)
-
-        //find imported function
+    test("find imported function") {
         assert(interface.imports.exists(_.name == "bar"))
         assert(interface.imports.exists(_.name == "printf"))
         assert(interface.imports.exists(_.name == "local"))
-        //foo declared but not used, should not show up in interface
+    }
+
+
+    test("foo declared but not used, should not show up in interface") {
         assert(!interface.imports.exists(_.name == "foo"))
         assert(!interface.imports.exists(_.name == "unusedlocal"))
-        //local variables should not show up in interfaces
+    }
+    test("local variables should not show up in interfaces") {
         assert(!interface.imports.exists(_.name == "a"))
-        //conditionally called->conditionally imported
+    }
+    test("conditionally called->conditionally imported") {
         assert(interface.imports.exists(x => x.name == "partiallyCalled" && (x.fexpr equivalentTo (d("PARTIAL") or d("P2")))))
-        //main should be exported
+    }
+    test("main should be exported") {
         assert(interface.exports.exists(_.name == "main"))
         assert(interface.exports.exists(_.name == "foobar"))
         assert(interface.exports.exists(_.name == "partialA"))
         assert(interface.exports.exists(_.name == "partialB"))
-        //exported methods should not be imported
+    }
+    test("exported methods should not be imported") {
         assert(!interface.imports.exists(_.name == "main"))
         assert(!interface.imports.exists(_.name == "foobar"))
         assert(!interface.imports.exists(_.name == "partialB"))
         assert(interface.imports.exists(_.name == "partialA"))
-        //local variables should not be exported
+    }
+    test("local variables should not be exported") {
         assert(!interface.exports.exists(_.name == "a"))
+    }
 
-        //static functions should not be exported
+    test("static functions should not be exported") {
         assert(!interface.exports.exists(_.name == "staticfun"))
         assert(!interface.imports.exists(_.name == "staticfun"))
         assert(!interface.exports.exists(_.name == "staticfunconditional"))
         assert(!interface.imports.exists(_.name == "staticfunconditional"))
         assert(interface.exports.exists(x => x.name == "partialstatic" && (x.fexpr equivalentTo (d("STAT").not))))
         assert(!interface.imports.exists(_.name == "partialstatic"))
-
     }
 
-    @Test
-    def testBoa {
-        val ast = parse("boa.pi")
-        val interface = new CInferInterface {}.inferInterface(ast)
-        println(interface)
-        checkSerialization(interface)
+    test("test inline behavior") {
+        //static inline and extern inline are not exported, whereas inline is
+        //(see also http://stackoverflow.com/questions/216510/extern-inline)
+        assert(interface.exports.exists(_.name == "inlinefun"))
+        assert(!interface.exports.exists(_.name == "externinlinefun"))
+        assert(!interface.exports.exists(_.name == "staticinlinefun"))
+        assert(!interface.imports.exists(_.name == "inlinefun"))
+        assert(interface.imports.exists(_.name == "externinlinefun"))
+        assert(!interface.imports.exists(_.name == "staticinlinefun"))
     }
-
-    @Test
-    def testAr {
-        val ast = parse("ar.pi")
-        val interface = new CInferInterface {}.inferInterface(ast)
-        println(interface)
-        checkSerialization(interface)
-    }
-
-
-    @Test
-    def testDeadCodeDetection {
-        val ast = parse("deadcode.pi")
-        val interface = new CInferInterface {}.inferInterface(ast)
-        println(interface)
-        checkSerialization(interface)
-
-        def whenImported(s: String): FeatureExpr = interface.imports.filter(_.name == s).map(_.fexpr).fold(False)(_ or _)
-
-        def assertEquivalent(actual: FeatureExpr, expected: FeatureExpr) =
-            assert(actual equivalentTo expected, "expected " + expected + ", but found " + actual)
-
-        assertEquivalent(whenImported("activefunction"), True)
-        assertEquivalent(whenImported("activefunction2"), True)
-        assert(!interface.imports.exists(_.name == "deadfunction"))
-        assertEquivalent(whenImported("sometimesdead"), fx)
-        assertEquivalent(whenImported("sometimesdead2"), fx.not)
-        assertEquivalent(whenImported("sometimesdead3"), fx)
-        assertEquivalent(whenImported("sometimesdead4"), fx.not)
-        assertEquivalent(whenImported("sometimesdeadAB"), (fx and fy))
-
-
-        assertEquivalent(whenImported("i3"), True)
-        assertEquivalent(whenImported("i1"), fx.not)
-        assertEquivalent(whenImported("i2"), ((fx.not and fy).not))
-
-        assertEquivalent(whenImported("t1"), fx)
-        assertEquivalent(whenImported("t2"), (fx orNot fy).not)
-        assertEquivalent(whenImported("t3"), (fx or fy).not)
-
-        assertEquivalent(whenImported("s1"), fx)
-        assertEquivalent(whenImported("s2"), False)
-        assertEquivalent(whenImported("s3"), fx.not)
-
-        assertEquivalent(whenImported("ignoresizeof"), False)
-        assertEquivalent(whenImported("ignoresizeofElse"), False)
-        assertEquivalent(whenImported("BUG_bad_PRIO_PROCESS"), False)
-
-        assertEquivalent(whenImported("c1"), fx)
-        assertEquivalent(whenImported("c2"), fx.not)
-
-        assertEquivalent(whenImported("deadsizeof1"), False)
-        assertEquivalent(whenImported("deadsizeof2"), False)
-
-        assertEquivalent(whenImported("deadByEnum"), False)
-
-        assert(interface.exports.exists(_.name == "main"))
+    test("parameters, function pointers") {
+        //passing around function pointers does not constitute calling a method, dereferencing a function does
+        assert(!interface.imports.exists(_.name == "fun_t_p"))
+        assert(interface.imports.exists(_.name == "fun_t_b"))
+        assert(interface.imports.exists(_.name == "funpoint"))
     }
 
 
-    //       @Test
-    //    def testFork {
-    //        val ast = parse("fork_.pi")
-    //        val interface = new CInferInterface {}.inferInterface(ast)
-    //        println(interface)
-    //    }
 }
+

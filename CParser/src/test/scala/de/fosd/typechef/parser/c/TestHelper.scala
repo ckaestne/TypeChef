@@ -2,7 +2,8 @@ package de.fosd.typechef.parser.c
 
 import java.io.InputStream
 import de.fosd.typechef.featureexpr.{FeatureModel, FeatureExprFactory}
-import de.fosd.typechef.conditional.One
+import de.fosd.typechef.conditional.{One, Conditional}
+import java.util.Collections
 
 /**
  * common infrastructure for tests.
@@ -23,9 +24,9 @@ trait TestHelper {
     ast.asInstanceOf[TranslationUnit]
   }
 
-  def parseFile(stream: InputStream, file: String, dir: String, featureModel:FeatureModel=null): TranslationUnit = {
+    def parseFile(stream: InputStream, file: String, dir: String): TranslationUnit = {
     val ast: AST = new ParserMain(new CParser).parserMain(
-      () => CLexer.lexStream(stream, file, dir, featureModel), new CTypeContext, SilentParserOptions)
+            () => CLexer.lexStream(stream, file, Collections.singletonList(dir), null), new CTypeContext, SilentParserOptions)
     ast.asInstanceOf[TranslationUnit]
   }
 
