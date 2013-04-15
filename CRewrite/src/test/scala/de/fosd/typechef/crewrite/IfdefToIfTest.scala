@@ -85,24 +85,12 @@ val time = tb.getCurrentThreadCpuTime // Type long; beware in nanoseconds */
     val source_ast = i.fixTypeChefsFeatureExpressions(getAstFromPi(file))
     //val env = createASTEnv(source_ast)
     typecheckTranslationUnit(source_ast)
-    println("\nTotal declarations: " + i.countNumberOfDeclarations(source_ast))
-    println("Functiondefs: " + i.countNumberOfElements[FunctionDef](source_ast))
-    println("Raw declarations: " + i.countNumberOfElements[Declaration](source_ast))
-    println("Ifs: " + i.countNumberOfElements[IfStatement](source_ast))
-    println("Variable Declarations: " + i.countNumberOfVariableDeclarations(source_ast))
-    println("Variable Functions: " + i.countNumberOfVariableElements[FunctionDef](source_ast))
     val defUseMap = getDeclUseMap
     val timeToParseAndTypeCheck = System.currentTimeMillis() - startParsingAndTypeChecking
     print("--Parsed--")
 
     val startTransformation = System.currentTimeMillis()
     val new_ast = i.transformAst(source_ast, defUseMap)
-    println("\nTotal declarations: " + i.countNumberOfDeclarations(new_ast._1))
-    println("Functiondefs: " + i.countNumberOfElements[FunctionDef](new_ast._1))
-    println("Raw declarations: " + i.countNumberOfElements[Declaration](new_ast._1))
-    println("Ifs: " + i.countNumberOfElements[IfStatement](new_ast._1))
-    println("Variable Declarations: " + i.countNumberOfVariableDeclarations(new_ast._1))
-    println("Variable Functions: " + i.countNumberOfVariableElements[FunctionDef](new_ast._1))
     val timeToTransform = System.currentTimeMillis() - startTransformation
     print("\t--Transformed--")
 
@@ -964,7 +952,10 @@ val time = tb.getCurrentThreadCpuTime // Type long; beware in nanoseconds */
   }
 
   @Test def test_alex_pi() {
-    val file = new File("C:/users/flo/dropbox/hiwi/flo/pifiles/alex.pi")
+    val file = new File("C:\\Users\\Flo\\Dropbox\\HiWi\\Flo\\Alex\\r8a66597-udc.pi")
+    val macroFilter = new util.ArrayList[String]()
+    macroFilter.add("x:CONFIG_")
+    val fm = new FeatureExprParser(FeatureExprLib.l()).parseFile(new File(":\\Users\\Flo\\Dropbox\\HiWi\\Flo\\Alex\\approx.fm"))
     //testFile(file)
 
     de.fosd.typechef.featureexpr.FeatureExprFactory.setDefault(de.fosd.typechef.featureexpr.FeatureExprFactory.bdd)
@@ -981,6 +972,10 @@ val time = tb.getCurrentThreadCpuTime // Type long; beware in nanoseconds */
   @Test def test_cpio_pi() {
     val file = new File("C:/users/flo/dropbox/hiwi/busybox/TypeChef-BusyboxAnalysis/busybox-1.18.5/archival/cpio.pi")
     testFile(file)
+
+    /*val ast = getAstFromPi(file)
+    val defuse = getDeclUseMap()
+    i.ifdeftoif(ast, defuse)*/
   }
 
   @Test def test_update_passwd_pi() {

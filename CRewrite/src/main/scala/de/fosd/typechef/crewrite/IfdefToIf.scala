@@ -176,8 +176,8 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
     case d: DefinedMacro => featureToCExpr(d.presenceCondition)
     case b: BDDFeatureExpr =>
       bddFexToCExpr(b,
-        ((fName : String) => PostfixExpr(Id("options"), PointerPostfixSuffix(".", Id(fName.toLowerCase()))))
-    )
+        ((fName: String) => PostfixExpr(Id("options"), PointerPostfixSuffix(".", Id(fName.toLowerCase()))))
+      )
     case a: And =>
       val l = a.clauses.toList
       var del = List[Opt[NArySubExpr]]()
@@ -196,25 +196,25 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
     case Not(n) => UnaryOpExpr("!", featureToCExpr(n))
   }
 
-  def bddFexToCExpr(bdd : BDDFeatureExpr, transformFName: String => Expr): Expr = {
+  def bddFexToCExpr(bdd: BDDFeatureExpr, transformFName: String => Expr): Expr = {
     if (bdd.isTautology()) Constant("1")
     else if (bdd.isContradiction()) Constant("0")
     else {
-      def clause(d: Array[(Byte,String)]) : Expr = NAryExpr(clauseForHead(d.head), clauseForTailElements(d.tail))
-      def clauseForTailElements(d: Array[(Byte,String)]): List[Opt[NArySubExpr]] = d.map(
+      def clause(d: Array[(Byte, String)]): Expr = NAryExpr(clauseForHead(d.head), clauseForTailElements(d.tail))
+      def clauseForTailElements(d: Array[(Byte, String)]): List[Opt[NArySubExpr]] = d.map(
         x => (if (x._1 == 0)
-          List(Opt(trueF,NArySubExpr("&&", UnaryOpExpr("!", transformFName(x._2)))))
+          List(Opt(trueF, NArySubExpr("&&", UnaryOpExpr("!", transformFName(x._2)))))
         else
-          List(Opt(trueF,NArySubExpr("&&", transformFName(x._2))))
-          )).foldLeft(List():List[Opt[NArySubExpr]])( (a,b) =>  a++b )
-      def clauseForHead(x: (Byte,String)): Expr = (if (x._1 == 0)
-          UnaryOpExpr("!", transformFName(x._2))
-        else
-          transformFName(x._2)
-      )
-      val cnfClauses : List[Expr] = bdd.getBddAllSat.map(clause(_)).toList
+          List(Opt(trueF, NArySubExpr("&&", transformFName(x._2))))
+          )).foldLeft(List(): List[Opt[NArySubExpr]])((a, b) => a ++ b)
+      def clauseForHead(x: (Byte, String)): Expr = (if (x._1 == 0)
+        UnaryOpExpr("!", transformFName(x._2))
+      else
+        transformFName(x._2)
+        )
+      val cnfClauses: List[Expr] = bdd.getBddAllSat.map(clause(_)).toList
       return NAryExpr(cnfClauses.head,
-        cnfClauses.tail.foldLeft(List():List[Opt[NArySubExpr]])((a, b:Expr) => a++List(Opt(trueF,NArySubExpr("||", b))))
+        cnfClauses.tail.foldLeft(List(): List[Opt[NArySubExpr]])((a, b: Expr) => a ++ List(Opt(trueF, NArySubExpr("||", b))))
       )
     }
   }
@@ -925,7 +925,7 @@ Retrieves a list of tuples out of a choice node. Also takes choices inside choic
 
   def ifdeftoif(source_ast: AST, decluse: IdentityHashMap[Id, List[Id]], featureModel: FeatureModel = FeatureExprLib.featureModelFactory.empty, outputStem: String = "unnamed", lexAndParseTime: Long = 0): Tuple2[Option[AST], Long] = {
     new File(path).mkdirs()
-    if (featureModel.equals(FeatureExprLib.featureModelFactory.empty) && isBusyBox) {
+    if (featureModel.equals(FeatureExprLib.featureModelFactory.empty) && isBusyBox && (new File("C:/Users/Flo/Dropbox/HiWi/busybox/TypeChef-BusyboxAnalysis/busybox/featureModel")).exists()) {
       fm = FeatureExprLib.featureModelFactory.create(new FeatureExprParser(FeatureExprLib.l).parseFile("C:/Users/Flo/Dropbox/HiWi/busybox/TypeChef-BusyboxAnalysis/busybox/featureModel"))
     } else {
       fm = featureModel
@@ -940,7 +940,7 @@ Retrieves a list of tuples out of a choice node. Also takes choices inside choic
     val result_ast = TranslationUnit(featureStruct.defs ++ new_ast.asInstanceOf[TranslationUnit].defs)
     val transformTime = System.currentTimeMillis() - time
 
-    if (getTypeSystem(result_ast).checkASTSilent) {
+    if (getTypeSystem(result_ast).checkAST) {
       if (!(new File(path ++ "statistics.csv").exists)) {
         writeToFile(path ++ "statistics.csv", getCSVHeader())
       }
