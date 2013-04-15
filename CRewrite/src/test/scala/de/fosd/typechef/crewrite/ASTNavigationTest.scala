@@ -23,13 +23,9 @@ class ASTNavigationTest extends ShouldMatchers with ASTNavigation with Condition
     private val gb = FeatureExprFactory.createDefinedExternal("b")
     private val gc = FeatureExprFactory.createDefinedExternal("c")
     private val gd = FeatureExprFactory.createDefinedExternal("d")
-    private val ge = FeatureExprFactory.createDefinedExternal("e")
-    private val gf = FeatureExprFactory.createDefinedExternal("f")
-    private val gg = FeatureExprFactory.createDefinedExternal("g")
-    private def o[T](o: T) = Option(FeatureExprFactory.True, o)
 
     @Ignore
-    def test_ast_navigtition_nextopt_onlytrue {
+    def test_ast_navigtition_nextopt_onlytrue() {
         val stmt0 = LabelStatement(Id("stmt0"), None)
         val stmt1 = LabelStatement(Id("stmt1"), None)
         val stmt2 = LabelStatement(Id("stmt2"), None)
@@ -43,7 +39,7 @@ class ASTNavigationTest extends ShouldMatchers with ASTNavigation with Condition
     }
 
     @Ignore
-    def test_ast_navigation_nextopt_conditionals {
+    def test_ast_navigation_nextopt_conditionals() {
         val stmt0 = LabelStatement(Id("stmt0"), None)
         val stmt1 = LabelStatement(Id("stmt1"), None)
         val stmt2 = LabelStatement(Id("stmt2"), None)
@@ -57,7 +53,7 @@ class ASTNavigationTest extends ShouldMatchers with ASTNavigation with Condition
     }
 
     @Ignore
-    def test_ast_navigation_prev_and_next_with_Opt_and_Choice_tree {
+    def test_ast_navigation_prev_and_next_with_Opt_and_Choice_tree() {
         implicit def toOne[T](x: T): Conditional[T] = One(x)
         val stmt0 = LabelStatement(Id("stmt0"), None)
         val stmt1 = LabelStatement(Id("stmt1"), None)
@@ -70,11 +66,6 @@ class ASTNavigationTest extends ShouldMatchers with ASTNavigation with Condition
         val stmt8 = LabelStatement(Id("stmt8"), None)
         val stmt9 = LabelStatement(Id("stmt9"), None)
         val optstmt0 = Opt(gd, stmt0)
-        val optstmt1 = Opt(gd, stmt1)
-        val optstmt2 = Opt(gd, stmt2)
-        val optstmt3 = Opt(gd, stmt3)
-        val optstmt4 = Opt(gd, stmt4)
-        val optstmt5 = Opt(gd, stmt5)
         val optstmt6 = Opt(gd, stmt6)
         val optstmt7 = Opt(gd, stmt7)
         val optstmt8 = Opt(FeatureExprFactory.True, stmt8)
