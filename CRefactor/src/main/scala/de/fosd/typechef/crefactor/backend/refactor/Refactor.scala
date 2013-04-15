@@ -196,13 +196,6 @@ trait Refactor extends CEnvCache with ASTNavigation with ConditionalNavigation {
     r(t).get.asInstanceOf[T]
   }
 
-  def replaceInASTOnceTD[T <: Product](t: T, mark: T, replace: T): T = {
-    val r = oncetd(rule {
-      case i: T => if (i.eq(mark)) replace else i
-    })
-    r(t).get.asInstanceOf[T]
-  }
-
   def replaceInAST[T <: Product](t: T, e: T, n: T): T = {
     val r = manybu(rule {
       case i: T => if (i.eq(e)) n else i
@@ -212,13 +205,6 @@ trait Refactor extends CEnvCache with ASTNavigation with ConditionalNavigation {
 
   def replaceInAST[T <: Product](t: T, e: Id, n: Expr): T = {
     val r = manybu(rule {
-      case i: T => if (i.eq(e)) n else i
-    })
-    r(t).get.asInstanceOf[T]
-  }
-
-  def replaceInAST_TD[T <: Product](t: T, e: T, n: T): T = {
-    val r = alltd(rule {
       case i: T => if (i.eq(e)) n else i
     })
     r(t).get.asInstanceOf[T]
