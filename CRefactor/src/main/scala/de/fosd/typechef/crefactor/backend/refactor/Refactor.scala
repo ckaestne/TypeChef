@@ -198,14 +198,14 @@ trait Refactor extends CEnvCache with ASTNavigation with ConditionalNavigation {
 
   def replaceInAST[T <: Product](t: T, e: T, n: T): T = {
     val r = manybu(rule {
-      case i: T => if (i.eq(e)) n else i
+      case i: T => if (isPartOf(i, e)) n else i
     })
     r(t).get.asInstanceOf[T]
   }
 
   def replaceInAST[T <: Product](t: T, e: Id, n: Expr): T = {
     val r = manybu(rule {
-      case i: T => if (i.eq(e)) n else i
+      case i: T => if (isPartOf(i, e)) n else i
     })
     r(t).get.asInstanceOf[T]
   }
@@ -246,6 +246,15 @@ trait Refactor extends CEnvCache with ASTNavigation with ConditionalNavigation {
       case x =>
         assert(false, "Something bad happend - i am going to cry.")
         morpheus.getAST
+    }
+  }
+
+  private def isPartOf(subterm: Product, term: Any): Boolean = {
+    term match {
+      case _: Product if (subterm.asInstanceOf[AnyRef].eq(term.asInstanceOf[AnyRef])) => true
+      case l: List[_] => l.map(isPartOf(subterm, _)).exists(_ == true)
+      case p: Product => p.productIterator.toList.map(isPartOf(subterm, _)).exists(_ == true)
+      case _ => false
     }
   }
 }

@@ -4,7 +4,7 @@ import backend.refactor.RenameIdentifier
 import org.junit.Test
 import java.io._
 import de.fosd.typechef.parser.c._
-import java.util.IdentityHashMap
+import java.util.{Collections, IdentityHashMap}
 import de.fosd.typechef.crewrite.{ConditionalNavigation, ASTNavigation}
 import de.fosd.typechef.parser.c.Id
 import de.fosd.typechef.parser.c.GnuAsmExpr
@@ -137,7 +137,7 @@ class RenamingTest extends ASTNavigation with ConditionalNavigation with Logging
 
   private def parseFile(stream: InputStream, file: String, dir: String): TranslationUnit = {
     val ast: AST = new ParserMain(new CParser).parserMain(
-      () => CLexer.lexStream(stream, file, dir, null), new CTypeContext, SilentParserOptions)
+      () => CLexer.lexStream(stream, file, Collections.emptyList(), null), new CTypeContext, SilentParserOptions)
     ast.asInstanceOf[TranslationUnit]
   }
 
