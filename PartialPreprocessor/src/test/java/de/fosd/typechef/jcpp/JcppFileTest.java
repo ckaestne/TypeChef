@@ -46,7 +46,7 @@ public class JcppFileTest extends AbstractCheckTests {
 
     @Test
     public void testAlternativeMacros() throws LexerException, IOException {
-        testFile("macro2.c",true);
+        testFile("macro2.c", true);
     }
 
     @Test
@@ -61,7 +61,7 @@ public class JcppFileTest extends AbstractCheckTests {
 
     @Test
     public void testDefDefined() throws LexerException, IOException {
-        testFile("defdefined.c",true);
+        testFile("defdefined.c", true);
     }
 
     @Test

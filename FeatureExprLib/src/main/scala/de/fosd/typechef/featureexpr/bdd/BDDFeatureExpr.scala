@@ -5,11 +5,11 @@ import net.sf.javabdd._
 import collection.mutable.{WeakHashMap, Map}
 import de.fosd.typechef.featureexpr._
 import annotation.tailrec
-import sat.DefinedExternal
 
 
 object FeatureExprHelper {
   private var freshFeatureNameCounter = 0
+
   def calcFreshFeatureName(): String = {
     freshFeatureNameCounter = freshFeatureNameCounter + 1;
     "__fresh" + freshFeatureNameCounter;
@@ -126,7 +126,9 @@ class BDDFeatureExpr(private[featureexpr] val bdd: BDD) extends FeatureExpr {
   import CastHelper._
 
   def or(that: FeatureExpr): FeatureExpr = FExprBuilder.or(this, asBDDFeatureExpr(that))
+
   def and(that: FeatureExpr): FeatureExpr = FExprBuilder.and(this, asBDDFeatureExpr(that))
+
   def not(): FeatureExpr = FExprBuilder.not(this)
 
   /**
@@ -140,6 +142,7 @@ class BDDFeatureExpr(private[featureexpr] val bdd: BDD) extends FeatureExpr {
   }
 
   override def implies(that: FeatureExpr) = FExprBuilder.imp(this, asBDDFeatureExpr(that))
+
   override def xor(that: FeatureExpr) = FExprBuilder.xor(this, asBDDFeatureExpr(that))
 
   // According to advanced textbooks, this representation is not always efficient:
@@ -228,6 +231,7 @@ class BDDFeatureExpr(private[featureexpr] val bdd: BDD) extends FeatureExpr {
     case x: BDDFeatureExpr => bdd.equals(x.bdd)
     case _ => super.equals(that)
   }
+
   override def hashCode = bdd.hashCode
 
 
@@ -251,6 +255,20 @@ class BDDFeatureExpr(private[featureexpr] val bdd: BDD) extends FeatureExpr {
    */
   def toTextExpr: String =
     printbdd(bdd, "1", "0", " && ", " || ", i => "definedEx(" + FExprBuilder.lookupFeatureName(i) + ")")
+
+  /**
+   * Iterator[Array[(Byte,String)]]
+   * Returns a iterator. Each element of the iterator is a clause of the CNF formula.
+   * Each element of the clause-array is a single feature.
+   * The feature is given as tuple (a,b): a==0 means the feature is negated, b is the name of the feature.
+   */
+  def getBddAllSat: Iterator[Array[(Byte, String)]] = {
+    def clause(d: Array[Byte]): Array[(Byte, String)] = d.zip(0 to (d.length - 1)).filter(_._1 >= 0).map(
+      x => (x._1, FExprBuilder.lookupFeatureName(x._2))
+    )
+    bddAllSat.map(clause(_))
+  }
+
   override def toString: String =
     printbdd(bdd, "True", "False", " & ", " | ", FExprBuilder.lookupFeatureName(_))
 
@@ -306,7 +324,9 @@ class BDDFeatureExpr(private[featureexpr] val bdd: BDD) extends FeatureExpr {
    * purposes
    */
   def countDistinctFeatures: Int = collectDistinctFeatureIds.size
+
   def evaluate(selectedFeatures: Set[String]): Boolean = FExprBuilder.evalBdd(bdd, selectedFeatures)
+
   def getConfIfSimpleAndExpr(): Option[(Set[SingleFeatureExpr], Set[SingleFeatureExpr])] = {
     // this should be no simpleBDDFeatureExpr, because there the function is inherited from SingleFeatureExpr
     assert(!this.isInstanceOf[SingleFeatureExpr])
@@ -338,6 +358,7 @@ class BDDFeatureExpr(private[featureexpr] val bdd: BDD) extends FeatureExpr {
     }
     return Some(enabled, disabled)
   }
+
   def getConfIfSimpleOrExpr(): Option[(Set[SingleFeatureExpr], Set[SingleFeatureExpr])] = {
     // this should be no simpleBDDFeatureExpr, because there the function is inherited from SingleFeatureExpr
     assert(!this.isInstanceOf[SingleFeatureExpr])
@@ -392,7 +413,7 @@ private[bdd] object FExprBuilder {
 
 
   val bddCacheSize = 100000
-    var bddValNum: Int = 524288 / 2
+  var bddValNum: Int = 524288 / 2
   var bddVarNum = 100
   var maxFeatureId = 0
   //start with one, so we can distinguish -x and x for sat solving and tostring
@@ -402,10 +423,10 @@ private[bdd] object FExprBuilder {
   } catch {
     case e: OutOfMemoryError =>
       println("running with low memory. consider increasing heap size.")
-            bddValNum = 524288
+      bddValNum = 524288
       bddFactory = BDDFactory.init(bddValNum, bddCacheSize)
   }
-    bddFactory.setIncreaseFactor(2) //200% increase each time
+  bddFactory.setIncreaseFactor(2) //200% increase each time
   bddFactory.setMaxIncrease(0) //no upper limit on increase size
   bddFactory.setVarNum(bddVarNum)
 
@@ -419,9 +440,13 @@ private[bdd] object FExprBuilder {
 
 
   def and(a: BDDFeatureExpr, b: BDDFeatureExpr): BDDFeatureExpr = new BDDFeatureExpr(a.bdd and b.bdd)
+
   def or(a: BDDFeatureExpr, b: BDDFeatureExpr): BDDFeatureExpr = new BDDFeatureExpr(a.bdd or b.bdd)
+
   def imp(a: BDDFeatureExpr, b: BDDFeatureExpr): BDDFeatureExpr = new BDDFeatureExpr(a.bdd imp b.bdd)
+
   def biimp(a: BDDFeatureExpr, b: BDDFeatureExpr): BDDFeatureExpr = new BDDFeatureExpr(a.bdd biimp b.bdd)
+
   def xor(a: BDDFeatureExpr, b: BDDFeatureExpr): BDDFeatureExpr = new BDDFeatureExpr(a.bdd xor b.bdd)
 
   def not(a: BDDFeatureExpr): BDDFeatureExpr = new BDDFeatureExpr(a.bdd.not())
@@ -454,6 +479,7 @@ private[bdd] object FExprBuilder {
       definedExternal(name)
     featureIds(name)
   }
+
   private[bdd] def lookupFeatureBDD(id: Int): BDD = featureBDDs(id)
 
   //create a macro definition (which expands to the current entry in the macro table; the current entry is stored in a closure-like way).
@@ -478,17 +504,25 @@ private[bdd] object FExprBuilder {
 
 object True extends BDDFeatureExpr(FExprBuilder.TRUE) with DefaultPrint with SingleFeatureExpr {
   override def toString = "True"
+
   override def toTextExpr = "1"
+
   override def debug_print(ind: Int) = indent(ind) + toTextExpr + "\n"
+
   override def isSatisfiable(fm: FeatureModel) = true
+
   override def feature = toString
 }
 
 object False extends BDDFeatureExpr(FExprBuilder.FALSE) with DefaultPrint with SingleFeatureExpr {
   override def toString = "False"
+
   override def toTextExpr = "0"
+
   override def debug_print(ind: Int) = indent(ind) + toTextExpr + "\n"
+
   override def isSatisfiable(fm: FeatureModel) = false
+
   override def feature = toString
 }
 
@@ -498,6 +532,7 @@ object CastHelper {
     assert(fexpr.isInstanceOf[BDDFeatureExpr], "Expected BDDFeatureExpr but found " + fexpr.getClass.getCanonicalName + "; do not mix implementations of FeatureExprLib.") //FMCAST
     fexpr.asInstanceOf[BDDFeatureExpr]
   }
+
   def asBDDFeatureModel(fm: FeatureModel): BDDFeatureModel =
     if (fm == null) null
     else {

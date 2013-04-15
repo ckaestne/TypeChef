@@ -12,6 +12,7 @@ import featureexpr.FeatureExpr
 import lexer.options.OptionException
 import java.io.{FileWriter, File}
 import parser.c.TranslationUnit
+import de.fosd.typechef.parser.TokenReader
 
 object Frontend {
 
@@ -52,34 +53,34 @@ object Frontend {
     processFile(opt)
   }
 
-    private class StopWatch {
-        var lastStart: Long = 0
-        var currentPeriod: String = "none"
-        var times: Map[String, Long] = Map()
+  private class StopWatch {
+    var lastStart: Long = 0
+    var currentPeriod: String = "none"
+    var times: Map[String, Long] = Map()
 
-        private def measure(checkpoint: String) {
-            times = times + (checkpoint -> System.currentTimeMillis())
-        }
-
-        def start(period: String) {
-            val now = System.currentTimeMillis()
-            val lastTime = now - lastStart
-            times = times + (currentPeriod -> lastTime)
-            lastStart = now
-            currentPeriod = period
-        }
-
-        def get(period: String): Long = times.getOrElse(period, 0)
-
+    private def measure(checkpoint: String) {
+      times = times + (checkpoint -> System.currentTimeMillis())
     }
+
+    def start(period: String) {
+      val now = System.currentTimeMillis()
+      val lastTime = now - lastStart
+      times = times + (currentPeriod -> lastTime)
+      lastStart = now
+      currentPeriod = period
+    }
+
+    def get(period: String): Long = times.getOrElse(period, 0)
+
+  }
 
 
   def processFile(opt: FrontendOptions) {
-        val errorXML = new ErrorXML(opt.getErrorXMLFile)
-        opt.setRenderParserError(errorXML.renderParserError)
+    val errorXML = new ErrorXML(opt.getErrorXMLFile)
+    opt.setRenderParserError(errorXML.renderParserError)
 
-        val stopWatch = new StopWatch()
-        stopWatch.start("loadFM")
+    val stopWatch = new StopWatch()
+    stopWatch.start("loadFM")
 
     val fm = opt.getFeatureModel().and(opt.getLocalFeatureModel).and(opt.getFilePresenceCondition)
     opt.setFeatureModel(fm) //otherwise the lexer does not get the updated feature model with file presence conditions
@@ -88,17 +89,17 @@ object Frontend {
       return;
     }
 
-        stopWatch.start("lexing")
-        val in = lex(opt)
+    stopWatch.start("lexing")
+    val in = lex(opt)
 
 
     if (opt.parse) {
-            stopWatch.start("parsing")
+      stopWatch.start("parsing")
 
       val parserMain = new ParserMain(new CParser(fm))
       val ast = parserMain.parserMain(in, opt)
 
-            stopWatch.start("serialize")
+      stopWatch.start("serialize")
       if (ast != null && opt.serializeAST)
         serializeAST(ast, opt.getSerializedASTFilename)
 
@@ -138,7 +139,7 @@ object Frontend {
             }
           }
 
-      }
+        }
         if (opt.writeInterface) {
           stopWatch.start("interfaces")
           val interface = ts.getInferredInterface().and(opt.getFilePresenceCondition)
@@ -154,19 +155,19 @@ object Frontend {
           val cf = new CAnalysisFrontend(ast.asInstanceOf[TranslationUnit], fm_ts)
           cf.checkCfG()
         }
-                if (opt.dataFlow) {
-                    stopWatch.start("dataFlow")
-                    ProductGeneration.dataflowAnalysis(fm_ts, ast, opt,
-                        logMessage = ("Time for lexing(ms): " + (stopWatch.get("lexing")) + "\nTime for parsing(ms): " + (stopWatch.get("parsing")) + "\n"))
-                }
+        if (opt.dataFlow) {
+          stopWatch.start("dataFlow")
+          ProductGeneration.dataflowAnalysis(fm_ts, ast, opt,
+            logMessage = ("Time for lexing(ms): " + (stopWatch.get("lexing")) + "\nTime for parsing(ms): " + (stopWatch.get("parsing")) + "\n"))
+        }
+
+      }
 
     }
-
-        }
-        stopWatch.start("done")
+    stopWatch.start("done")
     errorXML.write()
     if (opt.recordTiming)
-            println("timing (lexer, parser, type system, interface inference, conditional control flow, data flow)\n" + (stopWatch.get("lexing")) + ";" + (stopWatch.get("parsing")) + ";" + (stopWatch.get("typechecking")) + ";" + (stopWatch.get("interfaces")) + ";" + (stopWatch.get("controlFlow")) + ";" + (stopWatch.get("dataFlow")))
+      println("timing (lexer, parser, type system, interface inference, conditional control flow, data flow)\n" + (stopWatch.get("lexing")) + ";" + (stopWatch.get("parsing")) + ";" + (stopWatch.get("typechecking")) + ";" + (stopWatch.get("interfaces")) + ";" + (stopWatch.get("controlFlow")) + ";" + (stopWatch.get("dataFlow")))
 
   }
 
@@ -175,6 +176,12 @@ object Frontend {
     val fw = new FileWriter(filename)
     fw.write(ast.toString)
     fw.close()
+  }
+
+  def lex(opt: FrontendOptions): TokenReader[CToken, CTypeContext] = {
+    val tokens = new lexer.Main().run(opt, opt.parse)
+    val in = CLexer.prepareTokens(tokens)
+    in
   }
 
   def getAST = storedAst
