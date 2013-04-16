@@ -2047,11 +2047,20 @@ Retrieves a list of tuples out of a choice node. Also takes choices inside choic
           val feat = optDeclaration.feature
           val newDeclSpecs = declSpecs.map(x => x match {
             case o@Opt(ft, EnumSpecifier(Some(i: Id), k)) =>
-              addIdUsages(i, feat)
-              Opt(ft, EnumSpecifier(Some(Id("_" + IdMap.get(feat).get + "_" + i.name)), k))
+              if (defuse.containsKey(i)) {
+                addIdUsages(i, feat)
+                Opt(ft, EnumSpecifier(Some(Id("_" + IdMap.get(feat).get + "_" + i.name)), k))
+              } else {
+                o
+              }
             case o@Opt(ft, StructOrUnionSpecifier(a, Some(i: Id), b)) =>
-              addIdUsages(i, feat)
-              Opt(ft, StructOrUnionSpecifier(a, Some(Id("_" + IdMap.get(feat).get + "_" + i.name)), b))
+              if (defuse.containsKey(i)) {
+                addIdUsages(i, feat)
+                Opt(ft, StructOrUnionSpecifier(a, Some(Id("_" + IdMap.get(feat).get + "_" + i.name)), b))
+              } else {
+                o
+              }
+
             case k =>
               k
           })
