@@ -12,13 +12,12 @@ import de.fosd.typechef.parser.c._
 import scala.reflect.ClassTag
 
 
-// store def use chains
-// we store Id elements of AST structures that represent a definition (key element of defuse)
-// and a use (value element of defuse)
-//
-// the creation of defuse chains relies on the typesystem and it's data that is stored
-// in Env instances; during the traversal of the typesystem visitor Env instances get filled
-// with information about names, AST entries and their corresponding types
+// this trait is a hook into the typesystem to preserve typing informations
+// of declarations and usages
+// the trait basically provides two maps: declaration -> usage and usages -> declarations
+// for all identifiers that occur in a translation unit
+// to do so typed elements are passed during typechecking to CDeclUse which
+// stores the required information
 trait CDeclUse extends CEnv with CEnvCache {
 
   private lazy val logger = LogManager.getLogger(this.getClass.getName)
@@ -91,7 +90,7 @@ trait CDeclUse extends CEnv with CEnvCache {
           declUseMap.remove(i)
           putToDeclUseMap(id)
           addToDeclUseMap(id, i)
-          temp.keySet().toArray().foreach(x => addToDeclUseMap(id, x.asInstanceOf[Id]))
+          temp.keySet().toArray.foreach(x => addToDeclUseMap(id, x.asInstanceOf[Id]))
         } else {
           putToDeclUseMap(id)
         }
@@ -108,7 +107,7 @@ trait CDeclUse extends CEnv with CEnvCache {
         declUseMap.remove(i.getId)
         putToDeclUseMap(id)
         addToDeclUseMap(id, i.getId)
-        temp.keySet().toArray().foreach(x => addToDeclUseMap(id, x.asInstanceOf[Id]))
+        temp.keySet().toArray.foreach(x => addToDeclUseMap(id, x.asInstanceOf[Id]))
       case c@Choice(_, _, _) =>
         val tuple = choiceToTuple(c)
         var currentForwardDeclaration: Id = null
@@ -438,7 +437,7 @@ trait CDeclUse extends CEnv with CEnvCache {
                                 tuple.foreach(x => {
                                   if (specFeature.equivalentTo(FeatureExprFactory.True)) {
                                     addToDeclUseMap(x._2.asInstanceOf[Id], i)
-                                  } else if (specFeature.implies(x._1).isTautology) {
+                                  } else if (specFeature.implies(x._1).isTautology()) {
                                     addToDeclUseMap(x._2.asInstanceOf[Id], i)
                                   }
                                 })
@@ -455,9 +454,6 @@ trait CDeclUse extends CEnv with CEnvCache {
           }
       }
     }
-
-    val isTypeDef = decl.declSpecs.exists(x => x.entry.equals(TypedefSpecifier()))
-    val isStructOrUnion = decl.declSpecs.exists(x => x.entry.isInstanceOf[StructOrUnionSpecifier])
 
     for (Opt(initFeature, init) <- decl.init) {
       init match {
@@ -516,7 +512,7 @@ trait CDeclUse extends CEnv with CEnvCache {
     fields.getAstOrElse(id.name, null) match {
       case c@Choice(_, _, _) => addStructUseChoice(c, id)
       case One(AtomicNamedDeclarator(_, key, _)) =>
-        // TODO: workaround für fehlende Definition in den nächsten 3 Zeilen entfernen
+        // TODO: remove workaround (next three lines of code) for missing definitions
         if (!declUseMap.containsKey(key)) {
           putToDeclUseMap(key)
         }
@@ -530,13 +526,13 @@ trait CDeclUse extends CEnv with CEnvCache {
     def addOne(one: One[AST], use: Id) {
       one match {
         case One(AtomicNamedDeclarator(_, key, _)) =>
-          // TODO: workaround für fehlende Definition in den nächsten 3 Zeilen entfernen
+            // TODO: remove workaround (next three lines of code) for missing definitions
           if (!declUseMap.containsKey(key)) {
             putToDeclUseMap(key)
           }
           addToDeclUseMap(key, use)
         case One(NestedNamedDeclarator(_, declarator, _)) => addToDeclUseMap(declarator.getId, use)
-        case One(i@Id(_)) => addToDeclUseMap(i, use) // TODO Missing case, but @defuse?
+        case One(i@Id(_)) => addToDeclUseMap(i, use) // TODO Missing case, but @decluse?
         case One(null) =>
         //addStructDeclUse(use, env, isUnion)
         case _ => logger.error("AddAnonStructChoice missed " + one)
