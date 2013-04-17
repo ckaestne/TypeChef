@@ -197,14 +197,10 @@ trait CDeclUse extends CEnv with CEnvCache {
   private def addDefChoice(entry: Choice[AST]) {
     def addOne(entry: One[AST]) {
       entry match {
-        case One(InitDeclaratorI(declarator, _, _)) =>
-          putToDeclUseMap(declarator.getId)
-        case One(AtomicNamedDeclarator(_, key, _)) =>
-          putToDeclUseMap(key)
-        case One(Enumerator(key, _)) =>
-          putToDeclUseMap(key)
-        case One(FunctionDef(_, AtomicNamedDeclarator(_, key, _), _, _)) =>
-          putToDeclUseMap(key)
+        case One(InitDeclaratorI(declarator, _, _)) => putToDeclUseMap(declarator.getId)
+        case One(AtomicNamedDeclarator(_, key, _)) => putToDeclUseMap(key)
+        case One(Enumerator(key, _)) => putToDeclUseMap(key)
+        case One(FunctionDef(_, AtomicNamedDeclarator(_, key, _), _, _)) => putToDeclUseMap(key)
         case One(null) =>
         case k => logger.error("DefChoice: Missed add One " + k)
       }
@@ -232,6 +228,8 @@ trait CDeclUse extends CEnv with CEnvCache {
     }
   }
 
+
+  // TODO andreas: refactor code looks a little messy
   def addUse(entry: AST, feature: FeatureExpr, env: Env) {
 
     def addUseCastExpr(typ: TypeName, addUse: (AST, FeatureExpr, CDeclUse.this.type#Env) => Unit, feature: FeatureExpr, env: CDeclUse.this.type#Env, lst: List[Opt[Initializer]]) {
