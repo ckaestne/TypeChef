@@ -49,21 +49,22 @@ trait CDeclUse extends CEnv with CEnvCache {
     useDeclMap.clear()
   }
 
+  // TODO andreas: do You really want to do time measurements here?
+  // the decluse and usedecl creation is tightly coupled to typechecking code
+  // I (jl) wouldn't make a difference between this trait and typechecking
   def getDeclUseMap: IdentityHashMap[Id, List[Id]] = {
     val tb = ManagementFactory.getThreadMXBean
     val startTime = tb.getCurrentThreadCpuTime
 
-    // TODO Optimize data structur
-    val declUseMapMorphed = new java.util.IdentityHashMap[Id, List[Id]]()
+    // TODO Optimize data structure
+    val declUseMapMorphed = new IdentityHashMap[Id, List[Id]]()
     declUseMap.keySet().foreach(x => declUseMapMorphed.put(x, declUseMap.get(x).keySet().toList))
 
-    val time = (tb.getCurrentThreadCpuTime - startTime) / 1000000
     // logger.debug("CDeclUse transformation: " + time + " ms")
     declUseMapMorphed
   }
 
   def getUseDeclMap = useDeclMap
-
   def getUntouchedDeclUseMap = declUseMap
 
   // add definition:
@@ -139,14 +140,10 @@ trait CDeclUse extends CEnv with CEnvCache {
   def addTypeUse(entry: AST, env: Env, feature: FeatureExpr) {
     def addOne(one: One[AST], use: Id, env: Env) {
       one match {
-        case One(InitDeclaratorI(declarator, _, _)) =>
-          addToDeclUseMap(declarator.getId, use)
-        case One(AtomicNamedDeclarator(_, key, _)) =>
-          addToDeclUseMap(key, use)
-        case One(FunctionDef(_, AtomicNamedDeclarator(_, key, _), _, _)) =>
-          addToDeclUseMap(key, use)
-        case One(Enumerator(key, _)) =>
-          addToDeclUseMap(key, use)
+        case One(InitDeclaratorI(declarator, _, _)) => addToDeclUseMap(declarator.getId, use)
+        case One(AtomicNamedDeclarator(_, key, _)) => addToDeclUseMap(key, use)
+        case One(FunctionDef(_, AtomicNamedDeclarator(_, key, _), _, _)) => addToDeclUseMap(key, use)
+        case One(Enumerator(key, _)) => addToDeclUseMap(key, use)
         case One(Declaration(specifiers, inits)) =>
           inits.foreach(x => x match {
             case Opt(_, entry) => addOne(One(entry), use, env)
@@ -160,10 +157,8 @@ trait CDeclUse extends CEnv with CEnvCache {
       case i@Id(name) =>
         if (env.typedefEnv.contains(name)) {
           env.typedefEnv.getAstOrElse(name, null) match {
-            case o@One(_) =>
-              addOne(o, i, env)
-            case c@Choice(_, _, _) =>
-              addChoice(c, feature, i, env, addOne)
+            case o@One(_) => addOne(o, i, env)
+            case c@Choice(_, _, _) => addChoice(c, feature, i, env, addOne)
             case _ =>
           }
         }
@@ -383,6 +378,7 @@ trait CDeclUse extends CEnv with CEnvCache {
       case BuiltinOffsetof(typeName, members) =>
         typeName.specifiers.foreach(x => addUse(x.entry, feature, env))
         /**
+         * TODO andreas: comment not very clear. What is the problem?
          * Workaround for buitlin_offset_ -> typechef implementation too much - see: http://gcc.gnu.org/onlinedocs/gcc/Offsetof.html
          */
         val structOrUnion = filterASTElemts[Id](typeName)
@@ -391,13 +387,20 @@ trait CDeclUse extends CEnv with CEnvCache {
     }
   }
 
+
+  // TODO andreas: could be rewritten when using the common abstract class Conditional of One and Choice
+  // def conditionalToTuple(cond: Conditional[_], fexp: FeatureExpr = <defaultvalue>): List[(FeatureExpr, AST)] = {
+  //   cond match {
+  //     case One(a: AST) => List((fexp, a))
+  //     case Choice(ft, thenBranch, elseBranch) => conditionalToTuple(thenBranch, ft) ++ conditionaToTuple(elseBranch, ft.not())
+  //     case _ =>
+  //   }
+  // }
   private def choiceToTuple(choice: Choice[_]): List[Tuple2[FeatureExpr, AST]] = {
     def addOne(entry: One[_], ft: FeatureExpr): List[Tuple2[FeatureExpr, AST]] = {
       entry match {
-        case One(null) =>
-          List()
-        case One(a: AST) =>
-          List(Tuple2(ft, a))
+        case One(null) => List()
+        case One(a: AST) => List(Tuple2(ft, a))
       }
     }
     choice match {
@@ -415,6 +418,10 @@ trait CDeclUse extends CEnv with CEnvCache {
   def addDeclaration(decl: Declaration, feature: FeatureExpr, env: Env) {
     def handleAtomicNamedDeclaratorExtensions(and: AtomicNamedDeclarator) {
       and match {
+
+        // TODO andreas: this code needs to be refactored
+        // too much nesting
+        // comments are necessary; what kind of declarations are handled
         case AtomicNamedDeclarator(_, _, extensions) =>
           for (Opt(extensionFeature, extensionEntry) <- extensions) {
             extensionEntry match {
@@ -495,16 +502,16 @@ trait CDeclUse extends CEnv with CEnvCache {
             case c@Choice(_, _, _) =>
               logger.error("missed choice typedef " + c)
             case One(Declaration(List(Opt(_, _), Opt(_, s@StructOrUnionSpecifier(_, Some(id), _))), _)) =>
-              // TODO typedef name name
+              // TODO andreas: typedef name name // comment not specific
               putToDeclUseMap(i)
             case k =>
-              logger.error("Missed addStructUse" + k)
+              logger.error("Missed addStructUse " + k)
           }
         }
       }
       case OffsetofMemberDesignatorID(id) =>
         addStructUse(id, featureExpr, env, structName, isUnion)
-      case k => logger.error("Missed addStructUse")
+      case k => logger.error("Missed addStructUse " + k)
     }
   }
 
@@ -533,6 +540,8 @@ trait CDeclUse extends CEnv with CEnvCache {
           addToDeclUseMap(key, use)
         case One(NestedNamedDeclarator(_, declarator, _)) => addToDeclUseMap(declarator.getId, use)
         case One(i@Id(_)) => addToDeclUseMap(i, use) // TODO Missing case, but @decluse?
+
+        // TODO andreas: following line is obsolete
         case One(null) =>
         //addStructDeclUse(use, env, isUnion)
         case _ => logger.error("AddAnonStructChoice missed " + one)
@@ -559,8 +568,9 @@ trait CDeclUse extends CEnv with CEnvCache {
   def addStructDeclUse(entry: Id, env: Env, isUnion: Boolean, feature: FeatureExpr) {
     def addOne(one: One[AST], use: Id) = {
       one match {
-        case One(id: Id) =>
-          addToDeclUseMap(id, use)
+        case One(id: Id) => addToDeclUseMap(id, use)
+
+        // TODO andreas: following line is obsolete
         case One(null) =>
         case _ =>
       }
@@ -590,6 +600,8 @@ trait CDeclUse extends CEnv with CEnvCache {
 
   def addDecl(current: Any, featureExpr: FeatureExpr, env: Env, isDefinition: Boolean = true) {
     current match {
+
+      // TODO andreas: the following three lines are obsolete; see case _ => at the end
       case Nil =>
       case None =>
       case DeclarationStatement(_) =>
@@ -831,7 +843,7 @@ trait CDeclUse extends CEnv with CEnvCache {
   def addJumpStatements(compoundStatement: CompoundStatement) { addGotoStatements(compoundStatement) }
 
   private def addGotoStatements(f: AST) {
-    val labelMap: IdentityHashMap[Id, FeatureExpr] = new IdentityHashMap
+    val labelMap: IdentityHashMap[Id, FeatureExpr] = new IdentityHashMap()
 
     def get[T](a: Any)(implicit m: ClassTag[T]): List[Opt[T]] = {
       a match {
@@ -862,6 +874,7 @@ trait CDeclUse extends CEnv with CEnvCache {
 
   // method recursively filters all AST elements for a given type T
   // Copy / Pasted from ASTNavigation -> unable to include ASTNavigation because of dependencies
+  // TODO: move ASTNavigation to CParser?? if so this method could be removed then.
   private def filterASTElemts[T <: AST](a: Any)(implicit m: ClassTag[T]): List[T] = {
     a match {
 
