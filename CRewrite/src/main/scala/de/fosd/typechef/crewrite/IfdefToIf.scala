@@ -1822,6 +1822,13 @@ Retrieves a list of tuples out of a choice node. Also takes choices inside choic
           case k =>
             Opt(optIf.feature, ForStatement(expr1, expr2, expr3, One(CompoundStatement(List(Opt(trueF, statement))))))
         }
+      case w@WhileStatement(expr, One(statement)) =>
+        statement match {
+          case cs: CompoundStatement =>
+            optIf
+          case k =>
+            Opt(optIf.feature, WhileStatement(expr, One(CompoundStatement(List(Opt(trueF, statement))))))
+        }
       case k =>
         optIf
     }
@@ -1916,7 +1923,8 @@ Retrieves a list of tuples out of a choice node. Also takes choices inside choic
     }
   }
 
-  def handleWhileStatements(opt: Opt[Statement], currentContext: FeatureExpr = trueF): List[Opt[Statement]] = {
+  def handleWhileStatements(optW: Opt[Statement], currentContext: FeatureExpr = trueF): List[Opt[Statement]] = {
+    val opt = convertThenBody(optW)
     opt.entry match {
       case w@WhileStatement(expr, conditional) =>
         if (!opt.feature.equivalentTo(trueF)) {
@@ -1936,7 +1944,7 @@ Retrieves a list of tuples out of a choice node. Also takes choices inside choic
                 }
                 result
               } else {
-                List(transformRecursive(replaceOptAndId(opt, currentContext), currentContext))
+                List(transformRecursive(replaceOptAndId(opt, currentContext), currentContext)).asInstanceOf[List[Opt[Statement]]]
               }
             case c@Choice(ft, one, second) =>
               val choices = choiceToTuple(c, currentContext).filterNot(x => x._1.equivalentTo(FeatureExprFactory.False))
@@ -2047,11 +2055,20 @@ Retrieves a list of tuples out of a choice node. Also takes choices inside choic
           val feat = optDeclaration.feature
           val newDeclSpecs = declSpecs.map(x => x match {
             case o@Opt(ft, EnumSpecifier(Some(i: Id), k)) =>
-              addIdUsages(i, feat)
-              Opt(ft, EnumSpecifier(Some(Id("_" + IdMap.get(feat).get + "_" + i.name)), k))
+              if (defuse.containsKey(i)) {
+                addIdUsages(i, feat)
+                Opt(ft, EnumSpecifier(Some(Id("_" + IdMap.get(feat).get + "_" + i.name)), k))
+              } else {
+                o
+              }
             case o@Opt(ft, StructOrUnionSpecifier(a, Some(i: Id), b)) =>
-              addIdUsages(i, feat)
-              Opt(ft, StructOrUnionSpecifier(a, Some(Id("_" + IdMap.get(feat).get + "_" + i.name)), b))
+              if (defuse.containsKey(i)) {
+                addIdUsages(i, feat)
+                Opt(ft, StructOrUnionSpecifier(a, Some(Id("_" + IdMap.get(feat).get + "_" + i.name)), b))
+              } else {
+                o
+              }
+
             case k =>
               k
           })

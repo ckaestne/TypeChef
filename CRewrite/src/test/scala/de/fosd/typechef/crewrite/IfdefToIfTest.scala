@@ -1891,7 +1891,7 @@ val time = tb.getCurrentThreadCpuTime // Type long; beware in nanoseconds */
     //val file = new File("C:/Users/Flo/Dropbox/HiWi/Flo/test/char_trailer.c")
     //val file = new File("C:/Users/Flo/Dropbox/HiWi/Flo/test/enum_test.c")
     //val file = new File("C:/Users/Flo/Dropbox/HiWi/Flo/test/pretty_print.c")
-    val file = new File("C:/Users/Flo/Dropbox/HiWi/Flo/test/sizeof_enum.c")
+    val file = new File("C:\\Users\\Flo\\Dropbox\\HiWi\\Flo\\test\\struct_usage.c")
 
     val source_ast = getAstFromPi(file)
     println(source_ast.toString() ++ "\n\n")
