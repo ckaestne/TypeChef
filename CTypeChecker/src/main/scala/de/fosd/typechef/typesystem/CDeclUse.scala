@@ -2,7 +2,7 @@ package de.fosd.typechef.typesystem
 
 import scala.collection.JavaConversions._
 import management.ManagementFactory
-import java.util.IdentityHashMap
+import java.util.{Collections, IdentityHashMap}
 
 import org.apache.logging.log4j.LogManager
 
@@ -10,6 +10,7 @@ import de.fosd.typechef.conditional._
 import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
 import de.fosd.typechef.parser.c._
 import scala.reflect.ClassTag
+import java.util
 
 
 // this trait is a hook into the typesystem to preserve typing informations
@@ -22,19 +23,19 @@ trait CDeclUse extends CEnv with CEnvCache {
 
   private lazy val logger = LogManager.getLogger(this.getClass.getName)
 
-  private val declUseMap: IdentityHashMap[Id, IdentityHashMap[Id, Id]] = new IdentityHashMap()
+  private val declUseMap: IdentityHashMap[Id, util.Set[Id]] = new IdentityHashMap()
   private val useDeclMap: IdentityHashMap[Id, List[Id]] = new IdentityHashMap()
   private var stringToIdMap: Map[String, Id] = Map()
 
   private[typesystem] def clear() { clearDeclUseMap() }
 
-  private def putToDeclUseMap(decl: Id) = if (!declUseMap.contains(decl)) declUseMap.put(decl, new IdentityHashMap())
+  private def putToDeclUseMap(decl: Id) = if (!declUseMap.contains(decl)) declUseMap.put(decl, Collections.newSetFromMap[Id](new util.IdentityHashMap()))
 
   private def addToDeclUseMap(decl: Id, use: Id): Any = {
     if (decl.eq(use) && !declUseMap.containsKey(decl)) putToDeclUseMap(decl)
 
-    if (declUseMap.containsKey(decl) && !declUseMap.get(decl).containsKey(use)) {
-      declUseMap.get(decl).put(use, null)
+    if (declUseMap.containsKey(decl) && !declUseMap.get(decl).contains(use)) {
+      declUseMap.get(decl).add(use)
       addToUseDeclMap(use, decl)
     }
   }
@@ -49,19 +50,10 @@ trait CDeclUse extends CEnv with CEnvCache {
     useDeclMap.clear()
   }
 
-  // TODO andreas: do You really want to do time measurements here?
-  // the decluse and usedecl creation is tightly coupled to typechecking code
-  // I (jl) wouldn't make a difference between this trait and typechecking
   def getDeclUseMap: IdentityHashMap[Id, List[Id]] = {
-    val tb = ManagementFactory.getThreadMXBean
-    val startTime = tb.getCurrentThreadCpuTime
-
-    // TODO Optimize data structure
-    val declUseMapMorphed = new IdentityHashMap[Id, List[Id]]()
-    declUseMap.keySet().foreach(x => declUseMapMorphed.put(x, declUseMap.get(x).keySet().toList))
-
-    // logger.debug("CDeclUse transformation: " + time + " ms")
-    declUseMapMorphed
+    val morphedDeclUsedMap = new IdentityHashMap[Id, List[Id]]()
+    declUseMap.keySet().foreach(x => morphedDeclUsedMap.put(x, declUseMap.get(x).toList))
+    morphedDeclUsedMap
   }
 
   def getUseDeclMap = useDeclMap
@@ -77,7 +69,7 @@ trait CDeclUse extends CEnv with CEnvCache {
         if (isFunctionDeclarator) addFunctionDeclaration(env, id, feature)
         else putToDeclUseMap(id)
       case StructDeclaration(quals, decls) => decls.foreach(x => addDecl(x.entry, x.feature, env))
-      case _ =>
+      case _ => logger.error("Missed ForwardDeclration: " + definition)
     }
   }
 
@@ -91,7 +83,7 @@ trait CDeclUse extends CEnv with CEnvCache {
           declUseMap.remove(i)
           putToDeclUseMap(id)
           addToDeclUseMap(id, i)
-          temp.keySet().toArray.foreach(x => addToDeclUseMap(id, x.asInstanceOf[Id]))
+          temp.foreach(x => addToDeclUseMap(id, x))
         } else {
           putToDeclUseMap(id)
         }
@@ -108,7 +100,7 @@ trait CDeclUse extends CEnv with CEnvCache {
         declUseMap.remove(i.getId)
         putToDeclUseMap(id)
         addToDeclUseMap(id, i.getId)
-        temp.keySet().toArray.foreach(x => addToDeclUseMap(id, x.asInstanceOf[Id]))
+        temp.foreach(x => addToDeclUseMap(id, x))
       case c@Choice(_, _, _) =>
         val tuple = choiceToTuple(c)
         var currentForwardDeclaration: Id = null
@@ -875,7 +867,6 @@ trait CDeclUse extends CEnv with CEnvCache {
   // TODO: move ASTNavigation to CParser?? if so this method could be removed then.
   private def filterASTElemts[T <: AST](a: Any)(implicit m: ClassTag[T]): List[T] = {
     a match {
-
       case p: Product if (m.runtimeClass.isInstance(p)) => List(p.asInstanceOf[T])
       case l: List[_] => l.flatMap(filterASTElemts[T])
       case p: Product => p.productIterator.toList.flatMap(filterASTElemts[T])
