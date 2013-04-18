@@ -69,14 +69,14 @@ class RenamingTest extends ASTNavigation with ConditionalNavigation with Logging
     val morpheus = new Morpheus(ast, piFile)
     resultBuilder.append("++Typecheck .pi file time: " + (tb.getCurrentThreadCpuTime - startTypeCheck) / nsToMs + "ms ++\n")
 
-    val originAmount = analyeDeclUse(morpheus.getDeclUseMap()).sorted
+    val originAmount = analyeDeclUse(morpheus.getDeclUseMap).sorted
 
     val ids = morpheus.getUseDeclMap.values().toArray(Array[List[Id]]()).par.foldLeft(List[Id]())((list, entry) => list ::: entry).toList
     for (i <- 0 to (runs - 1)) {
       val id = ids.apply((math.random * ids.size).toInt)
 
       resultBuilder.append("\n++Refactoring " + id + " " + id.range + " +++\n")
-      if (morpheus.getDeclUseMap().containsKey(id)) resultBuilder.append("++DeclUseMap " + morpheus.getDeclUseMap().get(id) + " +++\n")
+      if (morpheus.getDeclUseMap.containsKey(id)) resultBuilder.append("++DeclUseMap " + morpheus.getDeclUseMap.get(id) + " +++\n")
       if (morpheus.getUseDeclMap.containsKey(id)) resultBuilder.append("++DeclUseMap " + morpheus.getUseDeclMap.get(id) + " +++\n")
 
       resultBuilder.append("++Amount of ids: " + getAllRelevantIds(ast).length + " +++\n")
@@ -102,7 +102,7 @@ class RenamingTest extends ASTNavigation with ConditionalNavigation with Logging
       out_file.flush()
       out_file.close()
 
-      val newAmount = analyeDeclUse(morpheus2.getDeclUseMap()).sorted
+      val newAmount = analyeDeclUse(morpheus2.getDeclUseMap).sorted
       val succ = originAmount == newAmount
       resultBuilder.append("++Refactoring was succesful: " + succ + " ++\n")
       assert(succ, "DeclUse is not the same anymore")
