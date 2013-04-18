@@ -955,5 +955,32 @@ return 1;
 
     }
 
+
+    test("__builtin_va_arg") {
+
+        expect(true) {
+            check(
+                """
+                  |typedef __builtin_va_list va_list;
+                  |void foo(int y, va_list ap) {
+                  |  int x = 3;
+                  |  *(__builtin_va_arg(ap,int*)) = x;
+                  |}
+                """.stripMargin)
+        }
+
+        expect(false) {
+            check(
+                """
+                  |typedef __builtin_va_list va_list;
+                  |void foo(int y, va_list ap) {
+                  |  struct {int x;} x = {1};
+                  |  *(__builtin_va_arg(ap,int*)) = x;
+                  |}
+                """.stripMargin)
+        }
+        //
+    }
+
 }
 

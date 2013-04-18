@@ -13,11 +13,11 @@ trait CBuiltIn extends CEnv with CTypes with CDeclTyping {
     object InitialEnv extends Env(
         new ConditionalTypeMap() ++ initBuiltinTypedevEnv,
         new VarTypingContext() ++ initBuiltinVarEnv,
-        new StructEnv(), Map(), Map(), None, 0, FeatureExprFactory.False,Nil)
+        new StructEnv(), Map(), Map(), None, 0, FeatureExprFactory.False, Nil)
 
     val initBuiltinTypedevEnv: Seq[(String, FeatureExpr, (AST, Conditional[CType]))] =
         Map(
-            "__builtin_va_list" -> CIgnore()
+            "__builtin_va_list" -> CBuiltinVaList()
         ).toList.map(x => (x._1, True, (null, One(x._2))))
 
 
@@ -28,14 +28,14 @@ trait CBuiltIn extends CEnv with CTypes with CDeclTyping {
             "__builtin_warning" -> One(CFunction(Seq(CVarArgs()), CInt())),
             "__builtin_choose_expr" -> One(CFunction(Seq(CVarArgs()), CInt())),
             "__builtin_constant_p" -> One(CFunction(Seq(CVarArgs()), CInt())),
-            "__builtin_va_start" -> One(CFunction(Seq(CIgnore(), CVarArgs()), CVoid())), //ignore most of these...
+            "__builtin_va_start" -> One(CFunction(Seq(CBuiltinVaList(), CVarArgs()), CVoid())), //ignore most of these...
             //            "__builtin_va_arg" -> One(CFunction(Seq(CIgnore(), CIgnore()), CIgnore())),//handled differently in parser
-            "__builtin_va_end" -> One(CFunction(Seq(CIgnore()), CVoid())),
-            "__builtin_va_copy" -> One(CFunction(Seq(CIgnore(), CIgnore()), CVoid()))
+            "__builtin_va_end" -> One(CFunction(Seq(CBuiltinVaList()), CVoid())),
+            "__builtin_va_copy" -> One(CFunction(Seq(CBuiltinVaList(), CBuiltinVaList()), CVoid()))
         )).toList.map(x => (x._1, True, null, x._2, KDeclaration, 0))
 
 
-    /**taken directly from sparse/lib.c */
+    /** taken directly from sparse/lib.c */
     private def declare_builtin_functions(): Map[String, Conditional[CType]] = {
         var buffer = "";
         def add_pre_buffer(str: String) {

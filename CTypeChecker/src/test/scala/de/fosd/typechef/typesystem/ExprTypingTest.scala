@@ -67,9 +67,9 @@ class ExprTypingTest extends CTypeSystem with CEnv with FunSuite with ShouldMatc
 
     val astructEnv: StructEnv =
         new StructEnv().addComplete(
-            "str", false, True, new ConditionalTypeMap() +("a", True, null, One(CDouble())) +("b", True, null, One(CStruct("str"))),1).addComplete(
-            "vstrA", false, fx, new ConditionalTypeMap() +("a", fx and fy, null, _l) +("b", fx, null, One(CStruct("str"))),1).addComplete(
-            "vstrB", false, True, new ConditionalTypeMap() +("a", True, null, _i) +("b", True, null, _i) +("c", fx.not, null, _i),1
+            "str", false, True, new ConditionalTypeMap() +("a", True, null, One(CDouble())) +("b", True, null, One(CStruct("str"))), 1).addComplete(
+            "vstrA", false, fx, new ConditionalTypeMap() +("a", fx and fy, null, _l) +("b", fx, null, One(CStruct("str"))), 1).addComplete(
+            "vstrB", false, True, new ConditionalTypeMap() +("a", True, null, _i) +("b", True, null, _i) +("c", fx.not, null, _i), 1
         )
 
     test("primitives and pointers") {
@@ -133,7 +133,7 @@ class ExprTypingTest extends CTypeSystem with CEnv with FunSuite with ShouldMatc
         expr("funparamptr()") should be(CUnknown())
         expr("(*funparamptr)()") should be(CDouble())
         expr(" __builtin_va_arg()") should be(CUnknown())
-        expr(" __builtin_va_arg(a, int*)") should be(CIgnore())
+        expr(" __builtin_va_arg(a, int*)") should be(CPointer(CSigned(CInt())))
     }
 
     test("conditional function calls") {
@@ -226,7 +226,7 @@ class ExprTypingTest extends CTypeSystem with CEnv with FunSuite with ShouldMatc
     test("ignored types") {
         expr("ig").toValue should be(CIgnore())
         expr("&ig") should be(CPointer(CIgnore()))
-        expr("*ig") should be(CIgnore())
+        expr("*ig") should be(CObj(CIgnore()))
         expr("(double)ig") should be(CDouble())
     }
 
