@@ -53,11 +53,13 @@ sealed abstract class CType {
     /* map over this type considering variability */
     def mapV(f: FeatureExpr, op: (FeatureExpr, CType) => CType): CType = op(f, this)
     def map(op: CType => CType): CType = op(this)
+
     def isUnknown: Boolean = false
     def isIgnore: Boolean = false
 
     /** compares with of two types. if this<that, this type can be converted (widened) to that */
     def <(that: CType): Boolean = false
+
     def toXML: xml.Elem
     def toText: String = toString //for debug purposes
 }
@@ -259,6 +261,11 @@ case class CIgnore() extends CType {
 }
 
 
+case class CBuiltinVaList() extends CType {
+    def toXML = <builtinvalist/>
+}
+
+
 /** errors */
 case class CUnknown(msg: String = "") extends CType {
     override def toObj = this
@@ -299,7 +306,7 @@ object CType {
         ))
         (node \ "obc").map(x => result = CObj(fromXML(x)))
         (node \ "compound").map(x => result = CCompound())
-        (node \ "ignore").map(x => result = CIgnore())
+        (node \ "builtinvalist").map(x => result = CBuiltinVaList())
         (node \ "unkown").map(x => result = CUnknown(x.attribute("msg").get.text))
         result
     }
@@ -326,7 +333,7 @@ object CType {
  * internally storing Type, whether its a definition (as opposed to a declaration), and the current scope idx
  */
 class ConditionalTypeMap(m: ConditionalMap[String, (AST, Conditional[CType])])
-        extends ConditionalCMap[CType](m) {
+    extends ConditionalCMap[CType](m) {
     def this() = this(new ConditionalMap())
     def apply(name: String): Conditional[CType] = getOrElse(name, CUnknown(name))
     def ++(that: ConditionalTypeMap) = if (that.isEmpty) this else new ConditionalTypeMap(this.m ++ that.m)
@@ -345,7 +352,7 @@ class ConditionalTypeMap(m: ConditionalMap[String, (AST, Conditional[CType])])
  * * Int -> Scope (0=top level, 1 = function, ...)
  */
 class ConditionalVarEnv(m: ConditionalMap[String, (AST, Conditional[(CType, DeclarationKind, Int)])])
-        extends ConditionalCMap[(CType, DeclarationKind, Int)](m) {
+    extends ConditionalCMap[(CType, DeclarationKind, Int)](m) {
     def this() = this(new ConditionalMap())
     def apply(name: String): Conditional[CType] = lookupType(name)
     def lookup(name: String): Conditional[(CType, DeclarationKind, Int)] = getOrElse(name, (CUnknown(name), KDeclaration, -1))
@@ -372,12 +379,14 @@ abstract class ConditionalCMap[T](protected val m: ConditionalMap[String, (AST, 
      * returns only the type information, not the ast
      */
     def getOrElse(name: String, errorType: T): Conditional[T] = Conditional.combine(getFullOrElse(name, (null, One(errorType))).map(_._2))
+
     def getAstOrElse(name: String, errorNode: AST): Conditional[AST] = getFullOrElse(name, (errorNode, null)).map(_._1)
+
     def getFullOrElse(name: String, errorNode: (AST, Conditional[T])): Conditional[(AST, Conditional[T])] = m.getOrElse(name, errorNode)
+
     def contains(name: String) = m.contains(name)
     def isEmpty = m.isEmpty
     def allTypes: Iterable[Conditional[T]] = m.allEntriesFlat.map(_._2)
-
     //warning: do not use, probably not what desired
     def keys = m.keys
     def whenDefined(name: String): FeatureExpr = m.whenDefined(name)
@@ -435,7 +444,6 @@ trait CTypes extends COptionProvider {
         case CBool() => true
         case _ => false
     }
-
     def isArithmetic(t: CType): Boolean = isIntegral(t) || (t.toValue match {
         case CFloat() => true
         case CDouble() => true
@@ -447,13 +455,11 @@ trait CTypes extends COptionProvider {
         case CArray(_, _) => true
         case _ => false
     }
-
     def isStruct(t: CType): Boolean = t.toValue match {
         case CStruct(_, _) => true
         case CAnonymousStruct(_, _) => true
         case _ => false
     }
-
     def isCompound(t: CType): Boolean = t.toValue == CCompound()
 
 
@@ -529,7 +535,6 @@ trait CTypes extends COptionProvider {
             def either(c: CType): Boolean = (a == c) || (b == c)
             priority.foldRight[CType](CSigned(CInt()))((ctype, result) => if (either(ctype)) ctype else result)
         } else a
-
     /** promotion is what happens internally during conversion */
     def promote(x: CType) = converse(x, x)
 
