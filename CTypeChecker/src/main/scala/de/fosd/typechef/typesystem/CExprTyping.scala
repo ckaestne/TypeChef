@@ -11,7 +11,6 @@ import _root_.de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
 trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInterface {
 
 
-
     /**
      * types an expression in an environment, returns a new
      * environment for all subsequent tokens (eg in a sequence)
@@ -50,7 +49,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                                         (if (when.isSatisfiable()) " (only under condition " + when + ")" else ""),
                                         expr)
                                 }
-                                //checkStructCompleteness(t, f, env, id) -- do not check on every access, only when a variable is declared, see issue #12
+                            //checkStructCompleteness(t, f, env, id) -- do not check on every access, only when a variable is declared, see issue #12
                         })
                         ctype.map(_.toObj)
                     //&a: create pointer
@@ -72,7 +71,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                                 s.toObj
                             case CPointer(t) if (t != CVoid) => t.toObj
                             case CArray(t, _) => t.toObj
-                            case CIgnore() => CIgnore()
+                            case i@CIgnore() => i.toObj
                             case fun: CFunction => fun // for some reason deref of a function still yields a valid function in gcc
                             case e =>
                                 reportTypeError(f, "invalid * on " + expr + " (" + e + ")", pd)
@@ -100,9 +99,9 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                     //e->n (by rewrite to *e.n)
                     case p@PostfixExpr(expr, PointerPostfixSuffix("->", i@Id(id))) =>
                         val newExpr = PostfixExpr(PointerDerefExpr(expr), PointerPostfixSuffix(".", i))
-                        newExpr.setPositionRange(p.getPositionFrom,p.getPositionTo)//enable line reporting in error messages
-                        newExpr.p.setPositionRange(expr.getPositionFrom,expr.getPositionTo)//enable line reporting in error messages
-                        newExpr.s.setPositionRange(i.getPositionFrom,i.getPositionTo)//enable line reporting in error messages
+                        newExpr.setPositionRange(p.getPositionFrom, p.getPositionTo) //enable line reporting in error messages
+                        newExpr.p.setPositionRange(expr.getPositionFrom, expr.getPositionTo) //enable line reporting in error messages
+                        newExpr.s.setPositionRange(i.getPositionFrom, i.getPositionTo) //enable line reporting in error messages
                         et(newExpr)
                     //(a)b
                     case ce@CastExpr(targetTypeName, expr) =>
@@ -146,6 +145,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                                 ltype match {
                                     case CObj(t) if (coerce(t, opType)) => prepareArray(ltype).toValue
                                     case u: CUnknown => u.toValue
+                                    case CObj(i@CIgnore()) => i.toValue
                                     case e => reportTypeError(fexpr, "incorrect assignment with " + e + " " + op + " " + rtype, ae)
                                 }
                             })
@@ -234,7 +234,15 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                     case GnuAsmExpr(_, _, _, _) => One(CIgnore()) //don't care about asm now
                     case BuiltinOffsetof(_, _) => One(CSigned(CInt()))
                     case c: BuiltinTypesCompatible => One(CSigned(CInt())) //http://www.delorie.com/gnu/docs/gcc/gcc_81.html
-                    case c: BuiltinVaArgs => One(CIgnore())
+                    case b@BuiltinVaArgs(expr, typename) =>
+                        //check expr is of type va_list
+                        et(expr) mapfr(featureExpr, {
+                            (fexpr, exprType) => if (exprType.toValue != CBuiltinVaList())
+                                One(reportTypeError(fexpr, "invalid type of condition: " + exprType, b))
+                            else One("all okay")
+                        })
+                        //return whatever type declared without further check
+                        getTypenameType(typename, featureExpr, env)
                     case AlignOfExprT(typename) => getTypenameType(typename, featureExpr, env); One(CSigned(CInt()))
                     case AlignOfExprU(expr) => et(expr); One(CSigned(CInt()))
 
@@ -331,8 +339,8 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
     private def typeFunctionCall(expr: AST, parameterTypes: Seq[CType], retType: CType, _foundTypes: List[CType],
                                  funCall: PostfixExpr, featureExpr: FeatureExpr, env: Env): CType = {
         //probably just checked on declaration: (??)
-//        checkStructs(retType, featureExpr, env, expr)
-//        parameterTypes.map(checkStructs(_, featureExpr, env, expr))
+        //        checkStructs(retType, featureExpr, env, expr)
+        //        parameterTypes.map(checkStructs(_, featureExpr, env, expr))
 
         var expectedTypes = parameterTypes
         var foundTypes = _foundTypes
