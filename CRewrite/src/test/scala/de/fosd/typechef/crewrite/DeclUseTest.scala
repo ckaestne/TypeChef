@@ -362,7 +362,7 @@ class DeclUseTest extends ConditionalNavigation with ASTNavigation with CDeclUse
 
   @Test def test_busybox_verification_of_defUse {
     // path to busybox dir with pi files to analyse
-    val folderPath = "/Users/and1/Dropbox/HiWi/busybox/TypeChef-BusyboxAnalysis/busybox-1.18.5/"
+    val folderPath = "/Users/and1/Dropbox/HiWi/casestudies/busybox-1.18.5"
     val folder = new File(folderPath)
     analyseDir(folder)
 

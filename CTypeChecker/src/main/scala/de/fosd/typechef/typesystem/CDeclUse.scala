@@ -1,7 +1,6 @@
 package de.fosd.typechef.typesystem
 
 import scala.collection.JavaConversions._
-import management.ManagementFactory
 import java.util.{Collections, IdentityHashMap}
 
 import org.apache.logging.log4j.LogManager
@@ -23,11 +22,13 @@ trait CDeclUse extends CEnv with CEnvCache {
 
   private lazy val logger = LogManager.getLogger(this.getClass.getName)
 
-  private val declUseMap: IdentityHashMap[Id, util.Set[Id]] = new IdentityHashMap()
-  private val useDeclMap: IdentityHashMap[Id, List[Id]] = new IdentityHashMap()
+  private val declUseMap: util.IdentityHashMap[Id, util.Set[Id]] = new util.IdentityHashMap()
+  private val useDeclMap: util.IdentityHashMap[Id, List[Id]] = new util.IdentityHashMap()
   private var stringToIdMap: Map[String, Id] = Map()
 
-  private[typesystem] def clear() { clearDeclUseMap() }
+  private[typesystem] def clear() {
+    clearDeclUseMap()
+  }
 
   private def putToDeclUseMap(decl: Id) = if (!declUseMap.contains(decl)) declUseMap.put(decl, Collections.newSetFromMap[Id](new util.IdentityHashMap()))
 
@@ -50,13 +51,14 @@ trait CDeclUse extends CEnv with CEnvCache {
     useDeclMap.clear()
   }
 
-  def getDeclUseMap: IdentityHashMap[Id, List[Id]] = {
-    val morphedDeclUsedMap = new IdentityHashMap[Id, List[Id]]()
+  def getDeclUseMap: util.IdentityHashMap[Id, List[Id]] = {
+    val morphedDeclUsedMap = new util.IdentityHashMap[Id, List[Id]]()
     declUseMap.keySet().foreach(x => morphedDeclUsedMap.put(x, declUseMap.get(x).toList))
     morphedDeclUsedMap
   }
 
   def getUseDeclMap = useDeclMap
+
   def getUntouchedDeclUseMap = declUseMap
 
   // add definition:
@@ -69,7 +71,7 @@ trait CDeclUse extends CEnv with CEnvCache {
         if (isFunctionDeclarator) addFunctionDeclaration(env, id, feature)
         else putToDeclUseMap(id)
       case StructDeclaration(quals, decls) => decls.foreach(x => addDecl(x.entry, x.feature, env))
-      case _ => logger.error("Missed ForwardDeclration: " + definition)
+      case _ => logger.error("Missed ForwardDeclaration of: " + definition)
     }
   }
 
@@ -111,21 +113,19 @@ trait CDeclUse extends CEnv with CEnvCache {
             case k =>
           }
         })
-      case _ => assert(false, logger.error("Match Error"))
+      case x => assert(false, logger.error("ForwardDeclaration of function failed with " + x))
     }
   }
 
   def addEnumUse(entry: AST, env: Env, feature: FeatureExpr) {
     entry match {
-      case i@Id(name) =>
-        if (env.enumEnv.containsKey(name)) {
-          val enumDeclarationFeature = env.enumEnv.get(name).get._1
-          val enumDeclarationId = env.enumEnv.get(name).get._2
-          if (feature.equivalentTo(FeatureExprFactory.True) || (feature.implies(enumDeclarationFeature).isTautology())) {
-            addToDeclUseMap(enumDeclarationId, i)
-          }
+      case i@Id(name) if (env.enumEnv.containsKey(name)) =>
+        val enumDeclarationFeature = env.enumEnv.get(name).get._1
+        val enumDeclarationId = env.enumEnv.get(name).get._2
+        if (feature.equivalentTo(FeatureExprFactory.True) || (feature.implies(enumDeclarationFeature).isTautology())) {
+          addToDeclUseMap(enumDeclarationId, i)
         }
-      case _ => assert(false, logger.error("Match Error"))
+      case x => logger.error("Missing Enumeration: " + x)
     }
   }
 
@@ -342,7 +342,7 @@ trait CDeclUse extends CEnv with CEnvCache {
       case PostfixExpr(p, s) =>
         addUse(p, feature, env)
         addUse(s, feature, env)
-      case PointerPostfixSuffix(_, id: Id) => if (!env.varEnv.getAstOrElse(id.name, null).equals(One(null))) addUse(id, feature, env)
+      case PointerPostfixSuffix(_, id: Id) => //if (!env.varEnv.getAstOrElse(id.name, null).equals(One(null))) addUse(id, feature, env)
       case PointerCreationExpr(expr) => addUse(expr, feature, env)
       case CompoundStatement(innerStatements) => innerStatements.foreach(x => addUse(x.entry, feature, env))
       case Constant(_) =>
@@ -382,7 +382,7 @@ trait CDeclUse extends CEnv with CEnvCache {
   // def conditionalToTuple(cond: Conditional[_], fexp: FeatureExpr = <defaultvalue>): List[(FeatureExpr, AST)] = {
   //   cond match {
   //     case One(a: AST) => List((fexp, a))
-  //     case Choice(ft, thenBranch, elseBranch) => conditionalToTuple(thenBranch, ft) ++ conditionaToTuple(elseBranch, ft.not())
+  //     case Choice(ft, thenExpr, elseBranch) => conditionalToTuple(thenExpr, ft) ++ conditionaToTuple(elseBranch, ft.not())
   //     case _ =>
   //   }
   // }
@@ -523,7 +523,7 @@ trait CDeclUse extends CEnv with CEnvCache {
     def addOne(one: One[AST], use: Id) {
       one match {
         case One(AtomicNamedDeclarator(_, key, _)) =>
-            // TODO: remove workaround (next three lines of code) for missing definitions
+          // TODO: remove workaround (next three lines of code) for missing definitions
           if (!declUseMap.containsKey(key)) {
             putToDeclUseMap(key)
           }
@@ -702,7 +702,7 @@ trait CDeclUse extends CEnv with CEnvCache {
         for (e <- o) {
           addDecl(e.entry, featureExpr, env)
         }
-      case i@IfStatement(cond, then, elif, els) =>
+      case i@IfStatement(cond, thenExpr, elif, els) =>
       case EnumSpecifier(_, _) =>
       case PlainParameterDeclaration(spec) => spec.foreach(x => addDecl(x.entry, featureExpr, env))
       case ParameterDeclarationAD(specs, decl) =>
@@ -807,8 +807,8 @@ trait CDeclUse extends CEnv with CEnvCache {
         addDecl(expr, featureExpr, env)
         cond.toOptList.foreach(x => addDecl(x.entry, featureExpr, env))
       case ArrayAccess(expr) => addDecl(expr, featureExpr, env)
-      case Choice(ft, then, els) =>
-        addDecl(then, featureExpr, env)
+      case Choice(ft, thenExpr, els) =>
+        addDecl(thenExpr, featureExpr, env)
         addDecl(els, featureExpr, env)
       case _ => // assert(false, logger.error("Match Error"))
     }
@@ -830,7 +830,9 @@ trait CDeclUse extends CEnv with CEnvCache {
     }
   }
 
-  def addJumpStatements(compoundStatement: CompoundStatement) { addGotoStatements(compoundStatement) }
+  def addJumpStatements(compoundStatement: CompoundStatement) {
+    addGotoStatements(compoundStatement)
+  }
 
   private def addGotoStatements(f: AST) {
     val labelMap: IdentityHashMap[Id, FeatureExpr] = new IdentityHashMap()
@@ -857,14 +859,14 @@ trait CDeclUse extends CEnv with CEnvCache {
               addToDeclUseMap(declaration.asInstanceOf[Id], usage)
             }
           })
-        case k => logger.error("Missing GotoStatement match: " + k)
+        case k => logger.error("Missing GotoStatement: " + k)
       }
     })
   }
 
   // method recursively filters all AST elements for a given type T
   // Copy / Pasted from ASTNavigation -> unable to include ASTNavigation because of dependencies
-  // TODO: move ASTNavigation to CParser?? if so this method could be removed then.
+  // TODO: move ASTNavigation to CParser?? if so this method could be removed thenExpr.
   private def filterASTElemts[T <: AST](a: Any)(implicit m: ClassTag[T]): List[T] = {
     a match {
       case p: Product if (m.runtimeClass.isInstance(p)) => List(p.asInstanceOf[T])
