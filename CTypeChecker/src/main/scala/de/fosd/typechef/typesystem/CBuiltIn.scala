@@ -13,7 +13,7 @@ trait CBuiltIn extends CEnv with CTypes with CDeclTyping {
     object InitialEnv extends Env(
         new ConditionalTypeMap() ++ initBuiltinTypedevEnv,
         new VarTypingContext() ++ initBuiltinVarEnv,
-        new StructEnv(), Map(), Map(), None, 0, FeatureExprFactory.False,Nil)
+        new StructEnv(), Map(), Map(), None, 0, FeatureExprFactory.False, Nil)
 
     val initBuiltinTypedevEnv: Seq[(String, FeatureExpr, (AST, Conditional[CType]))] =
         Map(
@@ -35,7 +35,7 @@ trait CBuiltIn extends CEnv with CTypes with CDeclTyping {
         )).toList.map(x => (x._1, True, null, x._2, KDeclaration, 0))
 
 
-    /**taken directly from sparse/lib.c */
+    /** taken directly from sparse/lib.c */
     private def declare_builtin_functions(): Map[String, Conditional[CType]] = {
         var buffer = "";
         def add_pre_buffer(str: String) {
