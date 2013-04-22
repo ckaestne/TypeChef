@@ -241,7 +241,7 @@ object ExtractFunction extends ASTSelection with Refactor {
     val tb = ManagementFactory.getThreadMXBean
     val startTime = tb.getCurrentThreadCpuTime
 
-    val externalUses = externalOccurrences(selectedIds, morpheus.getDeclUseMap())
+    val externalUses = externalOccurrences(selectedIds, morpheus.getDeclUseMap)
     val externalDefs = externalOccurrences(selectedIds, morpheus.getUseDeclMap)
     val allExtRefIds = externalDefs.flatMap(x => Some(x._1))
     val extRefIds = uniqueExtRefIds(externalDefs, externalUses)
@@ -585,7 +585,7 @@ object ExtractFunction extends ASTSelection with Refactor {
     val labels = filterAllASTElems[LabelStatement](element)
     labels.isEmpty match {
       case true =>
-      case _ => return !labels.exists(label => morpheus.getDeclUseMap().get(label).exists(goto => filter[Id](labels)))
+      case _ => return !labels.exists(label => morpheus.getDeclUseMap.get(label).exists(goto => filter[Id](labels)))
     }
     false
 
