@@ -109,6 +109,8 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
     val innerEnv = newEnv.addVars(parameterTypes(declarator, featureExpr, newEnv.incScope(), oldStyleParam), KParameter, newEnv.scope + 1).setExpectedReturnType(expectedReturnType)
     getStmtType(stmt, featureExpr, innerEnv) //ignore changed environment, to enforce scoping!
     checkTypeFunction(specifiers, declarator, oldStyleParameters, featureExpr, env)
+    addOldStyleParameters(oldStyleParameters, declarator, featureExpr, env)
+
 
     //check actual return type against declared return type
     //TODO check that something was returned at all
