@@ -114,7 +114,7 @@ trait CDeclUse extends CEnv with CEnvCache {
             case One(f: FunctionDef) => swapDeclaration(f.declarator.getId, declaration)
             case x =>
                 logger.error("ForwardDeclaration of function failed with " + x)
-                assert(false, "ForwardDeclaration of function failed with " + x)
+                assert(false, "ForwardDeclaration of function failed.")
         }
     }
 
