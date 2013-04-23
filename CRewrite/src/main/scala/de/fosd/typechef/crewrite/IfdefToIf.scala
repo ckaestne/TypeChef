@@ -320,6 +320,8 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
         }
     }
 
+    // TODO florian: I guess You can rewrite the following functions using with
+    // private def conditionalToTuple[T <: Product](c: Conditional[T], cctx: FeatureExpr = trueF, count: Boolean = true): List[(FeatureExpr, T)] = {
     /*
     Retrieves a list of tuples out of a choice node. Also takes choices inside choices into account
      */
@@ -376,6 +378,7 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
         conditionalHelper(start, currentContext)
     }
 
+    // TODO florian: rewrite to conditionalToFeatureList[T <: Product](c: Conditional[T]): List[FeatureExpr] =
     /*
   Retrieves a list of tuples out of a choice node. Also takes choices inside choices into account
    */
@@ -402,7 +405,7 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
     }
 
     /*
-   Filteres a given product for feature expressions which are not True and returns a set of all different feature expressions
+   Filters a given product for feature expressions which are not True and returns a set of all different feature expressions
     */
     def getSingleFeatureSet(a: Any): List[FeatureExpr] = {
         def getFeatureExpressions(a: Any): List[FeatureExpr] = {
@@ -430,6 +433,7 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
         lst.toList
     }
 
+    // TODO florian: I'm not sure what this method is all about. It maps Ids to numbers.
     /*
     This method fills the IdMap which is used to map a feature expression to a number.
      */
@@ -460,6 +464,8 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
     }
 
     def isExclusion(lst: List[FeatureExpr]): Boolean = {
+        // TODO florian: the recursive helper function is not necessary. simply move the code to isExclusion
+        //               and change the functioncall to isExclusionRecursive to isExclusion
         def isExclusionRecursive(lst: List[FeatureExpr]): Boolean = {
             if (lst.size == 2) {
                 lst.head.mex(lst.tail.head).isTautology()
@@ -472,6 +478,8 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
         isExclusionRecursive(lst)
     }
 
+
+    // TODO florian: function should return an Option[FeatureExpr]
     /*
     Retrieves the FeatureExpression which is mapped to the given number
      */
@@ -506,6 +514,8 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
                         List(o)
                     })
         })
+
+        // TODO florian: I don't understand why Opt nodes are passed to a rewriting rule that handles List[Opt[_]]
         t match {
             case o@Opt(ft, entry) =>
                 if (ft.equals(trueF)) {
@@ -763,6 +773,8 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
                         case None =>
                             // TODO: this should not happen?
                             val lst = idsToBeReplaced.get(i)
+
+                            // TODO florian: test is not used => looks suspicious
                             val test = lst.filter(x => feat.implies(x).isTautology())
                             Id("_" + IdMap.get(feat).get + "_" + i.name)
                             i
@@ -862,6 +874,8 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
         }
     }
 
+
+    // TODO florian: there are many functions for features with true; any chance for unification of them?
     def replaceTrueByFeature[T <: Product](t: T, feat: FeatureExpr): T = {
         val r = manytd(rule {
             case l: List[Opt[_]] =>
@@ -882,6 +896,9 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
 
     def ifdeftoif(source_ast: AST, decluse: IdentityHashMap[Id, List[Id]], featureModel: FeatureModel = FeatureExprLib.featureModelFactory.empty, outputStem: String = "unnamed", lexAndParseTime: Long = 0): Tuple2[Option[AST], Long] = {
         new File(path).mkdirs()
+
+        // TODO florian: if you pass the opt (frontendoptions) to ifdef2if or the class itself You can have the fm
+        //               avoid absolute paths in code
         if (featureModel.equals(FeatureExprLib.featureModelFactory.empty) && isBusyBox && (new File("C:/Users/Flo/Dropbox/HiWi/busybox/TypeChef-BusyboxAnalysis/busybox/featureModel")).exists()) {
             fm = FeatureExprLib.featureModelFactory.create(new FeatureExprParser(FeatureExprLib.l).parseFile("C:/Users/Flo/Dropbox/HiWi/busybox/TypeChef-BusyboxAnalysis/busybox/featureModel"))
         } else {
@@ -891,6 +908,8 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
         defuse = decluse
         val fileName = outputStemToFileName(outputStem)
 
+        // TODO florian: please use a different time measurement mechanism:
+        // https://github.com/ckaestne/TypeChef/blob/liveness/Sampling/src/main/scala/de/fosd/typechef/FamilyBasedVsSampleBased.scala#L608
         val time = System.currentTimeMillis()
         val new_ast = transformRecursive(source_ast)
         val featureStruct = definedExternalToAst(filterFeatures(source_ast))
@@ -920,6 +939,7 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
         }
     }
 
+    // TODO florian: instead of Tuple2, Tuple3, and so on You can use (,), (,,), ...; easier to read and to write ;)
     /*
     Makes #ifdef to if transformation on given AST element. Returns new AST element and a statistics String.
      */
@@ -1309,6 +1329,8 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
     def secondNextLevelContainsVariability(t: Any): Boolean = {
         val optList = getNextOptList(t)
         var result = false
+
+        // TODO florian: isEmpty check is not necessary
         if (!optList.isEmpty) {
             val finalOptList = optList.flatMap(x => getNextOptList(x))
             result = finalOptList.exists(x => (x.feature != trueF))
@@ -1376,6 +1398,7 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
         getNextFeatureHelp(a).toSet.toList
     }
 
+    // TODO florian: using getNextFeatures and filtering out trueF should be enough.
     def getNextVariableFeatures(a: Any): List[FeatureExpr] = {
         def getNextFeatureHelp(a: Any): List[FeatureExpr] = {
             a match {
@@ -1451,6 +1474,8 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
                         second :: first
                     } else {
                         var result = true
+
+                        // TODO florian: mexResult is unused => suspicious
                         val mexResult = first.foldLeft(second)((a, b) => {
                             if (b.equivalentTo(FeatureExprFactory.False)) {
                                 b
@@ -1506,6 +1531,7 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
                     result
                 } else {
                     val featureBufferList = featureBuffer.toList
+                    // TODO florian: please make the bound more visible at the top of this class
                     // Workaround for exponential explosion
                     if (featureBufferList.size > 10) {
                         featureBufferList.flatMap(x => x).filterNot(x => x.equivalentTo(FeatureExprFactory.False)).distinct
@@ -1945,6 +1971,7 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
                     conditional match {
                         case One(statement) =>
                             // TODO: check expr2 and expr3
+                            // TODO florian: test is never used => suspicious
                             val test = computeNextRelevantFeatures(f)
                             if (containsIdUsage(expr1) /*|| containsIdUsage(expr2) || containsIdUsage(expr3)*/ ) {
                                 val feat = computeIdUsageFeatures(expr1)
@@ -2115,6 +2142,8 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
                 }
             case nfd: NestedFunctionDef =>
                 if (optFunction.feature.equals(trueF)) {
+                    // TODO florian: functionWithoutBody is never used...
+                    // furthermore the code looks similar to the one below starting L 2178 } else {
                     val functionWithoutBody = nfd.copy(stmt = CompoundStatement(List()))
                     if (isVariable(nfd.specifiers) || isVariable(nfd.parameters) || isVariable(nfd.declarator)) {
 
@@ -2250,6 +2279,7 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
         countNumberHelper(ast)
     }
 
+    // TODO florian: are these functions still necessary? You have a general countNumberOfElements[T <: AST] function
     def countNumberOfDeclarations(ast: AST): Long = {
         def countNumberHelper(a: Any): Long = {
             a match {
