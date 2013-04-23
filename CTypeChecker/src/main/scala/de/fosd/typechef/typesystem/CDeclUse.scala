@@ -76,6 +76,14 @@ trait CDeclUse extends CEnv with CEnvCache {
   }
 
   private def addFunctionDeclaration(env: Env, id: Id, feature: FeatureExpr) {
+
+    def swapDeclaration(orginalDecl: Id, newDecl: Id) = {
+      putToDeclUseMap(newDecl)
+      addToDeclUseMap(newDecl, orginalDecl)
+      declUseMap.get(orginalDecl).foreach(x => addToDeclUseMap(newDecl, x))
+      declUseMap.remove(orginalDecl)
+    }
+
     def addForwardDeclartion(i: Id, _currentForwardDeclaration: Id, x: (FeatureExpr, AST)): Any = {
       var currentForwardDeclaration: Id = _currentForwardDeclaration
       if (declUseMap.containsKey(i)) {
@@ -97,12 +105,7 @@ trait CDeclUse extends CEnv with CEnvCache {
 
     env.varEnv.getAstOrElse(id.name, null) match {
       case One(null) => putToDeclUseMap(id)
-      case One(i: InitDeclarator) =>
-        val temp = declUseMap.get(i.getId)
-        declUseMap.remove(i.getId)
-        putToDeclUseMap(id)
-        addToDeclUseMap(id, i.getId)
-        temp.foreach(x => addToDeclUseMap(id, x))
+      case One(i: InitDeclarator) => swapDeclaration(i.getId, id)
       case c@Choice(_, _, _) =>
         val tuple = choiceToTuple(c)
         var currentForwardDeclaration: Id = null
@@ -113,7 +116,10 @@ trait CDeclUse extends CEnv with CEnvCache {
             case k =>
           }
         })
-      case x => assert(false, logger.error("ForwardDeclaration of function failed with " + x))
+      case One(f: FunctionDef) => swapDeclaration(f.declarator.getId, id)
+      case x =>
+        logger.error("ForwardDeclaration of function failed with " + x)
+        assert(false, "ForwardDeclaration of function failed with " + x)
     }
   }
 
@@ -223,7 +229,6 @@ trait CDeclUse extends CEnv with CEnvCache {
 
   // TODO andreas: refactor code looks a little messy
   def addUse(entry: AST, feature: FeatureExpr, env: Env) {
-
     def addUseCastExpr(typ: TypeName, addUse: (AST, FeatureExpr, CDeclUse.this.type#Env) => Unit, feature: FeatureExpr, env: CDeclUse.this.type#Env, lst: List[Opt[Initializer]]) {
       var typedefspecifier: Id = null
       typ match {
@@ -306,7 +311,9 @@ trait CDeclUse extends CEnv with CEnvCache {
         case One(NestedNamedDeclarator(_, declarator, _)) => addToDeclUseMap(declarator.getId, use)
         case One(NestedFunctionDef(_, _, AtomicNamedDeclarator(_, key, _), _, _)) => addToDeclUseMap(key, use) // TODO Verfiy Nested forward decl?
         case One(null) =>
-        case _ => assert(false, logger.error("Match Error" + one))
+        case _ =>
+          logger.error("Match Error" + one)
+          assert(false, "Match Error" + one)
       }
     }
 
@@ -756,10 +763,13 @@ trait CDeclUse extends CEnv with CEnvCache {
         extensions.foreach(x => addDecl(x, featureExpr, env))
       case StructOrUnionSpecifier(_, None, Some(extensions)) =>
         extensions.foreach(x => addDecl(x, featureExpr, env))
-      case StructDeclarator(decl, i: Id, _) =>
+      case StructDeclarator(decl, i, _) =>
         // addDecl(decl, env)
         // addDef(i, featureExpr, env)
-        addDefinition(i, env)
+        i match {
+          case Some(id: Id) => addDefinition(id, env)
+          case x => logger.debug("StructDeclarator missed case: " + x)
+        }
       case ExprStatement(expr) =>
       //addDecl(expr, env)
       case pe@PostfixExpr(expr, suffix) =>

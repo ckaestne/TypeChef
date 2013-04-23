@@ -154,70 +154,70 @@ trait Refactor extends CEnvCache with ASTNavigation with ConditionalNavigation {
 
   // TODO Clean up ast rewrite strategies
 
-  def insertInAstBefore[T <: Product](t: T, mark: Opt[_], insert: Opt[_]): T = {
+  def insertInAstBefore[T <: Product](t: T, mark: Opt[_], insert: Opt[_])(implicit m: Manifest[T]): T = {
     val r = oncetd(rule {
       case l: List[Opt[_]] => l.flatMap(x => if (x.eq(mark)) insert :: x :: Nil else x :: Nil)
     })
     r(t).get.asInstanceOf[T]
   }
 
-  def insertInAstBeforeBU[T <: Product](t: T, mark: Opt[_], insert: List[Opt[_]]): T = {
+  def insertInAstBeforeBU[T <: Product](t: T, mark: Opt[_], insert: List[Opt[_]])(implicit m: Manifest[T]): T = {
     val r = all(rule {
       case l: List[Opt[_]] => l.flatMap(x => if (x.eq(mark)) insert ::: x :: Nil else x :: Nil)
     })
     r(t).get.asInstanceOf[T]
   }
 
-  def insertInAstBeforeBU[T <: Product](t: T, mark: Opt[_], insert: Opt[_]): T = {
+  def insertInAstBeforeBU[T <: Product](t: T, mark: Opt[_], insert: Opt[_])(implicit m: Manifest[T]): T = {
     val r = alltd(rule {
       case l: List[Opt[_]] => l.flatMap(x => if (x.eq(mark)) insert :: x :: Nil else x :: Nil)
     })
     r(t).get.asInstanceOf[T]
   }
 
-  def insertInAstBefore[T <: Product](t: T, mark: Opt[_], insert: List[Opt[_]]): T = {
+  def insertInAstBefore[T <: Product](t: T, mark: Opt[_], insert: List[Opt[_]])(implicit m: Manifest[T]): T = {
     val r = oncetd(rule {
       case l: List[Opt[_]] => l.flatMap(x => if (x.eq(mark)) insert ::: x :: Nil else x :: Nil)
     })
     r(t).get.asInstanceOf[T]
   }
 
-  def replaceInAST[T <: Product](t: T, mark: Opt[_], replace: Opt[_]): T = {
+  def replaceInAST[T <: Product](t: T, mark: Opt[_], replace: Opt[_])(implicit m: Manifest[T]): T = {
     val r = manybu(rule {
       case l: List[Opt[_]] => l.flatMap(x => if (x.eq(mark)) replace :: Nil else x :: Nil)
     })
     r(t).get.asInstanceOf[T]
   }
 
-  def replaceInASTOnceTD[T <: Product](t: T, mark: Opt[_], replace: Opt[_]): T = {
+  def replaceInASTOnceTD[T <: Product](t: T, mark: Opt[_], replace: Opt[_])(implicit m: Manifest[T]): T = {
     val r = oncetd(rule {
       case l: List[Opt[_]] => l.flatMap(x => if (x.eq(mark)) replace :: Nil else x :: Nil)
     })
     r(t).get.asInstanceOf[T]
   }
 
-  def replaceInAST[T <: Product](t: T, e: T, n: T): T = {
+  def replaceInAST[T <: Product](t: T, e: T, n: T)(implicit m: Manifest[T]): T = {
     val r = manybu(rule {
       case i: T => if (isPartOf(i, e)) n else i
     })
     r(t).get.asInstanceOf[T]
   }
 
-  def replaceInAST[T <: Product](t: T, e: Id, n: Expr): T = {
+  def replaceInAST[T <: Product](t: T, e: Id, n: Expr)(implicit m: Manifest[T]): T = {
     val r = manybu(rule {
       case i: T => if (isPartOf(i, e)) n else i
     })
     r(t).get.asInstanceOf[T]
   }
 
-  def removeFromAST[T <: Product](t: T, remove: Opt[_]): T = {
+  def removeFromAST[T <: Product](t: T, remove: Opt[_])(implicit m: Manifest[T]): T = {
     val r = oncetd(rule {
       case l: List[Opt[_]] => l.flatMap(x => if (x.eq(remove)) Nil else x :: Nil)
     })
     r(t).get.asInstanceOf[T]
   }
 
-  def removeFromASTbu[T <: Product](t: T, remove: Opt[_]): T = {
+  def removeFromASTbu[T <: Product](t: T, remove: Opt[_])(implicit m: Manifest[T]): T = {
     val r = manybu(rule {
       case l: List[Opt[_]] => l.flatMap(x => if (x.eq(remove)) Nil else x :: Nil)
     })
@@ -244,7 +244,7 @@ trait Refactor extends CEnvCache with ASTNavigation with ConditionalNavigation {
       case f: FunctionDef => replaceInASTOnceTD(morpheus.getAST, parent, parent.copy(entry = f.copy(stmt = workingCallCompStmt)))
       case c: CompoundStatement => replaceInAST(morpheus.getAST, c, c.copy(innerStatements = workingCallCompStmt.innerStatements))
       case x =>
-        assert(false, "Something bad happend - i am going to cry.")
+        assert(false, "Something bad happend - i am going to cry, i missed: " + x)
         morpheus.getAST
     }
   }
