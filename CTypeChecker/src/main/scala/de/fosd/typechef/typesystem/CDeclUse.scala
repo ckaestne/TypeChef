@@ -383,21 +383,22 @@ trait CDeclUse extends CEnv with CEnvCache {
 
     def addOldStyleParameters(oldStyleParameters: List[Opt[OldParameterDeclaration]], declarator: Declarator, expr: FeatureExpr, env: Env) = {
 
+        def addDeclIdList(d: DeclIdentifierList, oldStyleId: Id, expr: FeatureExpr) {
+            for (Opt(idFeature, id) <- d.idList)
+                if (id.name.equals(oldStyleId.name) && (idFeature.equivalentTo(FeatureExprFactory.True) || idFeature.implies(expr).isTautology))
+                    addToDeclUseMap(id, oldStyleId)
+        }
+
         def addOldStyleParameterDeclarator(oldStyleId: Id, expr: FeatureExpr, env: Env) {
             declarator.extensions.foreach(x => x.entry match {
-                case d: DeclIdentifierList =>
-                    for (Opt(idFeature, id) <- d.idList)
-                        if (id.name.equals(oldStyleId.name) && (idFeature.equivalentTo(FeatureExprFactory.True) || idFeature.implies(expr).isTautology))
-                            addToDeclUseMap(id, oldStyleId)
+                case d: DeclIdentifierList => addDeclIdList(d, oldStyleId, expr)
                 case x => logger.error("Missing pattern in old style parameters: " + x)
             })
         }
 
         for (Opt(f, osp) <- oldStyleParameters) {
             osp match {
-                case d: Declaration =>
-                    for (decl <- d.init)
-                        addOldStyleParameterDeclarator(decl.entry.getId, decl.feature, env)
+                case d: Declaration => d.init.foreach(decl => addOldStyleParameterDeclarator(decl.entry.getId, decl.feature, env))
                 case VarArgs() =>
                 case x => logger.error("Missing pattern in old style parameters: " + x)
             }
