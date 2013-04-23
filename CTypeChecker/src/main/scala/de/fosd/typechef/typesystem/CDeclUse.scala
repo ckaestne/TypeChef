@@ -75,7 +75,7 @@ trait CDeclUse extends CEnv with CEnvCache {
         }
     }
 
-    private def addFunctionDeclaration(env: Env, id: Id, feature: FeatureExpr) {
+    private def addFunctionDeclaration(env: Env, declaration: Id, feature: FeatureExpr) {
 
         def swapDeclaration(originalDecl: Id, newDecl: Id) = {
             putToDeclUseMap(newDecl)
@@ -84,39 +84,34 @@ trait CDeclUse extends CEnv with CEnvCache {
             declUseMap.remove(originalDecl)
         }
 
-        def addForwardDeclartion(i: Id, _currentForwardDeclaration: Id, x: (FeatureExpr, AST)): Any = {
-            var currentForwardDeclaration: Id = _currentForwardDeclaration
-            if (declUseMap.containsKey(i)) {
-                currentForwardDeclaration = i
-                val temp = declUseMap.get(i)
-                if (feature.equivalentTo(FeatureExprFactory.True) || (feature.implies(x._1).isTautology())) {
-                    declUseMap.remove(i)
-                    putToDeclUseMap(id)
-                    addToDeclUseMap(id, i)
-                    temp.foreach(x => addToDeclUseMap(id, x))
-                } else {
-                    putToDeclUseMap(id)
-                }
+        // Forward Declaration of functions:
+        // in case of:
+        // (1) int foo();
+        // (2) int foo(){}
+        // we have to swap the definition of (2) with (1) as declaration and (1) as use,
+        // because all further calls are refered to (2)
+        def addForwardDeclartion(original: Id, x: (FeatureExpr, AST)): Any = {
+            if (declUseMap.containsKey(original)) {
+                if (feature.equivalentTo(FeatureExprFactory.True) || (feature.implies(x._1).isTautology())) swapDeclaration(original, declaration)
+                else putToDeclUseMap(declaration)
             } else {
-                putToDeclUseMap(id)
-                addToDeclUseMap(id, i)
+                putToDeclUseMap(declaration)
+                addToDeclUseMap(declaration, original)
             }
         }
 
-        env.varEnv.getAstOrElse(id.name, null) match {
-            case One(null) => putToDeclUseMap(id)
-            case One(i: InitDeclarator) => swapDeclaration(i.getId, id)
+        env.varEnv.getAstOrElse(declaration.name, null) match {
+            case One(null) => putToDeclUseMap(declaration)
+            case One(i: InitDeclarator) => swapDeclaration(i.getId, declaration)
             case c@Choice(_, _, _) =>
-                val tuple = choiceToTuple(c)
-                var currentForwardDeclaration: Id = null
-                tuple.foreach(x => {
+                choiceToTuple(c).foreach(x => {
                     x._2 match {
-                        case i: InitDeclarator => addForwardDeclartion(i.getId, currentForwardDeclaration, x)
-                        case f: FunctionDef => addForwardDeclartion(f.declarator.getId, currentForwardDeclaration, x)
-                        case k =>
+                        case i: InitDeclarator => addForwardDeclartion(i.getId, x)
+                        case f: FunctionDef => addForwardDeclartion(f.declarator.getId, x)
+                        case k => logger.error("ForwardDeclaration of function missed " + k)
                     }
                 })
-            case One(f: FunctionDef) => swapDeclaration(f.declarator.getId, id)
+            case One(f: FunctionDef) => swapDeclaration(f.declarator.getId, declaration)
             case x =>
                 logger.error("ForwardDeclaration of function failed with " + x)
                 assert(false, "ForwardDeclaration of function failed with " + x)
