@@ -28,9 +28,7 @@ trait CDeclUse extends CEnv with CEnvCache {
     private val useDeclMap: util.IdentityHashMap[Id, List[Id]] = new util.IdentityHashMap()
     private var stringToIdMap: Map[String, Id] = Map()
 
-    private[typesystem] def clear() {
-        clearDeclUseMap()
-    }
+    private[typesystem] def clear() = clearDeclUseMap()
 
     private def putToDeclUseMap(decl: Id) = if (!declUseMap.contains(decl)) declUseMap.put(decl, Collections.newSetFromMap[Id](new util.IdentityHashMap()))
 
@@ -40,11 +38,6 @@ trait CDeclUse extends CEnv with CEnvCache {
         if (declUseMap.containsKey(decl) && !declUseMap.get(decl).contains(use)) {
             declUseMap.get(decl).add(use)
             addToUseDeclMap(use, decl)
-        }
-        if (!declUseMap.containsKey(decl)) {
-            // old style parameter declarations are found at later place. workaround.
-            putToDeclUseMap(decl)
-            addToDeclUseMap(decl, use)
         }
     }
 
@@ -84,11 +77,11 @@ trait CDeclUse extends CEnv with CEnvCache {
 
     private def addFunctionDeclaration(env: Env, id: Id, feature: FeatureExpr) {
 
-        def swapDeclaration(orginalDecl: Id, newDecl: Id) = {
+        def swapDeclaration(originalDecl: Id, newDecl: Id) = {
             putToDeclUseMap(newDecl)
-            addToDeclUseMap(newDecl, orginalDecl)
-            declUseMap.get(orginalDecl).foreach(x => addToDeclUseMap(newDecl, x))
-            declUseMap.remove(orginalDecl)
+            addToDeclUseMap(newDecl, originalDecl)
+            declUseMap.get(originalDecl).foreach(x => addToDeclUseMap(newDecl, x))
+            declUseMap.remove(originalDecl)
         }
 
         def addForwardDeclartion(i: Id, _currentForwardDeclaration: Id, x: (FeatureExpr, AST)): Any = {
