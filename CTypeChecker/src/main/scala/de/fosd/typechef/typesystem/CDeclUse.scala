@@ -20,6 +20,8 @@ import java.util
 // stores the required information
 trait CDeclUse extends CEnv with CEnvCache {
 
+  // TODO FeatureModel instead of FeatureExprFactory
+
   private lazy val logger = LogManager.getLogger(this.getClass.getName)
 
   private val declUseMap: util.IdentityHashMap[Id, util.Set[Id]] = new util.IdentityHashMap()
@@ -38,6 +40,11 @@ trait CDeclUse extends CEnv with CEnvCache {
     if (declUseMap.containsKey(decl) && !declUseMap.get(decl).contains(use)) {
       declUseMap.get(decl).add(use)
       addToUseDeclMap(use, decl)
+    }
+    if (!declUseMap.containsKey(decl)) {
+      // old style parameter declarations are found at later place. workaround.
+      putToDeclUseMap(decl)
+      addToDeclUseMap(decl, use)
     }
   }
 
@@ -310,6 +317,7 @@ trait CDeclUse extends CEnv with CEnvCache {
         case One(Enumerator(key, _)) => addToDeclUseMap(key, use)
         case One(NestedNamedDeclarator(_, declarator, _)) => addToDeclUseMap(declarator.getId, use)
         case One(NestedFunctionDef(_, _, AtomicNamedDeclarator(_, key, _), _, _)) => addToDeclUseMap(key, use) // TODO Verfiy Nested forward decl?
+        case One(key: Id) => addToDeclUseMap(key, use)
         case One(null) =>
         case _ =>
           logger.error("Match Error" + one)
@@ -380,7 +388,31 @@ trait CDeclUse extends CEnv with CEnvCache {
          */
         val structOrUnion = filterASTElemts[Id](typeName)
         members.foreach(x => addStructUse(x.entry, feature, env, structOrUnion.head.name, !env.structEnv.someDefinition(structOrUnion.head.name, false)))
-      case _ =>
+      case x => // logger.error("Missed x: " + x)
+    }
+  }
+
+
+  def addOldStyleParameters(oldStyleParameters: List[Opt[OldParameterDeclaration]], declarator: Declarator, expr: FeatureExpr, env: Env) = {
+
+    def addOldStyleParameterDeclarator(oldStyleId: Id, expr: FeatureExpr, env: Env) {
+      declarator.extensions.foreach(x => x.entry match {
+        case d: DeclIdentifierList =>
+          for (Opt(idFeature, id) <- d.idList)
+            if (id.name.equals(oldStyleId.name) && (idFeature.equivalentTo(FeatureExprFactory.True) || idFeature.implies(expr).isTautology))
+              addToDeclUseMap(id, oldStyleId)
+        case x => logger.error("Missing pattern in old style parameters: " + x)
+      })
+    }
+
+    for (Opt(f, osp) <- oldStyleParameters) {
+      osp match {
+        case d: Declaration =>
+          for (decl <- d.init)
+            addOldStyleParameterDeclarator(decl.entry.getId, decl.feature, env)
+        case VarArgs() =>
+        case x => logger.error("Missing pattern in old style parameters: " + x)
+      }
     }
   }
 
@@ -566,9 +598,6 @@ trait CDeclUse extends CEnv with CEnvCache {
     def addOne(one: One[AST], use: Id) = {
       one match {
         case One(id: Id) => addToDeclUseMap(id, use)
-
-        // TODO andreas: following line is obsolete
-        case One(null) =>
         case _ =>
       }
     }
@@ -599,9 +628,6 @@ trait CDeclUse extends CEnv with CEnvCache {
     current match {
 
       // TODO andreas: the following three lines are obsolete; see case _ => at the end
-      case Nil =>
-      case None =>
-      case DeclarationStatement(_) =>
       case StructDeclaration(specifiers, structDecls) =>
         for (specs <- specifiers) {
           specs match {
@@ -820,7 +846,8 @@ trait CDeclUse extends CEnv with CEnvCache {
       case Choice(ft, thenExpr, els) =>
         addDecl(thenExpr, featureExpr, env)
         addDecl(els, featureExpr, env)
-      case _ => // assert(false, logger.error("Match Error"))
+      case DeclIdentifierList(decls) => decls.foreach(decl => putToDeclUseMap(decl.entry))
+      case x => logger.error("Match Error" + x)
     }
   }
 
