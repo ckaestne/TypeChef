@@ -81,6 +81,7 @@ class PrettyPrinterTest {
     @Test def testEnumerator {
         parsePrintParse("enum e", p.enumSpecifier)
         parsePrintParse("enum e { a }", p.enumSpecifier)
+        parsePrintParse("enum e { a, }", p.enumSpecifier)
         parsePrintParse("enum { a }", p.enumSpecifier)
         parsePrintParse("enum e { a=1, b=3 }", p.enumSpecifier)
     }
@@ -382,6 +383,54 @@ class PrettyPrinterTest {
         parsePrintParseDecl("struct a foo;")
         parsePrintParseDecl("struct a { double a;} foo;")
         parsePrintParseDecl("struct a;")
+    }
+
+    @Test def testVariableLists() {
+        parsePrintParse("""void foo(
+                int a
+
+                #ifdef B
+                , int b
+                #endif
+                ) { }
+                        """, p.functionDef)
+        // TODO does not work yet, before and after AST are not equal!
+//        parsePrintParse("""void foo(
+//                #ifdef A
+//                int a
+//                #else
+//                double a
+//                #endif
+//                ) { }
+//                        """, p.functionDef)
+        parsePrintParse("""void foo(
+                int a
+
+                #ifdef B
+                , int b
+                #else
+                , double b
+                #endif
+                ) { }
+                        """, p.translationUnit)
+        parsePrintParse("""
+                enum e {
+                       ONE
+                #ifdef A
+                       , TWO
+                       , THREE
+                #endif
+                }
+                        """.stripMargin, p.enumSpecifier)
+        parsePrintParse("""
+                enum e {
+                       ONE
+                       , TWO
+                #ifdef A
+                       , THREE
+                #endif
+                }
+                        """.stripMargin, p.enumSpecifier)
     }
 
 

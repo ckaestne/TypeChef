@@ -84,6 +84,45 @@ object PrettyPrinter {
         implicit def prettyCond(a: Conditional[_]): Doc = ppConditional(a, list_feature_expr)
         implicit def prettyOptStr(a: Opt[String]): Doc = string(a.entry)
 
+        // this method separates Opt elements of an input list variability-aware
+        // problem is that when having for instance a function with one mandatory and one optional
+        // parameter, e.g.,
+        // void foo( int a
+        //         #ifdef B
+        //           , int B
+        //         #endif
+        //         ) {}
+        // the standard sep function prints out the comma between both parameters without an
+        // annotation. Further processing of the output will lead to an error.
+        // This function prints out separated lists with annotated commas solving that problem.
+        def sepVaware(l: List[Opt[AST]], selem: String, breakselem: Doc = space) = {
+            var res: Doc = if (l.isEmpty) Empty else l.head
+            var combCtx: FeatureExpr = if (l.isEmpty) FeatureExprFactory.True else l.head.feature
+
+            for (celem <- l.drop(1)) {
+                val selemfexp = combCtx.and(celem.feature)
+
+                // separation element is never present
+                if (selemfexp.isContradiction())
+                    res = res ~ breakselem ~ prettyOpt(celem)
+
+                // separation element is always present
+                else if (selemfexp.isTautology())
+                    res = res ~ selem ~ breakselem ~ prettyOpt(celem)
+
+                // separation element is sometimes present
+                else {
+                    res = res * "#if" ~~ selemfexp.toTextExpr * selem * "#endif" * prettyOpt(celem)
+                }
+
+                // add current feature expression as it might influence the addition of selem for
+                // the remaint elements of the input list l
+                combCtx = combCtx.or(celem.feature)
+            }
+
+            res
+        }
+
         def sep(l: List[Opt[AST]], s: (Doc, Doc) => Doc) = {
             val r: Doc = if (l.isEmpty) Empty else l.head
             l.drop(1).foldLeft(r)((a, b) => s(a, prettyOpt(b)))
@@ -192,7 +231,7 @@ object PrettyPrinter {
                 sep(pointers, _ ~ _) ~ "(" ~ nestedDecl ~ ")" ~ sep(extensions, _ ~ _)
 
             case DeclIdentifierList(idList) => "(" ~ commaSep(idList) ~ ")"
-            case DeclParameterDeclList(parameterDecls) => "(" ~ commaSep(parameterDecls) ~ ")"
+            case DeclParameterDeclList(parameterDecls) => "(" ~ sepVaware(parameterDecls, ",") ~ ")"
             case DeclArrayAccess(expr) => "[" ~ opt(expr) ~ "]"
             case Initializer(initializerElementLabel, expr: Expr) => opt(initializerElementLabel) ~~ expr
             case Pointer(specifier) => "*" ~ spaceSep(specifier)
@@ -200,7 +239,7 @@ object PrettyPrinter {
             case ParameterDeclarationD(specifiers, decl) => spaceSep(specifiers) ~~ decl
             case ParameterDeclarationAD(specifiers, decl) => spaceSep(specifiers) ~~ decl
             case VarArgs() => "..."
-            case EnumSpecifier(id, Some(enums)) => "enum" ~~ opt(id) ~~ block(sep(enums, _ ~ "," * _))
+            case EnumSpecifier(id, Some(enums)) => "enum" ~~ opt(id) ~~ block(sepVaware(enums, ",", line))
             case EnumSpecifier(Some(id), None) => "enum" ~~ id
             case Enumerator(id, Some(init)) => id ~~ "=" ~~ init
             case Enumerator(id, None) => id
