@@ -3,7 +3,6 @@ package de.fosd.typechef.crewrite
 import scala.collection.mutable.ListBuffer
 import scala.collection.mutable
 import scala.Some
-import scala.Tuple2
 
 import java.util
 import java.util.IdentityHashMap
@@ -18,7 +17,6 @@ import de.fosd.typechef.lexer.FeatureExprLib
 import de.fosd.typechef.typesystem.CTypeSystemFrontend
 
 import org.kiama.rewriting.Rewriter._
-
 
 
 /**
@@ -46,6 +44,8 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
     var liftOptReplaceMap: Map[Opt[_], List[Opt[_]]] = Map()
     val idsToBeReplaced: IdentityHashMap[Id, List[FeatureExpr]] = new IdentityHashMap()
     val writeOptionsIntoFile = true
+
+    val exponentialComputationThreshold = 10
 
     val isBusyBox = false
     // Variables for statistics
@@ -185,7 +185,9 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
         ((after - before) / (before.toDouble))
     }
 
-    def getAnalysisResults: String = { analysisResults }
+    def getAnalysisResults: String = {
+        analysisResults
+    }
 
     /**
      * Used for reading/writing to database, files, etc.
@@ -299,8 +301,8 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
         features
     }
 
-    def createStatistics(a: Any, current: Tuple3[Tuple2[Int, Int], Tuple2[Int, Int], Tuple2[Int, Int]] = ((0, 0), (0, 0), (0, 0))): Tuple3[Tuple2[Int, Int], Tuple2[Int, Int], Tuple2[Int, Int]] = {
-        def addTuples(tuples: List[Tuple3[Tuple2[Int, Int], Tuple2[Int, Int], Tuple2[Int, Int]]], currentTuple: Tuple3[Tuple2[Int, Int], Tuple2[Int, Int], Tuple2[Int, Int]] = ((0, 0), (0, 0), (0, 0))): Tuple3[Tuple2[Int, Int], Tuple2[Int, Int], Tuple2[Int, Int]] = {
+    def createStatistics(a: Any, current: ((Int, Int), (Int, Int), (Int, Int)) = ((0, 0), (0, 0), (0, 0))): ((Int, Int), (Int, Int), (Int, Int)) = {
+        def addTuples(tuples: List[((Int, Int), (Int, Int), (Int, Int))], currentTuple: ((Int, Int), (Int, Int), (Int, Int)) = ((0, 0), (0, 0), (0, 0))): ((Int, Int), (Int, Int), (Int, Int)) = {
             tuples.foldLeft(currentTuple)((first, second) => (((first._1._1 + second._1._1), (first._1._2 + second._1._2)), ((first._2._1 + second._2._1), (first._2._2 + second._2._2)), ((first._3._1 + second._3._1), (first._3._2 + second._3._2))))
         }
         a match {
@@ -320,13 +322,11 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
         }
     }
 
-    // TODO florian: I guess You can rewrite the following functions using with
-    // private def conditionalToTuple[T <: Product](c: Conditional[T], cctx: FeatureExpr = trueF, count: Boolean = true): List[(FeatureExpr, T)] = {
     /*
     Retrieves a list of tuples out of a choice node. Also takes choices inside choices into account
      */
-    private def choiceToTuple[T <: Product](choice: Choice[T], currentContext: FeatureExpr = trueF, count: Boolean = true): List[Tuple2[FeatureExpr, T]] = {
-        def addOne[T <: Product](entry: One[T], ft: FeatureExpr): List[Tuple2[FeatureExpr, T]] = {
+    private def choiceToTuple[T <: Product](choice: Conditional[T], currentContext: FeatureExpr = trueF, count: Boolean = true): List[(FeatureExpr, T)] = {
+        def addOne[T <: Product](entry: One[T], ft: FeatureExpr): List[(FeatureExpr, T)] = {
             entry match {
                 case One(null) =>
                     List()
@@ -338,7 +338,7 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
                     if (finalFeature.equals(FeatureExprFactory.False)) {
                         List()
                     } else {
-                        List(Tuple2(ft.and(currentContext), a))
+                        List((ft.and(currentContext), a))
                     }
             }
         }
@@ -357,8 +357,8 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
     /*
   Retrieves a list of tuples out of a choice node. Also takes choices inside choices into account
    */
-    def conditionalToTuple[T <: Product](start: Conditional[T], currentContext: FeatureExpr = trueF, count: Boolean = true): List[Tuple2[FeatureExpr, T]] = {
-        def conditionalHelper[T <: Product](entry: Conditional[T], ft: FeatureExpr): List[Tuple2[FeatureExpr, T]] = {
+    def conditionalToTuple[T <: Product](start: Conditional[T], currentContext: FeatureExpr = trueF, count: Boolean = true): List[(FeatureExpr, T)] = {
+        def conditionalHelper[T <: Product](entry: Conditional[T], ft: FeatureExpr): List[(FeatureExpr, T)] = {
             entry match {
                 case Choice(ft, first: Conditional[T], second: Conditional[T]) =>
                     noOfChoiceNodes = noOfChoiceNodes + 1
@@ -371,18 +371,17 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
                     if (!nextFeatures.isEmpty) {
                         nextFeatures.map(x => (finalFeature.and(x), replaceOptAndId(something, x)))
                     } else {
-                        List(Tuple2(finalFeature, replaceOptAndId(something, finalFeature)))
+                        List((finalFeature, replaceOptAndId(something, finalFeature)))
                     }
             }
         }
         conditionalHelper(start, currentContext)
     }
 
-    // TODO florian: rewrite to conditionalToFeatureList[T <: Product](c: Conditional[T]): List[FeatureExpr] =
     /*
   Retrieves a list of tuples out of a choice node. Also takes choices inside choices into account
    */
-    private def choiceToFeatures[T <: Product](choice: Choice[T]): List[FeatureExpr] = {
+    private def choiceToFeatures[T <: Product](c: Conditional[T], currentContext: FeatureExpr = trueF): List[FeatureExpr] = {
         def addOne[T <: Product](entry: One[T], ft: FeatureExpr): List[FeatureExpr] = {
             entry match {
                 case One(null) =>
@@ -392,15 +391,17 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
                     List(ft)
             }
         }
-        choice match {
-            case Choice(ft, first@One(_), second@One(_)) =>
-                addOne(first, ft) ++ addOne(second, ft.not())
-            case Choice(ft, first@Choice(_, _, _), second@Choice(_, _, _)) =>
-                choiceToFeatures(first) ++ choiceToFeatures(second)
-            case Choice(ft, first@One(a), second@Choice(_, _, _)) =>
-                addOne(first, ft) ++ choiceToFeatures(second)
-            case Choice(ft, first@Choice(_, _, _), second@One(_)) =>
-                choiceToFeatures(first) ++ addOne(second, ft.not())
+        c match {
+            case One(null) =>
+                List()
+            case One(a) =>
+                if (currentContext.equals(trueF)) {
+                    List()
+                } else {
+                    List(currentContext)
+                }
+            case Choice(ft, first, second) =>
+                choiceToFeatures(first, ft) ++ choiceToFeatures(second, ft.not)
         }
     }
 
@@ -433,9 +434,9 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
         lst.toList
     }
 
-    // TODO florian: I'm not sure what this method is all about. It maps Ids to numbers.
     /*
-    This method fills the IdMap which is used to map a feature expression to a number.
+    This method fills the IdMap which is used to map a feature expression to a number. This number is used for
+    for renaming identifiers e.g. #ifdef A int a #endif -> int _1_a     feature A is mapped to number 1.
      */
     def fillIdMap(a: Any) {
         if (IdMap.size == 0) {
@@ -463,38 +464,21 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
         }
     }
 
-    def isExclusion(lst: List[FeatureExpr]): Boolean = {
-        // TODO florian: the recursive helper function is not necessary. simply move the code to isExclusion
-        //               and change the functioncall to isExclusionRecursive to isExclusion
-        def isExclusionRecursive(lst: List[FeatureExpr]): Boolean = {
-            if (lst.size == 2) {
-                lst.head.mex(lst.tail.head).isTautology()
-            } else if (lst.size > 2) {
-                lst.head.mex(lst.tail.head).isTautology().&&(isExclusionRecursive(lst.tail))
-            } else {
-                false
-            }
-        }
-        isExclusionRecursive(lst)
-    }
-
-
-    // TODO florian: function should return an Option[FeatureExpr]
     /*
     Retrieves the FeatureExpression which is mapped to the given number
      */
-    def getFeatureForId(id: Int): FeatureExpr = {
+    def getFeatureForId(id: Int): Option[FeatureExpr] = {
         if (IdMap.size < id || id < 0) {
-            null
+            None
         } else {
             val it = IdMap.iterator
             while (it.hasNext) {
                 val next = it.next()
                 if (next._2.equals(id)) {
-                    return next._1
+                    return Some(next._1)
                 }
             }
-            null
+            None
         }
     }
 
@@ -515,7 +499,10 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
                     })
         })
 
-        // TODO florian: I don't understand why Opt nodes are passed to a rewriting rule that handles List[Opt[_]]
+        /*
+         Check if initial element is an Opt node and remove the feature because the rewriting rule in that case
+         only handles opt lists inside the initial element.
+          */
         t match {
             case o@Opt(ft, entry) =>
                 if (ft.equals(trueF)) {
@@ -773,9 +760,6 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
                         case None =>
                             // TODO: this should not happen?
                             val lst = idsToBeReplaced.get(i)
-
-                            // TODO florian: test is not used => looks suspicious
-                            val test = lst.filter(x => feat.implies(x).isTautology())
                             Id("_" + IdMap.get(feat).get + "_" + i.name)
                             i
                         case Some(x: FeatureExpr) =>
@@ -874,8 +858,6 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
         }
     }
 
-
-    // TODO florian: there are many functions for features with true; any chance for unification of them?
     def replaceTrueByFeature[T <: Product](t: T, feat: FeatureExpr): T = {
         val r = manytd(rule {
             case l: List[Opt[_]] =>
@@ -894,11 +876,10 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
         }
     }
 
-    def ifdeftoif(source_ast: AST, decluse: IdentityHashMap[Id, List[Id]], featureModel: FeatureModel = FeatureExprLib.featureModelFactory.empty, outputStem: String = "unnamed", lexAndParseTime: Long = 0): Tuple2[Option[AST], Long] = {
+    def ifdeftoif(source_ast: AST, decluse: IdentityHashMap[Id, List[Id]], featureModel: FeatureModel = FeatureExprLib.featureModelFactory.empty, outputStem: String = "unnamed", lexAndParseTime: Long = 0): (Option[AST], Long) = {
         new File(path).mkdirs()
 
-        // TODO florian: if you pass the opt (frontendoptions) to ifdef2if or the class itself You can have the fm
-        //               avoid absolute paths in code
+        // Sets the feature model to the busybox feature model in case we're not testing files from the frontend
         if (featureModel.equals(FeatureExprLib.featureModelFactory.empty) && isBusyBox && (new File("C:/Users/Flo/Dropbox/HiWi/busybox/TypeChef-BusyboxAnalysis/busybox/featureModel")).exists()) {
             fm = FeatureExprLib.featureModelFactory.create(new FeatureExprParser(FeatureExprLib.l).parseFile("C:/Users/Flo/Dropbox/HiWi/busybox/TypeChef-BusyboxAnalysis/busybox/featureModel"))
         } else {
@@ -939,11 +920,10 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
         }
     }
 
-    // TODO florian: instead of Tuple2, Tuple3, and so on You can use (,), (,,), ...; easier to read and to write ;)
     /*
     Makes #ifdef to if transformation on given AST element. Returns new AST element and a statistics String.
      */
-    def transformAst[T <: Product](t: T, decluse: IdentityHashMap[Id, List[Id]], featureModel: FeatureModel = FeatureExprLib.featureModelFactory.empty): Tuple2[T, String] = {
+    def transformAst[T <: Product](t: T, decluse: IdentityHashMap[Id, List[Id]], featureModel: FeatureModel = FeatureExprLib.featureModelFactory.empty): (T, String) = {
         if (featureModel.equals(FeatureExprLib.featureModelFactory.empty) && isBusyBox) {
             fm = FeatureExprLib.featureModelFactory.create(new FeatureExprParser(FeatureExprLib.l).parseFile("C:/Users/Flo/Dropbox/HiWi/busybox/TypeChef-BusyboxAnalysis/busybox/featureModel"))
         } else {
@@ -976,13 +956,13 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
                     /* A node without new context */
                     entry match {
                         case declStmt@DeclarationStatement(decl: Declaration) => noOfDecls = noOfDecls + 1
-                        case decl: Declaration      => noOfDecls = noOfDecls + 1
-                        case e: Enumerator          => noOfDecls = noOfDecls + 1
-                        case sd: StructDeclaration  => noOfDecls = noOfDecls + 1
-                        case fd: FunctionDef        => noOfFuncts = noOfFuncts + 1
+                        case decl: Declaration => noOfDecls = noOfDecls + 1
+                        case e: Enumerator => noOfDecls = noOfDecls + 1
+                        case sd: StructDeclaration => noOfDecls = noOfDecls + 1
+                        case fd: FunctionDef => noOfFuncts = noOfFuncts + 1
                         case nfd: NestedFunctionDef => noOfFuncts = noOfFuncts + 1
-                        case cs: CompoundStatement  =>
-                        case s: Statement           => noOfStmts = noOfStmts + 1
+                        case cs: CompoundStatement =>
+                        case s: Statement => noOfStmts = noOfStmts + 1
                     }
                 } else {
                     /* A new optional node */
@@ -1364,7 +1344,7 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
         }
     }
 
-    def getVariableIdAndFeature(a: Any): List[Tuple2[Id, FeatureExpr]] = {
+    def getVariableIdAndFeature(a: Any): List[(Id, FeatureExpr)] = {
         List()
     }
 
@@ -1475,8 +1455,8 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
                     } else {
                         var result = true
 
-                        // TODO florian: mexResult is unused => suspicious
-                        val mexResult = first.foldLeft(second)((a, b) => {
+                        // Change var result to reflect if all collected features mutually exclude each other
+                        first.foldLeft(second)((a, b) => {
                             if (b.equivalentTo(FeatureExprFactory.False)) {
                                 b
                             } else if (a.mex(b).isTautology()) {
@@ -1531,9 +1511,8 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
                     result
                 } else {
                     val featureBufferList = featureBuffer.toList
-                    // TODO florian: please make the bound more visible at the top of this class
                     // Workaround for exponential explosion
-                    if (featureBufferList.size > 10) {
+                    if (featureBufferList.size > exponentialComputationThreshold) {
                         featureBufferList.flatMap(x => x).filterNot(x => x.equivalentTo(FeatureExprFactory.False)).distinct
                     } else {
                         val result = featureBufferList.tail.foldLeft(featureBufferList.head)((first, second) => {
@@ -1753,7 +1732,7 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
     }
 
     def choiceToIf(c: Choice[Statement]): One[Statement] = {
-        def conditionalToStatement(c: Conditional[Statement], ft: FeatureExpr = FeatureExprFactory.False): List[Tuple2[Statement, FeatureExpr]] = {
+        def conditionalToStatement(c: Conditional[Statement], ft: FeatureExpr = FeatureExprFactory.False): List[(Statement, FeatureExpr)] = {
             c match {
                 case One(null) => List()
                 case Choice(choiceFeature, first: Conditional[_], second: Conditional[_]) =>
@@ -1971,8 +1950,7 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
                     conditional match {
                         case One(statement) =>
                             // TODO: check expr2 and expr3
-                            // TODO florian: test is never used => suspicious
-                            val test = computeNextRelevantFeatures(f)
+                            // val test = computeNextRelevantFeatures(f)
                             if (containsIdUsage(expr1) /*|| containsIdUsage(expr2) || containsIdUsage(expr3)*/ ) {
                                 val feat = computeIdUsageFeatures(expr1)
                                 val result = feat.map(x => {
@@ -2059,7 +2037,6 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
             case fd: FunctionDef =>
                 if (optFunction.feature.equals(trueF)) {
                     val tst = computeNextRelevantFeatures(fd)
-                    val functionWithoutBody = fd.copy(stmt = CompoundStatement(List()))
                     if (isVariable(fd.specifiers) || isVariable(fd.oldStyleParameters) || isVariable(fd.declarator)) {
 
                         /*
@@ -2142,9 +2119,6 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
                 }
             case nfd: NestedFunctionDef =>
                 if (optFunction.feature.equals(trueF)) {
-                    // TODO florian: functionWithoutBody is never used...
-                    // furthermore the code looks similar to the one below starting L 2178 } else {
-                    val functionWithoutBody = nfd.copy(stmt = CompoundStatement(List()))
                     if (isVariable(nfd.specifiers) || isVariable(nfd.parameters) || isVariable(nfd.declarator)) {
 
                         /*
@@ -2285,12 +2259,6 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
             a match {
                 case l: List[_] => l.map(countNumberHelper).sum
                 case _: FeatureExpr => 0
-                /*case d: Declaration =>
-                  if (d.declSpecs.exists(x => x.entry.isInstanceOf[StructOrUnionSpecifier] || x.entry.isInstanceOf[EnumSpecifier]) && !d.init.isEmpty) {
-                    2 + d.productIterator.toList.map(countNumberHelper).sum
-                  } else {
-                    1 + d.productIterator.toList.map(countNumberHelper).sum
-                  }*/
                 case p: Product =>
                     if (p.isInstanceOf[Declaration] || p.isInstanceOf[Enumerator] || p.isInstanceOf[StructDeclaration]) {
                         1 + p.productIterator.toList.map(countNumberHelper).sum
