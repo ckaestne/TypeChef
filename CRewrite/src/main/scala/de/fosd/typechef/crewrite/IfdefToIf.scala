@@ -1027,7 +1027,7 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
                                     noOfStatements = noOfStatements + 1
                                     noOfStatementsVariable = noOfStatementsVariable + 1
                                     //val features = computeNextRelevantFeatures
-                                    List(Opt(trueF, ElifStatement(One(NAryExpr(featureToCExpr(ft), List(Opt(trueF, NArySubExpr("&&", expr))))), transformRecursive(replaceFeature(then, ft), ft))))
+                                    List(Opt(trueF, ElifStatement(One(NAryExpr(featureToCExpr(ft), List(Opt(trueF, NArySubExpr("&&", replaceOptAndId(expr, ft)))))), transformRecursive(replaceOptAndId(then, ft), ft))))
 
                                 case e: ExprStatement =>
                                     noOfStatements = noOfStatements + 1

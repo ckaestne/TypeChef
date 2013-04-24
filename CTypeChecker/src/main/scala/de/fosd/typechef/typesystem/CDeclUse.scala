@@ -3,7 +3,6 @@ package de.fosd.typechef.typesystem
 import scala.collection.JavaConversions._
 import java.util.{Collections, IdentityHashMap}
 
-import org.apache.logging.log4j.LogManager
 
 import de.fosd.typechef.conditional._
 import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
@@ -865,6 +864,8 @@ trait CDeclUse extends CEnv with CEnvCache {
 
         def get[T](a: Any)(implicit m: ClassTag[T]): List[Opt[T]] = {
             a match {
+                // TODO: Feature does not have to be true
+                case c: One[T] if (m.runtimeClass.isInstance(c.value)) => List(Opt(FeatureExprFactory.True, c.value))
                 case o: Opt[T] if (m.runtimeClass.isInstance(o.entry)) => List(o)
                 case l: List[_] => l.flatMap(x => get[T](x))
                 case p: Product => p.productIterator.toList.flatMap(x => get[T](x))
