@@ -46,6 +46,7 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
     val writeOptionsIntoFile = true
 
     val exponentialComputationThreshold = 10
+    val nstoms = 1000000
 
     val isBusyBox = false
     // Variables for statistics
@@ -889,13 +890,12 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
         defuse = decluse
         val fileName = outputStemToFileName(outputStem)
 
-        // TODO florian: please use a different time measurement mechanism:
-        // https://github.com/ckaestne/TypeChef/blob/liveness/Sampling/src/main/scala/de/fosd/typechef/FamilyBasedVsSampleBased.scala#L608
-        val time = System.currentTimeMillis()
+        val tb = java.lang.management.ManagementFactory.getThreadMXBean
+        val time = tb.getCurrentThreadCpuTime()
         val new_ast = transformRecursive(source_ast)
         val featureStruct = definedExternalToAst(filterFeatures(source_ast))
         val result_ast = TranslationUnit(featureStruct.defs ++ new_ast.asInstanceOf[TranslationUnit].defs)
-        val transformTime = System.currentTimeMillis() - time
+        val transformTime = (tb.getCurrentThreadCpuTime() - time) / nstoms
 
         if (getTypeSystem(result_ast).checkAST) {
             if (!(new File(path ++ "statistics.csv").exists)) {
