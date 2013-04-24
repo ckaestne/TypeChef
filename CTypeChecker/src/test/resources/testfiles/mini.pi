@@ -1,3 +1,8 @@
+
+int __attribute__((weak)) weaklyExportedFunction() {
+
+}
+
 int printf ( const char * format, ... );
 
 #ifdef VOID
@@ -105,3 +110,4 @@ void funpoint(int a);
 void funass3() {
     void* x = &funpoint;
 }
+
