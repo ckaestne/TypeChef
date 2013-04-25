@@ -3,6 +3,7 @@ package de.fosd.typechef.typesystem
 import scala.collection.JavaConversions._
 import java.util.{Collections, IdentityHashMap}
 
+import org.apache.logging.log4j.LogManager
 
 import de.fosd.typechef.conditional._
 import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
