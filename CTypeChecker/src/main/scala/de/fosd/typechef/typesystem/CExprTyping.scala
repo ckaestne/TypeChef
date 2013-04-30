@@ -46,7 +46,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                                 if (t.isUnknown && f.isSatisfiable()) {
                                     val when = env.varEnv.whenDefined(name)
                                     issueTypeError(Severity.IdLookupError, f, name + " undeclared" +
-                                        (if (when.isSatisfiable()) " (only under condition " + when + ")" else ""),
+                                            (if (when.isSatisfiable()) " (only under condition " + when + ")" else ""),
                                         expr)
                                 }
                             //checkStructCompleteness(t, f, env, id) -- do not check on every access, only when a variable is declared, see issue #12
@@ -110,8 +110,8 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                         ConditionalLib.mapCombinationF(sourceTypes, targetTypes, featureExpr,
                             (fexpr: FeatureExpr, sourceType: CType, targetType: CType) =>
                                 if (targetType == CVoid() ||
-                                    isPointer(targetType) ||
-                                    (isScalar(sourceType) && isScalar(targetType))) targetType
+                                        isPointer(targetType) ||
+                                        (isScalar(sourceType) && isScalar(targetType))) targetType
                                 else if (isScalar(targetType) && isPointer(normalize(sourceType))) targetType //cast from pointer to long is valid
                                 else if (isCompound(sourceType) && (isStruct(targetType) || isArray(targetType))) targetType.toObj //workaround for array/struct initializers
                                 else if (sourceType.isIgnore || targetType.isIgnore || sourceType.isUnknown || targetType.isUnknown) targetType
