@@ -803,8 +803,6 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
           //            }
           //          }
 
-          case t: ReturnStatement => getReturnStatementSucc(t, ctx, oldres, fm, env)
-
           case t: FunctionDef => oldres ++ List((env.featureExpr(t), env.featureExpr(t), t))
           case _ => List()
         }
