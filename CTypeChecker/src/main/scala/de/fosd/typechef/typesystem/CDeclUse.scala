@@ -706,6 +706,9 @@ trait CDeclUse extends CEnv with CEnvCache {
                 for (Opt(structSpecFeature, StructOrUnionSpecifier(isUnion, Some(i: Id), _)) <- specs) {
                     addStructDeclUse(i, env, isUnion, structSpecFeature)
                 }
+                for (Opt(enumFeature, EnumSpecifier(Some(i: Id), _)) <- specs) {
+                    addEnumUse(i, env, enumFeature)
+                }
                 addDecl(decl, featureExpr, env)
             case Pointer(specs) =>
                 specs.foreach(x => addDecl(x, featureExpr, env))
@@ -836,7 +839,9 @@ trait CDeclUse extends CEnv with CEnvCache {
                 addDecl(thenExpr, featureExpr, env)
                 addDecl(els, featureExpr, env)
             case DeclIdentifierList(decls) => decls.foreach(decl => putToDeclUseMap(decl.entry))
-            case x => logger.error("Match Error" + x)
+            case x =>
+            // TODO: Specifiers like StaticSpecifier() can be ignored
+            // logger.error("Match Error" + x)
         }
     }
 

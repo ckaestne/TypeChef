@@ -12,58 +12,58 @@ import de.fosd.typechef.parser.c.GnuAsmExpr
 import de.fosd.typechef.parser.c.TranslationUnit
 
 class DeclUseTest extends ConditionalNavigation with ASTNavigation with CDeclUse with CTypeSystem with TestHelper {
-  private def checkDefuse(ast: AST, declUseMap: IdentityHashMap[Id, List[Id]], useDeclMap: IdentityHashMap[Id, List[Id]]): String = {
-    def getAllRelevantIds(a: Any): List[Id] = {
-      a match {
-        case id: Id => if (!(id.name.startsWith("__builtin"))) List(id) else List()
-        case gae: GnuAsmExpr => List()
-        case l: List[_] => l.flatMap(x => getAllRelevantIds(x))
-        case p: Product => p.productIterator.toList.flatMap(x => getAllRelevantIds(x))
-        case k => List()
-      }
-    }
-
-    val resultString = new StringBuilder()
-    var relevantIds = getAllRelevantIds(ast)
-
-    val missingLB: ListBuffer[Id] = ListBuffer()
-    val duplicateLB: ListBuffer[Id] = ListBuffer()
-    val allIds: IdentityHashMap[Id, Id] = new IdentityHashMap()
-    val defuseKeyList = declUseMap.keySet().toArray().toList
-
-    defuseKeyList.foreach(x => {
-      allIds.put(x.asInstanceOf[Id], null)
-      declUseMap.get(x).foreach(y => {
-        if (allIds.containsKey(y)) {
-          duplicateLB += y
+    private def checkDefuse(ast: AST, declUseMap: IdentityHashMap[Id, List[Id]], useDeclMap: IdentityHashMap[Id, List[Id]]): String = {
+        def getAllRelevantIds(a: Any): List[Id] = {
+            a match {
+                case id: Id => if (!(id.name.startsWith("__builtin"))) List(id) else List()
+                case gae: GnuAsmExpr => List()
+                case l: List[_] => l.flatMap(x => getAllRelevantIds(x))
+                case p: Product => p.productIterator.toList.flatMap(x => getAllRelevantIds(x))
+                case k => List()
+            }
         }
-        allIds.put(y, null)
-      })
-    })
 
-    val numberOfIdsInAst = relevantIds.size
-    val numberOfIdsInDefuse = allIds.keySet().size()
+        val resultString = new StringBuilder()
+        var relevantIds = getAllRelevantIds(ast)
 
-    relevantIds.foreach(x => {
-      if (!allIds.containsKey(x)) {
-        missingLB += x
-      }
-    })
-    if (!missingLB.isEmpty) {
-      resultString.append("Ids in decluse: " + numberOfIdsInDefuse)
-      resultString.append("\nAmount of ids missing: " + missingLB.size + "\n" + missingLB.toList.map(x => (x + "@ " + x.range.get._1.getLine)) + "\n")
+        val missingLB: ListBuffer[Id] = ListBuffer()
+        val duplicateLB: ListBuffer[Id] = ListBuffer()
+        val allIds: IdentityHashMap[Id, Id] = new IdentityHashMap()
+        val defuseKeyList = declUseMap.keySet().toArray().toList
+
+        defuseKeyList.foreach(x => {
+            allIds.put(x.asInstanceOf[Id], null)
+            declUseMap.get(x).foreach(y => {
+                if (allIds.containsKey(y)) {
+                    duplicateLB += y
+                }
+                allIds.put(y, null)
+            })
+        })
+
+        val numberOfIdsInAst = relevantIds.size
+        val numberOfIdsInDefuse = allIds.keySet().size()
+
+        relevantIds.foreach(x => {
+            if (!allIds.containsKey(x)) {
+                missingLB += x
+            }
+        })
+        if (!missingLB.isEmpty) {
+            resultString.append("Ids in decluse: " + numberOfIdsInDefuse)
+            resultString.append("\nAmount of ids missing: " + missingLB.size + "\n" + missingLB.toList.map(x => (x + "@ " + x.range.get._1.getLine)) + "\n")
+        }
+        resultString.append("Filtered list size is: " + numberOfIdsInAst + ", the defuse map contains " + numberOfIdsInDefuse + " Ids." + " containing " + duplicateLB.size + " variable IDs.")
+        if (!duplicateLB.isEmpty) {
+            resultString.append("\nVariable Ids are: " + duplicateLB.toList.map(x => (x.name + "@ " + x.range.get._1.getLine + " from @ " + useDeclMap.get(x).map(y => y.range.get._1.getLine))))
+        }
+        // duplicateLB.foreach(x => resultString.append("\n"  + x + "@ " + x.range))
+        return (resultString.toString())
     }
-    resultString.append("Filtered list size is: " + numberOfIdsInAst + ", the defuse map contains " + numberOfIdsInDefuse + " Ids." + " containing " + duplicateLB.size + " variable IDs.")
-    if (!duplicateLB.isEmpty) {
-      resultString.append("\nVariable Ids are: " + duplicateLB.toList.map(x => (x.name + "@ " + x.range.get._1.getLine + " from @ " + useDeclMap.get(x).map(y => y.range.get._1.getLine))))
-    }
-    // duplicateLB.foreach(x => resultString.append("\n"  + x + "@ " + x.range))
-    return (resultString.toString())
-  }
 
 
-  @Test def test_int_def_use {
-    val source_ast = getAST( """
+    @Test def test_int_def_use {
+        val source_ast = getAST( """
       int foo(int *x, int z) {
         int i2 = x + 5;
         i2 = 5;
@@ -93,22 +93,22 @@ class DeclUseTest extends ConditionalNavigation with ASTNavigation with CDeclUse
         i = (j * (j*(j-(j+j)))) - (j*j) + j;
         return (i > j) ? i : j;
       }
-                             """);
-    val env = createASTEnv(source_ast)
+                                 """);
+        val env = createASTEnv(source_ast)
 
-    typecheckTranslationUnit(source_ast)
-    val defUseMap = getDeclUseMap
-    val useDeclMap = getUseDeclMap
+        typecheckTranslationUnit(source_ast)
+        val defUseMap = getDeclUseMap
+        val useDeclMap = getUseDeclMap
 
-    println("+++PrettyPrinted+++\n" + PrettyPrinter.print(source_ast))
-    println("Source:\n" + source_ast)
-    println("Ids:\n" + filterASTElems[Id](source_ast))
-    println("\nDef Use Map:\n" + defUseMap)
-    println(checkDefuse(source_ast, defUseMap, useDeclMap))
-  }
+        println("+++PrettyPrinted+++\n" + PrettyPrinter.print(source_ast))
+        println("Source:\n" + source_ast)
+        println("Ids:\n" + filterASTElems[Id](source_ast))
+        println("\nDef Use Map:\n" + defUseMap)
+        println(checkDefuse(source_ast, defUseMap, useDeclMap))
+    }
 
-  @Test def test_array_def_use {
-    val source_ast = getAST( """
+    @Test def test_array_def_use {
+        val source_ast = getAST( """
       #ifdef awesome
         #define quadrat(q) ((q)*(q))
       #endif
@@ -155,33 +155,33 @@ class DeclUseTest extends ConditionalNavigation with ASTNavigation with CDeclUse
         plusplus++;
         return plusgleich;
       }
-                             """);
-    val env = createASTEnv(source_ast)
+                                 """);
+        val env = createASTEnv(source_ast)
 
-    typecheckTranslationUnit(source_ast)
-    val defUseMap = getDeclUseMap
+        typecheckTranslationUnit(source_ast)
+        val defUseMap = getDeclUseMap
 
-    println("+++PrettyPrinted+++\n" + PrettyPrinter.print(source_ast))
-    println("Source:\n" + source_ast)
-    println("\nDef Use Map:\n" + defUseMap)
-  }
+        println("+++PrettyPrinted+++\n" + PrettyPrinter.print(source_ast))
+        println("Source:\n" + source_ast)
+        println("\nDef Use Map:\n" + defUseMap)
+    }
 
-  private def getAstFromPi(fileToAnalyse: File): TranslationUnit = {
-    println("++Analyse: " + fileToAnalyse.getName + "++")
-    val fis = new FileInputStream(fileToAnalyse)
-    val ast = parseFile(fis, fileToAnalyse.getName, fileToAnalyse.getParent)
-    fis.close()
-    ast
-  }
+    private def getAstFromPi(fileToAnalyse: File): TranslationUnit = {
+        println("++Analyse: " + fileToAnalyse.getName + "++")
+        val fis = new FileInputStream(fileToAnalyse)
+        val ast = parseFile(fis, fileToAnalyse.getName, fileToAnalyse.getParent)
+        fis.close()
+        ast
+    }
 
-  @Test def test_random_stuff {
-    val source_ast = getAstFromPi(new File("/Users/flo/Dropbox/HiWi/busybox/TypeChef-BusyboxAnalysis/busybox-1.18.5/archival/tar.pi"))
-    runDefUseOnAst(source_ast)
-  }
+    @Test def test_random_stuff {
+        val source_ast = getAstFromPi(new File("C:\\Users\\Flo\\Dropbox\\HiWi\\busybox\\TypeChef-BusyboxAnalysis\\busybox-1.18.5\\archival\\libarchive\\decompress_unxz.pi"))
+        runDefUseOnAst(source_ast)
+    }
 
-  @Test def test_struct_def_use {
-    // TODO Verwendung struct variablen.
-    val source_ast = getAST( """
+    @Test def test_struct_def_use {
+        // TODO Verwendung struct variablen.
+        val source_ast = getAST( """
       struct leer;
 
       struct student {
@@ -214,22 +214,22 @@ class DeclUseTest extends ConditionalNavigation with ASTNavigation with CDeclUse
 
         return i;
       }
-                             """);
-    val env = createASTEnv(source_ast)
+                                 """);
+        val env = createASTEnv(source_ast)
 
-    typecheckTranslationUnit(source_ast)
+        typecheckTranslationUnit(source_ast)
 
-    println("+++PrettyPrinted+++\n" + PrettyPrinter.print(source_ast))
-    println("Source:\n" + source_ast)
+        println("+++PrettyPrinted+++\n" + PrettyPrinter.print(source_ast))
+        println("Source:\n" + source_ast)
 
-    println("Ids:\n" + filterASTElems[Id](source_ast))
-    println("\nDef Use Map:\n" + getDeclUseMap)
-    val useDeclMap = getUseDeclMap
-    println(checkDefuse(source_ast, getDeclUseMap, useDeclMap))
-  }
+        println("Ids:\n" + filterASTElems[Id](source_ast))
+        println("\nDef Use Map:\n" + getDeclUseMap)
+        val useDeclMap = getUseDeclMap
+        println(checkDefuse(source_ast, getDeclUseMap, useDeclMap))
+    }
 
-  @Test def test_int {
-    val source_ast = getAST( """
+    @Test def test_int {
+        val source_ast = getAST( """
      int main(void) {
        #if definedEx(A)
        int i = 8;
@@ -255,15 +255,15 @@ class DeclUseTest extends ConditionalNavigation with ASTNavigation with CDeclUse
        j = 2*j;
        return 0;
      }
-                             """);
-    println("Source:\n" + source_ast + "\n")
-    println("\nPrettyPrinted:\n" + PrettyPrinter.print(source_ast))
+                                 """);
+        println("Source:\n" + source_ast + "\n")
+        println("\nPrettyPrinted:\n" + PrettyPrinter.print(source_ast))
 
-    runDefUseOnAst(source_ast)
-  }
+        runDefUseOnAst(source_ast)
+    }
 
-  @Test def test_typedef_def_use {
-    val ast = getAST( """
+    @Test def test_typedef_def_use {
+        val ast = getAST( """
       #define MAX 30
       static int x;
       struct adres {
@@ -288,18 +288,18 @@ class DeclUseTest extends ConditionalNavigation with ASTNavigation with CDeclUse
         int d = 2;
         w= 3;
       }
-                      """);
-    println("AST:\n" + ast)
-    println("\nPrettyPrinted:\n" + PrettyPrinter.print(ast))
-    typecheckTranslationUnit(ast)
-    val useDeclMap = getUseDeclMap
-    val success = checkDefuse(ast, getDeclUseMap, useDeclMap)
-    println("DefUse" + getDeclUseMap)
-    println(success)
-  }
+                          """);
+        println("AST:\n" + ast)
+        println("\nPrettyPrinted:\n" + PrettyPrinter.print(ast))
+        typecheckTranslationUnit(ast)
+        val useDeclMap = getUseDeclMap
+        val success = checkDefuse(ast, getDeclUseMap, useDeclMap)
+        println("DefUse" + getDeclUseMap)
+        println(success)
+    }
 
-  @Test def test_opt_def_use {
-    val source_ast = getAST( """
+    @Test def test_opt_def_use {
+        val source_ast = getAST( """
       int o = 32;
       int fooZ() {
         #if definedEx(A)
@@ -348,127 +348,127 @@ class DeclUseTest extends ConditionalNavigation with ASTNavigation with CDeclUse
 
         return 0;
       }
-                             """);
-    val env = createASTEnv(source_ast)
-    println("TypeChef Code:\n" + PrettyPrinter.print(source_ast))
+                                 """);
+        val env = createASTEnv(source_ast)
+        println("TypeChef Code:\n" + PrettyPrinter.print(source_ast))
 
-    typecheckTranslationUnit(source_ast)
-    val defUseMap = getDeclUseMap
+        typecheckTranslationUnit(source_ast)
+        val defUseMap = getDeclUseMap
 
-    println("+++PrettyPrinted+++\n" + PrettyPrinter.print(source_ast))
-    println("Source:\n" + source_ast)
-    println("\nDef Use Map:\n" + defUseMap)
-  }
-
-  @Test def test_busybox_verification_of_defUse {
-    // path to busybox dir with pi files to analyse
-    val folderPath = "/Users/and1/Dropbox/HiWi/casestudies/busybox-1.18.5"
-    val folder = new File(folderPath)
-    analyseDir(folder)
-
-    val folderPath2 = "C:/users/flo/dropbox/hiwi/busybox/TypeChef-BusyboxAnalysis/busybox-1.18.5/"
-    val folder2 = new File(folderPath2)
-    analyseDir(folder2)
-  }
-
-  @Test def test_cdrompi {
-    // path to busybox dir with pi files to analyse
-    val folderPath = "/Users/andi/Dropbox/HiWi/Flo/PiFiles/"
-    val folder = new File(folderPath)
-    analyseDir(folder)
-
-    val folderPath2 = "C:/users/flo/dropbox/hiwi/flo/pifiles/"
-    val folder2 = new File(folderPath2)
-    analyseDir(folder2)
-  }
-
-  @Test def test_tarpi {
-    // path to busybox dir with pi files to analyse
-    val folderPath = "/Users/andi/Dropbox/HiWi/Flo/gzip/"
-    val folder = new File(folderPath)
-    analyseDir(folder)
-
-    val folderPath2 = "C:\\Users\\Flo\\Dropbox\\HiWi\\Flo\\gzip"
-    val folder2 = new File(folderPath2)
-    analyseDir(folder2)
-  }
-
-  private def runDefUseOnAst(tu: TranslationUnit, parsingRunTimeString: String = "Parsing done.") {
-
-    /* val fos = new FileOutputStream(fileToAnalyse.getAbsolutePath + ".ast")
-       val bytes = ast.toString.getBytes
-       fos.write(bytes)
-       fos.flush()
-       fos.close()  */
-
-    println(parsingRunTimeString)
-    val starttime = System.currentTimeMillis()
-    typecheckTranslationUnit(tu)
-    val endtime = System.currentTimeMillis()
-
-    val declUse = getDeclUseMap
-    val useDeclMap = getUseDeclMap
-    val success = checkDefuse(tu, declUse, useDeclMap)
-
-    /*val sb = new StringBuilder
-    defuse.keySet().toArray().foreach(x => sb.append(x + "@" + x.asInstanceOf[Id].range + "\n"))
-    val fw = new FileWriter(fileToAnalyse.getAbsolutePath + ".defuse")
-    fw.write(sb.toString)
-    fw.close()*/
-    println("TypeChecking Runtime:\t" + (endtime - starttime) / 1000.0 + " seconds.\n")
-    println("DeclUseMap: " + declUse)
-    println(success + "\n\n")
-    Thread.sleep(2000)
-  }
-
-  private def runDefUseOnPi(fileToAnalyse: File, printAst: Boolean = true) {
-    println("++Analyse: " + fileToAnalyse.getName + "++")
-    val starttime = System.currentTimeMillis()
-    val fis = new FileInputStream(fileToAnalyse)
-    val ast = parseFile(fis, fileToAnalyse.getName, fileToAnalyse.getParent)
-    fis.close()
-    if (printAst) {
-      println("Ast: " + ast)
+        println("+++PrettyPrinted+++\n" + PrettyPrinter.print(source_ast))
+        println("Source:\n" + source_ast)
+        println("\nDef Use Map:\n" + defUseMap)
     }
-    val endtime = System.currentTimeMillis()
-    val parsingRuntimeString = "Parsing Runtime:\t\t" + (endtime - starttime) / 1000.0 + " seconds."
-    runDefUseOnAst(ast, parsingRuntimeString)
-  }
 
-  private def analyseDir(dirToAnalyse: File, printAst: Boolean = false) {
-    // retrieve all pi from dir first
-    if (dirToAnalyse.isDirectory) {
-      val piFiles = dirToAnalyse.listFiles(new FilenameFilter {
-        def accept(dir: File, file: String): Boolean = file.endsWith(".pi")
-      })
-      val dirs = dirToAnalyse.listFiles(new FilenameFilter {
-        def accept(dir: File, file: String) = dir.isDirectory
-      })
-      for (piFile <- piFiles) {
-        runDefUseOnPi(piFile, printAst)
-      }
-      for (dir <- dirs) {
-        analyseDir(dir)
-      }
+    @Test def test_busybox_verification_of_defUse {
+        // path to busybox dir with pi files to analyse
+        val folderPath = "/Users/and1/Dropbox/HiWi/casestudies/busybox-1.18.5"
+        val folder = new File(folderPath)
+        analyseDir(folder)
+
+        val folderPath2 = "C:/users/flo/dropbox/hiwi/busybox/TypeChef-BusyboxAnalysis/busybox-1.18.5/"
+        val folder2 = new File(folderPath2)
+        analyseDir(folder2)
     }
-  }
 
-  @Test def test_minimal_stuff {
-    val folderPath = "/Users/andi/Dropbox/hiwi/busybox/minimalbeispiel/"
-    val folder = new File(folderPath)
-    analyseDir(folder)
-    val folderPath2 = "C:/users/flo/dropbox/hiwi/busybox/minimalbeispiel/"
-    val folder2 = new File(folderPath2)
-    analyseDir(folder2)
-  }
+    @Test def test_cdrompi {
+        // path to busybox dir with pi files to analyse
+        val folderPath = "/Users/andi/Dropbox/HiWi/Flo/PiFiles/"
+        val folder = new File(folderPath)
+        analyseDir(folder)
 
-  @Test def test_testpi {
-    // path to busybox dir with pi files to analyse
-    val folderPath = "/Users/andi/Dropbox/HiWi/Flo/test/"
-    val folder = new File(folderPath)
-    analyseDir(folder, false)
-    val folderPath2 = "C:/users/flo/dropbox/hiwi/flo/test/"
-    val folder2 = new File(folderPath2)
-    analyseDir(folder2, true)
-  }
+        val folderPath2 = "C:/users/flo/dropbox/hiwi/flo/pifiles/"
+        val folder2 = new File(folderPath2)
+        analyseDir(folder2)
+    }
+
+    @Test def test_tarpi {
+        // path to busybox dir with pi files to analyse
+        val folderPath = "/Users/andi/Dropbox/HiWi/Flo/gzip/"
+        val folder = new File(folderPath)
+        analyseDir(folder)
+
+        val folderPath2 = "C:\\Users\\Flo\\Dropbox\\HiWi\\Flo\\gzip"
+        val folder2 = new File(folderPath2)
+        analyseDir(folder2)
+    }
+
+    private def runDefUseOnAst(tu: TranslationUnit, parsingRunTimeString: String = "Parsing done.") {
+
+        /* val fos = new FileOutputStream(fileToAnalyse.getAbsolutePath + ".ast")
+           val bytes = ast.toString.getBytes
+           fos.write(bytes)
+           fos.flush()
+           fos.close()  */
+
+        println(parsingRunTimeString)
+        val starttime = System.currentTimeMillis()
+        typecheckTranslationUnit(tu)
+        val endtime = System.currentTimeMillis()
+
+        val declUse = getDeclUseMap
+        val useDeclMap = getUseDeclMap
+        val success = checkDefuse(tu, declUse, useDeclMap)
+
+        /*val sb = new StringBuilder
+        defuse.keySet().toArray().foreach(x => sb.append(x + "@" + x.asInstanceOf[Id].range + "\n"))
+        val fw = new FileWriter(fileToAnalyse.getAbsolutePath + ".defuse")
+        fw.write(sb.toString)
+        fw.close()*/
+        println("TypeChecking Runtime:\t" + (endtime - starttime) / 1000.0 + " seconds.\n")
+        println("DeclUseMap: " + declUse)
+        println(success + "\n\n")
+        Thread.sleep(2000)
+    }
+
+    private def runDefUseOnPi(fileToAnalyse: File, printAst: Boolean = true) {
+        println("++Analyse: " + fileToAnalyse.getName + "++")
+        val starttime = System.currentTimeMillis()
+        val fis = new FileInputStream(fileToAnalyse)
+        val ast = parseFile(fis, fileToAnalyse.getName, fileToAnalyse.getParent)
+        fis.close()
+        if (printAst) {
+            println("Ast: " + ast)
+        }
+        val endtime = System.currentTimeMillis()
+        val parsingRuntimeString = "Parsing Runtime:\t\t" + (endtime - starttime) / 1000.0 + " seconds."
+        runDefUseOnAst(ast, parsingRuntimeString)
+    }
+
+    private def analyseDir(dirToAnalyse: File, printAst: Boolean = false) {
+        // retrieve all pi from dir first
+        if (dirToAnalyse.isDirectory) {
+            val piFiles = dirToAnalyse.listFiles(new FilenameFilter {
+                def accept(dir: File, file: String): Boolean = file.endsWith(".pi")
+            })
+            val dirs = dirToAnalyse.listFiles(new FilenameFilter {
+                def accept(dir: File, file: String) = dir.isDirectory
+            })
+            for (piFile <- piFiles) {
+                runDefUseOnPi(piFile, printAst)
+            }
+            for (dir <- dirs) {
+                analyseDir(dir)
+            }
+        }
+    }
+
+    @Test def test_minimal_stuff {
+        val folderPath = "/Users/andi/Dropbox/hiwi/busybox/minimalbeispiel/"
+        val folder = new File(folderPath)
+        analyseDir(folder)
+        val folderPath2 = "C:/users/flo/dropbox/hiwi/busybox/minimalbeispiel/"
+        val folder2 = new File(folderPath2)
+        analyseDir(folder2)
+    }
+
+    @Test def test_testpi {
+        // path to busybox dir with pi files to analyse
+        val folderPath = "/Users/andi/Dropbox/HiWi/Flo/test/"
+        val folder = new File(folderPath)
+        analyseDir(folder, false)
+        val folderPath2 = "C:/users/flo/dropbox/hiwi/flo/test/"
+        val folder2 = new File(folderPath2)
+        analyseDir(folder2, true)
+    }
 }
