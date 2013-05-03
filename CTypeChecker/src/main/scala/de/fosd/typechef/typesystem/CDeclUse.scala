@@ -21,7 +21,6 @@ import java.util
 trait CDeclUse extends CEnv with CEnvCache {
 
     // TODO FeatureModel instead of FeatureExprFactory
-
     private lazy val logger = LogManager.getLogger(this.getClass.getName)
 
     private val declUseMap: util.IdentityHashMap[Id, util.Set[Id]] = new util.IdentityHashMap()
@@ -203,19 +202,15 @@ trait CDeclUse extends CEnv with CEnvCache {
             case Choice(feature, c1@Choice(_, _, _), c2@Choice(_, _, _)) =>
                 addDefChoice(c1)
                 addDefChoice(c2)
-
             case Choice(feature, o1@One(_), o2@One(_)) =>
                 addOne(o1)
                 addOne(o2)
-
             case Choice(feature, o@One(_), c@Choice(_, _, _)) =>
                 addDefChoice(c)
                 addOne(o)
-
             case Choice(feature, c@Choice(_, _, _), o@One(_)) =>
                 addDefChoice(c)
                 addOne(o)
-
             case k =>
                 logger.error("Missed Def Choice " + k)
         }
@@ -259,7 +254,6 @@ trait CDeclUse extends CEnv with CEnvCache {
                                         putToDeclUseMap(declarator.getId)
                                     }
                                     addToDeclUseMap(declarator.getId, i)
-
                                 case One(AtomicNamedDeclarator(_, key, _)) => addToDeclUseMap(key, i)
                                 case One(FunctionDef(_, AtomicNamedDeclarator(_, key, _), _, _)) =>
                                     if (!declUseMap.contains(key)) {
@@ -436,7 +430,6 @@ trait CDeclUse extends CEnv with CEnvCache {
     def addDeclaration(decl: Declaration, feature: FeatureExpr, env: Env) {
         def handleAtomicNamedDeclaratorExtensions(and: AtomicNamedDeclarator) {
             and match {
-
                 // TODO andreas: this code needs to be refactored
                 // too much nesting
                 // comments are necessary; what kind of declarations are handled
@@ -497,7 +490,6 @@ trait CDeclUse extends CEnv with CEnvCache {
         entry match {
             case i@Id(name) => {
                 if (env.structEnv.someDefinition(structName, isUnion)) {
-
                     env.structEnv.getFieldsMerged(structName, isUnion).getAstOrElse(i.name, null) match {
                         case One(null) =>
                             addStructDeclUse(i, env, isUnion, featureExpr)
@@ -558,7 +550,6 @@ trait CDeclUse extends CEnv with CEnvCache {
                     addToDeclUseMap(key, use)
                 case One(NestedNamedDeclarator(_, declarator, _)) => addToDeclUseMap(declarator.getId, use)
                 case One(i@Id(_)) => addToDeclUseMap(i, use) // TODO Missing case, but @decluse?
-
                 // TODO andreas: following line is obsolete
                 case One(null) =>
                 //addStructDeclUse(use, env, isUnion)
@@ -615,7 +606,6 @@ trait CDeclUse extends CEnv with CEnvCache {
 
     def addDecl(current: Any, featureExpr: FeatureExpr, env: Env, isDefinition: Boolean = true) {
         current match {
-
             // TODO andreas: the following three lines are obsolete; see case _ => at the end
             case StructDeclaration(specifiers, structDecls) =>
                 for (specs <- specifiers) {
@@ -688,7 +678,6 @@ trait CDeclUse extends CEnv with CEnvCache {
                     extension.foreach(x => addDecl(x, featureExpr, env))
                     addDefinition(id, env, featureExpr, isFunctionDeclarator = true)
                 }
-
             case i: Id =>
                 if (isDefinition) {
                     addDefinition(i, env)
@@ -768,12 +757,10 @@ trait CDeclUse extends CEnv with CEnvCache {
             case StructOrUnionSpecifier(isUnion, Some(i@Id(name)), None) =>
                 //addDefinition(i, env)
                 if (isDefinition) {
-
                     //addStructUse(i, featureExpr, env, name, isUnion)
                 } else {
                     addStructDeclUse(i, env, isUnion, featureExpr)
                 }
-
             case StructOrUnionSpecifier(isUnion, Some(i@Id(name)), Some(extensions)) =>
                 if (!declUseMap.contains(i)) {
                     putToDeclUseMap(i)
@@ -781,13 +768,8 @@ trait CDeclUse extends CEnv with CEnvCache {
                 extensions.foreach(x => addDecl(x, featureExpr, env))
             case StructOrUnionSpecifier(_, None, Some(extensions)) =>
                 extensions.foreach(x => addDecl(x, featureExpr, env))
-            case StructDeclarator(decl, i, _) =>
-                // addDecl(decl, env)
-                // addDef(i, featureExpr, env)
-                i match {
-                    case Some(id: Id) => addDefinition(id, env)
-                    case x => logger.debug("StructDeclarator missed case: " + x)
-                }
+            case StructDeclarator(decl, i: Id, _) =>
+                addDefinition(i, env)
             case ExprStatement(expr) =>
             //addDecl(expr, env)
             case pe@PostfixExpr(expr, suffix) =>
