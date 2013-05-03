@@ -82,6 +82,9 @@ class RenamingTest extends ASTNavigation with ConditionalNavigation with Logging
             resultBuilder.append("++Amount of ids: " + getAllRelevantIds(ast).length + " +++\n")
             resultBuilder.append("++Ids to rename: " + RenameIdentifier.getAllConnectedIdentifier(id, morpheus.getDeclUseMap, morpheus.getUseDeclMap).size + " +++\n")
 
+            val features = RenameIdentifier.getAllConnectedIdentifier(id, morpheus.getDeclUseMap, morpheus.getUseDeclMap).map(x => parentOpt(x, morpheus.getASTEnv).feature.toString)
+            resultBuilder.append("++Affected variantes: " + features.distinct + " +++\n")
+
             val startRenaming = tb.getCurrentThreadCpuTime
             val refactored = RenameIdentifier.rename(id, rename, morpheus)
             resultBuilder.append("++Renaming time: " + (tb.getCurrentThreadCpuTime - startRenaming) / nsToMs + "ms ++\n")
@@ -108,7 +111,16 @@ class RenamingTest extends ASTNavigation with ConditionalNavigation with Logging
             assert(succ, "DeclUse is not the same anymore")
         }
         resultBuilder.append("\n++Finished: " + piFile.getName + " (" + (tb.getCurrentThreadCpuTime - testStart) / nsToMs + "ms) ++\n")
-        logger.info(resultBuilder.toString())
+        val testResult = resultBuilder.toString()
+        val file = new File(prettyPrint_Output + piFile.getName + "result")
+        file.createNewFile()
+        val out_file = new java.io.FileOutputStream(file)
+        val out_stream = new java.io.PrintStream(out_file)
+        out_stream.print(testResult)
+        out_stream.flush()
+        out_file.flush()
+        out_file.close()
+        println(resultBuilder.toString())
         Thread.sleep(5000) // make a small pause before each run to keep system noise low @ bib
     }
 
