@@ -20,6 +20,7 @@ public class FrontendOptions extends LexerOptions implements ParserOptions {
     boolean parse = true,
             typecheck = false,
             ifdeftoif = false,
+            decluse = false,
             writeInterface = false,
             conditionalControlFlow = false,
             dataFlow = false,
@@ -49,6 +50,7 @@ public class FrontendOptions extends LexerOptions implements ParserOptions {
     private final static char F_BDD = Options.genOptionId();
     private final static char F_ERRORXML = Options.genOptionId();
     private final static char F_IFDEFTOIF = Options.genOptionId();
+    private final static char F_DECLUSE = Options.genOptionId();
     private Function3<FeatureExpr, String, Position, Object> _renderParserError;
 
 
@@ -68,6 +70,9 @@ public class FrontendOptions extends LexerOptions implements ParserOptions {
 
                 new Option("ifdeftoif", LongOpt.NO_ARGUMENT, F_IFDEFTOIF, null,
                         "Make #ifdef to if transformation."),
+
+                new Option("decluse", LongOpt.NO_ARGUMENT, F_DECLUSE, null,
+                        "Test the declaration use map."),
 
                 new Option("conditionalControlFlow", LongOpt.NO_ARGUMENT, F_CONDITIONALCONTROLFLOW, null,
                         "Lex, parse, and check conditional control flow"),
@@ -123,6 +128,8 @@ public class FrontendOptions extends LexerOptions implements ParserOptions {
             parse = typecheck = writeInterface = true;
         } else if (c == F_IFDEFTOIF) {
             parse = typecheck = ifdeftoif = true;
+        } else if (c == F_DECLUSE) {
+            parse = typecheck = decluse = true;
         } else if (c == F_CONDITIONALCONTROLFLOW) {
             parse = conditionalControlFlow = true;
         } else if (c == F_DATAFLOW) {

@@ -10,6 +10,7 @@ import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
 import de.fosd.typechef.parser.c._
 import scala.reflect.ClassTag
 import java.util
+import scala.collection.mutable.ListBuffer
 
 
 // this trait is a hook into the typesystem to preserve typing informations
@@ -631,7 +632,9 @@ trait CDeclUse extends CEnv with CEnvCache {
                                 case _ =>
                             }
                         case Opt(enumFeature, EnumSpecifier(Some(i: Id), enumerator)) =>
-                            addEnumUse(i, env, enumFeature)
+                            if (enumerator.isEmpty) {
+                                addEnumUse(i, env, enumFeature)
+                            }
                             addDecl(enumerator, enumFeature, env)
                         case _ =>
                     }
@@ -892,5 +895,54 @@ trait CDeclUse extends CEnv with CEnvCache {
             case p: Product => p.productIterator.toList.flatMap(filterASTElemts[T])
             case _ => List()
         }
+    }
+
+    def checkDefuse(ast: AST, declUseMap: IdentityHashMap[Id, List[Id]], useDeclMap: IdentityHashMap[Id, List[Id]] = new IdentityHashMap()): String = {
+        def getAllRelevantIds(a: Any): List[Id] = {
+            a match {
+                case id: Id => if (!(id.name.startsWith("__builtin"))) List(id) else List()
+                case gae: GnuAsmExpr => List()
+                case l: List[_] => l.flatMap(x => getAllRelevantIds(x))
+                case p: Product => p.productIterator.toList.flatMap(x => getAllRelevantIds(x))
+                case k => List()
+            }
+        }
+
+        val resultString = new StringBuilder()
+        var relevantIds = getAllRelevantIds(ast)
+
+        val missingLB: ListBuffer[Id] = ListBuffer()
+        val duplicateLB: ListBuffer[Id] = ListBuffer()
+        val allIds: IdentityHashMap[Id, Id] = new IdentityHashMap()
+        val defuseKeyList = declUseMap.keySet().toArray().toList
+
+        defuseKeyList.foreach(x => {
+            allIds.put(x.asInstanceOf[Id], null)
+            declUseMap.get(x).foreach(y => {
+                if (allIds.containsKey(y)) {
+                    duplicateLB += y
+                }
+                allIds.put(y, null)
+            })
+        })
+
+        val numberOfIdsInAst = relevantIds.size
+        val numberOfIdsInDefuse = allIds.keySet().size()
+
+        relevantIds.foreach(x => {
+            if (!allIds.containsKey(x)) {
+                missingLB += x
+            }
+        })
+        if (!missingLB.isEmpty) {
+            resultString.append("Ids in decluse: " + numberOfIdsInDefuse)
+            resultString.append("\nAmount of ids missing: " + missingLB.size + "\n" + missingLB.toList.map(x => (x + "@ " + x.range.get._1.getLine)) + "\n")
+        }
+        resultString.append("Filtered list size is: " + numberOfIdsInAst + ", the defuse map contains " + numberOfIdsInDefuse + " Ids." + " containing " + duplicateLB.size + " variable IDs.")
+        if (!duplicateLB.isEmpty) {
+            resultString.append("\nVariable Ids are: " + duplicateLB.toList.map(x => (x.name + "@ " + x.range.get._1.getLine + " from @ " + useDeclMap.get(x).map(y => y.range.get._1.getLine))))
+        }
+        // duplicateLB.foreach(x => resultString.append("\n"  + x + "@ " + x.range))
+        return (resultString.toString())
     }
 }

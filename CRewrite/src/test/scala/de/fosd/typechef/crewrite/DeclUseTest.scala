@@ -4,63 +4,11 @@ import org.junit.Test
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.crewrite.CASTEnv._
 import de.fosd.typechef.typesystem._
-import java.util.IdentityHashMap
-import collection.mutable.ListBuffer
 import java.io.{FilenameFilter, FileInputStream, File}
 import de.fosd.typechef.parser.c.Id
-import de.fosd.typechef.parser.c.GnuAsmExpr
 import de.fosd.typechef.parser.c.TranslationUnit
 
 class DeclUseTest extends ConditionalNavigation with ASTNavigation with CDeclUse with CTypeSystem with TestHelper {
-    private def checkDefuse(ast: AST, declUseMap: IdentityHashMap[Id, List[Id]], useDeclMap: IdentityHashMap[Id, List[Id]]): String = {
-        def getAllRelevantIds(a: Any): List[Id] = {
-            a match {
-                case id: Id => if (!(id.name.startsWith("__builtin"))) List(id) else List()
-                case gae: GnuAsmExpr => List()
-                case l: List[_] => l.flatMap(x => getAllRelevantIds(x))
-                case p: Product => p.productIterator.toList.flatMap(x => getAllRelevantIds(x))
-                case k => List()
-            }
-        }
-
-        val resultString = new StringBuilder()
-        var relevantIds = getAllRelevantIds(ast)
-
-        val missingLB: ListBuffer[Id] = ListBuffer()
-        val duplicateLB: ListBuffer[Id] = ListBuffer()
-        val allIds: IdentityHashMap[Id, Id] = new IdentityHashMap()
-        val defuseKeyList = declUseMap.keySet().toArray().toList
-
-        defuseKeyList.foreach(x => {
-            allIds.put(x.asInstanceOf[Id], null)
-            declUseMap.get(x).foreach(y => {
-                if (allIds.containsKey(y)) {
-                    duplicateLB += y
-                }
-                allIds.put(y, null)
-            })
-        })
-
-        val numberOfIdsInAst = relevantIds.size
-        val numberOfIdsInDefuse = allIds.keySet().size()
-
-        relevantIds.foreach(x => {
-            if (!allIds.containsKey(x)) {
-                missingLB += x
-            }
-        })
-        if (!missingLB.isEmpty) {
-            resultString.append("Ids in decluse: " + numberOfIdsInDefuse)
-            resultString.append("\nAmount of ids missing: " + missingLB.size + "\n" + missingLB.toList.map(x => (x + "@ " + x.range.get._1.getLine)) + "\n")
-        }
-        resultString.append("Filtered list size is: " + numberOfIdsInAst + ", the defuse map contains " + numberOfIdsInDefuse + " Ids." + " containing " + duplicateLB.size + " variable IDs.")
-        if (!duplicateLB.isEmpty) {
-            resultString.append("\nVariable Ids are: " + duplicateLB.toList.map(x => (x.name + "@ " + x.range.get._1.getLine + " from @ " + useDeclMap.get(x).map(y => y.range.get._1.getLine))))
-        }
-        // duplicateLB.foreach(x => resultString.append("\n"  + x + "@ " + x.range))
-        return (resultString.toString())
-    }
-
 
     @Test def test_int_def_use {
         val source_ast = getAST( """
@@ -175,7 +123,7 @@ class DeclUseTest extends ConditionalNavigation with ASTNavigation with CDeclUse
     }
 
     @Test def test_random_stuff {
-        val source_ast = getAstFromPi(new File("C:\\Users\\Flo\\Dropbox\\HiWi\\busybox\\TypeChef-BusyboxAnalysis\\busybox-1.18.5\\archival\\libarchive\\decompress_unxz.pi"))
+        val source_ast = getAstFromPi(new File("C:\\Users\\Flo\\Dropbox\\HiWi\\declUse\\Enum_in_struct\\enum_in_struct.c"))
         runDefUseOnAst(source_ast)
     }
 
