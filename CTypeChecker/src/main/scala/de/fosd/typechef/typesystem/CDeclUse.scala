@@ -69,7 +69,10 @@ trait CDeclUse extends CEnv with CEnvCache {
             case id: Id =>
                 if (isFunctionDeclarator) addFunctionDeclaration(env, id, feature)
                 else putToDeclUseMap(id)
-            case StructDeclaration(quals, decls) => decls.foreach(x => addDecl(x.entry, x.feature, env))
+            case StructDeclaration(quals, decls) => decls.foreach(x => {
+                addDecl(x.entry, x.feature, env)
+                quals.foreach(x => addDecl(x.entry, x.feature, env))
+            })
             case _ => logger.error("Missed ForwardDeclaration of: " + definition)
         }
     }
@@ -734,7 +737,7 @@ trait CDeclUse extends CEnv with CEnvCache {
                         addUse(i, featureExpr, env)
                     case k => addDecl(k, featureExpr, env)
                 }
-            case Enumerator(i@Id(name), None) =>
+            case Enumerator(i@Id(name), _) =>
                 addDefinition(i, env)
             case BuiltinOffsetof(typeName, members) =>
                 typeName.specifiers.foreach(x => addDecl(x.entry, featureExpr, env))
@@ -822,7 +825,7 @@ trait CDeclUse extends CEnv with CEnvCache {
                 addDecl(els, featureExpr, env)
             case DeclIdentifierList(decls) => decls.foreach(decl => putToDeclUseMap(decl.entry))
             case x =>
-            // TODO: Specifiers like StaticSpecifier() can be ignored
+            // Specifiers like StaticSpecifier() can be ignored
             // logger.error("Match Error" + x)
         }
     }
