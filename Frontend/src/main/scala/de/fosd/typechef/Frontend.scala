@@ -14,7 +14,7 @@ import java.io.{FileWriter, File}
 import parser.c.TranslationUnit
 import de.fosd.typechef.parser.TokenReader
 
-object Frontend extends CDeclUse {
+object Frontend {
 
     private var storedAst: AST = null
     private var featureModel: FeatureExpr = null
@@ -118,7 +118,8 @@ object Frontend extends CDeclUse {
                     val typeCheckStatus = ts.checkASTSilent
                     if (opt.decluse) {
                         if (typeCheckStatus) {
-                            println(checkDefuse(ast, ts.getDeclUseMap))
+                            val cduF = new CDUFrontend
+                            println(cduF.checkDefuse(ast, ts.getDeclUseMap))
                         } else {
                             println("generating the declaration-usage map unsuccessful because of type errors in source file")
                         }
