@@ -588,14 +588,12 @@ object FamilyBasedVsSampleBased extends EnforceTreeHelper with ASTNavigation wit
     def analyzeTasks(tasks: List[Task], tunit: TranslationUnit, fm: FeatureModel, opt: FamilyBasedVsSampleBasedOptions,
                      fileID: String, startLog: String = "") {
         val log: String = startLog
-        val checkXTimes = 1
         val nstoms = 1000000
         println("starting product checking.")
 
         // measurement
         val tb = java.lang.management.ManagementFactory.getThreadMXBean
         var foundError: Boolean = false
-        var times = Seq[Long]()
         var lastTime: Long = 0
         var curTime: Long = 0
 
@@ -613,28 +611,23 @@ object FamilyBasedVsSampleBased extends EnforceTreeHelper with ASTNavigation wit
 
         val ts = new CTypeSystemFrontend(tunit, fm)
 
-        for (_ <- 0 until checkXTimes) {
-            lastTime = tb.getCurrentThreadCpuTime
-            foundError |= !ts.checkASTSilent
-            curTime = (tb.getCurrentThreadCpuTime - lastTime)
-            times = times.:+(curTime)
-        }
-        val familyTime: Long = median(times) / nstoms
 
-        println("fam-time: " + (median(times) / nstoms))
+        lastTime = tb.getCurrentThreadCpuTime
+        foundError |= !ts.checkASTSilent
+        curTime = (tb.getCurrentThreadCpuTime - lastTime)
+
+        val familyTime: Long = curTime / nstoms
+
+        println("fam-time: " + (familyTime))
 
         // analysis initialization and warm-up
-        var timesDf = Seq[Long]()
         var lastTimeDf: Long = 0
         var curTimeDf: Long = 0
 
-        for (_ <- 0 until checkXTimes) {
-            lastTimeDf = tb.getCurrentThreadCpuTime
-            liveness(tunit, ts.getUseDeclMap, fm)
-            curTimeDf = (tb.getCurrentThreadCpuTime - lastTimeDf)
-            timesDf = timesDf.:+(curTimeDf)
-        }
-        val timeDfFamily = median(timesDf) / nstoms
+        lastTimeDf = tb.getCurrentThreadCpuTime
+        liveness(tunit, ts.getUseDeclMap, fm)
+        curTimeDf = (tb.getCurrentThreadCpuTime - lastTimeDf)
+        val timeDfFamily = curTimeDf / nstoms
 
         if (tasks.size > 0) println("start task - checking (" + (tasks.size) + " tasks)")
         // results (taskName, (NumConfigs, productDerivationTimes, errors, typecheckingTimes, dataflowTimes))
@@ -666,15 +659,11 @@ object FamilyBasedVsSampleBased extends EnforceTreeHelper with ASTNavigation wit
                 var foundError: Boolean = false
                 var lastTime: Long = 0
                 var curTime: Long = 0
-                var times = Seq[Long]()
 
-                for (_ <- 0 until checkXTimes) {
-                    lastTime = tb.getCurrentThreadCpuTime
-                    foundError |= !ts.checkASTSilent
-                    curTime = (tb.getCurrentThreadCpuTime - lastTime)
-                    times = times.:+(curTime)
-                }
-                val productTime: Long = median(times) / nstoms
+                lastTime = tb.getCurrentThreadCpuTime
+                foundError |= !ts.checkASTSilent
+                curTime = (tb.getCurrentThreadCpuTime - lastTime)
+                val productTime: Long = curTime / nstoms
 
                 tcProductTimes ::= productTime // append to the beginning of tcProductTimes
 
@@ -682,14 +671,10 @@ object FamilyBasedVsSampleBased extends EnforceTreeHelper with ASTNavigation wit
                 // liveness measurement
                 var lastTimeDf: Long = 0
                 var curTimeDf: Long = 0
-                var timesDf = Seq[Long]()
-                for (_ <- 0 until checkXTimes) {
-                    lastTimeDf = tb.getCurrentThreadCpuTime
-                    liveness(product, ts.getUseDeclMap)
-                    curTimeDf = (tb.getCurrentThreadCpuTime - lastTimeDf)
-                    timesDf = timesDf.:+(curTimeDf)
-                }
-                val timeDataFlowProduct = median(timesDf) / nstoms
+                lastTimeDf = tb.getCurrentThreadCpuTime
+                liveness(product, ts.getUseDeclMap)
+                curTimeDf = (tb.getCurrentThreadCpuTime - lastTimeDf)
+                val timeDataFlowProduct = curTimeDf / nstoms
 
                 dfProductTimes ::= timeDataFlowProduct // add to the head - reverse later
 
