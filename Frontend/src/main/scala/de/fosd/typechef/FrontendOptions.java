@@ -17,17 +17,18 @@ import java.util.List;
 
 
 public class FrontendOptions extends LexerOptions implements ParserOptions {
-    public boolean parse = true,
-                   typecheck = false,
-                   writeInterface = false,
-                   dumpcfg = false,
-                   dataFlow = false,
-                   serializeAST = false,
-                   writeDebugInterface = false,
-                   recordTiming = false,
-                   parserStatistics = false,
-                   parserResults = true,
-                   writePI = false;
+    boolean parse = true,
+            typecheck = false,
+			ifdeftoif = false,
+            writeInterface = false,
+            dumpcfg = false,
+            doublefree = false,
+            serializeAST = false,
+            writeDebugInterface = false,
+            recordTiming = false,
+            parserStatistics = false,
+            parserResults = true,
+            writePI = false;
     protected File errorXMLFile = null;
     private final File _autoErrorXMLFile = new File(".");
     String outputStem = "";
@@ -39,7 +40,7 @@ public class FrontendOptions extends LexerOptions implements ParserOptions {
     private final static char F_WRITEPI = Options.genOptionId();
     private final static char F_DEBUGINTERFACE = Options.genOptionId();
     private final static char F_DUMPCFG = Options.genOptionId();
-    private final static char F_DATAFLOW = Options.genOptionId();
+    private final static char F_DOUBLEFREE = Options.genOptionId();
     private final static char F_SERIALIZEAST = Options.genOptionId();
     private final static char F_RECORDTIMING = Options.genOptionId();
     private final static char F_FILEPC = Options.genOptionId();
@@ -67,8 +68,8 @@ public class FrontendOptions extends LexerOptions implements ParserOptions {
                 new Option("dumpcfg", LongOpt.NO_ARGUMENT, F_DUMPCFG, null,
                         "Lex, parse, and dump control flow graph"),
 
-                new Option("dataFlow", LongOpt.NO_ARGUMENT, F_DATAFLOW, null,
-                        "Lex, parse, and check data flow"),
+                new Option("doublefree", LongOpt.NO_ARGUMENT, F_DOUBLEFREE, null,
+                        "Lex, parse, and check for possible double free of heap pointers"),
 
                 new Option("output", LongOpt.REQUIRED_ARGUMENT, 'o', "file",
                         "Path to output files (no extension, creates .pi, .macrodbg etc files)."),
@@ -118,8 +119,8 @@ public class FrontendOptions extends LexerOptions implements ParserOptions {
             parse = typecheck = writeInterface = true;
         } else if (c == F_DUMPCFG) {
             parse = dumpcfg = true;
-        } else if (c == F_DATAFLOW) {
-            parse = dataFlow = true;
+        } else if (c == F_DOUBLEFREE) {
+            parse = doublefree = true;
         } else if (c == F_SERIALIZEAST) {
             serializeAST = true;
         } else if (c == F_RECORDTIMING) {
