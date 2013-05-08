@@ -9,8 +9,6 @@ import de.fosd.typechef.featureexpr.sat.{SATFeatureModel, SATFeatureExprFactory}
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.typesystem._
 import scala.collection.immutable.HashMap
-import scala.Predef._
-import scala._
 import collection.mutable.ListBuffer
 import io.Source
 import java.util.regex.Pattern
@@ -18,7 +16,6 @@ import java.lang.SuppressWarnings
 import java.io._
 import util.Random
 import java.util.Collections
-import scala.Some
 
 /**
  *
