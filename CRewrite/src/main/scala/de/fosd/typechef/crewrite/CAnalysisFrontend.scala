@@ -5,7 +5,7 @@ import de.fosd.typechef.featureexpr._
 import de.fosd.typechef.parser.c.{FunctionDef, AST}
 import java.io.{Writer, StringWriter}
 
-class CAnalysisFrontend(tunit: AST, fm: FeatureModel = FeatureExprFactory.default.featureModelFactory.empty) extends CFGHelper with Liveness {
+class CAnalysisFrontend(tunit: AST, fm: FeatureModel = FeatureExprFactory.default.featureModelFactory.empty) extends CFGHelper {
 
     def dumpCFG(writer: Writer = new StringWriter()) {
         val fdefs = filterAllASTElems[FunctionDef](tunit)

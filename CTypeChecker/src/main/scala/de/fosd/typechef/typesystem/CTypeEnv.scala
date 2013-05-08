@@ -4,7 +4,7 @@ import _root_.de.fosd.typechef.parser.c._
 import _root_.de.fosd.typechef.conditional._
 import _root_.de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
 
-trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTyping /*with CBuiltIn*/ {
+trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTyping with CDeclUse /*with CBuiltIn*/ {
 
 
     /**
@@ -56,7 +56,9 @@ trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTypi
       * Structs
       */
     def addStructDeclarationToEnv(e: Declaration, featureExpr: FeatureExpr, env: Env): Env = addStructDeclarationToEnv(e.declSpecs, featureExpr, env, e.init.isEmpty)
+
     def addStructDeclarationToEnv(e: StructDeclaration, featureExpr: FeatureExpr, env: Env): Env = addStructDeclarationToEnv(e.qualifierList, featureExpr, env, e.declaratorList.isEmpty)
+
     def addStructDeclarationToEnv(specifiers: List[Opt[Specifier]], featureExpr: FeatureExpr, initEnv: Env, declareIncompleteTypes: Boolean): Env = {
         var env = initEnv
         for (Opt(specFeature, specifier) <- specifiers) {
@@ -73,23 +75,29 @@ trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTypi
     }
 
     def addStructDeclarationToEnv(specifier: Specifier, featureExpr: FeatureExpr, initEnv: Env, declareIncompleteTypes: Boolean): Env = specifier match {
-        case e@StructOrUnionSpecifier(isUnion, Some(Id(name)), Some(attributes)) => {
+        case e@StructOrUnionSpecifier(isUnion, Some(i@Id(name)), Some(attributes)) => {
             //for parsing the inner members, the struct itself is available incomplete
-            var env = initEnv.updateStructEnv(initEnv.structEnv.addIncomplete(name, isUnion, featureExpr, initEnv.scope))
+            var env = initEnv.updateStructEnv(initEnv.structEnv.addIncomplete(i, isUnion, featureExpr, initEnv.scope))
+            addDefinition(i, env)
+            attributes.foreach(x => addDefinition(x.entry, env))
             val members = parseStructMembers(attributes, featureExpr, env)
 
             //collect inner struct declarations recursively
             env = addInnerStructDeclarationsToEnv(attributes, featureExpr, env)
             checkStructRedeclaration(name, isUnion, featureExpr, env.scope, env, e)
-            env.updateStructEnv(env.structEnv.addComplete(name, isUnion, featureExpr, members, env.scope))
+            env.updateStructEnv(env.structEnv.addComplete(i, isUnion, featureExpr, members, env.scope))
         }
         //incomplete struct
         case e@StructOrUnionSpecifier(isUnion, Some(i@Id(name)), None) => {
             //we only add an incomplete declaration in specific cases when a declaration does not have a declarator ("struct x;")
-            if (declareIncompleteTypes)
-                initEnv.updateStructEnv(initEnv.structEnv.addIncomplete(name, isUnion, featureExpr, initEnv.scope))
-            else
+            if (declareIncompleteTypes) {
+                var env = initEnv.updateStructEnv(initEnv.structEnv.addIncomplete(i, isUnion, featureExpr, initEnv.scope))
+                addDefinition(i, env)
+                env
+            } else {
+                addStructDeclUse(i, initEnv, isUnion, featureExpr)
                 initEnv
+            }
         }
         case e@StructOrUnionSpecifier(_, None, Some(attributes)) =>
             addInnerStructDeclarationsToEnv(attributes, featureExpr, initEnv)
@@ -129,11 +137,12 @@ trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTypi
             case CPointer(t) => wf(t)
             case CArray(t, n) => wf(t) && (t != CVoid()) && n > 0
             case CFunction(param, ret) => wf(ret) && !arrayType(ret) && (
-                param.forall(p => !arrayType(p) && p != CVoid())) &&
-                param.dropRight(1).forall(wf(_)) &&
-                lastParam(param.lastOption) //last param may be varargs
+                    param.forall(p => !arrayType(p) && p != CVoid())) &&
+                    param.dropRight(1).forall(wf(_)) &&
+                    lastParam(param.lastOption) //last param may be varargs
             case CVarArgs() => false
             case CStruct(name, isUnion) => {
+                true
                 //TODO check struct welltypeness
                 if (structEnv.isComplete(name, isUnion).isSatisfiable())
                     nonEmptyWellformedEnv(structEnv.getFieldsMerged(name, isUnion), Some(name))
@@ -154,8 +163,13 @@ trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTypi
                 val specFeature = opt.feature
                 val typeSpec = opt.entry
                 typeSpec match {
-                    case EnumSpecifier(Some(Id(name)), l) if (isHeadless || !l.isEmpty) =>
-                        b + (name -> (featureExpr and specFeature or b.getOrElse(name, FeatureExprFactory.False)))
+                    case EnumSpecifier(Some(i@Id(name)), l) if (isHeadless || !l.isEmpty) =>
+                        var ft = FeatureExprFactory.False
+                        b.getOrElse(name, FeatureExprFactory.False) match {
+                            case f: FeatureExpr => ft = f
+                            case Tuple2(feat: FeatureExpr, id) => ft = feat
+                        }
+                        b + (name ->((featureExpr and specFeature or ft), i))
                     //recurse into structs
                     case StructOrUnionSpecifier(_, _, fields) =>
                         fields.getOrElse(Nil).foldRight(b)(
