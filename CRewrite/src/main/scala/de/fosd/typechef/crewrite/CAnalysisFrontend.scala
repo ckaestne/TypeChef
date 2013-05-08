@@ -73,10 +73,10 @@ class CAnalysisFrontend(tunit: TranslationUnit, fm: FeatureModel = FeatureExprFa
             val out = df.out(s)
 
             for ((i, _) <- out)
-                for ((_, j) <- g) {
+                for ((f, j) <- g) {
                     j.find(_ == i) match {
                         case None =>
-                        case Some(x) => res ::= new AnalysisError(env.featureExpr(x), "warning: Try to free a memory block that has been released", x)
+                        case Some(x) => res ::= new AnalysisError(f, "warning: Try to free a memory block that has been released", x)
                     }
                 }
         }
