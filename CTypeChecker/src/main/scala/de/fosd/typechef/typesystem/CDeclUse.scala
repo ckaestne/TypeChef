@@ -107,7 +107,7 @@ trait CDeclUse extends CEnv with CEnvCache {
             case One(null) => putToDeclUseMap(declaration)
             case One(i: InitDeclarator) => swapDeclaration(i.getId, declaration)
             case c@Choice(_, _, _) =>
-                choiceToTuple(c).foreach(x => {
+                conditionalToTuple(c).foreach(x => {
                     x._2 match {
                         case i: InitDeclarator => addForwardDeclartion(i.getId, x)
                         case f: FunctionDef => addForwardDeclartion(f.declarator.getId, x)
@@ -190,7 +190,7 @@ trait CDeclUse extends CEnv with CEnvCache {
         }
     }
 
-    private def addDefChoice(entry: Choice[AST]) {
+    private def addDefChoice(entry: Conditional[AST]) {
         def addOne(entry: One[AST]) {
             entry match {
                 case One(InitDeclaratorI(declarator, _, _)) => putToDeclUseMap(declarator.getId)
@@ -203,25 +203,15 @@ trait CDeclUse extends CEnv with CEnvCache {
         }
 
         entry match {
-            case Choice(feature, c1@Choice(_, _, _), c2@Choice(_, _, _)) =>
+            case o@One(one: AST) => addOne(o)
+            case Choice(feature, c1, c2) =>
                 addDefChoice(c1)
                 addDefChoice(c2)
-            case Choice(feature, o1@One(_), o2@One(_)) =>
-                addOne(o1)
-                addOne(o2)
-            case Choice(feature, o@One(_), c@Choice(_, _, _)) =>
-                addDefChoice(c)
-                addOne(o)
-            case Choice(feature, c@Choice(_, _, _), o@One(_)) =>
-                addDefChoice(c)
-                addOne(o)
-            case k =>
-                logger.error("Missed Def Choice " + k)
+            case k => logger.error("Missed Def Choice " + k)
         }
     }
 
 
-    // TODO andreas: refactor code looks a little messy
     def addUse(entry: AST, feature: FeatureExpr, env: Env) {
 
         def addUseOne(one: One[AST], use: Id, env: Env) {
@@ -243,6 +233,8 @@ trait CDeclUse extends CEnv with CEnvCache {
             }
         }
 
+        // For each incoming use of an identifier, we look up in the varEnv the corresponding declaration.
+        // Furthermore, known special cases are filtered before.
         entry match {
             case TypeDefTypeSpecifier(id) => //addTypeUse(id, env, feature)
             case TypeName(specs, decl) =>
@@ -253,8 +245,7 @@ trait CDeclUse extends CEnv with CEnvCache {
             case BuiltinOffsetof(typeName, members) =>
                 addUse(typeName, feature, env)
                 /**
-                 * TODO andreas: comment not very clear. What is the problem?
-                 * Workaround for buitlin_offset_ -> typechef implementation too much - see: http://gcc.gnu.org/onlinedocs/gcc/Offsetof.html
+                 * Type is generally only nested in a struct.
                  */
                 val structOrUnion = filterASTElemts[Id](typeName)
                 members.foreach(x => addStructUse(x.entry, feature, env, structOrUnion.head.name, !env.structEnv.someDefinition(structOrUnion.head.name, false)))
@@ -267,9 +258,7 @@ trait CDeclUse extends CEnv with CEnvCache {
             })
         }
 
-
-
-
+        // TODO andreas: refactor code looks a little messy
         def addUseCastExpr(typ: TypeName, addUse: (AST, FeatureExpr, CDeclUse.this.type#Env) => Unit, feature: FeatureExpr, env: CDeclUse.this.type#Env, lst: List[Opt[Initializer]]) {
             var typedefspecifier: Id = null
             typ match {
@@ -341,74 +330,6 @@ trait CDeclUse extends CEnv with CEnvCache {
             })
             stringToIdMap = stringToIdMap.empty
         }
-
-
-        /*
-        entry match {
-            case ConditionalExpr(expr, thenExpr, elseExpr) =>
-                addUse(expr, feature, env)
-                thenExpr.foreach(x => addUse(x, feature, env))
-                addUse(elseExpr, feature, env)
-            case EnumSpecifier(x, _) =>
-            case FunctionCall(param) => param.exprs.foreach(x => addUse(x.entry, feature, env))
-            case ExprList(exprs) => exprs.foreach(x => addUse(x.entry, feature, env))
-            case LcurlyInitializer(inits) => inits.foreach(x => addUse(x.entry, feature, env))
-            case InitializerAssigment(designators) => designators.foreach(x => addUse(x.entry, feature, env))
-            case InitializerDesignatorD(i: Id) =>
-                addUse(i, feature, env)
-            case Initializer(Some(x), expr) =>
-                addUse(x, feature, env)
-                addUse(expr, feature, env)
-            case i@Id(name) =>
-                env.varEnv.getAstOrElse(name, null) match {
-                    case o@One(_) => addUseOne(o, i, env)
-                    case c@Choice(_, _, _) => addChoice(c, feature, i, env, addUseOne)
-                    case _ =>
-                }
-            case PointerDerefExpr(i) => addUse(i, feature, env)
-            case AssignExpr(target, operation, source) =>
-                addUse(source, feature, env)
-                addUse(target, feature, env)
-            case NAryExpr(i, o) =>
-                addUse(i, feature, env)
-                o.foreach(x => addUse(x.entry, feature, env))
-            case NArySubExpr(_, e) => addUse(e, feature, env)
-            case PostfixExpr(p, s) =>
-                addUse(p, feature, env)
-                addUse(s, feature, env)
-            case PointerPostfixSuffix(_, id: Id) => //if (!env.varEnv.getAstOrElse(id.name, null).equals(One(null))) addUse(id, feature, env)
-            case PointerCreationExpr(expr) => addUse(expr, feature, env)
-            case CompoundStatement(innerStatements) => innerStatements.foreach(x => addUse(x.entry, feature, env))
-            case Constant(_) =>
-            case SizeOfExprT(expr) => addUse(expr, feature, env)
-            case SizeOfExprU(expr) => addUse(expr, feature, env)
-            case TypeName(specs, decl) =>
-                specs.foreach(x => addUse(x.entry, feature, env))
-                addDecl(decl, feature, env)
-            case StringLit(_) =>
-            case SimplePostfixSuffix(_) =>
-            case GnuAsmExpr(isVolatile, isGoto, expr, Some(stuff)) =>
-            case CastExpr(typ, LcurlyInitializer(lst)) => addUseCastExpr(typ, addUse _, feature, env, lst)
-            case CastExpr(typ, expr) =>
-                addUse(typ, feature, env)
-                addUse(expr, feature, env)
-            case ArrayAccess(expr) => addUse(expr, feature, env)
-            case UnaryExpr(_, expr) => addUse(expr, feature, env)
-            case UnaryOpExpr(_, expr) => addUse(expr, feature, env)
-            case TypeDefTypeSpecifier(id) => addTypeUse(id, env, feature)
-            case Initializer(_, expr) => addUse(expr, feature, env)
-            case CompoundStatementExpr(expr) => addUse(expr, feature, env)
-            case StructOrUnionSpecifier(union, Some(i: Id), _) => addStructDeclUse(i, env, union, feature)
-            case BuiltinOffsetof(typeName, members) =>
-                typeName.specifiers.foreach(x => addUse(x.entry, feature, env))
-                /**
-                 * TODO andreas: comment not very clear. What is the problem?
-                 * Workaround for buitlin_offset_ -> typechef implementation too much - see: http://gcc.gnu.org/onlinedocs/gcc/Offsetof.html
-                 */
-                val structOrUnion = filterASTElemts[Id](typeName)
-                members.foreach(x => addStructUse(x.entry, feature, env, structOrUnion.head.name, !env.structEnv.someDefinition(structOrUnion.head.name, false)))
-            case x => // logger.error("Missed x: " + x)
-        }  */
     }
 
 
@@ -437,30 +358,11 @@ trait CDeclUse extends CEnv with CEnvCache {
     }
 
 
-    // TODO andreas: could be rewritten when using the common abstract class Conditional of One and Choice
-    // def conditionalToTuple(cond: Conditional[_], fexp: FeatureExpr = <defaultvalue>): List[(FeatureExpr, AST)] = {
-    //   cond match {
-    //     case One(a: AST) => List((fexp, a))
-    //     case Choice(ft, thenExpr, elseBranch) => conditionalToTuple(thenExpr, ft) ++ conditionaToTuple(elseBranch, ft.not())
-    //     case _ =>
-    //   }
-    // }
-    private def choiceToTuple(choice: Choice[_]): List[Tuple2[FeatureExpr, AST]] = {
-        def addOne(entry: One[_], ft: FeatureExpr): List[Tuple2[FeatureExpr, AST]] = {
-            entry match {
-                case One(null) => List()
-                case One(a: AST) => List(Tuple2(ft, a))
-            }
-        }
-        choice match {
-            case Choice(ft, first@One(_), second@One(_)) =>
-                addOne(first, ft) ++ addOne(second, ft.not())
-            case Choice(ft, first@Choice(_, _, _), second@Choice(_, _, _)) =>
-                choiceToTuple(first) ++ choiceToTuple(second)
-            case Choice(ft, first@One(a), second@Choice(_, _, _)) =>
-                addOne(first, ft) ++ choiceToTuple(second)
-            case Choice(ft, first@Choice(_, _, _), second@One(_)) =>
-                choiceToTuple(first) ++ addOne(second, ft.not())
+    private def conditionalToTuple(cond: Conditional[_], fexp: FeatureExpr = FeatureExprFactory.True): List[(FeatureExpr, AST)] = {
+        cond match {
+            case One(a: AST) => List((fexp, a))
+            case Choice(ft, thenExpr, elseBranch) => conditionalToTuple(thenExpr, ft) ++ conditionalToTuple(elseBranch, ft.not())
+            case _ => List()
         }
     }
 
@@ -488,7 +390,7 @@ trait CDeclUse extends CEnv with CEnvCache {
                                                             case One(key: Id) =>
                                                                 addToDeclUseMap(key, i)
                                                             case c@Choice(_, _, _) =>
-                                                                val tuple = choiceToTuple(c)
+                                                                val tuple = conditionalToTuple(c)
                                                                 tuple.foreach(x => {
                                                                     if (specFeature.equivalentTo(FeatureExprFactory.True)) {
                                                                         addToDeclUseMap(x._2.asInstanceOf[Id], i)
@@ -565,12 +467,7 @@ trait CDeclUse extends CEnv with CEnvCache {
     def addAnonStructUse(id: Id, fields: ConditionalTypeMap) {
         fields.getAstOrElse(id.name, null) match {
             case c@Choice(_, _, _) => addStructUseChoice(c, id)
-            case One(AtomicNamedDeclarator(_, key, _)) =>
-                // TODO: remove workaround (next three lines of code) for missing definitions
-                if (!declUseMap.containsKey(key)) {
-                    putToDeclUseMap(key)
-                }
-                addToDeclUseMap(key, id)
+            case One(AtomicNamedDeclarator(_, key, _)) => addToDeclUseMap(key, id)
             case One(NestedNamedDeclarator(_, declarator, _)) => addToDeclUseMap(declarator.getId, id)
             case k => logger.error("Should not have entered here: " + id + "\n" + k)
         }
@@ -579,17 +476,9 @@ trait CDeclUse extends CEnv with CEnvCache {
     private def addStructUseChoice(choice: Choice[AST], use: Id) {
         def addOne(one: One[AST], use: Id) {
             one match {
-                case One(AtomicNamedDeclarator(_, key, _)) =>
-                    // TODO: remove workaround (next three lines of code) for missing definitions
-                    if (!declUseMap.containsKey(key)) {
-                        putToDeclUseMap(key)
-                    }
-                    addToDeclUseMap(key, use)
+                case One(AtomicNamedDeclarator(_, key, _)) => addToDeclUseMap(key, use)
                 case One(NestedNamedDeclarator(_, declarator, _)) => addToDeclUseMap(declarator.getId, use)
-                case One(i@Id(_)) => addToDeclUseMap(i, use) // TODO Missing case, but @decluse?
-                // TODO andreas: following line is obsolete
-                case One(null) =>
-                //addStructDeclUse(use, env, isUnion)
+                case One(i@Id(_)) => addToDeclUseMap(i, use)
                 case _ => logger.error("AddAnonStructChoice missed " + one)
             }
         }
@@ -626,7 +515,7 @@ trait CDeclUse extends CEnv with CEnvCache {
                         case o@One(key: Id) =>
                             addOne(o, use)
                         case c@Choice(_, _, _) =>
-                            val tuple = choiceToTuple(c)
+                            val tuple = conditionalToTuple(c)
                             tuple.foreach(x => {
                                 if (feature.equivalentTo(FeatureExprFactory.True) || feature.implies(x._1).isTautology) {
                                     addToDeclUseMap(x._2.asInstanceOf[Id], use)
