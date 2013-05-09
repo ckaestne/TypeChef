@@ -224,8 +224,8 @@ trait CDeclUse extends CEnv with CEnvCache {
                 case One(NestedFunctionDef(_, _, AtomicNamedDeclarator(_, key, _), _, _)) => addToDeclUseMap(key, use) // TODO Verfiy Nested forward decl?
                 case One(key: Id) => addToDeclUseMap(key, use)
                 case One(null) =>
-                    // TODO Enums, TypeDefs and Structs
-                    logger.error(use + " - " + env.varEnv.getAstOrElse(use.name, null) + "\n" + entry + "\n" + entry.getPositionFrom + " " + entry.getPositionTo)
+                // TODO Enums, TypeDefs and Structs
+                // logger.error(use + " - " + env.varEnv.getAstOrElse(use.name, null) + "\n" + entry + "\n" + entry.getPositionFrom + " " + entry.getPositionTo)
                 case _ =>
                     logger.error("Match Error" + one)
                     assert(false, "Match Error" + one)
@@ -362,65 +362,6 @@ trait CDeclUse extends CEnv with CEnvCache {
             case One(a: AST) => List((fexp, a))
             case Choice(ft, thenExpr, elseBranch) => conditionalToTuple(thenExpr, ft) ++ conditionalToTuple(elseBranch, ft.not())
             case _ => List()
-        }
-    }
-
-    def addDeclaration(decl: Declaration, feature: FeatureExpr, env: Env) {
-        def handleAtomicNamedDeclaratorExtensions(and: AtomicNamedDeclarator) {
-            and match {
-                // TODO andreas: this code needs to be refactored
-                // too much nesting
-                // comments are necessary; what kind of declarations are handled
-                case AtomicNamedDeclarator(_, _, extensions) =>
-                    for (Opt(extensionFeature, extensionEntry) <- extensions) {
-                        extensionEntry match {
-                            case DeclIdentifierList(ids) =>
-                                for (Opt(idFeature, id: Id) <- ids) {
-                                    logger.debug("DeclIdentifierId: " + id)
-                                }
-                            case DeclParameterDeclList(paraDecls) =>
-                                for (Opt(paraDeclFeature, paraDeclEntry) <- paraDecls) {
-                                    paraDeclEntry match {
-                                        case ParameterDeclarationD(specs, paraDeclDecl) =>
-                                            for (Opt(specFeature, specsEntry) <- specs) {
-                                                specsEntry match {
-                                                    case StructOrUnionSpecifier(isUnion, Some(i: Id), None) =>
-                                                        env.structEnv.getId(i.name, isUnion) match {
-                                                            case One(key: Id) =>
-                                                                addToDeclUseMap(key, i)
-                                                            case c@Choice(_, _, _) =>
-                                                                val tuple = conditionalToTuple(c)
-                                                                tuple.foreach(x => {
-                                                                    if (specFeature.equivalentTo(FeatureExprFactory.True)) {
-                                                                        addToDeclUseMap(x._2.asInstanceOf[Id], i)
-                                                                    } else if (specFeature.implies(x._1).isTautology()) {
-                                                                        addToDeclUseMap(x._2.asInstanceOf[Id], i)
-                                                                    }
-                                                                })
-                                                            case _ => assert(false, logger.error("Match Error"))
-                                                        }
-                                                    case _ => assert(false, logger.error("Match Error"))
-                                                }
-                                            }
-                                            putToDeclUseMap(paraDeclDecl.getId)
-                                    }
-                                }
-                            case _ => assert(false, logger.error("Match Error"))
-                        }
-                    }
-            }
-        }
-
-        for (Opt(initFeature, init) <- decl.init) {
-            init match {
-                case InitDeclaratorI(declarator: AtomicNamedDeclarator, attributes, i) =>
-                    putToDeclUseMap(declarator.getId)
-                    handleAtomicNamedDeclaratorExtensions(declarator)
-                case InitDeclaratorE(declarator: AtomicNamedDeclarator, attributes, expr) =>
-                    putToDeclUseMap(declarator.getId)
-                    handleAtomicNamedDeclaratorExtensions(declarator)
-                case _ => assert(assertion = false, logger.error("Match Error"))
-            }
         }
     }
 
@@ -794,23 +735,17 @@ trait CDeclUse extends CEnv with CEnvCache {
             putToDeclUseMap(label.entry.id)
             labelMap.put(label.entry.id, label.feature)
         })
-        get[GotoStatement](f).foreach(goto => {
+        get[GotoStatement](f).foreach(goto =>
             goto.entry.target match {
-                case usage@Id(name) =>
-                    labelMap.keySet().toArray.foreach(declaration => {
-                        if (declaration.asInstanceOf[Id].name.equals(name) &&
-                                (goto.feature.equivalentTo(FeatureExprFactory.True) || labelMap.get(declaration).implies(goto.feature).isTautology)) {
-                            addToDeclUseMap(declaration.asInstanceOf[Id], usage)
-                        }
-                    })
+                case usage@Id(name) => labelMap.keySet().toArray.foreach(declaration =>
+                    if (declaration.asInstanceOf[Id].name.equals(name) && (goto.feature.equivalentTo(FeatureExprFactory.True) || labelMap.get(declaration).implies(goto.feature).isTautology))
+                        addToDeclUseMap(declaration.asInstanceOf[Id], usage))
                 case k => logger.error("Missing GotoStatement: " + k)
-            }
-        })
+            })
     }
 
     // method recursively filters all AST elements for a given type T
     // Copy / Pasted from ASTNavigation -> unable to include ASTNavigation because of dependencies
-    // TODO: move ASTNavigation to CParser?? if so this method could be removed thenExpr.
     private def filterASTElemts[T <: AST](a: Any)(implicit m: ClassTag[T]): List[T] = {
         a match {
             case p: Product if (m.runtimeClass.isInstance(p)) => List(p.asInstanceOf[T])
