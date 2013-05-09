@@ -184,7 +184,8 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                         val newExpr = AssignExpr(expr, "+=", Constant("1"))
                         et(newExpr)
                     //sizeof()
-                    case SizeOfExprT(x) => sizeofType(env, x, featureExpr)
+                    case SizeOfExprT(x) =>
+                        sizeofType(env, x, featureExpr)
                     case SizeOfExprU(x) => sizeofType(env, x, featureExpr)
                     case ue@UnaryOpExpr(kind, expr) =>
                         if (kind == "&&")

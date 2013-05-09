@@ -434,7 +434,11 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface with CDeclU
         val r: List[Opt[Conditional[CType]]] = for (Opt(f, param) <- parameterDecls) yield param match {
             case p@PlainParameterDeclaration(specifiers) => Opt(f, constructType(specifiers, featureExpr and f, env, p))
             case p@ParameterDeclarationD(specifiers, decl) => Opt(f, getDeclaratorType(decl, constructType(specifiers, featureExpr and f, env, p), featureExpr and f, env))
-            case p@ParameterDeclarationAD(specifiers, decl) => Opt(f, getAbstractDeclaratorType(decl, constructType(specifiers, featureExpr and f, env, p), featureExpr and f, env))
+            case p@ParameterDeclarationAD(specifiers, decl) =>
+                for (Opt(g, TypeDefTypeSpecifier(name)) <- specifiers) {
+                    addTypeUse(name, env, featureExpr)
+                }
+                Opt(f, getAbstractDeclaratorType(decl, constructType(specifiers, featureExpr and f, env, p), featureExpr and f, env))
             case VarArgs() => Opt(f, One(CVarArgs()))
         }
         Conditional.flatten(r)

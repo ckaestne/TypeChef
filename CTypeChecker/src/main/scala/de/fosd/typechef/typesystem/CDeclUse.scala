@@ -42,8 +42,11 @@ trait CDeclUse extends CEnv with CEnvCache {
     }
 
     private def addToUseDeclMap(use: Id, decl: Id) = {
-        if (useDeclMap.contains(use)) useDeclMap.put(use, decl :: useDeclMap.get(use))
-        else useDeclMap.put(use, List(decl))
+        if (useDeclMap.contains(use)) {
+            useDeclMap.put(use, decl :: useDeclMap.get(use))
+        } else {
+            useDeclMap.put(use, List(decl))
+        }
     }
 
     def clearDeclUseMap() {
@@ -153,8 +156,10 @@ trait CDeclUse extends CEnv with CEnvCache {
             case i@Id(name) =>
                 if (env.typedefEnv.contains(name)) {
                     env.typedefEnv.getAstOrElse(name, null) match {
-                        case o@One(_) => addOne(o, i, env)
-                        case c@Choice(_, _, _) => addChoice(c, feature, i, env, addOne)
+                        case o@One(_) =>
+                            addOne(o, i, env)
+                        case c@Choice(_, _, _) =>
+                            addChoice(c, feature, i, env, addOne)
                         case _ =>
                     }
                 }
