@@ -22,6 +22,7 @@ import scala.collection.mutable.ListBuffer
 trait CDeclUse extends CEnv with CEnvCache {
 
     // TODO FeatureModel instead of FeatureExprFactory
+    // TODO ASTEnv Caching
     private lazy val logger = LogManager.getLogger(this.getClass.getName)
 
     private val declUseMap: util.IdentityHashMap[Id, util.Set[Id]] = new util.IdentityHashMap()
@@ -226,12 +227,11 @@ trait CDeclUse extends CEnv with CEnvCache {
                 case One(FunctionDef(_, AtomicNamedDeclarator(_, key, _), _, _)) => addToDeclUseMap(key, use)
                 case One(Enumerator(key, _)) => addToDeclUseMap(key, use)
                 case One(NestedNamedDeclarator(_, declarator, _)) => addToDeclUseMap(declarator.getId, use)
-                case One(NestedFunctionDef(_, _, AtomicNamedDeclarator(_, key, _), _, _)) => addToDeclUseMap(key, use) // TODO Verfiy Nested forward decl?
+                case One(NestedFunctionDef(_, _, AtomicNamedDeclarator(_, key, _), _, _)) => addToDeclUseMap(key, use)
                 case One(key: Id) => addToDeclUseMap(key, use)
                 case One(null) =>
-                    // TODO Enums, TypeDefs and Structs
-                    logger.error("One(Null)\n" + env.varEnv.getAstOrElse(use.name, null) + "\n" + entry + "\n" + entry.getPositionFrom + " " + entry.getPositionTo)
-                // addUseOfVarEnvNull(entry, use, env)
+                // TODO Enums, TypeDefs and Structs
+                // logger.error(use + " - " + env.varEnv.getAstOrElse(use.name, null) + "\n" + entry + "\n" + entry.getPositionFrom + " " + entry.getPositionTo)
                 case _ =>
                     logger.error("Match Error" + one)
                     assert(false, "Match Error" + one)
@@ -265,6 +265,7 @@ trait CDeclUse extends CEnv with CEnvCache {
 
         // TODO andreas: refactor code looks a little messy
         def addUseCastExpr(typ: TypeName, addUse: (AST, FeatureExpr, CDeclUse.this.type#Env) => Unit, feature: FeatureExpr, env: CDeclUse.this.type#Env, lst: List[Opt[Initializer]]) {
+            logger.error("Type" + typ)
             var typedefspecifier: Id = null
             typ match {
                 case TypeName(ls, _) =>
@@ -371,65 +372,6 @@ trait CDeclUse extends CEnv with CEnvCache {
         }
     }
 
-    def addDeclaration(decl: Declaration, feature: FeatureExpr, env: Env) {
-        def handleAtomicNamedDeclaratorExtensions(and: AtomicNamedDeclarator) {
-            and match {
-                // TODO andreas: this code needs to be refactored
-                // too much nesting
-                // comments are necessary; what kind of declarations are handled
-                case AtomicNamedDeclarator(_, _, extensions) =>
-                    for (Opt(extensionFeature, extensionEntry) <- extensions) {
-                        extensionEntry match {
-                            case DeclIdentifierList(ids) =>
-                                for (Opt(idFeature, id: Id) <- ids) {
-                                    logger.debug("DeclIdentifierId: " + id)
-                                }
-                            case DeclParameterDeclList(paraDecls) =>
-                                for (Opt(paraDeclFeature, paraDeclEntry) <- paraDecls) {
-                                    paraDeclEntry match {
-                                        case ParameterDeclarationD(specs, paraDeclDecl) =>
-                                            for (Opt(specFeature, specsEntry) <- specs) {
-                                                specsEntry match {
-                                                    case StructOrUnionSpecifier(isUnion, Some(i: Id), None) =>
-                                                        env.structEnv.getId(i.name, isUnion) match {
-                                                            case One(key: Id) =>
-                                                                addToDeclUseMap(key, i)
-                                                            case c@Choice(_, _, _) =>
-                                                                val tuple = conditionalToTuple(c)
-                                                                tuple.foreach(x => {
-                                                                    if (specFeature.equivalentTo(FeatureExprFactory.True)) {
-                                                                        addToDeclUseMap(x._2.asInstanceOf[Id], i)
-                                                                    } else if (specFeature.implies(x._1).isTautology()) {
-                                                                        addToDeclUseMap(x._2.asInstanceOf[Id], i)
-                                                                    }
-                                                                })
-                                                            case _ => assert(false, logger.error("Match Error"))
-                                                        }
-                                                    case _ => assert(false, logger.error("Match Error"))
-                                                }
-                                            }
-                                            putToDeclUseMap(paraDeclDecl.getId)
-                                    }
-                                }
-                            case _ => assert(false, logger.error("Match Error"))
-                        }
-                    }
-            }
-        }
-
-        for (Opt(initFeature, init) <- decl.init) {
-            init match {
-                case InitDeclaratorI(declarator: AtomicNamedDeclarator, attributes, i) =>
-                    putToDeclUseMap(declarator.getId)
-                    handleAtomicNamedDeclaratorExtensions(declarator)
-                case InitDeclaratorE(declarator: AtomicNamedDeclarator, attributes, expr) =>
-                    putToDeclUseMap(declarator.getId)
-                    handleAtomicNamedDeclaratorExtensions(declarator)
-                case _ => assert(assertion = false, logger.error("Match Error"))
-            }
-        }
-    }
-
     def addStructUse(entry: AST, featureExpr: FeatureExpr, env: Env, structName: String, isUnion: Boolean) {
         entry match {
             case i@Id(name) => {
@@ -478,30 +420,22 @@ trait CDeclUse extends CEnv with CEnvCache {
         }
     }
 
-    private def addStructUseChoice(choice: Choice[AST], use: Id) {
+    private def addStructUseChoice(cond: Conditional[AST], use: Id) {
         def addOne(one: One[AST], use: Id) {
             one match {
                 case One(AtomicNamedDeclarator(_, key, _)) => addToDeclUseMap(key, use)
                 case One(NestedNamedDeclarator(_, declarator, _)) => addToDeclUseMap(declarator.getId, use)
                 case One(i@Id(_)) => addToDeclUseMap(i, use)
-                case _ => logger.error("AddAnonStructChoice missed " + one)
+                case _ => logger.error("AddAnonStructChoice " + use + " missed " + one)
             }
         }
 
-        choice match {
-            case Choice(_, o1@One(_), o2@One(_)) =>
-                addOne(o1, use)
-                addOne(o2, use)
-            case Choice(_, o@One(_), c@Choice(_, _, _)) =>
-                addOne(o, use)
-                addStructUseChoice(c, use)
-            case Choice(_, c1@Choice(_, _, _), c2@Choice(_, _, _)) =>
+        cond match {
+            case o@One(_) => addOne(o, use)
+            case Choice(_, c1, c2) =>
                 addStructUseChoice(c1, use)
                 addStructUseChoice(c2, use)
-            case Choice(_, c@Choice(_, _, _), o@One(_)) =>
-                addOne(o, use)
-                addStructUseChoice(c, use)
-            case _ => logger.error("AddAnonStructChoice: This should not have happend " + choice)
+            case _ => logger.error("AddAnonStructChoice: This should not have happend " + cond)
         }
     }
 
@@ -800,23 +734,17 @@ trait CDeclUse extends CEnv with CEnvCache {
             putToDeclUseMap(label.entry.id)
             labelMap.put(label.entry.id, label.feature)
         })
-        get[GotoStatement](f).foreach(goto => {
+        get[GotoStatement](f).foreach(goto =>
             goto.entry.target match {
-                case usage@Id(name) =>
-                    labelMap.keySet().toArray.foreach(declaration => {
-                        if (declaration.asInstanceOf[Id].name.equals(name) &&
-                                (goto.feature.equivalentTo(FeatureExprFactory.True) || labelMap.get(declaration).implies(goto.feature).isTautology)) {
-                            addToDeclUseMap(declaration.asInstanceOf[Id], usage)
-                        }
-                    })
+                case usage@Id(name) => labelMap.keySet().toArray.foreach(declaration =>
+                    if (declaration.asInstanceOf[Id].name.equals(name) && (goto.feature.equivalentTo(FeatureExprFactory.True) || labelMap.get(declaration).implies(goto.feature).isTautology))
+                        addToDeclUseMap(declaration.asInstanceOf[Id], usage))
                 case k => logger.error("Missing GotoStatement: " + k)
-            }
-        })
+            })
     }
 
     // method recursively filters all AST elements for a given type T
     // Copy / Pasted from ASTNavigation -> unable to include ASTNavigation because of dependencies
-    // TODO: move ASTNavigation to CParser?? if so this method could be removed thenExpr.
     private def filterASTElemts[T <: AST](a: Any)(implicit m: ClassTag[T]): List[T] = {
         a match {
             case p: Product if (m.runtimeClass.isInstance(p)) => List(p.asInstanceOf[T])
