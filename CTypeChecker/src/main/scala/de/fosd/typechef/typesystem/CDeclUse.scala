@@ -6,7 +6,6 @@ import java.util.{Collections, IdentityHashMap}
 import de.fosd.typechef.conditional._
 import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
 import de.fosd.typechef.parser.c._
-import scala.reflect.ClassTag
 import java.util
 
 
@@ -827,9 +826,9 @@ trait CDeclUse extends CEnv with CEnvCache {
     private def addGotoStatements(f: AST) {
         val labelMap: IdentityHashMap[Id, FeatureExpr] = new IdentityHashMap()
 
-        def get[T](a: Any)(implicit m: ClassTag[T]): List[Opt[T]] = {
+        def get[T](a: Any)(implicit m: ClassManifest[T]): List[Opt[T]] = {
             a match {
-                case o: Opt[T] if (m.runtimeClass.isInstance(o.entry)) => List(o)
+                case o: Opt[T] if (m.erasure.isInstance(o.entry)) => List(o)
                 case l: List[_] => l.flatMap(x => get[T](x))
                 case p: Product => p.productIterator.toList.flatMap(x => get[T](x))
                 case _ => List()
@@ -857,9 +856,9 @@ trait CDeclUse extends CEnv with CEnvCache {
     // method recursively filters all AST elements for a given type T
     // Copy / Pasted from ASTNavigation -> unable to include ASTNavigation because of dependencies
     // TODO: move ASTNavigation to CParser?? if so this method could be removed thenExpr.
-    private def filterASTElemts[T <: AST](a: Any)(implicit m: ClassTag[T]): List[T] = {
+    private def filterASTElemts[T <: AST](a: Any)(implicit m: ClassManifest[T]): List[T] = {
         a match {
-            case p: Product if (m.runtimeClass.isInstance(p)) => List(p.asInstanceOf[T])
+            case p: Product if (m.erasure.isInstance(p)) => List(p.asInstanceOf[T])
             case l: List[_] => l.flatMap(filterASTElemts[T])
             case p: Product => p.productIterator.toList.flatMap(filterASTElemts[T])
             case _ => List()
