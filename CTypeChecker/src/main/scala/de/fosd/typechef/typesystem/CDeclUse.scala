@@ -32,9 +32,6 @@ trait CDeclUse extends CEnv with CEnvCache {
     private[typesystem] def clear() = clearDeclUseMap()
 
     private def putToDeclUseMap(decl: Id) = {
-        if (decl.name.equals("LSA_LEN_SIZE")) {
-            print("")
-        }
         if (!declUseMap.contains(decl)) {
             declUseMap.put(decl, Collections.newSetFromMap[Id](new util.IdentityHashMap()))
         }
@@ -477,7 +474,6 @@ trait CDeclUse extends CEnv with CEnvCache {
     }
 
     def addDecl(current: Any, featureExpr: FeatureExpr, env: Env, isDefinition: Boolean = true) {
-        print("")
         current match {
             // TODO andreas: the following three lines are obsolete; see case _ => at the end
             case StructDeclaration(specifiers, structDecls) =>
@@ -619,7 +615,7 @@ trait CDeclUse extends CEnv with CEnvCache {
             case OffsetofMemberDesignatorID(i) =>
                 addDecl(i, featureExpr, env)
             case TypeDefTypeSpecifier(name: Id) =>
-                addTypeUse(name, env, featureExpr)
+            //addTypeUse(name, env, featureExpr)
             case DeclArrayAccess(Some(o)) =>
                 addDecl(o, featureExpr, env, isDefinition = false)
             case ReturnStatement(expr) =>
@@ -701,19 +697,6 @@ trait CDeclUse extends CEnv with CEnvCache {
             case x =>
             // Specifiers like StaticSpecifier() can be ignored
             // logger.error("Match Error" + x)
-        }
-    }
-
-    private def handleSpecifiers(specs: List[Opt[Specifier]], env: Env, feature: FeatureExpr) {
-        for (Opt(f, entry) <- specs) {
-            entry match {
-                case TypeDefTypeSpecifier(i@Id(name)) =>
-                    addTypeUse(i, env, feature)
-                case EnumSpecifier(Some(id), None) =>
-                    addEnumUse(id, env, feature)
-                case StructOrUnionSpecifier(isUnion, Some(i: Id), structEnums) =>
-                // addStructUse(i, env, feature)
-            }
         }
     }
 
