@@ -495,12 +495,7 @@ trait CDeclUse extends CEnv with CEnvCache {
     def addAnonStructUse(id: Id, fields: ConditionalTypeMap) {
         fields.getAstOrElse(id.name, null) match {
             case c@Choice(_, _, _) => addStructUseChoice(c, id)
-            case One(AtomicNamedDeclarator(_, key, _)) =>
-                // TODO: remove workaround (next three lines of code) for missing definitions
-                if (!declUseMap.containsKey(key)) {
-                    putToDeclUseMap(key)
-                }
-                addToDeclUseMap(key, id)
+            case One(AtomicNamedDeclarator(_, key, _)) => addToDeclUseMap(key, id)
             case One(NestedNamedDeclarator(_, declarator, _)) => addToDeclUseMap(declarator.getId, id)
             case k => logger.error("Should not have entered here: " + id + "\n" + k)
         }
@@ -509,17 +504,9 @@ trait CDeclUse extends CEnv with CEnvCache {
     private def addStructUseChoice(choice: Choice[AST], use: Id) {
         def addOne(one: One[AST], use: Id) {
             one match {
-                case One(AtomicNamedDeclarator(_, key, _)) =>
-                    // TODO: remove workaround (next three lines of code) for missing definitions
-                    if (!declUseMap.containsKey(key)) {
-                        putToDeclUseMap(key)
-                    }
-                    addToDeclUseMap(key, use)
+                case One(AtomicNamedDeclarator(_, key, _)) => addToDeclUseMap(key, use)
                 case One(NestedNamedDeclarator(_, declarator, _)) => addToDeclUseMap(declarator.getId, use)
-                case One(i@Id(_)) => addToDeclUseMap(i, use) // TODO Missing case, but @decluse?
-                // TODO andreas: following line is obsolete
-                case One(null) =>
-                //addStructDeclUse(use, env, isUnion)
+                case One(i@Id(_)) => addToDeclUseMap(i, use)
                 case _ => logger.error("AddAnonStructChoice missed " + one)
             }
         }
