@@ -4,7 +4,7 @@ import org.junit.Test
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.featureexpr.FeatureExprFactory
 import org.scalatest.matchers.ShouldMatchers
-import de.fosd.typechef.typesystem.{CTypeSystemFrontend}
+import de.fosd.typechef.typesystem.CTypeSystemFrontend
 import de.fosd.typechef.conditional.Opt
 
 class LivenessTest extends TestHelper with ShouldMatchers with IntraCFG with CFGHelper {
@@ -22,7 +22,7 @@ class LivenessTest extends TestHelper with ShouldMatchers with IntraCFG with CFG
 
         for (s <- ss) {
             println(PrettyPrinter.print(s) + "  uses: " + lv.gen(s) + "   defines: " + lv.kill(s) +
-                    "  in: " + lv.entry(s) + "   out: " + lv.exit(s))
+                    "  in: " + lv.in(s) + "   out: " + lv.out(s))
         }
 
     }
