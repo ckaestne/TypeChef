@@ -244,7 +244,7 @@ trait CDeclUse extends CEnv with CEnvCache {
         }
 
         entry match {
-            case TypeDefTypeSpecifier(id) => addTypeUse(id, env, feature)
+            case TypeDefTypeSpecifier(id) => //addTypeUse(id, env, feature)
             case TypeName(specs, decl) =>
                 specs.foreach(x => addUse(x.entry, feature, env))
                 addDecl(decl, feature, env)
@@ -290,7 +290,7 @@ trait CDeclUse extends CEnv with CEnvCache {
                             })
                         case TypeDefTypeSpecifier(i@Id(name)) =>
                             typedefspecifier = i
-                            addTypeUse(i, env, x.feature)
+                        //addTypeUse(i, env, x.feature)
                         case k => addUse(k, feature, env)
                     })
             }
@@ -648,7 +648,7 @@ trait CDeclUse extends CEnv with CEnvCache {
                 for (specs <- specifiers) {
                     specs match {
                         case Opt(typedefFeature, TypeDefTypeSpecifier(i: Id)) =>
-                            addTypeUse(i, env, typedefFeature)
+                        //addTypeUse(i, env, typedefFeature)
                         case Opt(structSpecFeature, StructOrUnionSpecifier(isUnion, idOption, enum)) =>
                             idOption match {
                                 case None =>
@@ -731,7 +731,7 @@ trait CDeclUse extends CEnv with CEnvCache {
                 decl.foreach(x => addDecl(x.entry, featureExpr, env))
             case ParameterDeclarationD(specs, decl) =>
                 for (Opt(typedefFeature, TypeDefTypeSpecifier(i: Id)) <- specs) {
-                    addTypeUse(i, env, typedefFeature)
+                    //addTypeUse(i, env, typedefFeature)
                 }
                 for (Opt(structSpecFeature, StructOrUnionSpecifier(isUnion, Some(i: Id), _)) <- specs) {
                     addStructDeclUse(i, env, isUnion, structSpecFeature)
@@ -762,7 +762,7 @@ trait CDeclUse extends CEnv with CEnvCache {
             case PlainParameterDeclaration(spec) => spec.foreach(x => addDecl(x.entry, featureExpr, env))
             case ParameterDeclarationAD(specs, decl) =>
                 for (Opt(typedefFeature, TypeDefTypeSpecifier(i: Id)) <- specs) {
-                    addTypeUse(i, env, typedefFeature)
+                    //addTypeUse(i, env, typedefFeature)
                 }
                 for (Opt(structSpecFeature, StructOrUnionSpecifier(isUnion, Some(i: Id), _)) <- specs) {
                     addStructDeclUse(i, env, isUnion, structSpecFeature)
@@ -783,7 +783,7 @@ trait CDeclUse extends CEnv with CEnvCache {
             case OffsetofMemberDesignatorID(i) =>
                 addDecl(i, featureExpr, env)
             case TypeDefTypeSpecifier(name: Id) =>
-                addTypeUse(name, env, featureExpr)
+            //addTypeUse(name, env, featureExpr)
             case DeclArrayAccess(Some(o)) =>
                 addDecl(o, featureExpr, env, isDefinition = false)
             case ReturnStatement(expr) =>

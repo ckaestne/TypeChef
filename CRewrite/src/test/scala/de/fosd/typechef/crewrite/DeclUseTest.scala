@@ -123,11 +123,9 @@ class DeclUseTest extends ConditionalNavigation with ASTNavigation with CDeclUse
     }
 
     @Test def test_random_stuff {
-        val source_ast = getAstFromPi(new File("C:\\Users\\Flo\\Dropbox\\HiWi\\declUse\\testfiles\\enum_as_function_return.c"))
-        val source_ast2 = getAstFromPi(new File("C:\\Users\\Flo\\Dropbox\\HiWi\\declUse\\testfiles\\enum_in_struct_in_struct.c"))
+        val source_ast = getAstFromPi(new File("C:\\Users\\Flo\\Dropbox\\HiWi\\declUse\\testfiles\\typdef_in_struct.c"))
         println(source_ast)
         runDefUseOnAst(source_ast)
-        runDefUseOnAst(source_ast2)
     }
 
     @Test def test_decompress_unxz_pi {
