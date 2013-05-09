@@ -242,6 +242,8 @@ trait CDeclUse extends CEnv with CEnvCache {
             }
         }
 
+        // For each incoming use of an identifier, we look up in the varEnv the corresponding declaration.
+        // Furthermore, known special cases are filtered before.
         entry match {
             case TypeDefTypeSpecifier(id) => addTypeUse(id, env, feature)
             case TypeName(specs, decl) =>
