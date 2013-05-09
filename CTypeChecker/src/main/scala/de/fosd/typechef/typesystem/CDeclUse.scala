@@ -107,7 +107,7 @@ trait CDeclUse extends CEnv with CEnvCache {
             case One(null) => putToDeclUseMap(declaration)
             case One(i: InitDeclarator) => swapDeclaration(i.getId, declaration)
             case c@Choice(_, _, _) =>
-                choiceToTuple(c).foreach(x => {
+                conditionalToTuple(c).foreach(x => {
                     x._2 match {
                         case i: InitDeclarator => addForwardDeclartion(i.getId, x)
                         case f: FunctionDef => addForwardDeclartion(f.declarator.getId, x)
@@ -367,30 +367,11 @@ trait CDeclUse extends CEnv with CEnvCache {
     }
 
 
-    // TODO andreas: could be rewritten when using the common abstract class Conditional of One and Choice
-    // def conditionalToTuple(cond: Conditional[_], fexp: FeatureExpr = <defaultvalue>): List[(FeatureExpr, AST)] = {
-    //   cond match {
-    //     case One(a: AST) => List((fexp, a))
-    //     case Choice(ft, thenExpr, elseBranch) => conditionalToTuple(thenExpr, ft) ++ conditionaToTuple(elseBranch, ft.not())
-    //     case _ =>
-    //   }
-    // }
-    private def choiceToTuple(choice: Choice[_]): List[Tuple2[FeatureExpr, AST]] = {
-        def addOne(entry: One[_], ft: FeatureExpr): List[Tuple2[FeatureExpr, AST]] = {
-            entry match {
-                case One(null) => List()
-                case One(a: AST) => List(Tuple2(ft, a))
-            }
-        }
-        choice match {
-            case Choice(ft, first@One(_), second@One(_)) =>
-                addOne(first, ft) ++ addOne(second, ft.not())
-            case Choice(ft, first@Choice(_, _, _), second@Choice(_, _, _)) =>
-                choiceToTuple(first) ++ choiceToTuple(second)
-            case Choice(ft, first@One(a), second@Choice(_, _, _)) =>
-                addOne(first, ft) ++ choiceToTuple(second)
-            case Choice(ft, first@Choice(_, _, _), second@One(_)) =>
-                choiceToTuple(first) ++ addOne(second, ft.not())
+    private def conditionalToTuple(cond: Conditional[_], fexp: FeatureExpr = FeatureExprFactory.True): List[(FeatureExpr, AST)] = {
+        cond match {
+            case One(a: AST) => List((fexp, a))
+            case Choice(ft, thenExpr, elseBranch) => conditionalToTuple(thenExpr, ft) ++ conditionalToTuple(elseBranch, ft.not())
+            case _ => List()
         }
     }
 
@@ -418,7 +399,7 @@ trait CDeclUse extends CEnv with CEnvCache {
                                                             case One(key: Id) =>
                                                                 addToDeclUseMap(key, i)
                                                             case c@Choice(_, _, _) =>
-                                                                val tuple = choiceToTuple(c)
+                                                                val tuple = conditionalToTuple(c)
                                                                 tuple.foreach(x => {
                                                                     if (specFeature.equivalentTo(FeatureExprFactory.True)) {
                                                                         addToDeclUseMap(x._2.asInstanceOf[Id], i)
@@ -543,7 +524,7 @@ trait CDeclUse extends CEnv with CEnvCache {
                         case o@One(key: Id) =>
                             addOne(o, use)
                         case c@Choice(_, _, _) =>
-                            val tuple = choiceToTuple(c)
+                            val tuple = conditionalToTuple(c)
                             tuple.foreach(x => {
                                 if (feature.equivalentTo(FeatureExprFactory.True) || feature.implies(x._1).isTautology) {
                                     addToDeclUseMap(x._2.asInstanceOf[Id], use)
