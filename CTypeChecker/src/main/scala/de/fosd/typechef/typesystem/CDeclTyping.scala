@@ -269,7 +269,7 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface with CDeclU
                              checkInitializer: (Expr, Conditional[CType], FeatureExpr, Env) => Unit = noInitCheck
                                     ): (Env, List[(String, FeatureExpr, AST, Conditional[CType], DeclarationKind)]) = {
         var renv = env
-        val enumDecl = enumDeclarations(decl.declSpecs, featureExpr, decl)
+        val enumDecl = enumDeclarations(decl.declSpecs, featureExpr, decl, env)
         val isExtern = getIsExtern(decl.declSpecs)
         var eenv = env.addVars(enumDecl, env.scope)
         val varDecl: scala.List[(String, FeatureExpr, AST, Conditional[CType], DeclarationKind)] =
@@ -332,15 +332,34 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface with CDeclU
       *
       * important: this recurses into structures!
       * */
-    protected def enumDeclarations(specs: List[Opt[Specifier]], featureExpr: FeatureExpr, d: AST): List[(String, FeatureExpr, AST, Conditional[CType], DeclarationKind)] = {
+    protected def enumDeclarations(specs: List[Opt[Specifier]], featureExpr: FeatureExpr, d: AST, env: Env): List[(String, FeatureExpr, AST, Conditional[CType], DeclarationKind)] = {
         var result = List[(String, FeatureExpr, AST, Conditional[CType], DeclarationKind)]()
         for (Opt(f, spec) <- specs) spec match {
-            case EnumSpecifier(_, Some(enums)) => for (Opt(f2, enum) <- enums)
-                result = (enum.id.name, featureExpr and f and f2, enum, One(CSigned(CInt())), KEnumVar) :: result
+            case EnumSpecifier(_, Some(enums)) =>
+                for (Opt(feat, entry: Enumerator) <- enums) {
+                    addDecl(entry, feat, env)
+                }
+                /*enums match {
+                    case BuiltinOffsetof(TypeName(specs, decl), offsetMember) =>
+                        for (Opt(f, TypeDefTypeSpecifier(name)) <- specs) {
+                            addTypeUse(name, env, featureExpr)
+                        }
+                    case _ =>
+                }*/
+                for (Opt(f2, enum) <- enums) {
+                    /*enum match {
+                        case Enumerator(_, Some(BuiltinOffsetof(TypeName(specs, decl), offsetMember))) =>
+                            for (Opt(f, TypeDefTypeSpecifier(name)) <- specs) {
+                                addTypeUse(name, env, featureExpr)
+                            }
+                        case _ =>
+                    }*/
+                    result = (enum.id.name, featureExpr and f and f2, enum, One(CSigned(CInt())), KEnumVar) :: result
+                }
             //recurse into structs
             case StructOrUnionSpecifier(_, _, fields) =>
-                for (Opt(f2, structDeclaration) <- fields.getOrElse(Nil))
-                    result = result ++ enumDeclarations(structDeclaration.qualifierList, featureExpr and f and f2, structDeclaration)
+                for (Opt(f2, structDeclaration: StructDeclaration) <- fields.getOrElse(Nil))
+                    result = result ++ enumDeclarations(structDeclaration.qualifierList, featureExpr and f and f2, structDeclaration, env)
             case _ =>
         }
         result
