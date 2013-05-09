@@ -221,7 +221,6 @@ trait CDeclUse extends CEnv with CEnvCache {
     }
 
 
-    // TODO andreas: refactor code looks a little messy
     def addUse(entry: AST, feature: FeatureExpr, env: Env) {
 
         def addUseOne(one: One[AST], use: Id, env: Env) {
@@ -253,8 +252,7 @@ trait CDeclUse extends CEnv with CEnvCache {
             case BuiltinOffsetof(typeName, members) =>
                 addUse(typeName, feature, env)
                 /**
-                 * TODO andreas: comment not very clear. What is the problem?
-                 * Workaround for buitlin_offset_ -> typechef implementation too much - see: http://gcc.gnu.org/onlinedocs/gcc/Offsetof.html
+                 * Type is generally only nested in a struct.
                  */
                 val structOrUnion = filterASTElemts[Id](typeName)
                 members.foreach(x => addStructUse(x.entry, feature, env, structOrUnion.head.name, !env.structEnv.someDefinition(structOrUnion.head.name, false)))
@@ -267,9 +265,7 @@ trait CDeclUse extends CEnv with CEnvCache {
             })
         }
 
-
-
-
+        // TODO andreas: refactor code looks a little messy
         def addUseCastExpr(typ: TypeName, addUse: (AST, FeatureExpr, CDeclUse.this.type#Env) => Unit, feature: FeatureExpr, env: CDeclUse.this.type#Env, lst: List[Opt[Initializer]]) {
             var typedefspecifier: Id = null
             typ match {
@@ -341,74 +337,6 @@ trait CDeclUse extends CEnv with CEnvCache {
             })
             stringToIdMap = stringToIdMap.empty
         }
-
-
-        /*
-        entry match {
-            case ConditionalExpr(expr, thenExpr, elseExpr) =>
-                addUse(expr, feature, env)
-                thenExpr.foreach(x => addUse(x, feature, env))
-                addUse(elseExpr, feature, env)
-            case EnumSpecifier(x, _) =>
-            case FunctionCall(param) => param.exprs.foreach(x => addUse(x.entry, feature, env))
-            case ExprList(exprs) => exprs.foreach(x => addUse(x.entry, feature, env))
-            case LcurlyInitializer(inits) => inits.foreach(x => addUse(x.entry, feature, env))
-            case InitializerAssigment(designators) => designators.foreach(x => addUse(x.entry, feature, env))
-            case InitializerDesignatorD(i: Id) =>
-                addUse(i, feature, env)
-            case Initializer(Some(x), expr) =>
-                addUse(x, feature, env)
-                addUse(expr, feature, env)
-            case i@Id(name) =>
-                env.varEnv.getAstOrElse(name, null) match {
-                    case o@One(_) => addUseOne(o, i, env)
-                    case c@Choice(_, _, _) => addChoice(c, feature, i, env, addUseOne)
-                    case _ =>
-                }
-            case PointerDerefExpr(i) => addUse(i, feature, env)
-            case AssignExpr(target, operation, source) =>
-                addUse(source, feature, env)
-                addUse(target, feature, env)
-            case NAryExpr(i, o) =>
-                addUse(i, feature, env)
-                o.foreach(x => addUse(x.entry, feature, env))
-            case NArySubExpr(_, e) => addUse(e, feature, env)
-            case PostfixExpr(p, s) =>
-                addUse(p, feature, env)
-                addUse(s, feature, env)
-            case PointerPostfixSuffix(_, id: Id) => //if (!env.varEnv.getAstOrElse(id.name, null).equals(One(null))) addUse(id, feature, env)
-            case PointerCreationExpr(expr) => addUse(expr, feature, env)
-            case CompoundStatement(innerStatements) => innerStatements.foreach(x => addUse(x.entry, feature, env))
-            case Constant(_) =>
-            case SizeOfExprT(expr) => addUse(expr, feature, env)
-            case SizeOfExprU(expr) => addUse(expr, feature, env)
-            case TypeName(specs, decl) =>
-                specs.foreach(x => addUse(x.entry, feature, env))
-                addDecl(decl, feature, env)
-            case StringLit(_) =>
-            case SimplePostfixSuffix(_) =>
-            case GnuAsmExpr(isVolatile, isGoto, expr, Some(stuff)) =>
-            case CastExpr(typ, LcurlyInitializer(lst)) => addUseCastExpr(typ, addUse _, feature, env, lst)
-            case CastExpr(typ, expr) =>
-                addUse(typ, feature, env)
-                addUse(expr, feature, env)
-            case ArrayAccess(expr) => addUse(expr, feature, env)
-            case UnaryExpr(_, expr) => addUse(expr, feature, env)
-            case UnaryOpExpr(_, expr) => addUse(expr, feature, env)
-            case TypeDefTypeSpecifier(id) => addTypeUse(id, env, feature)
-            case Initializer(_, expr) => addUse(expr, feature, env)
-            case CompoundStatementExpr(expr) => addUse(expr, feature, env)
-            case StructOrUnionSpecifier(union, Some(i: Id), _) => addStructDeclUse(i, env, union, feature)
-            case BuiltinOffsetof(typeName, members) =>
-                typeName.specifiers.foreach(x => addUse(x.entry, feature, env))
-                /**
-                 * TODO andreas: comment not very clear. What is the problem?
-                 * Workaround for buitlin_offset_ -> typechef implementation too much - see: http://gcc.gnu.org/onlinedocs/gcc/Offsetof.html
-                 */
-                val structOrUnion = filterASTElemts[Id](typeName)
-                members.foreach(x => addStructUse(x.entry, feature, env, structOrUnion.head.name, !env.structEnv.someDefinition(structOrUnion.head.name, false)))
-            case x => // logger.error("Missed x: " + x)
-        }  */
     }
 
 
