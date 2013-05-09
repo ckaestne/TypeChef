@@ -634,6 +634,8 @@ trait CDeclUse extends CEnv with CEnvCache {
                         case Opt(enumFeature, EnumSpecifier(Some(i: Id), enumerator)) =>
                             if (enumerator.isEmpty) {
                                 addEnumUse(i, env, enumFeature)
+                            } else {
+                                // putToDeclUseMap(i)
                             }
                             addDecl(enumerator, enumFeature, env)
                         case _ =>

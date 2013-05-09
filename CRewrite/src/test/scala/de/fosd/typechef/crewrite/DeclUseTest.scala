@@ -123,7 +123,15 @@ class DeclUseTest extends ConditionalNavigation with ASTNavigation with CDeclUse
     }
 
     @Test def test_random_stuff {
-        val source_ast = getAstFromPi(new File("C:\\Users\\Flo\\Dropbox\\HiWi\\declUse\\Enum_in_struct\\enum_in_struct.c"))
+        val source_ast = getAstFromPi(new File("C:\\Users\\Flo\\Dropbox\\HiWi\\declUse\\testfiles\\enum_as_function_return.c"))
+        val source_ast2 = getAstFromPi(new File("C:\\Users\\Flo\\Dropbox\\HiWi\\declUse\\testfiles\\enum_in_struct_in_struct.c"))
+        println(source_ast)
+        runDefUseOnAst(source_ast)
+        runDefUseOnAst(source_ast2)
+    }
+
+    @Test def test_decompress_unxz_pi {
+        val source_ast = getAstFromPi(new File("../TypeChef-BusyboxAnalysis/busybox-1.18.5/archival/libarchive/decompress_unxz.pi"))
         runDefUseOnAst(source_ast)
     }
 
@@ -314,7 +322,7 @@ class DeclUseTest extends ConditionalNavigation with ASTNavigation with CDeclUse
         val folder = new File(folderPath)
         analyseDir(folder)
 
-        val folderPath2 = "C:/users/flo/dropbox/hiwi/busybox/TypeChef-BusyboxAnalysis/busybox-1.18.5/"
+        val folderPath2 = "C:/users/flo/dropbox/HiWi/casestudies/busybox-1.18.5"
         val folder2 = new File(folderPath2)
         analyseDir(folder2)
     }

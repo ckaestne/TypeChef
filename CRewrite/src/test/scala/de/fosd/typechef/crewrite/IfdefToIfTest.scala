@@ -28,6 +28,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDeclU
     val i = new IfdefToIf
     val path = new File("..").getCanonicalPath() ++ "/ifdeftoif/"
     val singleFilePath = new File("..").getCanonicalPath() ++ "/single_files/"
+    val busyBoxPath = "../TypeChef-BusyboxAnalysis/busybox-1.18.5/"
 
     /* val tb = java.lang.management.ManagementFactory.getThreadMXBean
   val time = tb.getCurrentThreadCpuTime // Type long; beware in nanoseconds */
@@ -943,12 +944,12 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDeclU
     }
 
     @Test def test_applets_pi() {
-        val file = new File("C:/users/flo/dropbox/hiwi/busybox/TypeChef-BusyboxAnalysis/busybox-1.18.5/applets/applets.pi")
+        val file = new File(busyBoxPath + "applets/applets.pi")
         testFile(file)
     }
 
     @Test def test_stat_pi() {
-        val file = new File("C:/Users/Flo/Dropbox/HiWi/busybox/TypeChef-BusyboxAnalysis/busybox-1.18.5/coreutils/stat.pi")
+        val file = new File(busyBoxPath + "coreutils/stat.pi")
         testFile(file)
     }
 
@@ -971,7 +972,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDeclU
     }
 
     @Test def test_cpio_pi() {
-        val file = new File("C:/users/flo/dropbox/hiwi/busybox/TypeChef-BusyboxAnalysis/busybox-1.18.5/archival/cpio.pi")
+        val file = new File(busyBoxPath + "archival/cpio.pi")
         testFile(file)
 
         /*val ast = getAstFromPi(file)
@@ -980,97 +981,82 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDeclU
     }
 
     @Test def test_update_passwd_pi() {
-        val file = new File("C:/Users/Flo/Dropbox/HiWi/busybox/TypeChef-BusyboxAnalysis/busybox-1.18.5/libbb/update_passwd.pi")
+        val file = new File(busyBoxPath + "libbb/update_passwd.pi")
         testFile(file)
     }
 
     @Test def test_tr_pi() {
-        val file = new File("C:/Users/Flo/Dropbox/HiWi/busybox/TypeChef-BusyboxAnalysis/busybox-1.18.5/coreutils/tr.pi")
+        val file = new File(busyBoxPath + "coreutils/tr.pi")
         testFile(file)
     }
 
     @Test def test_fold_pi() {
-        val file = new File("C:/Users/Flo/Dropbox/HiWi/busybox/TypeChef-BusyboxAnalysis/busybox-1.18.5/coreutils/fold.pi")
+        val file = new File(busyBoxPath + "coreutils/fold.pi")
         testFile(file)
     }
 
     @Test def test_lzop_pi() {
-        val file = new File("C:/users/flo/dropbox/hiwi/busybox/TypeChef-BusyboxAnalysis/busybox-1.18.5/archival/lzop.pi")
+        val file = new File(busyBoxPath + "archival/lzop.pi")
         testFile(file)
     }
 
     @Test def test_rpm2cpio_pi() {
-        val file = new File("C:/users/flo/dropbox/hiwi/busybox/TypeChef-BusyboxAnalysis/busybox-1.18.5/archival/rpm2cpio.pi")
+        val file = new File(busyBoxPath + "archival/rpm2cpio.pi")
         testFile(file)
     }
 
     @Test def test_filter_accept_all_pi() {
-        val file = new File("C:/users/flo/dropbox/hiwi/busybox/TypeChef-BusyboxAnalysis/busybox-1.18.5/archival/libarchive/filter_accept_all.pi")
+        val file = new File(busyBoxPath + "archival/libarchive/filter_accept_all.pi")
         testFile(file)
     }
 
     @Test def test_decompress_unzip_pi() {
-        val file = new File("C:/users/flo/dropbox/hiwi/busybox/TypeChef-BusyboxAnalysis/busybox-1.18.5/archival/libarchive/decompress_unzip.pi")
+        val file = new File(busyBoxPath + "archival/libarchive/decompress_unzip.pi")
         testFile(file)
     }
 
     @Test def test_ar_pi() {
-        val file = new File("C:/users/flo/dropbox/hiwi/busybox/TypeChef-BusyboxAnalysis/busybox-1.18.5/archival/ar.pi")
+        val file = new File(busyBoxPath + "archival/ar.pi")
         testFile(file)
     }
 
     @Test def test_file() {
-        val file = new File("C:\\Users\\Flo\\Dropbox\\HiWi\\busybox\\TypeChef-BusyboxAnalysis\\busybox-1.18.5\\archival\\rpm.pi")
+        val file = new File(busyBoxPath + "archival/rpm.pi")
         testFile(file)
     }
 
     @Test def test_tar_pi() {
-        val file = new File("C:/users/flo/dropbox/hiwi/busybox/TypeChef-BusyboxAnalysis/busybox-1.18.5/archival/tar.pi")
+        val file = new File(busyBoxPath + "archival/tar.pi")
         testFile(file)
     }
 
     @Test def test_bbunzip_pi() {
-        val file = new File("C:/users/flo/dropbox/hiwi/busybox/TypeChef-BusyboxAnalysis/busybox-1.18.5/archival/bbunzip.pi")
+        val file = new File(busyBoxPath + "archival/bbunzip.pi")
         testFile(file)
     }
 
     @Test def test_chpst_pi() {
-        val file = new File("C:/users/flo/dropbox/hiwi/busybox/TypeChef-BusyboxAnalysis/busybox-1.18.5/runit/chpst.pi")
+        val file = new File(busyBoxPath + "runit/chpst.pi")
         testFile(file)
     }
 
     @Test def test_diff_pi() {
-        val file = new File("C:/users/flo/dropbox/hiwi/busybox/TypeChef-BusyboxAnalysis/busybox-1.18.5/editors/diff.pi")
+        val file = new File(busyBoxPath + "editors/diff.pi")
         testFile(file)
     }
 
     @Test def test_ls_pi() {
-        val file = new File("C:/users/flo/dropbox/hiwi/busybox/TypeChef-BusyboxAnalysis/busybox-1.18.5/coreutils/ls.pi")
+        val file = new File(busyBoxPath + "coreutils/ls.pi")
         testFile(file)
     }
 
     @Test def test_sed_pi() {
-        val file = new File("C:/users/flo/dropbox/hiwi/busybox/TypeChef-BusyboxAnalysis/busybox-1.18.5/editors/sed.pi")
-        testFile(file)
-    }
-
-    @Test def test_linux_cciss_pi() {
-        val file = new File("D:/drivers/block/cciss.pi")
-        testFile(file)
-    }
-
-    @Test def test_linux_battery_pi() {
-        val file = new File("D:/drivers/acpi/battery.pi")
-        testFile(file)
-    }
-
-    @Test def test_linux_ac_pi() {
-        val file = new File("D:/drivers/acpi/ac.pi")
+        val file = new File(busyBoxPath + "editors/sed.pi")
         testFile(file)
     }
 
     @Test def test_lineedit_pi() {
-        val file = new File("C:/Users/Flo/Dropbox/HiWi/busybox/TypeChef-BusyboxAnalysis/busybox-1.18.5/libbb/lineedit.pi")
+        val file = new File(busyBoxPath + "libbb/lineedit.pi")
         testFile(file)
     }
 
@@ -1087,21 +1073,6 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDeclU
         val print = System.currentTimeMillis()
         PrettyPrinter.printF(ast, "C:/cdrom.src")
         println("Printing took: " + ((System.currentTimeMillis() - print) / 1000) + "s")
-    }
-
-    @Test def test_test_pi() {
-        val file = new File("C:/Users/Flo/Dropbox/HiWi/Flo/test/test.pi")
-        testFile(file, true)
-    }
-
-    @Test def test_mpt2sas_base_pi() {
-        val file = new File("C:/users/flo/dropbox/hiwi/flo/pifiles/cdrom.pi")
-        testFile(file)
-    }
-
-    @Test def test_mpt2sas_config_pi() {
-        val file = new File("C:/users/flo/dropbox/hiwi/flo/TypeChef/ifdeftoif/cdrom.pi")
-        testFile(file)
     }
 
     @Test def test_if_conditional() {
@@ -1677,7 +1648,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDeclU
     }
 
     @Test def busy_box_test() {
-        val busybox = new File("C:/users/flo/dropbox/hiwi/busybox/TypeChef-BusyboxAnalysis/busybox-1.18.5/")
+        val busybox = new File(busyBoxPath + "")
         transformDir(busybox)
     }
 
@@ -1850,7 +1821,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDeclU
 
     @Test def declaration_test() {
         // val file = new File("C:/users/flo/dropbox/hiwi/flo/pifiles/cdrom.pi")
-        val file = new File("C:/users/flo/dropbox/hiwi/busybox/TypeChef-BusyboxAnalysis/busybox-1.18.5/libbb/lineedit.pi")
+        val file = new File(busyBoxPath + "libbb/lineedit.pi")
         println("parsing")
         val parse_time = System.currentTimeMillis()
         val source_ast = getAstFromPi(file)
@@ -1871,7 +1842,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDeclU
     }
 
     @Test def pretty_printer_test() {
-        val file = new File("C:/users/flo/dropbox/hiwi/busybox/TypeChef-BusyboxAnalysis/busybox-1.18.5/applets/applets.pi")
+        val file = new File(busyBoxPath + "applets/applets.pi")
         //testFile(file)
         val newFullFilePath = singleFilePath ++ getFileNameWithoutExtension(file) ++ ".ifdeftoif"
         val source_ast = getAstFromPi(new File(newFullFilePath))
@@ -1930,17 +1901,17 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDeclU
     }
 
     @Test def compareTypeCheckingTimes() {
-        val applets = new File("C:/users/flo/dropbox/hiwi/busybox/TypeChef-BusyboxAnalysis/busybox-1.18.5/applets/applets.pi")
-        val tr = new File("C:/Users/Flo/Dropbox/HiWi/busybox/TypeChef-BusyboxAnalysis/busybox-1.18.5/coreutils/tr.pi")
-        val bbunzip = new File("C:/Users/Flo/Dropbox/HiWi/busybox/TypeChef-BusyboxAnalysis/busybox-1.18.5/archival/bbunzip.pi")
-        val cal = new File("C:/Users/Flo/Dropbox/HiWi/busybox/TypeChef-BusyboxAnalysis/busybox-1.18.5/coreutils/cal.pi")
-        val ln = new File("C:/Users/Flo/Dropbox/HiWi/busybox/TypeChef-BusyboxAnalysis/busybox-1.18.5/coreutils/ln.pi")
-        val halt = new File("C:/Users/Flo/Dropbox/HiWi/busybox/TypeChef-BusyboxAnalysis/busybox-1.18.5/init/halt.pi")
-        val dump = new File("C:/Users/Flo/Dropbox/HiWi/busybox/TypeChef-BusyboxAnalysis/busybox-1.18.5/libbb/dump.pi")
-        val dc = new File("C:/Users/Flo/Dropbox/HiWi/busybox/TypeChef-BusyboxAnalysis/busybox-1.18.5/miscutils/dc.pi")
-        val inotifyd = new File("C:/Users/Flo/Dropbox/HiWi/busybox/TypeChef-BusyboxAnalysis/busybox-1.18.5/miscutils/inotifyd.pi")
-        val unzip = new File("C:/Users/Flo/Dropbox/HiWi/busybox/TypeChef-BusyboxAnalysis/busybox-1.18.5/archival/unzip.pi")
-        val hdpam = new File("C:/Users/Flo/Dropbox/HiWi/busybox/TypeChef-BusyboxAnalysis/busybox-1.18.5/miscutils/hdparm.pi")
+        val applets = new File(busyBoxPath + "applets/applets.pi")
+        val tr = new File(busyBoxPath + "coreutils/tr.pi")
+        val bbunzip = new File(busyBoxPath + "archival/bbunzip.pi")
+        val cal = new File(busyBoxPath + "coreutils/cal.pi")
+        val ln = new File(busyBoxPath + "coreutils/ln.pi")
+        val halt = new File(busyBoxPath + "init/halt.pi")
+        val dump = new File(busyBoxPath + "libbb/dump.pi")
+        val dc = new File(busyBoxPath + "miscutils/dc.pi")
+        val inotifyd = new File(busyBoxPath + "miscutils/inotifyd.pi")
+        val unzip = new File(busyBoxPath + "archival/unzip.pi")
+        val hdpam = new File(busyBoxPath + "miscutils/hdparm.pi")
 
 
         val list = List(applets, tr, bbunzip, cal, ln, halt, dump, dc, inotifyd, unzip, hdpam)
