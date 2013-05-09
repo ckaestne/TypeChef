@@ -471,7 +471,9 @@ trait CDeclUse extends CEnv with CEnvCache {
         }
     }
 
+    // def addDecl2(declToAdd : Any)
     def addDecl(current: Any, featureExpr: FeatureExpr, env: Env, isDefinition: Boolean = true) {
+
         current match {
             // TODO andreas: the following three lines are obsolete; see case _ => at the end
             case StructDeclaration(specifiers, structDecls) =>
@@ -688,9 +690,6 @@ trait CDeclUse extends CEnv with CEnvCache {
                 addDecl(expr, featureExpr, env)
                 cond.toOptList.foreach(x => addDecl(x.entry, featureExpr, env))
             case ArrayAccess(expr) => addDecl(expr, featureExpr, env)
-            case Choice(ft, thenExpr, els) =>
-                addDecl(thenExpr, featureExpr, env)
-                addDecl(els, featureExpr, env)
             case DeclIdentifierList(decls) => decls.foreach(decl => putToDeclUseMap(decl.entry))
             case x =>
             // Specifiers like StaticSpecifier() can be ignored
