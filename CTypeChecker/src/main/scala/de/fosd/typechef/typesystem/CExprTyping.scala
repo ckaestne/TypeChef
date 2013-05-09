@@ -50,10 +50,10 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                                 if (t.isUnknown && f.isSatisfiable()) {
                                     val when = env.varEnv.whenDefined(name)
                                     issueTypeError(Severity.IdLookupError, f, name + " undeclared" +
-                                        (if (when.isSatisfiable()) " (only under condition " + when + ")" else ""),
+                                            (if (when.isSatisfiable()) " (only under condition " + when + ")" else ""),
                                         expr)
                                 }
-                                //checkStructCompleteness(t, f, env, id) -- do not check on every access, only when a variable is declared, see issue #12
+                            //checkStructCompleteness(t, f, env, id) -- do not check on every access, only when a variable is declared, see issue #12
                         })
                         ctype.map(_.toObj)
                     //&a: create pointer
@@ -75,7 +75,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                                 s.toObj
                             case CPointer(t) if (t != CVoid) => t.toObj
                             case CArray(t, _) => t.toObj
-                            case i@CIgnore() => i.toObj
+                            case CIgnore() => CIgnore()
                             case fun: CFunction => fun // for some reason deref of a function still yields a valid function in gcc
                             case e =>
                                 reportTypeError(f, "invalid * on " + expr + " (" + e + ")", pd)
@@ -120,8 +120,8 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                         ConditionalLib.mapCombinationF(sourceTypes, targetTypes, featureExpr,
                             (fexpr: FeatureExpr, sourceType: CType, targetType: CType) =>
                                 if (targetType == CVoid() ||
-                                    isPointer(targetType) ||
-                                    (isScalar(sourceType) && isScalar(targetType))) targetType
+                                        isPointer(targetType) ||
+                                        (isScalar(sourceType) && isScalar(targetType))) targetType
                                 else if (isScalar(targetType) && isPointer(normalize(sourceType))) targetType //cast from pointer to long is valid
                                 else if (isCompound(sourceType) && (isStruct(targetType) || isArray(targetType))) targetType.toObj //workaround for array/struct initializers
                                 else if (sourceType.isIgnore || targetType.isIgnore || sourceType.isUnknown || targetType.isUnknown) targetType
@@ -155,7 +155,6 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                                 ltype match {
                                     case CObj(t) if (coerce(t, opType)) => prepareArray(ltype).toValue
                                     case u: CUnknown => u.toValue
-                                    case CObj(i@CIgnore()) => i.toValue
                                     case e => reportTypeError(fexpr, "incorrect assignment with " + e + " " + op + " " + rtype, ae)
                                 }
                             })
@@ -185,7 +184,8 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                         val newExpr = AssignExpr(expr, "+=", Constant("1"))
                         et(newExpr)
                     //sizeof()
-                    case SizeOfExprT(x) => sizeofType(env, x, featureExpr)
+                    case SizeOfExprT(x) =>
+                        sizeofType(env, x, featureExpr)
                     case SizeOfExprU(x) => sizeofType(env, x, featureExpr)
                     case ue@UnaryOpExpr(kind, expr) =>
                         if (kind == "&&")

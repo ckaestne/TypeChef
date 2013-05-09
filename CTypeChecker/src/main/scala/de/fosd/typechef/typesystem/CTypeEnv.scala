@@ -157,8 +157,8 @@ trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTypi
     }
 
 
-    def addEnumDeclarationToEnv(specifiers: List[Opt[Specifier]], featureExpr: FeatureExpr, enumEnv: EnumEnv, isHeadless: Boolean): EnumEnv =
-        specifiers.foldRight(enumEnv)({
+    def addEnumDeclarationToEnv(specifiers: List[Opt[Specifier]], featureExpr: FeatureExpr, env: Env, isHeadless: Boolean): EnumEnv = {
+        specifiers.foldRight(env.enumEnv)({
             (opt, b) => {
                 val specFeature = opt.feature
                 val typeSpec = opt.entry
@@ -173,12 +173,14 @@ trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTypi
                     //recurse into structs
                     case StructOrUnionSpecifier(_, _, fields) =>
                         fields.getOrElse(Nil).foldRight(b)(
-                            (optField, b) => addEnumDeclarationToEnv(optField.entry.qualifierList, featureExpr and specFeature and optField.feature, b, optField.entry.declaratorList.isEmpty)
+                            (optField, b) => addEnumDeclarationToEnv(optField.entry.qualifierList, featureExpr and specFeature and optField.feature, env.updateEnumEnv(b), optField.entry.declaratorList.isEmpty)
                         )
-
+                    case TypeDefTypeSpecifier(name) =>
+                        addTypeUse(name, env, featureExpr)
+                        b
                     case _ => b
                 }
             }
         })
-
+    }
 }
