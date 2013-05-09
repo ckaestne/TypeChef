@@ -190,7 +190,7 @@ trait CDeclUse extends CEnv with CEnvCache {
         }
     }
 
-    private def addDefChoice(entry: Choice[AST]) {
+    private def addDefChoice(entry: Conditional[AST]) {
         def addOne(entry: One[AST]) {
             entry match {
                 case One(InitDeclaratorI(declarator, _, _)) => putToDeclUseMap(declarator.getId)
@@ -203,20 +203,11 @@ trait CDeclUse extends CEnv with CEnvCache {
         }
 
         entry match {
-            case Choice(feature, c1@Choice(_, _, _), c2@Choice(_, _, _)) =>
+            case o@One(one: AST) => addOne(o)
+            case Choice(feature, c1, c2) =>
                 addDefChoice(c1)
                 addDefChoice(c2)
-            case Choice(feature, o1@One(_), o2@One(_)) =>
-                addOne(o1)
-                addOne(o2)
-            case Choice(feature, o@One(_), c@Choice(_, _, _)) =>
-                addDefChoice(c)
-                addOne(o)
-            case Choice(feature, c@Choice(_, _, _), o@One(_)) =>
-                addDefChoice(c)
-                addOne(o)
-            case k =>
-                logger.error("Missed Def Choice " + k)
+            case k => logger.error("Missed Def Choice " + k)
         }
     }
 
