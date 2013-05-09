@@ -263,9 +263,10 @@ trait CDeclUse extends CEnv with CEnvCache {
             })
         }
 
-        // TODO andreas: refactor code looks a little messy
+        // TODO Unsure if function can be safely removed: if logging error occurs, report it!
         def addUseCastExpr(typ: TypeName, addUse: (AST, FeatureExpr, CDeclUse.this.type#Env) => Unit, feature: FeatureExpr, env: CDeclUse.this.type#Env, lst: List[Opt[Initializer]]) {
-            logger.error("Type" + typ)
+            logger.error("Use of cast expression occured!")
+            /*
             var typedefspecifier: Id = null
             typ match {
                 case TypeName(ls, _) =>
@@ -335,6 +336,7 @@ trait CDeclUse extends CEnv with CEnvCache {
                     addUse(k, feature, env)
             })
             stringToIdMap = stringToIdMap.empty
+        */
         }
     }
 
@@ -426,7 +428,7 @@ trait CDeclUse extends CEnv with CEnvCache {
                 case One(AtomicNamedDeclarator(_, key, _)) => addToDeclUseMap(key, use)
                 case One(NestedNamedDeclarator(_, declarator, _)) => addToDeclUseMap(declarator.getId, use)
                 case One(i@Id(_)) => addToDeclUseMap(i, use)
-                case _ => logger.error("AddAnonStructChoice " + use + " missed " + one)
+                case _ => // logger.error("AddAnonStructChoice " + use + " missed " + one)
             }
         }
 
@@ -435,7 +437,7 @@ trait CDeclUse extends CEnv with CEnvCache {
             case Choice(_, c1, c2) =>
                 addStructUseChoice(c1, use)
                 addStructUseChoice(c2, use)
-            case _ => logger.error("AddAnonStructChoice: This should not have happend " + cond)
+            case _ => // logger.error("AddAnonStructChoice: This should not have happend " + cond)
         }
     }
 
