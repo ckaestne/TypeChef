@@ -225,8 +225,7 @@ trait CDeclUse extends CEnv with CEnvCache {
                 case One(key: Id) => addToDeclUseMap(key, use)
                 case One(null) =>
                     // TODO Enums, TypeDefs and Structs
-                    logger.error("One(Null)\n" + env.varEnv.getAstOrElse(use.name, null) + "\n" + entry + "\n" + entry.getPositionFrom + " " + entry.getPositionTo)
-                // addUseOfVarEnvNull(entry, use, env)
+                    logger.error(use + " - " + env.varEnv.getAstOrElse(use.name, null) + "\n" + entry + "\n" + entry.getPositionFrom + " " + entry.getPositionTo)
                 case _ =>
                     logger.error("Match Error" + one)
                     assert(false, "Match Error" + one)
