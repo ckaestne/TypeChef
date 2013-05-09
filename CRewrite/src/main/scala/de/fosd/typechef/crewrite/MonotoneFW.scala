@@ -38,8 +38,8 @@ abstract class MonotoneFW[T](val env: ASTEnv, val udm: UseDeclMap, val fm: Featu
 
     protected def id2SetT(i: Id): Set[T]
 
-    protected val entry_cache = new IdentityHashMapCache[Map[T, FeatureExpr]]()
-    protected val exit_cache = new IdentityHashMapCache[Map[T, FeatureExpr]]()
+    protected val entry_cache = new IdentityHashMapCache[ResultMap]()
+    protected val exit_cache = new IdentityHashMapCache[ResultMap]()
 
     // add annotation to elements of a Set[Id]
     protected def addAnnotation2ResultSet(in: Set[Id]): Map[FeatureExpr, Set[Id]] = {
@@ -88,15 +88,22 @@ abstract class MonotoneFW[T](val env: ASTEnv, val udm: UseDeclMap, val fm: Featu
         for (e <- j) {
             curmap.get(e) match {
                 case None    => curmap = curmap.+((e, fexp))
-                case Some(x) => curmap = curmap.+((e, fexp or x))
+                case Some(x) => {
+                    println(udm)
+                    val xdecls = udm.get(x).map(_.getPositionFrom)
+                    val edecls = udm.get(e).map(_.getPositionFrom)
+                    println("xdecls: " + xdecls)
+                    println("edecls: " + edecls)
+                    curmap = curmap.+((e, fexp or x))
+                }
             }
         }
         curmap
     }
 
-    private val analysis_entry: AST => Map[T, FeatureExpr] = {
-        circular[AST, Map[T, FeatureExpr]](Map[T, FeatureExpr]()) {
-            case FunctionDef(_, _, _, _) => Map()
+    private val analysis_entry: AST => ResultMap = {
+        circular[AST, ResultMap](Map[T, FeatureExpr]()) {
+            case FunctionDef(_, _, _, _) => Map[T, FeatureExpr]()
             case t => {
                 val g = gen(t)
                 val k = kill(t)
@@ -113,10 +120,10 @@ abstract class MonotoneFW[T](val env: ASTEnv, val udm: UseDeclMap, val fm: Featu
     // flow functions (flow => succ and flow_R) functions of the
     // framework directly encoded in analysis_exit_backward
     // and analysis_exit_forward
-    protected val analysis_exit: AST => Map[T, FeatureExpr]
+    protected val analysis_exit: AST => ResultMap
 
-    protected val analysis_exit_backward: AST => Map[T, FeatureExpr] =
-        circular[AST, Map[T, FeatureExpr]](Map[T, FeatureExpr]()) {
+    protected val analysis_exit_backward: AST => ResultMap =
+        circular[AST, ResultMap](Map[T, FeatureExpr]()) {
             case e => {
                 var ss = succ(e, FeatureExprFactory.empty, env)
 
@@ -131,8 +138,8 @@ abstract class MonotoneFW[T](val env: ASTEnv, val udm: UseDeclMap, val fm: Featu
             }
         }
 
-    protected val analysis_exit_forward: AST => Map[T, FeatureExpr] =
-        circular[AST, Map[T, FeatureExpr]](Map[T, FeatureExpr]()) {
+    protected val analysis_exit_forward: AST => ResultMap =
+        circular[AST, ResultMap](Map[T, FeatureExpr]()) {
             case e => {
                 var ss = pred(e, FeatureExprFactory.empty, env)
 

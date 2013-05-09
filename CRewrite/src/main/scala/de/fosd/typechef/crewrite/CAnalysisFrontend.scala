@@ -37,8 +37,8 @@ class CAnalysisFrontend(tunit: TranslationUnit, fm: FeatureModel = FeatureExprFa
             }
         }
 
-        val ts = new CTypeSystemFrontend(tunit, fm)
-        //assert(ts.checkASTSilent, "typecheck fails!")
+        val ts = new CTypeSystemFrontend(tunit, fm) with CDeclUse
+        assert(ts.checkASTSilent, "typecheck fails!")
         val env = CASTEnv.createASTEnv(tunit)
         val udm = ts.getUseDeclMap
 
