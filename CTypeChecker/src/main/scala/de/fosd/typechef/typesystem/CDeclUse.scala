@@ -223,6 +223,53 @@ trait CDeclUse extends CEnv with CEnvCache {
 
     // TODO andreas: refactor code looks a little messy
     def addUse(entry: AST, feature: FeatureExpr, env: Env) {
+
+        def addUseOne(one: One[AST], use: Id, env: Env) {
+            one match {
+                case One(InitDeclaratorI(declarator, _, _)) => addToDeclUseMap(declarator.getId, use)
+                case One(AtomicNamedDeclarator(_, key, _)) => addToDeclUseMap(key, use)
+                case One(FunctionDef(_, AtomicNamedDeclarator(_, key, _), _, _)) => addToDeclUseMap(key, use)
+                case One(Enumerator(key, _)) => addToDeclUseMap(key, use)
+                case One(NestedNamedDeclarator(_, declarator, _)) => addToDeclUseMap(declarator.getId, use)
+                case One(NestedFunctionDef(_, _, AtomicNamedDeclarator(_, key, _), _, _)) => addToDeclUseMap(key, use) // TODO Verfiy Nested forward decl?
+                case One(key: Id) => addToDeclUseMap(key, use)
+                case One(null) =>
+                    // TODO Enums, TypeDefs and Structs
+                    logger.error("One(Null)\n" + env.varEnv.getAstOrElse(use.name, null) + "\n" + entry + "\n" + entry.getPositionFrom + " " + entry.getPositionTo)
+                // addUseOfVarEnvNull(entry, use, env)
+                case _ =>
+                    logger.error("Match Error" + one)
+                    assert(false, "Match Error" + one)
+            }
+        }
+
+        entry match {
+            case TypeDefTypeSpecifier(id) => addTypeUse(id, env, feature)
+            case TypeName(specs, decl) =>
+                specs.foreach(x => addUse(x.entry, feature, env))
+                addDecl(decl, feature, env)
+            case CastExpr(typ, LcurlyInitializer(lst)) => addUseCastExpr(typ, addUse _, feature, env, lst)
+            case StructOrUnionSpecifier(union, Some(i: Id), _) => addStructDeclUse(i, env, union, feature)
+            case BuiltinOffsetof(typeName, members) =>
+                addUse(typeName, feature, env)
+                /**
+                 * TODO andreas: comment not very clear. What is the problem?
+                 * Workaround for buitlin_offset_ -> typechef implementation too much - see: http://gcc.gnu.org/onlinedocs/gcc/Offsetof.html
+                 */
+                val structOrUnion = filterASTElemts[Id](typeName)
+                members.foreach(x => addStructUse(x.entry, feature, env, structOrUnion.head.name, !env.structEnv.someDefinition(structOrUnion.head.name, false)))
+            case default => filterASTElemts[Id](entry).foreach(id => {
+                env.varEnv.getAstOrElse(id.name, null) match {
+                    case o@One(_) => addUseOne(o, id, env)
+                    case c@Choice(_, _, _) => addChoice(c, feature, id, env, addUseOne)
+                    case x => logger.error(x + "\n" + env.varEnv.getAstOrElse(id.name, null))
+                }
+            })
+        }
+
+
+
+
         def addUseCastExpr(typ: TypeName, addUse: (AST, FeatureExpr, CDeclUse.this.type#Env) => Unit, feature: FeatureExpr, env: CDeclUse.this.type#Env, lst: List[Opt[Initializer]]) {
             var typedefspecifier: Id = null
             typ match {
@@ -295,22 +342,8 @@ trait CDeclUse extends CEnv with CEnvCache {
             stringToIdMap = stringToIdMap.empty
         }
 
-        def addUseOne(one: One[AST], use: Id, env: Env) {
-            one match {
-                case One(InitDeclaratorI(declarator, _, _)) => addToDeclUseMap(declarator.getId, use)
-                case One(AtomicNamedDeclarator(_, key, _)) => addToDeclUseMap(key, use)
-                case One(FunctionDef(_, AtomicNamedDeclarator(_, key, _), _, _)) => addToDeclUseMap(key, use)
-                case One(Enumerator(key, _)) => addToDeclUseMap(key, use)
-                case One(NestedNamedDeclarator(_, declarator, _)) => addToDeclUseMap(declarator.getId, use)
-                case One(NestedFunctionDef(_, _, AtomicNamedDeclarator(_, key, _), _, _)) => addToDeclUseMap(key, use) // TODO Verfiy Nested forward decl?
-                case One(key: Id) => addToDeclUseMap(key, use)
-                case One(null) =>
-                case _ =>
-                    logger.error("Match Error" + one)
-                    assert(false, "Match Error" + one)
-            }
-        }
 
+        /*
         entry match {
             case ConditionalExpr(expr, thenExpr, elseExpr) =>
                 addUse(expr, feature, env)
@@ -375,7 +408,7 @@ trait CDeclUse extends CEnv with CEnvCache {
                 val structOrUnion = filterASTElemts[Id](typeName)
                 members.foreach(x => addStructUse(x.entry, feature, env, structOrUnion.head.name, !env.structEnv.someDefinition(structOrUnion.head.name, false)))
             case x => // logger.error("Missed x: " + x)
-        }
+        }  */
     }
 
 
@@ -911,7 +944,7 @@ trait CDeclUse extends CEnv with CEnvCache {
         }
 
         val resultString = new StringBuilder()
-        var relevantIds = getAllRelevantIds(ast)
+        val relevantIds = getAllRelevantIds(ast)
 
         val missingLB: ListBuffer[Id] = ListBuffer()
         val duplicateLB: ListBuffer[Id] = ListBuffer()

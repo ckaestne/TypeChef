@@ -410,7 +410,7 @@ class DeclUseTest extends ConditionalNavigation with ASTNavigation with CDeclUse
     }
 
     @Test def test_minimal_stuff {
-        val folderPath = "/Users/andi/Dropbox/hiwi/busybox/minimalbeispiel/"
+        val folderPath = "/Users/and1/Dropbox/hiwi/busybox/minimalbeispiel/"
         val folder = new File(folderPath)
         analyseDir(folder)
         val folderPath2 = "C:/users/flo/dropbox/hiwi/busybox/minimalbeispiel/"
