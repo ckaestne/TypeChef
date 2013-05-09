@@ -22,6 +22,7 @@ import scala.collection.mutable.ListBuffer
 trait CDeclUse extends CEnv with CEnvCache {
 
     // TODO FeatureModel instead of FeatureExprFactory
+    // TODO ASTEnv Caching
     private lazy val logger = LogManager.getLogger(this.getClass.getName)
 
     private val declUseMap: util.IdentityHashMap[Id, util.Set[Id]] = new util.IdentityHashMap()
@@ -221,7 +222,7 @@ trait CDeclUse extends CEnv with CEnvCache {
                 case One(FunctionDef(_, AtomicNamedDeclarator(_, key, _), _, _)) => addToDeclUseMap(key, use)
                 case One(Enumerator(key, _)) => addToDeclUseMap(key, use)
                 case One(NestedNamedDeclarator(_, declarator, _)) => addToDeclUseMap(declarator.getId, use)
-                case One(NestedFunctionDef(_, _, AtomicNamedDeclarator(_, key, _), _, _)) => addToDeclUseMap(key, use) // TODO Verfiy Nested forward decl?
+                case One(NestedFunctionDef(_, _, AtomicNamedDeclarator(_, key, _), _, _)) => addToDeclUseMap(key, use)
                 case One(key: Id) => addToDeclUseMap(key, use)
                 case One(null) =>
                 // TODO Enums, TypeDefs and Structs
@@ -259,6 +260,7 @@ trait CDeclUse extends CEnv with CEnvCache {
 
         // TODO andreas: refactor code looks a little messy
         def addUseCastExpr(typ: TypeName, addUse: (AST, FeatureExpr, CDeclUse.this.type#Env) => Unit, feature: FeatureExpr, env: CDeclUse.this.type#Env, lst: List[Opt[Initializer]]) {
+            logger.error("Type" + typ)
             var typedefspecifier: Id = null
             typ match {
                 case TypeName(ls, _) =>
@@ -413,30 +415,22 @@ trait CDeclUse extends CEnv with CEnvCache {
         }
     }
 
-    private def addStructUseChoice(choice: Choice[AST], use: Id) {
+    private def addStructUseChoice(cond: Conditional[AST], use: Id) {
         def addOne(one: One[AST], use: Id) {
             one match {
                 case One(AtomicNamedDeclarator(_, key, _)) => addToDeclUseMap(key, use)
                 case One(NestedNamedDeclarator(_, declarator, _)) => addToDeclUseMap(declarator.getId, use)
                 case One(i@Id(_)) => addToDeclUseMap(i, use)
-                case _ => logger.error("AddAnonStructChoice missed " + one)
+                case _ => logger.error("AddAnonStructChoice " + use + " missed " + one)
             }
         }
 
-        choice match {
-            case Choice(_, o1@One(_), o2@One(_)) =>
-                addOne(o1, use)
-                addOne(o2, use)
-            case Choice(_, o@One(_), c@Choice(_, _, _)) =>
-                addOne(o, use)
-                addStructUseChoice(c, use)
-            case Choice(_, c1@Choice(_, _, _), c2@Choice(_, _, _)) =>
+        cond match {
+            case o@One(_) => addOne(o, use)
+            case Choice(_, c1, c2) =>
                 addStructUseChoice(c1, use)
                 addStructUseChoice(c2, use)
-            case Choice(_, c@Choice(_, _, _), o@One(_)) =>
-                addOne(o, use)
-                addStructUseChoice(c, use)
-            case _ => logger.error("AddAnonStructChoice: This should not have happend " + choice)
+            case _ => logger.error("AddAnonStructChoice: This should not have happend " + cond)
         }
     }
 
