@@ -152,7 +152,7 @@ class DoubleFree(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel, casestudy: Stri
 
         if (udm.containsKey(i)) {
             for (vi <- udm.get(i)) {
-                freshidset = freshidset + createFresh(vi)
+                freshidset = freshidset.+(createFresh(vi))
             }
             freshidset
         } else {
@@ -160,5 +160,5 @@ class DoubleFree(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel, casestudy: Stri
         }
     }
 
-    override def F(e: AST) = flowR(e)
+    override def F(e: AST) = flow(e)
 }

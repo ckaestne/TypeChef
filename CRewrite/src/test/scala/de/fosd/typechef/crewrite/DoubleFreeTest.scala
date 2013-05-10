@@ -5,6 +5,7 @@ import org.scalatest.matchers.ShouldMatchers
 import de.fosd.typechef.featureexpr.FeatureExprFactory
 import de.fosd.typechef.typesystem._
 import de.fosd.typechef.parser.c._
+import java.io.{FileWriter, File}
 
 class DoubleFreeTest extends TestHelper with ShouldMatchers with CFGHelper {
 
@@ -45,7 +46,6 @@ class DoubleFreeTest extends TestHelper with ShouldMatchers with CFGHelper {
         // We use the proper fm in DoubleFree (see MonotoneFM).
         val ss = getAllSucc(f, FeatureExprFactory.empty, env).reverse
         val df = new DoubleFree(env, udm, FeatureExprFactory.empty, casestudy)
-
         val nss = ss.map(_._1).filterNot(x => x.isInstanceOf[FunctionDef])
 
         for (s <- nss) {
@@ -136,6 +136,20 @@ class DoubleFreeTest extends TestHelper with ShouldMatchers with CFGHelper {
 
     @Test def test_double_free_simple() {
         hasDoubleFree("""
+              void* malloc(int i) { return ((void*)0); }
+              void free(void* p) { }
+              int foo() {
+                  int fd;
+                  if (fd) {
+                      int *a;
+                      int *buf;
+                      free(buf);
+                      free(a);
+                  }
+                  return 0;
+              }
+                      """.stripMargin) should be(false)
+        hasDoubleFree("""
                  void* malloc(int i) { return ((void*)0); }
                  void free(void* p) { }
                  void foo() {
@@ -224,5 +238,6 @@ class DoubleFreeTest extends TestHelper with ShouldMatchers with CFGHelper {
                   return error_condition;
               }
                       """.stripMargin) should be(true)
+
     }
 }

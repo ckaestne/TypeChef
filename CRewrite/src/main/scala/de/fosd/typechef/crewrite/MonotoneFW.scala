@@ -47,7 +47,7 @@ abstract class MonotoneFW[T](val env: ASTEnv, val udm: UseDeclMap, val fm: Featu
     protected def createFresh(i: T) = {
         if (! dId2Fresh.containsKey(i)) {
             val nt = t2T(i)
-            dId2Fresh.put(nt, i)
+            dId2Fresh.put(i, nt)
         }
         dId2Fresh.get(i)
     }
