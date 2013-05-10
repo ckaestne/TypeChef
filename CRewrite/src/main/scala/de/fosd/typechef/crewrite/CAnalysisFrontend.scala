@@ -43,7 +43,6 @@ class CAnalysisFrontend(tunit: TranslationUnit, fm: FeatureModel = FeatureExprFa
         val udm = ts.getUseDeclMap
 
         val fdefs = filterAllASTElems[FunctionDef](tunit)
-        println("#functions " + fdefs.size)
         val errors = fdefs.flatMap(doubleFreeFunctionDef(_, env, udm, casestudy))
 
         if (errors.isEmpty) {
@@ -56,7 +55,6 @@ class CAnalysisFrontend(tunit: TranslationUnit, fm: FeatureModel = FeatureExprFa
     }
 
     private def doubleFreeFunctionDef(f: FunctionDef, env: ASTEnv, udm: UseDeclMap, casestudy: String): List[AnalysisError] = {
-        println("Analyzing: " + f.getName)
         var res: List[AnalysisError] = List()
 
         // It's ok to use FeatureExprFactory.empty here.
@@ -71,27 +69,20 @@ class CAnalysisFrontend(tunit: TranslationUnit, fm: FeatureModel = FeatureExprFa
         for (s <- nss) {
             val g = df.gen(s)
             val out = df.out(s)
-            println("gen: " + g)
-            println("out: " + out)
 
             for ((i, h) <- out)
-                for ((f, j) <- g) {
+                for ((f, j) <- g)
                     j.find(_ == i) match {
                         case None =>
                         case Some(x) => {
                             val xdecls = udm.get(x)
                             val idecls = udm.get(i)
 
-                            // if i is a declaration idecls is null
-                            if (idecls != null) {
-                                for (ei <- idecls) {
-                                    if (xdecls.exists(_.eq(ei)))
-                                        res ::= new AnalysisError(h, "warning: Try to free a memory block that has been released", x)
-                                }
-                            }
+                            for (ei <- idecls)
+                                if (xdecls.exists(_.eq(ei)))
+                                    res ::= new AnalysisError(h, "warning: Try to free a memory block that has been released", x)
                         }
                     }
-                }
         }
 
         res

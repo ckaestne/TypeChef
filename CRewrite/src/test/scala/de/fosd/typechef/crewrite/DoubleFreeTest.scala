@@ -53,21 +53,18 @@ class DoubleFreeTest extends TestHelper with ShouldMatchers with CFGHelper {
             val out = df.out(s)
 
             for ((i, h) <- out)
-                for ((f, j) <- g) {
+                for ((f, j) <- g)
                     j.find(_ == i) match {
                         case None =>
                         case Some(x) => {
                             val xdecls = udm.get(x)
                             val idecls = udm.get(i)
 
-                            // if i is a declaration idecls is null
-                            if (idecls != null)
-                                for (ei <- idecls)
-                                    if (xdecls.exists(_.eq(ei)))
-                                        res ::= new AnalysisError(h, "warning: Try to free a memory block that has been released", x)
+                            for (ei <- idecls)
+                                if (xdecls.exists(_.eq(ei)))
+                                    res ::= new AnalysisError(h, "warning: Try to free a memory block that has been released", x)
                         }
                     }
-                }
         }
 
         res
