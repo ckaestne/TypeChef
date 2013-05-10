@@ -37,18 +37,17 @@ abstract class MonotoneFW[T](val env: ASTEnv, val udm: UseDeclMap, val fm: Featu
     // dataflow, such as identifiers (type Id) may have different declarations
     // (alternative types). so we track alternative elements here using two
     // maps
-    // t2FreshT is a 1:N mapping of T usages to fresh elements in out analysis
+    // t2FreshT is a 1:1 mapping of T declarations to fresh T elements for our analysis
     // freshT2T is the reverse of t2FreshT
-    private val t2FreshT = new java.util.IdentityHashMap[T, Set[T]]()
+    private val t2FreshT = new java.util.IdentityHashMap[T, T]()
     private val freshT2T = new java.util.IdentityHashMap[T, T]()
 
     // get fresh T elements that we use in our analysis for an incoming T element
     def getFresh(i: T) = {
         if (! t2FreshT.containsKey(i)) {
-            val freshidset = t2SetT(i)
-            for (fi <- freshidset)
-                freshT2T.put(fi, i)
-            t2FreshT.put(i, freshidset)
+            val nt = t2T(i)
+            freshT2T.put(nt, i)
+            t2FreshT.put(i, nt)
         }
         t2FreshT.get(i)
     }
@@ -60,6 +59,7 @@ abstract class MonotoneFW[T](val env: ASTEnv, val udm: UseDeclMap, val fm: Featu
     // in our analysis. typical for analysis such as double free
     // we create new Id using the freshTctr counter.
     protected def t2SetT(i: T): Set[T]
+    protected def t2T(i: T): T
 
     class IdentityHashMapCache[A] {
         private val cache: java.util.IdentityHashMap[Any, A] = new java.util.IdentityHashMap[Any, A]()
@@ -137,11 +137,11 @@ abstract class MonotoneFW[T](val env: ASTEnv, val udm: UseDeclMap, val fm: Featu
                 var res = exit(t)
                 for ((_, v) <- k)
                     for (x <- v)
-                        res = diff(res, getFresh(x))
+                        res = diff(res, t2SetT(x))
 
                 for ((fexp, v) <- g)
                     for (x <- v)
-                        res = join(res, fexp, getFresh(x))
+                        res = join(res, fexp, t2SetT(x))
                 res
             }
         }

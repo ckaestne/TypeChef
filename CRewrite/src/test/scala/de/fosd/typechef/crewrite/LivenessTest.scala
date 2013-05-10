@@ -4,7 +4,7 @@ import org.junit.Test
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.featureexpr.FeatureExprFactory
 import org.scalatest.matchers.ShouldMatchers
-import de.fosd.typechef.typesystem.CTypeSystemFrontend
+import de.fosd.typechef.typesystem.{CDeclUse, CTypeSystemFrontend}
 import de.fosd.typechef.conditional.Opt
 
 class LivenessTest extends TestHelper with ShouldMatchers with IntraCFG with CFGHelper {
@@ -15,7 +15,7 @@ class LivenessTest extends TestHelper with ShouldMatchers with IntraCFG with CFG
         val env = CASTEnv.createASTEnv(a)
         val ss = getAllSucc(a.stmt.innerStatements.head.entry, FeatureExprFactory.empty, env).map(_._1).filterNot(x => x.isInstanceOf[FunctionDef])
 
-        val ts = new CTypeSystemFrontend(TranslationUnit(List(Opt(FeatureExprFactory.True, a))))
+        val ts = new CTypeSystemFrontend(TranslationUnit(List(Opt(FeatureExprFactory.True, a)))) with CDeclUse
         assert(ts.checkASTSilent, "typecheck fails!")
         val udm = ts.getUseDeclMap
         val lv = new Liveness(env, udm, FeatureExprFactory.empty)
@@ -131,7 +131,6 @@ class LivenessTest extends TestHelper with ShouldMatchers with IntraCFG with CFG
         int c = a;
         if (c) {
         }
-        return c;
     }
                     """)
     }

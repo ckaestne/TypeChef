@@ -145,13 +145,20 @@ class DoubleFree(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel, casestudy: Stri
         freshTctr
     }
 
+    def t2T(i: Id) = Id(getFreshCtr + "_" + i.name)
+
     def t2SetT(i: Id) = {
         var freshidset = Set[Id]()
-        for (vi <- udm.get(i)) {
-            val newid = Id(getFreshCtr + "_" + vi.name)
-            freshidset = freshidset + newid
+
+        if (udm.containsKey(i)) {
+            for (vi <- udm.get(i)) {
+                freshidset = freshidset + getFresh(vi)
+            }
+            freshidset
+        } else {
+            Set(getFresh(i))
         }
-        freshidset
+
     }
 
     override def flowfun(e: AST) = flowR(e)
