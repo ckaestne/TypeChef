@@ -71,6 +71,8 @@ class CAnalysisFrontend(tunit: TranslationUnit, fm: FeatureModel = FeatureExprFa
         for (s <- nss) {
             val g = df.gen(s)
             val out = df.out(s)
+            println("gen: " + g)
+            println("out: " + out)
 
             for ((i, h) <- out)
                 for ((f, j) <- g) {
@@ -81,10 +83,12 @@ class CAnalysisFrontend(tunit: TranslationUnit, fm: FeatureModel = FeatureExprFa
                             val idecls = udm.get(i)
 
                             // if i is a declaration idecls is null
-                            if (idecls != null)
-                                for (ei <- idecls)
+                            if (idecls != null) {
+                                for (ei <- idecls) {
                                     if (xdecls.exists(_.eq(ei)))
                                         res ::= new AnalysisError(h, "warning: Try to free a memory block that has been released", x)
+                                }
+                            }
                         }
                     }
                 }

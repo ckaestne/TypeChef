@@ -39,21 +39,38 @@ abstract class MonotoneFW[T](val env: ASTEnv, val udm: UseDeclMap, val fm: Featu
     // maps
     // t2FreshT is a 1:1 mapping of T declarations to fresh T elements for our analysis
     // freshT2T is the reverse of t2FreshT
-    private val t2FreshT = new java.util.IdentityHashMap[T, T]()
+    private val t2FreshT = new java.util.IdentityHashMap[T, Set[T]]()
+    private val dId2Fresh = new java.util.IdentityHashMap[T, T]()
     private val freshT2T = new java.util.IdentityHashMap[T, T]()
 
-    // get fresh T elements that we use in our analysis for an incoming T element
-    def getFresh(i: T) = {
-        if (! t2FreshT.containsKey(i)) {
+    // create fresh T elements that we use in our analysis the declaration
+    // of an incoming element
+    protected def createFresh(i: T) = {
+        if (! dId2Fresh.containsKey(i)) {
             val nt = t2T(i)
-            freshT2T.put(nt, i)
+            dId2Fresh.put(nt, i)
+        }
+        dId2Fresh.get(i)
+    }
+
+    protected def getFresh(i: T) = {
+        if (! t2FreshT.containsKey(i)) {
+            val nt = t2SetT(i)
+            for (e <- nt)
+                freshT2T.put(e, i)
             t2FreshT.put(i, nt)
         }
         t2FreshT.get(i)
     }
 
+    protected def addFreshT(i: T) = {
+        val nt = createFresh(i)
+        freshT2T.put(nt, i)
+        nt
+    }
+
     // get the original T element of a freshly created T element
-    def getOriginal(i: T) = freshT2T.get(i)
+    protected def getOriginal(i: T) = freshT2T.get(i)
 
     // abstract function that creates the fresh T elements we use here
     // in our analysis. typical for analysis such as double free
@@ -137,11 +154,11 @@ abstract class MonotoneFW[T](val env: ASTEnv, val udm: UseDeclMap, val fm: Featu
                 var res = exit(t)
                 for ((_, v) <- k)
                     for (x <- v)
-                        res = diff(res, t2SetT(x))
+                        res = diff(res, getFresh(x))
 
                 for ((fexp, v) <- g)
                     for (x <- v)
-                        res = join(res, fexp, t2SetT(x))
+                        res = join(res, fexp, getFresh(x))
                 res
             }
         }

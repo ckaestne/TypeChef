@@ -99,11 +99,11 @@ class Liveness(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) extends MonotoneF
 
         if (udm.containsKey(i)) {
             for (vi <- udm.get(i)) {
-                freshidset = freshidset + getFresh(vi)
+                freshidset = freshidset + createFresh(vi)
             }
             freshidset
         } else {
-            Set(getFresh(i))
+            Set(addFreshT(i))
         }
 
     }

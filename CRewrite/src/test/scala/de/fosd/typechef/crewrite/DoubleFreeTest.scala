@@ -181,15 +181,17 @@ class DoubleFreeTest extends TestHelper with ShouldMatchers with CFGHelper {
         hasDoubleFree("""
               void* malloc(int i) { return ((void*)0); }
               void free(void* p) { }
+              void* realloc(void* p, int i) { return ((void*)0); }
               void foo() {
                   int *a = malloc(2);
                   int *b = realloc(a, 3);
                   free(a);
               }
-            """.stripMargin) should be(true)
+                      """.stripMargin) should be(true)
         hasDoubleFree("""
               void* malloc(int i) { return ((void*)0); }
               void free(void* p) { }
+              void* realloc(void* p, int i) { return ((void*)0); }
               void foo() {
                   int *a = malloc(2);
               #ifdef A
@@ -197,7 +199,9 @@ class DoubleFreeTest extends TestHelper with ShouldMatchers with CFGHelper {
               #else
                   free(a);
               #endif
+              #ifdef A
                   free(b);
+              #endif
               }
                       """.stripMargin) should be(false)
         // take from: https://www.securecoding.cert.org/confluence/display/seccode/MEM31-C.+Free+dynamically+allocated+memory+exactly+once
