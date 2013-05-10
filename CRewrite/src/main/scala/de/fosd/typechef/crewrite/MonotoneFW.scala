@@ -5,7 +5,6 @@ import org.kiama.attribution.AttributionBase
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.typesystem.UseDeclMap
 import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureModel, FeatureExpr}
-import scala.collection.immutable.HashMap
 
 // this abstract class provides a standard implementation of
 // the monotone framework, a general framework for dataflow analyses
@@ -124,7 +123,7 @@ abstract class MonotoneFW[T](val env: ASTEnv, val udm: UseDeclMap, val fm: Featu
     //      are easy and can be delayed to the point at which we *really* need
     //      the result. The delay also involves simplifications of feature
     //      expressions such as "a or (not a) => true".
-    type ResultMap = HashMap[T, FeatureExpr]
+    type ResultMap = Map[T, FeatureExpr]
 
     private def diff(map: ResultMap, d: Set[T]) = {
         var curmap = map
@@ -145,8 +144,8 @@ abstract class MonotoneFW[T](val env: ASTEnv, val udm: UseDeclMap, val fm: Featu
     }
 
     private val analysis_entry: AST => ResultMap = {
-        circular[AST, ResultMap](HashMap[T, FeatureExpr]()) {
-            case FunctionDef(_, _, _, _) => HashMap[T, FeatureExpr]()
+        circular[AST, ResultMap](Map[T, FeatureExpr]()) {
+            case FunctionDef(_, _, _, _) => Map[T, FeatureExpr]()
             case t => {
                 val g = gen(t)
                 val k = kill(t)
@@ -166,18 +165,18 @@ abstract class MonotoneFW[T](val env: ASTEnv, val udm: UseDeclMap, val fm: Featu
 
     // flow functions (flow => succ and flow_R => pred) functions of the
     // framework
-    protected def flowfun(e: AST): CFG
+    protected def F(e: AST): CFG
     protected def flow(e: AST): CFG = succ(e, FeatureExprFactory.empty, env)
     protected def flowR(e: AST): CFG = pred(e, FeatureExprFactory.empty, env)
 
     private val analysis_exit: AST => ResultMap =
-        circular[AST, ResultMap](HashMap[T, FeatureExpr]()) {
+        circular[AST, ResultMap](Map[T, FeatureExpr]()) {
             case e => {
-                var ss = flowfun(e)
+                var ss = F(e)
 
                 ss = ss.filterNot(x => x.entry.isInstanceOf[FunctionDef])
 
-                var res = HashMap[T, FeatureExpr]()
+                var res = Map[T, FeatureExpr]()
                 for (s <- ss) {
                     for ((r, f) <- entry(s.entry))
                         res = join(res, f and s.feature, Set(r))

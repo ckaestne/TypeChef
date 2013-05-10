@@ -3,7 +3,7 @@ package de.fosd.typechef.crewrite
 
 import de.fosd.typechef.featureexpr._
 import de.fosd.typechef.parser.c.{Id, PrettyPrinter, TranslationUnit, FunctionDef}
-import java.io.{Writer, StringWriter}
+import java.io.{FileWriter, File, Writer, StringWriter}
 import de.fosd.typechef.typesystem._
 
 class CAnalysisFrontend(tunit: TranslationUnit, fm: FeatureModel = FeatureExprFactory.empty) extends CFGHelper {
@@ -64,6 +64,15 @@ class CAnalysisFrontend(tunit: TranslationUnit, fm: FeatureModel = FeatureExprFa
         val ss = getAllSucc(f, FeatureExprFactory.empty, env).reverse
         val df = new DoubleFree(env, udm, fm, casestudy)
 
+        val fn = File.createTempFile("testfiles", ".dot")
+        val fw = new FileWriter(fn)
+
+        val dot = new DotGraph(fw)
+        dot.writeHeader(f.getName)
+        dot.writeMethodGraph(ss, env, Map())
+        dot.writeFooter()
+        fw.close()
+
         val nss = ss.map(_._1).filterNot(x => x.isInstanceOf[FunctionDef])
 
         for (s <- nss) {
@@ -77,6 +86,9 @@ class CAnalysisFrontend(tunit: TranslationUnit, fm: FeatureModel = FeatureExprFa
                         case Some(x) => {
                             val xdecls = udm.get(x)
                             val idecls = udm.get(i)
+                            println(PrettyPrinter.print(s))
+                            println("xdecls: " + xdecls)
+                            println("idecls: " + idecls)
 
                             for (ei <- idecls)
                                 if (xdecls.exists(_.eq(ei)))

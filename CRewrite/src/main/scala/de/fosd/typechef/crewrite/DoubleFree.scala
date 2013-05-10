@@ -160,5 +160,5 @@ class DoubleFree(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel, casestudy: Stri
         }
     }
 
-    override def flowfun(e: AST) = flowR(e)
+    override def F(e: AST) = flowR(e)
 }

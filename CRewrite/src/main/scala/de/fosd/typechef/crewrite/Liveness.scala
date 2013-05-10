@@ -108,5 +108,5 @@ class Liveness(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) extends MonotoneF
 
     }
 
-    override def flowfun(e: AST) = flow(e)
+    override def F(e: AST) = flow(e)
 }
