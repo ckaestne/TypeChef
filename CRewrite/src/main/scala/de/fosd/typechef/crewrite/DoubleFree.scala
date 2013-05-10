@@ -4,7 +4,7 @@ import org.kiama.rewriting.Rewriter._
 
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.typesystem.UseDeclMap
-import de.fosd.typechef.featureexpr.FeatureModel
+import de.fosd.typechef.featureexpr.{FeatureExpr, FeatureModel}
 
 // implements a simple analysis of double-free
 // freeing memory multiple times [dblfree]
@@ -34,7 +34,9 @@ class DoubleFree(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel, casestudy: Stri
         else List("free")
     }
 
-    def id2SetT(i: Id) = Set(i)
+    def id2SetT(i: Id) = {
+        idcache.get(i)
+    }
 
     // Returns a set of Ids that have been reassigned with a new memory location.
     // We don't go for calls to standard memory allocation functions, such as
@@ -137,6 +139,17 @@ class DoubleFree(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel, casestudy: Stri
 
         freedpointers(a)
         addAnnotation2ResultSet(res)
+    }
+
+    def finalout(a: AST) = {
+        val o = out(a)
+        var res = List[(Id, FeatureExpr)]()
+
+        for ((x, f) <- o) {
+            val orig = idcache.getOriginal(x)
+            res = (orig, f) :: res
+        }
+        res.filter(_._2.isSatisfiable(fm)).distinct
     }
 
     override val analysis_exit = analysis_exit_forward

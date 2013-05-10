@@ -23,7 +23,7 @@ object CheckDataflow extends IntraCFG with CFGHelper {
         val lv = new Liveness(env, udm, fm)
 
         val nss = ss.map(_._1).filterNot(x => x.isInstanceOf[FunctionDef])
-        for (s <- nss) lv.entry(s)
+        for (s <- nss) lv.in(s)
     }
 
 }

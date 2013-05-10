@@ -2,7 +2,7 @@
 package de.fosd.typechef.crewrite
 
 import de.fosd.typechef.featureexpr._
-import de.fosd.typechef.parser.c.{TranslationUnit, FunctionDef}
+import de.fosd.typechef.parser.c.{PrettyPrinter, TranslationUnit, FunctionDef}
 import java.io.{Writer, StringWriter}
 import de.fosd.typechef.typesystem._
 
@@ -70,13 +70,21 @@ class CAnalysisFrontend(tunit: TranslationUnit, fm: FeatureModel = FeatureExprFa
 
         for (s <- nss) {
             val g = df.gen(s)
-            val out = df.out(s)
+            val out = df.finalout(s)
+            println("out: " + out)
 
-            for ((i, _) <- out)
+            for ((i, h) <- out)
                 for ((f, j) <- g) {
                     j.find(_ == i) match {
                         case None =>
-                        case Some(x) => res ::= new AnalysisError(f, "warning: Try to free a memory block that has been released", x)
+                        case Some(x) => {
+                            val xdecls = udm.get(x)
+                            val idecls = udm.get(i)
+
+                            for (ei <- idecls)
+                                if (xdecls.exists(_.eq(ei)))
+                                    res ::= new AnalysisError(h, "warning: Try to free a memory block that has been released", x)
+                        }
                     }
                 }
         }

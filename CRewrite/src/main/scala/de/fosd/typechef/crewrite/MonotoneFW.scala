@@ -36,8 +36,32 @@ abstract class MonotoneFW[T](val env: ASTEnv, val udm: UseDeclMap, val fm: Featu
 
     // since C allows variable shadowing we need to track variable usages
     // to their corresponding declarations
+    class IDCache {
+        private var freshIDctr = 1
+        private val declID2FreshID = new java.util.IdentityHashMap[Id, Set[Id]]()
+        private val freshID2declID = new java.util.IdentityHashMap[Id, Id]()
 
-    protected def id2SetT(i: Id): Set[T]
+        def get(i: Id) = {
+            if (! declID2FreshID.containsKey(i)) {
+                var freshidset = Set[Id]()
+                for (vi <- udm.get(i)) {
+                    val newid = Id(freshIDctr + "_" + vi.name)
+                    freshidset = freshidset + newid
+                    freshIDctr = freshIDctr + 1
+                    freshID2declID.put(newid, i)
+                }
+
+                declID2FreshID.put(i, freshidset)
+            }
+            declID2FreshID.get(i)
+        }
+
+        def getOriginal(i: Id) = freshID2declID.get(i)
+    }
+
+    protected val idcache = new IDCache()
+
+    protected def id2SetT(i: T): Set[T]
 
     protected val entry_cache = new IdentityHashMapCache[ResultMap]()
     protected val exit_cache = new IdentityHashMapCache[ResultMap]()
@@ -88,7 +112,7 @@ abstract class MonotoneFW[T](val env: ASTEnv, val udm: UseDeclMap, val fm: Featu
         var curmap = map
         for (e <- j) {
             curmap.get(e) match {
-                case None    => curmap = curmap.+((e, fexp))
+                case None => curmap = curmap.+((e, fexp))
                 case Some(x) => curmap = curmap.+((e, fexp or x))
             }
         }
@@ -103,9 +127,13 @@ abstract class MonotoneFW[T](val env: ASTEnv, val udm: UseDeclMap, val fm: Featu
                 val k = kill(t)
 
                 var res = out(t)
-                for ((_, v) <- k) res = diff(res, v)
+                for ((_, v) <- k)
+                    for (x <- v)
+                        res = diff(res, id2SetT(x))
 
-                for ((fexp, v) <- g) res = join(res, fexp, v)
+                for ((fexp, v) <- g)
+                    for (x <- v)
+                        res = join(res, fexp, id2SetT(x))
                 res
             }
         }
@@ -160,7 +188,9 @@ abstract class MonotoneFW[T](val env: ASTEnv, val udm: UseDeclMap, val fm: Featu
         }
     }
 
-    def out(a: AST) = exit(a).filter(_._2.isSatisfiable(fm))
+
+
+    def out(a: AST) = exit(a)
 
     private def entry(a: AST) = {
         entry_cache.lookup(a) match {
