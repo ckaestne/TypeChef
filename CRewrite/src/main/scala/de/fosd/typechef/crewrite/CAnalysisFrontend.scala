@@ -70,8 +70,7 @@ class CAnalysisFrontend(tunit: TranslationUnit, fm: FeatureModel = FeatureExprFa
 
         for (s <- nss) {
             val g = df.gen(s)
-            val out = df.finalout(s)
-            println("out: " + out)
+            val out = df.out(s)
 
             for ((i, h) <- out)
                 for ((f, j) <- g) {

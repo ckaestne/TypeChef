@@ -34,8 +34,21 @@ class DoubleFree(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel, casestudy: Stri
         else List("free")
     }
 
-    def id2SetT(i: Id) = {
-        idcache.get(i)
+    // we create fresh T elements (here Id) using a counter
+    private var freshTctr = 0
+
+    def getFreshCtr: Int = {
+        freshTctr = freshTctr + 1
+        freshTctr
+    }
+
+    def t2SetT(i: Id) = {
+        var freshidset = Set[Id]()
+        for (vi <- udm.get(i)) {
+            val newid = Id(getFreshCtr + "_" + vi.name)
+            freshidset = freshidset + newid
+        }
+        freshidset
     }
 
     // Returns a set of Ids that have been reassigned with a new memory location.
@@ -139,17 +152,6 @@ class DoubleFree(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel, casestudy: Stri
 
         freedpointers(a)
         addAnnotation2ResultSet(res)
-    }
-
-    def finalout(a: AST) = {
-        val o = out(a)
-        var res = List[(Id, FeatureExpr)]()
-
-        for ((x, f) <- o) {
-            val orig = idcache.getOriginal(x)
-            res = (orig, f) :: res
-        }
-        res.filter(_._2.isSatisfiable(fm)).distinct
     }
 
     override val analysis_exit = analysis_exit_forward

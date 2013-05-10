@@ -92,7 +92,7 @@ class Liveness(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) extends MonotoneF
     //  in(n) = uses(n) + (out(n) - defines(n))
     // out(n) = for s in succ(n) r = r + in(s); r
 
-    def id2SetT(i: Id) = Set(i)
+    def t2SetT(i: Id) = Set(i)
 
     override val analysis_exit = analysis_exit_forward
 }
