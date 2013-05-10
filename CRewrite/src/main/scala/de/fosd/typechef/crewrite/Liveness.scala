@@ -6,16 +6,6 @@ import de.fosd.typechef.typesystem.UseDeclMap
 
 import de.fosd.typechef.conditional.Opt
 
-class IdentityHashMapCache[A] {
-    private val cache: java.util.IdentityHashMap[Any, A] = new java.util.IdentityHashMap[Any, A]()
-    def update(k: Any, v: A) { cache.put(k, v) }
-    def lookup(k: Any): Option[A] = {
-        val v = cache.get(k)
-        if (v != null) Some(v)
-        else None
-    }
-}
-
 // liveness analysis based on monotone framework
 // liveness computes all variables that are used before their next write
 //
@@ -93,8 +83,6 @@ class Liveness(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) extends MonotoneF
 
     def gen(a: AST): Map[FeatureExpr, Set[Id]] = { addAnnotation2ResultSet(uses(a)) }
     def kill(a: AST): Map[FeatureExpr, Set[Id]] = { addAnnotation2ResultSet(defines(a)) }
-
-
 
     // we create fresh T elements (here Id) using a counter
     private var freshTctr = 0

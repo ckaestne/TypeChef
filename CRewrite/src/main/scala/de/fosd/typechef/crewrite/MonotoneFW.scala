@@ -61,6 +61,15 @@ abstract class MonotoneFW[T](val env: ASTEnv, val udm: UseDeclMap, val fm: Featu
     // we create new Id using the freshTctr counter.
     protected def t2SetT(i: T): Set[T]
 
+    class IdentityHashMapCache[A] {
+        private val cache: java.util.IdentityHashMap[Any, A] = new java.util.IdentityHashMap[Any, A]()
+        def update(k: Any, v: A) { cache.put(k, v) }
+        def lookup(k: Any): Option[A] = {
+            val v = cache.get(k)
+            if (v != null) Some(v)
+            else None
+        }
+    }
 
     protected val entry_cache = new IdentityHashMapCache[ResultMap]()
     protected val exit_cache = new IdentityHashMapCache[ResultMap]()
