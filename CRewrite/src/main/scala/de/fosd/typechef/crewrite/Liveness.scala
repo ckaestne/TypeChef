@@ -16,6 +16,13 @@ class IdentityHashMapCache[A] {
     }
 }
 
+// liveness analysis based on monotone framework
+// liveness computes all variables that are used before their next write
+//
+// cf. http://www.cs.colostate.edu/~mstrout/CS553/slides/lecture03.pdf
+// page 5
+//  in(n) = gen(n) + (out(n) - kill(n))
+// out(n) = for s in succ(n) r = r + in(s); r
 class Liveness(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) extends MonotoneFW[Id](env, udm, fm) with IntraCFG  {
 
     // returns all declared Ids independent of their annotation
@@ -87,12 +94,24 @@ class Liveness(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) extends MonotoneF
     def gen(a: AST): Map[FeatureExpr, Set[Id]] = { addAnnotation2ResultSet(uses(a)) }
     def kill(a: AST): Map[FeatureExpr, Set[Id]] = { addAnnotation2ResultSet(defines(a)) }
 
-    // cf. http://www.cs.colostate.edu/~mstrout/CS553/slides/lecture03.pdf
-    // page 5
-    //  in(n) = uses(n) + (out(n) - defines(n))
-    // out(n) = for s in succ(n) r = r + in(s); r
 
-    def t2SetT(i: Id) = Set(i)
+
+    // we create fresh T elements (here Id) using a counter
+    private var freshTctr = 0
+
+    def getFreshCtr: Int = {
+        freshTctr = freshTctr + 1
+        freshTctr
+    }
+
+    def t2SetT(i: Id) = {
+        var freshidset = Set[Id]()
+        for (vi <- udm.get(i)) {
+            val newid = Id(getFreshCtr + "_" + vi.name)
+            freshidset = freshidset + newid
+        }
+        freshidset
+    }
 
     override val analysis_exit = analysis_exit_forward
 }
