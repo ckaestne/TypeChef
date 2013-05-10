@@ -45,7 +45,7 @@ abstract class MonotoneFW[T](val env: ASTEnv, val udm: UseDeclMap, val fm: Featu
     // get fresh T elements that we use in our analysis for an incoming T element
     def getFresh(i: T) = {
         if (! t2FreshT.containsKey(i)) {
-            var freshidset = t2SetT(i)
+            val freshidset = t2SetT(i)
             for (fi <- freshidset)
                 freshT2T.put(fi, i)
             t2FreshT.put(i, freshidset)
@@ -147,33 +147,19 @@ abstract class MonotoneFW[T](val env: ASTEnv, val udm: UseDeclMap, val fm: Featu
         }
     }
 
-    // flow functions (flow => succ and flow_R) functions of the
-    // framework directly encoded in analysis_exit_backward
-    // and analysis_exit_forward
-    protected val analysis_exit: AST => ResultMap
+    // flow functions (flow => succ and flow_R => pred) functions of the
+    // framework
+    protected def flowfun(e: AST): CFG
+    protected def flow(e: AST): CFG = succ(e, FeatureExprFactory.empty, env)
+    protected def flowR(e: AST): CFG = pred(e, FeatureExprFactory.empty, env)
 
-    protected val analysis_exit_backward: AST => ResultMap =
+    private val analysis_exit: AST => ResultMap =
         circular[AST, ResultMap](HashMap[T, FeatureExpr]()) {
             case e => {
-                var ss = succ(e, FeatureExprFactory.empty, env)
+                var ss = flowfun(e)
 
                 ss = ss.filterNot(x => x.entry.isInstanceOf[FunctionDef])
 
-                var res = HashMap[T, FeatureExpr]()
-                for (s <- ss) {
-                    for ((r, f) <- entry(s.entry))
-                        res = join(res, f and s.feature, Set(r))
-                }
-                res
-            }
-        }
-
-    protected val analysis_exit_forward: AST => ResultMap =
-        circular[AST, ResultMap](HashMap[T, FeatureExpr]()) {
-            case e => {
-                var ss = pred(e, FeatureExprFactory.empty, env)
-
-                ss = ss.filterNot(x => x.entry.isInstanceOf[FunctionDef])
                 var res = HashMap[T, FeatureExpr]()
                 for (s <- ss) {
                     for ((r, f) <- entry(s.entry))

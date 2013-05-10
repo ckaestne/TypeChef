@@ -4,7 +4,7 @@ import org.kiama.rewriting.Rewriter._
 
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.typesystem.UseDeclMap
-import de.fosd.typechef.featureexpr.{FeatureExpr, FeatureModel}
+import de.fosd.typechef.featureexpr.FeatureModel
 
 // implements a simple analysis of double-free
 // freeing memory multiple times [dblfree]
@@ -32,23 +32,6 @@ class DoubleFree(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel, casestudy: Stri
         if (casestudy == "linux") List("free", "kfree")
         else if (casestudy == "openssl") List("free", "CRYPTO_free")
         else List("free")
-    }
-
-    // we create fresh T elements (here Id) using a counter
-    private var freshTctr = 0
-
-    def getFreshCtr: Int = {
-        freshTctr = freshTctr + 1
-        freshTctr
-    }
-
-    def t2SetT(i: Id) = {
-        var freshidset = Set[Id]()
-        for (vi <- udm.get(i)) {
-            val newid = Id(getFreshCtr + "_" + vi.name)
-            freshidset = freshidset + newid
-        }
-        freshidset
     }
 
     // Returns a set of Ids that have been reassigned with a new memory location.
@@ -154,5 +137,22 @@ class DoubleFree(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel, casestudy: Stri
         addAnnotation2ResultSet(res)
     }
 
-    override val analysis_exit = analysis_exit_forward
+    // we create fresh T elements (here Id) using a counter
+    private var freshTctr = 0
+
+    private def getFreshCtr: Int = {
+        freshTctr = freshTctr + 1
+        freshTctr
+    }
+
+    def t2SetT(i: Id) = {
+        var freshidset = Set[Id]()
+        for (vi <- udm.get(i)) {
+            val newid = Id(getFreshCtr + "_" + vi.name)
+            freshidset = freshidset + newid
+        }
+        freshidset
+    }
+
+    override def flowfun(e: AST) = flowR(e)
 }

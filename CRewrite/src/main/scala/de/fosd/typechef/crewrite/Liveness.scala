@@ -87,7 +87,7 @@ class Liveness(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) extends MonotoneF
     // we create fresh T elements (here Id) using a counter
     private var freshTctr = 0
 
-    def getFreshCtr: Int = {
+    private def getFreshCtr: Int = {
         freshTctr = freshTctr + 1
         freshTctr
     }
@@ -101,5 +101,5 @@ class Liveness(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) extends MonotoneF
         freshidset
     }
 
-    override val analysis_exit = analysis_exit_forward
+    override def flowfun(e: AST) = flow(e)
 }
