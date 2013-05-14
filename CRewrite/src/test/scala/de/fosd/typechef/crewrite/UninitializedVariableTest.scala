@@ -53,7 +53,6 @@ class UninitializedVariableTest extends TestHelper with ShouldMatchers with CFGH
         for (s <- nss) {
             val g = um.getFunctionCallArguments(s)
             val in = um.out(s)
-            println(PrettyPrinter.print(s), g, in)
 
             for ((i, h) <- in)
                 for ((f, j) <- g)
@@ -61,11 +60,9 @@ class UninitializedVariableTest extends TestHelper with ShouldMatchers with CFGH
                         case None =>
                         case Some(x) => {
                             val xdecls = udm.get(x)
-                            val idecls = udm.get(i)
 
-                            for (ei <- idecls)
-                                if (xdecls.exists(_.eq(ei)))
-                                    res ::= new AnalysisError(h, "warning: Variable " + x.name + " is used uninitialized!", x)
+                            if (xdecls.exists(_.eq(i)))
+                                res ::= new AnalysisError(h, "warning: Variable " + x.name + " is used uninitialized!", x)
                         }
                     }
         }
@@ -75,6 +72,16 @@ class UninitializedVariableTest extends TestHelper with ShouldMatchers with CFGH
 
     @Test def test_variables() {
         getUninitializedVariables("{ int a; }") should be(Map(FeatureExprFactory.True -> Set(Id("a"))))
+        getUninitializedVariables("{ int a = 2; }") should be(Map())
+        getUninitializedVariables("{ int a, b = 1; }") should be(Map(FeatureExprFactory.True -> Set(Id("a"))))
+        getUninitializedVariables("{ int a = 1, b; }") should be(Map(FeatureExprFactory.True -> Set(Id("b"))))
+        getUninitializedVariables("{ int *a; }") should be(Map(FeatureExprFactory.True -> Set(Id("a"))))
+        getUninitializedVariables("{ int a[5]; }") should be(Map(FeatureExprFactory.True -> Set(Id("a"))))
+        getUninitializedVariables("""{
+              #ifdef A
+              int a;
+              #endif
+              }""".stripMargin) should be(Map(fa -> Set(Id("a"))))
     }
 
     @Test def test_functioncall_arguments() {

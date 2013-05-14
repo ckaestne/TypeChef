@@ -2,7 +2,7 @@
 package de.fosd.typechef.crewrite
 
 import de.fosd.typechef.featureexpr._
-import de.fosd.typechef.parser.c.{Id, PrettyPrinter, TranslationUnit, FunctionDef}
+import de.fosd.typechef.parser.c.{PrettyPrinter, TranslationUnit, FunctionDef}
 import java.io.{FileWriter, File, Writer, StringWriter}
 import de.fosd.typechef.typesystem._
 
@@ -100,7 +100,52 @@ class CAnalysisFrontend(tunit: TranslationUnit, fm: FeatureModel = FeatureExprFa
         res
     }
 
-    def uninitializedVariable() {
+    def uninitializedVariable(): Boolean = {
+        val ts = new CTypeSystemFrontend(tunit, FeatureExprFactory.empty) with CDeclUse
+        assert(ts.checkASTSilent, "typecheck fails!")
+        val env = CASTEnv.createASTEnv(tunit)
+        val udm = ts.getUseDeclMap
 
+        val fdefs = filterAllASTElems[FunctionDef](tunit)
+        val errors = fdefs.flatMap(uninitializedVariable(_, env, udm))
+
+        if (errors.isEmpty) {
+            println("No uages of uninitialized memory found!")
+        } else {
+            println(errors.map(_.toString + "\n").reduce(_ + _))
+        }
+
+        !errors.isEmpty
+    }
+
+    private def uninitializedVariable(f: FunctionDef, env: ASTEnv, udm: UseDeclMap): List[AnalysisError] = {
+        var res: List[AnalysisError] = List()
+
+        // It's ok to use FeatureExprFactory.empty here.
+        // Using the project's fm is too expensive since control
+        // flow computation requires a lot of sat calls.
+        // We use the proper fm in UninitializedMemory (see MonotoneFM).
+        val ss = getAllSucc(f, FeatureExprFactory.empty, env).reverse
+        val um = new UninitializedVariable(env, udm, FeatureExprFactory.empty)
+        val nss = ss.map(_._1).filterNot(x => x.isInstanceOf[FunctionDef])
+
+        for (s <- nss) {
+            val g = um.getFunctionCallArguments(s)
+            val in = um.out(s)
+
+            for ((i, h) <- in)
+                for ((f, j) <- g)
+                    j.find(_ == i) match {
+                        case None =>
+                        case Some(x) => {
+                            val xdecls = udm.get(x)
+
+                            if (xdecls.exists(_.eq(i)))
+                                  res ::= new AnalysisError(h, "warning: Variable " + x.name + " is used uninitialized!", x)
+                        }
+                    }
+        }
+
+        res
     }
 }

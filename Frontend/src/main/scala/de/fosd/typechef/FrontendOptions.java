@@ -125,6 +125,8 @@ public class FrontendOptions extends LexerOptions implements ParserOptions {
             parse = dumpcfg = true;
         } else if (c == F_DOUBLEFREE) {
             parse = doublefree = true;
+        } else if (c == F_UNINITIALIZEDVARIABLE) {
+            parse = uninitializedvariable = true;
         } else if (c == F_SERIALIZEAST) {
             serializeAST = true;
         } else if (c == F_RECORDTIMING) {
