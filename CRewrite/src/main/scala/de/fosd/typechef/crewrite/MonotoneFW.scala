@@ -125,10 +125,19 @@ abstract class MonotoneFW[T](val env: ASTEnv, val udm: UseDeclMap, val fm: Featu
     //      expressions such as "a or (not a) => true".
     type ResultMap = Map[T, FeatureExpr]
 
-    private def diff(map: ResultMap, d: Set[T]) = {
+    private def diff(map: ResultMap, fexp: FeatureExpr, d: Set[T]) = {
         var curmap = map
-        for (e <- d)
-            curmap = curmap.-(e)
+        for (e <- d) {
+            curmap.get(e) match {
+                case None =>
+                case Some(x) => {
+                    if (fexp.not and x isContradiction())
+                        curmap = curmap.-(e)
+                    else
+                        curmap = curmap + ((e, fexp.not and x))
+                }
+            }
+        }
         curmap
     }
 
@@ -151,9 +160,9 @@ abstract class MonotoneFW[T](val env: ASTEnv, val udm: UseDeclMap, val fm: Featu
                 val k = kill(t)
 
                 var res = exit(t)
-                for ((_, v) <- k)
+                for ((fexp, v) <- k)
                     for (x <- v)
-                        res = diff(res, getFresh(x))
+                        res = diff(res, fexp, getFresh(x))
 
                 for ((fexp, v) <- g)
                     for (x <- v)
@@ -163,7 +172,7 @@ abstract class MonotoneFW[T](val env: ASTEnv, val udm: UseDeclMap, val fm: Featu
         }
     }
 
-    // flow functions (flow => succ and flow_R => pred) functions of the
+    // flow functions (flow => succ and flow => pred) functions of the
     // framework
     protected def F(e: AST): CFG
     protected def flow(e: AST): CFG = succ(e, FeatureExprFactory.empty, env)

@@ -52,7 +52,11 @@ class UninitializedMemoryTest extends TestHelper with ShouldMatchers with CFGHel
 
         for (s <- nss) {
             val g = um.getFunctionCallArguments(s)
-            val in = um.out(s)
+            val in = um.in(s)
+            val gen = um.gen(s)
+            val kill = um.kill(s)
+            val out = um.out(s)
+            println("s: " + PrettyPrinter.print(s), "args: " + g, "gen: " + gen, "kill: " + kill, "in: " + in, "out: " + out)
 
             for ((i, h) <- in)
                 for ((f, j) <- g)
@@ -60,9 +64,12 @@ class UninitializedMemoryTest extends TestHelper with ShouldMatchers with CFGHel
                         case None =>
                         case Some(x) => {
                             val xdecls = udm.get(x)
-
-                            if (xdecls.exists(_.eq(i)))
-                                res ::= new AnalysisError(h, "warning: Variable " + x.name + " is used uninitialized!", x)
+                            var idecls = udm.get(i)
+                            if (idecls == null)
+                                idecls = List(i)
+                            for (ei <- idecls)
+                                if (xdecls.exists(_.eq(ei)))
+                                    res ::= new AnalysisError(h, "warning: Variable " + x.name + " is used uninitialized!", x)
                         }
                     }
         }
@@ -122,6 +129,24 @@ class UninitializedMemoryTest extends TestHelper with ShouldMatchers with CFGHel
                 report_error("Unable to login");
             }
             return 0;
+        }""".stripMargin) should be(true)
+
+        uninitializedMemory( """
+        void close(int i) { }
+        void foo() {
+            int fd;
+            fd = 2;
+            close(fd);
+        }""".stripMargin) should be(false)
+
+        uninitializedMemory( """
+        void close(int i) { }
+        void foo() {
+            int fd;
+            #ifdef A
+            fd = 2;
+            #endif
+            close(fd);
         }""".stripMargin) should be(true)
     }
 }

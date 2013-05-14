@@ -66,7 +66,7 @@ class UninitializedMemory(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) extend
     // get variables that get an assignment
     def kill(a: AST): Map[FeatureExpr, Set[Id]] = {
         var res = Set[Id]()
-        val assignments = alltd(query{
+        val assignments = manytd(query{
             case AssignExpr(target@Id(_), "=", _) => res += target
         })
 
@@ -74,6 +74,6 @@ class UninitializedMemory(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) extend
         addAnnotation2ResultSet(res)
     }
 
-    // flow functions (flow => succ and flow_R => pred)
+    // flow functions (flow => succ and flowR => pred)
     protected def F(e: AST) = flowR(e)
 }

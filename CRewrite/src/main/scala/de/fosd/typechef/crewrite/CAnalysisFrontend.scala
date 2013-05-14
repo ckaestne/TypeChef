@@ -2,7 +2,7 @@
 package de.fosd.typechef.crewrite
 
 import de.fosd.typechef.featureexpr._
-import de.fosd.typechef.parser.c.{PrettyPrinter, TranslationUnit, FunctionDef}
+import de.fosd.typechef.parser.c.{TranslationUnit, FunctionDef}
 import java.io.{FileWriter, File, Writer, StringWriter}
 import de.fosd.typechef.typesystem._
 
@@ -85,14 +85,12 @@ class CAnalysisFrontend(tunit: TranslationUnit, fm: FeatureModel = FeatureExprFa
                         case None =>
                         case Some(x) => {
                             val xdecls = udm.get(x)
-                            val idecls = udm.get(i)
-                            println(PrettyPrinter.print(s))
-                            println("xdecls: " + xdecls)
-                            println("idecls: " + idecls)
-
+                            var idecls = udm.get(i)
+                            if (idecls == null)
+                                idecls = List(i)
                             for (ei <- idecls)
                                 if (xdecls.exists(_.eq(ei)))
-                                    res ::= new AnalysisError(h, "warning: Try to free a memory block that has been released", x)
+                                    res ::= new AnalysisError(h, "warning: Variable " + x.name + " is used uninitialized!", x)
                         }
                     }
         }
@@ -131,7 +129,7 @@ class CAnalysisFrontend(tunit: TranslationUnit, fm: FeatureModel = FeatureExprFa
 
         for (s <- nss) {
             val g = um.getFunctionCallArguments(s)
-            val in = um.out(s)
+            val in = um.in(s)
 
             for ((i, h) <- in)
                 for ((f, j) <- g)
