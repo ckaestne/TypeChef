@@ -6,21 +6,21 @@ import de.fosd.typechef.featureexpr.FeatureExprFactory
 import de.fosd.typechef.typesystem._
 import de.fosd.typechef.parser.c._
 
-class UninitializedVariableTest extends TestHelper with ShouldMatchers with CFGHelper {
+class UninitializedMemoryTest extends TestHelper with ShouldMatchers with CFGHelper {
 
     private def getUninitializedVariables(code: String) = {
         val a = parseCompoundStmt(code)
-        val um = new UninitializedVariable(CASTEnv.createASTEnv(a), null, null)
+        val um = new UninitializedMemory(CASTEnv.createASTEnv(a), null, null)
         um.gen(a)
     }
 
     private def getFunctionCallArguments(code: String) = {
         val a = parseExpr(code)
-        val um = new UninitializedVariable(CASTEnv.createASTEnv(a), null, null)
+        val um = new UninitializedMemory(CASTEnv.createASTEnv(a), null, null)
         um.getFunctionCallArguments(a)
     }
 
-    def uninitializedVariableInUse(code: String): Boolean = {
+    def uninitializedMemory(code: String): Boolean = {
         val tunit = parseTranslationUnit(code)
         val ts = new CTypeSystemFrontend(tunit, FeatureExprFactory.empty) with CDeclUse
         assert(ts.checkASTSilent, "typecheck fails!")
@@ -28,7 +28,7 @@ class UninitializedVariableTest extends TestHelper with ShouldMatchers with CFGH
         val udm = ts.getUseDeclMap
 
         val fdefs = filterAllASTElems[FunctionDef](tunit)
-        val errors = fdefs.flatMap(uninitializedVariableInUse(_, env, udm))
+        val errors = fdefs.flatMap(uninitializedMemory(_, env, udm))
 
         if (errors.isEmpty) {
             println("No uages of uninitialized memory found!")
@@ -39,7 +39,7 @@ class UninitializedVariableTest extends TestHelper with ShouldMatchers with CFGH
         !errors.isEmpty
     }
 
-    private def uninitializedVariableInUse(f: FunctionDef, env: ASTEnv, udm: UseDeclMap): List[AnalysisError] = {
+    private def uninitializedMemory(f: FunctionDef, env: ASTEnv, udm: UseDeclMap): List[AnalysisError] = {
         var res: List[AnalysisError] = List()
 
         // It's ok to use FeatureExprFactory.empty here.
@@ -47,7 +47,7 @@ class UninitializedVariableTest extends TestHelper with ShouldMatchers with CFGH
         // flow computation requires a lot of sat calls.
         // We use the proper fm in UninitializedMemory (see MonotoneFM).
         val ss = getAllSucc(f, FeatureExprFactory.empty, env).reverse
-        val um = new UninitializedVariable(env, udm, FeatureExprFactory.empty)
+        val um = new UninitializedMemory(env, udm, FeatureExprFactory.empty)
         val nss = ss.map(_._1).filterNot(x => x.isInstanceOf[FunctionDef])
 
         for (s <- nss) {
@@ -90,7 +90,7 @@ class UninitializedVariableTest extends TestHelper with ShouldMatchers with CFGH
     }
 
     @Test def test_uninitialized_memory_simple() {
-        uninitializedVariableInUse( """
+        uninitializedMemory( """
         void get_sign(int number, int *sign) {
             if (sign == 0) {
                  /* ... */
@@ -107,7 +107,7 @@ class UninitializedVariableTest extends TestHelper with ShouldMatchers with CFGH
             return (sign < 0); // diagnostic required
         }""".stripMargin) should be(true)
 
-        uninitializedVariableInUse( """
+        uninitializedMemory( """
         int do_auth() { return 0; }
         int printf(const char *format, ...);
         int sprintf(char *str, const char* format, ...) { return 0; }

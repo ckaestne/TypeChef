@@ -145,7 +145,7 @@ object Frontend {
                 if (opt.uninitializedvariable) {
                     stopWatch.start("uninitializedvariable")
                     val uv = new CAnalysisFrontend(ast.asInstanceOf[TranslationUnit], fm_ts)
-                    uv.uninitializedVariable()
+                    uv.uninitializedMemory()
                 }
 
             }

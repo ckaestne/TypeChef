@@ -13,9 +13,9 @@ import de.fosd.typechef.featureexpr.{FeatureExpr, FeatureModel}
 //   - we use intraprocedural control flow (IntraCFG) which
 //     is a conservative analysis for program flow
 //     so the analysis will likely produce a lot
-//     of false positives, because variables can be initialized
+//     of false positives, because memory can be initialized
 //     in a different function
-class UninitializedVariable(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) extends MonotoneFW[Id](env, udm, fm) with IntraCFG with CFGHelper with ASTNavigation {
+class UninitializedMemory(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) extends MonotoneFW[Id](env, udm, fm) with IntraCFG with CFGHelper with ASTNavigation {
     // we create fresh T elements (here Id) using a counter
     private var freshTctr = 0
 

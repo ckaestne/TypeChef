@@ -100,14 +100,14 @@ class CAnalysisFrontend(tunit: TranslationUnit, fm: FeatureModel = FeatureExprFa
         res
     }
 
-    def uninitializedVariable(): Boolean = {
+    def uninitializedMemory(): Boolean = {
         val ts = new CTypeSystemFrontend(tunit, FeatureExprFactory.empty) with CDeclUse
         assert(ts.checkASTSilent, "typecheck fails!")
         val env = CASTEnv.createASTEnv(tunit)
         val udm = ts.getUseDeclMap
 
         val fdefs = filterAllASTElems[FunctionDef](tunit)
-        val errors = fdefs.flatMap(uninitializedVariable(_, env, udm))
+        val errors = fdefs.flatMap(uninitializedMemory(_, env, udm))
 
         if (errors.isEmpty) {
             println("No uages of uninitialized memory found!")
@@ -118,7 +118,7 @@ class CAnalysisFrontend(tunit: TranslationUnit, fm: FeatureModel = FeatureExprFa
         !errors.isEmpty
     }
 
-    private def uninitializedVariable(f: FunctionDef, env: ASTEnv, udm: UseDeclMap): List[AnalysisError] = {
+    private def uninitializedMemory(f: FunctionDef, env: ASTEnv, udm: UseDeclMap): List[AnalysisError] = {
         var res: List[AnalysisError] = List()
 
         // It's ok to use FeatureExprFactory.empty here.
@@ -126,7 +126,7 @@ class CAnalysisFrontend(tunit: TranslationUnit, fm: FeatureModel = FeatureExprFa
         // flow computation requires a lot of sat calls.
         // We use the proper fm in UninitializedMemory (see MonotoneFM).
         val ss = getAllSucc(f, FeatureExprFactory.empty, env).reverse
-        val um = new UninitializedVariable(env, udm, FeatureExprFactory.empty)
+        val um = new UninitializedMemory(env, udm, FeatureExprFactory.empty)
         val nss = ss.map(_._1).filterNot(x => x.isInstanceOf[FunctionDef])
 
         for (s <- nss) {

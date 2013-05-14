@@ -42,7 +42,7 @@ public class FrontendOptions extends LexerOptions implements ParserOptions {
     private final static char F_DEBUGINTERFACE = Options.genOptionId();
     private final static char F_DUMPCFG = Options.genOptionId();
     private final static char F_DOUBLEFREE = Options.genOptionId();
-    private final static char F_UNINITIALIZEDVARIABLE = Options.genOptionId();
+    private final static char F_UNINITIALIZEDMEMORY = Options.genOptionId();
     private final static char F_SERIALIZEAST = Options.genOptionId();
     private final static char F_RECORDTIMING = Options.genOptionId();
     private final static char F_FILEPC = Options.genOptionId();
@@ -72,7 +72,7 @@ public class FrontendOptions extends LexerOptions implements ParserOptions {
 
                 new Option("doublefree", LongOpt.NO_ARGUMENT, F_DOUBLEFREE, null,
                         "Lex, parse, and check for possible double free of heap pointers."),
-                new Option("uninitializedvariable", LongOpt.NO_ARGUMENT, F_UNINITIALIZEDVARIABLE, null,
+                new Option("uninitializedmemory", LongOpt.NO_ARGUMENT, F_UNINITIALIZEDMEMORY, null,
                         "Lex, parse, and check for usages of uninitialized variables."),
 
                 new Option("output", LongOpt.REQUIRED_ARGUMENT, 'o', "file",
@@ -125,7 +125,7 @@ public class FrontendOptions extends LexerOptions implements ParserOptions {
             parse = dumpcfg = true;
         } else if (c == F_DOUBLEFREE) {
             parse = doublefree = true;
-        } else if (c == F_UNINITIALIZEDVARIABLE) {
+        } else if (c == F_UNINITIALIZEDMEMORY) {
             parse = uninitializedvariable = true;
         } else if (c == F_SERIALIZEAST) {
             serializeAST = true;
