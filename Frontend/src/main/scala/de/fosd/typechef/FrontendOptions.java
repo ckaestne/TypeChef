@@ -23,6 +23,7 @@ public class FrontendOptions extends LexerOptions implements ParserOptions {
             writeInterface = false,
             dumpcfg = false,
             doublefree = false,
+            uninitializedvariable = false,
             serializeAST = false,
             writeDebugInterface = false,
             recordTiming = false,
@@ -41,6 +42,7 @@ public class FrontendOptions extends LexerOptions implements ParserOptions {
     private final static char F_DEBUGINTERFACE = Options.genOptionId();
     private final static char F_DUMPCFG = Options.genOptionId();
     private final static char F_DOUBLEFREE = Options.genOptionId();
+    private final static char F_UNINITIALIZEDVARIABLE = Options.genOptionId();
     private final static char F_SERIALIZEAST = Options.genOptionId();
     private final static char F_RECORDTIMING = Options.genOptionId();
     private final static char F_FILEPC = Options.genOptionId();
@@ -69,7 +71,9 @@ public class FrontendOptions extends LexerOptions implements ParserOptions {
                         "Lex, parse, and dump control flow graph"),
 
                 new Option("doublefree", LongOpt.NO_ARGUMENT, F_DOUBLEFREE, null,
-                        "Lex, parse, and check for possible double free of heap pointers"),
+                        "Lex, parse, and check for possible double free of heap pointers."),
+                new Option("uninitializedvariable", LongOpt.NO_ARGUMENT, F_UNINITIALIZEDVARIABLE, null,
+                        "Lex, parse, and check for usages of uninitialized variables."),
 
                 new Option("output", LongOpt.REQUIRED_ARGUMENT, 'o', "file",
                         "Path to output files (no extension, creates .pi, .macrodbg etc files)."),

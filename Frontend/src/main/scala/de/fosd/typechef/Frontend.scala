@@ -142,6 +142,11 @@ object Frontend {
                     val df = new CAnalysisFrontend(ast.asInstanceOf[TranslationUnit], fm_ts)
                     df.doubleFree()
                 }
+                if (opt.uninitializedvariable) {
+                    stopWatch.start("uninitializedvariable")
+                    val uv = new CAnalysisFrontend(ast.asInstanceOf[TranslationUnit], fm_ts)
+                    uv.uninitializedVariable()
+                }
 
             }
 

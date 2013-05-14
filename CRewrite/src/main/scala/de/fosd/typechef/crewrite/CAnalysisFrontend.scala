@@ -99,4 +99,8 @@ class CAnalysisFrontend(tunit: TranslationUnit, fm: FeatureModel = FeatureExprFa
 
         res
     }
+
+    def uninitializedVariable() {
+
+    }
 }

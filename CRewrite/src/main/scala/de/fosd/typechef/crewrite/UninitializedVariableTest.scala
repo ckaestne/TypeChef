@@ -13,9 +13,9 @@ import de.fosd.typechef.featureexpr.{FeatureExpr, FeatureModel}
 //   - we use intraprocedural control flow (IntraCFG) which
 //     is a conservative analysis for program flow
 //     so the analysis will likely produce a lot
-//     of false positives, because variables can be inialized
+//     of false positives, because variables can be initialized
 //     in a different function
-class UninitializedMemory(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) extends MonotoneFW[Id](env, udm, fm) with IntraCFG with CFGHelper with ASTNavigation {
+class UninitializedVariable(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) extends MonotoneFW[Id](env, udm, fm) with IntraCFG with CFGHelper with ASTNavigation {
     // we create fresh T elements (here Id) using a counter
     private var freshTctr = 0
 
@@ -39,18 +39,20 @@ class UninitializedMemory(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) extend
         }
     }
 
+    // get all Id's passed to a function
     def getFunctionCallArguments(e: AST) = {
         var res = Set[Id]()
+        val fcs = filterAllASTElems[FunctionCall](e)
         val arguments = manybu(query{
             case i: Id => res += i
             case PostfixExpr(i@Id(_), FunctionCall(_)) => res -= i
         })
 
-        arguments(e)
+        fcs.map(arguments(_))
         addAnnotation2ResultSet(res)
     }
 
-    // get all declared variables without an assignment
+    // get all declared variables without an initialization
     def gen(a: AST): Map[FeatureExpr, Set[Id]] = {
         var res = Set[Id]()
         val variables = manytd(query{
