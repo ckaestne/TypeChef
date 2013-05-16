@@ -1,0 +1,32 @@
+//
+//  main.c
+//  minStruct
+//
+//  Created by Andi on 06.12.12.
+//  Copyright (c) 2012 Andi. All rights reserved.
+//
+typedef struct unpack_info_t {
+	int mtime;
+} unpack_info_t;
+
+int  unpack_gunzip(unpack_info_t *info) {
+int status = -1;
+if (status > 0) {
+	status++;
+} else {
+#if definedEx(A)
+goto bad_magic;
+status++;
+#else
+goto bad_magic;
+#endif
+}
+
+#if definedEx(A)
+bad_magic:
+status++;
+#else
+bad_magic:
+#endif
+return status;
+}
