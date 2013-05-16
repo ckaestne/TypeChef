@@ -882,8 +882,8 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
         new File(path).mkdirs()
 
         // Sets the feature model to the busybox feature model in case we're not testing files from the frontend
-        if (featureModel.equals(FeatureExprLib.featureModelFactory.empty) && isBusyBox && (new File("C:/Users/Flo/Dropbox/HiWi/busybox/TypeChef-BusyboxAnalysis/busybox/featureModel")).exists()) {
-            fm = FeatureExprLib.featureModelFactory.create(new FeatureExprParser(FeatureExprLib.l).parseFile("C:/Users/Flo/Dropbox/HiWi/busybox/TypeChef-BusyboxAnalysis/busybox/featureModel"))
+        if (featureModel.equals(FeatureExprLib.featureModelFactory.empty) && isBusyBox && (new File("../TypeChef-BusyboxAnalysis/busybox/featureModel")).exists()) {
+            fm = FeatureExprLib.featureModelFactory.create(new FeatureExprParser(FeatureExprLib.l).parseFile("../TypeChef-BusyboxAnalysis/busybox/featureModel"))
         } else {
             fm = featureModel
         }
@@ -1247,23 +1247,6 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
                                         features.map(x => transformRecursive(replaceOptAndId(o, x), x))
                                     } else {
                                         List(transformRecursive(o, currentContext))
-                                    }
-                                    val ft = computeNextRelevantFeatures(sd, currentContext)
-                                    if (isVariable(sd)) {
-                                        val features = getNextVariableFeatures(sd)
-                                        if (!features.isEmpty) {
-                                            noOfDeclarationDuplications = noOfDeclarationDuplications + features.size - 1
-                                            noOfStructDeclarationsRenamed = noOfStructDeclarationsRenamed + 1
-                                            if (sd.qualifierList.exists(x => (x.entry.isInstanceOf[StructOrUnionSpecifier]))) {
-                                                features.map(x => Opt(trueF, transformRecursive(filterOptsByFeature(sd, x))))
-                                            } else {
-                                                features.map(x => Opt(trueF, transformRecursive(convertId(filterOptsByFeature(sd, x), x))))
-                                            }
-                                        } else {
-                                            List(transformRecursive(o))
-                                        }
-                                    } else {
-                                        List(o)
                                     }
                                 case d@Declaration(declSpecs, init) =>
                                     handleDeclarations(o.asInstanceOf[Opt[Declaration]], currentContext)

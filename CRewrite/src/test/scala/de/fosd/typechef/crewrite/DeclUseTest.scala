@@ -10,6 +10,8 @@ import de.fosd.typechef.parser.c.TranslationUnit
 
 class DeclUseTest extends ConditionalNavigation with ASTNavigation with CDeclUse with CTypeSystem with TestHelper {
 
+    val decluseTestPath = new File(".").getCanonicalPath() ++ "/CRewrite/src/test/resources/decluse_testfiles/"
+
     @Test def test_int_def_use {
         val source_ast = getAST( """
       int foo(int *x, int z) {
@@ -52,7 +54,7 @@ class DeclUseTest extends ConditionalNavigation with ASTNavigation with CDeclUse
         println("Source:\n" + source_ast)
         println("Ids:\n" + filterASTElems[Id](source_ast))
         println("\nDef Use Map:\n" + defUseMap)
-        println(checkDefuse(source_ast, defUseMap, useDeclMap))
+        println(checkDefuse(source_ast, defUseMap))
     }
 
     @Test def test_array_def_use {
@@ -123,8 +125,14 @@ class DeclUseTest extends ConditionalNavigation with ASTNavigation with CDeclUse
     }
 
     @Test def test_random_stuff {
-        val source_ast = getAstFromPi(new File("C:\\Users\\Flo\\Dropbox\\HiWi\\declUse\\testfiles\\typdef_in_struct.c"))
+        val source_ast = getAstFromPi(new File(decluseTestPath + "sizeof_typedef_struct.c"))
         println(source_ast)
+        runDefUseOnAst(source_ast)
+    }
+
+    @Test def test_cpio_pi {
+        val source_ast = getAstFromPi(new File("../TypeChef-BusyboxAnalysis/busybox-1.18.5/" + "archival/cpio.pi"))
+        //println(source_ast)
         runDefUseOnAst(source_ast)
     }
 
@@ -179,7 +187,7 @@ class DeclUseTest extends ConditionalNavigation with ASTNavigation with CDeclUse
         println("Ids:\n" + filterASTElems[Id](source_ast))
         println("\nDef Use Map:\n" + getDeclUseMap)
         val useDeclMap = getUseDeclMap
-        println(checkDefuse(source_ast, getDeclUseMap, useDeclMap))
+        println(checkDefuse(source_ast, getDeclUseMap))
     }
 
     @Test def test_int {
@@ -247,7 +255,7 @@ class DeclUseTest extends ConditionalNavigation with ASTNavigation with CDeclUse
         println("\nPrettyPrinted:\n" + PrettyPrinter.print(ast))
         typecheckTranslationUnit(ast)
         val useDeclMap = getUseDeclMap
-        val success = checkDefuse(ast, getDeclUseMap, useDeclMap)
+        val success = checkDefuse(ast, getDeclUseMap)
         println("DefUse" + getDeclUseMap)
         println(success)
     }
@@ -316,35 +324,9 @@ class DeclUseTest extends ConditionalNavigation with ASTNavigation with CDeclUse
 
     @Test def test_busybox_verification_of_defUse {
         // path to busybox dir with pi files to analyse
-        val folderPath = "/Users/and1/Dropbox/HiWi/casestudies/busybox-1.18.5"
+        val folderPath = "../TypeChef-BusyboxAnalysis/busybox-1.18.5/"
         val folder = new File(folderPath)
         analyseDir(folder)
-
-        val folderPath2 = "C:/users/flo/dropbox/HiWi/casestudies/busybox-1.18.5"
-        val folder2 = new File(folderPath2)
-        analyseDir(folder2)
-    }
-
-    @Test def test_cdrompi {
-        // path to busybox dir with pi files to analyse
-        val folderPath = "/Users/and1/Dropbox/HiWi/decluse/"
-        val folder = new File(folderPath)
-        analyseDir(folder)
-
-        val folderPath2 = "C:/users/flo/dropbox/hiwi/flo/pifiles/"
-        val folder2 = new File(folderPath2)
-        analyseDir(folder2)
-    }
-
-    @Test def test_tarpi {
-        // path to busybox dir with pi files to analyse
-        val folderPath = "/Users/andi/Dropbox/HiWi/Flo/gzip/"
-        val folder = new File(folderPath)
-        analyseDir(folder)
-
-        val folderPath2 = "C:\\Users\\Flo\\Dropbox\\HiWi\\Flo\\gzip"
-        val folder2 = new File(folderPath2)
-        analyseDir(folder2)
     }
 
     private def runDefUseOnAst(tu: TranslationUnit, parsingRunTimeString: String = "Parsing done.") {
@@ -362,7 +344,7 @@ class DeclUseTest extends ConditionalNavigation with ASTNavigation with CDeclUse
 
         val declUse = getDeclUseMap
         val useDeclMap = getUseDeclMap
-        val success = checkDefuse(tu, declUse, useDeclMap)
+        val success = checkDefuse(tu, declUse)
 
         /*val sb = new StringBuilder
         defuse.keySet().toArray().foreach(x => sb.append(x + "@" + x.asInstanceOf[Id].range + "\n"))
@@ -405,24 +387,5 @@ class DeclUseTest extends ConditionalNavigation with ASTNavigation with CDeclUse
                 analyseDir(dir)
             }
         }
-    }
-
-    @Test def test_minimal_stuff {
-        val folderPath = "/Users/and1/Dropbox/hiwi/busybox/minimalbeispiel/"
-        val folder = new File(folderPath)
-        analyseDir(folder)
-        val folderPath2 = "C:/users/flo/dropbox/hiwi/busybox/minimalbeispiel/"
-        val folder2 = new File(folderPath2)
-        analyseDir(folder2)
-    }
-
-    @Test def test_testpi {
-        // path to busybox dir with pi files to analyse
-        val folderPath = "/Users/andi/Dropbox/HiWi/Flo/test/"
-        val folder = new File(folderPath)
-        analyseDir(folder, false)
-        val folderPath2 = "C:/users/flo/dropbox/hiwi/flo/test/"
-        val folder2 = new File(folderPath2)
-        analyseDir(folder2, true)
     }
 }

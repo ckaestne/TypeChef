@@ -29,6 +29,8 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDeclU
     val path = new File("..").getCanonicalPath() ++ "/ifdeftoif/"
     val singleFilePath = new File("..").getCanonicalPath() ++ "/single_files/"
     val busyBoxPath = "../TypeChef-BusyboxAnalysis/busybox-1.18.5/"
+    val linuxPath = "../TypeChef-LinuxAnalysis"
+    val ifdeftoifTestPath = new File(".").getCanonicalPath() ++ "/CRewrite/src/test/resources/ifdeftoif_testfiles/"
 
     /* val tb = java.lang.management.ManagementFactory.getThreadMXBean
   val time = tb.getCurrentThreadCpuTime // Type long; beware in nanoseconds */
@@ -939,7 +941,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDeclU
     }
 
     @Test def test_pi() {
-        val file = new File("C:\\Users\\Flo\\Dropbox\\HiWi\\Flo\\test\\applets_pi_typeerror.c")
+        val file = new File(ifdeftoifTestPath + "applets_pi_typeerror.c")
         testFile(file)
     }
 
@@ -954,10 +956,10 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDeclU
     }
 
     @Test def test_alex_pi() {
-        val file = new File("C:\\Users\\Flo\\Dropbox\\HiWi\\Flo\\Alex\\r8a66597-udc.pi")
+        val file = new File(linuxPath + "linux-3.4/drivers/usb/gadget/r8a66597-udc.pi")
         val macroFilter = new util.ArrayList[String]()
         macroFilter.add("x:CONFIG_")
-        val fm = new FeatureExprParser(FeatureExprLib.l()).parseFile(new File(":\\Users\\Flo\\Dropbox\\HiWi\\Flo\\Alex\\approx.fm"))
+        val fm = new FeatureExprParser(FeatureExprLib.l()).parseFile(new File(linuxPath + "approx.fm"))
         //testFile(file)
 
         de.fosd.typechef.featureexpr.FeatureExprFactory.setDefault(de.fosd.typechef.featureexpr.FeatureExprFactory.bdd)
@@ -965,10 +967,6 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDeclU
         val parse = System.currentTimeMillis()
         val ast = getAstFromPi(file)
         println("Parsing took: " + ((System.currentTimeMillis() - parse) / 1000) + "s")
-
-        val print = System.currentTimeMillis()
-        PrettyPrinter.printF(ast, "C:/alex.src")
-        println("Printing took: " + ((System.currentTimeMillis() - print) / 1000) + "s")
     }
 
     @Test def test_cpio_pi() {
@@ -1058,21 +1056,6 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDeclU
     @Test def test_lineedit_pi() {
         val file = new File(busyBoxPath + "libbb/lineedit.pi")
         testFile(file)
-    }
-
-    @Test def test_cdrom_pi() {
-        val file = new File("C:/users/flo/dropbox/hiwi/flo/pifiles/cdrom.pi")
-        //testFile(file)
-
-        de.fosd.typechef.featureexpr.FeatureExprFactory.setDefault(de.fosd.typechef.featureexpr.FeatureExprFactory.bdd)
-
-        val parse = System.currentTimeMillis()
-        val ast = getAstFromPi(file)
-        println("Parsing took: " + ((System.currentTimeMillis() - parse) / 1000) + "s")
-
-        val print = System.currentTimeMillis()
-        PrettyPrinter.printF(ast, "C:/cdrom.src")
-        println("Printing took: " + ((System.currentTimeMillis() - print) / 1000) + "s")
     }
 
     @Test def test_if_conditional() {
@@ -1330,11 +1313,6 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDeclU
         println(source_ast2)
     }
 
-    @Test def struct_test() {
-        val file = new File("C:/users/flo/dropbox/hiwi/flo/random/struct.pi")
-        testFile(file)
-    }
-
     private def writeToTextFile(name: String, content: String) {
         val fw = new FileWriter(name)
         fw.write(content)
@@ -1444,7 +1422,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDeclU
                 val timeToParseAndTypeCheck = System.currentTimeMillis() - startParsingAndTypeChecking
                 //print("--Parsed--")
 
-                val tuple = i.ifdeftoif(source_ast, defUseMap, FeatureExprLib.featureModelFactory.create(new FeatureExprParser(FeatureExprLib.l).parseFile("C:/Users/Flo/Dropbox/HiWi/busybox/TypeChef-BusyboxAnalysis/busybox/featureModel")), fileNameWithoutExtension, timeToParseAndTypeCheck)
+                val tuple = i.ifdeftoif(source_ast, defUseMap, FeatureExprLib.featureModelFactory.create(new FeatureExprParser(FeatureExprLib.l).parseFile("../TypeChef-BusyboxAnalysis/busybox/featureModel")), fileNameWithoutExtension, timeToParseAndTypeCheck)
                 tuple._1 match {
                     case None =>
                         println("!! Transformation of " ++ fileName ++ " unsuccessful because of type errors in transformation result !!")
@@ -1643,17 +1621,13 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDeclU
     }
 
     @Test def flo_ast_test() {
-        val source_ast = getAstFromPi(new File("C:/users/flo/dropbox/hiwi/flo/test/test2.pi"))
+        val source_ast = getAstFromPi(new File(ifdeftoifTestPath + "test2.pi"))
         println(source_ast)
     }
 
     @Test def busy_box_test() {
         val busybox = new File(busyBoxPath + "")
         transformDir(busybox)
-    }
-
-    @Test def directory_test() {
-        transformDir(new File("C:/users/flo/dropbox/hiwi/flo/busybox/"))
     }
 
     @Test def random_test() {
@@ -1850,25 +1824,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDeclU
     }
 
     @Test def file_test() {
-        //val file = new File("C:/Users/Flo/Dropbox/HiWi/Flo/test/annotated_typedef.c")
-        //val file = new File("C:/Users/Flo/Dropbox/HiWi/Flo/test/test_decluse.c")
-        //val file = new File("C:/Users/Flo/Dropbox/HiWi/Flo/test/test_type_error.c")
-        //val file = new File("C:/Users/Flo/Dropbox/HiWi/Flo/test/test_typedef.c")
-        //val file = new File("C:/Users/Flo/Dropbox/HiWi/Flo/test/typedef_struct.c")
-        //val file = new File("C:/Users/Flo/Dropbox/HiWi/Flo/test/double_typedef.c")
-        //val file = new File("C:/Users/Flo/Dropbox/HiWi/Flo/ifdeftoif/test_main.c")
-        //val file = new File("C:/Users/Flo/Dropbox/HiWi/Flo/test/struct_typedef_test.c")
-        //val file = new File("C:/Users/Flo/Dropbox/HiWi/Flo/test/struct_enum_test.c")
-        //val file = new File("C:/Users/Flo/Dropbox/HiWi/Flo/test/declaration_functioncall.c")
-        //val file = new File("C:/Users/Flo/Dropbox/HiWi/Flo/test/typedef_usage_in_struct.c")
-        //val file = new File("C:/Users/Flo/Dropbox/HiWi/Flo/test/function_variable_specifiers.c")
-        //val file = new File("C:/Users/Flo/Dropbox/HiWi/Flo/test/function_call_test.c")
-        //val file = new File("C:/Users/Flo/Dropbox/HiWi/Flo/single_files/test_specifier.c")
-        //val file = new File("C:/Users/Flo/Dropbox/HiWi/Flo/test/variable_struct_member_usage.c")
-        //val file = new File("C:/Users/Flo/Dropbox/HiWi/Flo/test/char_trailer.c")
-        //val file = new File("C:/Users/Flo/Dropbox/HiWi/Flo/test/enum_test.c")
-        //val file = new File("C:/Users/Flo/Dropbox/HiWi/Flo/test/pretty_print.c")
-        val file = new File("C:\\Users\\Flo\\Dropbox\\HiWi\\Flo\\test\\struct_usage.c")
+        val file = new File(ifdeftoifTestPath + "variable_typedef.c")
 
         val source_ast = getAstFromPi(file)
         println(source_ast.toString() ++ "\n\n")
@@ -1894,7 +1850,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDeclU
         val test = i.conditionalToTuple(c, context)
         val debug = 0*/
 
-        val file = new File("C:/Users/Flo/Dropbox/HiWi/Flo/test/function_call_test.c")
+        val file = new File(ifdeftoifTestPath + "function_call_test.c")
         val source_ast = getAstFromPi(file)
 
         println(i.countNumberOfDeclarations(source_ast))
