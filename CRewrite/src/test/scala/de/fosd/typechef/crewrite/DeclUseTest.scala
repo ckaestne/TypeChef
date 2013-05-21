@@ -124,7 +124,7 @@ class DeclUseTest extends ConditionalNavigation with ASTNavigation with CDeclUse
         ast
     }
 
-    @Test def test_random_stuff {
+    @Test def test_sizeof_typedef_struct {
         val source_ast = getAstFromPi(new File(decluseTestPath + "sizeof_typedef_struct.c"))
         println(source_ast)
         runDefUseOnAst(source_ast)
@@ -132,6 +132,18 @@ class DeclUseTest extends ConditionalNavigation with ASTNavigation with CDeclUse
 
     @Test def test_typedef_in_sizeof {
         val source_ast = getAstFromPi(new File(decluseTestPath + "typedef_in_sizeof.c"))
+        println(source_ast)
+        runDefUseOnAst(source_ast)
+    }
+
+    @Test def test_builtin_offsetof_typedef_struct_union {
+        val source_ast = getAstFromPi(new File(decluseTestPath + "__builtin_offsetof_typedef_struct_union.c"))
+        println(source_ast)
+        runDefUseOnAst(source_ast)
+    }
+
+    @Test def test_malloc_sizeof {
+        val source_ast = getAstFromPi(new File(decluseTestPath + "malloc_sizeof.c"))
         println(source_ast)
         runDefUseOnAst(source_ast)
     }

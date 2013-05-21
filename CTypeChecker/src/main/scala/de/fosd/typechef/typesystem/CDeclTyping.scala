@@ -138,6 +138,7 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface with CDeclU
         var types = List[Conditional[CType]]()
         for (specifier <- specifiers) specifier match {
             case StructOrUnionSpecifier(isUnion, Some(id), _) =>
+                addStructDeclUse(id, env, isUnion, featureExpr)
                 if (hasTransparentUnionAttribute(specifiers))
                     types = types :+ One(CIgnore()) //ignore transparent union for now
                 else
@@ -441,7 +442,13 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface with CDeclU
                     var paramLists: Conditional[List[CType]] =
                         ConditionalLib.explodeOptList(getParameterTypes(parameterDecls, fexpr, env))
                     paramLists.map(CFunction(_, rtype))
-                case DeclArrayAccess(expr) => One(CArray(rtype))
+                case DeclArrayAccess(expr) =>
+                    expr match {
+                        case Some(expr: Expr) =>
+                            getExprType(expr, featureExpr, env)
+                        case _ =>
+                    }
+                    One(CArray(rtype))
             }
         )
 

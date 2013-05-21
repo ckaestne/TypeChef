@@ -42,9 +42,11 @@ trait CDeclUse extends CEnv with CEnvCache {
     }
 
     private def addToDeclUseMap(decl: Id, use: Id): Any = {
-        if (decl.eq(use) && !declUseMap.containsKey(decl)) putToDeclUseMap(decl)
+        if (decl.eq(use) && !declUseMap.containsKey(decl)) {
+            putToDeclUseMap(decl)
+        }
 
-        if (declUseMap.containsKey(decl) && !declUseMap.get(decl).contains(use)) {
+        if (declUseMap.containsKey(decl) && !declUseMap.get(decl).contains(use) && !decl.eq(use)) {
             declUseMap.get(decl).add(use)
             addToUseDeclMap(use, decl)
         }
@@ -630,7 +632,7 @@ trait CDeclUse extends CEnv with CEnvCache {
             case OffsetofMemberDesignatorID(i) =>
                 addDecl(i, featureExpr, env)
             case TypeDefTypeSpecifier(name: Id) =>
-            //addTypeUse(name, env, featureExpr)
+                addTypeUse(name, env, featureExpr)
             case DeclArrayAccess(Some(o)) =>
                 addDecl(o, featureExpr, env, isDefinition = false)
             case ReturnStatement(expr) =>

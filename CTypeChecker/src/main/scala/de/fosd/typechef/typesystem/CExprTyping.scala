@@ -188,6 +188,11 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                         et(newExpr)
                     //sizeof()
                     case SizeOfExprT(x) =>
+                        /*x match {
+                            case TypeName(lst, decl) =>
+                                checkTypeSpecifiers(lst, featureExpr, env)
+                            case _ =>
+                        }*/
                         sizeofType(env, x, featureExpr)
                     case SizeOfExprU(x) => sizeofType(env, x, featureExpr)
                     case ue@UnaryOpExpr(kind, expr) =>
@@ -418,9 +423,13 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
     def sizeofType(env: Env, x: AST, featureExpr: FeatureExpr): Conditional[CType] = {
         x match {
             case p@PostfixExpr(expr, PointerPostfixSuffix(_, i@Id(id))) => addStructUsageFromSizeOfExprU(p, featureExpr, env)
+            case pd@PointerDerefExpr(i: Id) =>
+                // TODO: isUnion is set to true
+                addStructDeclUse(i, env, true, featureExpr)
             case pd@PointerDerefExpr(NAryExpr(p, expr)) => addStructUsageFromSizeOfExprU(p, featureExpr, env)
             case pe@PostfixExpr(p: PostfixExpr, _) => addStructUsageFromSizeOfExprU(p, featureExpr, env)
-
+            case tn@TypeName(lst: List[Opt[Specifier]], decl) =>
+                getTypenameType(tn, featureExpr, env)
 
             case _ => // println("missed " + x)
         }
