@@ -130,6 +130,12 @@ class DeclUseTest extends ConditionalNavigation with ASTNavigation with CDeclUse
         runDefUseOnAst(source_ast)
     }
 
+    @Test def test_typedef_in_sizeof {
+        val source_ast = getAstFromPi(new File(decluseTestPath + "typedef_in_sizeof.c"))
+        println(source_ast)
+        runDefUseOnAst(source_ast)
+    }
+
     @Test def test_cpio_pi {
         val source_ast = getAstFromPi(new File("../TypeChef-BusyboxAnalysis/busybox-1.18.5/" + "archival/cpio.pi"))
         //println(source_ast)

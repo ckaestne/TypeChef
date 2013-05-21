@@ -592,7 +592,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
                     checkTypeParam(param, expr and f, env)
             case DeclIdentifierList(_) =>
             case DeclArrayAccess(Some(real_expr: Expr)) =>
-                addUse(real_expr, expr, env)
+                getExprType(real_expr, expr, env)
             case DeclArrayAccess(_) =>
         }
     }

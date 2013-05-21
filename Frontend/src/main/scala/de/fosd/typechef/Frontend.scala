@@ -118,8 +118,7 @@ object Frontend {
                     val typeCheckStatus = ts.checkASTSilent
                     if (opt.decluse) {
                         if (typeCheckStatus) {
-                            val cduF = new CDUFrontend
-                            println(cduF.checkDefuse(ast, ts.getDeclUseMap, fm_ts))
+                            println(ts.checkDefuse(ast, ts.getDeclUseMap, fm_ts))
                         } else {
                             println("generating the declaration-usage map unsuccessful because of type errors in source file")
                         }
