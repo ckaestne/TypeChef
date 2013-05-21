@@ -42,7 +42,7 @@ trait BusyBoxVerification extends Logging with ASTNavigation with ConditionalNav
             })
 
             // perform refactoring on all found .pi - files
-            piFiles.foreach(performRefactor(_))
+            piFiles.par.foreach(performRefactor(_))
             // continue on all found directories
             dirs.foreach(analyseDir(_))
         }
