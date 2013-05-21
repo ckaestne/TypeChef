@@ -429,7 +429,7 @@ object InlineFunction extends ASTSelection with Refactor {
         val initializer = getInitializers(call, renamed._2)
 
         // Apply feature environment
-        val statements = applyFeaturesOnInlineStmts(renamed._1, call)
+        val statements = applyFeaturesOnInlineStmts(renamed._1, call, morpheus)
 
         // find return statements
         val returnStmts = getReturnStmts(statements)
@@ -457,15 +457,15 @@ object InlineFunction extends ASTSelection with Refactor {
     }
 
 
-    def inlineFuncDefInExpr(compStmt: CompoundStatement, funcDef: Opt[FunctionDef], call: Opt[AST], morpheuseus: Morpheus, rename: Boolean): CompoundStatement = {
+    def inlineFuncDefInExpr(compStmt: CompoundStatement, funcDef: Opt[FunctionDef], call: Opt[AST], morpheus: Morpheus, rename: Boolean): CompoundStatement = {
         var workingStatement = compStmt
 
-        val idsToRename = getIdentifierToRename(funcDef.entry, call.entry, workingStatement, morpheuseus)
+        val idsToRename = getIdentifierToRename(funcDef.entry, call.entry, workingStatement, morpheus)
         if (!rename && !idsToRename.isEmpty) assert(false, "Inline function not possible - some variables need to be renamed")
 
-        val renamed = renameShadowedIds(idsToRename, funcDef, call, morpheuseus)
+        val renamed = renameShadowedIds(idsToRename, funcDef, call, morpheus)
         val initializer = getInitializers(call, renamed._2)
-        var statements = applyFeaturesOnInlineStmts(renamed._1, call)
+        var statements = applyFeaturesOnInlineStmts(renamed._1, call, morpheus)
         val returnStmts = getReturnStmts(statements)
 
         // remove return statements
@@ -560,9 +560,9 @@ object InlineFunction extends ASTSelection with Refactor {
         (statements, parameters)
     }
 
-    private def applyFeaturesOnInlineStmts(statements: List[Opt[Statement]], call: Opt[AST]): List[Opt[Statement]] = {
+    private def applyFeaturesOnInlineStmts(statements: List[Opt[Statement]], call: Opt[AST], morpheus: Morpheus): List[Opt[Statement]] = {
         statements.flatMap(statement => {
-            val feature = statement.feature.and(call.feature)
+            val feature = morpheus.getASTEnv.featureExpr(statement).and(call.feature)
             feature.isSatisfiable() match {
                 case true => Some(statement.copy(feature = feature))
                 case _ => None
