@@ -41,9 +41,7 @@ object Frontend {
                 println("TypeChef " + version)
                 return
             }
-        }
-
-        catch {
+        } catch {
             case o: OptionException =>
                 println("Invocation error: " + o.getMessage)
                 println("use parameter --help for more information.")
@@ -164,8 +162,7 @@ object Frontend {
                 }
                 if (opt.dataFlow) {
                     stopWatch.start("dataFlow")
-                    ProductGeneration.dataflowAnalysis(fm_ts, ast, opt,
-                        logMessage = ("Time for lexing(ms): " + (stopWatch.get("lexing")) + "\nTime for parsing(ms): " + (stopWatch.get("parsing")) + "\n"))
+                    ProductGeneration.dataflowAnalysis(fm_ts, ast, opt, logMessage = ("Time for lexing(ms): " + (stopWatch.get("lexing")) + "\nTime for parsing(ms): " + (stopWatch.get("parsing")) + "\n"))
                 }
 
             }
