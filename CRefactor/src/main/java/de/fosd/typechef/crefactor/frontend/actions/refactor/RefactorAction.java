@@ -5,8 +5,8 @@ import de.fosd.typechef.crefactor.Morpheus;
 import de.fosd.typechef.crefactor.backend.refactor.ExtractFunction;
 import de.fosd.typechef.crefactor.backend.refactor.InlineFunction;
 import de.fosd.typechef.crefactor.backend.refactor.RenameIdentifier;
-import de.fosd.typechef.crefactor.frontend.util.InlineDialog;
 import de.fosd.typechef.crefactor.frontend.util.RefactorNameInputBox;
+import de.fosd.typechef.crefactor.frontend.util.Test2000;
 import de.fosd.typechef.crefactor.util.Configuration;
 import de.fosd.typechef.parser.c.AST;
 import de.fosd.typechef.parser.c.Id;
@@ -72,9 +72,7 @@ public class RefactorAction {
                 if (InlineFunction.isFunctionCall(morpheus, id)) {
                     logger.info("InlineOnce");
                 }
-                final InlineDialog dialog = new InlineDialog(null,
-                        Configuration.getInstance().getConfig("refactor.inline.name") + " " + id.name() + "()",
-                        InlineFunction.isFunctionCall(morpheus, id));
+                final Test2000 dialog = new Test2000();
                 dialog.pack();
                 dialog.setVisible(true);
 

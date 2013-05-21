@@ -6,70 +6,11 @@ import java.util.{Collections, IdentityHashMap}
 import org.apache.logging.log4j.LogManager
 
 import de.fosd.typechef.conditional._
-import de.fosd.typechef.featureexpr.{FeatureModel, FeatureExprFactory, FeatureExpr}
+import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
 import de.fosd.typechef.parser.c._
 import scala.reflect.ClassTag
 import java.util
 import scala.collection.mutable.ListBuffer
-import org.kiama.rewriting.Rewriter._
-import de.fosd.typechef.parser.c.PlainParameterDeclaration
-import de.fosd.typechef.parser.c.Enumerator
-import de.fosd.typechef.parser.c.EnumSpecifier
-import de.fosd.typechef.parser.c.VarArgs
-import scala.Some
-import de.fosd.typechef.parser.c.NAryExpr
-import de.fosd.typechef.parser.c.TypeDefTypeSpecifier
-import de.fosd.typechef.parser.c.Initializer
-import de.fosd.typechef.parser.c.DoStatement
-import de.fosd.typechef.parser.c.PointerPostfixSuffix
-import de.fosd.typechef.parser.c.AssignExpr
-import de.fosd.typechef.conditional.One
-import de.fosd.typechef.parser.c.BuiltinOffsetof
-import de.fosd.typechef.parser.c.DeclParameterDeclList
-import de.fosd.typechef.parser.c.Pointer
-import de.fosd.typechef.parser.c.SizeOfExprT
-import de.fosd.typechef.parser.c.LcurlyInitializer
-import de.fosd.typechef.parser.c.Id
-import de.fosd.typechef.parser.c.Constant
-import de.fosd.typechef.parser.c.PointerDerefExpr
-import de.fosd.typechef.parser.c.CompoundStatement
-import de.fosd.typechef.conditional.Opt
-import de.fosd.typechef.parser.c.ParameterDeclarationAD
-import de.fosd.typechef.parser.c.StructDeclarator
-import de.fosd.typechef.parser.c.TypedefSpecifier
-import de.fosd.typechef.parser.c.PostfixExpr
-import de.fosd.typechef.parser.c.ArrayAccess
-import de.fosd.typechef.parser.c.ReturnStatement
-import de.fosd.typechef.parser.c.AtomicNamedDeclarator
-import de.fosd.typechef.parser.c.GnuAsmExpr
-import de.fosd.typechef.parser.c.StructOrUnionSpecifier
-import de.fosd.typechef.parser.c.PointerCreationExpr
-import de.fosd.typechef.conditional.Choice
-import de.fosd.typechef.parser.c.ConditionalExpr
-import de.fosd.typechef.parser.c.FunctionCall
-import de.fosd.typechef.parser.c.DeclArrayAccess
-import de.fosd.typechef.parser.c.IfStatement
-import de.fosd.typechef.parser.c.NArySubExpr
-import de.fosd.typechef.parser.c.WhileStatement
-import de.fosd.typechef.parser.c.InitDeclaratorI
-import de.fosd.typechef.parser.c.UnaryOpExpr
-import de.fosd.typechef.parser.c.Declaration
-import de.fosd.typechef.parser.c.InitializerAssigment
-import de.fosd.typechef.parser.c.LabelStatement
-import de.fosd.typechef.parser.c.ExprStatement
-import de.fosd.typechef.parser.c.DeclIdentifierList
-import de.fosd.typechef.parser.c.TypeOfSpecifierT
-import de.fosd.typechef.parser.c.InitializerDesignatorD
-import de.fosd.typechef.parser.c.StructDeclaration
-import de.fosd.typechef.parser.c.GotoStatement
-import de.fosd.typechef.parser.c.FunctionDef
-import de.fosd.typechef.parser.c.NestedFunctionDef
-import de.fosd.typechef.parser.c.OffsetofMemberDesignatorID
-import de.fosd.typechef.parser.c.ParameterDeclarationD
-import de.fosd.typechef.parser.c.TypeName
-import de.fosd.typechef.parser.c.CastExpr
-import de.fosd.typechef.parser.c.NestedNamedDeclarator
-import de.fosd.typechef.lexer.FeatureExprLib
 
 
 // this trait is a hook into the typesystem to preserve typing informations
@@ -89,8 +30,6 @@ trait CDeclUse extends CEnv with CEnvCache {
     private var stringToIdMap: Map[String, Id] = Map()
 
     private[typesystem] def clear() = clearDeclUseMap()
-
-    private val newIdentifierName = "rnd_ident"
 
     private def putToDeclUseMap(decl: Id) = {
         if (!declUseMap.contains(decl)) {
@@ -192,16 +131,13 @@ trait CDeclUse extends CEnv with CEnvCache {
 
     def addEnumUse(entry: AST, env: Env, feature: FeatureExpr) {
         entry match {
-            case i@Id(name) =>
-                if (env.enumEnv.containsKey(name)) {
-                    val enumDeclarationFeature = env.enumEnv.get(name).get._1
-                    val enumDeclarationId = env.enumEnv.get(name).get._2
-                    if (feature.equivalentTo(FeatureExprFactory.True) || (feature.implies(enumDeclarationFeature).isTautology())) {
-                        addToDeclUseMap(enumDeclarationId, i)
-                    }
+            case i@Id(name) if (env.enumEnv.containsKey(name)) =>
+                val enumDeclarationFeature = env.enumEnv.get(name).get._1
+                val enumDeclarationId = env.enumEnv.get(name).get._2
+                if (feature.equivalentTo(FeatureExprFactory.True) || (feature.implies(enumDeclarationFeature).isTautology())) {
+                    addToDeclUseMap(enumDeclarationId, i)
                 }
-            case x =>
-                logger.error("Missing Enumeration: " + x)
+            case x => logger.error("Missing Enumeration: " + x)
         }
     }
 
@@ -298,14 +234,6 @@ trait CDeclUse extends CEnv with CEnvCache {
                 case One(NestedFunctionDef(_, _, AtomicNamedDeclarator(_, key, _), _, _)) => addToDeclUseMap(key, use)
                 case One(key: Id) => addToDeclUseMap(key, use)
                 case One(null) =>
-                    // Workaround for typedefs in sizeof expressions, current typesystem does not check these
-                    if (env.typedefEnv.getAstOrElse(use.name, null) != null) {
-                        addTypeUse(use, env, feature)
-                    } else if (env.structEnv.someDefinition(use.name, true)) {
-                        addStructDeclUse(use, env, true, feature)
-                    } else if (env.structEnv.someDefinition(use.name, false)) {
-                        addStructDeclUse(use, env, false, feature)
-                    }
                 // TODO Enums, TypeDefs and Structs
                 // logger.error(use + " - " + env.varEnv.getAstOrElse(use.name, null) + "\n" + entry + "\n" + entry.getPositionFrom + " " + entry.getPositionTo)
                 case _ =>
@@ -328,16 +256,15 @@ trait CDeclUse extends CEnv with CEnvCache {
                 /**
                  * Type is generally only nested in a struct.
                  */
-                val structOrUnion = filterASTElements[Id](typeName)
+                val structOrUnion = filterASTElemts[Id](typeName)
                 members.foreach(x => addStructUse(x.entry, feature, env, structOrUnion.head.name, !env.structEnv.someDefinition(structOrUnion.head.name, false)))
-            case default =>
-                filterASTElements[Id](entry).foreach(id => {
-                    env.varEnv.getAstOrElse(id.name, null) match {
-                        case o@One(_) => addUseOne(o, id, env)
-                        case c@Choice(_, _, _) => addChoice(c, feature, id, env, addUseOne)
-                        case x => logger.error(x + "\n" + env.varEnv.getAstOrElse(id.name, null))
-                    }
-                })
+            case default => filterASTElemts[Id](entry).foreach(id => {
+                env.varEnv.getAstOrElse(id.name, null) match {
+                    case o@One(_) => addUseOne(o, id, env)
+                    case c@Choice(_, _, _) => addChoice(c, feature, id, env, addUseOne)
+                    case x => logger.error(x + "\n" + env.varEnv.getAstOrElse(id.name, null))
+                }
+            })
         }
 
         // TODO andreas: refactor code looks a little messy
@@ -503,8 +430,7 @@ trait CDeclUse extends CEnv with CEnvCache {
                 case One(AtomicNamedDeclarator(_, key, _)) => addToDeclUseMap(key, use)
                 case One(NestedNamedDeclarator(_, declarator, _)) => addToDeclUseMap(declarator.getId, use)
                 case One(i@Id(_)) => addToDeclUseMap(i, use)
-                case _ =>
-                    logger.error("AddAnonStructChoice " + use + " missed " + one)
+                case _ => logger.error("AddAnonStructChoice " + use + " missed " + one)
             }
         }
 
@@ -652,7 +578,7 @@ trait CDeclUse extends CEnv with CEnvCache {
                 id match {
                     case None =>
                     case Some(i: Id) =>
-                        addEnumUse(i, env, featureExpr)
+                        addDefinition(i, env)
                 }
             case EnumSpecifier(id, Some(o)) =>
                 id match {
@@ -823,27 +749,16 @@ trait CDeclUse extends CEnv with CEnvCache {
 
     // method recursively filters all AST elements for a given type T
     // Copy / Pasted from ASTNavigation -> unable to include ASTNavigation because of dependencies
-    private def filterASTElements[T <: AST](a: Any)(implicit m: ClassTag[T]): List[T] = {
+    private def filterASTElemts[T <: AST](a: Any)(implicit m: ClassTag[T]): List[T] = {
         a match {
             case p: Product if (m.runtimeClass.isInstance(p)) => List(p.asInstanceOf[T])
-            case l: List[_] => l.flatMap(filterASTElements[T])
-            case p: Product => p.productIterator.toList.flatMap(filterASTElements[T])
+            case l: List[_] => l.flatMap(filterASTElemts[T])
+            case p: Product => p.productIterator.toList.flatMap(filterASTElemts[T])
             case _ => List()
         }
     }
 
-    private def renameMissingIdentifiers(ast: AST, identifiers: List[Id]): AST = {
-        var replaceId: IdentityHashMap[Id, Id] = new IdentityHashMap()
-        identifiers.foreach(x => replaceId.put(x, x))
-
-        val r = manybu(rule {
-            case i: Id if (replaceId.exists(x => x._1.eq(i))) =>
-                Id(newIdentifierName)
-        })
-        r(ast).get.asInstanceOf[AST]
-    }
-
-    def checkDefuse(ast: AST, declUseMap: IdentityHashMap[Id, List[Id]], fm: FeatureModel = FeatureExprLib.featureModelFactory().empty): String = {
+    def checkDefuse(ast: AST, declUseMap: IdentityHashMap[Id, List[Id]], useDeclMap: IdentityHashMap[Id, List[Id]] = new IdentityHashMap()): String = {
         def getAllRelevantIds(a: Any): List[Id] = {
             a match {
                 case id: Id => if (!(id.name.startsWith("__builtin"))) List(id) else List()
@@ -888,16 +803,7 @@ trait CDeclUse extends CEnv with CEnvCache {
         if (!duplicateLB.isEmpty) {
             resultString.append("\nVariable Ids are: " + duplicateLB.toList.map(x => (x.name + "@ " + x.range.get._1.getLine + " from @ " + useDeclMap.get(x).map(y => y.range.get._1.getLine))))
         }
-
         // duplicateLB.foreach(x => resultString.append("\n"  + x + "@ " + x.range))
-        /*if (!missingLB.isEmpty) {
-            val ts = new CTypeSystemFrontend(renameMissingIdentifiers(ast, missingLB.toList).asInstanceOf[TranslationUnit], fm)
-            if (ts.checkASTSilent) {
-                resultString.append("\nAfter renaming missing identifiers the TypeCheck is still valid..")
-            } else {
-                // TODO
-            }
-        }*/
         return (resultString.toString())
     }
 }

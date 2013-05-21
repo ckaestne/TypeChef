@@ -41,9 +41,7 @@ object Frontend {
                 println("TypeChef " + version)
                 return
             }
-        }
-
-        catch {
+        } catch {
             case o: OptionException =>
                 println("Invocation error: " + o.getMessage)
                 println("use parameter --help for more information.")
@@ -119,7 +117,7 @@ object Frontend {
                     if (opt.decluse) {
                         if (typeCheckStatus) {
                             val cduF = new CDUFrontend
-                            println(cduF.checkDefuse(ast, ts.getDeclUseMap, fm_ts))
+                            // println(cduF.checkDefuse(ast, ts.getDeclUseMap, fm_ts))
                         } else {
                             println("generating the declaration-usage map unsuccessful because of type errors in source file")
                         }
@@ -165,8 +163,7 @@ object Frontend {
                 }
                 if (opt.dataFlow) {
                     stopWatch.start("dataFlow")
-                    ProductGeneration.dataflowAnalysis(fm_ts, ast, opt,
-                        logMessage = ("Time for lexing(ms): " + (stopWatch.get("lexing")) + "\nTime for parsing(ms): " + (stopWatch.get("parsing")) + "\n"))
+                    ProductGeneration.dataflowAnalysis(fm_ts, ast, opt, logMessage = ("Time for lexing(ms): " + (stopWatch.get("lexing")) + "\nTime for parsing(ms): " + (stopWatch.get("parsing")) + "\n"))
                 }
 
             }
