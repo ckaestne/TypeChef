@@ -38,11 +38,13 @@ class Rename extends BusyBoxVerification {
             val id = ids.apply((math.random * ids.size).toInt)
 
             val amountOfIds = getAllRelevantIds(ast).length
-            val features = RenameIdentifier.getAllConnectedIdentifier(id, morpheus.getDeclUseMap, morpheus.getUseDeclMap).map(x => parentOpt(x, morpheus.getASTEnv).feature.toString)
+            val features = RenameIdentifier.getAllConnectedIdentifier(id, morpheus.getDeclUseMap, morpheus.getUseDeclMap).map(x => morpheus.getASTEnv.featureExpr(x).toString)
             // check recursive only for variable ids
             if ((features.distinct.length == 1) && features.contains("True") && FORCE_VARIABILITY && (depth < MAX_DEPTH)) getVariableIdForRename(depth + 1)
             else (id, amountOfIds, features)
         }
+
+
 
         val toReanme = getVariableIdForRename()
         val id = toReanme._1

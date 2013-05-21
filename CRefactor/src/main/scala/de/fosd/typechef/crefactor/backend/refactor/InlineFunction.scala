@@ -555,8 +555,8 @@ object InlineFunction extends ASTSelection with Refactor {
     }
 
     private def renameShadowedIds(idsToRename: List[Id], funcDef: Opt[FunctionDef], call: Opt[AST], morpheus: Morpheus): (List[Opt[Statement]], List[Opt[DeclaratorExtension]]) = {
-        val statements = idsToRename.foldLeft(funcDef.entry.stmt.innerStatements)((statement, id) => replaceInAST(statement, id, id.copy(name = generateValidNewName(id, call, morpheus))).asInstanceOf[List[Opt[Statement]]])
-        val parameters = idsToRename.foldLeft(funcDef.entry.declarator.extensions)((extension, id) => replaceInAST(extension, id, id.copy(name = generateValidNewName(id, call, morpheus))).asInstanceOf[List[Opt[DeclaratorExtension]]])
+        val statements = idsToRename.foldLeft(funcDef.entry.stmt.innerStatements)((statement, id) => replaceInAST(statement, id, id.copy(name = generateValidNewName(id, call, morpheus))))
+        val parameters = idsToRename.foldLeft(funcDef.entry.declarator.extensions)((extension, id) => replaceInAST(extension, id, id.copy(name = generateValidNewName(id, call, morpheus))))
         (statements, parameters)
     }
 

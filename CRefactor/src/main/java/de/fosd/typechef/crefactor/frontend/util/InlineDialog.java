@@ -16,6 +16,9 @@ public class InlineDialog extends JDialog {
 
     public InlineDialog(final JFrame frame, final String title, final boolean call) {
         super(frame, title);
+
+        createUIComponents();
+
         setLocationRelativeTo(null);
         setContentPane(this.contentPane);
         setResizable(false);
@@ -81,5 +84,9 @@ public class InlineDialog extends JDialog {
 
     public boolean isRename() {
         return this.rename;
+    }
+
+    private void createUIComponents() {
+        this.contentPane = new JPanel();
     }
 }
