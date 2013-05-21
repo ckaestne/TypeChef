@@ -16,7 +16,7 @@ class Rename extends BusyBoxVerification {
 
     private val FORCE_VARIABILITY = true
 
-    def performRefactor(fileToRefactor: File) {
+    def performRefactor(fileToRefactor: File): Boolean = {
         val testStart = currentTime
         logger.info("+++ Rename Verification on " + fileToRefactor.getName + " +++")
 
@@ -37,12 +37,14 @@ class Rename extends BusyBoxVerification {
         def getVariableIdForRename(depth: Int = 0): (Id, Int, List[String]) = {
             val id = ids.apply((math.random * ids.size).toInt)
 
-            val amountOfIds = getAllRelevantIds(ast).length
-            val features = RenameIdentifier.getAllConnectedIdentifier(id, morpheus.getDeclUseMap, morpheus.getUseDeclMap).map(x => parentOpt(x, morpheus.getASTEnv).feature.toString)
+            val amountOfIds = RenameIdentifier.getAllConnectedIdentifier(id, morpheus.getDeclUseMap, morpheus.getUseDeclMap).length
+            val features = RenameIdentifier.getAllConnectedIdentifier(id, morpheus.getDeclUseMap, morpheus.getUseDeclMap).map(x => morpheus.getASTEnv.featureExpr(x).toString)
             // check recursive only for variable ids
             if ((features.distinct.length == 1) && features.contains("True") && FORCE_VARIABILITY && (depth < MAX_DEPTH)) getVariableIdForRename(depth + 1)
             else (id, amountOfIds, features)
         }
+
+
 
         val toReanme = getVariableIdForRename()
         val id = toReanme._1
@@ -78,6 +80,7 @@ class Rename extends BusyBoxVerification {
         builder.append("+++ Parsing Time: " + parsingTime + "ms\n")
         builder.append("+++ TypeCheck Time: " + typeCheckTime + "ms\n")
         builder.append("+++ Renaming Time: " + renamingTime + "ms\n")
+        builder.append("+++ Renamed " + id)
         builder.append("+++ Renamed Ids: " + toReanme._2 + "\n")
         builder.append("+++ Refactoring was successful: " + succ)
 
@@ -91,5 +94,7 @@ class Rename extends BusyBoxVerification {
         val runtime = currentTime - testStart
         logger.info("+++ Finished Refactoring on " + fileToRefactor.getName + " in " + runtime + "ms +++")
         logger.info("+++ Refactoring was successful: " + succ + " +++")
+
+        succ
     }
 }

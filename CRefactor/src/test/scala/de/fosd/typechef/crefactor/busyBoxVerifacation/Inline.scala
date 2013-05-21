@@ -11,7 +11,7 @@ class Inline extends BusyBoxVerification {
     private val output = OUTPUT_PATH + "/inlined/"
 
 
-    def performRefactor(fileToRefactor: File) {
+    def performRefactor(fileToRefactor: File): Boolean = {
         val testStart = currentTime
         logger.info("+++ Rename Verification on " + fileToRefactor.getName + " +++")
 
@@ -44,6 +44,8 @@ class Inline extends BusyBoxVerification {
         val runtime = currentTime - testStart
         logger.info("+++ Finished Refactoring on " + fileToRefactor.getName + " in " + runtime + "ms +++")
         logger.info(succ)
+
+        succ
     }
 
     private def inline(id: Id, morpheus: Morpheus): Boolean = {

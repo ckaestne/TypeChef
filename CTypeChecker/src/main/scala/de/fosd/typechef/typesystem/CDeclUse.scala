@@ -12,7 +12,6 @@ import scala.reflect.ClassTag
 import java.util
 import scala.collection.mutable.ListBuffer
 import de.fosd.typechef.lexer.FeatureExprLib
-import org.kiama.rewriting.Rewriter._
 
 
 // this trait is a hook into the typesystem to preserve typing informations
@@ -775,16 +774,6 @@ trait CDeclUse extends CEnv with CEnvCache {
         }
     }
 
-    private def renameMissingIdentifiers(ast: AST, identifiers: List[Id]): AST = {
-        var replaceId: IdentityHashMap[Id, Id] = new IdentityHashMap()
-        identifiers.foreach(x => replaceId.put(x, x))
-
-        val r = manybu(rule {
-            case i: Id if (replaceId.exists(x => x._1.eq(i))) =>
-                Id(newIdentifierName)
-        })
-        r(ast).get.asInstanceOf[AST]
-    }
 
     def checkDefuse(ast: AST, declUseMap: IdentityHashMap[Id, List[Id]], fm: FeatureModel = FeatureExprLib.featureModelFactory().empty): String = {
         def getAllRelevantIds(a: Any): List[Id] = {

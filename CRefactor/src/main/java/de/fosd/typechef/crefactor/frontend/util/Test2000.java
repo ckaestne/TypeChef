@@ -56,7 +56,7 @@ public class Test2000 extends JDialog {
     }
 
     public boolean isOnce() {
-        return true;
+        return false;
     }
 
     public boolean isRename() {
