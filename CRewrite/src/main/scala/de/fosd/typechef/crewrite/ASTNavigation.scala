@@ -82,7 +82,7 @@ trait ASTNavigation {
 
         @tailrec def prevASTElemsRec(e: Product, cres: List[AST] = List()): List[AST] = {
             e match {
-                case null => cres.reverse
+                case null => cres
                 case s => prevASTElemsRec(prevAST(s, env), childAST(s) :: cres)
             }
         }
@@ -97,7 +97,7 @@ trait ASTNavigation {
 
         @tailrec def nextASTElemsRec(e: Product, cres: List[AST] = List()): List[AST] = {
             e match {
-                case null => cres
+                case null => cres.reverse
                 case s => nextASTElemsRec(nextAST(s, env), childAST(s) :: cres)
             }
         }
