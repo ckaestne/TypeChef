@@ -43,9 +43,9 @@ trait BusyBoxVerification extends Logging with ASTNavigation with ConditionalNav
             })
 
             // perform refactoring on all found .pi - files
-            val filesSucc = piFiles.par.map(performRefactor(_)).toList
+            val filesSucc = piFiles.map(performRefactor(_))
             // continue on all found directories
-            val dirSucc = dirs.map(analyseDir(_)).toList ::: filesSucc
+            val dirSucc = dirs.map(analyseDir(_)) ++ filesSucc
             !dirSucc.exists(_ == false)
         } else true
     }
