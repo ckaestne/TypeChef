@@ -12,6 +12,8 @@ class Rename extends BusyBoxVerification {
 
     private val OUTPUT = OUTPUT_PATH + "/renamed/"
 
+    private val MAX_DEPTH = 100
+
     private val FORCE_VARIABILITY = true
 
     def performRefactor(fileToRefactor: File) {
@@ -32,17 +34,17 @@ class Rename extends BusyBoxVerification {
 
         val ids = morpheus.getUseDeclMap.values().toArray(Array[List[Id]]()).par.foldLeft(List[Id]())((list, entry) => list ::: entry).toList
 
-        def getVariableIdForRename: (Id, Int, List[String]) = {
+        def getVariableIdForRename(depth: Int = 0): (Id, Int, List[String]) = {
             val id = ids.apply((math.random * ids.size).toInt)
 
             val amountOfIds = getAllRelevantIds(ast).length
             val features = RenameIdentifier.getAllConnectedIdentifier(id, morpheus.getDeclUseMap, morpheus.getUseDeclMap).map(x => parentOpt(x, morpheus.getASTEnv).feature.toString)
             // check recursive only for variable ids
-            if ((features.distinct.length == 1) && features.contains("True") && FORCE_VARIABILITY) getVariableIdForRename
+            if ((features.distinct.length == 1) && features.contains("True") && FORCE_VARIABILITY && (depth < MAX_DEPTH)) getVariableIdForRename(depth + 1)
             else (id, amountOfIds, features)
         }
 
-        val toReanme = getVariableIdForRename
+        val toReanme = getVariableIdForRename()
         val id = toReanme._1
         val features = toReanme._3
 
