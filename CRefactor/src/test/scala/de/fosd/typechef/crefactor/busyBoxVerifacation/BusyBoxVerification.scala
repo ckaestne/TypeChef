@@ -21,18 +21,19 @@ trait BusyBoxVerification extends Logging with ASTNavigation with ConditionalNav
 
     protected val nsToMs = 1000000
 
-    def performRefactor(fileToRefactor: File)
+    def performRefactor(fileToRefactor: File): Boolean
 
     @Test def verify() {
         logger.info("+++ Starting Renaming Verification on BusyBox +++")
         val testStartTime = currentTime
-        analyseDir(new File(busyBoxPath))
+        val succ = analyseDir(new File(busyBoxPath))
         val testEndTime = currentTime
         logger.info("+++ Verification finished - Runtime: " + (testEndTime - testStartTime) + "ms\n Verified " + refactoredFiles +
                 " Files +++")
+        assert(succ)
     }
 
-    protected def analyseDir(dirToAnalyse: File) {
+    protected def analyseDir(dirToAnalyse: File): Boolean = {
         if (dirToAnalyse.isDirectory) {
             val piFiles = dirToAnalyse.listFiles(new FilenameFilter {
                 def accept(input: File, file: String): Boolean = file.endsWith(".pi")
@@ -42,10 +43,11 @@ trait BusyBoxVerification extends Logging with ASTNavigation with ConditionalNav
             })
 
             // perform refactoring on all found .pi - files
-            piFiles.par.foreach(performRefactor(_))
+            val filesSucc = piFiles.par.map(performRefactor(_)).toList
             // continue on all found directories
-            dirs.foreach(analyseDir(_))
-        }
+            val dirSucc = dirs.map(analyseDir(_)).toList ::: filesSucc
+            !dirSucc.exists(_ == false)
+        } else true
     }
 
     protected def currentTime: Long = java.lang.management.ManagementFactory.getThreadMXBean.getCurrentThreadCpuTime / nsToMs

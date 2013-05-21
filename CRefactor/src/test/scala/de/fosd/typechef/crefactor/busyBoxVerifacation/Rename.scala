@@ -16,7 +16,7 @@ class Rename extends BusyBoxVerification {
 
     private val FORCE_VARIABILITY = true
 
-    def performRefactor(fileToRefactor: File) {
+    def performRefactor(fileToRefactor: File): Boolean = {
         val testStart = currentTime
         logger.info("+++ Rename Verification on " + fileToRefactor.getName + " +++")
 
@@ -94,5 +94,7 @@ class Rename extends BusyBoxVerification {
         val runtime = currentTime - testStart
         logger.info("+++ Finished Refactoring on " + fileToRefactor.getName + " in " + runtime + "ms +++")
         logger.info("+++ Refactoring was successful: " + succ + " +++")
+
+        succ
     }
 }
