@@ -4,6 +4,7 @@ import de.fosd.typechef.parser.c.AST
 import de.fosd.typechef.conditional._
 import de.fosd.typechef.featureexpr.FeatureExpr
 import reflect.ClassManifest
+import scala.annotation.tailrec
 
 // simplified navigation support
 // reimplements basic navigation between AST nodes not affected by Opt and Choice nodes
@@ -78,20 +79,30 @@ trait ASTNavigation {
     // [ Opt(f1, e1), Opt(f2, e2), ..., Opt(fi, ei), ..., Opt(fn, en) ]
     // returns [e1, e2, ..., ei]
     def prevASTElems(e: Product, env: ASTEnv): List[AST] = {
-        e match {
-            case null => List()
-            case s => prevASTElems(prevAST(s, env), env) ++ List(childAST(s))
+
+        @tailrec def prevASTElemsRec(e: Product, cres: List[AST] = List()): List[AST] = {
+            e match {
+                case null => cres.reverse
+                case s => prevASTElemsRec(prevAST(s, env), childAST(s) :: cres)
+            }
         }
+
+        prevASTElemsRec(e)
     }
 
     // returns a list of all next AST elements including e
     // [ Opt(f1, e1), Opt(f2, e2), ..., Opt(fi, ei), ..., Opt(fn, en) ]
     // returns [ei, ..., en]
     def nextASTElems(e: Product, env: ASTEnv): List[AST] = {
-        e match {
-            case null => List()
-            case s => List(childAST(s)) ++ nextASTElems(nextAST(s, env), env)
+
+        @tailrec def nextASTElemsRec(e: Product, cres: List[AST] = List()): List[AST] = {
+            e match {
+                case null => cres
+                case s => nextASTElemsRec(nextAST(s, env), childAST(s) :: cres)
+            }
         }
+
+        nextASTElemsRec(e)
     }
 
     // returns the first AST element that is nested in the following elements
