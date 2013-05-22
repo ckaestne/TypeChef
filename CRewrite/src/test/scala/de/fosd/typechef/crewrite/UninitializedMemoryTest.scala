@@ -46,7 +46,7 @@ class UninitializedMemoryTest extends TestHelper with ShouldMatchers with CFGHel
         // Using the project's fm is too expensive since control
         // flow computation requires a lot of sat calls.
         // We use the proper fm in UninitializedMemory (see MonotoneFM).
-        val ss = getAllSucc(f, FeatureExprFactory.empty, env).reverse
+        val ss = getAllPred(f, FeatureExprFactory.empty, env).reverse
         val um = new UninitializedMemory(env, udm, FeatureExprFactory.empty)
         val nss = ss.map(_._1).filterNot(x => x.isInstanceOf[FunctionDef])
 

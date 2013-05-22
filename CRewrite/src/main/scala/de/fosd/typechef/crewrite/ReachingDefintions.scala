@@ -41,8 +41,13 @@ class ReachingDefintions(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) extends
         }
     }
 
-    def gen(a: AST): Map[FeatureExpr, Set[Id]] = { addAnnotation2ResultSet(uses(a)) }
-    def kill(a: AST): Map[FeatureExpr, Set[Id]] = { addAnnotation2ResultSet(defines(a)) }
+    def gen(a: AST): Map[FeatureExpr, Set[Id]] = {
+        addAnnotation2ResultSet(uses(a))
+    }
+
+    def kill(a: AST): Map[FeatureExpr, Set[Id]] = {
+        addAnnotation2ResultSet(defines(a))
+    }
 
     // flow functions (flow => succ and flowR => pred)
     protected def F(e: AST) = flowR(e)
