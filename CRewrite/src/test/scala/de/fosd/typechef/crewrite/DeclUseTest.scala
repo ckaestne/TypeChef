@@ -136,6 +136,18 @@ class DeclUseTest extends ConditionalNavigation with ASTNavigation with CDeclUse
         runDefUseOnAst(source_ast)
     }
 
+    @Test def test_struct_globals {
+        val source_ast = getAstFromPi(new File(decluseTestPath + "struct_globals.c"))
+        println(source_ast)
+        runDefUseOnAst(source_ast)
+    }
+
+    @Test def test_sizeof_tags {
+        val source_ast = getAstFromPi(new File(decluseTestPath + "sizeof_tags.c"))
+        println(source_ast)
+        runDefUseOnAst(source_ast)
+    }
+
     @Test def test_builtin_offsetof_typedef_struct_union {
         val source_ast = getAstFromPi(new File(decluseTestPath + "__builtin_offsetof_typedef_struct_union.c"))
         println(source_ast)
@@ -148,9 +160,8 @@ class DeclUseTest extends ConditionalNavigation with ASTNavigation with CDeclUse
         runDefUseOnAst(source_ast)
     }
 
-    @Test def test_cpio_pi {
-        val source_ast = getAstFromPi(new File("../TypeChef-BusyboxAnalysis/busybox-1.18.5/" + "archival/cpio.pi"))
-        //println(source_ast)
+    @Test def test_gzip_pi {
+        val source_ast = getAstFromPi(new File("../TypeChef-BusyboxAnalysis/busybox-1.18.5/" + "archival/rpm.pi"))
         runDefUseOnAst(source_ast)
     }
 
