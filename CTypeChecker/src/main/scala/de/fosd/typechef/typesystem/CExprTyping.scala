@@ -194,7 +194,8 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                             case _ =>
                         }*/
                         sizeofType(env, x, featureExpr)
-                    case SizeOfExprU(x) => sizeofType(env, x, featureExpr)
+                    case SizeOfExprU(x) =>
+                        sizeofType(env, x, featureExpr)
                     case ue@UnaryOpExpr(kind, expr) =>
                         if (kind == "&&")
                         //label deref, TODO check that label is actually declared
@@ -422,11 +423,16 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
      */
     def sizeofType(env: Env, x: AST, featureExpr: FeatureExpr): Conditional[CType] = {
         x match {
-            case p@PostfixExpr(expr, PointerPostfixSuffix(_, i@Id(id))) => addStructUsageFromSizeOfExprU(p, featureExpr, env)
+            case p@PostfixExpr(expr, PointerPostfixSuffix(_, i@Id(id))) =>
+                addStructUsageFromSizeOfExprU(p, featureExpr, env)
+            case p@PostfixExpr(i: Id, _) =>
+                addUse(i, featureExpr, env)
             case pd@PointerDerefExpr(i: Id) =>
                 // TODO: isUnion is set to true
                 addStructDeclUse(i, env, true, featureExpr)
             case pd@PointerDerefExpr(NAryExpr(p, expr)) => addStructUsageFromSizeOfExprU(p, featureExpr, env)
+            case pd@PointerDerefExpr(c: CastExpr) =>
+                getExprType(c, featureExpr, env)
             case pe@PostfixExpr(p: PostfixExpr, _) => addStructUsageFromSizeOfExprU(p, featureExpr, env)
             case tn@TypeName(lst: List[Opt[Specifier]], decl) =>
                 getTypenameType(tn, featureExpr, env)
@@ -457,6 +463,8 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                     case (f, e) =>
                         null
                 })
+            case pde@PointerDerefExpr(expr) =>
+                print("")
             case _ =>
         }
     }
