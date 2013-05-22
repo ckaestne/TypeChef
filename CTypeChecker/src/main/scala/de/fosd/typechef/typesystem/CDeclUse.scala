@@ -236,6 +236,7 @@ trait CDeclUse extends CEnv with CEnvCache {
             one match {
                 case One(InitDeclaratorI(declarator, _, _)) => addToDeclUseMap(declarator.getId, use)
                 case One(AtomicNamedDeclarator(_, key, _)) => addToDeclUseMap(key, use)
+                case One(FunctionDef(_, NestedNamedDeclarator(_, declarator, _), _, _)) => addToDeclUseMap(declarator.getId, use)
                 case One(FunctionDef(_, AtomicNamedDeclarator(_, key, _), _, _)) => addToDeclUseMap(key, use)
                 case One(Enumerator(key, _)) => addToDeclUseMap(key, use)
                 case One(NestedNamedDeclarator(_, declarator, _)) => addToDeclUseMap(declarator.getId, use)
