@@ -8,6 +8,10 @@ import java.util.{IdentityHashMap, Collections}
 import de.fosd.typechef.parser.c.TranslationUnit
 import de.fosd.typechef.parser.c.CTypeContext
 import de.fosd.typechef.crewrite.{ConditionalNavigation, ASTNavigation}
+import de.fosd.typechef.featureexpr.{FeatureExpr, FeatureExprFactory, FeatureModel, SingleFeatureExpr}
+import java.util.regex.Pattern
+import io.Source
+
 
 trait BusyBoxVerification extends Logging with ASTNavigation with ConditionalNavigation {
 
@@ -31,6 +35,70 @@ trait BusyBoxVerification extends Logging with ASTNavigation with ConditionalNav
         logger.info("+++ Verification finished - Runtime: " + (testEndTime - testStartTime) + "ms\n Verified " + refactoredFiles +
                 " Files +++")
         assert(succ)
+    }
+
+    def getEnabledFeaturesFromConfigFile(fm: FeatureModel, file: File): List[SingleFeatureExpr] = {
+        val correctFeatureModelIncompatibility = false
+        var ignoredFeatures = 0
+        var changedAssignment = 0
+        var totalFeatures = 0
+        var fileEx: FeatureExpr = FeatureExprFactory.True
+        var trueFeatures: Set[SingleFeatureExpr] = Set()
+        var falseFeatures: Set[SingleFeatureExpr] = Set()
+
+        val enabledPattern: Pattern = java.util.regex.Pattern.compile("([^=]*)=y")
+        val disabledPattern: Pattern = java.util.regex.Pattern.compile("([^=]*)=n")
+        for (line <- Source.fromFile(file).getLines().filterNot(_.startsWith("#")).filterNot(_.isEmpty)) {
+            totalFeatures += 1
+            var matcher = enabledPattern.matcher(line)
+            if (matcher.matches()) {
+                val name = matcher.group(1)
+                val feature = FeatureExprFactory.createDefinedExternal(name)
+                var fileExTmp = fileEx.and(feature)
+                if (correctFeatureModelIncompatibility) {
+                    val isSat = fileExTmp.isSatisfiable(fm)
+                    logger.info(name + " " + (if (isSat) "sat" else "!sat"))
+                    if (!isSat) {
+                        fileExTmp = fileEx.andNot(feature)
+                        logger.info("disabling feature " + feature)
+                        //fileExTmp = fileEx; println("ignoring Feature " +feature)
+                        falseFeatures += feature
+                        changedAssignment += 1
+                    } else {
+                        trueFeatures += feature
+                    }
+                } else {
+                    trueFeatures += feature
+                }
+                fileEx = fileExTmp
+            } else {
+                matcher = disabledPattern.matcher(line)
+                if (matcher.matches()) {
+                    val name = matcher.group(1)
+                    val feature = FeatureExprFactory.createDefinedExternal(name)
+                    var fileExTmp = fileEx.andNot(feature)
+                    if (correctFeatureModelIncompatibility) {
+                        val isSat = fileEx.isSatisfiable(fm)
+                        println("! " + name + " " + (if (isSat) "sat" else "!sat"))
+                        if (!isSat) {
+                            fileExTmp = fileEx.and(feature)
+                            logger.info("SETTING " + name + "=y")
+                            trueFeatures += feature
+                            changedAssignment += 1
+                        } else {
+                            falseFeatures += feature
+                        }
+                    } else {
+                        falseFeatures += feature
+                    }
+                    fileEx = fileExTmp
+                } else {
+                    ignoredFeatures += 1
+                    logger.info("ignoring line: " + line)
+                }
+            }
+        }
+        trueFeatures.toList
     }
 
     protected def analyseDir(dirToAnalyse: File): Boolean = {
@@ -67,7 +135,7 @@ trait BusyBoxVerification extends Logging with ASTNavigation with ConditionalNav
     protected def analsyeDeclUse(map: IdentityHashMap[Id, List[Id]]): List[Int] = map.keySet().toArray(Array[Id]()).map(key => map.get(key).length).toList
 
 
-    protected def writeFile(file: File, output: String) {
+    protected def writeToFileAndClose(file: File, output: String) {
         val out_file = new java.io.FileOutputStream(file)
         val out_stream = new java.io.PrintStream(out_file)
         out_stream.print(output)
