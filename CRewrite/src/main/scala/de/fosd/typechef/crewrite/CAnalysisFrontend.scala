@@ -6,12 +6,13 @@ import de.fosd.typechef.parser.c.{TranslationUnit, FunctionDef}
 import java.io.{FileWriter, File, Writer, StringWriter}
 import de.fosd.typechef.typesystem._
 
-class CAnalysisFrontend(tunit: TranslationUnit, fm: FeatureModel = FeatureExprFactory.empty) extends CFGHelper {
+class CAnalysisFrontend(tunit: TranslationUnit, fm: FeatureModel = FeatureExprFactory.empty) extends CFGHelper with EnforceTreeHelper {
 
     def dumpCFG(writer: Writer = new StringWriter()) {
-        val fdefs = filterAllASTElems[FunctionDef](tunit)
+        val tunittree = prepareAST[TranslationUnit](tunit)
+        val fdefs = filterAllASTElems[FunctionDef](tunittree)
         val dump = new DotGraph(writer)
-        val env = CASTEnv.createASTEnv(tunit)
+        val env = CASTEnv.createASTEnv(tunittree)
         dump.writeHeader("CFGDump")
 
         for (f <- fdefs) {
@@ -37,12 +38,13 @@ class CAnalysisFrontend(tunit: TranslationUnit, fm: FeatureModel = FeatureExprFa
             }
         }
 
-        val ts = new CTypeSystemFrontend(tunit, fm) with CDeclUse
+        val tunittree = prepareAST[TranslationUnit](tunit)
+        val ts = new CTypeSystemFrontend(tunittree, fm) with CDeclUse
         assert(ts.checkASTSilent, "typecheck fails!")
-        val env = CASTEnv.createASTEnv(tunit)
+        val env = CASTEnv.createASTEnv(tunittree)
         val udm = ts.getUseDeclMap
 
-        val fdefs = filterAllASTElems[FunctionDef](tunit)
+        val fdefs = filterAllASTElems[FunctionDef](tunittree)
         val errors = fdefs.flatMap(doubleFreeFunctionDef(_, env, udm, casestudy))
 
         if (errors.isEmpty) {
@@ -99,12 +101,13 @@ class CAnalysisFrontend(tunit: TranslationUnit, fm: FeatureModel = FeatureExprFa
     }
 
     def uninitializedMemory(): Boolean = {
-        val ts = new CTypeSystemFrontend(tunit, fm) with CDeclUse
-        assert(ts.checkASTSilent, "typecheck fails!")
-        val env = CASTEnv.createASTEnv(tunit)
+        val tunittree = prepareAST[TranslationUnit](tunit)
+        val ts = new CTypeSystemFrontend(tunittree, fm) with CDeclUse
+        assert(ts.checkAST, "typecheck fails!")
+        val env = CASTEnv.createASTEnv(tunittree)
         val udm = ts.getUseDeclMap
 
-        val fdefs = filterAllASTElems[FunctionDef](tunit)
+        val fdefs = filterAllASTElems[FunctionDef](tunittree)
         val errors = fdefs.flatMap(uninitializedMemory(_, env, udm))
 
         if (errors.isEmpty) {
