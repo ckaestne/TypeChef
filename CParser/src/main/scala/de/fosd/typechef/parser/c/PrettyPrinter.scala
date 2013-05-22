@@ -215,7 +215,7 @@ object PrettyPrinter {
             case CompoundAttribute(inner) => "(" ~ sep(inner, _ ~ "," ~~ _) ~ ")"
 
             case Declaration(declSpecs, init) =>
-                sep(declSpecs, _ ~~ _) ~~ commaSep(init) ~ ";"
+                sep(declSpecs, _ ~~ _) ~~ sepVaware(init, ",") ~ ";"
 
             case InitDeclaratorI(declarator, _, Some(i)) => declarator ~~ "=" ~~ i
             case InitDeclaratorI(declarator, _, None) => declarator

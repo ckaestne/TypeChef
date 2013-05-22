@@ -431,6 +431,15 @@ class PrettyPrinterTest {
                 #endif
                 }
                         """.stripMargin, p.enumSpecifier)
+        parsePrintParse("""
+                        int
+                        #ifdef A
+                        a
+                        #else
+                        b
+                        #endif
+                        ;
+                        """.stripMargin, p.declaration)
     }
 
 
