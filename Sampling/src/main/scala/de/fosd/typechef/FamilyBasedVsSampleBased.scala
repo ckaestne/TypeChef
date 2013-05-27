@@ -338,7 +338,7 @@ object FamilyBasedVsSampleBased extends EnforceTreeHelper with ASTNavigation wit
         }
 
         /** singleconf */
-        if (opt.fileconfig) {
+        if (opt.singleconf) {
             val (flog, ftasks) = buildConfigurationsSingleConf(tunit, fm, opt, configdir, caseStudy)
             log = log + flog
             tasks ++= ftasks
