@@ -13,7 +13,7 @@ import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureModel, FeatureEx
 // and is able to handle variable shadowing
 //
 // the analysis itself is not precise, i.e., during the computation the feature
-// model is not used, especially for the predecessor and successor determintion.
+// model is not used, especially for the predecessor and successor determination.
 // the reason is, the predecessor/successor determination requires a lot of sat
 // calls. for larger case studies (e.g., linux) a single sat-call takes 1/2 second
 // and therefore predecessor/successor determination only takes the #ifdef annotations

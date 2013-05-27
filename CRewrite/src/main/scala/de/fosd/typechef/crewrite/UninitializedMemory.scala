@@ -15,6 +15,8 @@ import de.fosd.typechef.featureexpr.{FeatureExpr, FeatureModel}
 //     so the analysis will likely produce a lot
 //     of false positives, because memory can be initialized
 //     in a different function
+//   - this analysis does not cover use of dynamically allocated
+//     memory which is usually covered by other analysis tools.
 class UninitializedMemory(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) extends MonotoneFW[Id](env, udm, fm) with IntraCFG with CFGHelper with ASTNavigation {
     // we create fresh T elements (here Id) using a counter
     private var freshTctr = 0
