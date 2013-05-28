@@ -794,14 +794,13 @@ trait CDeclUse extends CEnv with CEnvCache {
         val allIds: IdentityHashMap[Id, Id] = new IdentityHashMap()
         val defuseKeyList = declUseMap.keySet().toArray().toList
 
-        defuseKeyList.foreach(x => {
-            allIds.put(x.asInstanceOf[Id], null)
-            declUseMap.get(x).foreach(y => {
-                if (allIds.containsKey(y)) {
-                    duplicateLB += y
-                }
-                allIds.put(y, null)
-            })
+        declUseMap.flatMap(x => x._1 :: x._2).foreach(x => {
+            if (allIds.contains(x)) {
+                duplicateLB += x
+            } else {
+
+                allIds.put(x, null)
+            }
         })
 
         val numberOfIdsInAst = relevantIds.size
