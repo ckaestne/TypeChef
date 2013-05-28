@@ -39,6 +39,15 @@ class IntegerSecurityTest extends FunSuite with ShouldMatchers with TestHelper {
             checkExpr("int* a; int x; a+(x=4);") //not overflowing
         }
         expect(true) {
+            checkExpr("int *a,*b; b=a+2;") //not overflowing
+        }
+        expect(true) {
+            checkExpr("int* a; int x; a+x;") //not overflowing
+        }
+        expect(true) {
+            checkExpr("int* a; int x; a[x];") //not overflowing
+        }
+        expect(true) {
             checkExpr("int* a; int x; a+(x&4);") //not overflowing
         }
         expect(true) {

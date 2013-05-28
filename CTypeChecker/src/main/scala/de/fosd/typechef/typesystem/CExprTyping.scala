@@ -151,7 +151,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                             (fexpr: FeatureExpr, rtype: CType, ltype: CType) => {
                                 //security check for integer overflows when operand is used in pointer arithmetic (ie. also array access)
                                 //checks expression again in a tighter context
-                                if (isPointer(ltype)) etF(rexpr, fexpr, env.markSecurityRelevant("array access/pointer arithmetic"))
+                                if (isPointer(ltype) && pointerArthAssignOp(op)) etF(rexpr, fexpr, env.markSecurityRelevant("array access/pointer arithmetic"))
 
                                 val opType = operationType(op, ltype, rtype, ae, fexpr, env)
                                 ltype match {
@@ -316,7 +316,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
         def shiftOp(o: String) = Set("<<", ">>") contains o
 
         //check integer overflow in security relevant contexts
-        if (env.isSecurityRelevantLocation && potentiallyOverflowingOp(op))
+        if (env.isSecurityRelevantLocation && potentiallyOverflowingOp(op) && !(isPointer(normalize(type1))))
             issueTypeError(Severity.SecurityWarning, featureExpr, "Potential integer overflow in security relevant context (%s)".format(env.securityRelevantLocation.get), where)
 
         (op, normalize(type1), normalize(type2)) match {
