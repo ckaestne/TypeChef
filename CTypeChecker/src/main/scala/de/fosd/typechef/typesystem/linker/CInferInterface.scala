@@ -80,6 +80,13 @@ trait CInferInterface extends CTypeSystem with InterfaceWriter {
     }
 
 
+    /**
+     * try to recognize __attribute__((weak)) attribute as a flag.
+     *
+     * the recognition is conservative and does ignore conditional attribute declarations
+     * (so a conditionally weak method is always recognized as weak, which may prevent us
+     * from detecting some problems, but which will not produce false positives)
+     */
     def getExtraFlags(functionDef: FunctionDef, ctx: FeatureExpr): Set[CFlag] = {
         val flags = for (Opt(f, g@GnuAttributeSpecifier(_)) <- functionDef.specifiers;
                          (f, a) <- findAttributes(g, ctx)

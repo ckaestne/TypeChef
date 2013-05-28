@@ -3,6 +3,7 @@ package de.fosd.typechef.typesystem
 import _root_.de.fosd.typechef.featureexpr._
 import _root_.de.fosd.typechef.conditional._
 import _root_.de.fosd.typechef.parser.c._
+import de.fosd.typechef.error._
 
 /**
  * checks an AST (from CParser) for type errors (especially dangling references)

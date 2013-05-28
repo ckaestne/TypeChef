@@ -47,6 +47,7 @@ import de.fosd.typechef.parser.c.TypeName
 import de.fosd.typechef.parser.c.AtomicAbstractDeclarator
 import de.fosd.typechef.parser.c.NestedNamedDeclarator
 import de.fosd.typechef.parser.c.FloatSpecifier
+import de.fosd.typechef.error._
 
 /**
  * parsing types from declarations (top level declarations, parameters, etc)

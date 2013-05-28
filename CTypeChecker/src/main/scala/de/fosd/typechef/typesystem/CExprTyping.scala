@@ -4,6 +4,7 @@ package de.fosd.typechef.typesystem
 import _root_.de.fosd.typechef.parser.c._
 import _root_.de.fosd.typechef.conditional._
 import _root_.de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
+import de.fosd.typechef.error._
 
 /**
  * typing C expressions
