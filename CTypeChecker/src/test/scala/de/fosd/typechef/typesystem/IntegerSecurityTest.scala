@@ -94,5 +94,25 @@ class IntegerSecurityTest extends FunSuite with ShouldMatchers with TestHelper {
         }
     }
 
+
+    test("integer conversions") {
+        expect(true) {
+            checkExpr("int a; int b; b=a;")
+        }
+        expect(true) {
+            checkExpr("int a; long b; b=a;") //widening is okay
+        }
+        expect(true) {
+            checkExpr("int a; long b; a=(int)b;") //narrowing is okay when explicit with a cast
+        }
+        expect(false) {
+            checkExpr("int a; long b; a=b;")
+        }
+        expect(false) {
+            checkExpr("unsigned int a; signed b; b=a;")
+        }
+    }
+
+
 }
 

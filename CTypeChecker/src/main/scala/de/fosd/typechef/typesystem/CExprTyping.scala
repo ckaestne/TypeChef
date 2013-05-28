@@ -155,7 +155,11 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
 
                                 val opType = operationType(op, ltype, rtype, ae, fexpr, env)
                                 ltype match {
-                                    case CObj(t) if (coerce(t, opType)) => prepareArray(ltype).toValue
+                                    case CObj(t) if (coerce(t, opType)) => {
+                                        if (isForcedCoercion(ltype, rtype))
+                                            reportTypeError(fexpr, "Implicit coercion of integer types (%s <- %s), consider a cast".format(ltype.toText, rtype.toText), ae, Severity.SecurityWarning)
+                                        prepareArray(ltype).toValue
+                                    }
                                     case u: CUnknown => u.toValue
                                     case CObj(i@CIgnore()) => i.toValue
                                     case e => reportTypeError(fexpr, "incorrect assignment with " + e + " " + op + " " + rtype, ae)

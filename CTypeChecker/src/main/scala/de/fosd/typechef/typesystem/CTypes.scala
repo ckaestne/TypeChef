@@ -218,7 +218,8 @@ case class CFunction(param: Seq[CType], ret: CType) extends CType {
         </ret>
     </function>
     def markSecurityRelevant() = {
-        securityRelevant = true; this
+        securityRelevant = true;
+        this
     }
 }
 
@@ -240,6 +241,7 @@ case class CObj(t: CType) extends CType {
     override def isObject = true
     override def isFunction = t.isFunction
     override def isUnknown = t.isUnknown
+    override def toText = t.toText
     override def isIgnore = t.isIgnore
     def toXML = <obj>
         {t.toXML}
@@ -500,6 +502,9 @@ trait CTypes extends COptionProvider {
         //ignore?
         if ((t1 == CIgnore()) || (t2 == CIgnore())) return true
 
+        //assignment pointer = 0
+        if (isPointer(t1) && isZero(t2)) return true
+        if (isPointer(t2) && isZero(t1)) return true
 
         //arithmetic operation?
         if (isArithmetic(t1) && isArithmetic(t2)) return true
@@ -507,11 +512,16 @@ trait CTypes extends COptionProvider {
         //_Bool = any scala value
         if (t1 == CBool() && isScalar(t2)) return true
 
-        //assignment pointer = 0
-        if (isPointer(t1) && isZero(t2)) return true
-        if (isPointer(t2) && isZero(t1)) return true
-
         false
+    }
+
+    /**
+     * we can report as a warning if both types are number, but they are not the same width or signed
+     */
+    def isForcedCoercion(expectedType: CType, foundType: CType): Boolean = {
+        val t1 = normalize(expectedType)
+        val t2 = normalize(foundType)
+        isArithmetic(t1) && isArithmetic(t2) && t1 != t2 && t2 != CZero() && !(t2 < t1)
     }
 
     private def funCompatible(t1: CType, t2: CType): Boolean = (t1, t2) match {
