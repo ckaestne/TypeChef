@@ -205,6 +205,8 @@ case class CAnonymousStruct(fields: ConditionalTypeMap, isUnion: Boolean = false
 }
 
 case class CFunction(param: Seq[CType], ret: CType) extends CType {
+    var securityRelevant: Boolean = false
+
     override def toObj = this
     override def isFunction: Boolean = true
     override def toText = param.map(_.toText).mkString("(", ", ", ")") + " => " + ret.toText
@@ -215,6 +217,9 @@ case class CFunction(param: Seq[CType], ret: CType) extends CType {
             {ret.toXML}
         </ret>
     </function>
+    def markSecurityRelevant() = {
+        securityRelevant = true; this
+    }
 }
 
 

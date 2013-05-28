@@ -23,7 +23,12 @@ class IntegerSecurityTest extends FunSuite with ShouldMatchers with TestHelper {
     }
 
 
-    test("check pointer arithmetic") {
+    /**
+     * very simply approximation, relying on structural nesting
+     *
+     * data-flow dependent analysis required for more precision, see ignored case below
+     */
+    test("check pointer arithmetic -- structural nesting") {
         expect(true) {
             checkExpr("int a; a++;")
         }
@@ -59,6 +64,24 @@ class IntegerSecurityTest extends FunSuite with ShouldMatchers with TestHelper {
         }
         expect(false) {
             checkExpr("int a[]; int x; a[x-5];") //potentially overflowing
+        }
+    }
+
+    ignore("check pointer arithmetic -- data flow") {
+        expect(false) {
+            checkExpr("int* a; int x; int y = x -4; a+y;") //potentially overflowing
+        }
+        expect(false) {
+            checkExpr("int a[]; int x;int y = x %4; a[y];") //potentially overflowing
+        }
+    }
+
+    test("check memory allocation -- structural nesting") {
+        expect(true) {
+            check("int printf(const char * restrict format, ...);void main(){int x; printf(\"%d\",x+1);}")
+        }
+        expect(false) {
+            check("void *malloc(int size); void main(){int x; malloc(x+1);}")
         }
     }
 

@@ -41,7 +41,10 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                         else One(CSigned(CInt()))
                     //variable or function ref
                     case id@Id(name) =>
-                        val ctype = env.varEnv(name)
+                        var ctype = env.varEnv(name)
+
+                        ctype = markSecurityRelevantFunctions(name, ctype)
+
                         ctype.mapf(featureExpr, {
                             (f, t) =>
                                 if (t.isUnknown && f.isSatisfiable()) {
@@ -122,8 +125,12 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                     //a()
                     case pe@PostfixExpr(expr, FunctionCall(ExprList(parameterExprs))) =>
                         val functionType: Conditional[CType] = et(expr)
+                        val hasSecurityRelevantFunction = functionType.exists({
+                            case f: CFunction => f.securityRelevant;
+                            case _ => false
+                        })
                         val providedParameterTypes: List[Opt[Conditional[CType]]] = parameterExprs.map({
-                            case Opt(f, e) => Opt(f, etF(e, featureExpr and f))
+                            case Opt(f, e) => Opt(f, etF(e, featureExpr and f, env.markSecurityRelevant(hasSecurityRelevantFunction, "sensitive function parameters")))
                         })
 
                         val providedParameterTypesExploded: Conditional[List[CType]] = ConditionalLib.explodeOptList(Conditional.flatten(providedParameterTypes))
@@ -437,6 +444,23 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
      */
     def sizeofType(env: Env): Conditional[CType] =
         env.typedefEnv.getOrElse("size_t", CUnsigned(CInt()))
+
+
+    /**
+     * hardcoding of functions for which parameters are considered security relevant
+     * parameters of these functions are checked for integer overflows
+     */
+    def markSecurityRelevantFunctions(funname: String, ctype: Conditional[CType]): Conditional[CType] = {
+        val functions = Set("malloc", "calloc", "realloc")
+
+        if (functions contains funname)
+            ctype.map({
+                case c: CFunction => c.markSecurityRelevant
+                case t => t
+            })
+        else ctype
+
+    }
 
 
 }

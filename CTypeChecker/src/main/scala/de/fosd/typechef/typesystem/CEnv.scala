@@ -61,6 +61,7 @@ trait CEnv {
         }
 
         def markSecurityRelevant(reason: String) = this.copy(securityRelevantLocation = Some(reason))
+        def markSecurityRelevant(mark: Boolean, reason: String) = if (mark) this.copy(securityRelevantLocation = Some(reason)) else this
         def isSecurityRelevantLocation: Boolean = securityRelevantLocation.isDefined
     }
 
