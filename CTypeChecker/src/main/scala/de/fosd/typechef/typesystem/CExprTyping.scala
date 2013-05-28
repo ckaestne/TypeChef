@@ -188,13 +188,13 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                     //a[e]
                     case p@PostfixExpr(expr, ArrayAccess(idx)) =>
                         //syntactic sugar for *(a+i)
-                        val newExpr = PointerDerefExpr(createSum(expr, idx))
+                        val newExpr = PointerDerefExpr(createSum(expr, idx)).setPositionRange(p)
                         et(newExpr)
                     //"a"
                     case StringLit(_) => One(CPointer(CSignUnspecified(CChar()))) //unspecified sign according to Paolo
                     //++a, --a
                     case p@UnaryExpr(_, expr) =>
-                        val newExpr = AssignExpr(expr, "+=", Constant("1"))
+                        val newExpr = AssignExpr(expr, "+=", Constant("1").setPositionRange(p)).setPositionRange(p)
                         et(newExpr)
                     //sizeof()
                     case SizeOfExprT(_) => sizeofType(env)
@@ -368,7 +368,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
 
 
     private def createSum(a: Expr, b: Expr) =
-        NAryExpr(a, List(Opt(FeatureExprFactory.True, NArySubExpr("+", b))))
+        NAryExpr(a, List(Opt(FeatureExprFactory.True, NArySubExpr("+", b).setPositionRange(b)))).setPositionRange(a.getPositionFrom, b.getPositionTo)
 
 
     private def typeFunctionCall(expr: AST, parameterTypes: Seq[CType], retType: CType, _foundTypes: List[CType],
