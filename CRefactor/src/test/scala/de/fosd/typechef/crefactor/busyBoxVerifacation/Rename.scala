@@ -4,6 +4,9 @@ import java.io.{FileInputStream, File}
 import de.fosd.typechef.crefactor.Morpheus
 import de.fosd.typechef.parser.c.{PrettyPrinter, Id}
 import de.fosd.typechef.crefactor.backend.refactor.RenameIdentifier
+import org.junit.Test
+import de.fosd.typechef.lexer.FeatureExprLib
+import de.fosd.typechef.featureexpr.FeatureExprParserJava
 
 /**
  * Renaming verification class for the busybox toolsuite.
@@ -15,6 +18,16 @@ class Rename extends BusyBoxVerification {
     private val MAX_DEPTH = 100
 
     private val FORCE_VARIABILITY = true
+
+    @Test def loadinConfigFiles() = {
+        val fExprFile = getClass.getResource("/busybox_featureModel").getFile
+        val configFile = getClass.getResource("/config").getFile
+
+        val fExpr = new FeatureExprParserJava(FeatureExprLib.l()).parseFile(fExprFile)
+        val fm = FeatureExprLib.featureModelFactory().create(fExpr)
+
+
+    }
 
     def performRefactor(fileToRefactor: File): Boolean = {
         val testStart = currentTime
@@ -68,13 +81,13 @@ class Rename extends BusyBoxVerification {
 
         val file = new File(path + ".c")
         file.createNewFile()
-        writeFile(file, prettyPrinted)
+        writeToFileAndClose(file, prettyPrinted)
 
         val featureFile = new File(path + ".features")
         featureFile.createNewFile()
 
         val featureString = features.distinct.foldLeft("")((r, f) => r + f + "\n")
-        writeFile(featureFile, featureString)
+        writeToFileAndClose(featureFile, featureString)
 
         val builder = new StringBuilder
         builder.append("+++ Parsing Time: " + parsingTime + "ms\n")
@@ -86,7 +99,7 @@ class Rename extends BusyBoxVerification {
 
         val statsFile = new File(path + ".stats")
         statsFile.createNewFile()
-        writeFile(statsFile, builder.toString())
+        writeToFileAndClose(statsFile, builder.toString())
 
 
         refactoredFiles += 1
