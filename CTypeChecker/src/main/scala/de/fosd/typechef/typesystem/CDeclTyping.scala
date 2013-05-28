@@ -336,18 +336,14 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface with CDeclU
     protected def enumDeclarations(specs: List[Opt[Specifier]], featureExpr: FeatureExpr, d: AST, env: Env): List[(String, FeatureExpr, AST, Conditional[CType], DeclarationKind)] = {
         var result = List[(String, FeatureExpr, AST, Conditional[CType], DeclarationKind)]()
         for (Opt(f, spec) <- specs) spec match {
-            case EnumSpecifier(_, Some(enums)) =>
-                for (Opt(feat, entry: Enumerator) <- enums) {
-                    addDecl(entry, feat, env)
-                }
-                /*enums match {
-                    case BuiltinOffsetof(TypeName(specs, decl), offsetMember) =>
-                        for (Opt(f, TypeDefTypeSpecifier(name)) <- specs) {
-                            addTypeUse(name, env, featureExpr)
-                        }
+            case EnumSpecifier(optId, Some(enums)) =>
+                optId match {
+                    case Some(id: Id) =>
+                        addDefinition(id, env, f and featureExpr)
                     case _ =>
-                }*/
+                }
                 for (Opt(f2, enum) <- enums) {
+                    addDecl(enum, featureExpr and f and f2, env)
                     /*enum match {
                         case Enumerator(_, Some(BuiltinOffsetof(TypeName(specs, decl), offsetMember))) =>
                             for (Opt(f, TypeDefTypeSpecifier(name)) <- specs) {
@@ -460,11 +456,17 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface with CDeclU
         val r: List[Opt[Conditional[CType]]] = for (Opt(f, param) <- parameterDecls) yield param match {
             case p@PlainParameterDeclaration(specifiers) => Opt(f, constructType(specifiers, featureExpr and f, env, p))
             case p@ParameterDeclarationD(specifiers, decl) =>
+                for (Opt(g, StructOrUnionSpecifier(isUnion, Some(id), None)) <- specifiers) {
+                    addStructDeclUse(id, env, isUnion, featureExpr)
+                }
                 for (Opt(g, TypeDefTypeSpecifier(name)) <- specifiers) {
                     addTypeUse(name, env, featureExpr)
                 }
                 Opt(f, getDeclaratorType(decl, constructType(specifiers, featureExpr and f, env, p), featureExpr and f, env))
             case p@ParameterDeclarationAD(specifiers, decl) =>
+                for (Opt(g, StructOrUnionSpecifier(isUnion, Some(id), None)) <- specifiers) {
+                    addStructDeclUse(id, env, isUnion, featureExpr)
+                }
                 for (Opt(g, TypeDefTypeSpecifier(name)) <- specifiers) {
                     addTypeUse(name, env, featureExpr)
                 }

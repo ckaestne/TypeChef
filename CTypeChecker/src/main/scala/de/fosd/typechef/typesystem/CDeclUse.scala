@@ -776,7 +776,7 @@ trait CDeclUse extends CEnv with CEnvCache {
     }
 
 
-    def checkDefuse(ast: AST, declUseMap: IdentityHashMap[Id, List[Id]], fm: FeatureModel = FeatureExprLib.featureModelFactory().empty): String = {
+    def checkDefuse(ast: AST, declUseMap: IdentityHashMap[Id, List[Id]], fm: FeatureModel = FeatureExprLib.featureModelFactory().empty): (String, Int, Int, Int) = {
         def getAllRelevantIds(a: Any): List[Id] = {
             a match {
                 case id: Id => if (!(id.name.startsWith("__builtin"))) List(id) else List()
@@ -829,6 +829,6 @@ trait CDeclUse extends CEnv with CEnvCache {
                 // TODO
             }
         }*/
-        return (resultString.toString())
+        return (resultString.toString(), declUseMap.keySet.size, (numberOfIdsInDefuse - declUseMap.keySet.size), duplicateLB.size)
     }
 }

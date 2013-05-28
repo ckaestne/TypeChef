@@ -54,7 +54,7 @@ class DeclUseTest extends ConditionalNavigation with ASTNavigation with CDeclUse
         println("Source:\n" + source_ast)
         println("Ids:\n" + filterASTElems[Id](source_ast))
         println("\nDef Use Map:\n" + defUseMap)
-        println(checkDefuse(source_ast, defUseMap))
+        println(checkDefuse(source_ast, defUseMap)._1)
     }
 
     @Test def test_array_def_use {
@@ -106,14 +106,7 @@ class DeclUseTest extends ConditionalNavigation with ASTNavigation with CDeclUse
         return plusgleich;
       }
                                  """);
-        val env = createASTEnv(source_ast)
-
-        typecheckTranslationUnit(source_ast)
-        val defUseMap = getDeclUseMap
-
-        println("+++PrettyPrinted+++\n" + PrettyPrinter.print(source_ast))
-        println("Source:\n" + source_ast)
-        println("\nDef Use Map:\n" + defUseMap)
+        runDefUseOnAst(source_ast)
     }
 
     private def getAstFromPi(fileToAnalyse: File): TranslationUnit = {
@@ -127,37 +120,61 @@ class DeclUseTest extends ConditionalNavigation with ASTNavigation with CDeclUse
     @Test def test_sizeof_typedef_struct {
         val source_ast = getAstFromPi(new File(decluseTestPath + "sizeof_typedef_struct.c"))
         println(source_ast)
-        runDefUseOnAst(source_ast)
+        val result = runDefUseOnAst(source_ast)
+        val numberOfDefinitions = 7
+        val numberOfEntries = 3
+        val numberOfVariableIds = 0
+        assert(result ==(numberOfDefinitions, numberOfEntries, numberOfVariableIds))
     }
 
     @Test def test_typedef_in_sizeof {
         val source_ast = getAstFromPi(new File(decluseTestPath + "typedef_in_sizeof.c"))
         println(source_ast)
-        runDefUseOnAst(source_ast)
+        val result = runDefUseOnAst(source_ast)
+        val numberOfDefinitions = 4
+        val numberOfEntries = 2
+        val numberOfVariableIds = 0
+        assert(result ==(numberOfDefinitions, numberOfEntries, numberOfVariableIds))
     }
 
     @Test def test_struct_globals {
         val source_ast = getAstFromPi(new File(decluseTestPath + "struct_globals.c"))
         println(source_ast)
-        runDefUseOnAst(source_ast)
+        val result = runDefUseOnAst(source_ast)
+        val numberOfDefinitions = 9
+        val numberOfEntries = 7
+        val numberOfVariableIds = 0
+        assert(result ==(numberOfDefinitions, numberOfEntries, numberOfVariableIds))
     }
 
     @Test def test_sizeof_tags {
         val source_ast = getAstFromPi(new File(decluseTestPath + "sizeof_tags.c"))
         println(source_ast)
-        runDefUseOnAst(source_ast)
+        val result = runDefUseOnAst(source_ast)
+        val numberOfDefinitions = 14
+        val numberOfEntries = 10
+        val numberOfVariableIds = 0
+        assert(result ==(numberOfDefinitions, numberOfEntries, numberOfVariableIds))
     }
 
     @Test def test_builtin_offsetof_typedef_struct_union {
         val source_ast = getAstFromPi(new File(decluseTestPath + "__builtin_offsetof_typedef_struct_union.c"))
         println(source_ast)
-        runDefUseOnAst(source_ast)
+        val result = runDefUseOnAst(source_ast)
+        val numberOfDefinitions = 7
+        val numberOfEntries = 1
+        val numberOfVariableIds = 0
+        assert(result ==(numberOfDefinitions, numberOfEntries, numberOfVariableIds))
     }
 
     @Test def test_malloc_sizeof {
         val source_ast = getAstFromPi(new File(decluseTestPath + "malloc_sizeof.c"))
         println(source_ast)
-        runDefUseOnAst(source_ast)
+        val result = runDefUseOnAst(source_ast)
+        val numberOfDefinitions = 7
+        val numberOfEntries = 3
+        val numberOfVariableIds = 0
+        assert(result ==(numberOfDefinitions, numberOfEntries, numberOfVariableIds))
     }
 
     @Test def test_gzip_pi {
@@ -216,7 +233,7 @@ class DeclUseTest extends ConditionalNavigation with ASTNavigation with CDeclUse
         println("Ids:\n" + filterASTElems[Id](source_ast))
         println("\nDef Use Map:\n" + getDeclUseMap)
         val useDeclMap = getUseDeclMap
-        println(checkDefuse(source_ast, getDeclUseMap))
+        println(checkDefuse(source_ast, getDeclUseMap)._1)
     }
 
     @Test def test_int {
@@ -284,7 +301,7 @@ class DeclUseTest extends ConditionalNavigation with ASTNavigation with CDeclUse
         println("\nPrettyPrinted:\n" + PrettyPrinter.print(ast))
         typecheckTranslationUnit(ast)
         val useDeclMap = getUseDeclMap
-        val success = checkDefuse(ast, getDeclUseMap)
+        val success = checkDefuse(ast, getDeclUseMap)._1
         println("DefUse" + getDeclUseMap)
         println(success)
     }
@@ -358,7 +375,7 @@ class DeclUseTest extends ConditionalNavigation with ASTNavigation with CDeclUse
         analyseDir(folder)
     }
 
-    private def runDefUseOnAst(tu: TranslationUnit, parsingRunTimeString: String = "Parsing done.") {
+    private def runDefUseOnAst(tu: TranslationUnit, parsingRunTimeString: String = "Parsing done."): (Int, Int, Int) = {
 
         /* val fos = new FileOutputStream(fileToAnalyse.getAbsolutePath + ".ast")
            val bytes = ast.toString.getBytes
@@ -373,7 +390,8 @@ class DeclUseTest extends ConditionalNavigation with ASTNavigation with CDeclUse
 
         val declUse = getDeclUseMap
         val useDeclMap = getUseDeclMap
-        val success = checkDefuse(tu, declUse)
+        val quad = checkDefuse(tu, declUse)
+        val success = quad._1
 
         /*val sb = new StringBuilder
         defuse.keySet().toArray().foreach(x => sb.append(x + "@" + x.asInstanceOf[Id].range + "\n"))
@@ -384,9 +402,10 @@ class DeclUseTest extends ConditionalNavigation with ASTNavigation with CDeclUse
         println("DeclUseMap: " + declUse)
         println(success + "\n\n")
         Thread.sleep(2000)
+        (quad._2, quad._3, quad._4)
     }
 
-    private def runDefUseOnPi(fileToAnalyse: File, printAst: Boolean = true) {
+    private def runDefUseOnPi(fileToAnalyse: File, printAst: Boolean = true): (Int, Int, Int) = {
         println("++Analyse: " + fileToAnalyse.getName + "++")
         val starttime = System.currentTimeMillis()
         val fis = new FileInputStream(fileToAnalyse)
