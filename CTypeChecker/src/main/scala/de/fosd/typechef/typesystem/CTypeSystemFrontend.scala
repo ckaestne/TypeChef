@@ -55,17 +55,20 @@ class CTypeSystemFrontend(iast: TranslationUnit, featureModel: FeatureModel = Fe
      * Returns true iff no errors were found.
      * @return
      */
-    def checkAST: Boolean = {
+    def checkAST(ignoreWarnings: Boolean = true): Boolean = {
 
         errors = List() // clear error list
         typecheckTranslationUnit(iast)
-        if (errors.isEmpty)
+        val merrors = if (ignoreWarnings)
+            errors.filterNot(Set(Severity.Warning, Severity.SecurityWarning) contains _.severity)
+        else errors
+        if (merrors.isEmpty)
             println("No type errors found.")
         else {
-            println("Found " + errors.size + " type errors: ");
+            println("Found " + merrors.size + " type errors: ");
         }
         //println("\n")
-        return errors.isEmpty
+        return merrors.isEmpty
     }
     def checkASTSilent: Boolean = {
         errors = List() // clear error list

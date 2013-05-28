@@ -5,10 +5,6 @@ import _root_.de.fosd.typechef.parser.c._
 import _root_.de.fosd.typechef.featureexpr.FeatureExprFactory._
 import org.scalatest.FunSuite
 import org.scalatest.matchers.ShouldMatchers
-import org.junit.runner.RunWith
-import org.scalatest.FunSuite
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.matchers.ShouldMatchers
 
 /**
  * structs are complicated:
@@ -45,7 +41,7 @@ class StructTest extends FunSuite with CEnv with ShouldMatchers with TestHelper 
     }
     private def check(ast: TranslationUnit): Boolean = {
         assert(ast != null, "void ast");
-        new CTypeSystemFrontend(ast).checkAST
+        new CTypeSystemFrontend(ast).checkAST()
     }
 
     test("StructEnv behavior") {
@@ -270,7 +266,7 @@ class StructTest extends FunSuite with CEnv with ShouldMatchers with TestHelper 
     }
 
     test("inner structs escape") {
-        expect(true){
+        expect(true) {
             check(
                 """
                   |struct { int a; struct b { int x; } bb; } c;
@@ -554,7 +550,7 @@ struct reiserfs_sb_info {
     }
 
     ignore("A specific type shall have its content defined at most once") {
-        expect(true){
+        expect(true) {
             check(
                 """
                   |typedef union
@@ -582,15 +578,15 @@ struct reiserfs_sb_info {
                 """.stripMargin)
         }
         expect(true) {
-                    check(
-                        """
-                          |#ifdef X
-                          |struct x { };
-                          |#else
-                          |struct x { };
-                          |#endif
-                        """.stripMargin)
-                }
+            check(
+                """
+                  |#ifdef X
+                  |struct x { };
+                  |#else
+                  |struct x { };
+                  |#endif
+                """.stripMargin)
+        }
 
     }
 
@@ -599,19 +595,17 @@ struct reiserfs_sb_info {
             check("extern struct x a;".stripMargin)
         }
         expect(false) {
-            check("struct x a;".stripMargin)            // error: storage size of ‘a’ isn’t known
+            check("struct x a;".stripMargin) // error: storage size of ‘a’ isn’t known
         }
         expect(true) {
-            check("extern struct x a; void foo() { &a; }".stripMargin)    // valid in gcc, do not recheck at pointer creation
+            check("extern struct x a; void foo() { &a; }".stripMargin) // valid in gcc, do not recheck at pointer creation
         }
         expect(false) {
-            check("extern struct x a; void foo() { a; }".stripMargin)    // valid in gcc, do not recheck at pointer creation
+            check("extern struct x a; void foo() { a; }".stripMargin) // valid in gcc, do not recheck at pointer creation
         }
         expect(false) {
-            check("extern struct x a; void bar(struct x b){} void foo() { bar(a); }".stripMargin)    // valid in gcc, do not recheck at pointer creation
+            check("extern struct x a; void bar(struct x b){} void foo() { bar(a); }".stripMargin) // valid in gcc, do not recheck at pointer creation
         }
-
-
 
 
     }

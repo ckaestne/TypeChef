@@ -19,7 +19,7 @@ class IntegerSecurityTest extends FunSuite with ShouldMatchers with TestHelper {
     }
     private def check(ast: TranslationUnit): Boolean = {
         assert(ast != null, "void ast");
-        new CTypeSystemFrontend(ast).checkAST
+        new CTypeSystemFrontend(ast).checkAST(false)
     }
 
 
