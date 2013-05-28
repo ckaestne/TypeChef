@@ -55,5 +55,6 @@ trait CTypeSystemInterface extends CEnv {
         issueTypeError(severity, featureExpr, txt, where)
         CUnknown(txt)
     }
+
 }
 

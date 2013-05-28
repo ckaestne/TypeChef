@@ -2,7 +2,7 @@ package de.fosd.typechef.typesystem
 
 import _root_.de.fosd.typechef.conditional._
 import _root_.de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
-import _root_.de.fosd.typechef.parser.c.{AST, Declarator}
+import _root_.de.fosd.typechef.parser.c.AST
 import FeatureExprFactory._
 
 /**
@@ -10,7 +10,7 @@ import FeatureExprFactory._
  */
 trait CEnv {
 
-    object EmptyEnv extends Env(new ConditionalTypeMap(), new VarTypingContext(), new StructEnv(), Map(), Map(), None, 0, False, Nil)
+    object EmptyEnv extends Env(new ConditionalTypeMap(), new VarTypingContext(), new StructEnv(), Map(), Map(), None, 0, False, Nil, None)
 
     protected class Env(
                            val typedefEnv: ConditionalTypeMap,
@@ -21,9 +21,10 @@ trait CEnv {
                            val expectedReturnType: Option[Conditional[CType]], //for a function
                            val scope: Int,
                            val isDeadCode: FeatureExpr,
-                           val openCompletenessChecks: List[Env => Unit]
+                           val openCompletenessChecks: List[Env => Unit],
+                           val securityRelevantLocation: Option[String]
                            ) {
-        private def copy(typedefEnv: ConditionalTypeMap = this.typedefEnv, varEnv: VarTypingContext = this.varEnv, structEnv: StructEnv = this.structEnv, enumEnv: EnumEnv = this.enumEnv, labelEnv: LabelEnv = this.labelEnv, expectedReturnType: Option[Conditional[CType]] = this.expectedReturnType, scope: Int = this.scope, isDeadCode: FeatureExpr = this.isDeadCode, openCompletenessChecks: List[Env => Unit] = this.openCompletenessChecks) = new Env(typedefEnv, varEnv, structEnv, enumEnv, labelEnv, expectedReturnType, scope, isDeadCode, openCompletenessChecks)
+        private def copy(typedefEnv: ConditionalTypeMap = this.typedefEnv, varEnv: VarTypingContext = this.varEnv, structEnv: StructEnv = this.structEnv, enumEnv: EnumEnv = this.enumEnv, labelEnv: LabelEnv = this.labelEnv, expectedReturnType: Option[Conditional[CType]] = this.expectedReturnType, scope: Int = this.scope, isDeadCode: FeatureExpr = this.isDeadCode, openCompletenessChecks: List[Env => Unit] = this.openCompletenessChecks, securityRelevantLocation: Option[String] = this.securityRelevantLocation) = new Env(typedefEnv, varEnv, structEnv, enumEnv, labelEnv, expectedReturnType, scope, isDeadCode, openCompletenessChecks, securityRelevantLocation)
 
         //varenv
         def updateVarEnv(newVarEnv: VarTypingContext) = if (newVarEnv == varEnv) this else copy(varEnv = newVarEnv)
@@ -42,7 +43,7 @@ trait CEnv {
         def updateLabelEnv(s: LabelEnv) = if (s == labelEnv) this else copy(labelEnv = s)
 
         //typedefenv
-        private def updateTypedefEnv(newTypedefEnv: ConditionalTypeMap) = if (newTypedefEnv == typedefEnv) this else copy(typedefEnv= newTypedefEnv)
+        private def updateTypedefEnv(newTypedefEnv: ConditionalTypeMap) = if (newTypedefEnv == typedefEnv) this else copy(typedefEnv = newTypedefEnv)
         def addTypedefs(typedefs: ConditionalTypeMap) = updateTypedefEnv(typedefEnv ++ typedefs)
         def addTypedefs(typedefs: Seq[(String, FeatureExpr, (AST, Conditional[CType]))]) = updateTypedefEnv(typedefEnv ++ typedefs)
         def addTypedef(name: String, f: FeatureExpr, d: AST, t: Conditional[CType]) = updateTypedefEnv(typedefEnv +(name, f, d, t))
@@ -55,14 +56,19 @@ trait CEnv {
         def markDead(condition: FeatureExpr) = this.copy(isDeadCode = this.isDeadCode or condition)
 
         def addCompletenessCheck(check: Env => Unit) = this.copy(openCompletenessChecks = check :: this.openCompletenessChecks)
-        def forceOpenCompletenessChecks() { openCompletenessChecks.map(_(this)) }
+        def forceOpenCompletenessChecks() {
+            openCompletenessChecks.map(_(this))
+        }
+
+        def markSecurityRelevant(reason: String) = this.copy(securityRelevantLocation = Some(reason))
+        def isSecurityRelevantLocation: Boolean = securityRelevantLocation.isDefined
     }
 
 
-    /*****
-     * Variable-Typing context (collects all top-level and local declarations)
-     * variables with local scope overwrite variables with global scope
-     */
+    /** ***
+      * Variable-Typing context (collects all top-level and local declarations)
+      * variables with local scope overwrite variables with global scope
+      */
     //Variable-Typing Context: identifier to its non-void wellformed type
     type VarTypingContext = ConditionalVarEnv
 
@@ -137,9 +143,9 @@ trait CEnv {
             getFields(name, isUnion).flatten((f, a, b) => a.and(f) ++ b.and(f.not))
 
         //returns whether already completed in the same scope. may only redeclare in higher scope or when incomplete
-        def mayDeclare(name: String, isUnion: Boolean, scope: Int):FeatureExpr = {
-            env.getOrElse((name,isUnion),One(incompleteTag)).when(
-                s=> !s.isComplete || scope>s.scope
+        def mayDeclare(name: String, isUnion: Boolean, scope: Int): FeatureExpr = {
+            env.getOrElse((name, isUnion), One(incompleteTag)).when(
+                s => !s.isComplete || scope > s.scope
             )
         }
 

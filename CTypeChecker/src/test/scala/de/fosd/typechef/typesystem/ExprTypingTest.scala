@@ -213,9 +213,9 @@ class ExprTypingTest extends CTypeSystem with CEnv with FunSuite with ShouldMatc
 
     test("operations") {
 
-        operationType("+", CPointer(CUnsigned(CLong())), CSigned(CInt()), null, null) should be(CPointer(CUnsigned(CLong())))
+        operationType("+", CPointer(CUnsigned(CLong())), CSigned(CInt()), null, null, EmptyEnv) should be(CPointer(CUnsigned(CLong())))
         CObj(CArray(CUnsigned(CLong()), -1)).toValue should be(CPointer(CUnsigned(CLong())))
-        operationType("+", CObj(CArray(CUnsigned(CLong()), -1)), CSigned(CInt()), null, null) should be(CPointer(CUnsigned(CLong())))
+        operationType("+", CObj(CArray(CUnsigned(CLong()), -1)), CSigned(CInt()), null, null, EmptyEnv) should be(CPointer(CUnsigned(CLong())))
 
     }
 
