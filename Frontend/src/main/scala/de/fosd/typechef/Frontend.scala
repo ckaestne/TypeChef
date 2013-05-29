@@ -142,10 +142,15 @@ object Frontend {
                     val df = new CAnalysisFrontend(ast.asInstanceOf[TranslationUnit], fm_ts)
                     df.doubleFree()
                 }
-                if (opt.uninitializedvariable) {
-                    stopWatch.start("uninitializedvariable")
+                if (opt.uninitializedmemory) {
+                    stopWatch.start("uninitializedmemory")
                     val uv = new CAnalysisFrontend(ast.asInstanceOf[TranslationUnit], fm_ts)
                     uv.uninitializedMemory()
+                }
+                if (opt.xfree) {
+                    stopWatch.start("xfree")
+                    val xf = new CAnalysisFrontend(ast.asInstanceOf[TranslationUnit], fm_ts)
+                    xf.xfree()
                 }
 
             }

@@ -23,7 +23,8 @@ public class FrontendOptions extends LexerOptions implements ParserOptions {
             writeInterface = false,
             dumpcfg = false,
             doublefree = false,
-            uninitializedvariable = false,
+            uninitializedmemory = false,
+            xfree = false,
             serializeAST = false,
             writeDebugInterface = false,
             recordTiming = false,
@@ -43,6 +44,7 @@ public class FrontendOptions extends LexerOptions implements ParserOptions {
     private final static char F_DUMPCFG = Options.genOptionId();
     private final static char F_DOUBLEFREE = Options.genOptionId();
     private final static char F_UNINITIALIZEDMEMORY = Options.genOptionId();
+    private final static char F_XFREE = Options.genOptionId();
     private final static char F_SERIALIZEAST = Options.genOptionId();
     private final static char F_RECORDTIMING = Options.genOptionId();
     private final static char F_FILEPC = Options.genOptionId();
@@ -74,6 +76,8 @@ public class FrontendOptions extends LexerOptions implements ParserOptions {
                         "Lex, parse, and check for possible double free of heap pointers."),
                 new Option("uninitializedmemory", LongOpt.NO_ARGUMENT, F_UNINITIALIZEDMEMORY, null,
                         "Lex, parse, and check for usages of uninitialized variables."),
+                new Option("xfree", LongOpt.NO_ARGUMENT, F_XFREE, null,
+                        "Lex, parse, and check for usages of freeing statically allocated memory."),
 
                 new Option("output", LongOpt.REQUIRED_ARGUMENT, 'o', "file",
                         "Path to output files (no extension, creates .pi, .macrodbg etc files)."),
@@ -126,7 +130,9 @@ public class FrontendOptions extends LexerOptions implements ParserOptions {
         } else if (c == F_DOUBLEFREE) {
             parse = doublefree = true;
         } else if (c == F_UNINITIALIZEDMEMORY) {
-            parse = uninitializedvariable = true;
+            parse = uninitializedmemory = true;
+        } else if (c == F_XFREE) {
+            parse = xfree = true;
         } else if (c == F_SERIALIZEAST) {
             serializeAST = true;
         } else if (c == F_RECORDTIMING) {
