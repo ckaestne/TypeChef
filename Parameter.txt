@@ -12,7 +12,9 @@ Parameters:
     --typecheck (-t)               Lex, parse, and type check; but do not create interfaces.
     --interface                    Lex, parse, type check, and create interfaces.
     --dumpcfg                      Lex, parse, and dump control flow graph
-    --dataFlow                     Lex, parse, and check data flow
+    --doublefree                   Lex, parse, and check for possible double free of heap pointers.
+    --uninitializedmemory          Lex, parse, and check for usages of uninitialized variables.
+    --xfree                        Lex, parse, and check for usages of freeing statically allocated memory.
     --output=file (-o)             Path to output files (no extension, creates .pi, .macrodbg etc files).
     --writePI                      Write lexer output into .pi file
     --debugInterface               Write interface in human readable format (requires --interface)
@@ -62,4 +64,4 @@ Parameters:
     --version                      Prints version number
     --help                         Displays help and usage information.
 
-TypeChef version 0.3.5_20130404130741
+TypeChef version 0.3.5_20130529084216
