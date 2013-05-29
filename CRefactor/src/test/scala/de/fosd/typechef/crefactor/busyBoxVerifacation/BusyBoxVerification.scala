@@ -37,6 +37,14 @@ trait BusyBoxVerification extends Logging with ASTNavigation with ConditionalNav
         assert(succ)
     }
 
+    def generateProduct(enabledFeatures: List[SingleFeatureExpr], affectedFeatures: List[SingleFeatureExpr], fm: FeatureModel) = {
+        affectedFeatures.map(feature => {
+            if
+        })
+
+
+    }
+
     def getEnabledFeaturesFromConfigFile(fm: FeatureModel, file: File): List[SingleFeatureExpr] = {
         val correctFeatureModelIncompatibility = false
         var ignoredFeatures = 0
