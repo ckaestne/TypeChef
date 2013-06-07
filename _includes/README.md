@@ -178,6 +178,8 @@ The GNU C parser is based on an [ANTLR grammar for GNU C](http://www.antlr.org/g
 The Java parser is based on a grammar that can be traced back to the Java 1.5 grammar in the
 [JavaCC repository](http://java.net/projects/javacc/downloads/directory/contrib/grammars).
 
+Experimentally, the [Xtc/SuperC](https://cs.nyu.edu/rgrimm/xtc/) parser is included as .jar file to provide an alternative lexer.
+
 For convenience, we include a binary of [sbt](http://code.google.com/p/simple-build-tool/) in the repository.
 
 This work was supported in part by the European Research Council, grant #203099.
@@ -242,4 +244,4 @@ Change Log
 License
 -------
 
-TypeChef is published as open source under GPL 3.0. See [LICENSE](TypeChef/blob/master/LICENSE).
+TypeChef is published as open source under LGPL 3.0. See [LICENSE](TypeChef/blob/master/LICENSE).
