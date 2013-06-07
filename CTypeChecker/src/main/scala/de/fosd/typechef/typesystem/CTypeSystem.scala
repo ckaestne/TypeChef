@@ -13,10 +13,11 @@ import _root_.de.fosd.typechef.parser.c._
  *
  */
 
-trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with CExprTyping with CBuiltIn {
+trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with CExprTyping with CBuiltIn with CDeclUse {
 
     def typecheckTranslationUnit(tunit: TranslationUnit, featureModel: FeatureExpr = FeatureExprFactory.True) {
         assert(tunit != null, "cannot type check Translation Unit, tunit is null")
+        clearDeclUseMap()
         checkTranslationUnit(tunit, featureModel, InitialEnv)
     }
 
@@ -43,6 +44,30 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
             case fun@FunctionDef(specifiers, declarator, oldStyleParameters, stmt) =>
                 val (funType, newEnv) = checkFunction(fun, specifiers, declarator, oldStyleParameters, stmt, featureExpr, env)
                 typedFunction(fun, funType, featureExpr)
+                //stmt.innerStatements.foreach(x => addDecl(x.entry, newEnv))
+
+                declarator match {
+                    case AtomicNamedDeclarator(_, _, lst) =>
+                        lst.foreach(x => x.entry match {
+                            case DeclParameterDeclList(lst2) =>
+                                lst2.foreach(y => y.entry match {
+                                    case ParameterDeclarationD(lst3, _) =>
+                                        lst3.foreach(z => z.entry match {
+                                            case StructOrUnionSpecifier(isUnion, Some(i: Id), _) =>
+                                                addStructDeclUse(i, newEnv, isUnion, featureExpr)
+                                            case TypeDefTypeSpecifier(i: Id) =>
+                                            //addTypeUse(i, env, z.feature)
+                                            case EnumSpecifier(Some(i: Id), _) =>
+                                                addEnumUse(i, env, z.feature)
+                                            case _ =>
+                                        })
+                                    case _ =>
+                                })
+                            case _ =>
+                        })
+                    case _ =>
+                }
+                specifiers.foreach(x => addUse(x.entry, x.feature, newEnv))
                 newEnv
         }
     }
@@ -77,11 +102,15 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
 
         //add type to environment for remaining code
         val newEnv = newEnvEnum.addVar(declarator.getName, featureExpr, f, funType, kind, newEnvEnum.scope)
+        addDecl(declarator, featureExpr, env, false)
+        addJumpStatements(stmt)
 
         //check body (add parameters to environment)
         val innerEnv = newEnv.addVars(parameterTypes(declarator, featureExpr, newEnv.incScope(), oldStyleParam), KParameter, newEnv.scope + 1).setExpectedReturnType(expectedReturnType)
         getStmtType(stmt, featureExpr, innerEnv) //ignore changed environment, to enforce scoping!
         checkTypeFunction(specifiers, declarator, oldStyleParameters, featureExpr, env)
+        addOldStyleParameters(oldStyleParameters, declarator, featureExpr, env)
+
 
         //check actual return type against declared return type
         //TODO check that something was returned at all
@@ -97,8 +126,8 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
         ConditionalLib.mapCombinationF(ctype, prevTypes, fexpr, (f: FeatureExpr, newType: CType, prev: (CType, DeclarationKind, Int)) => {
             if (!isValidRedeclaration(normalize(newType), kind, env.scope, normalize(prev._1), prev._2, prev._3))
                 reportTypeError(f, "Invalid redeclaration/redefinition of " + name +
-                    " (was: " + prev._1 + ":" + kind + ":" + env.scope +
-                    ", now: " + newType + ":" + prev._2 + ":" + prev._3 + ")",
+                        " (was: " + prev._1 + ":" + kind + ":" + env.scope +
+                        ", now: " + newType + ":" + prev._2 + ":" + prev._3 + ")",
                     where, Severity.RedeclarationError)
         })
     }
@@ -155,7 +184,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
         env = addStructDeclarationToEnv(d, featureExpr, env)
 
         //declared enums?
-        env = env.updateEnumEnv(addEnumDeclarationToEnv(d.declSpecs, featureExpr, env.enumEnv, d.init.isEmpty))
+        env = env.updateEnumEnv(addEnumDeclarationToEnv(d.declSpecs, featureExpr, env, d.init.isEmpty))
         //declared typedefs?
         env = env.addTypedefs(recognizeTypedefs(d, featureExpr, env))
 
@@ -174,7 +203,8 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
         //check array initializers
         checkArrayExpr(d, featureExpr, env: Env)
         checkTypeDeclaration(d, featureExpr, env)
-
+        addDecl(d, featureExpr, env)
+        //addDeclaration(d, featureExpr, env)
         env
     }
 
@@ -619,11 +649,13 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
     private def checkTypeSpecifier(specifier: Specifier, expr: FeatureExpr, env: Env) {
         specifier match {
             case TypeDefTypeSpecifier(name) =>
+                addTypeUse(name, env, expr)
                 val declExpr = env.typedefEnv.whenDefined(name.name)
                 if ((expr andNot declExpr).isSatisfiable())
                     reportTypeError(expr andNot declExpr, "Type " + name.name + " not defined. (defined only in context " + declExpr + ")", specifier, Severity.TypeLookupError)
 
             case EnumSpecifier(Some(id), None) =>
+                addEnumUse(id, env, expr)
             // Not checking enums anymore, since they are only enforced by compilers in few cases (those cases are hard to distinguish, gcc is not very close to the standard here)
             //                val declExpr = env.enumEnv.getOrElse(id.name, FeatureExprFactory.False)
             //                if ((expr andNot declExpr).isSatisfiable)
@@ -648,7 +680,3 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
 
 
 }
-
-
-
-

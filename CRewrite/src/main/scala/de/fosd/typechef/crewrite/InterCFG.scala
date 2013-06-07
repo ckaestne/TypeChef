@@ -17,26 +17,26 @@ import scala.Some
 
 trait InterCFG extends IntraCFG {
 
-  // provide a lookup mechanism for function defs (from the type system or selfimplemented)
-  // return None if function cannot be found
-  def lookupFunctionDef(name: String): Conditional[Option[ExternalDef]]
+    // provide a lookup mechanism for function defs (from the type system or selfimplemented)
+    // return None if function cannot be found
+    def lookupFunctionDef(name: String): Conditional[Option[ExternalDef]]
 
-  override private[crewrite] def findMethodCalls(t: AST, env: ASTEnv, oldres: CFGRes, ctx: FeatureExpr, _res: CFGRes): CFGRes = {
-    var res: CFGRes = _res
-    val postfixExprs = filterAllASTElems[PostfixExpr](t)
-    for (pf@PostfixExpr(Id(funName), FunctionCall(_)) <- postfixExprs) {
-      val fexpr = env.featureExpr(pf)
-      val newresctx = getNewResCtx(oldres, ctx, fexpr)
-      val targetFun = lookupFunctionDef(funName)
-      targetFun.mapf(fexpr, {
-        case (f, Some(target)) => res = (newresctx and f, f, target) :: res
-        case _ =>
-      })
+    override private[crewrite] def findMethodCalls(t: AST, env: ASTEnv, oldres: CFGRes, ctx: FeatureExpr, _res: CFGRes): CFGRes = {
+        var res: CFGRes = _res
+        val postfixExprs = filterAllASTElems[PostfixExpr](t)
+        for (pf@PostfixExpr(Id(funName), FunctionCall(_)) <- postfixExprs) {
+            val fexpr = env.featureExpr(pf)
+            val newresctx = getNewResCtx(oldres, ctx, fexpr)
+            val targetFun = lookupFunctionDef(funName)
+            targetFun.mapf(fexpr, {
+                case (f, Some(target)) => res = (newresctx and f, f, target) :: res
+                case _ =>
+            })
+        }
+        res
     }
-    res
-  }
 
-  override def getExprSucc(exp: Expr, ctx: FeatureExpr, oldres: CFGRes, fm: FeatureModel, env: ASTEnv): CFGRes = {
-    findMethodCalls(exp, env, oldres, ctx, oldres) ++ super.getExprSucc(exp, ctx, oldres, fm, env)
-  }
+    override def getExprSucc(exp: Expr, ctx: FeatureExpr, oldres: CFGRes, fm: FeatureModel, env: ASTEnv): CFGRes = {
+        findMethodCalls(exp, env, oldres, ctx, oldres) ++ super.getExprSucc(exp, ctx, oldres, fm, env)
+    }
 }

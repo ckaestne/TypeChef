@@ -53,23 +53,23 @@ class StructTest extends FunSuite with CEnv with ShouldMatchers with TestHelper 
         env.isComplete("a", true) should be(False)
 
         //struct a;
-        env = env.addIncomplete("a", true, True, 1)
+        env = env.addIncomplete(Id("a"), true, True, 1)
         env.isComplete("a", true) should be(False)
 
         //struct a {double x;} //same scope should make it complete
-        env = env.addComplete("a", true, True, new ConditionalTypeMap() +("x", True, null, One(CDouble())), 1)
+        env = env.addComplete(Id("a"), true, True, new ConditionalTypeMap() +("x", True, null, One(CDouble())), 1)
         env.isComplete("a", true) should be(True)
 
         //struct a; // in same scope should not affect result
-        env = env.addIncomplete("a", true, True, 1)
+        env = env.addIncomplete(Id("a"), true, True, 1)
         env.isComplete("a", true) should be(True)
 
         //struct a; // in higher scope should replace
-        env = env.addIncomplete("a", true, fa, 2)
+        env = env.addIncomplete(Id("a"), true, fa, 2)
         env.isComplete("a", true) should be(fa.not)
 
         //struct a{double x; double y;};
-        env = env.addComplete("a", true, fa, new ConditionalTypeMap() +("x", True, null, One(CDouble())) +("y", True, null, One(CDouble())), 2)
+        env = env.addComplete(Id("a"), true, fa, new ConditionalTypeMap() +("x", True, null, One(CDouble())) +("y", True, null, One(CDouble())), 2)
         env.isComplete("a", true) should be(True)
 
         val fields = env.getFieldsMerged("a", true)

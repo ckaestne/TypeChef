@@ -261,6 +261,11 @@ case class CIgnore() extends CType {
 }
 
 
+case class CBuiltinVaList() extends CType {
+    def toXML = <builtinvalist/>
+}
+
+
 /** errors */
 case class CUnknown(msg: String = "") extends CType {
     override def toObj = this
@@ -301,7 +306,7 @@ object CType {
         ))
         (node \ "obc").map(x => result = CObj(fromXML(x)))
         (node \ "compound").map(x => result = CCompound())
-        (node \ "ignore").map(x => result = CIgnore())
+        (node \ "builtinvalist").map(x => result = CBuiltinVaList())
         (node \ "unkown").map(x => result = CUnknown(x.attribute("msg").get.text))
         result
     }
