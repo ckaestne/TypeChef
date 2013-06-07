@@ -5,9 +5,10 @@ Variation programming is the idea to implement data structures and operations on
 A variable may have multiple alternative values and operations will perform on all alternatives and return a new
 variational result. TypeChef contains libraries for precisely this purpose.
 
-The term *variation programming* was coined *Martin Erwig* and *Eric Walkingshaw* in their GTTSE'11 tutorial. For a
-more thorough introduction see their papers "Variation Programming with the Choice Calculus" and "The Choice Calculus:
-A Representation for Software Variation."
+The term *variation programming* was coined *Martin Erwig* and *Eric Walkingshaw* in their GTTSE'11 tutorial.
+For a more thorough introduction see their papers "Variation Programming with the Choice Calculus"
+([pdf](http://web.engr.oregonstate.edu/~erwig/papers/VPwithCC_GTTSE12.pdf))
+and "The Choice Calculus: A Representation for Software Variation" ([acm](http://dl.acm.org/citation.cfm?doid=2063239.2063245)).
 
 TypeChef is designed for parsing and type checking of code with #ifdef variability. In this process, we need to deal
 with variational data structures. For example, after parsing, the AST contains variability. During type checking, an
