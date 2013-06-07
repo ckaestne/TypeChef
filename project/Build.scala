@@ -33,7 +33,7 @@ object BuildSettings {
         parallelExecution := false, //run into memory problems on hudson otherwise
 
         homepage := Some(url("https://github.com/ckaestne/TypeChef")),
-        licenses := Seq("GNU General Public License v3.0" -> url("http://www.gnu.org/licenses/gpl.txt")),
+        licenses := Seq("GNU Lesser General Public License v3.0" -> url("http://www.gnu.org/licenses/lgpl.txt")),
 
         //maven
         publishTo <<= version {
