@@ -113,7 +113,7 @@ object Frontend {
 
                     stopWatch.start("typechecking")
                     println("type checking.")
-                    ts.checkAST
+                    ts.checkAST()
                     ts.errors.map(errorXML.renderTypeError(_))
                 }
                 if (opt.writeInterface) {
