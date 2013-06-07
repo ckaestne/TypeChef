@@ -199,13 +199,13 @@ In the context of a variability-aware **module system**, we discussed **type che
 
 > Christian Kästner, Klaus Ostermann, and Sebastian Erdweg. [A Variability-Aware Module System](http://www.cs.cmu.edu/~ckaestne/pdf/oopsla12.pdf). In Proceedings of the 27th Annual ACM SIGPLAN Conference on Object-Oriented Programming, Systems, Languages, and Applications (OOPSLA), pages 773--792, New York, NY: ACM Press, October 2012.
 
+A description of how we scaled **type system** and **data-flow analysis** and a performance comparison with sampling strategies can be found here:
+
+> J. Liebig, A. von Rhein, C. Kästner, S. Apel, J. Dörre, and C. Lengauer. [Large-Scale Variability-Aware Type Checking and Dataflow Analysis](http://www.cs.cmu.edu/~ckaestne/pdf/mip-1212.pdf). In Proceedings of the European Software Engineering Conference and ACM SIGSOFT Symposium on the Foundations of Software Engineering (ESEC/FSE), New York, NY: ACM Press, August 2013.
+
 A more detailed discussion of the variability-aware **lexer** (or partial preprocessor) was presented at VaMoS 2011:
 
 > Christian Kästner, Paolo G. Giarrusso, and Klaus Ostermann. [Partial Preprocessing C Code for Variability Analysis](http://www.cs.cmu.edu/~ckaestne/pdf/vamos11.pdf). In Proceedings of the Fifth International Workshop on Variability Modelling of Software-intensive Systems (VaMoS) (Namur, Belgium), pages 137-140, New York, NY, USA, January 2011. ACM Press.
-
-More information on the performance of our **type system** and **data-flow analysis** can be found here:
-
-> J. Liebig, A. von Rhein, C. Kästner, S. Apel, J. Dörre, and C. Lengauer. [Large-Scale Variability-Aware Type Checking and Dataflow Analysis](http://www.cs.cmu.edu/~ckaestne/pdf/mip-1212.pdf). Technical Report MIP-1212, Passau, Germany: Department of Informatics and Mathematics, University of Passau, November 2012.
 
 A simple variability-aware **interpreter** for executing test cases was build on top of TypeChef and published at FOSD 2012:
 
