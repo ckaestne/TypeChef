@@ -485,9 +485,9 @@ object FamilyBasedVsSampleBased extends EnforceTreeHelper with ASTNavigation wit
                 if (featureMap.contains(featureLine(0))) {
                     var product = pconfigurations(i - 1)
                     if (featureLine(i) == "X") {
-                        product = product.copy(_1 = featureMap(featureLine(0)) :: product._1)
+                        product = product.copy(_1 = featureMap(featureLine(i)) :: product._1)
                     } else {
-                        product = product.copy(_2 = featureMap(featureLine(0)) :: product._2)
+                        product = product.copy(_2 = featureMap(featureLine(i)) :: product._2)
                     }
                     pconfigurations.update(i - 1, product)
                 }
@@ -500,7 +500,7 @@ object FamilyBasedVsSampleBased extends EnforceTreeHelper with ASTNavigation wit
 
             // need to check the configuration here again.
             if (!config.toFeatureExpr.getSatisfiableAssignment(fm, features.toSet, 1 == 1).isDefined) {
-                println("no satisfiable solution for product: " + csvFile)
+                println("no satisfiable solution for product (" + i + "): " + csvFile)
             } else {
                 retList ::= config
             }
