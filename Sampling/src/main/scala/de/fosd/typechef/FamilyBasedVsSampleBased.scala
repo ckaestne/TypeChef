@@ -496,7 +496,14 @@ object FamilyBasedVsSampleBased extends EnforceTreeHelper with ASTNavigation wit
 
         // create a single configuration from the true features and false features list
         for (i <- 0 to pconfigurations.length - 1) {
-            retList = new SimpleConfiguration(pconfigurations(i)._1, pconfigurations(i)._2) :: retList
+            val config = new SimpleConfiguration(pconfigurations(i)._1, pconfigurations(i)._2)
+
+            // need to check the configuration here again.
+            if (!config.toFeatureExpr.getSatisfiableAssignment(fm, features.toSet, 1 == 1).isDefined) {
+                println("no satisfiable solution for product: " + csvFile)
+            } else {
+                retList ::= config
+            }
         }
 
         (retList, "Generated Configs: " + retList.size + "\n")
@@ -1232,169 +1239,6 @@ object FamilyBasedVsSampleBased extends EnforceTreeHelper with ASTNavigation wit
         (List(new SimpleConfiguration(interestingTrueFeatures, interestingFalseFeatures)), "")
     }
 
-    def loadConfigurationsFromHenardFiles(files: List[File], dimacsFile: File, features: List[SingleFeatureExpr], fm: FeatureModel): (List[SimpleConfiguration], String) = {
-        var retList: List[SimpleConfiguration] = List()
-
-        // we have to pre-set index 0, so that the real indices start with 1
-        var featureNamesTmp: List[String] = List("--dummy--")
-        var currentLine: Int = 1
-        for (line: String <- Source.fromFile(dimacsFile).getLines().takeWhile(_.startsWith("c"))) {
-            // dimacs-format: comment line "c 3779 AT76C50X_USB"
-            val lineElements: Array[String] = line.split(" ")
-            if (!lineElements(1).endsWith("$")) {
-                // feature indices ending with $ are artificial and can be ignored here
-                assert(augmentString(lineElements(1)).toInt.equals(currentLine), "\"" + lineElements(1) + "\"" + " != " + currentLine)
-                featureNamesTmp ::= lineElements(2)
-            }
-            currentLine += 1
-        }
-
-        val featureNames: Array[String] = featureNamesTmp.reverse.toArray
-        featureNamesTmp = null
-        val interestingFeaturesMap: scala.collection.mutable.HashMap[Int, SingleFeatureExpr] = new scala.collection.mutable.HashMap()
-        for (i <- 0.to(featureNames.length - 1)) {
-            val searchResult = features.find(_.feature.equals("CONFIG_" + featureNames(i)))
-            if (searchResult.isDefined) {
-                interestingFeaturesMap.update(i, searchResult.get)
-            }
-        }
-
-        for (file: File <- files) {
-
-            var trueFeatures: List[SingleFeatureExpr] = List()
-            var falseFeatures: List[SingleFeatureExpr] = List()
-
-            for (line: String <- Source.fromFile(file).getLines()) {
-                val lineContent: Int = augmentString(line).toInt
-                if (interestingFeaturesMap.contains(math.abs(lineContent))) {
-                    if (lineContent > 0) {
-                        trueFeatures ::= interestingFeaturesMap(math.abs(lineContent))
-                    } else {
-                        falseFeatures ::= interestingFeaturesMap(math.abs(lineContent))
-                    }
-                }
-            }
-            val config = new SimpleConfiguration(trueFeatures, falseFeatures)
-
-            // need to check the configuration here again.
-            if (!config.toFeatureExpr.getSatisfiableAssignment(fm, features.toSet, 1 == 1).isDefined) {
-                println("no satisfiable solution for product: " + file)
-            } else {
-                retList ::= config
-            }
-            //      retList ::= config
-        }
-        (retList, "Generated Configs: " + retList.size + "\n")
-    }
-
-    def loadConfigurationsFromCSVFile2(csvFile: File, features: List[SingleFeatureExpr], fm: FeatureModel): (List[SimpleConfiguration], String) = {
-        var retList: List[SimpleConfiguration] = List()
-        val lines = Source.fromFile(csvFile).getLines().filterNot(_.startsWith("#")).filterNot(_.isEmpty)
-        val headline = lines.next()
-        val featureNames: Array[String] = headline.split(";")
-        val interestingFeaturesMap: scala.collection.mutable.HashMap[Int, SingleFeatureExpr] = new scala.collection.mutable.HashMap()
-        /*
-                println("myList:")
-                println(features.slice(0,10).map(_.feature).mkString(";"))
-
-                println("csv:")
-                println(featureNames.slice(0,10).mkString(";"))
-        */
-
-        for (i <- 0.to(featureNames.length - 1)) {
-            val searchResult = features.find(_.feature.equals(featureNames(i).substring(featureNames(i).indexOf(":") + 1)))
-            if (searchResult.isDefined) {
-                interestingFeaturesMap.update(i, searchResult.get)
-            }
-        }
-        println("interestingFsize: " + interestingFeaturesMap.size)
-        println("first feature: " + featureNames(0))
-        println("last feature: " + featureNames(featureNames.length - 1))
-        var line = 0
-        while (lines.hasNext) {
-            line += 1
-            val currentLineElements: Array[String] = lines.next().split(";")
-            var trueFeatures: List[SingleFeatureExpr] = List()
-            var falseFeatures: List[SingleFeatureExpr] = List()
-            for (i <- 0.to(currentLineElements.length - 1)) {
-                if (currentLineElements(i).toUpperCase.equals("X")) {
-                    //println("on: " + featureNames(i))
-                    if (featureNames(i).substring(featureNames(i).indexOf(":") + 1).equals("X86_32") || featureNames(i).substring(featureNames(i).indexOf(":") + 1).equals("64BIT"))
-                        println("active: " + featureNames(i))
-                    if (interestingFeaturesMap.contains(i))
-                        trueFeatures ::= interestingFeaturesMap(i)
-                } else if (currentLineElements(i).equals("-")) {
-                    //println("off: " + featureNames(i))
-                    if (featureNames(i).substring(featureNames(i).indexOf(":") + 1).equals("X86_32") || featureNames(i).substring(featureNames(i).indexOf(":") + 1).equals("64BIT"))
-                        println("deactivated: " + featureNames(i))
-                    if (interestingFeaturesMap.contains(i))
-                        falseFeatures ::= interestingFeaturesMap(i)
-                } else
-                    println("csv file contains an element that is not \"X\" and not \"-\"! " + csvFile + " element: " + currentLineElements(i))
-            }
-            //      println("true Features : " + trueFeatures.size)
-            //      println("false Features : " + falseFeatures.size)
-            //      println("all: " + features.size)
-            if (!FeatureExprFactory.True.getSatisfiableAssignment(fm, features.toSet, 1 == 1).isDefined) {
-                println("no satisfiable solution for product in line " + line)
-            }
-            retList ::= new SimpleConfiguration(trueFeatures, falseFeatures)
-        }
-        (retList, "")
-    }
-
-    def loadConfigurationsFromCSVFile2(csvFile: File, features: List[SingleFeatureExpr],
-                                       fm: FeatureModel, kconfigonly: Boolean = true): List[SimpleConfiguration] = {
-        var retlist: List[SimpleConfiguration] = List()
-
-        // filter lines with comments out
-        val lines = Source.fromFile(csvFile).getLines().filterNot(_.startsWith("#")).filterNot(_.isEmpty)
-
-        // map with feature names we care fore
-        val interestingfeaturesmap: scala.collection.mutable.HashMap[Int, SingleFeatureExpr] = new scala.collection.mutable.HashMap()
-
-        while (lines.hasNext) {
-            // check whether line contains mapping between int->feature name
-            // if so then add the mapping to the map interestingfeaturesmap
-            // create map with features we care for together with the corresponding
-            // integer that is used internally by the sat solver
-            // for systems that use kconfig we filter for "CONFIG_"
-            // for all other systems we use all features
-            val curline = lines.next()
-            if (curline.contains("->")) {
-                val res = curline.split("->")
-                val featureid = res(0).toInt
-                val featurename = if (kconfigonly) "CONFIG_" + res(1) else res(1)
-
-                features.find(_.feature.equals(featurename)) match {
-                    case Some(x) => interestingfeaturesmap.update(featureid, x)
-                    case None =>
-                }
-            } else {
-                // the line specifies one product
-                // format is
-                // 1;-2;3 ...
-                // numbers denote feature identifiers
-                // >0 feature selected
-                // <0 feature not selected
-                var truefeatures: List[SingleFeatureExpr] = List()
-                var falsefeatures: List[SingleFeatureExpr] = List()
-
-                val productconf: Array[String] = curline.split(";")
-
-                for (featureid <- productconf) {
-                    if (featureid(0) == '-') falsefeatures ::= interestingfeaturesmap.get(featureid.substring(1).toInt).get
-                    else truefeatures ::= interestingfeaturesmap.get(featureid.toInt).get
-                }
-
-                retlist ::= new SimpleConfiguration(truefeatures, falsefeatures)
-            }
-
-        }
-
-        retlist
-    }
-
     /**
      * Does the same as the other config-from-file method. However, it does not create additional bdd-Feature
      * expressions but uses string Sets as parameters to the sat-call.
@@ -1617,6 +1461,4 @@ object FamilyBasedVsSampleBased extends EnforceTreeHelper with ASTNavigation wit
         (valid, tested)
     }
 }
-
-
 
