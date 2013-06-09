@@ -196,14 +196,14 @@ object FamilyBasedVsSampleBased extends EnforceTreeHelper with ASTNavigation wit
     }
 
     private def buildConfigurationsSingleConf(tunit: TranslationUnit, fm: FeatureModel, opt: FamilyBasedVsSampleBasedOptions,
-                                              configDir: File, caseStudy: String)
+                                              configDir: File, caseStudy: String, extasks: List[Task])
     : (String, List[Task]) = {
         var tasks: List[Task] = List()
         var log = ""
         var msg = ""
         var startTime: Long = 0
-        if (tasks.find(_._1.equals("singleconf")).isDefined) {
-            msg = "omitting FileConfig generation, because a serialized version was loaded"
+        if (extasks.find(_._1.equals("fileconfig")).isDefined) {
+            msg = "omitting fileconfig generation, because a serialized version was loaded"
         } else {
             val configFile = if (caseStudy.equals("linux"))
                 opt.getRootFolder + "Linux_allyes_modified.config"
@@ -215,7 +215,7 @@ object FamilyBasedVsSampleBased extends EnforceTreeHelper with ASTNavigation wit
                 throw new Exception("unknown case Study, give linux, busybox, or openssl")
             startTime = System.currentTimeMillis()
             val (configs, logmsg) = getConfigsFromFiles(features, fm, new File(configFile))
-            tasks :+= Pair("singleconf", configs)
+            tasks :+= Pair("fileconfig", configs)
             msg = "Time for config generation (singleconf): " + (System.currentTimeMillis() - startTime) + " ms\n" + logmsg
         }
         println(msg)
@@ -225,25 +225,26 @@ object FamilyBasedVsSampleBased extends EnforceTreeHelper with ASTNavigation wit
     }
 
     private def buildConfigurationsPairwise(tunit: TranslationUnit, fm: FeatureModel, opt: FamilyBasedVsSampleBasedOptions,
-                                            configDir: File, caseStudy: String)
+                                            configDir: File, caseStudy: String, extasks: List[Task])
     : (String, List[Task]) = {
         var tasks: List[Task] = List()
         var log = ""
         var msg = ""
         var startTime: Long = 0
 
-        if (tasks.find(_._1.equals("pairwise")).isDefined) {
-            msg = "omitting pairwise loading, because a serialized version was loaded"
+        if (extasks.find(_._1.equals("pairwise")).isDefined) {
+            msg = "omitting pairwise generation, because a serialized version was loaded"
         } else {
             var productsFile: File = null
             var dimacsFM: File = null
             var featureprefix = ""
             if (caseStudy == "linux") {
                 productsFile = new File(opt.getRootFolder + "TypeChef-LinuxAnalysis/linux_pairwise_configs.csv")
-                dimacsFM = new File(opt.getRootFolder + "TypeChef-LinuxAnalysis/generatedConfigs_henard/SuperFM.dimacs")
+                dimacsFM = new File(opt.getRootFolder + "TypeChef-LinuxAnalysis/2.6.33.3-2var.dimacs")
+                featureprefix = "CONFIG_"
             } else if (caseStudy == "busybox") {
                 productsFile = new File(opt.getRootFolder + "TypeChef-BusyboxAnalysis/busybox_pairwise_configs.csv")
-                dimacsFM = new File(opt.getRootFolder + "TypeChef-BusyboxAnalysis/generatedConfigs_Henard/BB_fm.dimacs")
+                dimacsFM = new File(opt.getRootFolder + "TypeChef-BusyboxAnalysis/BB_fm.dimacs")
                 featureprefix = "CONFIG_"
             } else if (caseStudy == "openssl") {
                 productsFile = new File(opt.getRootFolder + "TypeChef-OpenSSLAnalysis/openssl-1.0.1c/openssl_pairwise_configs.csv")
@@ -264,13 +265,13 @@ object FamilyBasedVsSampleBased extends EnforceTreeHelper with ASTNavigation wit
         (log, tasks)
     }
 
-    private def buildConfigurationsCodecoverageNH(tunit: TranslationUnit, fm: FeatureModel, configDir: File, caseStudy: String)
+    private def buildConfigurationsCodecoverageNH(tunit: TranslationUnit, fm: FeatureModel, configDir: File, caseStudy: String, extasks: List[Task])
     : (String, List[Task]) = {
         var tasks: List[Task] = List()
         var log = ""
         var msg = ""
         var startTime: Long = 0
-        if (tasks.find(_._1.equals("coverage_noHeader")).isDefined) {
+        if (extasks.find(_._1.equals("coverage_noHeader")).isDefined) {
             msg = "omitting coverage_noHeader generation, because a serialized version was loaded"
         } else {
             startTime = System.currentTimeMillis()
@@ -285,14 +286,14 @@ object FamilyBasedVsSampleBased extends EnforceTreeHelper with ASTNavigation wit
         (log, tasks)
     }
 
-    private def buildConfigurationsCodecoverage(tunit: TranslationUnit, fm: FeatureModel, configDir: File, caseStudy: String)
+    private def buildConfigurationsCodecoverage(tunit: TranslationUnit, fm: FeatureModel, configDir: File, caseStudy: String, extasks: List[Task])
     : (String, List[Task]) = {
         var tasks: List[Task] = List()
         var log = ""
         var msg = ""
         var startTime: Long = 0
         if (caseStudy != "linux") {
-            if (tasks.find(_._1.equals("coverage")).isDefined) {
+            if (extasks.find(_._1.equals("coverage")).isDefined) {
                 msg = "omitting coverage generation, because a serialized version was loaded"
             } else {
                 startTime = System.currentTimeMillis()
@@ -339,14 +340,14 @@ object FamilyBasedVsSampleBased extends EnforceTreeHelper with ASTNavigation wit
 
         /** singleconf */
         if (opt.singleconf) {
-            val (flog, ftasks) = buildConfigurationsSingleConf(tunit, fm, opt, configdir, caseStudy)
+            val (flog, ftasks) = buildConfigurationsSingleConf(tunit, fm, opt, configdir, caseStudy, tasks)
             log = log + flog
             tasks ++= ftasks
         }
 
         /** pairwise configurations */
         if (opt.pairwise) {
-            val (plog, ptasks) = buildConfigurationsPairwise(tunit, fm, opt, configdir, caseStudy)
+            val (plog, ptasks) = buildConfigurationsPairwise(tunit, fm, opt, configdir, caseStudy, tasks)
             log = log + plog
             tasks ++= ptasks
         }
@@ -354,15 +355,15 @@ object FamilyBasedVsSampleBased extends EnforceTreeHelper with ASTNavigation wit
 
         /** code coverage - no Header files */
         if (opt.codecoverageNH) {
-            val (clog, ctasks) = buildConfigurationsCodecoverageNH(tunit, fm, configdir, caseStudy)
+            val (clog, ctasks) = buildConfigurationsCodecoverageNH(tunit, fm, configdir, caseStudy, tasks)
             log = log + clog
             tasks ++= ctasks
         }
 
 
         /** code coverage - including Header files */
-        if (opt.codecoverageNH) {
-            val (clog, ctasks) = buildConfigurationsCodecoverage(tunit, fm, configdir, caseStudy)
+        if (opt.codecoverage) {
+            val (clog, ctasks) = buildConfigurationsCodecoverage(tunit, fm, configdir, caseStudy, tasks)
             log = log + clog
             tasks ++= ctasks
         }

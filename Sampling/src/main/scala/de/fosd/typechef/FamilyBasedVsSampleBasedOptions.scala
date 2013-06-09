@@ -30,6 +30,7 @@ class FamilyBasedVsSampleBasedOptions extends FrontendOptionsWithConfigFiles {
     protected override def interpretOption(c: Int, g: Getopt): Boolean = {
         if (c == F_SINGLECONF) singleconf = true
         else if (c == F_CODECOVERAGE) codecoverage = true
+        else if (c == F_CODECOVERAGENH) codecoverageNH = true
         else if (c == F_PAIRWISE) pairwise = true
         else if (c == F_ROOTFOLDER) {
             checkDirectoryExists(g.getOptarg)
