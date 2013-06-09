@@ -4,8 +4,9 @@ import lexer.options.OptionException
 import parser.c._
 import parser.c.CTypeContext
 import parser.TokenReader
+import de.fosd.typechef.crewrite.EnforceTreeHelper
 
-object Sampling {
+object Sampling extends EnforceTreeHelper {
     def main(args: Array[String]) {
         // load options
         val opt = new FamilyBasedVsSampleBasedOptions()
@@ -60,7 +61,8 @@ object Sampling {
 
         if (ast != null) {
             val fm_ts = opt.getFeatureModelTypeSystem.and(opt.getLocalFeatureModel).and(opt.getFilePresenceCondition)
-            FamilyBasedVsSampleBased.typecheckProducts(fm_ts, fm_ts, ast, opt, "")
+            val treeast = prepareAST[TranslationUnit](ast.asInstanceOf[TranslationUnit])
+            FamilyBasedVsSampleBased.typecheckProducts(fm_ts, fm_ts, treeast, opt, "")
         }
     }
 
