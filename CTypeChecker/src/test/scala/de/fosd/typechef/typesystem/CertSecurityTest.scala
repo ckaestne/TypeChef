@@ -149,5 +149,41 @@ class CertSecurityTest extends FunSuite with ShouldMatchers with TestHelper {
             """.stripMargin)
     }
 
+
+    /**
+     * less simple type system rule
+     * potentially interesting
+     */
+    ignore("EXP32-C. Do not access a volatile object through a non-volatile reference") {
+        correctExpr(
+            """
+              |static volatile int **ipp;
+              |static volatile int *ip;
+              |static volatile int i = 0;
+              |
+              |ipp = &ip;
+              |*ipp = &i;
+              |if (*ip != 0) {
+              |  /* ... */
+              |}
+            """.stripMargin)
+
+        errorExpr(
+            """
+              |static volatile int **ipp;
+              |static int *ip;
+              |static volatile int i = 0;
+              |
+              |//printf("i = %d.\n", i);
+              |
+              |ipp = &ip; /* produces warnings in modern compilers */
+              |ipp = (int**) &ip; /* constraint violation, also produces warnings */
+              |*ipp = &i; /* valid */
+              |if (*ip != 0) { /* valid */
+              |  /* ... */
+              |}
+            """.stripMargin)
+    }
+
 }
 
