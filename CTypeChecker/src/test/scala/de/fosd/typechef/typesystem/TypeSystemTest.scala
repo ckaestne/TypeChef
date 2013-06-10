@@ -982,5 +982,55 @@ return 1;
         //
     }
 
+
+    test("conflicting types in redeclaration") {
+        //https://www.securecoding.cert.org/confluence/display/seccode/DCL40-C.+Incompatible+declarations+of+the+same+function+or+object
+        expect(false) {
+            check(
+                """
+                  |extern int i;   /* UB 15 */
+                  |
+                  |int f(void) {
+                  |    return ++i;   /* UB 37 */
+                  |}
+                  |
+                  |short i;   /* UB 15 */
+                  |
+                """.stripMargin)
+        }
+
+        //incompatible according to https://www.securecoding.cert.org/confluence/display/seccode/DCL40-C.+Incompatible+declarations+of+the+same+function+or+object
+        //        expect(false) {
+        //            check(
+        //                """
+        //                  |extern int *a;   /* UB 15 */
+        //                  |
+        //                  |int f(unsigned i, int x) {
+        //                  |  int tmp = a[i];   /* UB 37: read access */
+        //                  |  a[i] = x;         /* UB 37: write access*/
+        //                  |  return tmp;
+        //                  |}
+        //                  |
+        //                  |int a[] = { 1, 2, 3, 4 };   /* UB 15 */
+        //                """.stripMargin)
+        //        }
+
+        expect(false) {
+            check(
+                """
+                  |extern int f(int a);   /* UB 15 */
+                  |
+                  |int g(int a) {
+                  |  return f(a);   /* UB 41 */
+                  |}
+                  |
+                  |long f(long a) {   /* UB 15 */
+                  |  return a * 2;
+                  |}
+                """.stripMargin)
+        }
+
+
+    }
 }
 
