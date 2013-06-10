@@ -32,12 +32,15 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                      * these for brevity's sake
                      */
                     //TODO other constant types
-                    case Constant(v) =>
+                    case c@Constant(v) =>
+                        if (opts.warning_long_designator && v.lastOption.map(_ == 'l').getOrElse(false))
+                            reportTypeError(featureExpr, "Use \"L,\" not \"l,\" to indicate a long value", c, Severity.SecurityWarning, "long-designator")
+
                         if (v == "0" || v == "'\\0'") One(CZero())
                         else
                         if (v.head == '\'') One(CUnsigned(CChar()))
                         else
-                        if (v.last.toLower == 'l') One(CSigned(CLong()))
+                        if (v.last.toUpper == 'L') One(CSigned(CLong()))
                         else One(CSigned(CInt()))
                     //variable or function ref
                     case id@Id(name) =>

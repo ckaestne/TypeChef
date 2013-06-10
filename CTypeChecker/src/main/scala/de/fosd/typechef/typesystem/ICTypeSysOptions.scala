@@ -39,10 +39,21 @@ trait ICTypeSysOptions {
     //-Wno-pointer-sign, -Wpointer-sign
     def warning_pointer_sign: Boolean
 
+    // implements a simple version of:
+    // INT30-C     high    likely    high    P9    L2
+    // INT32-C 	   high    likely    high    P9    L2
+    // https://www.securecoding.cert.org/confluence/display/seccode/INT30-C.+Ensure+that+unsigned+integer+operations+do+not+wrap
+    // https://www.securecoding.cert.org/confluence/display/seccode/INT32-C.+Ensure+that+operations+on+signed+integers+do+not+result+in+overflow
     def warning_potential_integer_overflow: Boolean
 
+    // implements a simple version of:
+    // INT31-C    high    probable    high    P6    L2
+    // https://www.securecoding.cert.org/confluence/display/seccode/INT31-C.+Ensure+that+integer+conversions+do+not+result+in+lost+or+misinterpreted+data
     def warning_implicit_coercion: Boolean
 
+    // DCL16-C. Use "L," not "l," to indicate a long value
+    // https://www.securecoding.cert.org/confluence/pages/viewpage.action?pageId=19759250
+    def warning_long_designator: Boolean
 }
 
 trait COptionProvider {
@@ -54,6 +65,7 @@ trait LinuxDefaultOptions extends ICTypeSysOptions {
     def warning_pointer_sign = false
     def warning_potential_integer_overflow = false
     def warning_implicit_coercion = false
+    def warning_long_designator = false
 }
 
 object LinuxDefaultOptions extends LinuxDefaultOptions
