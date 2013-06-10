@@ -17,6 +17,7 @@ class CAnalysisOptions extends FeatureModelOptions with ICTypeSysOptions {
 
     val Wpointersign = SecurityOption("Wpointersign", "Issue type error when pointers have incompatible signess", LinuxDefaultOptions.warning_pointer_sign)
     val Wintegeroverflow = SecurityOption("Wintegeroverflow", "Issue security warning on possible integer overflows in security-relevant locations", LinuxDefaultOptions.warning_potential_integer_overflow)
+    val Wimplicitcoercion = SecurityOption("Wimplicitcoercion", "Issue security warning on implicit integer coercion", LinuxDefaultOptions.warning_implicit_coercion)
 
     val opts: List[SecurityOption] = List(
         Wpointersign, Wintegeroverflow
@@ -28,6 +29,7 @@ class CAnalysisOptions extends FeatureModelOptions with ICTypeSysOptions {
     //-Wno-pointer-sign, -Wpointer-sign
     def warning_pointer_sign: Boolean = selectedOpts.contains(Wpointersign.param)
     def warning_potential_integer_overflow: Boolean = selectedOpts.contains(Wintegeroverflow.param)
+    def warning_implicit_coercion = selectedOpts.contains(Wimplicitcoercion.param)
 
     override protected def getOptionGroups: java.util.List[Options.OptionGroup] = {
         val r: java.util.List[Options.OptionGroup] = super.getOptionGroups

@@ -41,6 +41,8 @@ trait ICTypeSysOptions {
 
     def warning_potential_integer_overflow: Boolean
 
+    def warning_implicit_coercion: Boolean
+
 }
 
 trait COptionProvider {
@@ -51,4 +53,5 @@ trait COptionProvider {
 object LinuxDefaultOptions extends ICTypeSysOptions {
     def warning_pointer_sign = false
     def warning_potential_integer_overflow = false
+    def warning_implicit_coercion = false
 }
