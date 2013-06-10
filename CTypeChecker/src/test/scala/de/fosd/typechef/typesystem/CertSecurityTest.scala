@@ -25,6 +25,7 @@ class CertSecurityTest extends FunSuite with ShouldMatchers with TestHelper {
         assert(ast != null, "void ast");
         new CTypeSystemFrontend(ast, FeatureExprFactory.default.featureModelFactory.empty, new LinuxDefaultOptions {
             override def warning_long_designator = true
+            override def warning_implicit_identifier = true
         }).checkAST(false)
     }
 
@@ -38,6 +39,32 @@ class CertSecurityTest extends FunSuite with ShouldMatchers with TestHelper {
         }
         expect(false) {
             checkExpr("long a = 1l;")
+        }
+    }
+
+    /**
+     * very simple, structural rule
+     */
+    test("DCL31-C. Declare identifiers before using them") {
+        expect(true) {
+            checkExpr("extern int foo;")
+        }
+        expect(false) {
+            checkExpr("extern foo;")
+        }
+        expect(false) {
+            //an error instead of a warning in our case
+            checkExpr(
+                """
+                  |int main(void) {
+                  |  int c = foo();
+                  |  return 0;
+                  |}
+                  |
+                  |int foo(int a) {
+                  |  return a;
+                  |}
+                """.stripMargin)
         }
     }
 }

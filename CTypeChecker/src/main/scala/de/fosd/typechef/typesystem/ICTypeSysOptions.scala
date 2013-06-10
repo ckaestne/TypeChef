@@ -54,6 +54,11 @@ trait ICTypeSysOptions {
     // DCL16-C. Use "L," not "l," to indicate a long value
     // https://www.securecoding.cert.org/confluence/pages/viewpage.action?pageId=19759250
     def warning_long_designator: Boolean
+
+    // DCL31-C. Declare identifiers before using them
+    // https://www.securecoding.cert.org/confluence/display/seccode/DCL31-C.+Declare+identifiers+before+using+them
+    // (partially implemented only)
+    def warning_implicit_identifier: Boolean
 }
 
 trait COptionProvider {
@@ -66,6 +71,7 @@ trait LinuxDefaultOptions extends ICTypeSysOptions {
     def warning_potential_integer_overflow = false
     def warning_implicit_coercion = false
     def warning_long_designator = false
+    def warning_implicit_identifier = false
 }
 
 object LinuxDefaultOptions extends LinuxDefaultOptions

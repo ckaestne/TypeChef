@@ -217,9 +217,10 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
             //            According to standard C this should not be exploited by programmers.
             //            However, from time to time people use it. We could either add int to
             //            all occurences or add this rule to the typesystem.
-            //TODO we might want to issue a warning here.
+            // cert recommends to avoid this: https://www.securecoding.cert.org/confluence/display/seccode/DCL31-C.+Declare+identifiers+before+using+them
+            if (opts.warning_implicit_identifier)
+                reportTypeError(featureExpr, "Avoid implicit int typing.", locationForErrorMsg, Severity.SecurityWarning, "implicit-int")
             sign(CInt())
-            //was:            One(reportTypeError(featureExpr, "no type specifier found", locationForErrorMsg))
         } else
             One(reportTypeError(featureExpr, "multiple types found " + types, locationForErrorMsg))
     }
@@ -408,7 +409,9 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
                 case o@DeclIdentifierList(idList) =>
                     if (!idList.isEmpty && oldStyleParameterTypes == null)
                         return One(reportTypeError(fexpr, "invalid function signature (parameter types missing)", o, Severity.Crash))
-                    val parameterTypes: List[Opt[CType]] = idList.flatMap({ case Opt(f, id) => oldStyleParameterTypes.getOrElse(id.name, CUnsigned(CInt())).toOptList.map(_.and(f and fexpr)) })
+                    val parameterTypes: List[Opt[CType]] = idList.flatMap({
+                        case Opt(f, id) => oldStyleParameterTypes.getOrElse(id.name, CUnsigned(CInt())).toOptList.map(_.and(f and fexpr))
+                    })
                     var paramLists: Conditional[List[CType]] =
                         ConditionalLib.explodeOptList(parameterTypes)
                     paramLists.map(CFunction(_, rtype))
@@ -451,7 +454,10 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
                         checkStructCompletenessC(ctype, fexpr, env, structDeclaration)
 
                         //member should not have function type (pointer to function is okay)
-                        val isFunction = ctype.when({ case CFunction(_, _) => true; case _ => false })
+                        val isFunction = ctype.when({
+                            case CFunction(_, _) => true;
+                            case _ => false
+                        })
                         if ((fexpr and isFunction).isSatisfiable())
                             reportTypeError(fexpr and isFunction, "member " + decl.getName + " must not have function type", decl, Severity.OtherError)
 
