@@ -5,6 +5,7 @@ import org.scalatest.FunSuite
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
 import de.fosd.typechef.parser.c._
+import de.fosd.typechef.featureexpr.FeatureExprFactory
 
 @RunWith(classOf[JUnitRunner])
 class IntegerSecurityTest extends FunSuite with ShouldMatchers with TestHelper {
@@ -19,7 +20,10 @@ class IntegerSecurityTest extends FunSuite with ShouldMatchers with TestHelper {
     }
     private def check(ast: TranslationUnit): Boolean = {
         assert(ast != null, "void ast");
-        new CTypeSystemFrontend(ast).checkAST(false)
+        new CTypeSystemFrontend(ast, FeatureExprFactory.default.featureModelFactory.empty, new LinuxDefaultOptions {
+            override def warning_potential_integer_overflow = true
+            override def warning_implicit_coercion = true
+        }).checkAST(false)
     }
 
 

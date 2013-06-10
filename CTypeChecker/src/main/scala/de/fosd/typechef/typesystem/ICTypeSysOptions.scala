@@ -50,8 +50,10 @@ trait COptionProvider {
     protected def opts: ICTypeSysOptions = LinuxDefaultOptions
 }
 
-object LinuxDefaultOptions extends ICTypeSysOptions {
+trait LinuxDefaultOptions extends ICTypeSysOptions {
     def warning_pointer_sign = false
     def warning_potential_integer_overflow = false
     def warning_implicit_coercion = false
 }
+
+object LinuxDefaultOptions extends LinuxDefaultOptions
