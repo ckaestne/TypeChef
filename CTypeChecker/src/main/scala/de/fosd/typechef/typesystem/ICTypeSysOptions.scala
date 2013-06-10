@@ -1,6 +1,5 @@
 package de.fosd.typechef.typesystem
 
-import de.fosd.typechef.featureexpr.FeatureModel
 
 /**
  * Options for the type system (what is supposed to be checked, what should issue errors or warnings)
@@ -35,18 +34,21 @@ BUSYBOX
 
 trait ICTypeSysOptions {
 
-//    def getFeatureModelTypeSystem: FeatureModel
+    //    def getFeatureModelTypeSystem: FeatureModel
 
     //-Wno-pointer-sign, -Wpointer-sign
     def warning_pointer_sign: Boolean
 
+    def warning_potential_integer_overflow: Boolean
 
 }
 
 trait COptionProvider {
-    def opts: ICTypeSysOptions = LinuxDefaultOptions
+    //default used only in tests, overwritten by the frontend
+    protected def opts: ICTypeSysOptions = LinuxDefaultOptions
 }
 
 object LinuxDefaultOptions extends ICTypeSysOptions {
     def warning_pointer_sign = false
+    def warning_potential_integer_overflow = false
 }

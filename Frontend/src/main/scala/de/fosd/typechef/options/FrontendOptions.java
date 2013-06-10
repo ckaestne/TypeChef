@@ -3,9 +3,6 @@ package de.fosd.typechef.options;
 import de.fosd.typechef.featureexpr.FeatureExpr;
 import de.fosd.typechef.featureexpr.FeatureExprFactory$;
 import de.fosd.typechef.featureexpr.FeatureExprParserJava;
-import de.fosd.typechef.options.LexerOptions;
-import de.fosd.typechef.options.OptionException;
-import de.fosd.typechef.options.Options;
 import de.fosd.typechef.parser.Position;
 import de.fosd.typechef.parser.c.ParserOptions;
 import gnu.getopt.Getopt;
@@ -16,7 +13,7 @@ import java.io.File;
 import java.util.List;
 
 
-public class FrontendOptions extends FeatureModelOptions implements ParserOptions {
+public class FrontendOptions extends CAnalysisOptions implements ParserOptions {
     public boolean parse = true,
             typecheck = false,
             writeInterface = false,
@@ -51,7 +48,7 @@ public class FrontendOptions extends FeatureModelOptions implements ParserOption
 
 
     @Override
-    protected List<Options.OptionGroup> getOptionGroups() {
+    public List<Options.OptionGroup> getOptionGroups() {
         List<OptionGroup> r = super.getOptionGroups();
 
         r.add(new OptionGroup("General processing options (lexing, parsing, type checking, interfaces; select only highest)", 10,
@@ -104,7 +101,7 @@ public class FrontendOptions extends FeatureModelOptions implements ParserOption
     }
 
     @Override
-    protected boolean interpretOption(int c, Getopt g) throws OptionException {
+    public boolean interpretOption(int c, Getopt g) throws OptionException {
         if (c == 'E') {       //--lex
             parse = typecheck = writeInterface = false;
             lexPrintToStdout = true;

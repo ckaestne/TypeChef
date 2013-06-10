@@ -23,10 +23,14 @@ public abstract class Options {
         private String name;
         private List<Option> options;
 
-        public OptionGroup(String name, int priority, Option... options) {
+        public OptionGroup(String name, int priority, List<Option> options) {
             this.name = name;
-            this.options = Arrays.asList(options);
+            this.options = options;
             this.priority = priority;
+        }
+
+        public OptionGroup(String name, int priority, Option... options) {
+            this(name, priority, Arrays.asList(options));
         }
 
         @Override

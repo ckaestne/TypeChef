@@ -15,8 +15,12 @@ import de.fosd.typechef.error._
  *
  */
 
-class CTypeSystemFrontend(iast: TranslationUnit, featureModel: FeatureModel = FeatureExprFactory.default.featureModelFactory.empty) extends CTypeSystem with CInferInterface {
+class CTypeSystemFrontend(iast: TranslationUnit,
+                          featureModel: FeatureModel = FeatureExprFactory.default.featureModelFactory.empty,
+                          options: ICTypeSysOptions = LinuxDefaultOptions) extends CTypeSystem with CInferInterface {
 
+    //overwrites the default options
+    override protected def opts: ICTypeSysOptions = options
 
     def prettyPrintType(ctype: Conditional[CType]): String =
         Conditional.toOptList(ctype).map(o => o.feature.toString + ": \t" + o.entry).mkString("\n")
