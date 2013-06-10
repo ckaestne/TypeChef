@@ -45,11 +45,14 @@ public class Main {
 //    }
 //
 
-    /** shorthand with few default options, avoiding all command-line parsing */
+    /**
+     * shorthand with few default options, avoiding all command-line parsing
+     */
     public List<LexerToken> run(final File targetFile,
                                 final boolean returnTokenList,
                                 final boolean printToStdOutput,
                                 final FeatureModel featureModel) throws Exception {
+        @SuppressWarnings("unchecked")
         ILexerOptions options = new ILexerOptions() {
 
             @Override

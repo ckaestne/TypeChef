@@ -116,6 +116,7 @@ public abstract class Options {
         return buf.toString();
     }
 
+    int dfltIndent = 35;
 
     @SuppressWarnings("unchecked")
     void printUsage() {
@@ -139,16 +140,16 @@ public abstract class Options {
                 }
                 if (Character.isLetterOrDigit(opt.getVal()))
                     line.append(" (-").append((char) opt.getVal()).append(")");
-                if (line.length() < 35) {
-                    while (line.length() < 35)
+                if (line.length() < dfltIndent) {
+                    while (line.length() < dfltIndent)
                         line.append(' ');
                 } else {
                     line.append('\n');
-                    for (int j = 0; j < 35; j++)
+                    for (int j = 0; j < dfltIndent; j++)
                         line.append(' ');
                 }
                 /* This should use wrap. */
-                line.append(opt.help);
+                line.append(indent(opt.help));
                 line.append('\n');
                 text.append(line);
             }
@@ -157,6 +158,18 @@ public abstract class Options {
         System.out.println(text);
     }
 
+    private String indent(String s) {
+        String[] substrs = s.split("\n");
+        StringBuffer result = new StringBuffer();
+        for (String astr : substrs) {
+            for (int i = 0; i < dfltIndent; i++) result.append(' ');
+            result.append(astr);
+            result.append('\n');
+        }
+        String sresult = result.substring(dfltIndent);
+        sresult = sresult.substring(0, sresult.length() - 1);
+        return sresult;
+    }
 
     protected List<String> files = new ArrayList<String>();
 

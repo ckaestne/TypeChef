@@ -2,7 +2,7 @@ package de.fosd.typechef.options
 
 import de.fosd.typechef.typesystem.{LinuxDefaultOptions, ICTypeSysOptions}
 import gnu.getopt.{Getopt, LongOpt}
-import scala.collection.JavaConversions._
+import scala.Predef.String
 
 /**
  * options for the type system and additional security analysis
@@ -12,41 +12,52 @@ import scala.collection.JavaConversions._
 class CAnalysisOptions extends FeatureModelOptions with ICTypeSysOptions {
 
     case class SecurityOption(param: String, expl: String, dflt: Boolean) {
-        val id = Options.genOptionId
+        var isSelected = dflt
     }
 
-    val Wpointersign = SecurityOption("Wpointersign", "Issue type error when pointers have incompatible signess", LinuxDefaultOptions.warning_pointer_sign)
-    val Wintegeroverflow = SecurityOption("Wintegeroverflow", "Issue security warning on possible integer overflows in security-relevant locations", LinuxDefaultOptions.warning_potential_integer_overflow)
-    val Wimplicitcoercion = SecurityOption("Wimplicitcoercion", "Issue security warning on implicit integer coercion", LinuxDefaultOptions.warning_implicit_coercion)
+    val Apointersign = SecurityOption("pointer-sign", "Issue type error when pointers have incompatible signess", LinuxDefaultOptions.warning_pointer_sign)
+    val Aintegeroverflow = SecurityOption("integer-overflow", "Issue security warning on possible integer overflows in security-relevant locations", LinuxDefaultOptions.warning_potential_integer_overflow)
+    val Aimplicitcoercion = SecurityOption("implicit-coercion", "Issue security warning on implicit integer coercion", LinuxDefaultOptions.warning_implicit_coercion)
 
     val opts: List[SecurityOption] = List(
-        Wpointersign, Wintegeroverflow
+        Apointersign, Aintegeroverflow, Aimplicitcoercion
     )
-
-    var selectedOpts: List[String] = opts.filter(_.dflt).map(_.param)
 
 
     //-Wno-pointer-sign, -Wpointer-sign
-    def warning_pointer_sign: Boolean = selectedOpts.contains(Wpointersign.param)
-    def warning_potential_integer_overflow: Boolean = selectedOpts.contains(Wintegeroverflow.param)
-    def warning_implicit_coercion = selectedOpts.contains(Wimplicitcoercion.param)
+    def warning_pointer_sign: Boolean = Apointersign.isSelected
+    def warning_potential_integer_overflow: Boolean = Aintegeroverflow.isSelected
+    def warning_implicit_coercion = Aimplicitcoercion.isSelected
 
     override protected def getOptionGroups: java.util.List[Options.OptionGroup] = {
         val r: java.util.List[Options.OptionGroup] = super.getOptionGroups
 
-        val entires = opts.map(o => new Options.Option(o.param, LongOpt.NO_ARGUMENT, o.id, null, o.expl))
+        r.add(new Options.OptionGroup("Analysis", 100,
+            new Options.Option("analysis", LongOpt.REQUIRED_ARGUMENT, 'A', "type",
+                "Enables the analysis class: \n" +
+                    opts.map(o => " * " + o.param + (if (o.dflt) "*" else "") + ": " + o.expl).mkString("\n") +
+                    "\n(Analyses with * are activated by default)."
+            ),
+            new Options.Option("no-anaysis", LongOpt.NO_ARGUMENT, 'a', null, "Disables ALL analyses.")
+        ))
 
-        r.add(new Options.OptionGroup("Analysis", 100, entires))
 
         return r
     }
 
 
     protected override def interpretOption(c: Int, g: Getopt): Boolean = {
-        val key = opts.filter(_.id == c).map(_.param).headOption
 
-        if (key.isDefined)
-            selectedOpts = key.get :: selectedOpts
+        if (c == 'A') {
+            var arg: String = g.getOptarg.toUpperCase
+            arg = arg.replace('-', '_')
+
+            if (arg == "ALL") opts.map(_.isSelected = true)
+            else opts.filter(_.param.toUpperCase == arg).map(_.isSelected = true)
+        }
+        else if (c == 'a') {
+            opts.map(_.isSelected = false)
+        }
         else return super.interpretOption(c, g)
         return true
     }
