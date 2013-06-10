@@ -8,9 +8,9 @@ package de.fosd.typechef
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.typesystem._
 import de.fosd.typechef.crewrite._
-import lexer.options.OptionException
 import java.io.{FileWriter, File}
 import parser.TokenReader
+import de.fosd.typechef.options.{FrontendOptionsWithConfigFiles, FrontendOptions, OptionException}
 
 object Frontend {
 
@@ -78,7 +78,7 @@ object Frontend {
         val stopWatch = new StopWatch()
         stopWatch.start("loadFM")
 
-        val fm = opt.getFeatureModel().and(opt.getLocalFeatureModel).and(opt.getFilePresenceCondition)
+        val fm = opt.getLexerFeatureModel().and(opt.getLocalFeatureModel).and(opt.getFilePresenceCondition)
         opt.setFeatureModel(fm) //otherwise the lexer does not get the updated feature model with file presence conditions
         if (!opt.getFilePresenceCondition.isSatisfiable(fm)) {
             println("file has contradictory presence condition. existing.") //otherwise this can lead to strange parser errors, because True is satisfiable, but anything else isn't
@@ -100,7 +100,7 @@ object Frontend {
                 serializeAST(ast, opt.getSerializedASTFilename)
 
             if (ast != null) {
-                val fm_ts = opt.getFeatureModelTypeSystem.and(opt.getLocalFeatureModel).and(opt.getFilePresenceCondition)
+                val fm_ts = opt.getTypeSystemFeatureModel.and(opt.getLocalFeatureModel).and(opt.getFilePresenceCondition)
                 val ts = new CTypeSystemFrontend(ast.asInstanceOf[TranslationUnit], fm_ts)
 
                 /** I did some experiments with the TypeChef FeatureModel of Linux, in case I need the routines again, they are saved here. */

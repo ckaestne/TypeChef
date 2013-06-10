@@ -2,9 +2,9 @@ package de.fosd.typechef
 
 import de.fosd.typechef.parser.c._
 import lexer.FeatureExprLib
-import lexer.options.FeatureModelOptions
 import org.junit.Test
 import java.io.{FileNotFoundException, InputStream}
+import de.fosd.typechef.options.FeatureModelOptions
 
 class coverageGenerationTest extends TestHelper {
     val folder = "testfiles/"

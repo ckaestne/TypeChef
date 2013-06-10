@@ -18,6 +18,7 @@ import java.lang.SuppressWarnings
 import java.io._
 import util.Random
 import java.util.Calendar
+import de.fosd.typechef.options.FrontendOptions
 
 /**
  *
