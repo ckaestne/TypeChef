@@ -59,4 +59,13 @@ class ReachingDefinitionsTest extends TestHelper with ShouldMatchers with IntraC
         #endif
     }""")
     }
+
+    @Test def test_swap() {
+        runExample( """
+        void swap(int *x, int *y) {
+          int tmp = *x;
+          *x = *y;
+          *y = tmp;
+        }""".stripMargin)
+    }
 }

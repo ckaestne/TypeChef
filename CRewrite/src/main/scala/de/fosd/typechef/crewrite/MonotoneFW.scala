@@ -152,7 +152,7 @@ abstract class MonotoneFW[T](val env: ASTEnv, val udm: UseDeclMap, val fm: Featu
         curmap
     }
 
-    private val analysis_entry: AST => ResultMap = {
+    protected val analysis_entry: AST => ResultMap = {
         circular[AST, ResultMap](Map[T, FeatureExpr]()) {
             case FunctionDef(_, _, _, _) => Map[T, FeatureExpr]()
             case t => {
@@ -178,7 +178,7 @@ abstract class MonotoneFW[T](val env: ASTEnv, val udm: UseDeclMap, val fm: Featu
     protected def flow(e: AST): CFG = succ(e, FeatureExprFactory.empty, env)
     protected def flowR(e: AST): CFG = pred(e, FeatureExprFactory.empty, env)
 
-    private val analysis_exit: AST => ResultMap =
+    protected val analysis_exit: AST => ResultMap =
         circular[AST, ResultMap](Map[T, FeatureExpr]()) {
             case e => {
                 var ss = F(e)
@@ -196,7 +196,7 @@ abstract class MonotoneFW[T](val env: ASTEnv, val udm: UseDeclMap, val fm: Featu
 
     // using caching for efficiency and filtering out false positives
     // using the feature model
-    private def exit(a: AST) = {
+    protected def exit(a: AST) = {
         exit_cache.lookup(a) match {
             case Some(v) => v
             case None => {
@@ -218,7 +218,7 @@ abstract class MonotoneFW[T](val env: ASTEnv, val udm: UseDeclMap, val fm: Featu
         res.filter(_._2.isSatisfiable(fm))
     }
 
-    private def entry(a: AST) = {
+    protected def entry(a: AST) = {
         entry_cache.lookup(a) match {
             case Some(v) => v
             case None => {
