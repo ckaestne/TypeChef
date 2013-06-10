@@ -578,8 +578,8 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
             val wasExternal = env.varEnv.lookupIsExternalLinkage(symbol)
 
             //was static and is now neither intern nor extern
-            issueTypeError(Severity.SecurityWarning, wasInternal andNot (isStatic or isExtern), "conflicting linkage classification (none and previously static)", where)
-            issueTypeError(Severity.SecurityWarning, wasExternal and isStatic, "conflicting linkage classification (static and previously external)", where)
+            issueTypeError(Severity.SecurityWarning, wasInternal andNot (isStatic or isExtern), "conflicting linkage classification (none and previously static)", where, "conflicting-linkage")
+            issueTypeError(Severity.SecurityWarning, wasExternal and isStatic, "conflicting linkage classification (static and previously external)", where, "conflicting-linkage")
         }
 
         newLinkage
