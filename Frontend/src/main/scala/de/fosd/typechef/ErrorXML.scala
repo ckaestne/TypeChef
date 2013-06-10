@@ -2,9 +2,8 @@ package de.fosd.typechef
 
 import featureexpr.FeatureExpr
 import java.io.File
-import parser.Position
 import scala.xml._
-import typesystem.TypeError
+import de.fosd.typechef.error.{TypeChefError, Position}
 
 /**
  * infrastructure to render parser and type system errors (and possibly other
@@ -41,14 +40,16 @@ class ErrorXML(errorFile: File) {
         return null; //Object instead of Unit because going into Java code
     }
 
-    def renderTypeError(typeError: TypeError) {
+    def renderTypeError(typeError: TypeChefError) {
         if (errorFile != null)
             errors = <typeerror>
                 <featurestr>
                     {typeError.condition.toString}
                 </featurestr> <severity>
                     {typeError.severity}
-                </severity> <msg>
+                </severity> <severityextra>
+                    {typeError.severityExtra}
+                </severityextra> <msg>
                     {typeError.msg}
                 </msg>{renderPosition(typeError.where.getPositionFrom)}{renderPosition(typeError.where.getPositionTo)}
             </typeerror> :: errors
@@ -56,14 +57,14 @@ class ErrorXML(errorFile: File) {
 
     def write() {
         if (errorFile != null)
-            /*if (errorFile.exists() && errors.isEmpty)
-                errorFile.delete();
-            else*/ {
-                val output = <errors>
-                    {errors}
-                </errors>
-                XML.save(errorFile.getPath, output)
-            }
+        /*if (errorFile.exists() && errors.isEmpty)
+            errorFile.delete();
+        else*/ {
+            val output = <errors>
+                {errors}
+            </errors>
+            XML.save(errorFile.getPath, output)
+        }
 
     }
 

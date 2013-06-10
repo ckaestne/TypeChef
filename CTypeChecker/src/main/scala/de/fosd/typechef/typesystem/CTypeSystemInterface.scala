@@ -42,7 +42,7 @@ trait CTypeSystemInterface extends CEnv {
     /**
      * error reporting for type errors
      */
-    protected def issueTypeError(severity: Severity.Severity, condition: FeatureExpr, msg: String, where: AST) {}
+    protected def issueTypeError(severity: Severity.Severity, condition: FeatureExpr, msg: String, where: AST, severityExtra: String = "") {}
 
 
     protected def assertTypeSystemConstraint(condition: Boolean, featureExpr: FeatureExpr, msg: String, where: AST): Boolean = {
@@ -51,8 +51,8 @@ trait CTypeSystemInterface extends CEnv {
         condition
     }
 
-    protected final def reportTypeError(featureExpr: FeatureExpr, txt: String, where: AST, severity: Severity.Severity = Severity.OtherError): CUnknown = {
-        issueTypeError(severity, featureExpr, txt, where)
+    protected final def reportTypeError(featureExpr: FeatureExpr, txt: String, where: AST, severity: Severity.Severity = Severity.OtherError, severityExtra: String = ""): CUnknown = {
+        issueTypeError(severity, featureExpr, txt, where, severityExtra)
         CUnknown(txt)
     }
 

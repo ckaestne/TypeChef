@@ -3,7 +3,7 @@ package de.fosd.typechef.crewrite
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.conditional._
 import de.fosd.typechef.featureexpr.{FeatureExprFactory, Configuration}
-import de.fosd.typechef.parser.WithPosition
+import de.fosd.typechef.error.WithPosition
 
 /**
  * Created with IntelliJ IDEA.
@@ -178,7 +178,9 @@ object ProductDerivation {
             case InitializerAssigment(des) => new InitializerAssigment(deriveOptList(des, c))
             case OffsetofMemberDesignatorID(id) => new OffsetofMemberDesignatorID(deriveProd(id, c))
             case OffsetofMemberDesignatorExpr(ex) => new OffsetofMemberDesignatorExpr(deriveProd(ex, c))
-            case y => {assert(false, "unhandled type: " + y.getClass.getSimpleName); y }
+            case y => {
+                assert(false, "unhandled type: " + y.getClass.getSimpleName); y
+            }
         }
         if (returnValue.isInstanceOf[WithPosition]) {
             // should always be true, because AST has WithPosition

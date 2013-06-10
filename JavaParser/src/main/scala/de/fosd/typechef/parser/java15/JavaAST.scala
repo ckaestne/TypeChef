@@ -1,7 +1,7 @@
 package de.fosd.typechef.parser.java15
 
-import de.fosd.typechef.parser.WithPosition
 import de.fosd.typechef.conditional._
+import de.fosd.typechef.error.WithPosition
 
 /**
  * an incomplete AST for Java

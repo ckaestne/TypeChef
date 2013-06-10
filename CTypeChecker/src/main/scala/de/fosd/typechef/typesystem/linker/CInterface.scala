@@ -1,9 +1,9 @@
 package de.fosd.typechef.typesystem.linker
 
-import de.fosd.typechef.parser.Position
 import de.fosd.typechef.featureexpr.FeatureExprFactory.{True, False}
 import de.fosd.typechef.featureexpr.{FeatureModel, FeatureExprFactory, FeatureExpr}
 import de.fosd.typechef.typesystem.CType
+import de.fosd.typechef.error.Position
 
 /**
  * describes the linker interface for a file, i.e. all imported (and used)

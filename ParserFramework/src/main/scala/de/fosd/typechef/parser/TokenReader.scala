@@ -2,6 +2,7 @@ package de.fosd.typechef.parser
 
 import scala.math.min
 import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
+import de.fosd.typechef.error.Position
 
 /**
  * reader of elements that each have a feature expression (that can be accessed with the getFeature function)
@@ -17,13 +18,13 @@ class TokenReader[+T <: AbstractToken, U](val tokens: List[T], val offst: Int, v
 
     def rest: TokenReader[T, U] = new TokenReader(tokens.tail, offst + 1, context, eofToken)
 
-    /**position is for user output only. do not rely on this value.
-     * use offset for comparing position in tokenstream
-     */
+    /** position is for user output only. do not rely on this value.
+      * use offset for comparing position in tokenstream
+      */
     def pos: Position = first.getPosition
 
-    /**true iff there are no more elements in this reader
-     */
+    /** true iff there are no more elements in this reader
+      */
     def atEnd: Boolean = tokens.isEmpty
 
     override def toString: String = {

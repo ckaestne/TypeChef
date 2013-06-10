@@ -3,8 +3,8 @@ package de.fosd.typechef.typesystem.linker
 import de.fosd.typechef.conditional.{Opt, Conditional}
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.typesystem.{KParameter, CType, CTypeSystem}
-import de.fosd.typechef.parser.Position
 import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
+import de.fosd.typechef.error.Position
 
 /**
  * first attempt to infer the interface of a C file for linker checks

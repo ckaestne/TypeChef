@@ -1,7 +1,7 @@
 package de.fosd.typechef.parser.c
 
 import de.fosd.typechef.conditional._
-import de.fosd.typechef.parser.{WithPosition, Position}
+import de.fosd.typechef.error.{WithPosition, Position}
 
 /**
  * AST for C
@@ -53,8 +53,8 @@ InitializerAssigment - designators
 
 LocalLabelDeclaration -- label names
 
- *
- */
+  *
+  */
 
 //Expressions
 trait AST extends Product with Cloneable with WithPosition {

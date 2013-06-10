@@ -1,9 +1,9 @@
 package de.fosd.typechef.options;
 
+import de.fosd.typechef.error.Position;
 import de.fosd.typechef.featureexpr.FeatureExpr;
 import de.fosd.typechef.featureexpr.FeatureExprFactory$;
 import de.fosd.typechef.featureexpr.FeatureExprParserJava;
-import de.fosd.typechef.parser.Position;
 import de.fosd.typechef.parser.c.ParserOptions;
 import gnu.getopt.Getopt;
 import gnu.getopt.LongOpt;

@@ -1,4 +1,4 @@
-package de.fosd.typechef.parser
+package de.fosd.typechef.error
 
 /**
  * basic position information

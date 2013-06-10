@@ -2,8 +2,8 @@ package de.fosd.typechef.typesystem.linker
 
 import java.io._
 import de.fosd.typechef.typesystem.CType
-import de.fosd.typechef.parser.Position
 import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExprParser}
+import de.fosd.typechef.error.Position
 
 trait InterfaceWriter {
 

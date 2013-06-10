@@ -28,7 +28,7 @@ class CTypeSystemFrontend(iast: TranslationUnit,
     private def indentAllLines(s: String): String =
         s.lines.map("\t\t" + _).foldLeft("")(_ + "\n" + _)
 
-    var errors: List[TypeError] = List()
+    var errors: List[TypeChefError] = List()
 
 
     val DEBUG_PRINT = false
@@ -46,10 +46,10 @@ class CTypeSystemFrontend(iast: TranslationUnit,
         if (verbose)
             println("check " + externalDefCounter + "/" + iast.defs.size + ". line " + externalDef.getPositionFrom.getLine + ". err " + errors.size)
     }
-    override def issueTypeError(severity: Severity.Severity, condition: FeatureExpr, msg: String, where: AST) =
+    override def issueTypeError(severity: Severity.Severity, condition: FeatureExpr, msg: String, where: AST, severityExtra: String = "") =
     //first check without feature model for performance reasons
         if (condition.isSatisfiable() && condition.isSatisfiable(featureModel)) {
-            val e = new TypeError(severity, condition, msg, where)
+            val e = new TypeChefError(severity, condition, msg, where, severityExtra)
             errors = e :: errors
             println("  - " + e)
         }
@@ -82,8 +82,3 @@ class CTypeSystemFrontend(iast: TranslationUnit,
 }
 
 
-class TypeError(val severity: Severity.Severity, val condition: FeatureExpr, val msg: String, val where: AST) {
-    override def toString =
-        severity.toString.take(1) + " [" + condition + "] " +
-            (if (where == null) "" else where.getPositionFrom + "--" + where.getPositionTo) + "\n\t" + msg
-}

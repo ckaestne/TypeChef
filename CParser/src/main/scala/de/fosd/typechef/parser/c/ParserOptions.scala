@@ -1,7 +1,7 @@
 package de.fosd.typechef.parser.c
 
-import de.fosd.typechef.parser.Position
 import de.fosd.typechef.featureexpr.FeatureExpr
+import de.fosd.typechef.error.Position
 
 /**
  * Created by IntelliJ IDEA.
