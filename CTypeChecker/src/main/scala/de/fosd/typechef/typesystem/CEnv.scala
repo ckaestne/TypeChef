@@ -28,11 +28,13 @@ trait CEnv {
 
         //varenv
         def updateVarEnv(newVarEnv: VarTypingContext) = if (newVarEnv == varEnv) this else copy(varEnv = newVarEnv)
-        def addVar(name: String, f: FeatureExpr, d: AST, t: Conditional[CType], kind: DeclarationKind, scope: Int) = updateVarEnv(varEnv +(name, f, d, t, kind, scope))
-        def addVars(vars: Seq[(String, FeatureExpr, AST, Conditional[CType], DeclarationKind)], scope: Int) =
-            updateVarEnv(vars.foldLeft(varEnv)((ve, v) => ve.+(v._1, v._2, v._3, v._4, v._5, scope)))
-        def addVars(vars: Seq[(String, FeatureExpr, AST, Conditional[CType])], kind: DeclarationKind, scope: Int) =
-            updateVarEnv(vars.foldLeft(varEnv)((ve, v) => ve.+(v._1, v._2, v._3, v._4, kind, scope)))
+        def addVar(name: String, f: FeatureExpr, d: AST, t: Conditional[CType], kind: DeclarationKind, scope: Int, linkage: Conditional[Linkage]) = updateVarEnv(varEnv +(name, f, d, t, kind, scope, linkage))
+        def addVars(vars: Seq[(String, FeatureExpr, AST, Conditional[CType], DeclarationKind, Linkage)], scope: Int) =
+            updateVarEnv(vars.foldLeft(varEnv)((ve, v) => ve.+(v._1, v._2, v._3, v._4, v._5, scope, v._6)))
+        def addVars2(vars: Seq[(String, FeatureExpr, AST, Conditional[CType], DeclarationKind, Conditional[Linkage])], scope: Int) =
+            updateVarEnv(vars.foldLeft(varEnv)((ve, v) => ve.+(v._1, v._2, v._3, v._4, v._5, scope, v._6)))
+        def addVars(vars: Seq[(String, FeatureExpr, AST, Conditional[CType])], kind: DeclarationKind, scope: Int, linkage: Linkage) =
+            updateVarEnv(vars.foldLeft(varEnv)((ve, v) => ve.+(v._1, v._2, v._3, v._4, kind, scope, linkage)))
 
         //structenv
         def updateStructEnv(s: StructEnv) = if (s == structEnv) this else copy(structEnv = s)

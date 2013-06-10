@@ -74,13 +74,13 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
         checkRedeclaration(declarator.getName, funType, featureExpr, env, declarator, kind)
 
         //declared enums?
-        val newEnvEnum = env.addVars(enumDeclarations(specifiers, featureExpr, declarator), env.scope)
+        val newEnvEnum = env.addVars2(enumDeclarations(specifiers, featureExpr, declarator), env.scope)
 
-        //add type to environment for remaining code
-        val newEnv = newEnvEnum.addVar(declarator.getName, featureExpr, f, funType, kind, newEnvEnum.scope)
+        //add function type to environment for remaining code
+        val newEnv = newEnvEnum.addVar(declarator.getName, featureExpr, f, funType, kind, newEnvEnum.scope, getLinkage(declarator.getName, true, specifiers, env, declarator))
 
         //check body (add parameters to environment)
-        val innerEnv = newEnv.addVars(parameterTypes(declarator, featureExpr, newEnv.incScope(), oldStyleParam), KParameter, newEnv.scope + 1).setExpectedReturnType(expectedReturnType)
+        val innerEnv = newEnv.addVars(parameterTypes(declarator, featureExpr, newEnv.incScope(), oldStyleParam), KParameter, newEnv.scope + 1, NoLinkage).setExpectedReturnType(expectedReturnType)
         getStmtType(stmt, featureExpr, innerEnv) //ignore changed environment, to enforce scoping!
         checkTypeFunction(specifiers, declarator, oldStyleParameters, featureExpr, env)
 
@@ -93,9 +93,9 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
 
     private def checkRedeclaration(name: String, ctype: Conditional[CType], fexpr: FeatureExpr, env: Env, where: AST, kind: DeclarationKind) {
 
-        val prevTypes: Conditional[(CType, DeclarationKind, Int)] = env.varEnv.lookup(name)
+        val prevTypes: Conditional[(CType, DeclarationKind, Int, Linkage)] = env.varEnv.lookup(name)
 
-        ConditionalLib.mapCombinationF(ctype, prevTypes, fexpr, (f: FeatureExpr, newType: CType, prev: (CType, DeclarationKind, Int)) => {
+        ConditionalLib.mapCombinationF(ctype, prevTypes, fexpr, (f: FeatureExpr, newType: CType, prev: (CType, DeclarationKind, Int, Linkage)) => {
             if (!isValidRedeclaration(normalize(newType), kind, env.scope, normalize(prev._1), prev._2, prev._3))
                 reportTypeError(f, "Invalid redeclaration/redefinition of " + name +
                     " (was: " + prev._1 + ":" + kind + ":" + env.scope +
@@ -168,7 +168,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
             checkRedeclaration(v._1, v._4, v._2, env, d, v._5)
 
         //add declared variables to variable typing environment and check initializers
-        env = env.addVars(vars, env.scope)
+        env = env.addVars2(vars, env.scope)
 
 
 

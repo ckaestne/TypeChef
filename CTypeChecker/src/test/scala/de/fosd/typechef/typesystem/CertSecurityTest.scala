@@ -26,6 +26,7 @@ class CertSecurityTest extends FunSuite with ShouldMatchers with TestHelper {
         new CTypeSystemFrontend(ast, FeatureExprFactory.default.featureModelFactory.empty,
             if (enableAnalysis) new LinuxDefaultOptions {
                 override def warning_long_designator = true
+                override def warning_conflicting_linkage = true
                 override def warning_implicit_identifier = true
             } else LinuxDefaultOptions
         ).checkAST(false)
@@ -45,7 +46,7 @@ class CertSecurityTest extends FunSuite with ShouldMatchers with TestHelper {
     }
     def errorExpr(code: String) {
         assert(checkExpr(code, false), "Expected correct code (without analysis), but found error without analysis")
-        assert(!checkExpr(code, true), "Expected error (with analysis), but found no error with analysis")
+        assert(!checkExpr(code, true), "Expected error (with analysis), but analysis did not find an error")
     }
 
 
@@ -85,6 +86,68 @@ class CertSecurityTest extends FunSuite with ShouldMatchers with TestHelper {
             """.stripMargin, true))
     }
 
+    /*
+     * type system rule, applying to redeclarations of identifiers
+     * see https://www.securecoding.cert.org/confluence/display/seccode/DCL36-C.+Do+not+declare+an+identifier+with+conflicting+linkage+classifications
+     */
+    test("DCL36-C. Do not declare an identifier with conflicting linkage classifications") {
+        correct(
+            """
+              |static int a;
+              |static int a;
+              |//should be internal
+            """.stripMargin)
+        error(
+            """
+              |static int a;
+              |int a;
+              |//should be undefined
+            """.stripMargin)
+        correct(
+            """
+              |static int a;
+              |extern int a;
+              |//should be internal
+            """.stripMargin)
+
+        error(
+            """
+              |int a;
+              |static int a;
+              |//should be undefined
+            """.stripMargin)
+
+        correct(
+            """
+              |int a;
+              |int a;
+              |//should be external
+            """.stripMargin)
+        correct(
+            """
+              |int a;
+              |extern int a;
+              |//should be external
+            """.stripMargin)
+        error(
+            """
+              |extern int a;
+              |static int a;
+              |//should be undefined
+            """.stripMargin)
+        correct(
+            """
+              |extern int a;
+              |int a;
+              |//should be external
+            """.stripMargin)
+        correct(
+            """
+              |extern int a;
+              |extern int a;
+              |//should be external
+            """.stripMargin)
+    }
 
 }
 

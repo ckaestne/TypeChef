@@ -56,13 +56,13 @@ class ExprTypingTest extends CTypeSystem with CEnv with FunSuite with ShouldMatc
             ("funparam", True, CPointer(CFunction(Seq(), CDouble()))),
             ("funparamptr", True, CPointer(CPointer(CFunction(Seq(), CDouble())))),
             ("argv", True, CArray(CPointer(CSignUnspecified(CChar())), -1))
-        ).map(x => (x._1, x._2, null, One(x._3), KDeclaration, 0)) ++ Seq(
-            ("c", True, null, c_i_l, KDeclaration, 0),
-            ("vstruct", True, null, Choice(fx, One(CStruct("vstrA")), One(CStruct("vstrB"))), KDeclaration, 0),
-            ("vstruct2", True, null, Choice(fx, One(CStruct("vstrA")), _u), KDeclaration, 0),
+        ).map(x => (x._1, x._2, null, One(x._3), KDeclaration, 0, NoLinkage)) ++ Seq(
+            ("c", True, null, c_i_l, KDeclaration, 0, NoLinkage),
+            ("vstruct", True, null, Choice(fx, One(CStruct("vstrA")), One(CStruct("vstrB"))), KDeclaration, 0, NoLinkage),
+            ("vstruct2", True, null, Choice(fx, One(CStruct("vstrA")), _u), KDeclaration, 0, NoLinkage),
             ("cfun", True, null, Choice(fx,
                 One(CFunction(Seq(CSigned(CInt())), CSigned(CInt()))),
-                One(CFunction(Seq(CSigned(CInt()), CSigned(CInt())), CSigned(CLong())))), KDeclaration, 0) //i->i or i,i->l
+                One(CFunction(Seq(CSigned(CInt()), CSigned(CInt())), CSigned(CLong())))), KDeclaration, 0, NoLinkage) //i->i or i,i->l
         ))
 
     val astructEnv: StructEnv =

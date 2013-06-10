@@ -21,7 +21,7 @@ trait CBuiltIn extends CEnv with CTypes with CDeclTyping {
         ).toList.map(x => (x._1, True, (null, One(x._2))))
 
 
-    val initBuiltinVarEnv: Seq[(String, FeatureExpr, AST, Conditional[CType], DeclarationKind, Int)] =
+    val initBuiltinVarEnv: Seq[(String, FeatureExpr, AST, Conditional[CType], DeclarationKind, Int, Linkage)] =
         (declare_builtin_functions() ++ Map(
             "__builtin_expect" -> One(CFunction(Seq(CVarArgs()), CInt())),
             "__builtin_safe_p" -> One(CFunction(Seq(CVarArgs()), CInt())),
@@ -32,7 +32,7 @@ trait CBuiltIn extends CEnv with CTypes with CDeclTyping {
             //            "__builtin_va_arg" -> One(CFunction(Seq(CIgnore(), CIgnore()), CIgnore())),//handled differently in parser
             "__builtin_va_end" -> One(CFunction(Seq(CBuiltinVaList()), CVoid())),
             "__builtin_va_copy" -> One(CFunction(Seq(CBuiltinVaList(), CBuiltinVaList()), CVoid()))
-        )).toList.map(x => (x._1, True, null, x._2, KDeclaration, 0))
+        )).toList.map(x => (x._1, True, null, x._2, KDeclaration, 0, ExternalLinkage))
 
 
     /** taken directly from sparse/lib.c */

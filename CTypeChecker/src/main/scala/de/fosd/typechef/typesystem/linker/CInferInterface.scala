@@ -125,11 +125,6 @@ trait CInferInterface extends CTypeSystem with InterfaceWriter {
         })
     }
 
-    private def getStaticCondition(specifiers: List[Opt[Specifier]]): FeatureExpr = getSpecifierCondition(specifiers, StaticSpecifier())
-    private def getExternCondition(specifiers: List[Opt[Specifier]]): FeatureExpr = getSpecifierCondition(specifiers, ExternSpecifier())
-    private def getSpecifierCondition(specifiers: List[Opt[Specifier]], specifier: Specifier): FeatureExpr =
-        specifiers.filter(_.entry == specifier).foldLeft(FeatureExprFactory.False)((f, o) => f or o.feature)
-
 
     /**
      * all function declarations without definitions are imports

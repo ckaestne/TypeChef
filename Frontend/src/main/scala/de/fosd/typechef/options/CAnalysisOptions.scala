@@ -25,9 +25,9 @@ class CAnalysisOptions extends FeatureModelOptions with ICTypeSysOptions {
 
 
     //-Wno-pointer-sign, -Wpointer-sign
-    def warning_pointer_sign: Boolean = Apointersign.isSelected
-    def warning_potential_integer_overflow: Boolean = Aintegeroverflow.isSelected
-    def warning_implicit_coercion = Aimplicitcoercion.isSelected
+    override def warning_pointer_sign: Boolean = Apointersign.isSelected
+    override def warning_potential_integer_overflow: Boolean = Aintegeroverflow.isSelected
+    override def warning_implicit_coercion = Aimplicitcoercion.isSelected
 
     override protected def getOptionGroups: java.util.List[Options.OptionGroup] = {
         val r: java.util.List[Options.OptionGroup] = super.getOptionGroups

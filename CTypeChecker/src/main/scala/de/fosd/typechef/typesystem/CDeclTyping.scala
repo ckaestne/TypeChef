@@ -79,7 +79,7 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
         var result = new ConditionalTypeMap()
         for (Opt(f, oldParam) <- oldStyleParameters)
             if (oldParam.isInstanceOf[Declaration]) {
-                for ((name, fexpr, ast, ptype, _) <- getDeclaredVariables(oldParam.asInstanceOf[Declaration], featureExpr and f, env)._2)
+                for ((name, fexpr, ast, ptype, _, _) <- getDeclaredVariables(oldParam.asInstanceOf[Declaration], featureExpr and f, env)._2)
                     result = result.+(name, fexpr, ast, ptype)
             }
         result
@@ -266,12 +266,12 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
      */
     def getDeclaredVariables(decl: Declaration, featureExpr: FeatureExpr, env: Env,
                              checkInitializer: (Expr, Conditional[CType], FeatureExpr, Env) => Unit = noInitCheck
-                                ): (Env, List[(String, FeatureExpr, AST, Conditional[CType], DeclarationKind)]) = {
+                                ): (Env, List[(String, FeatureExpr, AST, Conditional[CType], DeclarationKind, Conditional[Linkage])]) = {
         var renv = env
         val enumDecl = enumDeclarations(decl.declSpecs, featureExpr, decl)
         val isExtern = getIsExtern(decl.declSpecs)
-        var eenv = env.addVars(enumDecl, env.scope)
-        val varDecl: scala.List[(String, FeatureExpr, AST, Conditional[CType], DeclarationKind)] =
+        var eenv = env.addVars2(enumDecl, env.scope)
+        val varDecl: scala.List[(String, FeatureExpr, AST, Conditional[CType], DeclarationKind, Conditional[Linkage])] =
             if (isTypedef(decl.declSpecs)) List() //no declaration for a typedef
             else {
                 val returnType: Conditional[CType] = constructType(decl.declSpecs, featureExpr, eenv, decl)
@@ -279,10 +279,10 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
                 for (Opt(f, init) <- decl.init) yield {
                     val ctype = filterTransparentUnion(getDeclaratorType(init.declarator, returnType, featureExpr and f, eenv), init.attributes).simplify(featureExpr and f)
                     val declKind = if (init.hasInitializer) KDefinition else KDeclaration
+                    val linkage = getLinkage(init.getName, false, decl.declSpecs, env, decl)
 
                     eenv = eenv.addVar(init.getName, featureExpr and f, init, ctype,
-                        declKind,
-                        env.scope)
+                        declKind, env.scope, linkage)
 
                     init.getExpr map {
                         checkInitializer(_, ctype, featureExpr and f, eenv)
@@ -302,7 +302,7 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
                         renv = env.addCompletenessCheck(checkCompleteness)
 
 
-                    (init.declarator.getName, featureExpr and f, init, ctype, declKind)
+                    (init.declarator.getName, featureExpr and f, init, ctype, declKind, linkage)
                 }
             }
         (renv, enumDecl ++ varDecl)
@@ -329,11 +329,11 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
       *
       * important: this recurses into structures!
       * */
-    protected def enumDeclarations(specs: List[Opt[Specifier]], featureExpr: FeatureExpr, d: AST): List[(String, FeatureExpr, AST, Conditional[CType], DeclarationKind)] = {
-        var result = List[(String, FeatureExpr, AST, Conditional[CType], DeclarationKind)]()
+    protected def enumDeclarations(specs: List[Opt[Specifier]], featureExpr: FeatureExpr, d: AST): List[(String, FeatureExpr, AST, Conditional[CType], DeclarationKind, Conditional[Linkage])] = {
+        var result = List[(String, FeatureExpr, AST, Conditional[CType], DeclarationKind, Conditional[Linkage])]()
         for (Opt(f, spec) <- specs) spec match {
             case EnumSpecifier(_, Some(enums)) => for (Opt(f2, enum) <- enums)
-                result = (enum.id.name, featureExpr and f and f2, enum, One(CSigned(CInt())), KEnumVar) :: result
+                result = (enum.id.name, featureExpr and f and f2, enum, One(CSigned(CInt())), KEnumVar, One(NoLinkage)) :: result
             //recurse into structs
             case StructOrUnionSpecifier(_, _, fields) =>
                 for (Opt(f2, structDeclaration) <- fields.getOrElse(Nil))
@@ -541,5 +541,48 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
     //        case e: AST => if ((e -> parentAST) == null) null else e -> parentAST -> outerDeclaration
     //    }
 
+
+    protected def getStaticCondition(specifiers: List[Opt[Specifier]]): FeatureExpr = getSpecifierCondition(specifiers, StaticSpecifier())
+    protected def getExternCondition(specifiers: List[Opt[Specifier]]): FeatureExpr = getSpecifierCondition(specifiers, ExternSpecifier())
+    protected def getSpecifierCondition(specifiers: List[Opt[Specifier]], specifier: Specifier): FeatureExpr =
+        specifiers.filter(_.entry == specifier).foldLeft(FeatureExprFactory.False)((f, o) => f or o.feature)
+
+    /**
+     * linkage depends on previous identifiers in scope, on the scope (file level or not) and the specifiers
+     *
+     * see http://publications.gbdirect.co.uk/c_book/chapter8/declarations_and_definitions.html
+     */
+    protected def getLinkage(symbol: String, isFunctionDef: Boolean, specifiers: List[Opt[Specifier]], env: Env, where: AST): Conditional[Linkage] = {
+        val isStatic = getStaticCondition(specifiers)
+        val isExtern = getExternCondition(specifiers)
+        val isFileLevelScope = env.scope == 0
+
+        issueTypeError(Severity.OtherError, isStatic and isExtern, "static and extern specificers cannot occur together", where)
+
+        val wasInternal = env.varEnv.lookupIsInternalLinkage(symbol)
+
+
+        val newLinkage =
+            (if (isFileLevelScope) {
+                Choice(isStatic or wasInternal, One(InternalLinkage), One(ExternalLinkage))
+            } else {
+                if (isFunctionDef)
+                    Choice(isExtern orNot isStatic, One(ExternalLinkage), One(NoLinkage))
+                else
+                    Choice(isExtern, One(ExternalLinkage), One(NoLinkage))
+            }).simplify
+
+        //DCL36-C. Do not declare an identifier with conflicting linkage classifications
+        //https://www.securecoding.cert.org/confluence/display/seccode/DCL36-C.+Do+not+declare+an+identifier+with+conflicting+linkage+classifications
+        if (opts.warning_conflicting_linkage) {
+            val wasExternal = env.varEnv.lookupIsExternalLinkage(symbol)
+
+            //was static and is now neither intern nor extern
+            issueTypeError(Severity.SecurityWarning, wasInternal andNot (isStatic or isExtern), "conflicting linkage classification (none and previously static)", where)
+            issueTypeError(Severity.SecurityWarning, wasExternal and isStatic, "conflicting linkage classification (static and previously external)", where)
+        }
+
+        newLinkage
+    }
 
 }
