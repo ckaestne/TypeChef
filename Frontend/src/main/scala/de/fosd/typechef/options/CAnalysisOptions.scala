@@ -15,9 +15,13 @@ class CAnalysisOptions extends FeatureModelOptions with ICTypeSysOptions {
         var isSelected = dflt
     }
 
-    val Apointersign = SecurityOption("pointer-sign", "Issue type error when pointers have incompatible signess", LinuxDefaultOptions.warning_pointer_sign)
-    val Aintegeroverflow = SecurityOption("integer-overflow", "Issue security warning on possible integer overflows in security-relevant locations", LinuxDefaultOptions.warning_potential_integer_overflow)
-    val Aimplicitcoercion = SecurityOption("implicit-coercion", "Issue security warning on implicit integer coercion", LinuxDefaultOptions.warning_implicit_coercion)
+    val Apointersign = SecurityOption("pointer-sign", "Issue type error when pointers have incompatible signedness (undefined behavior)", LinuxDefaultOptions.warning_pointer_sign)
+    val Aintegeroverflow = SecurityOption("integer-overflow", "Issue security warning on possible integer overflows in security-relevant locations (unintended effects and undefined behavior)", LinuxDefaultOptions.warning_potential_integer_overflow)
+    val Aimplicitcoercion = SecurityOption("implicit-coercion", "Issue security warning on implicit integer coercion (unintended side effects)", LinuxDefaultOptions.warning_implicit_coercion)
+    val Alongdesignator = SecurityOption("long-designator", "Issue security warning on lowercase long designators (readability)", LinuxDefaultOptions.warning_long_designator)
+    val Aimplicitidentifier = SecurityOption("implicit-identifier", "Issue security warning on implicit identifier definitions (undefined behavior)", LinuxDefaultOptions.warning_implicit_identifier)
+    val Aconflictinglinkage = SecurityOption("conflicting-linkage", "Issue security warning on conflicting linkage declarations (undefined behavior)", LinuxDefaultOptions.warning_conflicting_linkage)
+
 
     val opts: List[SecurityOption] = List(
         Apointersign, Aintegeroverflow, Aimplicitcoercion
@@ -28,6 +32,9 @@ class CAnalysisOptions extends FeatureModelOptions with ICTypeSysOptions {
     override def warning_pointer_sign: Boolean = Apointersign.isSelected
     override def warning_potential_integer_overflow: Boolean = Aintegeroverflow.isSelected
     override def warning_implicit_coercion = Aimplicitcoercion.isSelected
+    override def warning_long_designator: Boolean = Alongdesignator.isSelected
+    override def warning_implicit_identifier: Boolean = Aimplicitidentifier.isSelected
+    override def warning_conflicting_linkage: Boolean = Aconflictinglinkage.isSelected
 
     override protected def getOptionGroups: java.util.List[Options.OptionGroup] = {
         val r: java.util.List[Options.OptionGroup] = super.getOptionGroups
