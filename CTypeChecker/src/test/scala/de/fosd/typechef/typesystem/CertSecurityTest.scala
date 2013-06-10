@@ -60,12 +60,16 @@ class CertSecurityTest extends FunSuite with ShouldMatchers with TestHelper {
     /**
      * very simple, structural rule
      */
-    test("DCL31-C. Declare identifiers before using them -- implicit int") {
+    test("DCL31-C. Declare identifiers before using them -- implicit int/return") {
         correct("extern int foo;")
         error("extern foo;")
 
+        error("foo(void){return 1;}")
     }
 
+    /**
+     * less simple type system rule
+     */
     test("DCL31-C. Declare identifiers before using them -- implicit function declaration") {
         //we are actually stronger than the specification (it fails without activating warnings)
         assert(!check(
