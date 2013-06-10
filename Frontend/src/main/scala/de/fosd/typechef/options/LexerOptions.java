@@ -31,6 +31,8 @@ public abstract class LexerOptions extends Options implements ILexerOptions {
     private static final char TY_VERSION = genOptionId();
     private static final char TY_HELP = genOptionId();
     private final static char PP_XTC = genOptionId();
+    private final static char PP_ADJUSTLINES = genOptionId();
+
 
     @Override
     protected List<Options.OptionGroup> getOptionGroups() {
@@ -77,7 +79,9 @@ public abstract class LexerOptions extends Options implements ILexerOptions {
                 new Option("lexDisable", LongOpt.REQUIRED_ARGUMENT, PP_LEXDISABLE, "type",
                         "Disable a specific lexer feature."),
                 new Option("lexNoStdout", LongOpt.NO_ARGUMENT, PP_NOSTDOUT, null,
-                        "Do not print to stdout.")
+                        "Do not print to stdout."),
+                new Option("adjustLines", LongOpt.NO_ARGUMENT, PP_ADJUSTLINES, null,
+                        "Report line numbers in output (.pi) file instead of source (.c and .h) files.")
         ));
         r.add(new OptionGroup("Misc", 1000,
                 new Option("version", LongOpt.NO_ARGUMENT, TY_VERSION, null,
@@ -137,6 +141,7 @@ public abstract class LexerOptions extends Options implements ILexerOptions {
     protected boolean printVersion = false;
     protected boolean lexPrintToStdout = true;
     protected boolean xtc = false;
+    protected boolean adjustlines = false;
 
     @Override
     protected boolean interpretOption(int c, Getopt g) throws OptionException {
@@ -222,6 +227,8 @@ public abstract class LexerOptions extends Options implements ILexerOptions {
             printVersion = true;
         } else if (c == PP_XTC) {
             xtc = true;
+        } else if (c == PP_ADJUSTLINES) {
+            adjustlines = true;
         } else {
             return super.interpretOption(c, g);
         }
@@ -308,5 +315,10 @@ public abstract class LexerOptions extends Options implements ILexerOptions {
     @Override
     public boolean useXtcLexer() {
         return xtc;
+    }
+
+    @Override
+    public boolean isAdjustLineNumbers() {
+        return adjustlines;
     }
 }

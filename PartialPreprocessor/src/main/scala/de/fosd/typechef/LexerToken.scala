@@ -25,6 +25,7 @@ trait LexerToken {
     def setLine(line: Int)
     def getColumn: Int
     def getSourceName: String
+    def setSourceName(src: String)
 
     /**
      * properties of tokens used by other clients like the C parser

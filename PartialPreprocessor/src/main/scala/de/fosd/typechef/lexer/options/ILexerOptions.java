@@ -42,4 +42,10 @@ public interface ILexerOptions {
     FeatureModel getLexerFeatureModel();
 
     PartialConfiguration getLexerPartialConfiguration();
+
+    /**
+     * report line numbers of the .pi file instead of the line
+     * numbers in the original .c and .h files
+     */
+    boolean isAdjustLineNumbers();
 }

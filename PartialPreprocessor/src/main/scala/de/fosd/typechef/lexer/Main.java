@@ -129,6 +129,11 @@ public class Main {
             public PartialConfiguration getLexerPartialConfiguration() {
                 return null;
             }
+
+            @Override
+            public boolean isAdjustLineNumbers() {
+                return true;
+            }
         };
         return run(options, returnTokenList);
     }
@@ -221,13 +226,17 @@ public class Main {
                 }
 
                 if (output != null) {
-                    //adjust line numbers to .pi file for debugging
-                    String image = tok.getText();
-                    while (image.indexOf('\n') >= 0) {
-                        outputLine++;
-                        image = image.substring(image.indexOf('\n') + 1);
+                    if (options.isAdjustLineNumbers()) {
+                        //adjust line numbers to .pi file for debugging
+                        String image = tok.getText();
+                        while (image.indexOf('\n') >= 0) {
+                            outputLine++;
+                            image = image.substring(image.indexOf('\n') + 1);
+                        }
+                        tok.setLine(outputLine);
+                        if (options.getLexOutputFile() != null)
+                            tok.setSourceName(options.getLexOutputFile());
                     }
-                    tok.setLine(outputLine);
 
                     //write to .pi file
                     tok.lazyPrint(output);
