@@ -157,7 +157,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                                 ltype match {
                                     case CObj(t) if (coerce(t, opType)) => {
                                         if (opts.warning_implicit_coercion && isForcedCoercion(ltype, rtype))
-                                            reportTypeError(fexpr, "Implicit coercion of integer types (%s <- %s), consider a cast".format(ltype.toText, rtype.toText), ae, Severity.SecurityWarning)
+                                            reportTypeError(fexpr, "Implicit coercion of integer types (%s <- %s), consider a cast".format(ltype.toText, rtype.toText), ae, Severity.SecurityWarning, "implicit_coercion")
                                         prepareArray(ltype).toValue
                                     }
                                     case u: CUnknown => u.toValue
@@ -169,7 +169,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                     case pe@PostfixExpr(expr, SimplePostfixSuffix(_)) =>
                         //check for integer overflow
                         if (opts.warning_potential_integer_overflow && env.isSecurityRelevantLocation)
-                            issueTypeError(Severity.SecurityWarning, featureExpr, "Potential integer overflow in security relevant context (%s)".format(env.securityRelevantLocation.get), pe)
+                            issueTypeError(Severity.SecurityWarning, featureExpr, "Potential integer overflow in security relevant context (%s)".format(env.securityRelevantLocation.get), pe, "potential_integer_overflow")
 
                         et(expr) map {
                             prepareArray
@@ -217,7 +217,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                                 case "-" =>
                                     //check for integer overflow (+,~,! do not overflow)
                                     if (opts.warning_potential_integer_overflow && env.isSecurityRelevantLocation)
-                                        issueTypeError(Severity.SecurityWarning, featureExpr, "Potential integer overflow in security relevant context (%s)".format(env.securityRelevantLocation.get), ue)
+                                        issueTypeError(Severity.SecurityWarning, featureExpr, "Potential integer overflow in security relevant context (%s)".format(env.securityRelevantLocation.get), ue, "potential_integer_overflow")
 
                                     exprType.mapf(featureExpr,
                                         (fexpr, x) => if (isArithmetic(x) || x.isIgnore) promote(x) else reportTypeError(fexpr, "incorrect type, expected arithmetic, was " + x, ue))
@@ -321,7 +321,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
 
         //check integer overflow in security relevant contexts
         if (opts.warning_potential_integer_overflow && env.isSecurityRelevantLocation && potentiallyOverflowingOp(op) && !(isPointer(normalize(type1))))
-            issueTypeError(Severity.SecurityWarning, featureExpr, "Potential integer overflow in security relevant context (%s)".format(env.securityRelevantLocation.get), where)
+            issueTypeError(Severity.SecurityWarning, featureExpr, "Potential integer overflow in security relevant context (%s)".format(env.securityRelevantLocation.get), where, "potential_integer_overflow")
 
         (op, normalize(type1), normalize(type2)) match {
             //pointer arithmetic
