@@ -113,9 +113,13 @@ object Frontend {
                     stopWatch.start("typechecking")
                     println("type checking.")
                     ts.errors.map(errorXML.renderTypeError(_))
-                    val typeCheckStatus = ts.checkASTSilent
+                    val typeCheckStatus = ts.checkAST
                     if (opt.decluse) {
                         if (typeCheckStatus) {
+                            val i = new IfdefToIf
+                            /*val fw = new FileWriter(i.outputStemToFileName(opt.outputStem) + ".decluse")
+                            fw.write(ts.checkDefuse(ast, ts.getDeclUseMap, fm_ts)._1)
+                            fw.close()*/
                             println(ts.checkDefuse(ast, ts.getDeclUseMap, fm_ts)._1)
                         } else {
                             println("generating the declaration-usage map unsuccessful because of type errors in source file")

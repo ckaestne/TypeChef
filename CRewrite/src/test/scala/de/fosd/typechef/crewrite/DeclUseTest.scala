@@ -137,6 +137,16 @@ class DeclUseTest extends ConditionalNavigation with ASTNavigation with CDeclUse
         assert(result ==(numberOfDefinitions, numberOfEntries, numberOfVariableIds))
     }
 
+    @Test def test_forward_declared_struct {
+        val source_ast = getAstFromPi(new File(decluseTestPath + "struct_forwarddeclared.c"))
+        println(source_ast)
+        val result = runDefUseOnAst(source_ast)
+        val numberOfDefinitions = 15
+        val numberOfEntries = 4
+        val numberOfVariableIds = 0
+        assert(result ==(numberOfDefinitions, numberOfEntries, numberOfVariableIds))
+    }
+
     @Test def test_struct_globals {
         val source_ast = getAstFromPi(new File(decluseTestPath + "struct_globals.c"))
         println(source_ast)
@@ -153,6 +163,26 @@ class DeclUseTest extends ConditionalNavigation with ASTNavigation with CDeclUse
         val result = runDefUseOnAst(source_ast)
         val numberOfDefinitions = 14
         val numberOfEntries = 10
+        val numberOfVariableIds = 0
+        assert(result ==(numberOfDefinitions, numberOfEntries, numberOfVariableIds))
+    }
+
+    @Test def test_linux_pte {
+        val source_ast = getAstFromPi(new File(decluseTestPath + "linux_pte.c"))
+        println(source_ast)
+        val result = runDefUseOnAst(source_ast)
+        val numberOfDefinitions = 9
+        val numberOfEntries = 7
+        val numberOfVariableIds = 0
+        assert(result ==(numberOfDefinitions, numberOfEntries, numberOfVariableIds))
+    }
+
+    @Test def test_linux_typedef_struct {
+        val source_ast = getAstFromPi(new File(decluseTestPath + "linux_typedef_struct.c"))
+        println(source_ast)
+        val result = runDefUseOnAst(source_ast)
+        val numberOfDefinitions = 3
+        val numberOfEntries = 1
         val numberOfVariableIds = 0
         assert(result ==(numberOfDefinitions, numberOfEntries, numberOfVariableIds))
     }
