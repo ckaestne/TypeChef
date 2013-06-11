@@ -13,6 +13,9 @@ import parser.TokenReader
 import de.fosd.typechef.options.{FrontendOptionsWithConfigFiles, FrontendOptions, OptionException}
 import de.fosd.typechef.parser.c.CTypeContext
 import de.fosd.typechef.parser.c.TranslationUnit
+import de.fosd.typechef.featureexpr.FeatureExpr
+import de.fosd.typechef.conditional.{One, Choice, Opt}
+import de.fosd.typechef.error.WithPosition
 
 object Frontend {
 
@@ -73,6 +76,50 @@ object Frontend {
     }
 
 
+
+
+    def astStats(ast: TranslationUnit, filePC: FeatureExpr) {
+        val outputTopLevel = new FileWriter("asttoplevel.lst",true)
+        val outputAST = new FileWriter("astany.lst",true)
+
+
+        def findNesting(ast: Product, expr: FeatureExpr, newContext:Boolean) {
+            def writeNode(a:Any, expr:FeatureExpr) =
+                outputAST.write("%s;%s;%s;%d\n".format(a.getClass.getName,expr, if (a.isInstanceOf[WithPosition]) a.asInstanceOf[WithPosition].getPositionFrom.getFile else "", if (a.isInstanceOf[WithPosition]) a.asInstanceOf[WithPosition].getPositionFrom.getLine else -1))
+
+            for (child<-ast.productIterator) {
+                if (child.isInstanceOf[Choice[AST]]) {
+                    val Choice(f,a,b) = child.asInstanceOf[Choice[AST]]
+                    findNesting(a, expr and f,true)
+                    findNesting(b, expr andNot f,true)
+                }         else
+                if (child.isInstanceOf[One[AST]]) {
+                    val One(a:AST) = child.asInstanceOf[One[AST]]
+                    if (newContext) writeNode(a,expr)
+                    findNesting(a,expr,false)
+                }     else
+                if (child.isInstanceOf[Opt[_]]) {
+                    val Opt(f,a) = child.asInstanceOf[Opt[_]]
+                    if (!f.isTautology()) writeNode(a, expr and f)
+                    if (a.isInstanceOf[AST])
+                        findNesting(a.asInstanceOf[AST], expr and f, false)
+                } else if (child.isInstanceOf[Product])
+                    findNesting(child.asInstanceOf[Product], expr, false)
+
+            }
+        }
+
+        for (Opt(f,tl)<-ast.defs)
+            outputTopLevel.write("%s;%s;%s;%d\n".format(tl.getClass.getName,f and filePC, tl.getPositionFrom.getFile, tl.getPositionFrom.getLine))
+
+
+        findNesting(ast, filePC, false)
+
+
+        outputTopLevel.close()
+        outputAST.close()
+    }
+
     def processFile(opt: FrontendOptions) {
         val errorXML = new ErrorXML(opt.getErrorXMLFile)
         opt.setRenderParserError(errorXML.renderParserError)
@@ -114,45 +161,47 @@ object Frontend {
             }
 
 
-            if (ast != null) {
-                val fm_ts = opt.getTypeSystemFeatureModel.and(opt.getLocalFeatureModel).and(opt.getFilePresenceCondition)
-                val ts = new CTypeSystemFrontend(ast.asInstanceOf[TranslationUnit], fm_ts, opt)
+            astStats(ast.asInstanceOf[TranslationUnit],opt.getFilePresenceCondition)
 
-                /** I did some experiments with the TypeChef FeatureModel of Linux, in case I need the routines again, they are saved here. */
-                //Debug_FeatureModelExperiments.experiment(fm_ts)
-
-                if (opt.typecheck || opt.writeInterface) {
-                    //ProductGeneration.typecheckProducts(fm,fm_ts,ast,opt,
-                    //logMessage=("Time for lexing(ms): " + (t2-t1) + "\nTime for parsing(ms): " + (t3-t2) + "\n"))
-                    //ProductGeneration.estimateNumberOfVariants(ast, fm_ts)
-
-                    stopWatch.start("typechecking")
-                    println("type checking.")
-                    ts.checkAST()
-                    ts.errors.map(errorXML.renderTypeError(_))
-                }
-                if (opt.writeInterface) {
-                    stopWatch.start("interfaces")
-                    val interface = ts.getInferredInterface().and(opt.getFilePresenceCondition)
-
-                    stopWatch.start("writeInterfaces")
-                    ts.writeInterface(interface, new File(opt.getInterfaceFilename))
-                    if (opt.writeDebugInterface)
-                        ts.debugInterface(interface, new File(opt.getDebugInterfaceFilename))
-                }
-                if (opt.conditionalControlFlow) {
-                    stopWatch.start("controlFlow")
-
-                    val cf = new CAnalysisFrontend(ast.asInstanceOf[TranslationUnit], fm_ts)
-                    cf.checkCfG()
-                }
-                if (opt.dataFlow) {
-                    stopWatch.start("dataFlow")
-                    ProductGeneration.dataflowAnalysis(fm_ts, ast, opt,
-                        logMessage = ("Time for lexing(ms): " + (stopWatch.get("lexing")) + "\nTime for parsing(ms): " + (stopWatch.get("parsing")) + "\n"))
-                }
-
-            }
+//            if (ast != null) {
+//                val fm_ts = opt.getTypeSystemFeatureModel.and(opt.getLocalFeatureModel).and(opt.getFilePresenceCondition)
+//                val ts = new CTypeSystemFrontend(ast.asInstanceOf[TranslationUnit], fm_ts, opt)
+//
+//                /** I did some experiments with the TypeChef FeatureModel of Linux, in case I need the routines again, they are saved here. */
+//                //Debug_FeatureModelExperiments.experiment(fm_ts)
+//
+//                if (opt.typecheck || opt.writeInterface) {
+//                    //ProductGeneration.typecheckProducts(fm,fm_ts,ast,opt,
+//                    //logMessage=("Time for lexing(ms): " + (t2-t1) + "\nTime for parsing(ms): " + (t3-t2) + "\n"))
+//                    //ProductGeneration.estimateNumberOfVariants(ast, fm_ts)
+//
+//                    stopWatch.start("typechecking")
+//                    println("type checking.")
+//                    ts.checkAST()
+//                    ts.errors.map(errorXML.renderTypeError(_))
+//                }
+//                if (opt.writeInterface) {
+//                    stopWatch.start("interfaces")
+//                    val interface = ts.getInferredInterface().and(opt.getFilePresenceCondition)
+//
+//                    stopWatch.start("writeInterfaces")
+//                    ts.writeInterface(interface, new File(opt.getInterfaceFilename))
+//                    if (opt.writeDebugInterface)
+//                        ts.debugInterface(interface, new File(opt.getDebugInterfaceFilename))
+//                }
+//                if (opt.conditionalControlFlow) {
+//                    stopWatch.start("controlFlow")
+//
+//                    val cf = new CAnalysisFrontend(ast.asInstanceOf[TranslationUnit], fm_ts)
+//                    cf.checkCfG()
+//                }
+//                if (opt.dataFlow) {
+//                    stopWatch.start("dataFlow")
+//                    ProductGeneration.dataflowAnalysis(fm_ts, ast, opt,
+//                        logMessage = ("Time for lexing(ms): " + (stopWatch.get("lexing")) + "\nTime for parsing(ms): " + (stopWatch.get("parsing")) + "\n"))
+//                }
+//
+//            }
 
         }
         stopWatch.start("done")
