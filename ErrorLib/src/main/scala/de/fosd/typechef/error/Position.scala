@@ -3,7 +3,7 @@ package de.fosd.typechef.error
 /**
  * basic position information
  */
-trait Position {
+trait Position extends Serializable {
     def getFile: String
     def getLine: Int
     def getColumn: Int

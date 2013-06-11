@@ -385,10 +385,14 @@ class BDDFeatureExpr(private[featureexpr] val bdd: BDD) extends FeatureExpr {
         }
         return Some(enabled, disabled)
     }
+
+    private def writeReplace(): Object = new FeatureExprSerializationProxy(this.toTextExpr)
 }
 
 class SingleBDDFeatureExpr(id: Int) extends BDDFeatureExpr(lookupFeatureBDD(id)) with SingleFeatureExpr {
     def feature = lookupFeatureName(id)
+
+    private def writeReplace(): Object = new FeatureExprSerializationProxy(this.toTextExpr)
 }
 
 //// XXX: this should be recognized by the caller and lead to clean termination instead of a stack trace. At least,
@@ -496,6 +500,8 @@ object True extends BDDFeatureExpr(FExprBuilder.TRUE) with DefaultPrint with Sin
     override def debug_print(ind: Int) = indent(ind) + toTextExpr + "\n"
     override def isSatisfiable(fm: FeatureModel) = true
     override def feature = toString
+
+    private def writeReplace(): Object = new FeatureExprSerializationProxy(this.toTextExpr)
 }
 
 object False extends BDDFeatureExpr(FExprBuilder.FALSE) with DefaultPrint with SingleFeatureExpr {
@@ -504,6 +510,8 @@ object False extends BDDFeatureExpr(FExprBuilder.FALSE) with DefaultPrint with S
     override def debug_print(ind: Int) = indent(ind) + toTextExpr + "\n"
     override def isSatisfiable(fm: FeatureModel) = false
     override def feature = toString
+
+    private def writeReplace(): Object = new FeatureExprSerializationProxy(this.toTextExpr)
 }
 
 object CastHelper {

@@ -19,6 +19,7 @@ public class FrontendOptions extends CAnalysisOptions implements ParserOptions {
             writeInterface = false,
             conditionalControlFlow = false,
             dataFlow = false,
+            reuseAST = false,
             serializeAST = false,
             writeDebugInterface = false,
             recordTiming = false,
@@ -37,6 +38,7 @@ public class FrontendOptions extends CAnalysisOptions implements ParserOptions {
     private final static char F_DEBUGINTERFACE = Options.genOptionId();
     private final static char F_CONDITIONALCONTROLFLOW = Options.genOptionId();
     private final static char F_DATAFLOW = Options.genOptionId();
+    private final static char F_REUSEAST = Options.genOptionId();
     private final static char F_SERIALIZEAST = Options.genOptionId();
     private final static char F_RECORDTIMING = Options.genOptionId();
     private final static char F_FILEPC = Options.genOptionId();
@@ -77,6 +79,8 @@ public class FrontendOptions extends CAnalysisOptions implements ParserOptions {
 
                 new Option("serializeAST", LongOpt.NO_ARGUMENT, F_SERIALIZEAST, null,
                         "Write ast to .ast file after parsing."),
+                new Option("reuseAST", LongOpt.NO_ARGUMENT, F_REUSEAST, null,
+                        "Reuse serialized .ast instead of parsing, if availabe."),
                 new Option("recordTiming", LongOpt.NO_ARGUMENT, F_RECORDTIMING, null,
                         "Report times for all phases."),
 
@@ -119,6 +123,8 @@ public class FrontendOptions extends CAnalysisOptions implements ParserOptions {
             parse = dataFlow = true;
         } else if (c == F_SERIALIZEAST) {
             serializeAST = true;
+        } else if (c == F_REUSEAST) {
+            reuseAST = true;
         } else if (c == F_RECORDTIMING) {
             recordTiming = true;
         } else if (c == F_DEBUGINTERFACE) {

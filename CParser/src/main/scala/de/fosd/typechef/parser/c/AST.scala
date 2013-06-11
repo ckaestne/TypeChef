@@ -57,7 +57,7 @@ LocalLabelDeclaration -- label names
   */
 
 //Expressions
-trait AST extends Product with Cloneable with WithPosition {
+trait AST extends Product with Serializable with Cloneable with WithPosition {
     override def clone(): AST.this.type = super.clone().asInstanceOf[AST.this.type]
 }
 

@@ -8,9 +8,11 @@ package de.fosd.typechef
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.typesystem._
 import de.fosd.typechef.crewrite._
-import java.io.{FileWriter, File}
+import java.io._
 import parser.TokenReader
 import de.fosd.typechef.options.{FrontendOptionsWithConfigFiles, FrontendOptions, OptionException}
+import de.fosd.typechef.parser.c.CTypeContext
+import de.fosd.typechef.parser.c.TranslationUnit
 
 object Frontend {
 
@@ -85,19 +87,32 @@ object Frontend {
             return;
         }
 
+        var ast: AST = null
+        if (opt.reuseAST && opt.parse && new File(opt.getSerializedASTFilename).exists()) {
+            println("loading AST.")
+            ast = loadSerializedAST(opt.getSerializedASTFilename)
+            if (ast == null)
+                println("... failed reading AST\n")
+        }
+
         stopWatch.start("lexing")
-        val in = lex(opt)
+        //no parsing if read serialized ast
+        val in = if (ast == null) lex(opt) else null
 
 
         if (opt.parse) {
             stopWatch.start("parsing")
 
-            val parserMain = new ParserMain(new CParser(fm))
-            val ast = parserMain.parserMain(in, opt)
+            if (ast == null) {
+                //no parsing and serialization if read serialized ast
+                val parserMain = new ParserMain(new CParser(fm))
+                ast = parserMain.parserMain(in, opt)
 
-            stopWatch.start("serialize")
-            if (ast != null && opt.serializeAST)
-                serializeAST(ast, opt.getSerializedASTFilename)
+                stopWatch.start("serialize")
+                if (ast != null && opt.serializeAST)
+                    serializeAST(ast, opt.getSerializedASTFilename)
+            }
+
 
             if (ast != null) {
                 val fm_ts = opt.getTypeSystemFeatureModel.and(opt.getLocalFeatureModel).and(opt.getFilePresenceCondition)
@@ -155,8 +170,15 @@ object Frontend {
     }
 
     def serializeAST(ast: AST, filename: String) {
-        val fw = new FileWriter(filename)
-        fw.write(ast.toString)
+        val fw = new ObjectOutputStream(new FileOutputStream(filename))
+        fw.writeObject(ast)
         fw.close()
+    }
+
+    def loadSerializedAST(filename: String): AST = {
+        val fr = new ObjectInputStream(new FileInputStream(filename))
+        val ast = fr.readObject().asInstanceOf[AST]
+        fr.close()
+        ast
     }
 }
