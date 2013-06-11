@@ -24,7 +24,7 @@ class CAnalysisOptions extends FeatureModelOptions with ICTypeSysOptions {
 
 
     val opts: List[SecurityOption] = List(
-        Apointersign, Aintegeroverflow, Aimplicitcoercion
+        Apointersign, Aintegeroverflow, Aimplicitcoercion, Alongdesignator, Aimplicitidentifier, Aconflictinglinkage
     )
 
 
@@ -57,10 +57,15 @@ class CAnalysisOptions extends FeatureModelOptions with ICTypeSysOptions {
 
         if (c == 'A') {
             var arg: String = g.getOptarg.toUpperCase
-            arg = arg.replace('-', '_')
+            arg = arg.replace('_', '-')
 
             if (arg == "ALL") opts.map(_.isSelected = true)
-            else opts.filter(_.param.toUpperCase == arg).map(_.isSelected = true)
+            else {
+                val opt=opts.filter(_.param.toUpperCase == arg).headOption
+                opt.map(_.isSelected = true)
+                if (!opt.isDefined)
+                    throw new OptionException("Analysis "+arg +" unknown. Known analyses: "+opts.map(_.param).mkString(", "))
+            }
         }
         else if (c == 'a') {
             opts.map(_.isSelected = false)
