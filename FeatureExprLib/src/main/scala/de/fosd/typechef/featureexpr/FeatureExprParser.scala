@@ -72,10 +72,10 @@ class FeatureExprParser(
             (("definedEx" | "defined" | "def") ~ "(" ~> ID <~ ")") ^^ {
                 toFeature(_)
             } |
-            ("1" | "true") ^^ {
+            ("1" | "true" | "True" | "TRUE") ^^ {
                 x => featureFactory.True
             } |
-            ("0" | "false") ^^ {
+            ("0" | "false" | "False" | "FALSE") ^^ {
                 x => featureFactory.False
             } | ID ^^ {
             toFeature(_)
