@@ -17,9 +17,11 @@ trait TypingStats extends CTypeSystemInterface {
         val typeList = ctype.simplify(featureExpr).toList
 
         for ((f, t) <- typeList) {
-            statsOutputFile.write("%s;%s;%s;%d\n".format(expr.toString.take(50).replace(";", " ") + " -> " + t.toText, featureExpr and f, expr.getPositionFrom.getFile, expr.getPositionFrom.getLine))
+            statsOutputFile.write("%s;%s;%s;%d\n".format(/*expr.toString.take(50).replace(";", " ") + " -> " +*/ t.toText, featureExpr and f, expr.getPositionFrom.getFile, expr.getPositionFrom.getLine))
+            statsOutputFile.flush()
         }
-        statsOutputFile2.write("%d;%s;%s;%d\n".format(typeList.length, expr.toString.take(50).replace(";", " ") + " -> " + ctype, expr.getPositionFrom.getFile, expr.getPositionFrom.getLine))
+        statsOutputFile2.write("%d;%s;%s;%d\n".format(typeList.length, /*expr.toString.take(50).replace(";", " ") + " -> " +*/ ctype, expr.getPositionFrom.getFile, expr.getPositionFrom.getLine))
+        statsOutputFile2.flush()
 
     }
 

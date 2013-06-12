@@ -15,7 +15,7 @@ import de.fosd.typechef.error.Position
 //TODO structs need to become part of the interface, or we need to resolve all structs to anonymous structs
 //TODO nested functions behave like static functions (do not lead to imports)
 
-trait CInferInterface extends CTypeSystem with InterfaceWriter {
+trait CInferInterface extends CTypeSystem with InterfaceWriter  {
 
 
     //if not already type checked, to the check now
@@ -131,6 +131,8 @@ trait CInferInterface extends CTypeSystem with InterfaceWriter {
      * if they are referenced at least once
      */
     override def typedExpr(expr: Expr, ctypes: Conditional[CType], featureExpr: FeatureExpr, env: Env) {
+        super.typedExpr(expr,ctypes,featureExpr,env)
+
         expr match {
             case identifier: Id =>
                 val deadCondition = env.isDeadCode
