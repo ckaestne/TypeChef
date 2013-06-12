@@ -3,7 +3,7 @@ package de.fosd.typechef.typesystem
 import de.fosd.typechef.parser.WithPosition
 import org.kiama.rewriting.Rewriter._
 import de.fosd.typechef.parser.c._
-import de.fosd.typechef.conditional.{Opt, One}
+import de.fosd.typechef.conditional.One
 
 
 /**
@@ -48,23 +48,6 @@ trait EnforceTreeHelper {
             case n: AST => n.clone()
         })
         val cast = clone(ast).get.asInstanceOf[T]
-        copyPositions(ast, cast)
-        cast
-    }
-
-    // cparser creates dead ast nodes that causes problems in the control flow analysis (grouping of ast nodes etc.)
-    // the function removes dead nodes from the ast
-    // see issue: https://github.com/ckaestne/TypeChef/issues/4
-    def removeDeadNodes[T <: Product](ast: T, env: ASTEnv): T = {
-        assert(ast != null)
-
-        val removedead = manytd(rule {
-            case l: List[Opt[_]] => l.filter({
-                x => env.featureExpr(x).isSatisfiable()
-            })
-        })
-
-        val cast = removedead(ast).get.asInstanceOf[T]
         copyPositions(ast, cast)
         cast
     }
