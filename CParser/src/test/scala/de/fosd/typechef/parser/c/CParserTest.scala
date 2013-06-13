@@ -1127,6 +1127,20 @@ void bar() {
                             """, p.translationUnit)
     }
 
+
+    @Test
+    def test_uclibc {
+        assertParseableAST( """
+                              __extension__ static __inline unsigned int
+                              __attribute__ ((__nothrow__)) gnu_dev_major (unsigned long long int __dev)
+                              {
+                                return ((__dev >> 8) & 0xfff) | ((unsigned int) (__dev >> 32) & ~0xfff);
+                              }
+
+                            """, p.translationUnit)
+    }
+
+
     private def assertNoDeadNodes(ast: Product) {
         assertNoDeadNodes(ast, FeatureExprFactory.True, ast)
     }

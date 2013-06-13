@@ -210,6 +210,8 @@ case class ConstSpecifier() extends OtherSpecifier()
 
 case class RestrictSpecifier() extends OtherSpecifier()
 
+case class ThreadSpecifier() extends OtherSpecifier()
+
 case class StaticSpecifier() extends OtherSpecifier()
 
 

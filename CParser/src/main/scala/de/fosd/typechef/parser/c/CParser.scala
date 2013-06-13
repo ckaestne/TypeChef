@@ -30,7 +30,7 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = false) e
         "const", "volatile", "restrict", "char", "short", "int", "long", "float", "double",
         "signed", "unsigned", "_Bool", "struct", "union", "enum", "if", "while", "do",
         "for", "goto", "continue", "break", "return", "case", "default", "else", "switch",
-        "sizeof", "_Pragma", "__expectType", "__expectNotType")
+        "sizeof", "_Pragma", "__expectType", "__expectNotType","__thread")
     val predefinedTypedefs = Set("__builtin_va_list", "__builtin_type")
 
     def translationUnit = externalList ^^ {
@@ -95,7 +95,7 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = false) e
             staticSpecifier | inline
 
     def typeQualifier: MultiParser[Specifier] =
-        const | volatile | restrict
+        const | volatile | restrict | thread
 
     def specifier(name: String) = textToken(name)
 
@@ -555,7 +555,7 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = false) e
         | (textToken("__builtin_types_compatible_p") ~ LPAREN ~ typeName ~ COMMA ~ typeName ~ RPAREN ^^ {
         case _ ~ _ ~ tn ~ _ ~ tn2 ~ _ => BuiltinTypesCompatible(tn, tn2)
     })
-        | (textToken("__builtin_va_arg") ~ LPAREN ~ primaryExpr ~ COMMA ~ typeName ~ RPAREN ^^ {
+        | (textToken("__builtin_va_arg") ~ LPAREN ~ assignExpr ~ COMMA ~ typeName ~ RPAREN ^^ {
         case _ ~ _ ~ tn ~ _ ~ tn2 ~ _ => BuiltinVaArgs(tn, tn2)
     })
         | ID
@@ -776,6 +776,8 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = false) e
     def const = (specifier("const") | specifier("__const") | specifier("__const__")) ^^^ ConstSpecifier()
 
     def restrict = (specifier("restrict") | specifier("__restrict") | specifier("__restrict__")) ^^^ RestrictSpecifier()
+
+    def thread = specifier("__thread")  ^^^ ThreadSpecifier()
 
     def signed = (textToken("signed") | textToken("__signed") | textToken("__signed__")) ^^^ SignedSpecifier()
 
