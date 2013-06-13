@@ -50,23 +50,23 @@ class ReachingDefintions(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) extends
     // flow functions (flow => succ and flowR => pred)
     protected def F(e: AST) = flowR(e)
 
-    override def exit(a: AST) = {
-        exit_cache.lookup(a) match {
+    override def outcached(a: AST) = {
+        outcache.lookup(a) match {
             case Some(v) => v
             case None => {
-                val r = analysis_entry(a)
-                exit_cache.update(a, r)
+                val r = genkill(a)
+                outcache.update(a, r)
                 r
             }
         }
     }
 
-    override def entry(a: AST) = {
-        entry_cache.lookup(a) match {
+    override def incached(a: AST) = {
+        incache.lookup(a) match {
             case Some(v) => v
             case None => {
-                val r = analysis_exit(a)
-                entry_cache.update(a, r)
+                val r = uniononly(a)
+                incache.update(a, r)
                 r
             }
         }

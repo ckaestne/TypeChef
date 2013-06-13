@@ -87,8 +87,8 @@ abstract class MonotoneFW[T](val env: ASTEnv, val udm: UseDeclMap, val fm: Featu
         }
     }
 
-    protected val entry_cache = new IdentityHashMapCache[ResultMap]()
-    protected val exit_cache = new IdentityHashMapCache[ResultMap]()
+    protected val incache = new IdentityHashMapCache[ResultMap]()
+    protected val outcache = new IdentityHashMapCache[ResultMap]()
 
     // add annotation to elements of a Set[Id]
     protected def addAnnotation2ResultSet(in: Set[Id]): Map[FeatureExpr, Set[Id]] = {
@@ -141,7 +141,7 @@ abstract class MonotoneFW[T](val env: ASTEnv, val udm: UseDeclMap, val fm: Featu
         curmap
     }
 
-    private def join(map: ResultMap, fexp: FeatureExpr, j: Set[T]) = {
+    private def union(map: ResultMap, fexp: FeatureExpr, j: Set[T]) = {
         var curmap = map
         for (e <- j) {
             curmap.get(e) match {
@@ -152,21 +152,21 @@ abstract class MonotoneFW[T](val env: ASTEnv, val udm: UseDeclMap, val fm: Featu
         curmap
     }
 
-    protected val analysis_entry: AST => ResultMap = {
+    protected val genkill: AST => ResultMap = {
         circular[AST, ResultMap](Map[T, FeatureExpr]()) {
             case FunctionDef(_, _, _, _) => Map[T, FeatureExpr]()
             case t => {
                 val g = gen(t)
                 val k = kill(t)
 
-                var res = exit(t)
+                var res = outcached(t)
                 for ((fexp, v) <- k)
                     for (x <- v)
                         res = diff(res, fexp, getFresh(x))
 
                 for ((fexp, v) <- g)
                     for (x <- v)
-                        res = join(res, fexp, getFresh(x))
+                        res = union(res, fexp, getFresh(x))
                 res
             }
         }
@@ -178,17 +178,17 @@ abstract class MonotoneFW[T](val env: ASTEnv, val udm: UseDeclMap, val fm: Featu
     protected def flow(e: AST): CFG = succ(e, FeatureExprFactory.empty, env)
     protected def flowR(e: AST): CFG = pred(e, FeatureExprFactory.empty, env)
 
-    protected val analysis_exit: AST => ResultMap =
+    protected val uniononly: AST => ResultMap =
         circular[AST, ResultMap](Map[T, FeatureExpr]()) {
             case e => {
-                var ss = F(e)
+                var fl = F(e)
 
-                ss = ss.filterNot(x => x.entry.isInstanceOf[FunctionDef])
+                fl = fl.filterNot(x => x.entry.isInstanceOf[FunctionDef])
 
                 var res = Map[T, FeatureExpr]()
-                for (s <- ss) {
-                    for ((r, f) <- entry(s.entry))
-                        res = join(res, f and s.feature, Set(r))
+                for (s <- fl) {
+                    for ((r, f) <- incached(s.entry))
+                        res = union(res, f and s.feature, Set(r))
                 }
                 res
             }
@@ -196,19 +196,19 @@ abstract class MonotoneFW[T](val env: ASTEnv, val udm: UseDeclMap, val fm: Featu
 
     // using caching for efficiency and filtering out false positives
     // using the feature model
-    protected def exit(a: AST) = {
-        exit_cache.lookup(a) match {
+    protected def outcached(a: AST) = {
+        outcache.lookup(a) match {
             case Some(v) => v
             case None => {
-                val r = analysis_exit(a)
-                exit_cache.update(a, r)
+                val r = uniononly(a)
+                outcache.update(a, r)
                 r
             }
         }
     }
 
     def out(a: AST) = {
-        val o = exit(a)
+        val o = outcached(a)
         var res = List[(T, FeatureExpr)]()
 
         for ((x, f) <- o) {
@@ -218,19 +218,19 @@ abstract class MonotoneFW[T](val env: ASTEnv, val udm: UseDeclMap, val fm: Featu
         res.filter(_._2.isSatisfiable(fm))
     }
 
-    protected def entry(a: AST) = {
-        entry_cache.lookup(a) match {
+    protected def incached(a: AST) = {
+        incache.lookup(a) match {
             case Some(v) => v
             case None => {
-                val r = analysis_entry(a)
-                entry_cache.update(a, r)
+                val r = genkill(a)
+                incache.update(a, r)
                 r
             }
         }
     }
 
     def in(a: AST) = {
-        val o = entry(a)
+        val o = incached(a)
         var res = List[(T, FeatureExpr)]()
 
         for ((x, f) <- o) {

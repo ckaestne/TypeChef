@@ -24,7 +24,7 @@ class ReachingDefinitionsTest extends TestHelper with ShouldMatchers with IntraC
         val rd = new ReachingDefintions(env, udm, FeatureExprFactory.empty)
 
         for (s <- ss) {
-            println(PrettyPrinter.print(s) + "  uses: " + rd.gen(s) + "   defines: " + rd.kill(s) +
+            println(PrettyPrinter.print(s) + "  gen: " + rd.gen(s) + "   kill: " + rd.kill(s) +
                     "  in: " + rd.in(s) + "   out: " + rd.out(s))
         }
 
