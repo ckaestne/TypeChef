@@ -659,7 +659,7 @@ trait CDeclUse extends CEnv with CEnvCache {
                 extensions.foreach(x => addDecl(x, featureExpr, env))
             case StructOrUnionSpecifier(_, None, Some(extensions)) =>
                 extensions.foreach(x => addDecl(x, featureExpr, env))
-            case StructDeclarator(decl, i: Id, _) =>
+            case StructDeclarator(decl, Some(i: Id), _) =>
                 addDefinition(i, env)
             case ExprStatement(expr) =>
             //addDecl(expr, env)
