@@ -77,5 +77,8 @@ class UninitializedMemory(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) extend
     }
 
     // flow functions (flow => succ and flowR => pred)
-    protected def F(e: AST) = flowR(e)
+    protected def flow(e: AST) = flowPred(e)
+
+    protected def unionio(e: AST) = incached(e)
+    protected def genkillio(e: AST) = outcached(e)
 }

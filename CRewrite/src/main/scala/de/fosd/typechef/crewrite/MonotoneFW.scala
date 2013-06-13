@@ -152,6 +152,34 @@ abstract class MonotoneFW[T](val env: ASTEnv, val udm: UseDeclMap, val fm: Featu
         curmap
     }
 
+
+
+    // flow functions (flow => succ and flow => pred) functions of the
+    // framework
+    protected def flow(e: AST): CFG
+    protected def flowSucc(e: AST): CFG = succ(e, FeatureExprFactory.empty, env)
+    protected def flowPred(e: AST): CFG = pred(e, FeatureExprFactory.empty, env)
+
+    protected def unionio(e: AST): ResultMap
+    protected def genkillio(e: AST): ResultMap
+
+    protected val uniononly: AST => ResultMap = {
+        circular[AST, ResultMap](Map[T, FeatureExpr]()) {
+            case e => {
+                var fl = flow(e)
+
+                fl = fl.filterNot(x => x.entry.isInstanceOf[FunctionDef])
+
+                var res = Map[T, FeatureExpr]()
+                for (s <- fl) {
+                    for ((r, f) <- unionio(s.entry))
+                        res = union(res, f and s.feature, Set(r))
+                }
+                res
+            }
+        }
+    }
+
     protected val genkill: AST => ResultMap = {
         circular[AST, ResultMap](Map[T, FeatureExpr]()) {
             case FunctionDef(_, _, _, _) => Map[T, FeatureExpr]()
@@ -159,7 +187,7 @@ abstract class MonotoneFW[T](val env: ASTEnv, val udm: UseDeclMap, val fm: Featu
                 val g = gen(t)
                 val k = kill(t)
 
-                var res = outcached(t)
+                var res = genkillio(t)
                 for ((fexp, v) <- k)
                     for (x <- v)
                         res = diff(res, fexp, getFresh(x))
@@ -171,28 +199,6 @@ abstract class MonotoneFW[T](val env: ASTEnv, val udm: UseDeclMap, val fm: Featu
             }
         }
     }
-
-    // flow functions (flow => succ and flow => pred) functions of the
-    // framework
-    protected def F(e: AST): CFG
-    protected def flow(e: AST): CFG = succ(e, FeatureExprFactory.empty, env)
-    protected def flowR(e: AST): CFG = pred(e, FeatureExprFactory.empty, env)
-
-    protected val uniononly: AST => ResultMap =
-        circular[AST, ResultMap](Map[T, FeatureExpr]()) {
-            case e => {
-                var fl = F(e)
-
-                fl = fl.filterNot(x => x.entry.isInstanceOf[FunctionDef])
-
-                var res = Map[T, FeatureExpr]()
-                for (s <- fl) {
-                    for ((r, f) <- incached(s.entry))
-                        res = union(res, f and s.feature, Set(r))
-                }
-                res
-            }
-        }
 
     // using caching for efficiency and filtering out false positives
     // using the feature model

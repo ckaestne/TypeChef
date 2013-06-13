@@ -160,5 +160,8 @@ class DoubleFree(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel, casestudy: Stri
         }
     }
 
-    override def F(e: AST) = flow(e)
+    protected def flow(e: AST) = flowSucc(e)
+
+    protected def unionio(e: AST) = incached(e)
+    protected def genkillio(e: AST) = outcached(e)
 }
