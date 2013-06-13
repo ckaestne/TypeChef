@@ -118,7 +118,7 @@ object Frontend {
                         if (typeCheckStatus) {
                             val i = new IfdefToIf
                             val fw = new FileWriter(i.outputStemToFileName(opt.outputStem) + ".decluse")
-                            fw.write(ts.checkDefuse(ast, ts.getDeclUseMap, fm_ts)._1)
+                            fw.write(ts.checkDefuse(ts.prepareAST(ast), ts.getDeclUseMap, fm_ts)._1)
                             fw.close()
                             //println(ts.checkDefuse(ts.prepareAST(ast), ts.getDeclUseMap, fm_ts)._1)
                         } else {

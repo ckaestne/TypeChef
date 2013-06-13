@@ -1618,13 +1618,15 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
                     l.flatMap(getNextFeatureHelp(_))
                 case i: Id =>
                     if (idsToBeReplaced.containsKey(i)) {
-                        idsToBeReplaced.get(i)
+                        val result = idsToBeReplaced.get(i)
+                        result
                     } else {
                         List()
                     }
                 case d@Opt(ft, i: Id) =>
                     if (idsToBeReplaced.containsKey(i)) {
-                        idsToBeReplaced.get(i)
+                        val result = idsToBeReplaced.get(i)
+                        result
                     } else {
                         List()
                     }
