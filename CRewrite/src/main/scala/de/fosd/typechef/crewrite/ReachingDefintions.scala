@@ -40,7 +40,7 @@ class ReachingDefintions(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) extends
     }
 
     def gen(a: AST): Map[FeatureExpr, Set[Id]] = {
-        addAnnotation2ResultSet(uses(a))
+        addAnnotation2ResultSet(defines(a))
     }
 
     def kill(a: AST): Map[FeatureExpr, Set[Id]] = {

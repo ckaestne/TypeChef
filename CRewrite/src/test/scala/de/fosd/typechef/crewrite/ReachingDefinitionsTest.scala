@@ -62,10 +62,26 @@ class ReachingDefinitionsTest extends TestHelper with ShouldMatchers with IntraC
 
     @Test def test_swap() {
         runExample( """
-        void swap(int *x, int *y) {
-          int tmp = *x;
-          *x = *y;
-          *y = tmp;
+        void swap(int x, int y) {
+          int tmp = x;
+          x = y;
+          y = tmp;
         }""".stripMargin)
+    }
+
+    // http://www.itu.dk/people/wasowski/teach/dsp-compiler-06/episode-6/episode06-handout.pdf p.7
+    @Test def test_while() {
+        runExample(
+            """
+            void whileEx(int a, int c) {
+              a = 5;
+              c = 1;
+              while (c > a) {
+                c = c + c;
+              }
+              a = c - a;
+              c = 0;
+            }
+            """.stripMargin)
     }
 }
