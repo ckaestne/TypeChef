@@ -31,6 +31,7 @@ trait UsedDefinedDeclaredVariables {
             case PostfixExpr(i@Id(_), SimplePostfixSuffix(_)) => Set(i) // a++; or a--;
             case UnaryExpr(_, i@Id(_)) => Set(i) // ++a; or --a;
             case Opt(_, entry) => defines(entry)
+            case PointerDerefExpr(i@Id(_)) => Set(i)
             case _ => Set()
         }
 
