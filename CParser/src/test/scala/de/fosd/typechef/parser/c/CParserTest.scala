@@ -1140,6 +1140,31 @@ void bar() {
                             """, p.translationUnit)
     }
 
+    @Test
+    @Ignore("this is a bug in our parser. `jin:...' should be one labled statement, but is parsed as two statements; therefore the else does not match" )
+    def test_labels {
+        //based on a problem in uclibc
+        assertParseableAST("""if (0)
+                             |	    jin:{
+                             |		if ((a = *++haystack) == c)
+                             |		  goto crest;
+                             |	      }
+                             |	    else
+                             |	      a = *++haystack;""".stripMargin , p.statement)
+    }
+    @Test
+    def test_labels2 {
+        //based on a problem in uclibc
+        assertParseableAST("""if (0)
+                             |	    {jin:{
+                             |		if ((a = *++haystack) == c)
+                             |		  goto crest;
+                             |	      }}
+                             |	    else
+                             |	      a = *++haystack;""".stripMargin , p.statement)
+    }
+
+
 
     private def assertNoDeadNodes(ast: Product) {
         assertNoDeadNodes(ast, FeatureExprFactory.True, ast)
