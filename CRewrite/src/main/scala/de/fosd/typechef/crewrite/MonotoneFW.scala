@@ -5,6 +5,7 @@ import org.kiama.attribution.AttributionBase
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.typesystem.UseDeclMap
 import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureModel, FeatureExpr}
+import de.fosd.typechef.parser.c
 
 // this abstract class provides a standard implementation of
 // the monotone framework, a general framework for dataflow analyses
@@ -31,20 +32,20 @@ import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureModel, FeatureEx
 // udm: UseDeclMap; map of variable usages to their corresponding declarations
 //                  a variable here can have different declarations (alternative types)
 // fm: FeatureModel; feature model used for filtering out false positives
-abstract class MonotoneFW[T](val env: ASTEnv, val udm: UseDeclMap, val fm: FeatureModel) extends AttributionBase with IntraCFG {
+abstract class MonotoneFW(val env: ASTEnv, val udm: UseDeclMap, val fm: FeatureModel) extends AttributionBase with IntraCFG {
 
     // dataflow, such as identifiers (type Id) may have different declarations
     // (alternative types). so we track alternative elements here using two
     // maps
-    // t2FreshT is a 1:1 mapping of T declarations to fresh T elements for our analysis
+    // t2FreshT is a 1:1 mapping of Id declarations to fresh Id elements for our analysis
     // freshT2T is the reverse of t2FreshT
-    private val t2FreshT = new java.util.IdentityHashMap[T, Set[T]]()
-    private val dId2Fresh = new java.util.IdentityHashMap[T, T]()
-    private val freshT2T = new java.util.IdentityHashMap[T, T]()
+    private val t2FreshT = new java.util.IdentityHashMap[Id, Set[Id]]()
+    private val dId2Fresh = new java.util.IdentityHashMap[Id, Id]()
+    private val freshT2T = new java.util.IdentityHashMap[Id, Id]()
 
-    // create fresh T elements that we use in our analysis the declaration
+    // create fresh Id elements that we use in our analysis the declaration
     // of an incoming element
-    protected def createFresh(i: T) = {
+    private def createFresh(i: Id) = {
         if (! dId2Fresh.containsKey(i)) {
             val nt = t2T(i)
             dId2Fresh.put(i, nt)
@@ -52,7 +53,7 @@ abstract class MonotoneFW[T](val env: ASTEnv, val udm: UseDeclMap, val fm: Featu
         dId2Fresh.get(i)
     }
 
-    protected def getFresh(i: T) = {
+    private def getFresh(i: Id) = {
         if (! t2FreshT.containsKey(i)) {
             val nt = t2SetT(i)
             for (e <- nt)
@@ -62,20 +63,41 @@ abstract class MonotoneFW[T](val env: ASTEnv, val udm: UseDeclMap, val fm: Featu
         t2FreshT.get(i)
     }
 
-    protected def addFreshT(i: T) = {
+    private def addFreshT(i: Id) = {
         val nt = createFresh(i)
         freshT2T.put(nt, i)
         nt
     }
 
-    // get the original T element of a freshly created T element
-    protected def getOriginal(i: T) = freshT2T.get(i)
+    // get the original Id element of a freshly created Id element
+    private def getOriginal(i: Id) = freshT2T.get(i)
 
-    // abstract function that creates the fresh T elements we use here
+    // abstract function that creates the fresh Id elements we use here
     // in our analysis. typical for analysis such as double free
     // we create new Id using the freshTctr counter.
-    protected def t2SetT(i: T): Set[T]
-    protected def t2T(i: T): T
+    // we create fresh T elements (here Id) using a counter
+    private var freshTctr = 0
+
+    private def getFreshCtr: Int = {
+        freshTctr = freshTctr + 1
+        freshTctr
+    }
+
+    private def t2T(i: Id) = Id(getFreshCtr + "_" + i.name)
+
+    private def t2SetT(i: Id) = {
+        var freshidset = Set[Id]()
+
+        if (udm.containsKey(i)) {
+            for (vi <- udm.get(i)) {
+                freshidset = freshidset + createFresh(vi)
+            }
+            freshidset
+        } else {
+            Set(addFreshT(i))
+        }
+
+    }
 
     class IdentityHashMapCache[A] {
         private val cache: java.util.IdentityHashMap[Any, A] = new java.util.IdentityHashMap[Any, A]()
@@ -91,8 +113,8 @@ abstract class MonotoneFW[T](val env: ASTEnv, val udm: UseDeclMap, val fm: Featu
     protected val outcache = new IdentityHashMapCache[ResultMap]()
 
     // add annotation to elements of a Set[Id]
-    protected def addAnnotation2ResultSet(in: Set[Id]): Map[FeatureExpr, Set[Id]] = {
-        var res = Map[FeatureExpr, Set[Id]]()
+    protected def addAnnotation2ResultSet(in: Set[c.Id]): Map[FeatureExpr, Set[c.Id]] = {
+        var res = Map[FeatureExpr, Set[c.Id]]()
 
         for (r <- in) {
             val rfexp = env.featureExpr(r)
@@ -108,8 +130,8 @@ abstract class MonotoneFW[T](val env: ASTEnv, val udm: UseDeclMap, val fm: Featu
     }
 
     // gen and kill function, will be implemented by the concrete dataflow classes
-    def gen(a: AST): Map[FeatureExpr, Set[T]]
-    def kill(a: AST): Map[FeatureExpr, Set[T]]
+    def gen(a: AST): Map[FeatureExpr, Set[Id]]
+    def kill(a: AST): Map[FeatureExpr, Set[Id]]
 
     // while monotone framework usually works on Sets
     // we use maps here for efficiency reasons:
@@ -117,15 +139,15 @@ abstract class MonotoneFW[T](val env: ASTEnv, val udm: UseDeclMap, val fm: Featu
     //      a variability-aware version is to change the type of the result set
     //      from Set[Id] to Set[Opt[Id]]. However this changes involves many lookups
     //      and changes to the set.
-    //   2. We use Map[T, FeatureExpr] since T is our basic element of interest.
+    //   2. We use Map[Id, FeatureExpr] since Id is our basic element of interest.
     //      FeatureExpr do not matter so far (they are prominent when using Opt
-    //      nodes with List or Set). Since T matters operations on feature expression
+    //      nodes with List or Set). Since Id matters operations on feature expression
     //      are easy and can be delayed to the point at which we *really* need
     //      the result. The delay also involves simplifications of feature
     //      expressions such as "a or (not a) => true".
-    type ResultMap = Map[T, FeatureExpr]
+    type ResultMap = Map[Id, FeatureExpr]
 
-    private def diff(map: ResultMap, fexp: FeatureExpr, d: Set[T]) = {
+    private def diff(map: ResultMap, fexp: FeatureExpr, d: Set[Id]) = {
         var curmap = map
         for (e <- d) {
             curmap.get(e) match {
@@ -141,7 +163,7 @@ abstract class MonotoneFW[T](val env: ASTEnv, val udm: UseDeclMap, val fm: Featu
         curmap
     }
 
-    private def union(map: ResultMap, fexp: FeatureExpr, j: Set[T]) = {
+    private def union(map: ResultMap, fexp: FeatureExpr, j: Set[Id]) = {
         var curmap = map
         for (e <- j) {
             curmap.get(e) match {
@@ -164,13 +186,13 @@ abstract class MonotoneFW[T](val env: ASTEnv, val udm: UseDeclMap, val fm: Featu
     protected def genkillio(e: AST): ResultMap
 
     protected val uniononly: AST => ResultMap = {
-        circular[AST, ResultMap](Map[T, FeatureExpr]()) {
+        circular[AST, ResultMap](Map[Id, FeatureExpr]()) {
             case e => {
                 var fl = flow(e)
 
                 fl = fl.filterNot(x => x.entry.isInstanceOf[FunctionDef])
 
-                var res = Map[T, FeatureExpr]()
+                var res = Map[Id, FeatureExpr]()
                 for (s <- fl) {
                     for ((r, f) <- unionio(s.entry))
                         res = union(res, f and s.feature, Set(r))
@@ -181,8 +203,8 @@ abstract class MonotoneFW[T](val env: ASTEnv, val udm: UseDeclMap, val fm: Featu
     }
 
     protected val genkill: AST => ResultMap = {
-        circular[AST, ResultMap](Map[T, FeatureExpr]()) {
-            case FunctionDef(_, _, _, _) => Map[T, FeatureExpr]()
+        circular[AST, ResultMap](Map[Id, FeatureExpr]()) {
+            case FunctionDef(_, _, _, _) => Map[Id, FeatureExpr]()
             case t => {
                 val g = gen(t)
                 val k = kill(t)
@@ -215,7 +237,7 @@ abstract class MonotoneFW[T](val env: ASTEnv, val udm: UseDeclMap, val fm: Featu
 
     def out(a: AST) = {
         val o = outcached(a)
-        var res = List[(T, FeatureExpr)]()
+        var res = List[(Id, FeatureExpr)]()
 
         for ((x, f) <- o) {
             val orig = getOriginal(x)
@@ -237,7 +259,7 @@ abstract class MonotoneFW[T](val env: ASTEnv, val udm: UseDeclMap, val fm: Featu
 
     def in(a: AST) = {
         val o = incached(a)
-        var res = List[(T, FeatureExpr)]()
+        var res = List[(Id, FeatureExpr)]()
 
         for ((x, f) <- o) {
             val orig = getOriginal(x)

@@ -15,30 +15,7 @@ import de.fosd.typechef.featureexpr.{FeatureExpr, FeatureModel}
 //     in a different function
 //   - uses flowR (pred) which does not seem to perform well
 //     with large functions and a lot of variability
-class ReachingDefintions(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) extends MonotoneFW[Id](env, udm, fm) with IntraCFG with CFGHelper with ASTNavigation with UsedDefinedDeclaredVariables {
-    // we create fresh T elements (here Id) using a counter
-    private var freshTctr = 0
-
-    private def getFreshCtr: Int = {
-        freshTctr = freshTctr + 1
-        freshTctr
-    }
-
-    def t2T(i: Id) = Id(getFreshCtr + "_" + i.name)
-
-    def t2SetT(i: Id) = {
-        var freshidset = Set[Id]()
-
-        if (udm.containsKey(i)) {
-            for (vi <- udm.get(i)) {
-                freshidset = freshidset.+(createFresh(vi))
-            }
-            freshidset
-        } else {
-            Set(addFreshT(i))
-        }
-    }
-
+class ReachingDefintions(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) extends MonotoneFW(env, udm, fm) with IntraCFG with CFGHelper with ASTNavigation with UsedDefinedDeclaredVariables {
     def gen(a: AST): Map[FeatureExpr, Set[Id]] = {
         addAnnotation2ResultSet(defines(a))
     }
