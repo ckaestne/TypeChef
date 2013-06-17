@@ -167,7 +167,7 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
     }
 
     // checks reference equality of e in a given struture t (either product or list)
-    private def isPartOf(subterm: Product, term: Any): Boolean = {
+    protected def isPartOf(subterm: Product, term: Any): Boolean = {
         term match {
             case _: Product if (subterm.asInstanceOf[AnyRef].eq(term.asInstanceOf[AnyRef])) => true
             case l: List[_] => l.map(isPartOf(subterm, _)).exists(_ == true)
