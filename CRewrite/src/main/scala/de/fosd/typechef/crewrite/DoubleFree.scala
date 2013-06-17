@@ -26,7 +26,7 @@ import de.fosd.typechef.featureexpr.FeatureModel
 // the function free, e.g.:
 // linux: kfree for kernel memory deallocation
 // openssl: OPENSSL_free (actually CRYPTO_free; OPENSSL_free is a CPP macro)
-class DoubleFree(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel, casestudy: String) extends MonotoneFW[Id](env, udm, fm) with IntraCFG with CFGHelper with ASTNavigation {
+class DoubleFree(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel, casestudy: String) extends MonotoneFW(env, udm, fm) with IntraCFG with CFGHelper with ASTNavigation {
 
     val freecalls = {
         if (casestudy == "linux") List("free", "kfree")
