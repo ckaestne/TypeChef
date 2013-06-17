@@ -7,7 +7,7 @@ import de.fosd.typechef.typesystem.UseDeclMap
 import de.fosd.typechef.featureexpr.{FeatureExpr, FeatureModel}
 
 // implements a simple analysis of freeing memory that was not dynamically allocated
-// see http://www.open-std.org/jtc1/sc22/wg14/www/docs/n1669.pdf 5.33
+// https://www.securecoding.cert.org/confluence/display/seccode/MEM34-C.+Only+free+memory+allocated+dynamically
 //
 // major limitations:
 //   - we use intraprocedural control flow (IntraCFG) which

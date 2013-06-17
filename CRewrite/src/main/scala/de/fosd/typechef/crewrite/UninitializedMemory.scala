@@ -7,7 +7,8 @@ import de.fosd.typechef.typesystem.UseDeclMap
 import de.fosd.typechef.featureexpr.{FeatureExpr, FeatureModel}
 
 // implements a simple analysis of uninitalized memory
-// see http://www.open-std.org/jtc1/sc22/wg14/www/docs/n1669.pdf 5.34
+// https://www.securecoding.cert.org/confluence/display/seccode/EXP33-C.+Do+not+reference+uninitialized+memory
+// EXP33
 //
 // major limitations:
 //   - we use intraprocedural control flow (IntraCFG) which
