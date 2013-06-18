@@ -6,10 +6,10 @@ import de.fosd.typechef.parser.c._
 import de.fosd.typechef.typesystem.{CDeclUse, CTypeSystemFrontend}
 import scala.Predef._
 
-class DanglingSwitchCodeTest extends TestHelper with ShouldMatchers with CFGHelper {
+class DanglingSwitchCodeTest extends TestHelper with ShouldMatchers with CFGHelper with EnforceTreeHelper {
 
     def danglingSwitchCode(code: String): Boolean = {
-        val tunit = parseTranslationUnit(code)
+        val tunit = prepareAST[TranslationUnit](parseTranslationUnit(code))
         val ds = new CAnalysisFrontend(tunit)
         ds.danglingSwitchCode()
     }

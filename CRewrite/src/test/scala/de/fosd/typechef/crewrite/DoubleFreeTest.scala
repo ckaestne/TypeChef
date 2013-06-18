@@ -7,7 +7,7 @@ import de.fosd.typechef.typesystem._
 import de.fosd.typechef.parser.c._
 import java.io.{FileWriter, File}
 
-class DoubleFreeTest extends TestHelper with ShouldMatchers with CFGHelper {
+class DoubleFreeTest extends TestHelper with ShouldMatchers with CFGHelper with EnforceTreeHelper {
 
     // check freed pointers
     private def getFreedMem(code: String) = {
@@ -16,58 +16,10 @@ class DoubleFreeTest extends TestHelper with ShouldMatchers with CFGHelper {
         df.gen(a)
     }
 
-    def hasDoubleFree(code: String): Boolean = {
-        val tunit = parseTranslationUnit(code)
-        val ts = new CTypeSystemFrontend(tunit, FeatureExprFactory.empty) with CDeclUse
-        assert(ts.checkASTSilent, "typecheck fails!")
-        val env = CASTEnv.createASTEnv(tunit)
-        val udm = ts.getUseDeclMap
-
-        val fdefs = filterAllASTElems[FunctionDef](tunit)
-        val errors = fdefs.flatMap(doubleFreeFunctionDef(_, env, udm, ""))
-
-        if (errors.isEmpty) {
-            println("No double frees found!")
-        } else {
-            println(errors.map(_.toString + "\n").reduce(_ + _))
-        }
-
-        ! errors.isEmpty
-    }
-
-    // intraprocedural check of double freeing pointers
-    // we check whether a freed memory cell is freed again
-    private def doubleFreeFunctionDef(f: FunctionDef, env: ASTEnv, udm: UseDeclMap, casestudy: String): List[AnalysisError] = {
-        var res: List[AnalysisError] = List()
-
-        // It's ok to use FeatureExprFactory.empty here.
-        // Using the project's fm is too expensive since control
-        // flow computation requires a lot of sat calls.
-        // We use the proper fm in DoubleFree (see MonotoneFM).
-        val ss = getAllSucc(f, FeatureExprFactory.empty, env).reverse
-        val df = new DoubleFree(env, udm, FeatureExprFactory.empty, casestudy)
-        val nss = ss.map(_._1).filterNot(x => x.isInstanceOf[FunctionDef])
-
-        for (s <- nss) {
-            val g = df.gen(s)
-            val out = df.out(s)
-
-            for ((i, h) <- out)
-                for ((f, j) <- g)
-                    j.find(_ == i) match {
-                        case None =>
-                        case Some(x) => {
-                            val xdecls = udm.get(x)
-                            val idecls = udm.get(i)
-
-                            for (ei <- idecls)
-                                if (xdecls.exists(_.eq(ei)))
-                                    res ::= new AnalysisError(h, "warning: Try to free a memory block that has been released", x)
-                        }
-                    }
-        }
-
-        res
+    def doubleFree(code: String): Boolean = {
+        val tunit = prepareAST[TranslationUnit](parseTranslationUnit(code))
+        val df = new CAnalysisFrontend(tunit)
+        df.doubleFree()
     }
 
     @Test def test_free() {
@@ -135,7 +87,7 @@ class DoubleFreeTest extends TestHelper with ShouldMatchers with CFGHelper {
     }
 
     @Test def test_double_free_simple() {
-        hasDoubleFree("""
+        doubleFree("""
               void* malloc(int i) { return ((void*)0); }
               void free(void* p) { }
               int foo() {
@@ -149,7 +101,7 @@ class DoubleFreeTest extends TestHelper with ShouldMatchers with CFGHelper {
                   return 0;
               }
                       """.stripMargin) should be(false)
-        hasDoubleFree("""
+        doubleFree("""
                  void* malloc(int i) { return ((void*)0); }
                  void free(void* p) { }
                  void foo() {
@@ -159,7 +111,7 @@ class DoubleFreeTest extends TestHelper with ShouldMatchers with CFGHelper {
                      free(a);
                  #endif
                  } """) should be(true)
-        hasDoubleFree("""
+        doubleFree("""
               void* malloc(int i) { return ((void*)0); }
               void free(void* p) { }
               void foo() {
@@ -169,7 +121,7 @@ class DoubleFreeTest extends TestHelper with ShouldMatchers with CFGHelper {
                   free(a);
               }
             """.stripMargin) should be(false)
-        hasDoubleFree("""
+        doubleFree("""
               void* malloc(int i) { return ((void*)0); }
               void free(void* p) { }
               void foo() {
@@ -181,7 +133,7 @@ class DoubleFreeTest extends TestHelper with ShouldMatchers with CFGHelper {
                   free(a);
               }
                       """.stripMargin) should be(true)
-        hasDoubleFree("""
+        doubleFree("""
               void* malloc(int i) { return ((void*)0); }
               void free(void* p) { }
               void foo() {
@@ -189,7 +141,7 @@ class DoubleFreeTest extends TestHelper with ShouldMatchers with CFGHelper {
                   free(a);
               }
                       """.stripMargin) should be(false)
-        hasDoubleFree("""
+        doubleFree("""
               void* malloc(int i) { return ((void*)0); }
               void free(void* p) { }
               void* realloc(void* p, int i) { return ((void*)0); }
@@ -199,7 +151,7 @@ class DoubleFreeTest extends TestHelper with ShouldMatchers with CFGHelper {
                   free(a);
               }
                       """.stripMargin) should be(true)
-        hasDoubleFree("""
+        doubleFree("""
               void* malloc(int i) { return ((void*)0); }
               void free(void* p) { }
               void* realloc(void* p, int i) { return ((void*)0); }
@@ -216,7 +168,7 @@ class DoubleFreeTest extends TestHelper with ShouldMatchers with CFGHelper {
               }
                       """.stripMargin) should be(false)
         // take from: https://www.securecoding.cert.org/confluence/display/seccode/MEM31-C.+Free+dynamically+allocated+memory+exactly+once
-        hasDoubleFree("""
+        doubleFree("""
               void* malloc(int i) { return ((void*)0); }
               void free(void* p) { }
               int f(int n) {

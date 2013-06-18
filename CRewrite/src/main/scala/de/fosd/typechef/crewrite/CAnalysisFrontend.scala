@@ -24,7 +24,7 @@ class CAnalysisFrontend(tunit: TranslationUnit, fm: FeatureModel = FeatureExprFa
             println(writer.toString)
     }
 
-    def doubleFree() {
+    def doubleFree() = {
 
         val casestudy = {
             tunit.getFile match {
@@ -37,13 +37,12 @@ class CAnalysisFrontend(tunit: TranslationUnit, fm: FeatureModel = FeatureExprFa
             }
         }
 
-        val tunittree = prepareAST[TranslationUnit](tunit)
-        val ts = new CTypeSystemFrontend(tunittree, fm) with CDeclUse
+        val ts = new CTypeSystemFrontend(tunit, fm) with CDeclUse
         assert(ts.checkASTSilent, "typecheck fails!")
-        val env = CASTEnv.createASTEnv(tunittree)
+        val env = CASTEnv.createASTEnv(tunit)
         val udm = ts.getUseDeclMap
 
-        val fdefs = filterAllASTElems[FunctionDef](tunittree)
+        val fdefs = filterAllASTElems[FunctionDef](tunit)
         val errors = fdefs.flatMap(doubleFreeFunctionDef(_, env, udm, casestudy))
 
         if (errors.isEmpty) {
@@ -52,7 +51,7 @@ class CAnalysisFrontend(tunit: TranslationUnit, fm: FeatureModel = FeatureExprFa
             println(errors.map(_.toString + "\n").reduce(_ + _))
         }
 
-        errors.isEmpty
+        !errors.isEmpty
     }
 
     private def doubleFreeFunctionDef(f: FunctionDef, env: ASTEnv, udm: UseDeclMap, casestudy: String): List[AnalysisError] = {

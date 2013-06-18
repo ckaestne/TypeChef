@@ -6,7 +6,7 @@ import de.fosd.typechef.featureexpr.FeatureExprFactory
 import de.fosd.typechef.typesystem._
 import de.fosd.typechef.parser.c._
 
-class UninitializedMemoryTest extends TestHelper with ShouldMatchers with CFGHelper {
+class UninitializedMemoryTest extends TestHelper with ShouldMatchers with CFGHelper with EnforceTreeHelper {
 
     private def getUninitializedVariables(code: String) = {
         val a = parseCompoundStmt(code)
@@ -21,60 +21,9 @@ class UninitializedMemoryTest extends TestHelper with ShouldMatchers with CFGHel
     }
 
     def uninitializedMemory(code: String): Boolean = {
-        val tunit = parseTranslationUnit(code)
-        val ts = new CTypeSystemFrontend(tunit, FeatureExprFactory.empty) with CDeclUse
-        assert(ts.checkASTSilent, "typecheck fails!")
-        val env = CASTEnv.createASTEnv(tunit)
-        val udm = ts.getUseDeclMap
-
-        val fdefs = filterAllASTElems[FunctionDef](tunit)
-        val errors = fdefs.flatMap(uninitializedMemory(_, env, udm))
-
-        if (errors.isEmpty) {
-            println("No uages of uninitialized memory found!")
-        } else {
-            println(errors.map(_.toString + "\n").reduce(_ + _))
-        }
-
-        !errors.isEmpty
-    }
-
-    private def uninitializedMemory(f: FunctionDef, env: ASTEnv, udm: UseDeclMap): List[AnalysisError] = {
-        var res: List[AnalysisError] = List()
-
-        // It's ok to use FeatureExprFactory.empty here.
-        // Using the project's fm is too expensive since control
-        // flow computation requires a lot of sat calls.
-        // We use the proper fm in UninitializedMemory (see MonotoneFM).
-        val ss = getAllPred(f, FeatureExprFactory.empty, env).reverse
-        val um = new UninitializedMemory(env, udm, FeatureExprFactory.empty)
-        val nss = ss.map(_._1).filterNot(x => x.isInstanceOf[FunctionDef])
-
-        for (s <- nss) {
-            val g = um.getFunctionCallArguments(s)
-            val in = um.in(s)
-            val gen = um.gen(s)
-            val kill = um.kill(s)
-            val out = um.out(s)
-            println("s: " + PrettyPrinter.print(s), "args: " + g, "gen: " + gen, "kill: " + kill, "in: " + in, "out: " + out)
-
-            for ((i, h) <- in)
-                for ((f, j) <- g)
-                    j.find(_ == i) match {
-                        case None =>
-                        case Some(x) => {
-                            val xdecls = udm.get(x)
-                            var idecls = udm.get(i)
-                            if (idecls == null)
-                                idecls = List(i)
-                            for (ei <- idecls)
-                                if (xdecls.exists(_.eq(ei)))
-                                    res ::= new AnalysisError(h, "warning: Variable " + x.name + " is used uninitialized!", x)
-                        }
-                    }
-        }
-
-        res
+        val tunit = prepareAST[TranslationUnit](parseTranslationUnit(code))
+        val um = new CAnalysisFrontend(tunit)
+        um.uninitializedMemory()
     }
 
     @Test def test_variables() {
