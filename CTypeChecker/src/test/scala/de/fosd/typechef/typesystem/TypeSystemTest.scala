@@ -5,20 +5,9 @@ import org.junit.runner.RunWith
 import org.scalatest.FunSuite
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
-import de.fosd.typechef.parser.c._
 
 @RunWith(classOf[JUnitRunner])
-class TypeSystemTest extends FunSuite with ShouldMatchers with TestHelper {
-
-    private def check(code: String, printAST: Boolean = false): Boolean = {
-        println("checking " + code);
-        if (printAST) println("AST: " + getAST(code));
-        check(getAST(code));
-    }
-    private def check(ast: TranslationUnit): Boolean = {
-        assert(ast != null, "void ast");
-        new CTypeSystemFrontend(ast).checkAST()
-    }
+class TypeSystemTest extends FunSuite with ShouldMatchers with TestHelperTS {
 
 
     test("typecheck simple translation unit") {

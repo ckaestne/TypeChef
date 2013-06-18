@@ -323,9 +323,11 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = false) e
         | (textToken("for") ~! LPAREN ~ opt(expr) ~ SEMI ~ opt(expr) ~ SEMI ~ opt(expr) ~ RPAREN ~ statement ^^ {
         case _ ~ _ ~ e1 ~ _ ~ e2 ~ _ ~ e3 ~ _ ~ s => ForStatement(e1, e2, e3, s)
     })
-        //// Jump statements:
-        | (textToken("goto") ~!> expr <~ SEMI ^^ {
+        | (textToken("goto") ~!> ID <~ SEMI ^^ {
         GotoStatement(_)
+    })
+        | (textToken("goto") ~ PTR ~!> expr <~ SEMI ^^ {
+        GnuGotoStatement(_) // gnu C extension, see http://tigcc.ticalc.org/doc/gnuexts.html -- Labels as Values
     })
         | (textToken("continue") ~! SEMI ^^ {
         _ => ContinueStatement()

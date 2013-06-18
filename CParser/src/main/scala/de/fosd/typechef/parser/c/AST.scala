@@ -136,7 +136,9 @@ case class DoStatement(expr: Expr, s: Conditional[Statement]) extends Statement
 
 case class ForStatement(expr1: Option[Expr], expr2: Option[Expr], expr3: Option[Expr], s: Conditional[Statement]) extends Statement
 
-case class GotoStatement(target: Expr) extends Statement
+case class GotoStatement(target: Id) extends Statement
+
+case class GnuGotoStatement(target: Expr) extends Statement
 
 case class ContinueStatement() extends Statement
 

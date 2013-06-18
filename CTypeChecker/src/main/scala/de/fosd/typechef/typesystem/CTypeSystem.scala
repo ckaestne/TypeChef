@@ -1,6 +1,7 @@
 package de.fosd.typechef.typesystem
 
 import _root_.de.fosd.typechef.featureexpr._
+import FeatureExprFactory.{True, False}
 import _root_.de.fosd.typechef.conditional._
 import _root_.de.fosd.typechef.parser.c._
 import de.fosd.typechef.error._
@@ -80,7 +81,11 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
         val newEnv = newEnvEnum.addVar(declarator.getName, featureExpr, f, funType, kind, newEnvEnum.scope, getLinkage(declarator.getName, true, specifiers, env, declarator))
 
         //check body (add parameters to environment)
-        val innerEnv = newEnv.addVars(parameterTypes(declarator, featureExpr, newEnv.incScope(), oldStyleParam), KParameter, newEnv.scope + 1, NoLinkage).setExpectedReturnType(expectedReturnType)
+        var innerEnv = newEnv.addVars(parameterTypes(declarator, featureExpr, newEnv.incScope(), oldStyleParam), KParameter, newEnv.scope + 1, NoLinkage).setExpectedReturnType(expectedReturnType)
+
+        //find labels in the function body
+        innerEnv = innerEnv.updateLabelEnv(getLabelEnv(stmt))
+
         getStmtType(stmt, featureExpr, innerEnv) //ignore changed environment, to enforce scoping!
         checkTypeFunction(specifiers, declarator, oldStyleParameters, featureExpr, env)
 
@@ -272,7 +277,12 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
                 if (expr3.isDefined) checkExpr(expr3.get)
                 checkCStmt(s)
                 nop
-            //case GotoStatement(expr) => checkExpr(expr) TODO check goto against labels
+            case g@GotoStatement(id) =>
+                val labelDefined = env.labelEnv.getOrElse(id.name, False)
+                if ((labelDefined.not and featureExpr).isSatisfiable())
+                    issueTypeError(Severity.TypeLookupError, labelDefined.not and featureExpr, "label '%s' used but not defined".format(id.name), g, "goto-unresolved")
+                nop
+            case GnuGotoStatement(expr) => (checkExpr(expr), env) // TODO check goto against labels
             case r@ReturnStatement(mexpr) =>
                 if (assertTypeSystemConstraint(env.expectedReturnType.isDefined, featureExpr, "return statement outside a function? " + mexpr, r)) {
                     val expectedReturnType = env.expectedReturnType.get
@@ -645,6 +655,51 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
             case _ =>
         }
 
+    }
+
+
+    protected def getLabelEnv(statement: Statement): LabelEnv = {
+        def mergeEnv(a: LabelEnv, b: LabelEnv): LabelEnv = {
+            (a.keySet ++ b.keySet).map(i => {
+                val ca = a.getOrElse(i, False)
+                val cb = b.getOrElse(i, False)
+                issueTypeError(Severity.RedeclarationError, ca and cb, "duplicate label '%s'".format(i), statement, "label-duplicate")
+                (i -> (ca or cb))
+            }).toMap
+        }
+        def emptyEnv = Map[String, FeatureExpr]()
+        def getLabelEnvOpt(statement: Opt[Statement]): LabelEnv = getLabelEnv(statement.entry).mapValues(_ and statement.feature)
+        def getLabelEnvListOpt(statement: List[Opt[Statement]]): LabelEnv = statement.map(getLabelEnvOpt).fold(emptyEnv)(mergeEnv)
+        def getLabelEnvCond(statement: Conditional[Statement]): LabelEnv = statement match {
+            case Choice(f, a, b) => mergeEnv(getLabelEnvCond(a).mapValues(_ and f), getLabelEnvCond(b).mapValues(_ andNot f))
+            case One(s) => getLabelEnv(s)
+        }
+        def getLabelEnvElifs(statement: List[Opt[ElifStatement]]): LabelEnv = statement.map(getLabelEnvElifO).fold(emptyEnv)(mergeEnv)
+        def getLabelEnvElifO(statement: Opt[ElifStatement]): LabelEnv = getLabelEnvElif(statement.entry).mapValues(_ and statement.feature)
+        def getLabelEnvElif(statement: ElifStatement): LabelEnv = getLabelEnvCond(statement.thenBranch)
+
+        statement match {
+            case LabelStatement(id, _, s) => mergeEnv(getLabelEnvCond(s), Map(id.name -> True))
+            case LocalLabelDeclaration(ids) => emptyEnv //TODO local labels (gnu c extensions) are not supported yet
+
+            case CompoundStatement(innerStatements) => getLabelEnvListOpt(innerStatements)
+            case EmptyStatement() => emptyEnv
+            case ExprStatement(_) => emptyEnv
+            case WhileStatement(_, s) => getLabelEnvCond(s)
+            case DoStatement(_, s) => getLabelEnvCond(s)
+            case ForStatement(_, _, _, s) => getLabelEnvCond(s)
+            case GotoStatement(_) => emptyEnv
+            case ContinueStatement() => emptyEnv
+            case BreakStatement() => emptyEnv
+            case ReturnStatement(_) => emptyEnv
+            case CaseStatement(_, s) => getLabelEnvCond(s)
+            case DefaultStatement(s) => getLabelEnvCond(s)
+            case IfStatement(_, s, elifs, elseBranch) =>
+                mergeEnv(mergeEnv(getLabelEnvCond(s), getLabelEnvElifs(elifs)), elseBranch.map(getLabelEnvCond).getOrElse(emptyEnv))
+            case SwitchStatement(expr: Expr, s: Conditional[Statement]) => getLabelEnvCond(s)
+            case DeclarationStatement(_) => emptyEnv
+            case NestedFunctionDef(_, _, _, _, s) => getLabelEnv(s)
+        }
     }
 
 
