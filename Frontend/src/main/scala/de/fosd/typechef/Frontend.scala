@@ -8,7 +8,7 @@ package de.fosd.typechef
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.typesystem._
 import de.fosd.typechef.crewrite._
-import featureexpr.FeatureExpr
+import de.fosd.typechef.featureexpr.FeatureModel
 import lexer.options.OptionException
 import java.io.{FileWriter, File}
 import parser.c.TranslationUnit
@@ -17,7 +17,7 @@ import de.fosd.typechef.parser.TokenReader
 object Frontend {
 
     private var storedAst: AST = null
-    private var featureModel: FeatureExpr = null
+    private var featureModel: FeatureModel = null
 
     def main(args: Array[String]) {
         // load options
@@ -103,6 +103,7 @@ object Frontend {
 
             if (ast != null) {
                 storedAst = ast
+                featureModel = fm
                 val fm_ts = opt.getFeatureModelTypeSystem.and(opt.getLocalFeatureModel).and(opt.getFilePresenceCondition)
                 val ts = new CTypeSystemFrontend(ast.asInstanceOf[TranslationUnit], fm_ts)
 
