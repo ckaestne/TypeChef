@@ -447,7 +447,8 @@ trait CDeclUse extends CEnv with CEnvCache {
                 case One(AtomicNamedDeclarator(_, key, _)) => addToDeclUseMap(key, use)
                 case One(NestedNamedDeclarator(_, declarator, _)) => addToDeclUseMap(declarator.getId, use)
                 case One(i@Id(_)) => addToDeclUseMap(i, use)
-                case _ => logger.error("AddAnonStructChoice " + use + " missed " + one)
+                case _ =>
+                //logger.error("AddAnonStructChoice " + use + " missed " + one)
             }
         }
 
@@ -658,7 +659,7 @@ trait CDeclUse extends CEnv with CEnvCache {
                 extensions.foreach(x => addDecl(x, featureExpr, env))
             case StructOrUnionSpecifier(_, None, Some(extensions)) =>
                 extensions.foreach(x => addDecl(x, featureExpr, env))
-            case StructDeclarator(decl, i: Id, _) =>
+            case StructDeclarator(decl, Some(i: Id), _) =>
                 addDefinition(i, env)
             case ExprStatement(expr) =>
             //addDecl(expr, env)
