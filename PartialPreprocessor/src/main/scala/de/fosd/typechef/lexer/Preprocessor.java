@@ -1941,7 +1941,12 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable, VA
      */
     public FeatureExpr parse_featureExpr() throws IOException,
             LexerException {
-        return parse_featureExprOrValue(0, true).assumeExpression(expr_token);
+        try {
+            return parse_featureExprOrValue(0, true).assumeExpression(expr_token);
+        } catch (ArithmeticException e) {
+            System.err.println("ArithmeticException in " + expr_token.getSourceName() + " line " + expr_token.getLine());
+            throw e;
+        }
     }
 
     private class ExprOrValue {

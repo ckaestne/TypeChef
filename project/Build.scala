@@ -24,7 +24,20 @@ object BuildSettings {
         testListeners <<= target.map(t => Seq(new eu.henkelmann.sbt.JUnitXmlTestsListener(t.getAbsolutePath))),
 
         javacOptions ++= Seq("-Xlint:unchecked"),
-        scalacOptions ++= Seq("-deprecation", "-unchecked", "-optimise", "-explaintypes"),
+        scalacOptions ++= Seq("-deprecation", "-unchecked", "-optimise"),
+
+        // suppress feature warnings in Scala 2.10.x
+        // (we do not actually change the code to allow cross builds with prior scala versions)
+        scalacOptions <++= scalaVersion map {
+            sv =>
+                if (sv startsWith "2.10") List(
+                    "-Yinline-warnings",
+                    "-feature",
+                    "-language:postfixOps",
+                    "-language:implicitConversions"
+                )
+                else Nil
+        },
 
         crossScalaVersions := Seq("2.9.1", "2.9.2", "2.10.1"),
 
