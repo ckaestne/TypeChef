@@ -198,16 +198,11 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
                 case SwitchStatement(expr, _) => {
                     val r1 = getExprPred(expr, ctx, oldres, fm, env)
 
-                    // do not determine the pred of t in case no case statement precedes t
+                    // do not determine the pred of t no matter, if no case statement is preceding, e.g.:
                     // switch (e) {
                     //   int a;
                     //   case 1;
-                    val r2 = {
-                        // we count given case t itself also
-                        val prevcases = findPriorJumpStatements(t).filterNot(x => x.eq(t))
-                        if (prevcases.size > 0) getStmtPred(t, ctx, oldres, fm, env)
-                        else List()
-                    }
+                    val r2 = getStmtPred(t, ctx, oldres, fm, env)
                     r1 ++ r2
                 }
             }
@@ -765,6 +760,7 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
                     case t@SwitchStatement(expr, s) if (isPartOf(nested_ast_elem, expr)) => {
                         var res: CFGRes = oldres
                         if (isPartOf(nested_ast_elem, expr)) {
+                            res ++= getCondStmtSucc(s, env.featureExpr(expr), oldres, fm, env)
                             res ++= filterCaseStatements(s, env.featureExpr(t), fm, env)
                             val dcase = filterDefaultStatements(s, env.featureExpr(t), fm, env)
 

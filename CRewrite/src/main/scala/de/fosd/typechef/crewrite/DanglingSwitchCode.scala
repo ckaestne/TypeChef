@@ -9,16 +9,19 @@ import de.fosd.typechef.conditional.Opt
 // https://www.securecoding.cert.org/confluence/display/seccode/MSC35-C.+Do+not+include+any+executable+statements+inside+a+switch+statement+before+the+first+case+label
 // MSC35-C
 class DanglingSwitchCode(env: ASTEnv, fm: FeatureModel) extends IntraCFG {
-    def hasDanglingCode(s: SwitchStatement): Boolean = {
-        // get all successor elements of the switch statement
-        // and filter out other case statements, as fall through (case after case)
+    def computeDanglingCode(s: SwitchStatement): List[Opt[AST]] = {
+        // get all successor elements of all expressions in the switch statement
+        // SwitchStatement(expr, ...) and filter out other case statements, as fall through (case after case)
         // is allowed in this analysis
-        val wlist: List[Opt[AST]] = succ(s, fm, env).filterNot({
+        val exprsuccs = succ(s, fm, env).flatMap({ x => succ(x.entry, fm, env) })
+        val wlist: List[Opt[AST]] = exprsuccs.filterNot({
             case Opt(_, _: CaseStatement) => true
             case Opt(_, _: DefaultStatement) => true
-            case _ => false
+
+            // filter out all elements that are not part of the switch
+            case Opt(_, x) => if (isPartOf(x, s)) false else true
         })
 
-        wlist.size > 0
+        wlist
     }
 }
