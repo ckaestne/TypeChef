@@ -176,7 +176,9 @@ object Frontend {
     }
 
     def loadSerializedAST(filename: String): AST = {
-        val fr = new ObjectInputStream(new FileInputStream(filename))
+        val fr = new ObjectInputStream(new FileInputStream(filename)) {
+            override protected def resolveClass(desc: ObjectStreamClass) = { /*println(desc);*/ super.resolveClass(desc) }
+        }
         val ast = fr.readObject().asInstanceOf[AST]
         fr.close()
         ast
