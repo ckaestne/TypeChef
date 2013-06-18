@@ -11,6 +11,7 @@ import de.fosd.typechef.crewrite._
 import lexer.options.OptionException
 import java.io.{FileWriter, File}
 import parser.TokenReader
+import de.fosd.typechef.featureexpr.sat.SATFeatureModel
 
 object Frontend {
 
@@ -91,6 +92,16 @@ object Frontend {
 
         val fm = opt.getFeatureModel.and(opt.getLocalFeatureModel).and(opt.getFilePresenceCondition)
         opt.setFeatureModel(fm) //otherwise the lexer does not get the updated feature model with file presence conditions
+
+        /*
+        // create dimacs file from feature model
+        opt.getFeatureModelTypeSystem.asInstanceOf[SATFeatureModel].writeToDimacsFile(new File(
+            "/tmp/BB_fm.dimacs"
+        ))
+
+        System.exit(0)
+        */
+
         if (!opt.getFilePresenceCondition.isSatisfiable(fm)) {
             println("file has contradictory presence condition. existing.") //otherwise this can lead to strange parser errors, because True is satisfiable, but anything else isn't
             return
