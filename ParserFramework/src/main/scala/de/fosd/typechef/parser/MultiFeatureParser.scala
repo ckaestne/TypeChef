@@ -5,6 +5,7 @@ import annotation.tailrec
 import de.fosd.typechef.conditional._
 import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureModel, FeatureExpr}
 import FeatureExprFactory.True
+import de.fosd.typechef.error.WithPosition
 
 /**
  * adopted parser combinator framework with support for multi-feature parsing

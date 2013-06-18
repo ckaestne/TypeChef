@@ -271,10 +271,13 @@ public class XtcPreprocessor implements VALexer {
         public XtcToken(Syntax t, FeatureExpr f) {
             xtcToken = t;
             fexpr = f;
+            if (xtcToken == null || xtcToken.getLocation() == null) sourceStr = null;
+            else sourceStr = xtcToken.getLocation().file;
         }
 
         Syntax xtcToken;
         FeatureExpr fexpr;
+        String sourceStr;
 
 
         int localLine = Integer.MIN_VALUE;
@@ -473,10 +476,16 @@ public class XtcPreprocessor implements VALexer {
         }
 
 
+        @Override
         public String getSourceName() {
-            if (xtcToken == null || xtcToken.getLocation() == null) return null;
-            return xtcToken.getLocation().file;
+            return sourceStr;
         }
+
+        @Override
+        public void setSourceName(String src) {
+            this.sourceStr = src;
+        }
+
 
     }
 }

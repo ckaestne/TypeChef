@@ -63,60 +63,68 @@ sealed abstract class SATFeatureExpr extends FeatureExpr {
     import CastHelper._
 
     // have not implemented yet
-    /** NOT implemented, this method will always return None.*/
-    def getConfIfSimpleAndExpr() : Option[(Set[SingleFeatureExpr],Set[SingleFeatureExpr])] = { None}
-    /** NOT implemented, this method will always return None.*/
-    def getConfIfSimpleOrExpr() : Option[(Set[SingleFeatureExpr],Set[SingleFeatureExpr])] = { None }
+    /** NOT implemented, this method will always return None. */
+    def getConfIfSimpleAndExpr(): Option[(Set[SingleFeatureExpr], Set[SingleFeatureExpr])] = {
+        None
+    }
+    /** NOT implemented, this method will always return None. */
+    def getConfIfSimpleOrExpr(): Option[(Set[SingleFeatureExpr], Set[SingleFeatureExpr])] = {
+        None
+    }
 
     def or(that: FeatureExpr): FeatureExpr = FExprBuilder.or(this, asSATFeatureExpr(that))
     def and(that: FeatureExpr): FeatureExpr = FExprBuilder.and(this, asSATFeatureExpr(that))
     def notS(): SATFeatureExpr = FExprBuilder.not(this)
     def not(): SATFeatureExpr = notS()
 
-  def getSatisfiableAssignment(featureModel: FeatureModel, interestingFeatures : Set[SingleFeatureExpr],preferDisabledFeatures:Boolean): Option[Pair[List[SingleFeatureExpr],List[SingleFeatureExpr]]] = {
-    val fm = asSATFeatureModel(featureModel)
-    // optimization: if the interestingFeatures-Set is empty and this FeatureExpression is TRUE, we will always return empty sets
-    // here we assume that the featureModel is satisfiable (which is checked at FM-instantiation)
-    if (this.equals(FeatureExprFactory.True) && interestingFeatures.isEmpty) {
-        return Some(Pair(List(),List())) // is satisfiable, but no interesting features in solution
-    }
-
-    // get one satisfying assignment (a list of features set to true, and a list of features set to false)
-    val assignment : Option[(List[String], List[String])] = new SatSolver().getSatAssignment(fm, toCnfEquiSat)
-    // we will subtract from this set until all interesting features are handled
-    var remainingInterestingFeatures = interestingFeatures
-    assignment match {
-      case Some(Pair(trueFeatures, falseFeatures)) => {
-        if (preferDisabledFeatures) {
-            var enabledFeatures: Set[SingleFeatureExpr] = Set()
-            for (f <- trueFeatures) {
-              remainingInterestingFeatures.find({fex:SingleFeatureExpr => fex.feature.equals(f)}) match {
-                case Some(fex : SingleFeatureExpr) => {
-                  remainingInterestingFeatures -= fex
-                    enabledFeatures += fex
-                }
-                case None => {}
-              }
-            }
-            return Some(Pair(enabledFeatures.toList, remainingInterestingFeatures.toList))
-        } else {
-            var disabledFeatures : Set[SingleFeatureExpr] = Set()
-            for (f <- falseFeatures) {
-                remainingInterestingFeatures.find({fex:SingleFeatureExpr => fex.feature.equals(f)}) match {
-                    case Some(fex : SingleFeatureExpr) => {
-                        remainingInterestingFeatures -= fex
-                        disabledFeatures += fex
-                    }
-                    case None => {}
-                }
-            }
-            return Some(Pair(remainingInterestingFeatures.++(this.collectDistinctFeatureObjects).toList, disabledFeatures.toList))
+    def getSatisfiableAssignment(featureModel: FeatureModel, interestingFeatures: Set[SingleFeatureExpr], preferDisabledFeatures: Boolean): Option[Pair[List[SingleFeatureExpr], List[SingleFeatureExpr]]] = {
+        val fm = asSATFeatureModel(featureModel)
+        // optimization: if the interestingFeatures-Set is empty and this FeatureExpression is TRUE, we will always return empty sets
+        // here we assume that the featureModel is satisfiable (which is checked at FM-instantiation)
+        if (this.equals(FeatureExprFactory.True) && interestingFeatures.isEmpty) {
+            return Some(Pair(List(), List())) // is satisfiable, but no interesting features in solution
         }
 
-      }
-      case None => return None
+        // get one satisfying assignment (a list of features set to true, and a list of features set to false)
+        val assignment: Option[(List[String], List[String])] = new SatSolver().getSatAssignment(fm, toCnfEquiSat)
+        // we will subtract from this set until all interesting features are handled
+        var remainingInterestingFeatures = interestingFeatures
+        assignment match {
+            case Some(Pair(trueFeatures, falseFeatures)) => {
+                if (preferDisabledFeatures) {
+                    var enabledFeatures: Set[SingleFeatureExpr] = Set()
+                    for (f <- trueFeatures) {
+                        remainingInterestingFeatures.find({
+                            fex: SingleFeatureExpr => fex.feature.equals(f)
+                        }) match {
+                            case Some(fex: SingleFeatureExpr) => {
+                                remainingInterestingFeatures -= fex
+                                enabledFeatures += fex
+                            }
+                            case None => {}
+                        }
+                    }
+                    return Some(Pair(enabledFeatures.toList, remainingInterestingFeatures.toList))
+                } else {
+                    var disabledFeatures: Set[SingleFeatureExpr] = Set()
+                    for (f <- falseFeatures) {
+                        remainingInterestingFeatures.find({
+                            fex: SingleFeatureExpr => fex.feature.equals(f)
+                        }) match {
+                            case Some(fex: SingleFeatureExpr) => {
+                                remainingInterestingFeatures -= fex
+                                disabledFeatures += fex
+                            }
+                            case None => {}
+                        }
+                    }
+                    return Some(Pair(remainingInterestingFeatures.++(this.collectDistinctFeatureObjects).toList, disabledFeatures.toList))
+                }
+
+            }
+            case None => return None
+        }
     }
-  }
 
     /**
      * x.isSatisfiable(fm) is short for x.and(fm).isSatisfiable
@@ -260,13 +268,13 @@ sealed abstract class SATFeatureExpr extends FeatureExpr {
     }
 
     def collectDistinctFeatureObjects: Set[SingleFeatureExpr] = {
-      var result: Set[SingleFeatureExpr] = Set()
-      this.mapDefinedExpr(_ match {
-        case e: DefinedExternal => result += e; e
-        case e: DefinedMacro => result += e; e
-        case e => e
-      }, Map())
-      result
+        var result: Set[SingleFeatureExpr] = Set()
+        this.mapDefinedExpr(_ match {
+            case e: DefinedExternal => result += e; e
+            case e: DefinedMacro => result += e; e
+            case e => e
+        }, Map())
+        result
     }
 
     /**
@@ -601,6 +609,8 @@ object True extends And(Set()) with DefaultPrint {
     override def debug_print(ind: Int) = indent(ind) + toTextExpr + "\n"
     override def isSatisfiable(fm: FeatureModel) = true
     override def evaluate(selectedFeatures: Set[String]) = true
+
+    private def writeReplace(): Object = new FeatureExprSerializationProxy(this.toTextExpr)
 }
 
 object False extends Or(Set()) with DefaultPrint {
@@ -609,6 +619,8 @@ object False extends Or(Set()) with DefaultPrint {
     override def debug_print(ind: Int) = indent(ind) + toTextExpr + "\n"
     override def isSatisfiable(fm: FeatureModel) = false
     override def evaluate(selectedFeatures: Set[String]) = false
+
+    private def writeReplace(): Object = new FeatureExprSerializationProxy(this.toTextExpr)
 }
 
 
@@ -743,6 +755,8 @@ class And(val clauses: Set[SATFeatureExpr]) extends BinaryLogicConnective[And] {
     override protected def calcCNFEquiSat: SATFeatureExpr = FExprBuilder.createAnd(clauses.map(_.toCnfEquiSat))
     override def evaluate(selectedFeatures: Set[String]) =
         clauses.foldLeft(true)(_ && _.evaluate(selectedFeatures))
+
+    private def writeReplace(): Object = new FeatureExprSerializationProxy(this.toTextExpr)
 }
 
 //private[featureexpr]
@@ -855,6 +869,8 @@ class Or(val clauses: Set[SATFeatureExpr]) extends BinaryLogicConnective[Or] {
 
     override def evaluate(selectedFeatures: Set[String]) =
         clauses.foldLeft(false)(_ || _.evaluate(selectedFeatures))
+
+    private def writeReplace(): Object = new FeatureExprSerializationProxy(this.toTextExpr)
 }
 
 //private[featureexpr]
@@ -894,6 +910,8 @@ class Not(val expr: SATFeatureExpr) extends HashCachingFeatureExpr {
 
     override def evaluate(selectedFeatures: Set[String]) =
         !expr.evaluate(selectedFeatures)
+
+    private def writeReplace(): Object = new FeatureExprSerializationProxy(this.toTextExpr)
 }
 
 object Not {
@@ -943,6 +961,8 @@ class DefinedExternal(name: String) extends DefinedExpr {
     def countSize() = 1
     def isExternal = true
     override def evaluate(selectedFeatures: Set[String]) = selectedFeatures contains name
+
+    private def writeReplace(): Object = new FeatureExprSerializationProxy(this.toTextExpr)
 }
 
 /**
@@ -955,14 +975,16 @@ class DefinedMacro(val name: String, val presenceCondition: SATFeatureExpr, val 
 
     def feature = name
     override def toTextExpr = "defined(" + name + ")"
-    override def toString = "macro(" + name + "=" +presenceCondition.resolveToExternal.toString +  ")"
+    override def toString = "macro(" + name + "=" + presenceCondition.resolveToExternal.toString + ")"
     override def satName = expandedName
     def countSize() = 1
     def isExternal = false
-    /**TODO: This probably would be the correct way, but it breaks my product generation code, and i cannot fix it right now */
+    /** TODO: This probably would be the correct way, but it breaks my product generation code, and i cannot fix it right now */
     //override def collectDistinctFeatures=presenceCondition.resolveToExternal.collectDistinctFeatures
     //override def collectDistinctFeatureObjects=presenceCondition.resolveToExternal.collectDistinctFeatureObjects
-	override def evaluate(selectedFeatures: Set[String]) = presenceCondition.evaluate(selectedFeatures)
+    override def evaluate(selectedFeatures: Set[String]) = presenceCondition.evaluate(selectedFeatures)
+
+    private def writeReplace(): Object = throw new RuntimeException("cannot serialize DefinedMacro")
 }
 
 object DefinedMacro {

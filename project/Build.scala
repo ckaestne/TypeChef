@@ -46,7 +46,9 @@ object BuildSettings {
         },
         publishMavenStyle := true,
         publishArtifact in Test := false,
-        pomIncludeRepository := { _ => false },
+        pomIncludeRepository := {
+            _ => false
+        },
         pomExtra :=
             <parent>
                 <groupId>org.sonatype.oss</groupId>
@@ -168,58 +170,64 @@ object TypeChef extends Build {
         settings = buildSettings
     ) dependsOn (featureexpr)
 
+    lazy val errorlib = Project(
+        "ErrorLib",
+        file("ErrorLib"),
+        settings = buildSettings
+    ) dependsOn (featureexpr)
+
     lazy val parserexp = Project(
         "ParserFramework",
         file("ParserFramework"),
         settings = buildSettings
-    ) dependsOn(featureexpr, conditionallib)
+    ) dependsOn(featureexpr, conditionallib, errorlib)
 
     lazy val jcpp = Project(
         "PartialPreprocessor",
         file("PartialPreprocessor"),
         settings = buildSettings
-    ) dependsOn (featureexpr)
+    ) dependsOn(featureexpr, errorlib)
 
     lazy val cparser = Project(
         "CParser",
         file("CParser"),
-        settings = buildSettings ++ 
-          Seq(parallelExecution in Test := false,
-            libraryDependencies <+= scalaVersion(kiamaDependency(_,true)))
-    ) dependsOn(featureexpr, jcpp, parserexp, conditionallib)
+        settings = buildSettings ++
+            Seq(parallelExecution in Test := false,
+                libraryDependencies <+= scalaVersion(kiamaDependency(_, true)))
+    ) dependsOn(featureexpr, jcpp, parserexp, conditionallib, errorlib)
 
 
     lazy val frontend = Project(
         "Frontend",
         file("Frontend"),
         settings = buildSettings ++ VersionGen.settings
-    ) dependsOn(featureexpr, jcpp, cparser % "test->test;compile->compile", ctypechecker, conditionallib, crewrite, javaparser)
+    ) dependsOn(featureexpr, jcpp, cparser % "test->test;compile->compile", ctypechecker, conditionallib, crewrite, javaparser, errorlib)
 
     lazy val ctypechecker = Project(
         "CTypeChecker",
         file("CTypeChecker"),
         settings = buildSettings
-    ) dependsOn(cparser % "test->test;compile->compile", conditionallib)
+    ) dependsOn(cparser % "test->test;compile->compile", conditionallib, errorlib)
 
     lazy val javaparser = Project(
         "JavaParser",
         file("JavaParser"),
         settings = buildSettings
-    ) dependsOn(featureexpr, parserexp, conditionallib)
+    ) dependsOn(featureexpr, parserexp, conditionallib, errorlib)
 
     lazy val crewrite = Project(
         "CRewrite",
         file("CRewrite"),
         settings = buildSettings ++
             Seq(libraryDependencies <+= scalaVersion(kiamaDependency(_)))
-    ) dependsOn(cparser % "test->test;compile->compile", ctypechecker, conditionallib)
+    ) dependsOn(cparser % "test->test;compile->compile", ctypechecker, conditionallib, errorlib)
 
-    def kiamaDependency(scalaVersion: String, testOnly:Boolean=false) = {
-      val x=scalaVersion match {
-        case "2.9.1" => "com.googlecode.kiama" %% "kiama" % "1.2.0"
-        case _ => "com.googlecode.kiama" %% "kiama" % "1.4.0"
-      }
-      if (testOnly) x % "test" else x
+    def kiamaDependency(scalaVersion: String, testOnly: Boolean = false) = {
+        val x = scalaVersion match {
+            case "2.9.1" => "com.googlecode.kiama" %% "kiama" % "1.2.0"
+            case _ => "com.googlecode.kiama" %% "kiama" % "1.4.0"
+        }
+        if (testOnly) x % "test" else x
     }
 }
 

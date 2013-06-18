@@ -1,9 +1,9 @@
 package de.fosd.typechef.featureexpr
 
-import java.io.Writer
+import java.io._
 
 
-trait FeatureExpr {
+trait FeatureExpr extends Serializable {
 
     /**
      * x.isSatisfiable(fm) is short for x.and(fm).isSatisfiable
@@ -14,8 +14,8 @@ trait FeatureExpr {
     def toTextExpr: String
     //or other ToString variations for debugging etc
     def collectDistinctFeatures: Set[String]
-  def collectDistinctFeatureObjects: Set[SingleFeatureExpr]
-  def getSatisfiableAssignment(featureModel: FeatureModel, interestingFeatures : Set[SingleFeatureExpr],preferDisabledFeatures:Boolean): Option[Pair[List[SingleFeatureExpr],List[SingleFeatureExpr]]]
+    def collectDistinctFeatureObjects: Set[SingleFeatureExpr]
+    def getSatisfiableAssignment(featureModel: FeatureModel, interestingFeatures: Set[SingleFeatureExpr], preferDisabledFeatures: Boolean): Option[Pair[List[SingleFeatureExpr], List[SingleFeatureExpr]]]
 
     def or(that: FeatureExpr): FeatureExpr
     def and(that: FeatureExpr): FeatureExpr
@@ -40,8 +40,8 @@ trait FeatureExpr {
      * If the expression is more complex, None is returned.
      * @return
      */
-  def getConfIfSimpleAndExpr() : Option[(Set[SingleFeatureExpr],Set[SingleFeatureExpr])]
-  def getConfIfSimpleOrExpr() : Option[(Set[SingleFeatureExpr],Set[SingleFeatureExpr])]
+    def getConfIfSimpleAndExpr(): Option[(Set[SingleFeatureExpr], Set[SingleFeatureExpr])]
+    def getConfIfSimpleOrExpr(): Option[(Set[SingleFeatureExpr], Set[SingleFeatureExpr])]
 
     final def orNot(that: FeatureExpr) = this or (that.not)
     final def andNot(that: FeatureExpr) = this and (that.not)
@@ -103,4 +103,12 @@ trait FeatureExpr {
      */
     def evaluate(selectedFeatures: Set[String]): Boolean
 
+    //this method needs to be copied into all concrete subclasses!
+    private def writeReplace(): Object = new FeatureExprSerializationProxy(this.toTextExpr)
+}
+
+class FeatureExprSerializationProxy(fexpr: String) extends Serializable {
+    private def readResolve(): Object = {
+        new FeatureExprParser().parse(fexpr)
+    }
 }

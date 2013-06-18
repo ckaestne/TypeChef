@@ -3,8 +3,8 @@ package de.fosd.typechef.typesystem.linker
 import de.fosd.typechef.conditional.{Opt, Conditional}
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.typesystem.{KParameter, CType, CTypeSystem}
-import de.fosd.typechef.parser.Position
 import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
+import de.fosd.typechef.error.Position
 
 /**
  * first attempt to infer the interface of a C file for linker checks
@@ -80,6 +80,13 @@ trait CInferInterface extends CTypeSystem with InterfaceWriter {
     }
 
 
+    /**
+     * try to recognize __attribute__((weak)) attribute as a flag.
+     *
+     * the recognition is conservative and does ignore conditional attribute declarations
+     * (so a conditionally weak method is always recognized as weak, which may prevent us
+     * from detecting some problems, but which will not produce false positives)
+     */
     def getExtraFlags(functionDef: FunctionDef, ctx: FeatureExpr): Set[CFlag] = {
         val flags = for (Opt(f, g@GnuAttributeSpecifier(_)) <- functionDef.specifiers;
                          (f, a) <- findAttributes(g, ctx)
@@ -117,11 +124,6 @@ trait CInferInterface extends CTypeSystem with InterfaceWriter {
                     staticFunctions = CSignature(fun.getName, ctype, fexpr and staticCondition, Seq(fun.getPositionFrom), getExtraFlags(fun, fexpr and staticCondition)) :: staticFunctions
         })
     }
-
-    private def getStaticCondition(specifiers: List[Opt[Specifier]]): FeatureExpr = getSpecifierCondition(specifiers, StaticSpecifier())
-    private def getExternCondition(specifiers: List[Opt[Specifier]]): FeatureExpr = getSpecifierCondition(specifiers, ExternSpecifier())
-    private def getSpecifierCondition(specifiers: List[Opt[Specifier]], specifier: Specifier): FeatureExpr =
-        specifiers.filter(_.entry == specifier).foldLeft(FeatureExprFactory.False)((f, o) => f or o.feature)
 
 
     /**

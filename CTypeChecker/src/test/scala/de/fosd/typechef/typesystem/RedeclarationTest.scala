@@ -17,7 +17,7 @@ class RedeclarationTest extends FunSuite with ShouldMatchers with TestHelper {
 
     private def check(ast: TranslationUnit): Boolean = {
         assert(ast != null, "void ast");
-        new CTypeSystemFrontend(ast).checkAST
+        new CTypeSystemFrontend(ast).checkAST()
     }
 
 
@@ -71,16 +71,16 @@ class RedeclarationTest extends FunSuite with ShouldMatchers with TestHelper {
                 "int foo() {}")
         }
         expect(true) {
-            check("""
+            check( """
                 #ifdef X
                 int foo() {}
                 #else
                 int foo() {}
                 #endif
-            """)
+                   """)
         }
         expect(true) {
-            check("""
+            check( """
                 #ifdef X
                 int foo() {}
                 #endif
@@ -88,7 +88,7 @@ class RedeclarationTest extends FunSuite with ShouldMatchers with TestHelper {
                 #if !defined(X) && !defined(Y)
                 int foo() {}
                 #endif
-            """)
+                   """)
         }
     }
 
@@ -199,7 +199,7 @@ class RedeclarationTest extends FunSuite with ShouldMatchers with TestHelper {
 
     test("function declaration redeclaration - reparsing?") {
         expect(true) {
-            check("""int x(){}
+            check( """int x(){}
             #ifdef OUTER
             static
             #ifdef INLINE
@@ -212,7 +212,7 @@ class RedeclarationTest extends FunSuite with ShouldMatchers with TestHelper {
             int bar() {}
             #endif
             int end() {}
-            """)
+                   """)
         }
     }
 }

@@ -31,11 +31,11 @@ import java.util.Collection;
  */
 public enum Warning {
     TRIGRAPHS,
-     UNDEF, UNUSED_MACROS, ENDIF_LABELS, ERROR;
+    UNDEF, /*UNUSED_MACROS,*/ ENDIF_LABELS, ERROR;
 
     public static Collection<Warning> allWarnings() {
         return Arrays.asList(new Warning[]{TRIGRAPHS, UNDEF,
-                UNUSED_MACROS, ENDIF_LABELS});
+                /*UNUSED_MACROS,*/ ENDIF_LABELS});
 
     }
 }

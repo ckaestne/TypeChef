@@ -2,7 +2,7 @@ package de.fosd.typechef.typesystem.linker
 
 import de.fosd.typechef.typesystem.CType
 import de.fosd.typechef.featureexpr.FeatureExpr
-import de.fosd.typechef.parser.Position
+import de.fosd.typechef.error.Position
 
 
 /**
