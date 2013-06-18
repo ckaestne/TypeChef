@@ -3,9 +3,7 @@ package de.fosd.typechef.crewrite
 import org.junit.Test
 import org.scalatest.matchers.ShouldMatchers
 import de.fosd.typechef.featureexpr.FeatureExprFactory
-import de.fosd.typechef.typesystem._
 import de.fosd.typechef.parser.c._
-import java.io.{FileWriter, File}
 
 class DoubleFreeTest extends TestHelper with ShouldMatchers with CFGHelper with EnforceTreeHelper {
 
@@ -100,7 +98,7 @@ class DoubleFreeTest extends TestHelper with ShouldMatchers with CFGHelper with 
                   }
                   return 0;
               }
-                      """.stripMargin) should be(false)
+                      """.stripMargin) should be(true)
         doubleFree("""
                  void* malloc(int i) { return ((void*)0); }
                  void free(void* p) { }

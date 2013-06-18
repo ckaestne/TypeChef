@@ -3,7 +3,6 @@ package de.fosd.typechef.crewrite
 import org.junit.Test
 import org.scalatest.matchers.ShouldMatchers
 import de.fosd.typechef.featureexpr.FeatureExprFactory
-import de.fosd.typechef.typesystem._
 import de.fosd.typechef.parser.c._
 
 class UninitializedMemoryTest extends TestHelper with ShouldMatchers with CFGHelper with EnforceTreeHelper {
@@ -61,7 +60,7 @@ class UninitializedMemoryTest extends TestHelper with ShouldMatchers with CFGHel
             int sign;
             get_sign(number, &sign);
             return (sign < 0); // diagnostic required
-        }""".stripMargin) should be(true)
+        }""".stripMargin) should be(false)
 
         uninitializedMemory( """
         int do_auth() { return 0; }
@@ -78,7 +77,14 @@ class UninitializedMemoryTest extends TestHelper with ShouldMatchers with CFGHel
                 report_error("Unable to login");
             }
             return 0;
-        }""".stripMargin) should be(true)
+        }""".stripMargin) should be(false)
+
+        uninitializedMemory( """
+        void close(int i) { }
+        void foo() {
+            int fd;
+            close(fd);
+        }""".stripMargin) should be(false)
 
         uninitializedMemory( """
         void close(int i) { }
@@ -86,7 +92,7 @@ class UninitializedMemoryTest extends TestHelper with ShouldMatchers with CFGHel
             int fd;
             fd = 2;
             close(fd);
-        }""".stripMargin) should be(false)
+        }""".stripMargin) should be(true)
 
         uninitializedMemory( """
         void close(int i) { }
@@ -96,6 +102,6 @@ class UninitializedMemoryTest extends TestHelper with ShouldMatchers with CFGHel
             fd = 2;
             #endif
             close(fd);
-        }""".stripMargin) should be(true)
+        }""".stripMargin) should be(false)
     }
 }
