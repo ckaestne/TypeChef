@@ -163,6 +163,11 @@ object Frontend {
                     val xf = new CAnalysisFrontend(ast.asInstanceOf[TranslationUnit], fm_ts)
                     xf.xfree()
                 }
+                if (opt.danglingswitchcode) {
+                    stopWatch.start("danglingswitchcode")
+                    val ds = new CAnalysisFrontend(ast.asInstanceOf[TranslationUnit], fm_ts)
+                    ds.danglingSwitchCode()
+                }
 
             }
 

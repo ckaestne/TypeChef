@@ -25,6 +25,7 @@ public class FrontendOptions extends LexerOptions implements ParserOptions {
             doublefree = false,
             uninitializedmemory = false,
             xfree = false,
+            danglingswitchcode = false,
             serializeAST = false,
             writeDebugInterface = false,
             recordTiming = false,
@@ -45,6 +46,7 @@ public class FrontendOptions extends LexerOptions implements ParserOptions {
     private final static char F_DOUBLEFREE = Options.genOptionId();
     private final static char F_UNINITIALIZEDMEMORY = Options.genOptionId();
     private final static char F_XFREE = Options.genOptionId();
+    private final static char F_DANGLINGSWITCHCODE = Options.genOptionId();
     private final static char F_SERIALIZEAST = Options.genOptionId();
     private final static char F_RECORDTIMING = Options.genOptionId();
     private final static char F_FILEPC = Options.genOptionId();
@@ -133,6 +135,8 @@ public class FrontendOptions extends LexerOptions implements ParserOptions {
             parse = uninitializedmemory = true;
         } else if (c == F_XFREE) {
             parse = xfree = true;
+        } else if (c == F_DANGLINGSWITCHCODE) {
+            parse = danglingswitchcode = true;
         } else if (c == F_SERIALIZEAST) {
             serializeAST = true;
         } else if (c == F_RECORDTIMING) {
