@@ -32,9 +32,9 @@ class XFreeTest extends TestHelper with ShouldMatchers with CFGHelper with Enfor
                void f(void) {
                  char buf[20];
                  char *p;
-                 p = (char*)realloc(buf, 2*20);
+                 p = (char*)realloc(buf, 2*20); // diagnostics
                }
-               """.stripMargin) should be(true)
+               """.stripMargin) should be(false)
 
         xfree( """
                void* malloc(int size) { return ((void*)0); }
@@ -44,7 +44,7 @@ class XFreeTest extends TestHelper with ShouldMatchers with CFGHelper with Enfor
                  char *p;
                  p = (char*)realloc(buf,20);
                }
-               """.stripMargin) should be(false)
+               """.stripMargin) should be(true)
 
         xfree( """
                void* malloc(int size) { return ((void*)0); }
@@ -59,9 +59,9 @@ class XFreeTest extends TestHelper with ShouldMatchers with CFGHelper with Enfor
                } else {
                  str = "usage: $>a.exe [string]";
                }
-               free(str);
+               free(str); // diagnostics
                return 0;
                }
-               """.stripMargin) should be(true)
+               """.stripMargin) should be(false)
     }
 }

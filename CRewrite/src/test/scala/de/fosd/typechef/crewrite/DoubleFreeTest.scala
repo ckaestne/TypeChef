@@ -108,7 +108,7 @@ class DoubleFreeTest extends TestHelper with ShouldMatchers with CFGHelper with 
                  #ifdef A
                      free(a);
                  #endif
-                 } """) should be(true)
+                 } """) should be(false)
         doubleFree("""
               void* malloc(int i) { return ((void*)0); }
               void free(void* p) { }
@@ -118,7 +118,7 @@ class DoubleFreeTest extends TestHelper with ShouldMatchers with CFGHelper with 
                   a = malloc(2);
                   free(a);
               }
-            """.stripMargin) should be(false)
+            """.stripMargin) should be(true)
         doubleFree("""
               void* malloc(int i) { return ((void*)0); }
               void free(void* p) { }
@@ -128,9 +128,9 @@ class DoubleFreeTest extends TestHelper with ShouldMatchers with CFGHelper with 
               #ifdef A
                   a = malloc(2);
               #endif
-                  free(a);
+                  free(a);  // diagnostic
               }
-                      """.stripMargin) should be(true)
+                      """.stripMargin) should be(false)
         doubleFree("""
               void* malloc(int i) { return ((void*)0); }
               void free(void* p) { }
@@ -138,7 +138,7 @@ class DoubleFreeTest extends TestHelper with ShouldMatchers with CFGHelper with 
                   int *a = malloc(2);
                   free(a);
               }
-                      """.stripMargin) should be(false)
+                      """.stripMargin) should be(true)
         doubleFree("""
               void* malloc(int i) { return ((void*)0); }
               void free(void* p) { }
@@ -146,9 +146,9 @@ class DoubleFreeTest extends TestHelper with ShouldMatchers with CFGHelper with 
               void foo() {
                   int *a = malloc(2);
                   int *b = realloc(a, 3);
-                  free(a);
+                  free(a);    // diagnostic
               }
-                      """.stripMargin) should be(true)
+                      """.stripMargin) should be(false)
         doubleFree("""
               void* malloc(int i) { return ((void*)0); }
               void free(void* p) { }
@@ -164,7 +164,7 @@ class DoubleFreeTest extends TestHelper with ShouldMatchers with CFGHelper with 
                   free(b);
               #endif
               }
-                      """.stripMargin) should be(false)
+                      """.stripMargin) should be(true)
         // take from: https://www.securecoding.cert.org/confluence/display/seccode/MEM31-C.+Free+dynamically+allocated+memory+exactly+once
         doubleFree("""
               void* malloc(int i) { return ((void*)0); }
@@ -184,10 +184,10 @@ class DoubleFreeTest extends TestHelper with ShouldMatchers with CFGHelper with 
                   }
 
                   /* ... */
-                  free(x);
+                  free(x);   // diagnostic
                   return error_condition;
               }
-                      """.stripMargin) should be(true)
+                      """.stripMargin) should be(false)
 
     }
 }

@@ -14,7 +14,7 @@ import de.fosd.typechef.featureexpr.{FeatureExpr, FeatureModel}
 //     is a conservative analysis for program flow
 //     so the analysis will likely produce a lot
 //     of false positives
-class XFree(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel, casestudy: String) extends MonotoneFW(env, udm, fm) with IntraCFG with CFGHelper with ASTNavigation with UsedDefinedDeclaredVariables {
+class XFree(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel, casestudy: String) extends MonotoneFW[Id](env, udm, fm) with IntraCFG with CFGHelper with ASTNavigation with UsedDefinedDeclaredVariables {
 
     val freecalls = {
         if (casestudy == "linux") List("free", "kfree")
@@ -165,4 +165,27 @@ class XFree(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel, casestudy: String) e
 
     protected def unionio(e: AST) = incached(e)
     protected def genkillio(e: AST) = outcached(e)
+
+    // we create fresh T elements (here Id) using a counter
+    private var freshTctr = 0
+
+    private def getFreshCtr: Int = {
+        freshTctr = freshTctr + 1
+        freshTctr
+    }
+
+    def t2T(i: Id) = Id(getFreshCtr + "_" + i.name)
+
+    def t2SetT(i: Id) = {
+        var freshidset = Set[Id]()
+
+        if (udm.containsKey(i)) {
+            for (vi <- udm.get(i)) {
+                freshidset = freshidset.+(createFresh(vi))
+            }
+            freshidset
+        } else {
+            Set(addFreshT(i))
+        }
+    }
 }

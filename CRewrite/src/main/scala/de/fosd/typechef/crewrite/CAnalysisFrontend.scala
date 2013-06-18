@@ -3,7 +3,7 @@ package de.fosd.typechef.crewrite
 
 import de.fosd.typechef.featureexpr._
 import de.fosd.typechef.parser.c.{PrettyPrinter, SwitchStatement, TranslationUnit, FunctionDef}
-import java.io.{FileWriter, File, Writer, StringWriter}
+import java.io.{Writer, StringWriter}
 import de.fosd.typechef.typesystem._
 
 class CAnalysisFrontend(tunit: TranslationUnit, fm: FeatureModel = FeatureExprFactory.empty) extends CFGHelper with EnforceTreeHelper {
@@ -64,15 +64,6 @@ class CAnalysisFrontend(tunit: TranslationUnit, fm: FeatureModel = FeatureExprFa
         val ss = getAllSucc(f, FeatureExprFactory.empty, env).reverse
         val df = new DoubleFree(env, udm, fm, casestudy)
 
-        val fn = File.createTempFile("testfiles", ".dot")
-        val fw = new FileWriter(fn)
-
-        val dot = new DotGraph(fw)
-        dot.writeHeader(f.getName)
-        dot.writeMethodGraph(ss, env, Map())
-        dot.writeFooter()
-        fw.close()
-
         val nss = ss.map(_._1).filterNot(x => x.isInstanceOf[FunctionDef])
 
         for (s <- nss) {
@@ -90,7 +81,7 @@ class CAnalysisFrontend(tunit: TranslationUnit, fm: FeatureModel = FeatureExprFa
                                 idecls = List(i)
                             for (ei <- idecls)
                                 if (xdecls.exists(_.eq(ei)))
-                                    res ::= new AnalysisError(h, "warning: Variable " + x.name + " is used uninitialized!", x)
+                                    res ::= new AnalysisError(h, "warning: Variable " + x.name + " is freed multiple times!", x)
                         }
                     }
         }
@@ -132,7 +123,7 @@ class CAnalysisFrontend(tunit: TranslationUnit, fm: FeatureModel = FeatureExprFa
             val in = um.in(s)
 
             println(PrettyPrinter.print(s), " g: ", g, "i: ", in)
-            println("g: ", g.values.map(System.identityHashCode(_)))
+            println("g: ", g.values.flatten.map(System.identityHashCode(_)))
             println("i: ", in.map(_._1).map(System.identityHashCode(_)))
 
             for ((i, h) <- in)
@@ -140,12 +131,13 @@ class CAnalysisFrontend(tunit: TranslationUnit, fm: FeatureModel = FeatureExprFa
                     j.find(_ == i) match {
                         case None =>
                         case Some(x) => {
-                            println("x: ", System.identityHashCode(x))
                             val xdecls = udm.get(x)
-                            println("xdecls: ", xdecls.map(System.identityHashCode(_)))
-
-                            if (xdecls.exists(_.eq(i)))
-                                  res ::= new AnalysisError(h, "warning: Variable " + x.name + " is used uninitialized!", x)
+                            var idecls = udm.get(i)
+                            if (idecls == null)
+                                idecls = List(i)
+                            for (ei <- idecls)
+                                if (xdecls.exists(_.eq(ei)))
+                                    res ::= new AnalysisError(h, "warning: Variable " + x.name + " is used uninitialized!", x)
                         }
                     }
         }
@@ -168,7 +160,7 @@ class CAnalysisFrontend(tunit: TranslationUnit, fm: FeatureModel = FeatureExprFa
             println(errors.map(_.toString + "\n").reduce(_ + _))
         }
 
-        !errors.isEmpty
+        errors.isEmpty
     }
 
     private def xfree(f: FunctionDef, env: ASTEnv, udm: UseDeclMap): List[AnalysisError] = {
