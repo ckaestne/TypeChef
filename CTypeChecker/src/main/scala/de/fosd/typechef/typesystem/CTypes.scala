@@ -37,10 +37,10 @@ import de.fosd.typechef.parser.c.AST
  */
 
 case class CType(
-               val atype: AType,
-               val isObject: Boolean,
-               val isVolatile: Boolean,
-               val isConstant: Boolean) {
+                    val atype: AType,
+                    val isObject: Boolean,
+                    val isVolatile: Boolean,
+                    val isConstant: Boolean) {
 
     def copy(atype: AType = this.atype, isObject: Boolean = this.isObject, isVolatile: Boolean = this.isVolatile, isConstant: Boolean = this.isConstant) = new CType(atype, isObject, isVolatile, isConstant)
 
@@ -101,8 +101,6 @@ sealed abstract class CBasicType {
 }
 
 
-
-
 sealed abstract class AType {
     def isFunction: Boolean = false
 
@@ -122,10 +120,10 @@ sealed abstract class AType {
 
     def toCType = new CType(this, false, false, false)
 
-//    override def equals(that: Any) = that match {
-//        case thattype: CType => throw new RuntimeException("comparison between AType and CType")
-//        case _ => super.equals(that)
-//    }
+    //    override def equals(that: Any) = that match {
+    //        case thattype: CType => throw new RuntimeException("comparison between AType and CType")
+    //        case _ => super.equals(that)
+    //    }
 }
 
 //    /** type without variability */
@@ -388,7 +386,7 @@ object CType {
         result
     }
 
-    implicit def makeCType(x: AType): CType = new CType(x,false,false,false)
+    implicit def makeCType(x: AType): CType = new CType(x, false, false, false)
 
 
 }
@@ -499,7 +497,7 @@ trait CTypes extends COptionProvider {
         case _ => false
     }
 
-    def isPointer(t: CType): Boolean = t.atype match {
+    def isPointer(t: CType): Boolean = t.toValue.atype match {
         case CPointer(_) => true
         case CZero() => true
         //case function references => true
@@ -642,7 +640,7 @@ trait CTypes extends COptionProvider {
 
 
     /** helper function, part of normalize */
-    private def normalizeA(t: AType): AType = t  match {
+    private def normalizeA(t: AType): AType = t match {
         case CPointer(x: AType) =>
             normalizeA(x) match {
                 case c: CFunction => c
