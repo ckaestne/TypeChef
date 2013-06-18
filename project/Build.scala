@@ -31,6 +31,7 @@ object BuildSettings {
         scalacOptions <++= scalaVersion map {
             sv =>
                 if (sv startsWith "2.10") List(
+                    "-Yinline-warnings",
                     "-feature",
                     "-language:postfixOps",
                     "-language:implicitConversions"
