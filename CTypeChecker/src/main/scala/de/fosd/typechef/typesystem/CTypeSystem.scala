@@ -329,7 +329,6 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
             case ContinueStatement() => nop
             case BreakStatement() => nop
 
-            case GotoStatement(_) => nop //TODO check goto against labels
             case LocalLabelDeclaration(ids) => nop
         }
     }
@@ -689,6 +688,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
             case DoStatement(_, s) => getLabelEnvCond(s)
             case ForStatement(_, _, _, s) => getLabelEnvCond(s)
             case GotoStatement(_) => emptyEnv
+            case GnuGotoStatement(_) => emptyEnv
             case ContinueStatement() => emptyEnv
             case BreakStatement() => emptyEnv
             case ReturnStatement(_) => emptyEnv
