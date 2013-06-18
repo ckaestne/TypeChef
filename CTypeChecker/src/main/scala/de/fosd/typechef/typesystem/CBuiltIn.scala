@@ -9,6 +9,7 @@ import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
  * all compiler-specific built-in stuff
  */
 trait CBuiltIn extends CEnv with CTypes with CDeclTyping {
+    import CType.makeCType
 
     object InitialEnv extends Env(
         new ConditionalTypeMap() ++ initBuiltinTypedevEnv,
@@ -17,21 +18,21 @@ trait CBuiltIn extends CEnv with CTypes with CDeclTyping {
 
     val initBuiltinTypedevEnv: Seq[(String, FeatureExpr, (AST, Conditional[CType]))] =
         Map(
-            "__builtin_va_list" -> CBuiltinVaList()
+            "__builtin_va_list" -> CBuiltinVaList().toCType
         ).toList.map(x => (x._1, True, (null, One(x._2))))
 
 
     val initBuiltinVarEnv: Seq[(String, FeatureExpr, AST, Conditional[CType], DeclarationKind, Int, Linkage)] =
         (declare_builtin_functions() ++ Map(
-            ("__builtin_expect", One(CFunction(Seq(CVarArgs()), CInt()))),
-            ("__builtin_safe_p", One(CFunction(Seq(CVarArgs()), CInt()))),
-            ("__builtin_warning", One(CFunction(Seq(CVarArgs()), CInt()))),
-            ("__builtin_choose_expr", One(CFunction(Seq(CVarArgs()), CInt()))),
-            ("__builtin_constant_p", One(CFunction(Seq(CVarArgs()), CInt()))),
-            ("__builtin_va_start", One(CFunction(Seq(CBuiltinVaList(), CVarArgs()), CVoid()))), //ignore most of these...
+            ("__builtin_expect", One(CFunction(Seq(CVarArgs()), CInt()).toCType)),
+            ("__builtin_safe_p", One(CFunction(Seq(CVarArgs()), CInt()).toCType)),
+            ("__builtin_warning", One(CFunction(Seq(CVarArgs()), CInt()).toCType)),
+            ("__builtin_choose_expr", One(CFunction(Seq(CVarArgs()), CInt()).toCType)),
+            ("__builtin_constant_p", One(CFunction(Seq(CVarArgs()), CInt()).toCType)),
+            ("__builtin_va_start", One(CFunction(Seq(CBuiltinVaList(), CVarArgs()), CVoid()).toCType)), //ignore most of these...
             //            "__builtin_va_arg", One(CFunction(Seq(CIgnore(), CIgnore()), CIgnore())),//handled differently in parser
-            ("__builtin_va_end", One(CFunction(Seq(CBuiltinVaList()), CVoid()))),
-            ("__builtin_va_copy", One(CFunction(Seq(CBuiltinVaList(), CBuiltinVaList()), CVoid())))
+            ("__builtin_va_end", One(CFunction(Seq(CBuiltinVaList()), CVoid()).toCType)),
+            ("__builtin_va_copy", One(CFunction(Seq(CBuiltinVaList(), CBuiltinVaList()), CVoid()).toCType))
         )).toList.map(x => (x._1, True, null, x._2, KDeclaration, 0, ExternalLinkage))
 
 

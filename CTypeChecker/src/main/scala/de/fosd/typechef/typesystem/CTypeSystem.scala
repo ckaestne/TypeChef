@@ -54,7 +54,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
         val funType = getFunctionType(specifiers, declarator, oldStyleParam, featureExpr, env).simplify(featureExpr)
 
         //structs in signature defined?
-        funType.mapf(featureExpr, (f, t) => t.toValue match {
+        funType.mapf(featureExpr, (f, t) => t.atype match {
             case CFunction(params, ret) =>
                 //structs in both return type and parameters must be complete
                 checkStructCompleteness(ret, f, env, declarator)
@@ -64,8 +64,8 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
         })
 
         val expectedReturnType: Conditional[CType] = funType.mapf(featureExpr, {
-            case (f, CFunction(_, returnType)) => returnType
-            case (f, other) => reportTypeError(f, "not a function type: " + other, declarator, Severity.Crash)
+            case (f, CType(CFunction(_, returnType),_,_,_)) => returnType.toCType
+            case (f, other) => reportTypeError(f, "not a function type: " + other, declarator, Severity.Crash).toCType
         }).simplify(featureExpr)
 
         val kind = KDefinition
@@ -113,7 +113,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
         //scopes
         if (newScope > prevScope) return true; //always fine
 
-        (newType, prevType) match {
+        (newType.atype, prevType.atype) match {
             //two prototypes
             case (CPointer(CFunction(newParam, newRet)), CPointer(CFunction(prevParam, prevRet))) if (newKind == KDeclaration && prevKind == KDeclaration) =>
                 //must have same return type and same parameters (for common parameters)
@@ -226,7 +226,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
         }, ctx)
         def checkExprX(expr: Expr, check: CType => Boolean, errorMsg: CType => String, featureExpr: FeatureExpr) =
             performExprCheck(expr, check, errorMsg, featureExpr, env)
-        def nop = (One(CVoid()), env) //(One(CUnknown("no type for " + stmt)), env)
+        def nop = (One(CVoid().toCType), env) //(One(CUnknown("no type for " + stmt)), env)
 
         addEnv(stmt, env)
 
@@ -244,7 +244,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
                 //return last type
                 val lastType: Conditional[Option[Conditional[CType]]] = ConditionalLib.lastEntry(typeOptList)
                 val t: Conditional[CType] = lastType.mapr({
-                    case None => One(CVoid())
+                    case None => One(CVoid().toCType)
                     case Some(ctype) => ctype
                 }) simplify (featureExpr);
 
@@ -279,7 +279,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
                     mexpr match {
 
                         case None =>
-                            if (expectedReturnType map (_ == CVoid()) exists (!_))
+                            if (expectedReturnType map (_.atype == CVoid()) exists (!_))
                                 issueTypeError(Severity.OtherError, featureExpr, "no return expression, expected type " + expectedReturnType, r)
                         case Some(expr) =>
                             val foundReturnType = getExprType(expr, featureExpr, env)

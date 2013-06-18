@@ -20,9 +20,9 @@ class DeclTypingTest extends CTypeSystem with FunSuite with ShouldMatchers with 
         r
     }
 
-    private def declCT(code: String): Conditional[CType] = declTL(code)(0)._2
+    private def declCT(code: String): Conditional[AType] = declTL(code)(0)._2.map(_.atype)
 
-    private def declT(code: String): CType = declCT(code) match {
+    private def declT(code: String): AType = declCT(code) match {
         case One(e) => e
         case e => CUnknown("Multiple types not expected " + e)
     }
@@ -69,7 +69,7 @@ class DeclTypingTest extends CTypeSystem with FunSuite with ShouldMatchers with 
 
     test("variable declarations") {
         declT("double a;") should be(CDouble())
-        declTL("double a,b;") should be(List(("a", One(CDouble())), ("b", One(CDouble()))))
+        declTL("double a,b;") should be(List(("a", One(CDouble().toCType)), ("b", One(CDouble().toCType))))
         declT("double a[];") should be(CArray(CDouble()))
         declT("double **a;") should be(CPointer(CPointer(CDouble())))
         declT("double *a[];") should be(CArray(CPointer(CDouble())))
