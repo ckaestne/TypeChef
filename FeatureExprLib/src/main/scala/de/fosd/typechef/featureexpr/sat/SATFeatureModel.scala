@@ -6,6 +6,8 @@ import scala.collection.{mutable, immutable}
 import java.net.URI
 import java.io.File
 import de.fosd.typechef.featureexpr.{FeatureModelFactory, FeatureExpr, FeatureModel}
+import java.io.FileWriter
+
 
 /**
  * the feature model is a special container for a single feature expression
@@ -39,19 +41,15 @@ class SATFeatureModel(val variables: Map[String, Int], val clauses: IVec[IVecInt
     def assumeTrue(featurename: String) = this.and(SATFeatureExprFactory.createDefinedExternal(featurename))
     def assumeFalse(featurename: String) = this.and(SATFeatureExprFactory.createDefinedExternal(featurename).not)
 
-    import java.io.FileWriter
 
-    def using[A <: {def close() : Unit}, B](param: A)(f: A => B): B =
+    def writeToFile(fileName: String, data: String) = {
+        val fileWriter = new FileWriter(fileName)
         try {
-            f(param)
+            fileWriter.write(data)
         } finally {
-            param.close()
+            fileWriter.close()
         }
-
-    def writeToFile(fileName: String, data: String) =
-        using(new FileWriter(fileName)) {
-            fileWriter => fileWriter.write(data)
-        }
+    }
 
     // export given FeatureModel fm to file name fileName
     // the format is:
