@@ -99,7 +99,7 @@ class CParserTest {
                 if (expectErrorMsg || unparsed.atEnd)
                     Assert.fail("parsing succeeded unexpectedly with " + ast + " - " + unparsed)
             }
-            case p.NoSuccess(msg, unparsed, inner) =>;
+            case p.NoSuccess(msg, unparsed, inner) => ;
         }
     }
 
@@ -335,7 +335,7 @@ class CParserTest {
         assertParseable("{a;b;}", p.statement)
         //assertParseable("case a: x;", p.statement)
         assertParseable("break;", p.statement)
-        assertParseable("a:", p.statement)
+        assertParseable("a:;", p.statement)
         assertParseable("goto x;", p.statement)
         assertParseResult(Choice(fa, One(IfStatement(a, ExprStatement(b), List(), None)), One(ExprStatement(b))),
             """|#ifdef a
@@ -1141,29 +1141,28 @@ void bar() {
     }
 
     @Test
-    @Ignore("this is a bug in our parser. `jin:...' should be one labled statement, but is parsed as two statements; therefore the else does not match" )
+    @Ignore("this is a bug in our parser. `jin:...' should be one labled statement, but is parsed as two statements; therefore the else does not match")
     def test_labels {
         //based on a problem in uclibc
-        assertParseableAST("""if (0)
-                             |	    jin:{
-                             |		if ((a = *++haystack) == c)
-                             |		  goto crest;
-                             |	      }
-                             |	    else
-                             |	      a = *++haystack;""".stripMargin , p.statement)
+        assertParseableAST( """if (0)
+                              |	    jin:{
+                              |		if ((a = *++haystack) == c)
+                              |		  goto crest;
+                              |	      }
+                              |	    else
+                              |	      a = *++haystack;""".stripMargin, p.statement)
     }
     @Test
     def test_labels2 {
         //based on a problem in uclibc
-        assertParseableAST("""if (0)
-                             |	    {jin:{
-                             |		if ((a = *++haystack) == c)
-                             |		  goto crest;
-                             |	      }}
-                             |	    else
-                             |	      a = *++haystack;""".stripMargin , p.statement)
+        assertParseableAST( """if (0)
+                              |	    {jin:{
+                              |		if ((a = *++haystack) == c)
+                              |		  goto crest;
+                              |	      }}
+                              |	    else
+                              |	      a = *++haystack;""".stripMargin, p.statement)
     }
-
 
 
     private def assertNoDeadNodes(ast: Product) {

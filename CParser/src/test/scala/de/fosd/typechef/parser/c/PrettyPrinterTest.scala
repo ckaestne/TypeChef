@@ -100,7 +100,7 @@ class PrettyPrinterTest {
     }
 
     @Test def testOptAndChoice {
-        val c = Choice(FeatureExprFactory.createDefinedExternal("CONFIG_FEATURE_UDHCP_RFC3397"), One(CaseStatement(Id("OPTION_DNS_STRING"))), One(LabelStatement(Id("test"), None)))
+        val c = Choice(FeatureExprFactory.createDefinedExternal("CONFIG_FEATURE_UDHCP_RFC3397"), One(CaseStatement(Id("OPTION_DNS_STRING"), One(EmptyStatement()))), One(LabelStatement(Id("test"), None, One(EmptyStatement()))))
         ppConditional(c, List())
     }
 
@@ -118,7 +118,7 @@ class PrettyPrinterTest {
         parsePrintParseCond("{a;b;}", p.statement)
         //parsePrintParseCond("case a: x;", p.statement)
         parsePrintParseCond("break;", p.statement)
-        parsePrintParseCond("a:", p.statement)
+        parsePrintParseCond("a:;", p.statement)
         parsePrintParseCond("goto x;", p.statement)
         //        assertParseResult(AltStatement(fa, IfStatement(a, ExprStatement(b), List(), None), ExprStatement(b)),
         //            """|#ifdef a

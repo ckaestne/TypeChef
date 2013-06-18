@@ -8,7 +8,7 @@ switch (x) {
     break;
  case 2: y=90;
     break;
- default:
+ default:;
 }
 
 if (x<10) {
@@ -16,7 +16,7 @@ goto l66;;
 } else {
 y=100;
  y++;
-l66:
+l66:;
 }
 
 }

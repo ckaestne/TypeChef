@@ -30,7 +30,7 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = false) e
         "const", "volatile", "restrict", "char", "short", "int", "long", "float", "double",
         "signed", "unsigned", "_Bool", "struct", "union", "enum", "if", "while", "do",
         "for", "goto", "continue", "break", "return", "case", "default", "else", "switch",
-        "sizeof", "_Pragma", "__expectType", "__expectNotType","__thread")
+        "sizeof", "_Pragma", "__expectType", "__expectNotType", "__thread")
     val predefinedTypedefs = Set("__builtin_va_list", "__builtin_type")
 
     def translationUnit = externalList ^^ {
@@ -337,15 +337,15 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = false) e
         ReturnStatement(_)
     })
         //// Labeled statements:
-        | ((ID <~~ COLON) ~! opt(attributeDecl) ^^ {
-        case i ~ a => LabelStatement(i, a)
+        | ((ID <~~ COLON) ~! opt(attributeDecl) ~ statement ^^ {
+        case i ~ a ~ s => LabelStatement(i, a, s)
     })
         // GNU allows range expressions in case statements
-        | (textToken("case") ~! (rangeExpr | constExpr) ~ COLON ^^ {
-        case _ ~ e ~ _ => CaseStatement(e)
+        | (textToken("case") ~! (rangeExpr | constExpr) ~ COLON ~ statement ^^ {
+        case _ ~ e ~ _ ~ s => CaseStatement(e, s)
     })
-        | (textToken("default") ~! COLON ^^ {
-        case _ => DefaultStatement()
+        | (textToken("default") ~! COLON ~> statement ^^ {
+        case s => DefaultStatement(s)
     })
         //// Selection statements:
         | (textToken("if") ~! LPAREN ~ (expr !) ~ RPAREN ~ statement ~
@@ -777,7 +777,7 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = false) e
 
     def restrict = (specifier("restrict") | specifier("__restrict") | specifier("__restrict__")) ^^^ RestrictSpecifier()
 
-    def thread = specifier("__thread")  ^^^ ThreadSpecifier()
+    def thread = specifier("__thread") ^^^ ThreadSpecifier()
 
     def signed = (textToken("signed") | textToken("__signed") | textToken("__signed__")) ^^^ SignedSpecifier()
 

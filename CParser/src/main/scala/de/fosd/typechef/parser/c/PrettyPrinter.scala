@@ -49,33 +49,33 @@ object PrettyPrinter {
     def ppConditional(e: Conditional[_], list_feature_expr: List[FeatureExpr]): Doc = e match {
         case One(c: AST) => prettyPrint(c, list_feature_expr)
         case Choice(f, a: AST, b: AST) =>
-          line ~
-            "#if" ~~ f.toTextExpr *
-            prettyPrint(a, f :: list_feature_expr) *
-            "#else" *
-            prettyPrint(b, f.not :: list_feature_expr) *
-            "#endif" ~
-              line
+            line ~
+                "#if" ~~ f.toTextExpr *
+                prettyPrint(a, f :: list_feature_expr) *
+                "#else" *
+                prettyPrint(b, f.not :: list_feature_expr) *
+                "#endif" ~
+                    line
         case Choice(f, a: Conditional[_], b: Conditional[_]) =>
-          line ~
-            "#if" ~~ f.toTextExpr *
-            ppConditional(a, f :: list_feature_expr) *
-            "#else" *
-            ppConditional(b, f.not :: list_feature_expr) *
-            "#endif" ~
-              line
+            line ~
+                "#if" ~~ f.toTextExpr *
+                ppConditional(a, f :: list_feature_expr) *
+                "#else" *
+                ppConditional(b, f.not :: list_feature_expr) *
+                "#endif" ~
+                    line
     }
 
     private def optConditional(e: Opt[AST], list_feature_expr: List[FeatureExpr]): Doc = {
         if (e.feature == FeatureExprFactory.True ||
-          list_feature_expr.foldLeft(FeatureExprFactory.True)(_ and _).implies(e.feature).isTautology())
-          prettyPrint(e.entry, list_feature_expr)
+            list_feature_expr.foldLeft(FeatureExprFactory.True)(_ and _).implies(e.feature).isTautology())
+            prettyPrint(e.entry, list_feature_expr)
         else
-          line ~
-            "#if" ~~ e.feature.toTextExpr *
-            prettyPrint(e.entry, e.feature :: list_feature_expr) *
-            "#endif" ~
-              line
+            line ~
+                "#if" ~~ e.feature.toTextExpr *
+                prettyPrint(e.entry, e.feature :: list_feature_expr) *
+                "#endif" ~
+                    line
     }
 
     def prettyPrint(ast: AST, list_feature_expr: List[FeatureExpr] = List(FeatureExprFactory.True)): Doc = {
@@ -137,9 +137,9 @@ object PrettyPrinter {
             case BreakStatement() => "break;"
             case ReturnStatement(None) => "return;"
             case ReturnStatement(Some(e)) => "return" ~~ e ~ ";"
-            case LabelStatement(id: Id, _) => id ~ ":"
-            case CaseStatement(c: Expr) => "case" ~~ c ~ ":"
-            case DefaultStatement() => "default:"
+            case LabelStatement(id: Id, _, s: Conditional[Statement]) => id ~ ":" ~ s
+            case CaseStatement(c: Expr, s: Conditional[Statement]) => "case" ~~ c ~ ":" ~ s
+            case DefaultStatement(s: Conditional[Statement]) => "default:" ~ s
             case IfStatement(condition, thenBranch, elifs, elseBranch) =>
                 "if (" ~ condition ~ ")" ~~ thenBranch ~~ sep(elifs, _ * _) ~~ optCondExt(elseBranch, line ~ "else" ~~ _)
             case ElifStatement(condition, thenBranch) => line ~ "else if (" ~ condition ~ ")" ~~ thenBranch

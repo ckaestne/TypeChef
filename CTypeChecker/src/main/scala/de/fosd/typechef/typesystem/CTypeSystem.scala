@@ -291,7 +291,9 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
                 }
                 nop
 
-            case CaseStatement(expr) => checkExprWithRange(expr); nop
+            case LabelStatement(_, _, s) => val t = checkCStmt(s); (t.mapr(_._1), env)
+            case DefaultStatement(s) => val t = checkCStmt(s); (t.mapr(_._1), env)
+            case CaseStatement(expr, s) => checkExprWithRange(expr); val t = checkCStmt(s); (t.mapr(_._1), env)
 
             //in the if statement we try to recognize dead code (and set the environment accordingly)
             case IfStatement(expr, tstmt, elifstmts, estmt) =>
@@ -312,14 +314,12 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
                 nop
 
             case SwitchStatement(expr, s) => expectIntegral(expr); checkCStmt(s); nop //spec
-            case DefaultStatement() => nop
 
             case EmptyStatement() => nop
             case ContinueStatement() => nop
             case BreakStatement() => nop
 
             case GotoStatement(_) => nop //TODO check goto against labels
-            case LabelStatement(_, _) => nop
             case LocalLabelDeclaration(ids) => nop
         }
     }

@@ -8,7 +8,7 @@ switch (x) {
     break;
  case 2: y=90;
     break;
- default:
+ default: ;
 }
 }
 
