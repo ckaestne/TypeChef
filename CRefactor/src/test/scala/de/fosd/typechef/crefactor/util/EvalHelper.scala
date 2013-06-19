@@ -54,10 +54,12 @@ trait EvalHelper extends Logging {
         config.foreach(feature => {
             val ft = feature.feature.substring(4, feature.feature.size)
             out.write(ft + "=y")
+            out.write("\n")
         })
         disabledFeatures.foreach(feature => {
             val ft = feature.feature.substring(4, feature.feature.size)
             out.write(ft + "=n")
+            out.write("\n")
         })
         out.flush()
         out.close()
