@@ -1,7 +1,7 @@
 package de.fosd.typechef.crefactor.BusyBoxEvaluation
 
 import de.fosd.typechef.parser.c.AST
-import de.fosd.typechef.Frontend
+import de.fosd.typechef.FrontendInstance
 import java.io.{FilenameFilter, File}
 import de.fosd.typechef.featureexpr.{FeatureExpr, FeatureModel}
 import org.junit.Test
@@ -25,8 +25,9 @@ trait BusyBoxEvaluation extends EvalHelper {
     def performRefactor(fileToRefactor: File): Boolean
 
     def parse(file: File): (AST, FeatureModel) = {
-        Frontend.main(getTypeChefArguments(file.getAbsolutePath))
-        (Frontend.getAST, Frontend.getFeatureModel)
+        val frontend = new FrontendInstance
+        frontend.main(getTypeChefArguments(file.getAbsolutePath))
+        (frontend.getAST, frontend.getFeatureModel)
     }
 
     def getTypeChefArguments(file: String): Array[String] = Array(file, "-c", systemProperties, "-x", "CONFIG_", "--include", includeHeader, "-I", includeDir, "--featureModelFExpr", featureModel, "--debugInterface", "--recordTiming", "--parserstatistics", "-U", "HAVE_LIBDMALLOC", "-DCONFIG_FIND", "-U", "CONFIG_FEATURE_WGET_LONG_OPTIONS", "-U", "ENABLE_NC_110_COMPAT", "-U", "CONFIG_EXTRA_COMPAT", "-D_GNU_SOURCE")
