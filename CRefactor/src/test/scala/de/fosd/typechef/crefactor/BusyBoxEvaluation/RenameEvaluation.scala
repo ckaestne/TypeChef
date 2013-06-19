@@ -16,6 +16,7 @@ class RenameEvaluation extends BusyBoxEvaluation {
         val file = new File(testData.getFile)
         println(allFeatures)
         println(allFeatures.size)
+        println(busyBoxFiles)
 
         //analyseDir(new File(absoluteBusyBoxPath))
     }
