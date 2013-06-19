@@ -38,6 +38,14 @@ class RenameEvaluation extends BusyBoxEvaluation {
                 line = reader.readLine()
                 println("line" + line)
             }
+
+            val reader2 =
+                new BufferedReader(new InputStreamReader(p.getErrorStream()))
+            var line2 = reader2.readLine()
+            while (line2 != null) {
+                line2 = reader2.readLine()
+                println("line" + line2)
+            }
             result._2
         })
         logger.info("Refactor succ: " + refactor.contains(false))
