@@ -1,7 +1,7 @@
 package de.fosd.typechef.crefactor.BusyBoxEvaluation
 
 import org.junit.Test
-import java.io.File
+import java.io.{InputStreamReader, BufferedReader, File}
 import de.fosd.typechef.parser.c.{Id, AST}
 import de.fosd.typechef.featureexpr.FeatureExpr
 import de.fosd.typechef.crefactor.util.{PrepareRefactoredASTforEval, TimeMeasurement}
@@ -26,11 +26,19 @@ class RenameEvaluation extends BusyBoxEvaluation {
             val parseTypeCheckTime = parseTypeCheckMs.getTime
             stats ::= parseTypeCheckTime
             val result = applyRefactor(morpheus, stats)
-            if (result._2) {
-                println("path" + bb_file.getCanonicalPath)
-                PrepareRefactoredASTforEval.prepare(result._1, morpheus.getFeatureModel, bb_file.getCanonicalPath, result._3, 0)
-            }
+            if (result._2) PrepareRefactoredASTforEval.prepare(result._1, morpheus.getFeatureModel, bb_file.getCanonicalPath, result._3, 0)
 
+            val cmd = List("cd /local/janker/casestudies/busybox/busybox-1.18.5/", "make -j 8").toArray
+            val p = Runtime.getRuntime.exec(cmd)
+            p.waitFor();
+
+            val reader =
+                new BufferedReader(new InputStreamReader(p.getInputStream()));
+            var line = reader.readLine();
+            while (line != null) {
+                line = reader.readLine();
+                println("line" + line)
+            }
             result._2
         })
         logger.info("Refactor succ: " + refactor.contains(false))
