@@ -49,9 +49,18 @@ object PrepareRefactoredASTforEval extends EvalHelper {
         val configRes = getClass.getResource("/busybox_Configs/")
         val configs = new File(configRes.getFile)
 
-        configs.listFiles().map(config => {
+        val generatedConfigs = configs.listFiles().map(config => {
             val enabledFeatures = getEnabledFeaturesFromConfigFile(fm, config)
             (config, generateConfigsWithAffectedFeatures(enabledFeatures, affectedFeatures, fm))
+        })
+
+        generatedConfigs.foreach(genConfigs => {
+            var configNumber = 0
+            val name = genConfigs._1.getName
+            genConfigs._2.foreach(genConfig => {
+                writeConfig(genConfig, dir, configNumber + name)
+                configNumber += 1
+            })
         })
     }
 

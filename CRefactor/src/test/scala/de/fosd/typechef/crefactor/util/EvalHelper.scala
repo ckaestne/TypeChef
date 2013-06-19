@@ -39,7 +39,22 @@ trait EvalHelper extends Logging {
         out.close()
     }
 
-    def getFileName(originalFilePath: String) = originalFilePath.substring(originalFilePath.lastIndexOf(File.separatorChar), originalFilePath.length - 1)
+    def writeConfig(config: List[SingleFeatureExpr], dir: File, name: String) {
+        val out = new java.io.FileWriter(dir.getCanonicalPath + File.separatorChar + name)
+        val disabledFeatures = allFeatures.diff(config)
+        config.foreach(feature => {
+            val ft = feature.feature.substring(4, feature.feature.size)
+            out.write(ft + "=y")
+        })
+        disabledFeatures.foreach(feature => {
+            val ft = feature.feature.substring(4, feature.feature.size)
+            out.write(ft + "=n")
+        })
+        out.flush()
+        out.close()
+    }
+
+    def getFileName(originalFilePath: String) = originalFilePath.substring(originalFilePath.lastIndexOf(File.separatorChar), originalFilePath.length)
 
     def getResultDir(originalFilePath: String, run: Int): File = {
         val outputFilePath = originalFilePath.replace("busybox-1.18.5", "result")
