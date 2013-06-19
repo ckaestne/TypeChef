@@ -45,14 +45,17 @@ case class CType(
     private def copy(atype: AType = this.atype, isObject: Boolean = this.isObject, isVolatile: Boolean = this.isVolatile, isConstant: Boolean = this.isConstant) = new CType(atype, isObject, isVolatile, isConstant)
 
     //convert from object to value (lvalue to rvalue) if applicable; if already a type return the type
-    def toValue: CType = {
+    def toValue: CType = if (!isObject) this
+    else {
         val newatype = atype match {
             case CArray(g, _) if isObject => CPointer(g)
             case _ => atype
         }
         copy(atype = newatype, isObject = false)
     }
-    def toObj: CType = copy(isObject = true)
+    //special version for the linker, where toValue does not normalize Arrays to Pointers! (see CERT ARR31-C)
+    def toValueLinker = if (!isObject) this else copy(isObject = false)
+    def toObj: CType = if (isObject) this else copy(isObject = true)
     def toVolatile(newVal: Boolean = true): CType = copy(isVolatile = newVal)
     def toConst(newVal: Boolean = true): CType = copy(isConstant = newVal)
 
@@ -343,6 +346,7 @@ object CUndefined extends CUnknown("unknown")
  */
 object CType {
 
+
     def fromXML(anode: scala.xml.NodeSeq): CType = {
         var node = anode
         var isVolatile = false
@@ -392,6 +396,13 @@ object CType {
 
     implicit def makeCType(x: AType): CType = new CType(x, false, false, false)
 
+
+    /**
+     * checks whether two (function) types are compatbile and can be linked together
+     */
+    def isLinkCompatible(a: CType, b: CType): Boolean = {
+        a.atype == b.atype
+    }
 
 }
 
