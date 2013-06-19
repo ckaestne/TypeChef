@@ -73,6 +73,7 @@ case class CType(
         case thattype: AType => throw new RuntimeException("comparison between CType and AType")
         case _ => super.equals(that)
     }
+    override def hashCode() = atype.hashCode()
 
     def toXML: xml.Elem = {
         var result = atype.toXML
