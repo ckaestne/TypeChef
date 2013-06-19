@@ -28,16 +28,16 @@ class RenameEvaluation extends BusyBoxEvaluation {
             val result = applyRefactor(morpheus, stats)
             if (result._2) PrepareRefactoredASTforEval.prepare(result._1, morpheus.getFeatureModel, bb_file.getCanonicalPath, result._3, 0)
             println("run")
-            val pb = new ProcessBuilder("BuildAndTestBusyBox.sh");
-            pb.directory(new File("/local/janker/casestudies/busybox/busybox-1.18.5"));
-            val p = pb.start();
-            p.waitFor();
+            val pb = new ProcessBuilder("BuildAndTestBusyBox.sh")
+            pb.directory(new File("/local/janker/casestudies/busybox/busybox-1.18.5/"))
+            val p = pb.start()
+            p.waitFor()
 
             val reader =
-                new BufferedReader(new InputStreamReader(p.getInputStream()));
-            var line = reader.readLine();
+                new BufferedReader(new InputStreamReader(p.getInputStream()))
+            var line = reader.readLine()
             while (line != null) {
-                line = reader.readLine();
+                line = reader.readLine()
                 println("line" + line)
             }
             result._2
