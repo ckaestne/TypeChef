@@ -32,7 +32,8 @@ trait EvalHelper extends Logging {
 
     def writeAST(ast: AST, filePath: String) {
         val writer = new FileWriter(filePath)
-        PrettyPrinter.printW(ast, writer)
+        val prettyPrinted = PrettyPrinter.print(ast)
+        writer.write(prettyPrinted.replaceAll("definedEx", "defined"))
         writer.flush()
         writer.close()
     }
@@ -60,7 +61,6 @@ trait EvalHelper extends Logging {
             val ft = feature.feature
             if (allFeatures._2.containsKey(feature.feature)) out.write(ft + "=" + allFeatures._2.get(feature.feature))
             else out.write("# " + ft + " is not set")
-
             out.write("\n")
         })
         out.flush()
