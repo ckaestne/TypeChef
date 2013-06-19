@@ -10,11 +10,16 @@ import de.fosd.typechef.ProductGeneration.SimpleConfiguration
 
 trait EvalHelper extends Logging {
 
-    val busyBoxPath = "../busybox-1.18.5/"
+    val completeBusyBoxPath = new File(caseStudyPath).getCanonicalPath
 
-    val busyBoxPathUntouched = "../busybox-1.18.5_untouched/"
 
-    val result = "../result/"
+    val caseStudyPath = "../busybox/"
+
+    val busyBoxPath = "/busybox-1.18.5/"
+
+    val busyBoxPathUntouched = "/busybox-1.18.5_untouched/"
+
+    val result = "/result/"
 
     val filterFeatures = List("def(CONFIG_SELINUX)")
 

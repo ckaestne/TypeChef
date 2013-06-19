@@ -11,8 +11,6 @@ import de.fosd.typechef.crefactor.util.EvalHelper
 trait BusyBoxEvaluation extends EvalHelper {
 
 
-    protected val completeBusyBoxPath = new File(busyBoxPath).getCanonicalPath
-
     private val systemProperties: String = completeBusyBoxPath + "/redhat.properties"
 
     private val includeHeader: String = completeBusyBoxPath + "/busybox/config.h"
