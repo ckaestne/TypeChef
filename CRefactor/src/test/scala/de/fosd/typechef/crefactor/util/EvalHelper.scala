@@ -57,7 +57,7 @@ trait EvalHelper extends Logging {
         })
         disabledFeatures.foreach(feature => {
             val ft = feature.feature.substring(0, feature.feature.size)
-            out.write(ft + "=n")
+            out.write("# " + ft + " is not set")
             out.write("\n")
         })
         out.flush()
@@ -179,12 +179,13 @@ trait EvalHelper extends Logging {
         var falseFeatures: Set[SingleFeatureExpr] = Set()
 
         val enabledPattern: Pattern = java.util.regex.Pattern.compile("([^=]*)=.*")
-        val disabledPattern: Pattern = java.util.regex.Pattern.compile("([^=]*)=n")
+        val disabledPattern: Pattern = java.util.regex.Pattern.compile("([^=]*) is*")
         for (line <- Source.fromFile(file).getLines().filterNot(_.startsWith("#")).filterNot(_.isEmpty)) {
             totalFeatures += 1
             var matcher = enabledPattern.matcher(line)
             if (matcher.matches()) {
                 val name = matcher.group(1)
+                println("value " + line.substring(line.lastIndexOf('=')))
                 val feature = FeatureExprFactory.createDefinedExternal(name)
                 var fileExTmp = fileEx.and(feature)
                 if (correctFeatureModelIncompatibility) {
@@ -207,6 +208,7 @@ trait EvalHelper extends Logging {
                 matcher = disabledPattern.matcher(line)
                 if (matcher.matches()) {
                     val name = matcher.group(1)
+                    println(name)
                     val feature = FeatureExprFactory.createDefinedExternal(name)
                     var fileExTmp = fileEx.andNot(feature)
                     if (correctFeatureModelIncompatibility) {
