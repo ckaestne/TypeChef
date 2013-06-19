@@ -5,8 +5,8 @@ import crewrite.{CAnalysisFrontend, EnforceTreeHelper, ProductDerivation}
 import featureexpr._
 
 import bdd.{BDDFeatureExpr, BDDFeatureModel, SatSolver}
-import parser.c.{AST, PrettyPrinter, TranslationUnit}
-import typesystem.CTypeSystemFrontend
+import parser.c.{AST, TranslationUnit}
+import de.fosd.typechef.typesystem.{CTypeCache, CTypeSystemFrontend}
 import scala.collection.immutable.HashMap
 import scala.Predef._
 import scala._
@@ -30,9 +30,9 @@ import de.fosd.typechef.options.FrontendOptions
 object ProductGeneration extends EnforceTreeHelper {
     type Task = Pair[String, List[SimpleConfiguration]]
 
-    /**Maps SingleFeatureExpr Objects to IDs (IDs only known/used in this file) */
+    /** Maps SingleFeatureExpr Objects to IDs (IDs only known/used in this file) */
     private var featureIDHashmap: Map[SingleFeatureExpr, Int] = null
-    /**List of all features found in the currently processed file */
+    /** List of all features found in the currently processed file */
     private var features: List[SingleFeatureExpr] = null
 
     class SimpleConfiguration(private val config: scala.collection.immutable.BitSet) extends scala.Serializable {
@@ -186,7 +186,7 @@ object ProductGeneration extends EnforceTreeHelper {
         taskList.toList
     }
 
-    def initializeFeatureList(family_ast:AST) {
+    def initializeFeatureList(family_ast: AST) {
         features = getAllFeatures(family_ast)
         featureIDHashmap = new HashMap[SingleFeatureExpr, Int]().++(features.zipWithIndex)
     }
@@ -207,14 +207,14 @@ object ProductGeneration extends EnforceTreeHelper {
         //println("features: ")
         //for (f <- features) println(f)
 
-        /**Starting with no tasks */
+        /** Starting with no tasks */
         var tasks: List[Task] = List()
 
         val useSerialization = true
         if (useSerialization &&
             configSerializationDir.exists() &&
             new File(configSerializationDir, "FeatureHashmap.ser").exists()) {
-            /**Load serialized tasks */
+            /** Load serialized tasks */
             {
                 startTime = System.currentTimeMillis()
                 println("loading tasks from serialized files")
@@ -224,32 +224,32 @@ object ProductGeneration extends EnforceTreeHelper {
                 log = log + msg + "\n"
             }
         }
-        /**Generate tasks */
+        /** Generate tasks */
         var configurations: List[SimpleConfiguration] = List()
 
-        /**Load config from file */
+        /** Load config from file */
 
-                {
-                    if (tasks.find(_._1.equals("FileConfig")).isDefined) {
-                        msg = "omitting FileConfig generation, because a serialized version was loaded"
-                    } else {
-                        val configFile = if (caseStudy.equals("linux"))
-                            "../Linux_allyes_modified.config"
-                        else if (caseStudy.equals("busybox"))
-                            "../BusyboxBigConfig.config"
-                        else
-                            throw new Exception("unknown case Study, give linux or busybox")
-                        startTime = System.currentTimeMillis()
-                        val (configs, logmsg) = getConfigsFromFiles(features, fm, new File(configFile))
-                        tasks :+= Pair("FileConfig", configs)
-                        configurations ++= configs
-                        msg = "Time for config generation (FileConfig): " + (System.currentTimeMillis() - startTime) + " ms\n" + logmsg
-                    }
-                    println(msg)
-                    log = log + msg + "\n"
-                }
+        {
+            if (tasks.find(_._1.equals("FileConfig")).isDefined) {
+                msg = "omitting FileConfig generation, because a serialized version was loaded"
+            } else {
+                val configFile = if (caseStudy.equals("linux"))
+                    "../Linux_allyes_modified.config"
+                else if (caseStudy.equals("busybox"))
+                    "../BusyboxBigConfig.config"
+                else
+                    throw new Exception("unknown case Study, give linux or busybox")
+                startTime = System.currentTimeMillis()
+                val (configs, logmsg) = getConfigsFromFiles(features, fm, new File(configFile))
+                tasks :+= Pair("FileConfig", configs)
+                configurations ++= configs
+                msg = "Time for config generation (FileConfig): " + (System.currentTimeMillis() - startTime) + " ms\n" + logmsg
+            }
+            println(msg)
+            log = log + msg + "\n"
+        }
 
-        /**Henard CSV configurations */
+        /** Henard CSV configurations */
 
         {
             if (tasks.find(_._1.equals("henard")).isDefined) {
@@ -284,7 +284,7 @@ object ProductGeneration extends EnforceTreeHelper {
             log = log + msg + "\n"
         }
 
-        /**Single-wise */
+        /** Single-wise */
         /*
                 {
                     if (typecheckingTasks.find(_._1.equals("singleWise")).isDefined) {
@@ -301,7 +301,7 @@ object ProductGeneration extends EnforceTreeHelper {
                     log = log + msg + "\n"
                 }
         */
-        /**Coverage Configurations - no Header files*/
+        /** Coverage Configurations - no Header files */
 
         {
             if (tasks.find(_._1.equals("coverage_noHeader")).isDefined) {
@@ -318,7 +318,7 @@ object ProductGeneration extends EnforceTreeHelper {
             log = log + msg + "\n"
         }
 
-        /**Coverage Configurations - including Header files*/
+        /** Coverage Configurations - including Header files */
 
         {
             if (tasks.find(_._1.equals("coverage")).isDefined) {
@@ -337,7 +337,7 @@ object ProductGeneration extends EnforceTreeHelper {
         }
 
 
-        /**Pairwise MAX */
+        /** Pairwise MAX */
         /*
                 {
                     if (typecheckingTasks.find(_._1.equals("pairWiseMax")).isDefined) {
@@ -353,7 +353,7 @@ object ProductGeneration extends EnforceTreeHelper {
                     log = log + msg + "\n"
                 }
         */
-        /**Pairwise */
+        /** Pairwise */
         /*
         if (typecheckingTasks.find(_._1.equals("pairWise")).isDefined) {
             msg = "omitting pairWise generation, because a serialized version was loaded"
@@ -366,7 +366,7 @@ object ProductGeneration extends EnforceTreeHelper {
             log = log + msg + "\n"
         */
 
-        /**Just one hardcoded config */
+        /** Just one hardcoded config */
         /*
                     typecheckingTasks :+= Pair("hardcoded", getOneConfigWithFeatures(
                       List("CONFIG_LOCK_STAT"),
@@ -378,114 +378,113 @@ object ProductGeneration extends EnforceTreeHelper {
     }
 
     private def countNumberOfASTElements(ast: AST): Long = {
-      def countNumberOfASTElementsHelper(a: Any): Long = {
-        a match {
-          case l: List[_] => l.map(countNumberOfASTElementsHelper).sum
-          case _: FeatureExpr => 0
-          case p: Product => 1 + p.productIterator.toList.map(countNumberOfASTElementsHelper).sum
-          case _ => 1
+        def countNumberOfASTElementsHelper(a: Any): Long = {
+            a match {
+                case l: List[_] => l.map(countNumberOfASTElementsHelper).sum
+                case _: FeatureExpr => 0
+                case p: Product => 1 + p.productIterator.toList.map(countNumberOfASTElementsHelper).sum
+                case _ => 1
+            }
         }
-      }
-      countNumberOfASTElementsHelper(ast)
+        countNumberOfASTElementsHelper(ast)
     }
 
     private def varAwareAnalysisSetup(fm_ts: FeatureModel, ast: AST, opt: FrontendOptions): (TranslationUnit, List[Task], String, String) = {
-      var caseStudy = ""
-      var thisFilePath = ""
-      if (opt.getFile.contains("linux-2.6.33.3")) {
-        thisFilePath = opt.getFile.substring(opt.getFile.lastIndexOf("linux-2.6.33.3"))
-        caseStudy = "linux"
-      } else if (opt.getFile.contains("busybox-1.18.5")) {
-        thisFilePath = opt.getFile.substring(opt.getFile.lastIndexOf("busybox-1.18.5"))
-        caseStudy = "busybox"
-      } else {
-        thisFilePath=opt.getFile
-      }
+        var caseStudy = ""
+        var thisFilePath = ""
+        if (opt.getFile.contains("linux-2.6.33.3")) {
+            thisFilePath = opt.getFile.substring(opt.getFile.lastIndexOf("linux-2.6.33.3"))
+            caseStudy = "linux"
+        } else if (opt.getFile.contains("busybox-1.18.5")) {
+            thisFilePath = opt.getFile.substring(opt.getFile.lastIndexOf("busybox-1.18.5"))
+            caseStudy = "busybox"
+        } else {
+            thisFilePath = opt.getFile
+        }
 
-      val famast = prepareAST[TranslationUnit](ast.asInstanceOf[TranslationUnit])
-      val configDir = new File("../savedConfigs/" + thisFilePath.substring(0, thisFilePath.length - 2))
-      val (log: String, tasks: List[Task]) = buildConfigurations(famast, fm_ts, configDir, caseStudy)
-      saveSerializationOfTasks(tasks, features, configDir)
+        val famast = prepareAST[TranslationUnit](ast.asInstanceOf[TranslationUnit])
+        val configDir = new File("../savedConfigs/" + thisFilePath.substring(0, thisFilePath.length - 2))
+        val (log: String, tasks: List[Task]) = buildConfigurations(famast, fm_ts, configDir, caseStudy)
+        saveSerializationOfTasks(tasks, features, configDir)
 
-      (famast, tasks, thisFilePath, log)
+        (famast, tasks, thisFilePath, log)
     }
 
-    def dataflowAnalysis(fm_ts: FeatureModel, ast: AST, opt: FrontendOptions, logMessage: String) {
-      val (famast, tasks, filePath, log) = varAwareAnalysisSetup(fm_ts, ast, opt)
-      dataflowAnalysisTasks(famast, tasks, fm_ts, filePath, log)
+    def dataflowAnalysis(fm_ts: FeatureModel, ast: AST, opt: FrontendOptions, logMessage: String, typeCache: CTypeCache = null) {
+        val (famast, tasks, filePath, log) = varAwareAnalysisSetup(fm_ts, ast, opt)
+        dataflowAnalysisTasks(famast, tasks, fm_ts, filePath, log)
     }
 
     private def dataflowAnalysisTasks(famast: TranslationUnit, tasks: List[Task], fm: FeatureModel, fileName: String, startLog: String = "") {
-      val log:String = startLog
-      println("starting product dataflow analysis.")
+        val log: String = startLog
+        println("starting product dataflow analysis.")
 
-      // Warmup: we do a complete separate run of all tasks for warmup
-      {
-        val tsWarmup = new CAnalysisFrontend(famast, fm)
-        val startTimeWarmup : Long = System.currentTimeMillis()
-        tsWarmup.checkDataflow()
-        println("warmupTime_Family" + ": " + (System.currentTimeMillis() - startTimeWarmup))
-        for ((taskDesc: String, configs : List[SimpleConfiguration]) <- tasks) {
-          for (configID:Int <- 0 until configs.size) {
-            val product: TranslationUnit = ProductDerivation.deriveProd[TranslationUnit](famast,
-              new Configuration(configs(configID).toFeatureExpr, fm))
-            val ts = new CAnalysisFrontend(product, FeatureExprFactory.default.featureModelFactory.empty)
-            val startTime: Long = System.currentTimeMillis()
-            ts.checkDataflow()
-            println("warmupTime_" + taskDesc + "_" + (configID+1) + ": " + (System.currentTimeMillis() - startTime))
-          }
+        // Warmup: we do a complete separate run of all tasks for warmup
+        {
+            val tsWarmup = new CAnalysisFrontend(famast, fm)
+            val startTimeWarmup: Long = System.currentTimeMillis()
+            tsWarmup.checkDataflow()
+            println("warmupTime_Family" + ": " + (System.currentTimeMillis() - startTimeWarmup))
+            for ((taskDesc: String, configs: List[SimpleConfiguration]) <- tasks) {
+                for (configID: Int <- 0 until configs.size) {
+                    val product: TranslationUnit = ProductDerivation.deriveProd[TranslationUnit](famast,
+                        new Configuration(configs(configID).toFeatureExpr, fm))
+                    val ts = new CAnalysisFrontend(product, FeatureExprFactory.default.featureModelFactory.empty)
+                    val startTime: Long = System.currentTimeMillis()
+                    ts.checkDataflow()
+                    println("warmupTime_" + taskDesc + "_" + (configID + 1) + ": " + (System.currentTimeMillis() - startTime))
+                }
+            }
         }
-      }
 
-      if (tasks.size > 0) println("start task - dataflow (" + (tasks.size) + " tasks)")
-      // results (taskName, (NumConfigs, errors, timeSum))
-      var configCheckingResults: List[(String, (Int, Int, Long, List[Long]))] = List()
-      val outFilePrefix: String = "../reports/" + fileName.substring(0, fileName.length - 2)
-      for ((taskDesc: String, configs : List[SimpleConfiguration]) <- tasks) {
-        val configurationsWithErrors = 0
-        var current_config = 0
-        var checkTimes : List[Long] = List()
-        for (config <- configs) {
-          current_config += 1
-          println("checking configuration " + current_config + " of " + configs.size + " (" + fileName + " , " + taskDesc + ")")
-          val product: TranslationUnit = ProductDerivation.deriveProd[TranslationUnit](famast,
-            new Configuration(config.toFeatureExpr, fm))
-          val ts = new CAnalysisFrontend(product, FeatureExprFactory.empty)
-          val startTime: Long = System.currentTimeMillis()
-          ts.checkDataflow()
-          val configTime: Long = System.currentTimeMillis() - startTime
-          checkTimes ::= configTime // append to the beginning of checkTimes
+        if (tasks.size > 0) println("start task - dataflow (" + (tasks.size) + " tasks)")
+        // results (taskName, (NumConfigs, errors, timeSum))
+        var configCheckingResults: List[(String, (Int, Int, Long, List[Long]))] = List()
+        val outFilePrefix: String = "../reports/" + fileName.substring(0, fileName.length - 2)
+        for ((taskDesc: String, configs: List[SimpleConfiguration]) <- tasks) {
+            val configurationsWithErrors = 0
+            var current_config = 0
+            var checkTimes: List[Long] = List()
+            for (config <- configs) {
+                current_config += 1
+                println("checking configuration " + current_config + " of " + configs.size + " (" + fileName + " , " + taskDesc + ")")
+                val product: TranslationUnit = ProductDerivation.deriveProd[TranslationUnit](famast,
+                    new Configuration(config.toFeatureExpr, fm))
+                val ts = new CAnalysisFrontend(product, FeatureExprFactory.empty)
+                val startTime: Long = System.currentTimeMillis()
+                ts.checkDataflow()
+                val configTime: Long = System.currentTimeMillis() - startTime
+                checkTimes ::= configTime // append to the beginning of checkTimes
+            }
+            // reverse checkTimes to get the ordering correct
+            configCheckingResults ::=(taskDesc, (configs.size, configurationsWithErrors, checkTimes.sum, checkTimes.reverse))
+
         }
-        // reverse checkTimes to get the ordering correct
-        configCheckingResults ::=(taskDesc, (configs.size, configurationsWithErrors, checkTimes.sum, checkTimes.reverse))
+        // family base checking
+        println("family-based dataflow analysis:")
+        val ts = new CAnalysisFrontend(famast, fm)
+        val startTime: Long = System.currentTimeMillis()
+        ts.checkDataflow()
+        val familyTime: Long = System.currentTimeMillis() - startTime
 
-      }
-      // family base checking
-      println("family-based dataflow analysis:")
-      val ts = new CAnalysisFrontend(famast, fm)
-      val startTime : Long = System.currentTimeMillis()
-      ts.checkDataflow()
-      val familyTime: Long = System.currentTimeMillis() - startTime
+        val file: File = new File(outFilePrefix + "_report.txt")
+        file.getParentFile.mkdirs()
+        val fw: FileWriter = new FileWriter(file)
+        fw.write("File : " + fileName + "\n")
+        fw.write("Features : " + features.size + "\n")
+        fw.write(log + "\n")
 
-      val file: File = new File(outFilePrefix + "_report.txt")
-      file.getParentFile.mkdirs()
-      val fw : FileWriter = new FileWriter(file)
-      fw.write("File : " + fileName + "\n")
-      fw.write("Features : " + features.size + "\n")
-      fw.write(log + "\n")
+        for ((taskDesc, (numConfigs, errors, totalTime, lstTimes: List[Long])) <- configCheckingResults) {
+            fw.write("\n -- Task: " + taskDesc + "\n")
+            fw.write("(" + taskDesc + ")Processed configurations: " + numConfigs + "\n")
+            fw.write("(" + taskDesc + ")TimeSum Products: " + totalTime + " ms\n")
+            fw.write("(" + taskDesc + ")Times Products: " + lstTimes.mkString(","))
+            fw.write("\n")
+        }
 
-      for ((taskDesc, (numConfigs, errors, totalTime, lstTimes:List[Long])) <- configCheckingResults) {
-        fw.write("\n -- Task: " + taskDesc + "\n")
-        fw.write("(" + taskDesc + ")Processed configurations: " + numConfigs + "\n")
-        fw.write("(" + taskDesc + ")TimeSum Products: " + totalTime + " ms\n")
-        fw.write("(" + taskDesc + ")Times Products: " + lstTimes.mkString(","))
-        fw.write("\n")
-      }
-
-      fw.write("Time Family:      " + familyTime + " ms\n")
-      fw.close()
+        fw.write("Time Family:      " + familyTime + " ms\n")
+        fw.close()
     }
-
 
 
     def typecheckProducts(fm_scanner: FeatureModel, fm_ts: FeatureModel, ast: AST, opt: FrontendOptions, logMessage: String) {
@@ -514,56 +513,56 @@ object ProductGeneration extends EnforceTreeHelper {
         typecheckConfigurations(typecheckingTasks, family_ast, fm, family_ast, thisFilePath, startLog = configGenLog)
     }
 
-  def median(s: Seq[Long]) = {
-    val (lower, upper) = s.sortWith(_ < _).splitAt(s.size / 2)
-    if (s.size % 2 == 0) (lower.last + upper.head) / 2 else upper.head
-  }
+    def median(s: Seq[Long]) = {
+        val (lower, upper) = s.sortWith(_ < _).splitAt(s.size / 2)
+        if (s.size % 2 == 0) (lower.last + upper.head) / 2 else upper.head
+    }
 
-  def typecheckConfigurations(typecheckingTasks: List[Task],
+    def typecheckConfigurations(typecheckingTasks: List[Task],
                                 family_ast: TranslationUnit, fm: FeatureModel, ast: AST,
                                 fileID: String, startLog: String = "") {
-      val log: String = startLog
-      val checkXTimes = 3
-      val nstoms = 1000000
-      println("starting product checking.")
+        val log: String = startLog
+        val checkXTimes = 3
+        val nstoms = 1000000
+        println("starting product checking.")
 
-      // family base checking
-      println("family-based checking: (" + countNumberOfASTElements(family_ast) + ")")
-      // analysis initialization and warmup
-      val ts = new CTypeSystemFrontend(family_ast, fm)
-      ts.checkASTSilent
+        // family base checking
+        println("family-based checking: (" + countNumberOfASTElements(family_ast) + ")")
+        // analysis initialization and warmup
+        val ts = new CTypeSystemFrontend(family_ast, fm)
+        ts.checkASTSilent
 
-      // measurement
-      val tb = java.lang.management.ManagementFactory.getThreadMXBean
-      var foundError: Boolean = false
-      var times = Seq[Long]()
-      var lastTime: Long = 0
-      var curTime: Long = 0
+        // measurement
+        val tb = java.lang.management.ManagementFactory.getThreadMXBean
+        var foundError: Boolean = false
+        var times = Seq[Long]()
+        var lastTime: Long = 0
+        var curTime: Long = 0
 
-      for (_ <- 0 until checkXTimes) {
-        lastTime = tb.getCurrentThreadCpuTime
-        foundError |= ts.checkASTSilent
-        curTime = (tb.getCurrentThreadCpuTime - lastTime)
-        times = times.:+(curTime)
-      }
-      val familyTime: Long = median(times) / nstoms
+        for (_ <- 0 until checkXTimes) {
+            lastTime = tb.getCurrentThreadCpuTime
+            foundError |= ts.checkASTSilent
+            curTime = (tb.getCurrentThreadCpuTime - lastTime)
+            times = times.:+(curTime)
+        }
+        val familyTime: Long = median(times) / nstoms
 
-      // analysis initialization and warm-up
-      val df = new CAnalysisFrontend(family_ast, fm)
-      df.checkDataflow()
-      var timesDf = Seq[Long]()
-      var lastTimeDf: Long = 0
-      var curTimeDf: Long = 0
- 
-      for (_ <- 0 until checkXTimes) {
-        lastTimeDf = tb.getCurrentThreadCpuTime
+        // analysis initialization and warm-up
+        val df = new CAnalysisFrontend(family_ast, fm)
         df.checkDataflow()
-        curTimeDf = (tb.getCurrentThreadCpuTime - lastTimeDf)
-        timesDf = timesDf.:+(curTimeDf)
-      }
-      val timeDfFamily = median(timesDf) / nstoms
+        var timesDf = Seq[Long]()
+        var lastTimeDf: Long = 0
+        var curTimeDf: Long = 0
 
-      if (typecheckingTasks.size > 0) println("start task - checking (" + (typecheckingTasks.size) + " tasks)")
+        for (_ <- 0 until checkXTimes) {
+            lastTimeDf = tb.getCurrentThreadCpuTime
+            df.checkDataflow()
+            curTimeDf = (tb.getCurrentThreadCpuTime - lastTimeDf)
+            timesDf = timesDf.:+(curTimeDf)
+        }
+        val timeDfFamily = median(timesDf) / nstoms
+
+        if (typecheckingTasks.size > 0) println("start task - checking (" + (typecheckingTasks.size) + " tasks)")
         // results (taskName, (NumConfigs, errors, timeSum))
         var configCheckingResults: List[(String, (Int, Int, List[Long], List[Long]))] = List()
         val outFilePrefix: String = "../reports/" + fileID.substring(0, fileID.length - 2)
@@ -591,10 +590,10 @@ object ProductGeneration extends EnforceTreeHelper {
                 var times = Seq[Long]()
 
                 for (_ <- 0 until checkXTimes) {
-                  lastTime = tb.getCurrentThreadCpuTime
-                  foundError |= ts.checkASTSilent
-                  curTime = (tb.getCurrentThreadCpuTime - lastTime)
-                  times = times.:+(curTime)
+                    lastTime = tb.getCurrentThreadCpuTime
+                    foundError |= ts.checkASTSilent
+                    curTime = (tb.getCurrentThreadCpuTime - lastTime)
+                    times = times.:+(curTime)
                 }
                 val productTime: Long = median(times) / nstoms
 
@@ -608,48 +607,48 @@ object ProductGeneration extends EnforceTreeHelper {
                 var curTimeDf: Long = 0
                 var timesDf = Seq[Long]()
                 for (_ <- 0 until checkXTimes) {
-                  lastTimeDf = tb.getCurrentThreadCpuTime
-                  df.checkDataflow()
-                  curTimeDf = (tb.getCurrentThreadCpuTime - lastTimeDf)
-                  timesDf = timesDf.:+(curTimeDf)
+                    lastTimeDf = tb.getCurrentThreadCpuTime
+                    df.checkDataflow()
+                    curTimeDf = (tb.getCurrentThreadCpuTime - lastTimeDf)
+                    timesDf = timesDf.:+(curTimeDf)
                 }
                 val timeDataFlowProduct = median(timesDf) / nstoms
 
                 dfProductTimes ::= timeDataFlowProduct // add to the head - reverse later
 
                 if (foundError) configurationsWithErrors += 1
-//                    var file: File = new File(outFilePrefix + "_" + taskDesc + "_errors" + current_config + ".txt")
-//                    file.getParentFile.mkdirs()
-//                    fw = new FileWriter(file)
-//                    for (error <- ts.errors)
-//                        fw.write("  - " + error + "\n")
-//                    fw.close()
-//                    // write product to file
-//                    file = new File(outFilePrefix + "_" + taskDesc + "_" + current_config + "_product.c")
-//                    fw = new FileWriter(file)
-//                    fw.write(PrettyPrinter.print(product))
-//                    fw.close()
-//                    //write configuration to file
-//                    file = new File(outFilePrefix + "_" + taskDesc + "_" + current_config + "_config.txt")
-//                    fw = new FileWriter(file)
-//                    fw.write(config.toString().replace("&&", "&&\n"))
-//                    fw.close()
-//                    // write ast to file
-//                    file = new File(outFilePrefix + "_" + taskDesc + "_" + current_config + "_ast.txt")
-//                    fw = new FileWriter(file)
-//                    fw.write(product.toString)
-//                    fw.close()
+                //                    var file: File = new File(outFilePrefix + "_" + taskDesc + "_errors" + current_config + ".txt")
+                //                    file.getParentFile.mkdirs()
+                //                    fw = new FileWriter(file)
+                //                    for (error <- ts.errors)
+                //                        fw.write("  - " + error + "\n")
+                //                    fw.close()
+                //                    // write product to file
+                //                    file = new File(outFilePrefix + "_" + taskDesc + "_" + current_config + "_product.c")
+                //                    fw = new FileWriter(file)
+                //                    fw.write(PrettyPrinter.print(product))
+                //                    fw.close()
+                //                    //write configuration to file
+                //                    file = new File(outFilePrefix + "_" + taskDesc + "_" + current_config + "_config.txt")
+                //                    fw = new FileWriter(file)
+                //                    fw.write(config.toString().replace("&&", "&&\n"))
+                //                    fw.close()
+                //                    // write ast to file
+                //                    file = new File(outFilePrefix + "_" + taskDesc + "_" + current_config + "_ast.txt")
+                //                    fw = new FileWriter(file)
+                //                    fw.write(product.toString)
+                //                    fw.close()
             }
             // reverse tcProductTimes to get the ordering correct
-            configCheckingResults ::= (taskDesc, (configs.size, configurationsWithErrors, dfProductTimes.reverse, tcProductTimes.reverse))
+            configCheckingResults ::=(taskDesc, (configs.size, configurationsWithErrors, dfProductTimes.reverse, tcProductTimes.reverse))
         }
 
-      val file: File = new File(outFilePrefix + "_report.txt")
-      file.getParentFile.mkdirs()
-      val fw: FileWriter = new FileWriter(file)
-      fw.write("File : " + fileID + "\n")
-      fw.write("Features : " + features.size + "\n")
-      fw.write(log + "\n")
+        val file: File = new File(outFilePrefix + "_report.txt")
+        file.getParentFile.mkdirs()
+        val fw: FileWriter = new FileWriter(file)
+        fw.write("File : " + fileID + "\n")
+        fw.write("Features : " + features.size + "\n")
+        fw.write(log + "\n")
 
         for ((taskDesc, (numConfigs, errors, dfProductTimes, tcProductTimes: List[Long])) <- configCheckingResults) {
             fw.write("\n -- Task: " + taskDesc + "\n")
@@ -929,13 +928,13 @@ object ProductGeneration extends EnforceTreeHelper {
      * @param existingConfigs described above
      * @param preferDisabledFeatures the sat solver will prefer (many) small configs instead of (fewer) large ones
      * @param includeVariabilityFromHeaderFiles if set to false (default) we will ignore variability in files not ending with ".c".
-     *                                        This corresponds to the view of the developer of a ".c" file.
+     *                                          This corresponds to the view of the developer of a ".c" file.
      * @return
      */
     def configurationCoverage(astRoot: TranslationUnit, fm: FeatureModel, features: List[SingleFeatureExpr],
                               existingConfigs: List[SimpleConfiguration] = List(), preferDisabledFeatures: Boolean,
                               includeVariabilityFromHeaderFiles: Boolean = false):
-                              (List[SimpleConfiguration], String) = {
+    (List[SimpleConfiguration], String) = {
         //val env = CASTEnv.createASTEnv(astRoot)
         val unsatCombinationsCacheFile = new File("unsatCombinationsCache.txt")
         // using this is not correct when different files have different presence conditions
@@ -951,10 +950,10 @@ object ProductGeneration extends EnforceTreeHelper {
         var simpleOrNodes = 0
         var simpleAndNodes = 0
         var nodeExpressions: Set[List[FeatureExpr]] = Set()
-        def collectAnnotationLeafNodes(root: Any, previousFeatureExprs: List[FeatureExpr] = List(FeatureExprFactory.True), previousFile:String = null) {
+        def collectAnnotationLeafNodes(root: Any, previousFeatureExprs: List[FeatureExpr] = List(FeatureExprFactory.True), previousFile: String = null) {
             root match {
                 case x: Opt[_] => {
-                    if (x.feature.equals(previousFeatureExprs.head)){
+                    if (x.feature.equals(previousFeatureExprs.head)) {
                         collectAnnotationLeafNodes(x.entry, previousFeatureExprs, previousFile)
                     } else {
                         collectAnnotationLeafNodes(x.entry, previousFeatureExprs.::(x.feature), previousFile)
@@ -1062,7 +1061,7 @@ object ProductGeneration extends EnforceTreeHelper {
             }
         }
         if (nodeExpressions.isEmpty ||
-            (nodeExpressions.size==1 && nodeExpressions.head.equals(List(FeatureExprFactory.True)))) {
+            (nodeExpressions.size == 1 && nodeExpressions.head.equals(List(FeatureExprFactory.True)))) {
             // no feature variables in this file, build one random config and return it
             val completeConfig = completeConfiguration(FeatureExprFactory.True, features, fm, preferDisabledFeatures)
             if (completeConfig != null) {
@@ -1079,14 +1078,14 @@ object ProductGeneration extends EnforceTreeHelper {
                 //println("no satisfiable configuration for fex " + fex.toTextExpr)
             }
         } else {
-            for (featureList:List[FeatureExpr] <- nodeExpressions) {
+            for (featureList: List[FeatureExpr] <- nodeExpressions) {
                 val fex: FeatureExpr = featureList.fold(FeatureExprFactory.True)(_ and _)
                 handleFeatureExpression(fex)
             }
         }
-        def getFeaturesInCoveredExpressions : Set[SingleFeatureExpr] = {
+        def getFeaturesInCoveredExpressions: Set[SingleFeatureExpr] = {
             // how many features have been found in this file (only the .c files)?
-            var features : Set[SingleFeatureExpr] = Set()
+            var features: Set[SingleFeatureExpr] = Set()
             for (exLst <- nodeExpressions)
                 for (ex <- exLst)
                     for (feature <- ex.collectDistinctFeatureObjects)

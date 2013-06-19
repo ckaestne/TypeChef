@@ -116,7 +116,10 @@ object Frontend {
 
             if (ast != null) {
                 val fm_ts = opt.getTypeSystemFeatureModel.and(opt.getLocalFeatureModel).and(opt.getFilePresenceCondition)
-                val ts = new CTypeSystemFrontend(ast.asInstanceOf[TranslationUnit], fm_ts, opt)
+                val cachedTypes = opt.conditionalControlFlow || opt.dataFlow
+                val ts = if (cachedTypes)
+                    new CTypeSystemFrontend(ast.asInstanceOf[TranslationUnit], fm_ts, opt) with CTypeCache
+                else new CTypeSystemFrontend(ast.asInstanceOf[TranslationUnit], fm_ts, opt)
 
                 /** I did some experiments with the TypeChef FeatureModel of Linux, in case I need the routines again, they are saved here. */
                 //Debug_FeatureModelExperiments.experiment(fm_ts)
@@ -147,9 +150,12 @@ object Frontend {
                     cf.checkCfG()
                 }
                 if (opt.dataFlow) {
+                    assert(cachedTypes)
                     stopWatch.start("dataFlow")
                     ProductGeneration.dataflowAnalysis(fm_ts, ast, opt,
-                        logMessage = ("Time for lexing(ms): " + (stopWatch.get("lexing")) + "\nTime for parsing(ms): " + (stopWatch.get("parsing")) + "\n"))
+                        logMessage = ("Time for lexing(ms): " + (stopWatch.get("lexing")) + "\nTime for parsing(ms): " + (stopWatch.get("parsing")) + "\n"),
+                        typeCache = ts.asInstanceOf[CTypeCache]
+                    )
                 }
 
             }

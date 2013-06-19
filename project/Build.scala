@@ -34,6 +34,7 @@ object BuildSettings {
                     "-Yinline-warnings",
                     "-feature",
                     "-language:postfixOps",
+                    "-language:higherkinds",
                     "-language:implicitConversions"
                 )
                 else Nil

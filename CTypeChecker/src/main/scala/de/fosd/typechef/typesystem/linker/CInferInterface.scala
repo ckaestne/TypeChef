@@ -104,7 +104,7 @@ trait CInferInterface extends CTypeSystem with InterfaceWriter {
      * http://stackoverflow.com/questions/216510/extern-inline
      * "extern inline" means neither static nor exported
      */
-    override def typedFunction(fun: FunctionDef, funType: Conditional[CType], featureExpr: FeatureExpr) {
+    override protected def typedFunction(fun: FunctionDef, funType: Conditional[CType], featureExpr: FeatureExpr) {
         super.typedFunction(fun, funType, featureExpr)
 
         val staticSpec = getStaticCondition(fun.specifiers)
@@ -130,7 +130,9 @@ trait CInferInterface extends CTypeSystem with InterfaceWriter {
      * all function declarations without definitions are imports
      * if they are referenced at least once
      */
-    override def typedExpr(expr: Expr, ctypes: Conditional[CType], featureExpr: FeatureExpr, env: Env) {
+    override protected def typedExpr(expr: Expr, ctypes: Conditional[CType], featureExpr: FeatureExpr, env: Env) {
+        super.typedExpr(expr, ctypes, featureExpr, env)
+
         expr match {
             case identifier: Id =>
                 val deadCondition = env.isDeadCode
