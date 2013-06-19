@@ -41,7 +41,8 @@ class RenameEvaluation extends BusyBoxEvaluation {
             val amountOfIds = RenameIdentifier.getAllConnectedIdentifier(id, morpheus.getDeclUseMap, morpheus.getUseDeclMap).length
             val features = RenameIdentifier.getAllConnectedIdentifier(id, morpheus.getDeclUseMap, morpheus.getUseDeclMap).map(x => morpheus.getASTEnv.featureExpr(x))
             // check recursive only for variable ids
-            if ((new File(id.getPositionFrom.getFile).canWrite) && (features.distinct.length == 1) && features.contains("True") && FORCE_VARIABILITY && (depth < MAX_DEPTH)) getVariableIdForRename(depth + 1)
+            if ((new File(id.getPositionFrom.getFile).canWrite) && id.name.equals("main")) getVariableIdForRename(depth + 1)
+            else if ((features.distinct.length == 1) && features.contains("True") && FORCE_VARIABILITY && (depth < MAX_DEPTH)) getVariableIdForRename(depth + 1)
             else (id, amountOfIds, features)
         }
 
