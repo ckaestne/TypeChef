@@ -9,6 +9,7 @@ import de.fosd.typechef.crefactor.Logging
 import de.fosd.typechef.ProductGeneration.SimpleConfiguration
 import de.fosd.typechef.Frontend
 import java.util.IdentityHashMap
+import java.util
 
 trait EvalHelper extends Logging {
 
@@ -177,6 +178,7 @@ trait EvalHelper extends Logging {
         var fileEx: FeatureExpr = FeatureExprFactory.True
         var trueFeatures: Set[SingleFeatureExpr] = Set()
         var falseFeatures: Set[SingleFeatureExpr] = Set()
+        var assignValues = new util.IdentityHashMap[String, String]()
 
         val enabledPattern: Pattern = java.util.regex.Pattern.compile("([^=]*)=.*")
         val disabledPattern: Pattern = java.util.regex.Pattern.compile("([^=]*) is*")
@@ -185,8 +187,10 @@ trait EvalHelper extends Logging {
             var matcher = enabledPattern.matcher(line)
             if (matcher.matches()) {
                 val name = matcher.group(1)
+
                 println("value " + line.substring(line.lastIndexOf('=') + 1))
                 val feature = FeatureExprFactory.createDefinedExternal(name)
+                println(feature.feature)
                 var fileExTmp = fileEx.and(feature)
                 if (correctFeatureModelIncompatibility) {
                     val isSat = fileExTmp.isSatisfiable(fm)
@@ -208,7 +212,6 @@ trait EvalHelper extends Logging {
                 matcher = disabledPattern.matcher(line)
                 if (matcher.matches()) {
                     val name = matcher.group(1)
-                    println("missed " + name)
                     val feature = FeatureExprFactory.createDefinedExternal(name)
                     var fileExTmp = fileEx.andNot(feature)
                     if (correctFeatureModelIncompatibility) {
