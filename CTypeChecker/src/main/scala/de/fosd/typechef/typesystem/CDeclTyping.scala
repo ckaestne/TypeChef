@@ -208,8 +208,8 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
 
 
         for (specifier <- specifiers) specifier match {
-            case VolatileSpecifier() => types = types.map(_.map(_.toVolatile))
-            case ConstSpecifier() => types = types.map(_.map(_.toConst))
+            case VolatileSpecifier() => types = types.map(_.map(_.toVolatile()))
+            case ConstSpecifier() => types = types.map(_.map(_.toConst()))
 
             case _ =>
         }

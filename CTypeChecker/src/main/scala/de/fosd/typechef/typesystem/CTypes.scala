@@ -53,8 +53,8 @@ case class CType(
         copy(atype = newatype, isObject = false)
     }
     def toObj: CType = copy(isObject = true)
-    def toVolatile: CType = copy(isVolatile = true)
-    def toConst: CType = copy(isConstant = true)
+    def toVolatile(newVal: Boolean = true): CType = copy(isVolatile = newVal)
+    def toConst(newVal: Boolean = true): CType = copy(isConstant = newVal)
 
     def isFunction: Boolean = atype.isFunction
     def isUnknown: Boolean = atype.isUnknown

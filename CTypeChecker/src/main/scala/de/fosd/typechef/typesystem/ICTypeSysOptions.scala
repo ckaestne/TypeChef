@@ -73,6 +73,14 @@ trait ICTypeSysOptions {
     // https://www.securecoding.cert.org/confluence/display/seccode/EXP32-C.+Do+not+access+a+volatile+object+through+a+non-volatile+reference
     // type system
     def warning_volatile: Boolean = false
+
+    // combines both:
+    // EXP40-C. Do not modify constant values
+    // EXP05-C. Do not cast away a const qualification
+    // https://www.securecoding.cert.org/confluence/display/seccode/EXP40-C.+Do+not+modify+constant+values
+    // https://www.securecoding.cert.org/confluence/display/seccode/EXP05-C.+Do+not+cast+away+a+const+qualification
+    // type system
+    def warning_const_assignment: Boolean = false
 }
 
 trait COptionProvider {

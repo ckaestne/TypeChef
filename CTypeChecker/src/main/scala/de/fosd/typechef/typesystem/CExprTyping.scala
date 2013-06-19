@@ -82,7 +82,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                             case fun: CFunction => fun // for some reason deref of a function still yields a valid function in gcc
                             case e =>
                                 reportTypeError(f, "invalid * on " + expr + " (" + e + ")", pd)
-                        }).toObj)
+                        }).toObj.toConst(false).toVolatile(false))
                     //e.n notation
                     case p@PostfixExpr(expr, PointerPostfixSuffix(".", i@Id(id))) =>
                         def lookup(fields: ConditionalTypeMap, fexpr: FeatureExpr): Conditional[CType] = {
@@ -115,7 +115,10 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                         val targetTypes = getTypenameType(targetTypeName, featureExpr, env)
                         val sourceTypes = et(expr).map(_.toValue)
                         ConditionalLib.mapCombinationF(sourceTypes, targetTypes, featureExpr,
-                            (fexpr: FeatureExpr, sourceType: CType, targetType: CType) =>
+                            (fexpr: FeatureExpr, sourceType: CType, targetType: CType) => {
+                                if (opts.warning_const_assignment && sourceType.isConstant && !targetType.isConstant)
+                                    reportTypeError(fexpr, "Do not cast away a const qualification '%s <- %s'; may result in undefined behavior".format(targetType.toText, sourceType.toText), ce, Severity.SecurityWarning, "const-cast")
+
                                 if (targetType == CVoid().toCType ||
                                     isPointer(targetType) ||
                                     (isScalar(sourceType) && isScalar(targetType))) targetType
@@ -124,7 +127,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                                 else if (sourceType.isIgnore || targetType.isIgnore || sourceType.isUnknown || targetType.isUnknown) targetType
                                 else
                                     reportTypeError(fexpr, "incorrect cast from " + sourceType + " to " + targetType, ce)
-                        )
+                            })
                     //a()
                     case pe@PostfixExpr(expr, FunctionCall(ExprList(parameterExprs))) =>
                         val functionType: Conditional[CType] = et(expr)
@@ -158,6 +161,8 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
 
                                 if (opts.warning_volatile && ltype.isVolatile && !rtype.isVolatile)
                                     reportTypeError(fexpr, "Cannot convert from '%s' to '%s' with '%s'; undefined behavior".format(rtype.toText, ltype.toText, op), ae, Severity.SecurityWarning, "volatile")
+                                if (opts.warning_const_assignment && ltype.isConstant)
+                                    reportTypeError(fexpr, "Cannot assign to const '%s'; undefined behavior".format(ltype.toText), ae, Severity.SecurityWarning, "const-assignment")
 
                                 val opType = operationType(op, ltype, rtype, ae, fexpr, env)
                                 ltype match {
