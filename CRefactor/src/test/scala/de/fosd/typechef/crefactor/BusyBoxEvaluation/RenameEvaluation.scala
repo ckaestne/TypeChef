@@ -2,7 +2,7 @@ package de.fosd.typechef.crefactor.BusyBoxEvaluation
 
 import org.junit.Test
 import java.io.File
-import de.fosd.typechef.parser.c.{PrettyPrinter, Id, AST}
+import de.fosd.typechef.parser.c.{Id, AST}
 import de.fosd.typechef.featureexpr.FeatureExpr
 import de.fosd.typechef.crefactor.util.TimeMeasurement
 import de.fosd.typechef.crefactor.Morpheus
@@ -21,7 +21,6 @@ class RenameEvaluation extends BusyBoxEvaluation {
             val parsed = parse(new File(busyBoxPath + file))
             val ast = parsed._1
             val fm = parsed._2
-            println(PrettyPrinter.print(ast))
             val morpheus = new Morpheus(ast, fm)
             val parseTypeCheckTime = parseTypeCheckMs.getTime
             stats ::= parseTypeCheckTime
@@ -41,7 +40,7 @@ class RenameEvaluation extends BusyBoxEvaluation {
             val amountOfIds = RenameIdentifier.getAllConnectedIdentifier(id, morpheus.getDeclUseMap, morpheus.getUseDeclMap).length
             val features = RenameIdentifier.getAllConnectedIdentifier(id, morpheus.getDeclUseMap, morpheus.getUseDeclMap).map(x => morpheus.getASTEnv.featureExpr(x))
             // check recursive only for variable ids
-            if ((new File(id.getPositionFrom.getFile).canWrite) && id.name.equals("main")) getVariableIdForRename(depth + 1)
+            if (!(new File(id.getPositionFrom.getFile).canWrite) && id.name.equals("main")) getVariableIdForRename(depth + 1)
             else if ((features.distinct.length == 1) && features.contains("True") && FORCE_VARIABILITY && (depth < MAX_DEPTH)) getVariableIdForRename(depth + 1)
             else (id, amountOfIds, features)
         }
