@@ -59,7 +59,6 @@ class CTypeSystemFrontend(iast: TranslationUnit, featureModel: FeatureModel = Fe
      * @return
      */
     def checkAST: Boolean = {
-        println("isCalled")
         errors = List() // clear error list
         typecheckTranslationUnit(iast)
         if (errors.isEmpty)
