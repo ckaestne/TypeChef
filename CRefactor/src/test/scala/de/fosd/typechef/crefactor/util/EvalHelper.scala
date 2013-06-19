@@ -185,7 +185,7 @@ trait EvalHelper extends Logging {
             var matcher = enabledPattern.matcher(line)
             if (matcher.matches()) {
                 val name = matcher.group(1)
-                println("value " + line.substring(line.lastIndexOf('=')))
+                println("value " + line.substring(line.lastIndexOf('=') + 1))
                 val feature = FeatureExprFactory.createDefinedExternal(name)
                 var fileExTmp = fileEx.and(feature)
                 if (correctFeatureModelIncompatibility) {
@@ -208,7 +208,7 @@ trait EvalHelper extends Logging {
                 matcher = disabledPattern.matcher(line)
                 if (matcher.matches()) {
                     val name = matcher.group(1)
-                    println(name)
+                    println("missed " + name)
                     val feature = FeatureExprFactory.createDefinedExternal(name)
                     var fileExTmp = fileEx.andNot(feature)
                     if (correctFeatureModelIncompatibility) {
