@@ -26,14 +26,13 @@ package de.fosd.typechef.lexer;
 import de.fosd.typechef.LexerToken;
 import de.fosd.typechef.VALexer;
 import de.fosd.typechef.featureexpr.FeatureModel;
+import de.fosd.typechef.lexer.macrotable.MacroFilter;
 import de.fosd.typechef.lexer.options.ILexerOptions;
-import de.fosd.typechef.lexer.options.LexerOptions;
+import de.fosd.typechef.lexer.options.PartialConfiguration;
 import de.fosd.typechef.xtclexer.XtcPreprocessor;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * (Currently a simple test class).
@@ -41,15 +40,101 @@ import java.util.Map;
 public class Main {
 
 
-    public static void main(String[] args) throws Exception {
-        (new Main()).run(args, false, true, null);
-    }
+    //    public static void main(String[] args) throws Exception {
+//        (new Main()).run(args, false, true, null);
+//    }
+//
 
-    public List<LexerToken> run(String[] args, boolean returnTokenList, boolean printToStdOutput, FeatureModel featureModel) throws Exception {
-        LexerOptions options = new LexerOptions();
-        options.setFeatureModel(featureModel);
-        options.setPrintToStdOutput(printToStdOutput);
-        options.parseOptions(args);
+    /**
+     * shorthand with few default options, avoiding all command-line parsing
+     */
+    public List<LexerToken> run(final File targetFile,
+                                final boolean returnTokenList,
+                                final boolean printToStdOutput,
+                                final FeatureModel featureModel) throws Exception {
+        @SuppressWarnings("unchecked")
+        ILexerOptions options = new ILexerOptions() {
+
+            @Override
+            public Map<String, String> getDefinedMacros() {
+                return Collections.EMPTY_MAP;
+            }
+
+            @Override
+            public Set<String> getUndefMacros() {
+                return Collections.EMPTY_SET;
+            }
+
+            @Override
+            public List<String> getIncludePaths() {
+                return Collections.EMPTY_LIST;
+            }
+
+            @Override
+            public List<String> getQuoteIncludePath() {
+                return Collections.EMPTY_LIST;
+            }
+
+            @Override
+            public MacroFilter getMacroFilter() {
+                return new MacroFilter();
+            }
+
+            @Override
+            public List<String> getIncludedHeaders() {
+                return Collections.EMPTY_LIST;
+            }
+
+            @Override
+            public String getLexOutputFile() {
+                return null;
+            }
+
+            @Override
+            public boolean isPrintVersion() {
+                return false;
+            }
+
+            @Override
+            public Set<Warning> getWarnings() {
+                return Collections.EMPTY_SET;
+            }
+
+            @Override
+            public Set<Feature> getFeatures() {
+                return Collections.EMPTY_SET;
+            }
+
+            @Override
+            public List<String> getFiles() {
+                return Collections.singletonList(targetFile.getAbsolutePath());
+            }
+
+            @Override
+            public boolean isLexPrintToStdout() {
+                return printToStdOutput;
+            }
+
+            @Override
+            public boolean useXtcLexer() {
+                return false;
+            }
+
+            @Override
+            public FeatureModel getLexerFeatureModel() {
+                return featureModel;
+            }
+
+            @Override
+            public PartialConfiguration getLexerPartialConfiguration() {
+                return null;
+            }
+
+            @Override
+            public boolean isAdjustLineNumbers() {
+                return true;
+            }
+        };
         return run(options, returnTokenList);
     }
 
@@ -71,7 +156,7 @@ public class Main {
         }
 
 
-        VALexer pp = lexerFactory.create(options.getFeatureModel());
+        VALexer pp = lexerFactory.create(options.getLexerFeatureModel());
 
         for (Warning w : options.getWarnings())
             pp.addWarning(w);
@@ -88,10 +173,10 @@ public class Main {
         } else if (options.isLexPrintToStdout())
             output = new PrintWriter(new OutputStreamWriter(System.out));
 
-        if (options.getPartialConfiguration() != null) {
-            for (String def : options.getPartialConfiguration().getDefinedFeatures())
+        if (options.getLexerPartialConfiguration() != null) {
+            for (String def : options.getLexerPartialConfiguration().getDefinedFeatures())
                 pp.addMacro(def, FeatureExprLib.True(), "1");
-            for (String undef : options.getPartialConfiguration().getUndefinedFeatures())
+            for (String undef : options.getLexerPartialConfiguration().getUndefinedFeatures())
                 pp.removeMacro(undef, FeatureExprLib.True());
         }
         for (Map.Entry<String, String> macro : options.getDefinedMacros().entrySet())
@@ -141,13 +226,17 @@ public class Main {
                 }
 
                 if (output != null) {
-                    //adjust line numbers to .pi file for debugging
-                    String image = tok.getText();
-                    while (image.indexOf('\n') >= 0) {
-                        outputLine++;
-                        image = image.substring(image.indexOf('\n') + 1);
+                    if (options.isAdjustLineNumbers()) {
+                        //adjust line numbers to .pi file for debugging
+                        String image = tok.getText();
+                        while (image.indexOf('\n') >= 0) {
+                            outputLine++;
+                            image = image.substring(image.indexOf('\n') + 1);
+                        }
+                        tok.setLine(outputLine);
+                        if (options.getLexOutputFile() != null)
+                            tok.setSourceName(options.getLexOutputFile());
                     }
-                    tok.setLine(outputLine);
 
                     //write to .pi file
                     tok.lazyPrint(output);

@@ -2,7 +2,7 @@ package de.fosd.typechef.typesystem.linker
 
 import de.fosd.typechef.typesystem.CType
 import de.fosd.typechef.featureexpr.FeatureExpr
-import de.fosd.typechef.parser.Position
+import de.fosd.typechef.error.Position
 
 
 /**
@@ -13,16 +13,17 @@ import de.fosd.typechef.parser.Position
  * TODO types should be selfcontained (i.e. not reference to structures or type names defined elsewhere,
  * but resolved to anonymous structs, etc.)
  */
-case class CSignature(name: String, ctype: CType, fexpr: FeatureExpr, pos: Seq[Position]) {
+case class CSignature(name: String, ctype: CType, fexpr: FeatureExpr, pos: Seq[Position], extraFlags: Set[CFlag] = Set()) {
     override def toString =
-        name + ": " + ctype.toText + "\t\tif " + fexpr + "\t\tat " + pos.mkString(", ")
+        name + ": " + ctype.toText + " " + extraFlags.mkString("+") + "\t\tif " + fexpr + "\t\tat " + pos.mkString(", ")
 
     override def hashCode = name.hashCode + ctype.hashCode()
     override def equals(that: Any) = that match {
-        case CSignature(thatName, thatCType, thatFexpr, thatPos) => name == thatName && ctype == thatCType && fexpr.equivalentTo(thatFexpr) && pos == thatPos
+        case CSignature(thatName, thatCType, thatFexpr, thatPos, thatExtraFlags) => name == thatName && ctype == thatCType && fexpr.equivalentTo(thatFexpr) && pos == thatPos && extraFlags == thatExtraFlags
         case _ => false
     }
 
-    def and(f: FeatureExpr) = CSignature(name, ctype, fexpr and f, pos)
+    def and(f: FeatureExpr) = CSignature(name, ctype, fexpr and f, pos, extraFlags)
 
 }
+

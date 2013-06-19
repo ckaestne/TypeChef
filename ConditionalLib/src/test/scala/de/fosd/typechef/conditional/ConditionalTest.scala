@@ -3,7 +3,7 @@ package de.fosd.typechef.conditional
 import org.junit._
 import Assert._
 import ConditionalLib._
-import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr, Configuration}
+import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
 import de.fosd.typechef.featureexpr.FeatureExprFactory._
 
 class ConditionalTest {
@@ -183,56 +183,68 @@ class ConditionalTest {
 
         a = a.+("a", fb, 5)
         assertEquals(Choice(fb, One(5), v2), a.getOrElse("a", -1))
-  }
+    }
 
-  @Test
-  def testConditionalMapF {
-    val v1: Choice[Set[Int]] = Choice(fa, One(Set(1,2,3)), One(Set(-1,-2,-3)))
-    val v2: Choice[Set[Int]] = Choice(fa, One(Set(4,5,6)), One(Set()))
-    val v3 = v2.mapf[Set[Int]](
-        fa, {(f, x) => if (fa equivalentTo f) x+10 else x})
+    @Test
+    def testConditionalMapF {
+        val v1: Choice[Set[Int]] = Choice(fa, One(Set(1, 2, 3)), One(Set(-1, -2, -3)))
+        val v2: Choice[Set[Int]] = Choice(fa, One(Set(4, 5, 6)), One(Set()))
+        val v3 = v2.mapf[Set[Int]](
+        fa, {
+            (f, x) => if (fa equivalentTo f) x + 10 else x
+        })
 
-    println(ConditionalLib.zip(v1, v2))
-    println(ConditionalLib.mapCombination[Set[Int], Set[Int], Set[Int]](v1, v2, {(x,y) => x++y}))
-    println(v3)
-  }
+        println(ConditionalLib.zip(v1, v2))
+        println(ConditionalLib.mapCombination[Set[Int], Set[Int], Set[Int]](v1, v2, {
+            (x, y) => x ++ y
+        }))
+        println(v3)
+    }
 
-  @Test
-  def testConditionalInsert {
-    var t1: Conditional[String] = One("true")
+    @Test
+    def testConditionalInsert {
+        var t1: Conditional[String] = One("true")
 
-    t1 = ConditionalLib.insert(t1, FeatureExprFactory.True, fa, "a")
-    t1 = ConditionalLib.insert(t1, FeatureExprFactory.True, fa not(), "na")
+        t1 = ConditionalLib.insert(t1, FeatureExprFactory.True, fa, "a")
+        t1 = ConditionalLib.insert(t1, FeatureExprFactory.True, fa not(), "na")
 
-    var t2: Conditional[String] = One("true")
-    t2 = ConditionalLib.insert(t1, FeatureExprFactory.True, fa not(), "na")
-    t2 = ConditionalLib.insert(t1, FeatureExprFactory.True, fa, "a")
+        var t2: Conditional[String] = One("true")
+        t2 = ConditionalLib.insert(t1, FeatureExprFactory.True, fa not(), "na")
+        t2 = ConditionalLib.insert(t1, FeatureExprFactory.True, fa, "a")
 
-    var t3: Conditional[String] = One("true")
-    t3 = ConditionalLib.insert(t3, FeatureExprFactory.True, fa, "a")
-    t3 = ConditionalLib.insert(t3, FeatureExprFactory.True, fa and fb, "ab")
+        var t3: Conditional[String] = One("true")
+        t3 = ConditionalLib.insert(t3, FeatureExprFactory.True, fa, "a")
+        t3 = ConditionalLib.insert(t3, FeatureExprFactory.True, fa and fb, "ab")
 
-    println(t1)
-    println(t2)
-    println(t3)
+        println(t1)
+        println(t2)
+        println(t3)
 
-  }
+    }
 
-  @Test
-  def testConditionalSimplify {
-    var t1: Conditional[Option[String]] = Choice(fa, One(Some("fa")), One(None))
+    @Test
+    def testConditionalSimplify {
+        var t1: Conditional[Option[String]] = Choice(fa, One(Some("fa")), One(None))
 
-    var t2 = Choice(fa, t1, One(Some("nfa")))
+        var t2 = Choice(fa, t1, One(Some("nfa")))
 
-    println(t2)
-    println(t2.simplify)
-  }
+        println(t2)
+        println(t2.simplify)
+    }
 
-  @Test def testForLiveness {
-    var t1: Conditional[Set[String]] = One(Set())
+    @Test def testForLiveness {
+        var t1: Conditional[Set[String]] = One(Set())
 
-    println(t1)
-    t1 = ConditionalLib.conditionalFoldRight[Set[String], Set[String]](List(Opt(fa.not, Set("c"))), t1, _ ++ _)
-    println(t1)
-  }
+        println(t1)
+        t1 = ConditionalLib.conditionalFoldRight[Set[String], Set[String]](List(Opt(fa.not, Set("c"))), t1, _ ++ _)
+        println(t1)
+    }
+
+
+    @Test def testIfTrue {
+        import ConditionalLib.isTrue
+        assertEquals(fa and fb, isTrue(Choice(fa, Choice(fb, One(true), One(false)), One(false))))
+        assertEquals(False, isTrue(Choice(fa, Choice(fb, One(false), One(false)), One(false))))
+        assertEquals((fa and fb) or (fa.not and fb.not), isTrue(Choice(fa, Choice(fb, One(true), One(false)), Choice(fb, One(false), One(true)))))
+    }
 }

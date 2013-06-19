@@ -1127,6 +1127,45 @@ void bar() {
                             """, p.translationUnit)
     }
 
+
+    @Test
+    def test_uclibc {
+        assertParseableAST( """
+                              __extension__ static __inline unsigned int
+                              __attribute__ ((__nothrow__)) gnu_dev_major (unsigned long long int __dev)
+                              {
+                                return ((__dev >> 8) & 0xfff) | ((unsigned int) (__dev >> 32) & ~0xfff);
+                              }
+
+                            """, p.translationUnit)
+    }
+
+    @Test
+    @Ignore("this is a bug in our parser. `jin:...' should be one labled statement, but is parsed as two statements; therefore the else does not match" )
+    def test_labels {
+        //based on a problem in uclibc
+        assertParseableAST("""if (0)
+                             |	    jin:{
+                             |		if ((a = *++haystack) == c)
+                             |		  goto crest;
+                             |	      }
+                             |	    else
+                             |	      a = *++haystack;""".stripMargin , p.statement)
+    }
+    @Test
+    def test_labels2 {
+        //based on a problem in uclibc
+        assertParseableAST("""if (0)
+                             |	    {jin:{
+                             |		if ((a = *++haystack) == c)
+                             |		  goto crest;
+                             |	      }}
+                             |	    else
+                             |	      a = *++haystack;""".stripMargin , p.statement)
+    }
+
+
+
     private def assertNoDeadNodes(ast: Product) {
         assertNoDeadNodes(ast, FeatureExprFactory.True, ast)
     }

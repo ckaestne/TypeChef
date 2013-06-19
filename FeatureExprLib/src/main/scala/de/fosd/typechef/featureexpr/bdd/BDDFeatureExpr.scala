@@ -167,7 +167,9 @@ class BDDFeatureExpr(private[featureexpr] val bdd: BDD) extends FeatureExpr {
                 if (preferDisabledFeatures) {
                     var enabledFeatures: Set[SingleFeatureExpr] = Set()
                     for (f <- trueFeatures) {
-                        val elem = remainingInterestingFeatures.find({ fex: SingleFeatureExpr => fex.feature.equals(f) })
+                        val elem = remainingInterestingFeatures.find({
+                            fex: SingleFeatureExpr => fex.feature.equals(f)
+                        })
                         elem match {
                             case Some(fex: SingleFeatureExpr) => {
                                 remainingInterestingFeatures -= fex
@@ -180,7 +182,9 @@ class BDDFeatureExpr(private[featureexpr] val bdd: BDD) extends FeatureExpr {
                 } else {
                     var disabledFeatures: Set[SingleFeatureExpr] = Set()
                     for (f <- falseFeatures) {
-                        val elem = remainingInterestingFeatures.find({ fex: SingleFeatureExpr => fex.feature.equals(f) })
+                        val elem = remainingInterestingFeatures.find({
+                            fex: SingleFeatureExpr => fex.feature.equals(f)
+                        })
                         elem match {
                             case Some(fex: SingleFeatureExpr) => {
                                 remainingInterestingFeatures -= fex
@@ -227,7 +231,7 @@ class BDDFeatureExpr(private[featureexpr] val bdd: BDD) extends FeatureExpr {
     override def hashCode = bdd.hashCode
 
 
-    protected def calcSize: Int = bddAllSat.foldLeft(0)(_ + _.filter(_ >= 0).size)
+    protected def calcSize: Int = bdd.nodeCount
 
     /**
      * heuristic to determine whether a feature expression is small
@@ -246,9 +250,25 @@ class BDDFeatureExpr(private[featureexpr] val bdd: BDD) extends FeatureExpr {
      * Converts this formula to a textual expression.
      */
     def toTextExpr: String =
-        printbdd(bdd, "1", "0", " && ", " || ", i => "definedEx(" + FExprBuilder.lookupFeatureName(i) + ")")
+        toSATFeatureExpr().toTextExpr
     override def toString: String =
+        toSATFeatureExpr().toString
+
+    def toTextExprDNF: String =
+        printbdd(bdd, "1", "0", " && ", " || ", i => "definedEx(" + FExprBuilder.lookupFeatureName(i) + ")")
+    def toStringDNF: String =
         printbdd(bdd, "True", "False", " & ", " | ", FExprBuilder.lookupFeatureName(_))
+
+
+    private[featureexpr] def toSATFeatureExpr(): FeatureExpr = toSATFeatureExpr(bdd)
+    private[featureexpr] def toSATFeatureExpr(bdd: BDD): FeatureExpr =
+        if (bdd.isOne) sat.True
+        else if (bdd.isZero) sat.False
+        else {
+            val v = sat.SATFeatureExprFactory.createDefinedExternal(FExprBuilder.lookupFeatureName(bdd.`var`()))
+            (v and toSATFeatureExpr(bdd.high())) or (v.not and toSATFeatureExpr(bdd.low()))
+        }
+
 
     private def printbdd(bdd: BDD, one: String, zero: String, and: String, or: String, toName: (Int) => String): String =
         if (bdd.isOne()) one
@@ -365,10 +385,14 @@ class BDDFeatureExpr(private[featureexpr] val bdd: BDD) extends FeatureExpr {
         }
         return Some(enabled, disabled)
     }
+
+    private def writeReplace(): Object = new FeatureExprSerializationProxy(this.toTextExpr)
 }
 
 class SingleBDDFeatureExpr(id: Int) extends BDDFeatureExpr(lookupFeatureBDD(id)) with SingleFeatureExpr {
     def feature = lookupFeatureName(id)
+
+    private def writeReplace(): Object = new FeatureExprSerializationProxy(this.toTextExpr)
 }
 
 //// XXX: this should be recognized by the caller and lead to clean termination instead of a stack trace. At least,
@@ -440,7 +464,9 @@ private[bdd] object FExprBuilder {
     }
 
     def containsFeatureID(id: Int): Boolean = featureNames.contains(id)
-    def lookupFeatureName(id: Int): String = { if (featureNames.contains(id)) featureNames(id) else "unknown" }
+    def lookupFeatureName(id: Int): String = {
+        if (featureNames.contains(id)) featureNames(id) else "unknown"
+    }
     def lookupFeatureID(name: String): Int = {
         if (!featureIds.contains(name))
             definedExternal(name)
@@ -474,6 +500,8 @@ object True extends BDDFeatureExpr(FExprBuilder.TRUE) with DefaultPrint with Sin
     override def debug_print(ind: Int) = indent(ind) + toTextExpr + "\n"
     override def isSatisfiable(fm: FeatureModel) = true
     override def feature = toString
+
+    private def writeReplace(): Object = new FeatureExprSerializationProxy(this.toTextExpr)
 }
 
 object False extends BDDFeatureExpr(FExprBuilder.FALSE) with DefaultPrint with SingleFeatureExpr {
@@ -482,6 +510,8 @@ object False extends BDDFeatureExpr(FExprBuilder.FALSE) with DefaultPrint with S
     override def debug_print(ind: Int) = indent(ind) + toTextExpr + "\n"
     override def isSatisfiable(fm: FeatureModel) = false
     override def feature = toString
+
+    private def writeReplace(): Object = new FeatureExprSerializationProxy(this.toTextExpr)
 }
 
 object CastHelper {

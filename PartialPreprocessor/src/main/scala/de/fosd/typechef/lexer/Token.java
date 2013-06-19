@@ -445,6 +445,8 @@ public abstract class Token implements LexerToken {
 
     public abstract String getSourceName();
 
+    public abstract void setSourceName(String src);
+
     /**
      * "Lazily print" this token, i.e. print it without constructing a full in-memory representation. This is just a
      * default implementation, override it for tokens with a potentially huge string representation.

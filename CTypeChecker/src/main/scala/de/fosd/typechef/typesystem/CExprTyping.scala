@@ -4,6 +4,7 @@ package de.fosd.typechef.typesystem
 import _root_.de.fosd.typechef.parser.c._
 import _root_.de.fosd.typechef.conditional._
 import _root_.de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
+import de.fosd.typechef.error._
 
 /**
  * typing C expressions
@@ -31,16 +32,22 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                      * these for brevity's sake
                      */
                     //TODO other constant types
-                    case Constant(v) =>
+                    case c@Constant(v) =>
+                        if (opts.warning_long_designator && v.lastOption.map(_ == 'l').getOrElse(false))
+                            reportTypeError(featureExpr, "Use \"L,\" not \"l,\" to indicate a long value", c, Severity.SecurityWarning, "long-designator")
+
                         if (v == "0" || v == "'\\0'") One(CZero())
                         else
                         if (v.head == '\'') One(CUnsigned(CChar()))
                         else
-                        if (v.last.toLower == 'l') One(CSigned(CLong()))
+                        if (v.last.toUpper == 'L') One(CSigned(CLong()))
                         else One(CSigned(CInt()))
                     //variable or function ref
                     case id@Id(name) =>
-                        val ctype = env.varEnv(name)
+                        var ctype = env.varEnv(name)
+
+                        ctype = markSecurityRelevantFunctions(name, ctype)
+
                         ctype.mapf(featureExpr, {
                             (f, t) =>
                                 if (t.isUnknown && f.isSatisfiable()) {
@@ -72,6 +79,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                                 s.toObj
                             case CPointer(t) if (t != CVoid) => t.toObj
                             case CArray(t, _) => t.toObj
+                            case i@CIgnore() => i.toObj
                             case fun: CFunction => fun // for some reason deref of a function still yields a valid function in gcc
                             case e => if (e.isIgnore) e
                             else
@@ -123,8 +131,12 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                     //a()
                     case pe@PostfixExpr(expr, FunctionCall(ExprList(parameterExprs))) =>
                         val functionType: Conditional[CType] = et(expr)
+                        val hasSecurityRelevantFunction = functionType.exists({
+                            case f: CFunction => f.securityRelevant;
+                            case _ => false
+                        })
                         val providedParameterTypes: List[Opt[Conditional[CType]]] = parameterExprs.map({
-                            case Opt(f, e) => Opt(f, etF(e, featureExpr and f))
+                            case Opt(f, e) => Opt(f, etF(e, featureExpr and f, env.markSecurityRelevant(hasSecurityRelevantFunction, "sensitive function parameters")))
                         })
 
                         val providedParameterTypesExploded: Conditional[List[CType]] = ConditionalLib.explodeOptList(Conditional.flatten(providedParameterTypes))
@@ -144,36 +156,56 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                     case ae@AssignExpr(lexpr, op, rexpr) =>
                         ConditionalLib.mapCombinationF(et(rexpr), et(lexpr), featureExpr,
                             (fexpr: FeatureExpr, rtype: CType, ltype: CType) => {
-                                val opType = operationType(op, ltype, rtype, ae, fexpr)
+                                //security check for integer overflows when operand is used in pointer arithmetic (ie. also array access)
+                                //checks expression again in a tighter context
+                                if (isPointer(ltype) && pointerArthAssignOp(op)) etF(rexpr, fexpr, env.markSecurityRelevant("array access/pointer arithmetic"))
+
+                                val opType = operationType(op, ltype, rtype, ae, fexpr, env)
                                 ltype match {
-                                    case CObj(t) if (coerce(t, opType)) => prepareArray(ltype).toValue
-                                    case e => if (e.isIgnore || e.isUnknown) e.toValue else reportTypeError(fexpr, "incorrect assignment with " + e + " " + op + " " + rtype, ae)
+                                    case CObj(t) if (coerce(t, opType)) => {
+                                        if (opts.warning_implicit_coercion && isForcedCoercion(ltype, rtype))
+                                            reportTypeError(fexpr, "Implicit coercion of integer types (%s <- %s), consider a cast".format(ltype.toText, rtype.toText), ae, Severity.SecurityWarning, "implicit_coercion")
+                                        prepareArray(ltype).toValue
+                                    }
+                                    case u: CUnknown => u.toValue
+                                    case CObj(i@CIgnore()) => i.toValue
+                                    case e => reportTypeError(fexpr, "incorrect assignment with " + e + " " + op + " " + rtype, ae)
                                 }
                             })
                     //a++, a--
-                    case pe@PostfixExpr(expr, SimplePostfixSuffix(_)) => et(expr) map {
-                        prepareArray
-                    } mapf(featureExpr, {
-                        case (f, CObj(t)) if (isScalar(t)) => t //apparently ++ also works on arrays
-                        //TODO check?: not on function references
-                        case (f, e) => if (e.isIgnore) e else reportTypeError(f, "wrong type argument to increment " + e, pe)
-                    })
+                    case pe@PostfixExpr(expr, SimplePostfixSuffix(_)) =>
+                        //check for integer overflow
+                        if (opts.warning_potential_integer_overflow && env.isSecurityRelevantLocation)
+                            issueTypeError(Severity.SecurityWarning, featureExpr, "Potential integer overflow in security relevant context (%s)".format(env.securityRelevantLocation.get), pe, "potential_integer_overflow")
+
+                        et(expr) map {
+                            prepareArray
+                        } mapf(featureExpr, {
+                            case (f, CObj(t)) if (isScalar(t)) => t //apparently ++ also works on arrays
+                            //TODO check?: not on function references
+                            case (f, e) => reportTypeError(f, "wrong type argument to increment " + e, pe)
+                        })
                     //a+b
                     case ne@NAryExpr(expr, opList) =>
                         ConditionalLib.conditionalFoldLeftFR(opList, et(expr), featureExpr,
-                            (fexpr: FeatureExpr, ctype: CType, subExpr: NArySubExpr) =>
-                                etF(subExpr.e, fexpr) map (subExprType => operationType(subExpr.op, ctype, subExprType, ne, fexpr))
+                            (fexpr: FeatureExpr, ctype: CType, subExpr: NArySubExpr) => {
+                                //security check for integer overflows when operand is used in pointer arithmetic (ie. also array access)
+                                val isPointerArith = (pointerArthOp(subExpr.op) || pointerArthAssignOp(subExpr.op)) && isPointer(ctype)
+                                val subExprType = etF(subExpr.e, fexpr, if (isPointerArith) env.markSecurityRelevant("array access/pointer arithmetic") else env)
+
+                                subExprType map (subExprType => operationType(subExpr.op, ctype, subExprType, ne, fexpr, env))
+                            }
                         )
                     //a[e]
                     case p@PostfixExpr(expr, ArrayAccess(idx)) =>
                         //syntactic sugar for *(a+i)
-                        val newExpr = PointerDerefExpr(createSum(expr, idx))
+                        val newExpr = PointerDerefExpr(createSum(expr, idx)).setPositionRange(p)
                         et(newExpr)
                     //"a"
                     case StringLit(_) => One(CPointer(CSignUnspecified(CChar()))) //unspecified sign according to Paolo
                     //++a, --a
                     case p@UnaryExpr(_, expr) =>
-                        val newExpr = AssignExpr(expr, "+=", Constant("1"))
+                        val newExpr = AssignExpr(expr, "+=", Constant("1").setPositionRange(p)).setPositionRange(p)
                         et(newExpr)
                     //sizeof()
                     case SizeOfExprT(_) => sizeofType(env)
@@ -189,8 +221,13 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                                 //TODO promotions
                                 case "+" => exprType.mapf(featureExpr,
                                     (fexpr, x) => if (isArithmetic(x) || x.isIgnore) promote(x) else reportTypeError(fexpr, "incorrect type, expected arithmetic, was " + x, ue))
-                                case "-" => exprType.mapf(featureExpr,
-                                    (fexpr, x) => if (isArithmetic(x) || x.isIgnore) promote(x) else reportTypeError(fexpr, "incorrect type, expected arithmetic, was " + x, ue))
+                                case "-" =>
+                                    //check for integer overflow (+,~,! do not overflow)
+                                    if (opts.warning_potential_integer_overflow && env.isSecurityRelevantLocation)
+                                        issueTypeError(Severity.SecurityWarning, featureExpr, "Potential integer overflow in security relevant context (%s)".format(env.securityRelevantLocation.get), ue, "potential_integer_overflow")
+
+                                    exprType.mapf(featureExpr,
+                                        (fexpr, x) => if (isArithmetic(x) || x.isIgnore) promote(x) else reportTypeError(fexpr, "incorrect type, expected arithmetic, was " + x, ue))
                                 case "~" => exprType.mapf(featureExpr,
                                     (fexpr, x) => if (isIntegral(x) || x.isIgnore) CSigned(CInt()) else reportTypeError(fexpr, "incorrect type, expected integer, was " + x, ue))
                                 case "!" => exprType.mapf(featureExpr,
@@ -235,7 +272,15 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                     case GnuAsmExpr(_, _, _, _) => One(CIgnore()) //don't care about asm now
                     case BuiltinOffsetof(_, _) => One(CSigned(CInt()))
                     case c: BuiltinTypesCompatible => One(CSigned(CInt())) //http://www.delorie.com/gnu/docs/gcc/gcc_81.html
-                    case c: BuiltinVaArgs => One(CIgnore())
+                    case b@BuiltinVaArgs(expr, typename) =>
+                        //check expr is of type va_list
+                        et(expr) mapfr(featureExpr, {
+                            (fexpr, exprType) => if (exprType.toValue != CBuiltinVaList())
+                                One(reportTypeError(fexpr, "invalid type of condition: " + exprType, b))
+                            else One("all okay")
+                        })
+                        //return whatever type declared without further check
+                        getTypenameType(typename, featureExpr, env)
                     case AlignOfExprT(typename) => getTypenameType(typename, featureExpr, env); One(CSigned(CInt()))
                     case AlignOfExprU(expr) => et(expr); One(CSigned(CInt()))
 
@@ -262,20 +307,28 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
         })
 
 
+    private def pointerArthOp(o: String) = Set("+", "-") contains o
+    private def pointerArthAssignOp(o: String) = Set("+=", "-=") contains o
+
+    //see https://www.securecoding.cert.org/confluence/display/seccode/INT32-C.+Ensure+that+operations+on+signed+integers+do+not+result+in+overflow
+    private def potentiallyOverflowingOp(o: String) = Set("+", "-", "*", "/", "%", "++", "--", "+=", "-=", "/=", "%=", "<<=", "<<") contains o
+
     /**
      * defines types of various operations
      * TODO currently incomplete and possibly incorrect
      *
      * visible only for test cases
      */
-    private[typesystem] def operationType(op: String, type1: CType, type2: CType, where: AST, featureExpr: FeatureExpr): CType = {
-        def pointerArthOp(o: String) = Set("+", "-") contains o
-        def pointerArthAssignOp(o: String) = Set("+=", "-=") contains o
+    private[typesystem] def operationType(op: String, type1: CType, type2: CType, where: AST, featureExpr: FeatureExpr, env: Env): CType = {
         def assignOp(o: String) = Set("+=", "/=", "-=", "*=", "%=", "<<=", ">>=", "&=", "|=", "^=") contains o
         def compOp(o: String) = Set("==", "!=", "<", ">", "<=", ">=") contains o
         def logicalOp(o: String) = Set("&&", "||") contains o
         def bitwiseOp(o: String) = Set("&", "|", "^", "~") contains o
         def shiftOp(o: String) = Set("<<", ">>") contains o
+
+        //check integer overflow in security relevant contexts
+        if (opts.warning_potential_integer_overflow && env.isSecurityRelevantLocation && potentiallyOverflowingOp(op) && !(isPointer(normalize(type1))))
+            issueTypeError(Severity.SecurityWarning, featureExpr, "Potential integer overflow in security relevant context (%s)".format(env.securityRelevantLocation.get), where, "potential_integer_overflow")
 
         (op, normalize(type1), normalize(type2)) match {
             //pointer arithmetic
@@ -326,7 +379,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
 
 
     private def createSum(a: Expr, b: Expr) =
-        NAryExpr(a, List(Opt(FeatureExprFactory.True, NArySubExpr("+", b))))
+        NAryExpr(a, List(Opt(FeatureExprFactory.True, NArySubExpr("+", b).setPositionRange(b)))).setPositionRange(a.getPositionFrom, b.getPositionTo)
 
 
     private def typeFunctionCall(expr: AST, parameterTypes: Seq[CType], retType: CType, _foundTypes: List[CType],
@@ -402,6 +455,23 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
      */
     def sizeofType(env: Env): Conditional[CType] =
         env.typedefEnv.getOrElse("size_t", CUnsigned(CInt()))
+
+
+    /**
+     * hardcoding of functions for which parameters are considered security relevant
+     * parameters of these functions are checked for integer overflows
+     */
+    def markSecurityRelevantFunctions(funname: String, ctype: Conditional[CType]): Conditional[CType] = {
+        val functions = Set("malloc", "calloc", "realloc")
+
+        if (functions contains funname)
+            ctype.map({
+                case c: CFunction => c.markSecurityRelevant
+                case t => t
+            })
+        else ctype
+
+    }
 
 
 }

@@ -17,7 +17,7 @@ class TypeSystemTest extends FunSuite with ShouldMatchers with TestHelper {
     }
     private def check(ast: TranslationUnit): Boolean = {
         assert(ast != null, "void ast");
-        new CTypeSystemFrontend(ast).checkAST
+        new CTypeSystemFrontend(ast).checkAST()
     }
 
 
@@ -955,5 +955,82 @@ return 1;
 
     }
 
+
+    test("__builtin_va_arg") {
+
+        expect(true) {
+            check(
+                """
+                  |typedef __builtin_va_list va_list;
+                  |void foo(int y, va_list ap) {
+                  |  int x = 3;
+                  |  *(__builtin_va_arg(ap,int*)) = x;
+                  |}
+                """.stripMargin)
+        }
+
+        expect(false) {
+            check(
+                """
+                  |typedef __builtin_va_list va_list;
+                  |void foo(int y, va_list ap) {
+                  |  struct {int x;} x = {1};
+                  |  *(__builtin_va_arg(ap,int*)) = x;
+                  |}
+                """.stripMargin)
+        }
+        //
+    }
+
+
+    test("conflicting types in redeclaration") {
+        //https://www.securecoding.cert.org/confluence/display/seccode/DCL40-C.+Incompatible+declarations+of+the+same+function+or+object
+        expect(false) {
+            check(
+                """
+                  |extern int i;   /* UB 15 */
+                  |
+                  |int f(void) {
+                  |    return ++i;   /* UB 37 */
+                  |}
+                  |
+                  |short i;   /* UB 15 */
+                  |
+                """.stripMargin)
+        }
+
+        //incompatible according to https://www.securecoding.cert.org/confluence/display/seccode/DCL40-C.+Incompatible+declarations+of+the+same+function+or+object
+        //        expect(false) {
+        //            check(
+        //                """
+        //                  |extern int *a;   /* UB 15 */
+        //                  |
+        //                  |int f(unsigned i, int x) {
+        //                  |  int tmp = a[i];   /* UB 37: read access */
+        //                  |  a[i] = x;         /* UB 37: write access*/
+        //                  |  return tmp;
+        //                  |}
+        //                  |
+        //                  |int a[] = { 1, 2, 3, 4 };   /* UB 15 */
+        //                """.stripMargin)
+        //        }
+
+        expect(false) {
+            check(
+                """
+                  |extern int f(int a);   /* UB 15 */
+                  |
+                  |int g(int a) {
+                  |  return f(a);   /* UB 41 */
+                  |}
+                  |
+                  |long f(long a) {   /* UB 15 */
+                  |  return a * 2;
+                  |}
+                """.stripMargin)
+        }
+
+
+    }
 }
 

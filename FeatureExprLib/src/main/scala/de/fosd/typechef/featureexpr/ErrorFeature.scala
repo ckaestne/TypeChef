@@ -11,7 +11,7 @@ package de.fosd.typechef.featureexpr
 
 class ErrorFeature(msg: String, f: FeatureExpr) extends FeatureExpr {
     def isSatisfiable(fm: FeatureModel) = error
-    def getSatisfiableAssignment(featureModel: FeatureModel, interestingFeatures: Set[SingleFeatureExpr],preferDisabledFeatures:Boolean) = error
+    def getSatisfiableAssignment(featureModel: FeatureModel, interestingFeatures: Set[SingleFeatureExpr], preferDisabledFeatures: Boolean) = error
     protected def calcSize = error
     def collectDistinctFeatures = error
     def collectDistinctFeatureObjects = error
@@ -27,4 +27,5 @@ class ErrorFeature(msg: String, f: FeatureExpr) extends FeatureExpr {
 
     def getConfIfSimpleAndExpr() = error
     def getConfIfSimpleOrExpr() = error
+    private def writeReplace(): Object = new FeatureExprSerializationProxy(this.toTextExpr)
 }

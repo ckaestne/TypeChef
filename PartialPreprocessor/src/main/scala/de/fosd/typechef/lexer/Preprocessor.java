@@ -1941,7 +1941,12 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable, VA
      */
     public FeatureExpr parse_featureExpr() throws IOException,
             LexerException {
-        return parse_featureExprOrValue(0, true).assumeExpression(expr_token);
+        try {
+            return parse_featureExprOrValue(0, true).assumeExpression(expr_token);
+        } catch (ArithmeticException e) {
+            System.err.println("ArithmeticException in " + expr_token.getSourceName() + " line " + expr_token.getLine());
+            throw e;
+        }
     }
 
     private class ExprOrValue {
@@ -2559,11 +2564,10 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable, VA
                                 // parse with parents state to allow macro expansion
                                 State oldState = state;
                                 state = state.parent;
-                                FeatureExpr localFeaturExpr = parse_featureExpr();
                                 state = oldState;
                                 state.processElIf();
                                 state.putLocalFeature(
-                                        isParentActive() ? localFeaturExpr
+                                        isParentActive() ? parse_featureExpr()
                                                 : FeatureExprLib.False(), macros);
                                 tok = expr_token(true); /* unget */
 

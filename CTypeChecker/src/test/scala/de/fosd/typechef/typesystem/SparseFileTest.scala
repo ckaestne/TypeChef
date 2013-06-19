@@ -49,7 +49,7 @@ class SparseFileTest extends TestHelper {
     private def check(ast: TranslationUnit, featureModel: FeatureModel): Boolean =
         new CTypeSystemFrontend(ast, featureModel) {
             override def checkingExternal(externalDef: ExternalDef) {}
-        }.checkAST
+        }.checkAST()
 
     private def readSparseInfo(file: InputStream, filename: String) = {
         val lines = scala.io.Source.fromInputStream(file).getLines().toList
@@ -86,7 +86,8 @@ class SparseFileTest extends TestHelper {
     }
     @Test def test_bad_array_designated_initializer {
         checkSparse("bad-array-designated-initializer.c")
-    } //parser error
+    }
+    //parser error
     @Test def test_bad_assignment {
         checkSparse("bad-assignment.c")
     }

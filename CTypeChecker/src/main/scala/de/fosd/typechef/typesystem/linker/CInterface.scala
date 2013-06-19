@@ -1,9 +1,9 @@
 package de.fosd.typechef.typesystem.linker
 
-import de.fosd.typechef.parser.Position
 import de.fosd.typechef.featureexpr.FeatureExprFactory.{True, False}
 import de.fosd.typechef.featureexpr.{FeatureModel, FeatureExprFactory, FeatureExpr}
 import de.fosd.typechef.typesystem.CType
+import de.fosd.typechef.error.Position
 
 /**
  * describes the linker interface for a file, i.e. all imported (and used)
@@ -65,17 +65,17 @@ case class CInterface(
         this
     }
     private def packImports: Seq[CSignature] = {
-        var importMap = Map[(String, CType), (FeatureExpr, Seq[Position])]()
+        var importMap = Map[(String, CType, Set[CFlag]), (FeatureExpr, Seq[Position])]()
 
         //eliminate duplicates with a map
         for (imp <- imports if ((featureModel and imp.fexpr).isSatisfiable())) {
-            val key = (imp.name, imp.ctype)
+            val key = (imp.name, imp.ctype, imp.extraFlags)
             val old = importMap.getOrElse(key, (False, Seq()))
             importMap = importMap + (key ->(old._1 or imp.fexpr, old._2 ++ imp.pos))
         }
         //eliminate imports that have corresponding exports
         for (exp <- exports) {
-            val key = (exp.name, exp.ctype)
+            val key = (exp.name, exp.ctype, exp.extraFlags)
             if (importMap.contains(key)) {
                 val (oldFexpr, oldPos) = importMap(key)
                 val newFexpr = oldFexpr andNot exp.fexpr
@@ -88,7 +88,7 @@ case class CInterface(
 
 
         val r = for ((k, v) <- importMap.iterator)
-        yield CSignature(k._1, k._2, v._1, v._2)
+        yield CSignature(k._1, k._2, v._1, v._2, k._3)
         r.toSeq
     }
     private def packExports: Seq[CSignature] = exports.filter(_.fexpr.and(featureModel).isSatisfiable())
@@ -131,7 +131,7 @@ case class CInterface(
             this.exports ++ that.exports
         ).pack
 
-    /**links without proper checks and packing. only for debugging purposes **/
+    /** links without proper checks and packing. only for debugging purposes **/
     def debug_join(that: CInterface): CInterface =
         CInterface(
             this.featureModel and that.featureModel,

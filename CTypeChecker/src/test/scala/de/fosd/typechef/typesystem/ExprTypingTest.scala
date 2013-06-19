@@ -56,20 +56,20 @@ class ExprTypingTest extends CTypeSystem with CEnv with FunSuite with ShouldMatc
             ("funparam", True, CPointer(CFunction(Seq(), CDouble()))),
             ("funparamptr", True, CPointer(CPointer(CFunction(Seq(), CDouble())))),
             ("argv", True, CArray(CPointer(CSignUnspecified(CChar())), -1))
-        ).map(x => (x._1, x._2, null, One(x._3), KDeclaration, 0)) ++ Seq(
-            ("c", True, null, c_i_l, KDeclaration, 0),
-            ("vstruct", True, null, Choice(fx, One(CStruct("vstrA")), One(CStruct("vstrB"))), KDeclaration, 0),
-            ("vstruct2", True, null, Choice(fx, One(CStruct("vstrA")), _u), KDeclaration, 0),
+        ).map(x => (x._1, x._2, null, One(x._3), KDeclaration, 0, NoLinkage)) ++ Seq(
+            ("c", True, null, c_i_l, KDeclaration, 0, NoLinkage),
+            ("vstruct", True, null, Choice(fx, One(CStruct("vstrA")), One(CStruct("vstrB"))), KDeclaration, 0, NoLinkage),
+            ("vstruct2", True, null, Choice(fx, One(CStruct("vstrA")), _u), KDeclaration, 0, NoLinkage),
             ("cfun", True, null, Choice(fx,
                 One(CFunction(Seq(CSigned(CInt())), CSigned(CInt()))),
-                One(CFunction(Seq(CSigned(CInt()), CSigned(CInt())), CSigned(CLong())))), KDeclaration, 0) //i->i or i,i->l
+                One(CFunction(Seq(CSigned(CInt()), CSigned(CInt())), CSigned(CLong())))), KDeclaration, 0, NoLinkage) //i->i or i,i->l
         ))
 
     val astructEnv: StructEnv =
         new StructEnv().addComplete(
-            "str", false, True, new ConditionalTypeMap() +("a", True, null, One(CDouble())) +("b", True, null, One(CStruct("str"))),1).addComplete(
-            "vstrA", false, fx, new ConditionalTypeMap() +("a", fx and fy, null, _l) +("b", fx, null, One(CStruct("str"))),1).addComplete(
-            "vstrB", false, True, new ConditionalTypeMap() +("a", True, null, _i) +("b", True, null, _i) +("c", fx.not, null, _i),1
+            "str", false, True, new ConditionalTypeMap() +("a", True, null, One(CDouble())) +("b", True, null, One(CStruct("str"))), 1).addComplete(
+            "vstrA", false, fx, new ConditionalTypeMap() +("a", fx and fy, null, _l) +("b", fx, null, One(CStruct("str"))), 1).addComplete(
+            "vstrB", false, True, new ConditionalTypeMap() +("a", True, null, _i) +("b", True, null, _i) +("c", fx.not, null, _i), 1
         )
 
     test("primitives and pointers") {
@@ -133,7 +133,7 @@ class ExprTypingTest extends CTypeSystem with CEnv with FunSuite with ShouldMatc
         expr("funparamptr()") should be(CUnknown())
         expr("(*funparamptr)()") should be(CDouble())
         expr(" __builtin_va_arg()") should be(CUnknown())
-        expr(" __builtin_va_arg(a, int*)") should be(CIgnore())
+        expr(" __builtin_va_arg(a, int*)") should be(CPointer(CSigned(CInt())))
     }
 
     test("conditional function calls") {
@@ -213,9 +213,9 @@ class ExprTypingTest extends CTypeSystem with CEnv with FunSuite with ShouldMatc
 
     test("operations") {
 
-        operationType("+", CPointer(CUnsigned(CLong())), CSigned(CInt()), null, null) should be(CPointer(CUnsigned(CLong())))
+        operationType("+", CPointer(CUnsigned(CLong())), CSigned(CInt()), null, null, EmptyEnv) should be(CPointer(CUnsigned(CLong())))
         CObj(CArray(CUnsigned(CLong()), -1)).toValue should be(CPointer(CUnsigned(CLong())))
-        operationType("+", CObj(CArray(CUnsigned(CLong()), -1)), CSigned(CInt()), null, null) should be(CPointer(CUnsigned(CLong())))
+        operationType("+", CObj(CArray(CUnsigned(CLong()), -1)), CSigned(CInt()), null, null, EmptyEnv) should be(CPointer(CUnsigned(CLong())))
 
     }
 
@@ -226,7 +226,7 @@ class ExprTypingTest extends CTypeSystem with CEnv with FunSuite with ShouldMatc
     test("ignored types") {
         expr("ig").toValue should be(CIgnore())
         expr("&ig") should be(CPointer(CIgnore()))
-        expr("*ig") should be(CIgnore())
+        expr("*ig") should be(CObj(CIgnore()))
         expr("(double)ig") should be(CDouble())
     }
 

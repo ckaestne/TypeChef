@@ -2,8 +2,8 @@ package de.fosd.typechef.typesystem.linker
 
 import java.io._
 import de.fosd.typechef.typesystem.CType
-import de.fosd.typechef.parser.Position
-import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr, FeatureExprParser}
+import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExprParser}
+import de.fosd.typechef.error.Position
 
 trait InterfaceWriter {
 
@@ -67,7 +67,7 @@ trait InterfaceWriter {
             </type>
             <featureexpr>
                 {sig.fexpr.toTextExpr}
-            </featureexpr>{sig.pos.map(posToXML(_))}
+            </featureexpr>{sig.pos.map(posToXML(_))}{for (extraFlag <- sig.extraFlags) yield <extraFlag name={extraFlag.toString}/>}
         </sig>
 
 
@@ -77,7 +77,8 @@ trait InterfaceWriter {
             (sig \ "name").text.trim,
             CType.fromXML((sig \ "type")),
             new FeatureExprParser().parse((sig \ "featureexpr").text),
-            (sig \ "pos").map(positionFromXML(_))
+            (sig \ "pos").map(positionFromXML(_)),
+            (sig \ "extraFlag").flatMap(extraFlagFromXML(_)).filter(_.isDefined).map(_.get).toSet
         )
     }
     private def positionFromXML(node: scala.xml.Node): Position = {
@@ -90,6 +91,10 @@ trait InterfaceWriter {
             def getFile: String = file
         }
     }
+    private def extraFlagFromXML(node: scala.xml.Node): Seq[Option[CFlag]] = {
+        (node \ "@name").map(n => if (n.text == "WeakExport") Some(WeakExport) else None)
+    }
+
     private def posToXML(p: Position) =
         <pos>
             <file>
