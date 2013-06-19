@@ -17,7 +17,6 @@ trait BusyBoxEvaluation extends EvalHelper {
     private val includeDir: String = completeBusyBoxPath + "/busybox-1.18.5/include"
     private val featureModel: String = completeBusyBoxPath + "/busybox/featureModel"
 
-    val busyBoxFiles: String = completeBusyBoxPath + "/busybox_files"
 
     // private val typeChefArguments = List("-c", systemProperties, "-x", "CONFIG_", "--include", includeHeader, "-I", includeDir, "--featureModelFExpr", featureModel, "--debugInterface", "--recordTiming", "--parserstatistics", "-U", "HAVE_LIBDMALLOC", "-DCONFIG_FIND", "-U", "CONFIG_FEATURE_WGET_LONG_OPTIONS", "-U", "ENABLE_NC_110_COMPAT", "-U", "CONFIG_EXTRA_COMPAT ", "-D_GNU_SOURCE")
     @Test

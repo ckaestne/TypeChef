@@ -1,7 +1,7 @@
 package de.fosd.typechef.crefactor.BusyBoxEvaluation
 
 import org.junit.Test
-import java.io.{FileReader, BufferedReader, File}
+import java.io.File
 import de.fosd.typechef.parser.c.AST
 import de.fosd.typechef.featureexpr.FeatureExpr
 
@@ -10,9 +10,8 @@ class RenameEvaluation extends BusyBoxEvaluation {
     def evaluate() {
         println(completeBusyBoxPath)
 
-        val reader = new BufferedReader(new FileReader(busyBoxFiles))
 
-        println(reader.readLine())
+
 
         val testData = getClass.getResource("/BusyBoxAllFeatures.config")
         val fm = getClass.getResource("/busybox_Configs/")
@@ -20,7 +19,7 @@ class RenameEvaluation extends BusyBoxEvaluation {
         val file = new File(testData.getFile)
         println(allFeatures)
         println(allFeatures.size)
-        println(busyBoxFiles)
+        println(getBusyBoxFiles)
 
         //analyseDir(new File(absoluteBusyBoxPath))
     }

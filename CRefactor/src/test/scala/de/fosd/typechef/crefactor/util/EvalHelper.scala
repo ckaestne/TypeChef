@@ -1,6 +1,6 @@
 package de.fosd.typechef.crefactor.util
 
-import java.io.{FileWriter, File}
+import java.io.{FileReader, BufferedReader, FileWriter, File}
 import de.fosd.typechef.parser.c.{PrettyPrinter, AST}
 import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr, SingleFeatureExpr, FeatureModel}
 import java.util.regex.Pattern
@@ -14,6 +14,8 @@ trait EvalHelper extends Logging {
     val caseStudyPath = "../busybox/"
 
     val completeBusyBoxPath = new File(caseStudyPath).getCanonicalPath
+
+    val busyBoxFiles: String = completeBusyBoxPath + "/busybox_files"
 
     val busyBoxPath = "/busybox-1.18.5/"
 
@@ -130,6 +132,16 @@ trait EvalHelper extends Logging {
             }
         }
         trueFeatures.toList
+    }
+
+    def getBusyBoxFiles: List[String] = {
+        def readIn(reader: BufferedReader): List[String] = {
+            reader.readLine() match {
+                case null => List()
+                case x => List(x).:::(readIn(reader))
+            }
+        }
+        readIn(new BufferedReader(new FileReader(busyBoxFiles)))
     }
 
     def getAllFeaturesFromConfigFile(fm: FeatureModel, file: File): List[SingleFeatureExpr] = {
