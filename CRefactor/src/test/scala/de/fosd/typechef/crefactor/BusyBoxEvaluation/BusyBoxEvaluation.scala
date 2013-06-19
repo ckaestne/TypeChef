@@ -13,9 +13,9 @@ trait BusyBoxEvaluation extends EvalHelper {
 
     private val systemProperties: String = completeBusyBoxPath + "/redhat.properties"
 
-    private val includeHeader: String = completeBusyBoxPath + "/busybox/config.h"
+    private val includeHeader: String = completeBusyBoxPath + "/config.h"
     private val includeDir: String = completeBusyBoxPath + "/busybox-1.18.5/include"
-    private val featureModel: String = completeBusyBoxPath + "/busybox/featureModel"
+    private val featureModel: String = completeBusyBoxPath + "/featureModel"
 
 
     // private val typeChefArguments = List("-c", systemProperties, "-x", "CONFIG_", "--include", includeHeader, "-I", includeDir, "--featureModelFExpr", featureModel, "--debugInterface", "--recordTiming", "--parserstatistics", "-U", "HAVE_LIBDMALLOC", "-DCONFIG_FIND", "-U", "CONFIG_FEATURE_WGET_LONG_OPTIONS", "-U", "ENABLE_NC_110_COMPAT", "-U", "CONFIG_EXTRA_COMPAT ", "-D_GNU_SOURCE")
