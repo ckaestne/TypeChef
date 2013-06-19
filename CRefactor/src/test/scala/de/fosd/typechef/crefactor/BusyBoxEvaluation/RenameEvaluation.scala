@@ -2,7 +2,7 @@ package de.fosd.typechef.crefactor.BusyBoxEvaluation
 
 import org.junit.Test
 import java.io.File
-import de.fosd.typechef.parser.c.{PrettyPrinter, AST}
+import de.fosd.typechef.parser.c.AST
 import de.fosd.typechef.featureexpr.FeatureExpr
 
 class RenameEvaluation extends BusyBoxEvaluation {
@@ -16,7 +16,7 @@ class RenameEvaluation extends BusyBoxEvaluation {
         val parsed = parse(fileToRefactor)
         val ast = parsed._1
         val fm = parsed._2
-        println(PrettyPrinter.print(ast))
+        println("finished " + fileToRefactor.getName)
         false
     }
 
