@@ -22,10 +22,11 @@ class CAnalysisOptions extends FeatureModelOptions with ICTypeSysOptions {
     val Aimplicitidentifier = SecurityOption("implicit-identifier", "Issue security warning on implicit identifier definitions (undefined behavior)", LinuxDefaultOptions.warning_implicit_identifier)
     val Aconflictinglinkage = SecurityOption("conflicting-linkage", "Issue security warning on conflicting linkage declarations (undefined behavior)", LinuxDefaultOptions.warning_conflicting_linkage)
     val Avolatile = SecurityOption("volatile", "Issue security warning on referencing a volatile object using a nonvolatile value (undefined behavior)", LinuxDefaultOptions.warning_volatile)
+    val Aconst = SecurityOption("const", "Issue security warning on assigning to const value or casting away const qualification (undefined behavior)", LinuxDefaultOptions.warning_const_assignment)
 
 
     val opts: List[SecurityOption] = List(
-        Apointersign, Aintegeroverflow, Aimplicitcoercion, Alongdesignator, Aimplicitidentifier, Aconflictinglinkage, Avolatile
+        Apointersign, Aintegeroverflow, Aimplicitcoercion, Alongdesignator, Aimplicitidentifier, Aconflictinglinkage, Avolatile, Aconst
     )
 
 
@@ -37,6 +38,7 @@ class CAnalysisOptions extends FeatureModelOptions with ICTypeSysOptions {
     override def warning_implicit_identifier: Boolean = Aimplicitidentifier.isSelected
     override def warning_conflicting_linkage: Boolean = Aconflictinglinkage.isSelected
     override def warning_volatile: Boolean = Avolatile.isSelected
+    override def warning_const_assignment: Boolean = Aconst.isSelected
 
     override protected def getOptionGroups: java.util.List[Options.OptionGroup] = {
         val r: java.util.List[Options.OptionGroup] = super.getOptionGroups

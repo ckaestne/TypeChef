@@ -409,9 +409,15 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
         if (expectedTypes.size != foundTypes.size)
             reportTypeError(featureExpr, "parameter number mismatch: expected " + expectedTypes.size + " parameter but found " + foundTypes.size + " in " + expr + " (expected types: " + parameterTypes + ")", funCall)
         else
-        if (areParameterCompatible(foundTypes, expectedTypes))
+        if (areParameterCompatible(foundTypes, expectedTypes)) {
+            if (opts.warning_const_assignment)
+                (foundTypes zip expectedTypes) map {
+                    case (ft, et) => if (ft.isConstant && !et.isConstant)
+                        reportTypeError(featureExpr, "Do not (implicitly) cast away a const qualification '%s <- %s'; may result in undefined behavior".format(et.toText, ft.toText), expr, Severity.SecurityWarning, "const-implicit-cast")
+                }
+
             retType
-        else {
+        } else {
             //better reporting
             val nr = 1.to(foundTypes.size)
             val problems = findIncompatibleParamter(foundTypes, expectedTypes).map(!_)

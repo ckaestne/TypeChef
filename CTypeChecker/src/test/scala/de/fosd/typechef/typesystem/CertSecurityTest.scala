@@ -259,14 +259,14 @@ class CertSecurityTest extends FunSuite with ShouldMatchers with TestHelper {
               |}
             """.stripMargin)
 
-        //        error(
-        //            """
-        //              |void *memset(void *str, int c, int n);
-        //              |void test(){
-        //              |  const int vals[3] = {3, 4, 5};
-        //              |  memset(vals, 0, sizeof(vals));
-        //              |}
-        //            """.stripMargin)
+        error(
+            """
+              |void *memset(void *str, int c, int n);
+              |void test(){
+              |  const int vals[3] = {3, 4, 5};
+              |  memset(vals, 0, sizeof(vals));
+              |}
+            """.stripMargin)
     }
 }
 
