@@ -54,7 +54,7 @@ object PrepareRefactoredASTforEval extends EvalHelper {
             (config, generateConfigsWithAffectedFeatures(enabledFeatures, affectedFeatures, fm))
         })
 
-        println(generatedConfigs)
+        generatedConfigs.foreach(println(_))
 
         generatedConfigs.foreach(genConfigs => {
             var configNumber = 0

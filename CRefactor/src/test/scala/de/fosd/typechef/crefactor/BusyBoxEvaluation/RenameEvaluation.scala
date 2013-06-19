@@ -27,6 +27,7 @@ class RenameEvaluation extends BusyBoxEvaluation {
             stats ::= parseTypeCheckTime
             val result = applyRefactor(morpheus, stats)
             if (result._2) {
+                println("path" + bb_file.getCanonicalPath)
                 PrepareRefactoredASTforEval.prepare(result._1, morpheus.getFeatureModel, bb_file.getCanonicalPath, result._3, 0)
             }
 
