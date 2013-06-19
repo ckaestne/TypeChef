@@ -148,9 +148,9 @@ object Frontend {
 
                     val cf = new CAnalysisFrontend(ast.asInstanceOf[TranslationUnit], fm_ts)
 
-                    val writer = new CFGCSVWriter(new FileWriter(new File(opt.outputStem + ".cfg")))
-                    val dotwriter = new DotGraph2(new FileWriter(new File(opt.outputStem + ".cfg.dot")))
-                    cf.writeCFG(opt.outputStem, new ComposedWriter(List(dotwriter, writer)))
+                    val writer = new CFGCSVWriter(new FileWriter(new File(opt.getCCFGFilename)))
+                    val dotwriter = new DotGraph2(new FileWriter(new File(opt.getCCFGDotFilename)))
+                    cf.writeCFG(opt.getFile, new ComposedWriter(List(dotwriter, writer)))
 
                 }
                 if (opt.dataFlow) {
@@ -185,12 +185,14 @@ object Frontend {
         fw.close()
     }
 
-    def loadSerializedAST(filename: String): AST = {
+    def loadSerializedAST(filename: String): AST = try {
         val fr = new ObjectInputStream(new FileInputStream(filename)) {
             override protected def resolveClass(desc: ObjectStreamClass) = { /*println(desc);*/ super.resolveClass(desc) }
         }
         val ast = fr.readObject().asInstanceOf[AST]
         fr.close()
         ast
+    } catch {
+        case e:ObjectStreamException => System.err.println("failed loading serialized AST: "+e.getMessage); null
     }
 }

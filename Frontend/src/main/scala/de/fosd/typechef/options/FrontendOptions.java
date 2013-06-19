@@ -221,6 +221,13 @@ public class FrontendOptions extends CAnalysisOptions implements ParserOptions {
         return outputStem + ".ast";
     }
 
+    public String getCCFGFilename() {
+        return outputStem + ".cfg";
+    }
+    public String getCCFGDotFilename() {
+        return outputStem + ".cfg.dot";
+    }
+
     public boolean printParserStatistics() {
         return parserStatistics;
     }

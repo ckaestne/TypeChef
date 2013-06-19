@@ -183,11 +183,8 @@ class CFGCSVWriter(fwriter: Writer) extends IOUtilities with CFGWriter {
         fwriter.write("N;" + System.identityHashCode(o) + ";" + asText(o) + ";" + fexpr.toTextExpr + "\n")
     }
     def writeFooter() {
-        fwriter.write("}\n")
     }
     def writeHeader(title: String) {
-        fwriter.write("digraph \"" + title + "\" {" + "\n")
-        fwriter.write("node [shape=record];\n")
     }
     private def esc(i: String) = {
         i.replace(";", "").
