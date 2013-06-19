@@ -17,7 +17,7 @@ trait EvalHelper extends Logging {
 
     val busyBoxFiles: String = completeBusyBoxPath + "/busybox_files"
 
-    val busyBoxPath = completeBusyBoxPath + caseStudyPath + "/busybox-1.18.5/"
+    val busyBoxPath = completeBusyBoxPath + "/busybox-1.18.5/"
 
     val busyBoxPathUntouched = completeBusyBoxPath + caseStudyPath + "/busybox-1.18.5_untouched/"
 
