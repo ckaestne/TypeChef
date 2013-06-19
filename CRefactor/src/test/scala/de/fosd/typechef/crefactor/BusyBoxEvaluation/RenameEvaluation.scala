@@ -34,6 +34,8 @@ class RenameEvaluation extends BusyBoxEvaluation {
     }
 
     def applyRefactor(morpheus: Morpheus, stats: List[Any]): (AST, Boolean, List[FeatureExpr], List[Any]) = {
+        println(morpheus.getUseDeclMap)
+        println(morpheus.getUseDeclMap)
         val ids = morpheus.getUseDeclMap.values().toArray(Array[List[Id]]()).par.foldLeft(List[Id]())((list, entry) => list ::: entry).toList
         println(ids.size)
 
