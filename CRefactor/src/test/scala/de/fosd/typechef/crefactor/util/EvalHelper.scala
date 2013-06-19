@@ -49,6 +49,7 @@ trait EvalHelper extends Logging {
 
     def writeConfig(config: List[SingleFeatureExpr], dir: File, name: String) {
         val out = new java.io.FileWriter(dir.getCanonicalPath + File.separatorChar + name)
+        println("config:" + dir.getCanonicalPath + File.separatorChar + name)
         val disabledFeatures = allFeatures.diff(config)
         config.foreach(feature => {
             val ft = feature.feature.substring(4, feature.feature.size)
