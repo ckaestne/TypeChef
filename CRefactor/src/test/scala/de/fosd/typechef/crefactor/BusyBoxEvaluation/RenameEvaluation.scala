@@ -27,7 +27,7 @@ class RenameEvaluation extends BusyBoxEvaluation {
             stats ::= parseTypeCheckTime
             val result = applyRefactor(morpheus, stats)
             if (result._2) PrepareRefactoredASTforEval.prepare(result._1, morpheus.getFeatureModel, bb_file.getCanonicalPath, result._3, 0)
-
+            println("run")
             val cmd = List("bash", "-c", "cd /local/janker/casestudies/busybox/busybox-1.18.5/", "make -j 8").toArray
             val p = Runtime.getRuntime.exec(cmd)
             p.waitFor();
