@@ -131,10 +131,10 @@ trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTypi
             case CPointer(t) => wf(t)
             case CArray(t, n) =>
                 wf(t) && (t != CVoid()) && n > 0
-            case CFunction(param, ret) => wf(ret) && !arrayType(ret) && (
+            case CFunction(param, ret) => wf(ret.atype) && !arrayType(ret.atype) && (
                 param.forall(p => !arrayType(p) && p != CVoid())) &&
-                param.dropRight(1).forall(wf(_)) &&
-                lastParam(param.lastOption) //last param may be varargs
+                param.dropRight(1).forall(p => wf(p.atype)) &&
+                lastParam(param.lastOption.map(_.atype)) //last param may be varargs
             case CVarArgs() => false
             case CStruct(name, isUnion) => {
                 //TODO check struct welltypeness

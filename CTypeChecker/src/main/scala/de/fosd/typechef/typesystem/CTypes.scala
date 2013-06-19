@@ -268,7 +268,7 @@ case class CAnonymousStruct(fields: ConditionalTypeMap, isUnion: Boolean = false
     </astruct>
 }
 
-case class CFunction(param: Seq[AType], ret: AType) extends AType {
+case class CFunction(param: Seq[CType], ret: CType) extends AType {
     var securityRelevant: Boolean = false
 
     override def isFunction: Boolean = true
@@ -369,7 +369,7 @@ object CType {
         (node \ "struct").map(x => result = CStruct(x.text.trim, x.attribute("isUnion").get.head.text.toBoolean))
         (node \ "astruct").map(x => result = CAnonymousStruct(new ConditionalTypeMap(), x.attribute("isUnion").get.head.text.toBoolean)) //TODO
         (node \ "function").map(x => result = CFunction(
-            (x \ "param").map(fromXMLAType(_)),
+            (x \ "param").map(fromXML(_)),
             fromXMLAType((x \ "ret").head)
         ))
         (node \ "compound").map(x => result = CCompound())
@@ -650,14 +650,14 @@ trait CTypes extends COptionProvider {
                 case e => CPointer(e)
             }
         case CArray(g, _) => normalizeA(CPointer(g)) //TODO do this recursively for all occurences of Array
-        case CFunction(p, rt) => CFunction(p.map(normalizeA).filter(_ != CVoid()), normalizeA(rt))
+        case CFunction(p, rt) => CFunction(p.map(_.map(normalizeA)).filter(_.atype != CVoid()), rt.map(normalizeA))
         case c => c
     }
 
 
     /** helper function, part of normalize */
     private def addFunctionPointers(t: AType): AType = t match {
-        case CFunction(p, rt) => CPointer(CFunction(p.map(addFunctionPointers), addFunctionPointers(rt)))
+        case CFunction(p, rt) => CPointer(CFunction(p.map(_.map(addFunctionPointers)), rt map addFunctionPointers))
         //congruence:
         case CPointer(x: AType) => CPointer(addFunctionPointers(x))
         case c => c

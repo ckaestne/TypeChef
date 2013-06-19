@@ -64,7 +64,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
         })
 
         val expectedReturnType: Conditional[CType] = funType.mapf(featureExpr, {
-            case (f, CType(CFunction(_, returnType),_,_,_)) => returnType.toCType
+            case (f, CType(CFunction(_, returnType), _, _, _)) => returnType
             case (f, other) => reportTypeError(f, "not a function type: " + other, declarator, Severity.Crash).toCType
         }).simplify(featureExpr)
 

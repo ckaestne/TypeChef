@@ -416,13 +416,13 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
                     val parameterTypes: List[Opt[CType]] = idList.flatMap({
                         case Opt(f, id) => oldStyleParameterTypes.getOrElse(id.name, CUnsigned(CInt())).toOptList.map(_.and(f and fexpr))
                     })
-                    val paramLists: Conditional[List[AType]] =
-                        ConditionalLib.explodeOptList(parameterTypes).map(_.map(_.atype))
-                    paramLists.map(param => rtype.map(CFunction(param, _)))
+                    val paramLists: Conditional[List[CType]] =
+                        ConditionalLib.explodeOptList(parameterTypes)
+                    paramLists.map(param => CFunction(param, rtype).toCType)
                 case DeclParameterDeclList(parameterDecls) =>
-                    val paramLists: Conditional[List[AType]] =
-                        ConditionalLib.explodeOptList(getParameterTypes(parameterDecls, fexpr, env)).map(_.map(_.atype))
-                    paramLists.map(param => rtype.map(CFunction(param, _)))
+                    val paramLists: Conditional[List[CType]] =
+                        ConditionalLib.explodeOptList(getParameterTypes(parameterDecls, fexpr, env))
+                    paramLists.map(param => CFunction(param, rtype).toCType)
                 case DeclArrayAccess(expr) => One(rtype.map(CArray(_)))
             }
         )

@@ -9,6 +9,7 @@ import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
  * all compiler-specific built-in stuff
  */
 trait CBuiltIn extends CEnv with CTypes with CDeclTyping {
+
     import CType.makeCType
 
     object InitialEnv extends Env(
@@ -24,11 +25,11 @@ trait CBuiltIn extends CEnv with CTypes with CDeclTyping {
 
     val initBuiltinVarEnv: Seq[(String, FeatureExpr, AST, Conditional[CType], DeclarationKind, Int, Linkage)] =
         (declare_builtin_functions() ++ Map(
-            ("__builtin_expect", One(CFunction(Seq(CVarArgs()), CInt()).toCType)),
-            ("__builtin_safe_p", One(CFunction(Seq(CVarArgs()), CInt()).toCType)),
-            ("__builtin_warning", One(CFunction(Seq(CVarArgs()), CInt()).toCType)),
-            ("__builtin_choose_expr", One(CFunction(Seq(CVarArgs()), CInt()).toCType)),
-            ("__builtin_constant_p", One(CFunction(Seq(CVarArgs()), CInt()).toCType)),
+            ("__builtin_expect", One(CFunction(Seq(CVarArgs()), CInt().toCType).toCType)),
+            ("__builtin_safe_p", One(CFunction(Seq(CVarArgs()), CInt().toCType).toCType)),
+            ("__builtin_warning", One(CFunction(Seq(CVarArgs()), CInt().toCType).toCType)),
+            ("__builtin_choose_expr", One(CFunction(Seq(CVarArgs()), CInt().toCType).toCType)),
+            ("__builtin_constant_p", One(CFunction(Seq(CVarArgs()), CInt().toCType).toCType)),
             ("__builtin_va_start", One(CFunction(Seq(CBuiltinVaList(), CVarArgs()), CVoid()).toCType)), //ignore most of these...
             //            "__builtin_va_arg", One(CFunction(Seq(CIgnore(), CIgnore()), CIgnore())),//handled differently in parser
             ("__builtin_va_end", One(CFunction(Seq(CBuiltinVaList()), CVoid()).toCType)),

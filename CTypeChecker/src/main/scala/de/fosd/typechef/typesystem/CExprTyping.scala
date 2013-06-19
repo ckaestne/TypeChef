@@ -389,7 +389,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
         NAryExpr(a, List(Opt(FeatureExprFactory.True, NArySubExpr("+", b).setPositionRange(b)))).setPositionRange(a.getPositionFrom, b.getPositionTo)
 
 
-    private def typeFunctionCall(expr: AST, parameterTypes: Seq[AType], retType: AType, _foundTypes: List[CType],
+    private def typeFunctionCall(expr: AST, parameterTypes: Seq[CType], retType: CType, _foundTypes: List[CType],
                                  funCall: PostfixExpr, featureExpr: FeatureExpr, env: Env): CType = {
         //probably just checked on declaration: (??)
         //        checkStructs(retType, featureExpr, env, expr)
@@ -398,11 +398,11 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
         var expectedTypes = parameterTypes
         var foundTypes = _foundTypes
         //variadic macros
-        if (expectedTypes.lastOption == Some(CVarArgs())) {
+        if (expectedTypes.lastOption == Some(CVarArgs().toCType)) {
             expectedTypes = expectedTypes.dropRight(1)
             foundTypes = foundTypes.take(expectedTypes.size)
         }
-        else if (expectedTypes.lastOption == Some(CVoid()))
+        else if (expectedTypes.lastOption == Some(CVoid().toCType))
             expectedTypes = expectedTypes.dropRight(1)
 
         //check parameter size and types
@@ -425,11 +425,11 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
     }
 
 
-    private def areParameterCompatible(foundTypes: Seq[CType], expectedTypes: Seq[AType]): Boolean =
+    private def areParameterCompatible(foundTypes: Seq[CType], expectedTypes: Seq[CType]): Boolean =
         findIncompatibleParamter(foundTypes, expectedTypes) forall (x => x)
 
 
-    private def findIncompatibleParamter(foundTypes: Seq[CType], expectedTypes: Seq[AType]): Seq[Boolean] =
+    private def findIncompatibleParamter(foundTypes: Seq[CType], expectedTypes: Seq[CType]): Seq[Boolean] =
         (foundTypes zip expectedTypes) map {
             case (ft, et) => coerce(et, ft) || ft.isUnknown
         }
