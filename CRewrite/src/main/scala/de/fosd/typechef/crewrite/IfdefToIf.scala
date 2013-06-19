@@ -1415,11 +1415,31 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
         }
     }
 
+    def computeScalarProduct(listOfLists: List[List[FeatureExpr]]): List[FeatureExpr] = {
+        if (listOfLists.isEmpty) {
+            List()
+        } else if (listOfLists.size == 1) {
+            listOfLists.head
+        } else {
+            listOfLists.tail.foldLeft(listOfLists.head)((first, second) => {
+                if (!first.isEmpty && !second.isEmpty) {
+                    first.flatMap(x => second.map(y => y.and(x))).filterNot(x => x.equivalentTo(FeatureExprFactory.False) || !x.isSatisfiable(fm))
+                } else if (second.isEmpty && !first.isEmpty) {
+                    first
+                } else if (first.isEmpty && !second.isEmpty) {
+                    second
+                } else {
+                    List()
+                }
+            })
+        }
+    }
+
     def computeNextRelevantFeatures(a: Any, currentContext: FeatureExpr = trueF): List[FeatureExpr] = {
         def computationHelper(a: Any, currentContext: FeatureExpr = trueF, expectAtLeastOneResult: Boolean = false): List[FeatureExpr] = {
             val featureList = getNextVariableFeaturesCondition(a, currentContext).filterNot(x => x.equivalentTo(currentContext)) ++ List(FeatureExprFactory.False)
-            val test = getNextVariableFeaturesCondition2(a)
-            val featureList2 = getNextVariableFeaturesCondition2(a).map(x => x.and(currentContext)).filterNot(x => x.equivalentTo(currentContext) || x.equivalentTo(FeatureExprFactory.False))
+            //val featureList2 = getNextVariableFeaturesCondition2(a).map(x => x.and(currentContext)).filterNot(x => x.equivalentTo(currentContext) || x.equivalentTo(FeatureExprFactory.False))
+            val featureList2 = getNextVariableFeaturesCondition3(a, currentContext)
             if (!featureList2.isEmpty || featureList.size > 1) {
                 val i = 0
             }
@@ -1655,6 +1675,53 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
             }
         }
         getNextFeatureHelp(a).distinct
+    }
+
+    def getNextVariableFeaturesCondition3(a: Any, currentContext: FeatureExpr = trueF): List[FeatureExpr] = {
+        def getNextFeatureHelp(a: Any): List[Id] = {
+            a match {
+                case l: List[_] =>
+                    l.flatMap(getNextFeatureHelp(_))
+                case i: Id =>
+                    if (idsToBeReplaced.containsKey(i)) {
+                        List(i)
+                    } else {
+                        List()
+                    }
+                case d@Opt(ft, i: Id) =>
+                    if (idsToBeReplaced.containsKey(i)) {
+                        List(i)
+                    } else {
+                        List()
+                    }
+                case d@Opt(ft, entry: StructOrUnionSpecifier) =>
+                    entry.productIterator.toList.flatMap(getNextFeatureHelp(_))
+                case d@Opt(ft, entry: NArySubExpr) =>
+                    entry.productIterator.toList.flatMap(getNextFeatureHelp(_))
+                case d@Opt(ft, entry: Expr) =>
+                    entry.productIterator.toList.flatMap(getNextFeatureHelp(_))
+                case d@Opt(ft, entry: ParameterDeclarationD) =>
+                    entry.productIterator.toList.flatMap(getNextFeatureHelp(_))
+                case d@Opt(ft, entry: TypeDefTypeSpecifier) =>
+                    entry.productIterator.toList.flatMap(getNextFeatureHelp(_))
+                case d@Opt(ft, entry: DeclParameterDeclList) =>
+                    entry.productIterator.toList.flatMap(getNextFeatureHelp(_))
+                case d@Opt(ft, entry: InitDeclaratorI) =>
+                    entry.productIterator.toList.flatMap(getNextFeatureHelp(_))
+                case d@Opt(ft, entry: AtomicNamedDeclarator) =>
+                    entry.productIterator.toList.flatMap(getNextFeatureHelp(_))
+                case d@Opt(ft, entry: StructDeclarator) =>
+                    entry.productIterator.toList.flatMap(getNextFeatureHelp(_))
+                case d@Opt(ft, entry) =>
+                    List()
+                case p: Product =>
+                    p.productIterator.toList.flatMap(getNextFeatureHelp(_))
+                case _ =>
+                    List()
+            }
+        }
+        val ids = getNextFeatureHelp(a)
+        computeScalarProduct(ids.map(x => idsToBeReplaced.get(x).map(y => y.and(currentContext)))).filter(z => z.isSatisfiable(fm))
     }
 
     /*
