@@ -54,6 +54,8 @@ object PrepareRefactoredASTforEval extends EvalHelper {
             (config, generateConfigsWithAffectedFeatures(enabledFeatures, affectedFeatures, fm))
         })
 
+        println(generatedConfigs)
+
         generatedConfigs.foreach(genConfigs => {
             var configNumber = 0
             val name = genConfigs._1.getName
