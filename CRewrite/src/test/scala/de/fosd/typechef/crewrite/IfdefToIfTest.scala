@@ -1622,9 +1622,16 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDeclU
         println("+++Pretty printed+++\n" + PrettyPrinter.print(source_ast))
     }
 
-    @Test def flo_ast_test() {
-        val source_ast = getAstFromPi(new File(ifdeftoifTestPath + "test2.pi"))
-        println(source_ast)
+    @Test def nocontext_variableids_test() {
+        println(testAst(getAstFromPi(new File(ifdeftoifTestPath + "nocontext_variableids.c"))))
+    }
+
+    @Test def context_variableids_test() {
+        println(testAst(getAstFromPi(new File(ifdeftoifTestPath + "context_variableids.c"))))
+    }
+
+    @Test def variable_struct_member_test() {
+        println(testAst(getAstFromPi(new File(ifdeftoifTestPath + "typedef_in_struct.c"))))
     }
 
     @Test def busy_box_test() {
@@ -1795,14 +1802,12 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDeclU
         println(testAst(source_ast3))
     }
 
-    @Test def declaration_test() {
-        // val file = new File("C:/users/flo/dropbox/hiwi/flo/pifiles/cdrom.pi")
-        val file = new File(busyBoxPath + "libbb/lineedit.pi")
-        println("parsing")
-        val parse_time = System.currentTimeMillis()
-        val source_ast = getAstFromPi(file)
-        println(" took: " + (System.currentTimeMillis() - parse_time) + " ms")
-        i.analyseDeclarations(source_ast)
+    @Test def scalar_test() {
+        val a = FeatureExprFactory.createDefinedExternal("A")
+        val b = FeatureExprFactory.createDefinedExternal("B")
+        val c = FeatureExprFactory.createDefinedExternal("C")
+        val listOfLists = List(List(a, a.not()), List(), List(c, c.not()))
+        println(i.computeScalarProduct(listOfLists))
     }
 
     @Test def feature_explosion() {
