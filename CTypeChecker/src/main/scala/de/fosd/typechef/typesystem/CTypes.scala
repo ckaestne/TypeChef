@@ -71,7 +71,9 @@ case class CType(
     def map(f: AType => AType) = copy(atype = f(this.atype))
 
     override def equals(that: Any) = that match {
-        case thattype: CType => this.atype == thattype.atype
+        case thattype: CType =>
+            (this.isUnknown && thattype.isUnknown) ||
+                (this.atype == thattype.atype && this.isObject == thattype.isObject && this.isConstant == thattype.isConstant && this.isVolatile == thattype.isVolatile)
         case thattype: AType => throw new RuntimeException("comparison between CType and AType")
         case _ => super.equals(that)
     }

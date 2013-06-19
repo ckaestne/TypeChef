@@ -12,14 +12,14 @@ import de.fosd.typechef.conditional._
 @RunWith(classOf[JUnitRunner])
 class ExprTypingTest extends CTypeSystem with CEnv with FunSuite with ShouldMatchers with TestHelper {
 
-    val _i:Conditional[CType] = One(CSigned(CInt()))
-    val _l:Conditional[CType] = One(CSigned(CLong()))
-    val _d:Conditional[CType] = One(CDouble())
-    val _oi:Conditional[CType] = One(CSigned(CInt()).toCType.toObj)
-    val _ol:Conditional[CType] = One(CSigned(CLong()).toCType.toObj)
-    val _od:Conditional[CType] = One(CDouble().toCType.toObj)
-    val _u:Conditional[CType] = One(CUndefined)
-    val c_i_l:Conditional[CType] = Choice(fx, _i, _l)
+    val _i: Conditional[CType] = One(CSigned(CInt()))
+    val _l: Conditional[CType] = One(CSigned(CLong()))
+    val _d: Conditional[CType] = One(CDouble())
+    val _oi: Conditional[CType] = One(CSigned(CInt()).toCType.toObj)
+    val _ol: Conditional[CType] = One(CSigned(CLong()).toCType.toObj)
+    val _od: Conditional[CType] = One(CDouble().toCType.toObj)
+    val _u: Conditional[CType] = One(CUndefined)
+    val c_i_l: Conditional[CType] = Choice(fx, _i, _l)
 
     protected def assertCondEquals(exp: Conditional[CType], act: Conditional[CType]) {
         assert(ConditionalLib.equals(exp, act), "Expected: " + exp + "\nActual:   " + act)
@@ -80,17 +80,17 @@ class ExprTypingTest extends CTypeSystem with CEnv with FunSuite with ShouldMatc
         expr("a") should be(CDouble().toCType.toObj)
         expr("\"a\"") should be(CPointer(CSignUnspecified(CChar())).toCType)
         expr("'0'") should be(CUnsigned(CChar()).toCType)
-        expr("&a") should be(CPointer(CDouble()).toCType)
+        expr("&a") should be(CPointer(CDouble()).toCType.toObj)
         expr("*(&a)") should be(CDouble().toCType.toObj)
         expr("*a") should be(CUnknown().toCType)
         expr("*v") should be(CUnknown().toCType)
-        expr("&foo") should be(CPointer(CFunction(Seq(), CDouble())).toCType)
+        expr("&foo") should be(CPointer(CFunction(Seq(), CDouble())).toCType.toObj)
     }
 
     test("conditional primitives and pointers") {
         exprV("ca") should be(Choice(fa, One(CDouble().toCType.toObj), _u))
         exprV("c") should be(c_i_l.map(_.toObj))
-        exprV("&c") should be(c_i_l.map(_.map(CPointer(_))))
+        exprV("&c") should be(c_i_l.map(_.map(CPointer(_)).toObj))
         exprV("*c").simplify should be(One(CUnknown().toCType))
     }
 
@@ -120,10 +120,10 @@ class ExprTypingTest extends CTypeSystem with CEnv with FunSuite with ShouldMatc
 
 
     test("function calls") {
-        expr("foo") should be(CFunction(Seq(), CDouble()).toCType)
+        expr("foo") should be(CFunction(Seq(), CDouble()).toCType.toObj)
         expr("foo()") should be(CDouble().toCType)
         expr("foo(1)") should be(CUnknown().toCType)
-        expr("bar") should be(CFunction(Seq(CDouble(), CPointer(CStruct("str"))), CVoid()).toCType)
+        expr("bar") should be(CFunction(Seq(CDouble(), CPointer(CStruct("str"))), CVoid()).toCType.toObj)
         expr("bar()") should be(CUnknown().toCType)
         expr("bar(1,s)") should be(CUnknown().toCType)
         expr("bar(1,&s)") should be(CVoid().toCType)
@@ -225,7 +225,7 @@ class ExprTypingTest extends CTypeSystem with CEnv with FunSuite with ShouldMatc
 
     test("ignored types") {
         expr("ig").toValue should be(CIgnore().toCType)
-        expr("&ig") should be(CPointer(CIgnore()).toCType)
+        expr("&ig") should be(CPointer(CIgnore()).toCType.toObj)
         expr("*ig") should be(CIgnore().toCType.toObj)
         expr("(double)ig") should be(CDouble().toCType)
     }

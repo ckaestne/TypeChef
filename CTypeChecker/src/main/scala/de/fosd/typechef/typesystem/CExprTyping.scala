@@ -341,10 +341,10 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
             case (o, t1, t2) if (pointerArthOp(o) && isArithmetic(t1) && isArithmetic(t2) && coerce(t1, t2)) => converse(t1, t2) //spec
             case (o, t1, t2) if (pointerArthOp(o) && isPointer(t1) && isIntegral(t2)) => type1.toValue //spec
             case ("+", t1, t2) if (isIntegral(t1) && isPointer(t2)) => type2.toValue //spec
-            case ("-", t1, t2) if (isPointer(t1) && (t1 == t2)) => CSigned(CInt()) //spec
+            case ("-", t1, t2) if (isPointer(t1) && (t1.atype == t2.atype)) => CSigned(CInt()) //spec
             case (o, t1, t2) if ((Set("+=", "-=") contains o) && type1.isObject && isPointer(t1) && isIntegral(t2)) => type1.toValue //spec
             case ("+=", t1, t2) if (type1.isObject && isIntegral(t1) && isPointer(t2)) => type2.toValue //spec
-            case ("-=", t1, t2) if (type1.isObject && isPointer(t1) && (t1 == t2)) => CSigned(CInt()) //spec
+            case ("-=", t1, t2) if (type1.isObject && isPointer(t1) && (t1.atype == t2.atype)) => CSigned(CInt()) //spec
             //bitwise operations defined on isIntegral
             case (op, t1, t2) if (bitwiseOp(op) && isIntegral(t1) && isIntegral(t2)) => converse(t1, t2)
             case (op, t1, t2) if (shiftOp(op) && isIntegral(t1) && isIntegral(t2)) => promote(t1) //spec

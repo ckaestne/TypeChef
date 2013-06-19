@@ -226,6 +226,18 @@ class CertSecurityTest extends FunSuite with ShouldMatchers with TestHelper {
               |
               |cpp = &cp; /* constraint violation */
             """.stripMargin)
+
+        errorExpr(
+            """
+              |char
+              |#ifdef X
+              |  const
+              |#endif
+              |  **cpp;
+              |char *cp;
+              |
+              |cpp = &cp; /* constraint violation */
+            """.stripMargin)
     }
 
     test("EXP05-C. Do not cast away a const qualification") {
