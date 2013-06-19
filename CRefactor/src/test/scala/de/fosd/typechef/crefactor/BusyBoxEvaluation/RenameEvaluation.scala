@@ -17,10 +17,10 @@ class RenameEvaluation extends BusyBoxEvaluation {
             val parsed = parse(new File(busyBoxPath + file))
             val ast = parsed._1
             val fm = parsed._2
+            val morpheus = new Morpheus(ast, fm)
             val parseTypeCheckTime = parseTypeCheckMs.getTime
             stats ::= parseTypeCheckTime
-
-            val morpheus = new Morpheus(ast, fm)
+            println(stats)
             true
         })
         logger.info("Refactor succ: " + refactor.contains(false))
