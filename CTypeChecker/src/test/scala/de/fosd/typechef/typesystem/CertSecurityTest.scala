@@ -28,6 +28,7 @@ class CertSecurityTest extends FunSuite with ShouldMatchers with TestHelper {
                 override def warning_long_designator = true
                 override def warning_conflicting_linkage = true
                 override def warning_implicit_identifier = true
+                override def warning_volatile = true
             } else LinuxDefaultOptions
         ).checkAST(false)
     }
@@ -154,7 +155,7 @@ class CertSecurityTest extends FunSuite with ShouldMatchers with TestHelper {
      * less simple type system rule
      * potentially interesting
      */
-    ignore("EXP32-C. Do not access a volatile object through a non-volatile reference") {
+    test("EXP32-C. Do not access a volatile object through a non-volatile reference") {
         correctExpr(
             """
               |static volatile int **ipp;
@@ -168,6 +169,7 @@ class CertSecurityTest extends FunSuite with ShouldMatchers with TestHelper {
               |}
             """.stripMargin)
 
+
         errorExpr(
             """
               |static volatile int **ipp;
@@ -177,6 +179,21 @@ class CertSecurityTest extends FunSuite with ShouldMatchers with TestHelper {
               |//printf("i = %d.\n", i);
               |
               |ipp = &ip; /* produces warnings in modern compilers */
+              |*ipp = &i; /* valid */
+              |if (*ip != 0) { /* valid */
+              |  /* ... */
+              |}
+            """.stripMargin)
+
+
+        errorExpr(
+            """
+              |static volatile int **ipp;
+              |static int *ip;
+              |static volatile int i = 0;
+              |
+              |//printf("i = %d.\n", i);
+              |
               |ipp = (int**) &ip; /* constraint violation, also produces warnings */
               |*ipp = &i; /* valid */
               |if (*ip != 0) { /* valid */

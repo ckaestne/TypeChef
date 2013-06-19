@@ -34,6 +34,7 @@ BUSYBOX
 
 trait ICTypeSysOptions {
 
+
     //    def getFeatureModelTypeSystem: FeatureModel
 
     //-Wno-pointer-sign, -Wpointer-sign
@@ -67,6 +68,11 @@ trait ICTypeSysOptions {
     // https://www.securecoding.cert.org/confluence/display/seccode/DCL36-C.+Do+not+declare+an+identifier+with+conflicting+linkage+classifications
     // type system
     def warning_conflicting_linkage: Boolean = false
+
+    // EXP32-C. Do not access a volatile object through a non-volatile reference
+    // https://www.securecoding.cert.org/confluence/display/seccode/EXP32-C.+Do+not+access+a+volatile+object+through+a+non-volatile+reference
+    // type system
+    def warning_volatile: Boolean = false
 }
 
 trait COptionProvider {

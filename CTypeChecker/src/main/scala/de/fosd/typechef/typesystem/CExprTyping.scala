@@ -156,6 +156,9 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                                 //checks expression again in a tighter context
                                 if (isPointer(ltype) && pointerArthAssignOp(op)) etF(rexpr, fexpr, env.markSecurityRelevant("array access/pointer arithmetic"))
 
+                                if (opts.warning_volatile && ltype.isVolatile && !rtype.isVolatile)
+                                    reportTypeError(fexpr, "Cannot convert from '%s' to '%s' with '%s'; undefined behavior".format(rtype.toText, ltype.toText, op), ae, Severity.SecurityWarning, "volatile")
+
                                 val opType = operationType(op, ltype, rtype, ae, fexpr, env)
                                 ltype match {
                                     case CType(t, true, _, _) if (coerce(t, opType)) => {

@@ -42,7 +42,7 @@ case class CType(
                     val isVolatile: Boolean,
                     val isConstant: Boolean) {
 
-    def copy(atype: AType = this.atype, isObject: Boolean = this.isObject, isVolatile: Boolean = this.isVolatile, isConstant: Boolean = this.isConstant) = new CType(atype, isObject, isVolatile, isConstant)
+    private def copy(atype: AType = this.atype, isObject: Boolean = this.isObject, isVolatile: Boolean = this.isVolatile, isConstant: Boolean = this.isConstant) = new CType(atype, isObject, isVolatile, isConstant)
 
     //convert from object to value (lvalue to rvalue) if applicable; if already a type return the type
     def toValue: CType = {
@@ -53,6 +53,8 @@ case class CType(
         copy(atype = newatype, isObject = false)
     }
     def toObj: CType = copy(isObject = true)
+    def toVolatile: CType = copy(isVolatile = true)
+    def toConst: CType = copy(isConstant = true)
 
     def isFunction: Boolean = atype.isFunction
     def isUnknown: Boolean = atype.isUnknown
@@ -89,7 +91,6 @@ case class CType(
         </obj>
         result
     }
-
 
 }
 
@@ -234,7 +235,7 @@ case class CLongDouble() extends AType {
 }
 
 case class CPointer(t: AType) extends AType {
-    override def toText = "*" + t.toText
+    override def toText = t.toText + "*"
     def toXML = <pointer>
         {t.toXML}
     </pointer>

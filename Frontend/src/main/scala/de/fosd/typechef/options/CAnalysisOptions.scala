@@ -21,10 +21,11 @@ class CAnalysisOptions extends FeatureModelOptions with ICTypeSysOptions {
     val Alongdesignator = SecurityOption("long-designator", "Issue security warning on lowercase long designators (readability)", LinuxDefaultOptions.warning_long_designator)
     val Aimplicitidentifier = SecurityOption("implicit-identifier", "Issue security warning on implicit identifier definitions (undefined behavior)", LinuxDefaultOptions.warning_implicit_identifier)
     val Aconflictinglinkage = SecurityOption("conflicting-linkage", "Issue security warning on conflicting linkage declarations (undefined behavior)", LinuxDefaultOptions.warning_conflicting_linkage)
+    val Avolatile = SecurityOption("volatile", "Issue security warning on referencing a volatile object using a nonvolatile value (undefined behavior)", LinuxDefaultOptions.warning_volatile)
 
 
     val opts: List[SecurityOption] = List(
-        Apointersign, Aintegeroverflow, Aimplicitcoercion, Alongdesignator, Aimplicitidentifier, Aconflictinglinkage
+        Apointersign, Aintegeroverflow, Aimplicitcoercion, Alongdesignator, Aimplicitidentifier, Aconflictinglinkage, Avolatile
     )
 
 
@@ -35,6 +36,7 @@ class CAnalysisOptions extends FeatureModelOptions with ICTypeSysOptions {
     override def warning_long_designator: Boolean = Alongdesignator.isSelected
     override def warning_implicit_identifier: Boolean = Aimplicitidentifier.isSelected
     override def warning_conflicting_linkage: Boolean = Aconflictinglinkage.isSelected
+    override def warning_volatile: Boolean = Avolatile.isSelected
 
     override protected def getOptionGroups: java.util.List[Options.OptionGroup] = {
         val r: java.util.List[Options.OptionGroup] = super.getOptionGroups
@@ -61,10 +63,10 @@ class CAnalysisOptions extends FeatureModelOptions with ICTypeSysOptions {
 
             if (arg == "ALL") opts.map(_.isSelected = true)
             else {
-                val opt=opts.filter(_.param.toUpperCase == arg).headOption
+                val opt = opts.filter(_.param.toUpperCase == arg).headOption
                 opt.map(_.isSelected = true)
                 if (!opt.isDefined)
-                    throw new OptionException("Analysis "+arg +" unknown. Known analyses: "+opts.map(_.param).mkString(", "))
+                    throw new OptionException("Analysis " + arg + " unknown. Known analyses: " + opts.map(_.param).mkString(", "))
             }
         }
         else if (c == 'a') {

@@ -169,8 +169,6 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
             case _ =>
         }
 
-
-
         def count(spec: Specifier): Int = specifiers.count(_ == spec)
         def has(spec: Specifier): Boolean = count(spec) > 0
 
@@ -208,6 +206,13 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
 
         //TODO prevent invalid combinations completely?
 
+
+        for (specifier <- specifiers) specifier match {
+            case VolatileSpecifier() => types = types.map(_.map(_.toVolatile))
+            case ConstSpecifier() => types = types.map(_.map(_.toConst))
+
+            case _ =>
+        }
 
         if (types.size == 1)
             types.head
@@ -413,12 +418,12 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
                     })
                     val paramLists: Conditional[List[AType]] =
                         ConditionalLib.explodeOptList(parameterTypes).map(_.map(_.atype))
-                    paramLists.map(CFunction(_, rtype.atype).toCType)
+                    paramLists.map(param => rtype.map(CFunction(param, _)))
                 case DeclParameterDeclList(parameterDecls) =>
                     val paramLists: Conditional[List[AType]] =
                         ConditionalLib.explodeOptList(getParameterTypes(parameterDecls, fexpr, env)).map(_.map(_.atype))
-                    paramLists.map(CFunction(_, rtype.atype).toCType)
-                case DeclArrayAccess(expr) => One(CArray(rtype.atype).toCType)
+                    paramLists.map(param => rtype.map(CFunction(param, _)))
+                case DeclArrayAccess(expr) => One(rtype.map(CArray(_)))
             }
         )
 
@@ -466,7 +471,7 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface {
                 def inlineAnonymousStructs(t: Conditional[CType]) {
                     t match {
                         case Choice(f, x, y) => inlineAnonymousStructs(x); inlineAnonymousStructs(y)
-                        case One(CType(CAnonymousStruct(fields, _),_,_,_)) => result = result ++ fields
+                        case One(CType(CAnonymousStruct(fields, _), _, _, _)) => result = result ++ fields
                         //                case CStruct(name, _) => //TODO inline as well
                         case e => //don't care about other types
                     }
