@@ -77,15 +77,7 @@ abstract class MonotoneFW[T](val env: ASTEnv, val udm: UseDeclMap, val fm: Featu
     protected def t2SetT(i: T): Set[T]
     protected def t2T(i: T): T
 
-    class IdentityHashMapCache[A] {
-        private val cache: java.util.IdentityHashMap[Any, A] = new java.util.IdentityHashMap[Any, A]()
-        def update(k: Any, v: A) { cache.put(k, v) }
-        def lookup(k: Any): Option[A] = {
-            val v = cache.get(k)
-            if (v != null) Some(v)
-            else None
-        }
-    }
+
 
     protected val incache = new IdentityHashMapCache[ResultMap]()
     protected val outcache = new IdentityHashMapCache[ResultMap]()
@@ -244,5 +236,15 @@ abstract class MonotoneFW[T](val env: ASTEnv, val udm: UseDeclMap, val fm: Featu
             res = (orig, f) :: res
         }
         res.filter(_._2.isSatisfiable(fm))
+    }
+}
+
+class IdentityHashMapCache[A] {
+    private val cache: java.util.IdentityHashMap[Any, A] = new java.util.IdentityHashMap[Any, A]()
+    def update(k: Any, v: A) { cache.put(k, v) }
+    def lookup(k: Any): Option[A] = {
+        val v = cache.get(k)
+        if (v != null) Some(v)
+        else None
     }
 }
