@@ -1,7 +1,7 @@
 package de.fosd.typechef.crefactor.BusyBoxEvaluation
 
 import de.fosd.typechef.parser.c.AST
-import de.fosd.typechef.Frontend
+import de.fosd.typechef.FrontendInstance
 import java.io.{FilenameFilter, File}
 import de.fosd.typechef.featureexpr.{FeatureExpr, FeatureModel}
 import org.junit.Test
@@ -11,13 +11,12 @@ import de.fosd.typechef.crefactor.util.EvalHelper
 trait BusyBoxEvaluation extends EvalHelper {
 
 
-    protected val completeBusyBoxPath = new File(busyBoxPath).getCanonicalPath
-
     private val systemProperties: String = completeBusyBoxPath + "/redhat.properties"
 
-    private val includeHeader: String = completeBusyBoxPath + "/busybox/config.h"
+    private val includeHeader: String = completeBusyBoxPath + "/config.h"
     private val includeDir: String = completeBusyBoxPath + "/busybox-1.18.5/include"
-    private val featureModel: String = completeBusyBoxPath + "/busybox/featureModel"
+    private val featureModel: String = completeBusyBoxPath + "/featureModel"
+
 
     // private val typeChefArguments = List("-c", systemProperties, "-x", "CONFIG_", "--include", includeHeader, "-I", includeDir, "--featureModelFExpr", featureModel, "--debugInterface", "--recordTiming", "--parserstatistics", "-U", "HAVE_LIBDMALLOC", "-DCONFIG_FIND", "-U", "CONFIG_FEATURE_WGET_LONG_OPTIONS", "-U", "ENABLE_NC_110_COMPAT", "-U", "CONFIG_EXTRA_COMPAT ", "-D_GNU_SOURCE")
     @Test
@@ -26,14 +25,12 @@ trait BusyBoxEvaluation extends EvalHelper {
     def performRefactor(fileToRefactor: File): Boolean
 
     def parse(file: File): (AST, FeatureModel) = {
-        Frontend.main(getTypeChefArguments(file.getAbsolutePath))
-        (Frontend.getAST, Frontend.getFeatureModel)
+        val frontend = new FrontendInstance
+        frontend.main(getTypeChefArguments(file.getAbsolutePath))
+        (frontend.getAST, frontend.getFeatureModel)
     }
 
-    def getTypeChefArguments(file: String): Array[String] = {
-        val pc = file.replace(".c", ".pc")
-        Array(file, "-c", systemProperties, "-x", "CONFIG_", "--include", includeHeader, "-I", includeDir, "--featureModelFExpr", featureModel, "--partialConfiguration", pc, "--debugInterface", "--recordTiming", "--parserstatistics")
-    }
+    def getTypeChefArguments(file: String): Array[String] = Array(file, "-c", systemProperties, "-x", "CONFIG_", "--include", includeHeader, "-I", includeDir, "--featureModelFExpr", featureModel, "--debugInterface", "--recordTiming", "--parserstatistics", "-U", "HAVE_LIBDMALLOC", "-DCONFIG_FIND", "-U", "CONFIG_FEATURE_WGET_LONG_OPTIONS", "-U", "ENABLE_NC_110_COMPAT", "-U", "CONFIG_EXTRA_COMPAT", "-D_GNU_SOURCE")
 
     protected def analyseDir(dirToAnalyse: File): Boolean = {
         if (dirToAnalyse.isDirectory) {
