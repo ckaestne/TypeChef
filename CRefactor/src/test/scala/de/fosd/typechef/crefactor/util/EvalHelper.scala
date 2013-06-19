@@ -51,12 +51,12 @@ trait EvalHelper extends Logging {
         val out = new java.io.FileWriter(dir.getCanonicalPath + File.separatorChar + name)
         val disabledFeatures = allFeatures.diff(config)
         config.foreach(feature => {
-            val ft = feature.feature.substring(4, feature.feature.size)
+            val ft = feature.feature.substring(0, feature.feature.size)
             out.write(ft + "=y")
             out.write("\n")
         })
         disabledFeatures.foreach(feature => {
-            val ft = feature.feature.substring(4, feature.feature.size)
+            val ft = feature.feature.substring(0, feature.feature.size)
             out.write(ft + "=n")
             out.write("\n")
         })
