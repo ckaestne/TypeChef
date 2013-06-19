@@ -24,7 +24,6 @@ trait EvalHelper extends Logging {
     val result = "/result/"
 
     val filterFeatures = List("def(CONFIG_SELINUX)")
-
     val allFeaturesFile = getClass.getResource("/BusyBoxAllFeatures.config").getFile
     val allFeatures = getAllFeaturesFromConfigFile(null, new File(allFeaturesFile))
 

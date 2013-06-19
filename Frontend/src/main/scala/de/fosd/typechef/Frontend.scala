@@ -103,8 +103,8 @@ object Frontend {
 
             if (ast != null) {
                 storedAst = ast
-                featureModel = fm
                 val fm_ts = opt.getFeatureModelTypeSystem.and(opt.getLocalFeatureModel).and(opt.getFilePresenceCondition)
+                featureModel = fm_ts
                 val ts = new CTypeSystemFrontend(ast.asInstanceOf[TranslationUnit], fm_ts)
 
                 /** I did some experiments with the TypeChef FeatureModel of Linux, in case I need the routines again, they are saved here. */
