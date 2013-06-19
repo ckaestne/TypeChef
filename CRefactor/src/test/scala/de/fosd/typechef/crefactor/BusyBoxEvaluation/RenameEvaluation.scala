@@ -4,7 +4,7 @@ import org.junit.Test
 import java.io.File
 import de.fosd.typechef.parser.c.{Id, AST}
 import de.fosd.typechef.featureexpr.FeatureExpr
-import de.fosd.typechef.crefactor.util.TimeMeasurement
+import de.fosd.typechef.crefactor.util.{PrepareRefactoredASTforEval, TimeMeasurement}
 import de.fosd.typechef.crefactor.Morpheus
 import de.fosd.typechef.crefactor.backend.refactor.RenameIdentifier
 
@@ -18,21 +18,25 @@ class RenameEvaluation extends BusyBoxEvaluation {
         val refactor = files.map(file => {
             var stats = List[Any]()
             val parseTypeCheckMs = new TimeMeasurement
-            val parsed = parse(new File(busyBoxPath + file))
+            val file = new File(busyBoxPath + file)
+            val parsed = parse(file)
             val ast = parsed._1
             val fm = parsed._2
             val morpheus = new Morpheus(ast, fm)
             val parseTypeCheckTime = parseTypeCheckMs.getTime
             stats ::= parseTypeCheckTime
             val result = applyRefactor(morpheus, stats)
-            println("Result" + result._2)
-            true
+            if (result._2) {
+                PrepareRefactoredASTforEval.prepare(result._1, morpheus.getFeatureModel, file.getCanonicalPath, result._3, 0)
+            }
+
+            result._2
         })
         logger.info("Refactor succ: " + refactor.contains(false))
 
     }
 
-    def applyRefactor(morpheus: Morpheus, stats: List[Any]): (AST, Boolean, List[FeatureExpr], List[Any]) = {
+    def applyRefactor(morpheus: Morpheus, stat: List[Any]): (AST, Boolean, List[FeatureExpr], List[Any]) = {
         val ids = morpheus.getUseDeclMap.values().toArray(Array[List[Id]]()).par.foldLeft(List[Id]())((list, entry) => list ::: entry).toList
         def getVariableIdForRename(depth: Int = 0): (Id, Int, List[FeatureExpr]) = {
             val id = ids.apply((math.random * ids.size).toInt)
@@ -55,6 +59,8 @@ class RenameEvaluation extends BusyBoxEvaluation {
         val startRenaming = new TimeMeasurement
         val refactored = RenameIdentifier.rename(id, refactor_name, morpheus)
         val renamingTime = startRenaming.getTime
+        var stats = stat.::(renamingTime)
+        stats ::= id :: toRename._2 :: features
 
         val morpheus2 = new Morpheus(refactored, morpheus.getFeatureModel)
 
