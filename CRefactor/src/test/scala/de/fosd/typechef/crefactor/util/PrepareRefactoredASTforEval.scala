@@ -58,7 +58,7 @@ object PrepareRefactoredASTforEval extends EvalHelper {
             var configNumber = 0
             val name = genConfigs._1.getName
             genConfigs._2.foreach(genConfig => {
-                writeConfig(genConfig, dir, configNumber + name + ".config")
+                writeConfig(genConfig, dir, configNumber + name)
                 configNumber += 1
             })
         })
