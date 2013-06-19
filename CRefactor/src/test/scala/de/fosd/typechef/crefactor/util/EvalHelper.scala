@@ -10,10 +10,10 @@ import de.fosd.typechef.ProductGeneration.SimpleConfiguration
 
 trait EvalHelper extends Logging {
 
-    val completeBusyBoxPath = new File(caseStudyPath).getCanonicalPath
-
 
     val caseStudyPath = "../busybox/"
+
+    val completeBusyBoxPath = new File(caseStudyPath).getCanonicalPath
 
     val busyBoxPath = "/busybox-1.18.5/"
 
