@@ -9,17 +9,16 @@ import de.fosd.typechef.parser.c._
 
 class CAnalysisFrontend(tunit: TranslationUnit, fm: FeatureModel = FeatureExprFactory.empty) extends CFGHelper with EnforceTreeHelper {
 
-    def dumpCFG(writer: Writer = new StringWriter()) {
+    def writeCFG(title: String, writer: CFGWriter) {
         val fdefs = filterAllASTElems[FunctionDef](tunit)
-        val dump = new DotGraph(writer)
         val env = CASTEnv.createASTEnv(tunit)
-        dump.writeHeader("CFGDump")
+        writer.writeHeader(title)
 
         for (f <- fdefs) {
-            dump.writeMethodGraph(getAllSucc(f, fm, env), env, Map())
+            writer.writeMethodGraph(getAllSucc(f, fm, env), env, Map())
         }
-        dump.writeFooter()
-        dump.close()
+        writer.writeFooter()
+        writer.close()
 
         if (writer.isInstanceOf[StringWriter])
             println(writer.toString)

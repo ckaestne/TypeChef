@@ -186,12 +186,9 @@ class CFGCSVWriter(fwriter: Writer) extends IOUtilities with CFGWriter {
     }
 
     def writeFooter() {
-        fwriter.write("}\n")
     }
 
     def writeHeader(title: String) {
-        fwriter.write("digraph \"" + title + "\" {" + "\n")
-        fwriter.write("node [shape=record];\n")
     }
 
     private def esc(i: String) = {
