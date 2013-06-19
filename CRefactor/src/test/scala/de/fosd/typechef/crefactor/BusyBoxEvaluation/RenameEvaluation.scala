@@ -25,7 +25,7 @@ class RenameEvaluation extends BusyBoxEvaluation {
             val parseTypeCheckTime = parseTypeCheckMs.getTime
             stats ::= parseTypeCheckTime
             val result = applyRefactor(morpheus, stats)
-            println("Result" + result)
+            println("Result" + result._2)
             true
         })
         logger.info("Refactor succ: " + refactor.contains(false))
