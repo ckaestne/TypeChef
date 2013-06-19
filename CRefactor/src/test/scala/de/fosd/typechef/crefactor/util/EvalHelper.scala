@@ -1,31 +1,33 @@
 package de.fosd.typechef.crefactor.util
 
 import java.io.{FileReader, BufferedReader, FileWriter, File}
-import de.fosd.typechef.parser.c.{PrettyPrinter, AST}
+import de.fosd.typechef.parser.c.{GnuAsmExpr, Id, PrettyPrinter, AST}
 import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr, SingleFeatureExpr, FeatureModel}
 import java.util.regex.Pattern
 import scala.io.Source
 import de.fosd.typechef.crefactor.Logging
 import de.fosd.typechef.ProductGeneration.SimpleConfiguration
+import de.fosd.typechef.Frontend
+import java.util.IdentityHashMap
 
 trait EvalHelper extends Logging {
 
 
     val caseStudyPath = "../busybox/"
-
     val completeBusyBoxPath = new File(caseStudyPath).getCanonicalPath
-
     val busyBoxFiles: String = completeBusyBoxPath + "/busybox_files"
-
     val busyBoxPath = completeBusyBoxPath + "/busybox-1.18.5/"
-
     val busyBoxPathUntouched = completeBusyBoxPath + caseStudyPath + "/busybox-1.18.5_untouched/"
-
     val result = "/result/"
 
     val filterFeatures = List("def(CONFIG_SELINUX)")
     val allFeaturesFile = getClass.getResource("/BusyBoxAllFeatures.config").getFile
     val allFeatures = getAllFeaturesFromConfigFile(null, new File(allFeaturesFile))
+
+    private val systemProperties: String = completeBusyBoxPath + "/redhat.properties"
+    private val includeHeader: String = completeBusyBoxPath + "/config.h"
+    private val includeDir: String = completeBusyBoxPath + "/busybox-1.18.5/include"
+    private val featureModel: String = completeBusyBoxPath + "/featureModel"
 
     def writeAST(ast: AST, filePath: String) {
         val writer = new FileWriter(filePath)
@@ -68,6 +70,25 @@ trait EvalHelper extends Logging {
         if (!result.exists()) result.mkdirs()
         result
     }
+
+    def parse(file: File): (AST, FeatureModel) = {
+        def getTypeChefArguments(file: String) = Array(file, "-c", systemProperties, "-x", "CONFIG_", "--include", includeHeader, "-I", includeDir, "--featureModelFExpr", featureModel, "--debugInterface", "--recordTiming", "--parserstatistics", "-U", "HAVE_LIBDMALLOC", "-DCONFIG_FIND", "-U", "CONFIG_FEATURE_WGET_LONG_OPTIONS", "-U", "ENABLE_NC_110_COMPAT", "-U", "CONFIG_EXTRA_COMPAT", "-D_GNU_SOURCE")
+        Frontend.main(getTypeChefArguments(file.getAbsolutePath))
+        (Frontend.getAST, Frontend.getFeatureModel)
+    }
+
+    def getAllRelevantIds(a: Any): List[Id] = {
+        a match {
+            case id: Id => if (!(id.name.startsWith("__builtin"))) List(id) else List()
+            case gae: GnuAsmExpr => List()
+            case l: List[_] => l.flatMap(x => getAllRelevantIds(x))
+            case p: Product => p.productIterator.toList.flatMap(x => getAllRelevantIds(x))
+            case k => List()
+        }
+    }
+
+    def analsyeDeclUse(map: IdentityHashMap[Id, List[Id]]): List[Int] = map.keySet().toArray(Array[Id]()).map(key => map.get(key).length).toList
+
 
     def getEnabledFeaturesFromConfigFile(fm: FeatureModel, file: File): List[SingleFeatureExpr] = {
         val correctFeatureModelIncompatibility = false
