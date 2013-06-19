@@ -17,14 +17,16 @@ class Morpheus(ast: AST, fm: FeatureModel, file: File) extends Observable with C
 
     private var astCached: AST = ast
     private var astEnvCached: ASTEnv = CASTEnv.createASTEnv(ast)
-    private var ts = new CTypeSystemFrontend(ast.asInstanceOf[TranslationUnit], fm)
-    ts.checkAST
+    typecheckTranslationUnit(ast.asInstanceOf[TranslationUnit])
 
+    //private var ts = new CTypeSystemFrontend(ast.asInstanceOf[TranslationUnit], fm)
+    //ts.checkAST
     def update(ast: AST) {
         astCached = ast
         astEnvCached = CASTEnv.createASTEnv(astCached)
-        ts = new CTypeSystemFrontend(astCached.asInstanceOf[TranslationUnit], fm)
-        ts.checkAST
+        //ts = new CTypeSystemFrontend(astCached.asInstanceOf[TranslationUnit], fm)
+        //ts.checkAST
+        typecheckTranslationUnit(ast.asInstanceOf[TranslationUnit])
         setChanged()
         notifyObservers()
     }
