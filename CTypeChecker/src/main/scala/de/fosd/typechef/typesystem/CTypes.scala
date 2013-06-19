@@ -370,7 +370,7 @@ object CType {
         (node \ "astruct").map(x => result = CAnonymousStruct(new ConditionalTypeMap(), x.attribute("isUnion").get.head.text.toBoolean)) //TODO
         (node \ "function").map(x => result = CFunction(
             (x \ "param").map(fromXML(_)),
-            fromXMLAType((x \ "ret").head)
+            fromXML((x \ "ret").head)
         ))
         (node \ "compound").map(x => result = CCompound())
         (node \ "builtinvalist").map(x => result = CBuiltinVaList())

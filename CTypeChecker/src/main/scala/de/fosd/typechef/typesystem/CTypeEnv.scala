@@ -132,7 +132,7 @@ trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTypi
             case CArray(t, n) =>
                 wf(t) && (t != CVoid()) && n > 0
             case CFunction(param, ret) => wf(ret.atype) && !arrayType(ret.atype) && (
-                param.forall(p => !arrayType(p) && p != CVoid())) &&
+                param.forall(p => !arrayType(p) && p != CVoid().toCType)) &&
                 param.dropRight(1).forall(p => wf(p.atype)) &&
                 lastParam(param.lastOption.map(_.atype)) //last param may be varargs
             case CVarArgs() => false
