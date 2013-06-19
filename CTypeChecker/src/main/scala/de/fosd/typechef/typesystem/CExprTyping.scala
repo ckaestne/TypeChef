@@ -162,13 +162,16 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                                 if (opts.warning_volatile && ltype.isVolatile && !rtype.isVolatile)
                                     reportTypeError(fexpr, "Cannot convert from '%s' to '%s' with '%s'; undefined behavior".format(rtype.toText, ltype.toText, op), ae, Severity.SecurityWarning, "volatile")
                                 if (opts.warning_const_assignment && ltype.isConstant)
-                                    reportTypeError(fexpr, "Cannot assign to const '%s'; undefined behavior".format(ltype.toText), ae, Severity.SecurityWarning, "const-assignment")
+                                    reportTypeError(fexpr, "Cannot assign to const '%s'; undefined behavior".format(ltype.toText), ae, Severity.SecurityWarning, "const_assignment")
 
                                 val opType = operationType(op, ltype, rtype, ae, fexpr, env)
                                 ltype match {
                                     case CType(t, true, _, _) if (coerce(t, opType)) => {
                                         if (opts.warning_implicit_coercion && isForcedCoercion(ltype.atype, rtype.atype))
                                             reportTypeError(fexpr, "Implicit coercion of integer types (%s <- %s), consider a cast".format(ltype.toText, rtype.toText), ae, Severity.SecurityWarning, "implicit_coercion")
+                                        if (opts.warning_character_signed && isCharSignCoercion(ltype.atype, rtype.atype))
+                                            reportTypeError(featureExpr, "Incompatible character types '%s <- %s'; consider a cast".format(ltype.toText, rtype.toText), expr, Severity.SecurityWarning, "char_signness")
+
                                         prepareArray(ltype).toValue
                                     }
                                     case CType(u: CUnknown, _, _, _) => ltype.toValue
@@ -412,8 +415,11 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
         if (areParameterCompatible(foundTypes, expectedTypes)) {
             if (opts.warning_const_assignment)
                 (foundTypes zip expectedTypes) map {
-                    case (ft, et) => if (ft.isConstant && !et.isConstant)
-                        reportTypeError(featureExpr, "Do not (implicitly) cast away a const qualification '%s <- %s'; may result in undefined behavior".format(et.toText, ft.toText), expr, Severity.SecurityWarning, "const-implicit-cast")
+                    case (ft, et) =>
+                        if (ft.isConstant && !et.isConstant)
+                            reportTypeError(featureExpr, "Do not (implicitly) cast away a const qualification '%s <- %s'; may result in undefined behavior".format(et.toText, ft.toText), expr, Severity.SecurityWarning, "const-implicit-cast")
+                        if (opts.warning_character_signed && isCharSignCoercion(et.atype, ft.atype))
+                            reportTypeError(featureExpr, "Incompatible character types '%s <- %s'; consider a cast".format(et.toText, ft.toText), expr, Severity.SecurityWarning, "char_signness")
                 }
 
             retType

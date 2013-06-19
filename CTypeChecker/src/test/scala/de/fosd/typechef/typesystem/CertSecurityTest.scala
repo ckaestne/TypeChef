@@ -30,6 +30,7 @@ class CertSecurityTest extends FunSuite with ShouldMatchers with TestHelper {
                 override def warning_implicit_identifier = true
                 override def warning_volatile = true
                 override def warning_const_assignment = true
+                override def warning_character_signed = true
             } else LinuxDefaultOptions
         ).checkAST(false)
     }
@@ -280,5 +281,50 @@ class CertSecurityTest extends FunSuite with ShouldMatchers with TestHelper {
               |}
             """.stripMargin)
     }
-}
 
+    test("STR04-C. Use plain char for characters in the basic character set") {
+        correct(
+            """
+              |int strlen(const char * p);
+              |void foo() {
+              |  int len;
+              |  char cstr[] = "char string";
+              |  len = strlen(cstr);
+              |}
+            """.stripMargin)
+
+        error(
+            """
+              |int strlen(const char * p);
+              |void foo() {
+              |  int len;
+              |  signed char cstr[] = "char string";
+              |  len = strlen(cstr);
+              |}
+            """.stripMargin)
+
+        error(
+            """
+              |int strlen(const char * p);
+              |void foo() {
+              |  int len;
+              |  unsigned char cstr[] = "char string";
+              |  len = strlen(cstr);
+              |}
+            """.stripMargin)
+
+        error(
+            """
+              |int strlen(const char * p);
+              |void foo() {
+              |  int len;
+              |#ifdef X
+              |  unsigned
+              |#endif
+              |     char cstr[] = "char string";
+              |  len = strlen(cstr);
+              |}
+            """.stripMargin)
+    }
+
+}

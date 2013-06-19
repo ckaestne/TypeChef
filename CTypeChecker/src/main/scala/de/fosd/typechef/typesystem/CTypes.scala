@@ -677,6 +677,17 @@ trait CTypes extends COptionProvider {
     }
 
 
+    /**
+     * are both types char but with different signage?
+     */
+    protected def isCharSignCoercion(a: AType, b: AType): Boolean = (normalize(a), normalize(b)) match {
+        case (CPointer(aa), CPointer(bb)) => isCharSignCoercion(aa, bb)
+        case (aa: CSignSpecifier, bb: CSignSpecifier) =>
+            aa.basicType == CChar() && bb.basicType == CChar() && aa != bb
+        case _ => false
+    }
+
+
 }
 
 

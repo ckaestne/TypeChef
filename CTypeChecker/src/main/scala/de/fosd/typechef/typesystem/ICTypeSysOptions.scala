@@ -81,6 +81,12 @@ trait ICTypeSysOptions {
     // https://www.securecoding.cert.org/confluence/display/seccode/EXP05-C.+Do+not+cast+away+a+const+qualification
     // type system
     def warning_const_assignment: Boolean = false
+
+    // STR04-C. Use plain char for characters in the basic character set
+    // more generally flag implicit coercion between different char types
+    // https://www.securecoding.cert.org/confluence/display/seccode/STR04-C.+Use+plain+char+for+characters+in+the+basic+character+set
+    // type system
+    def warning_character_signed: Boolean = false
 }
 
 trait COptionProvider {
