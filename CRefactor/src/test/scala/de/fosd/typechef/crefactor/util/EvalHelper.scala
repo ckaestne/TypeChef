@@ -50,15 +50,17 @@ trait EvalHelper extends Logging {
 
     def writeConfig(config: List[SingleFeatureExpr], dir: File, name: String) {
         val out = new java.io.FileWriter(dir.getCanonicalPath + File.separatorChar + name)
-        val disabledFeatures = allFeatures.diff(config)
+        val disabledFeatures = allFeatures._1.diff(config)
         config.foreach(feature => {
-            val ft = feature.feature.substring(0, feature.feature.size)
+            val ft = feature.feature
             out.write(ft + "=y")
             out.write("\n")
         })
         disabledFeatures.foreach(feature => {
-            val ft = feature.feature.substring(0, feature.feature.size)
-            out.write("# " + ft + " is not set")
+            val ft = feature.feature
+            if (allFeatures._2.containsKey(feature.feature)) out.write(ft + "=" + allFeatures._2.get(feature.feature))
+            else out.write("# " + ft + " is not set")
+
             out.write("\n")
         })
         out.flush()
@@ -170,7 +172,7 @@ trait EvalHelper extends Logging {
         files
     }
 
-    def getAllFeaturesFromConfigFile(fm: FeatureModel, file: File): List[SingleFeatureExpr] = {
+    def getAllFeaturesFromConfigFile(fm: FeatureModel, file: File): (List[SingleFeatureExpr], IdentityHashMap[String, String]) = {
         val correctFeatureModelIncompatibility = false
         var ignoredFeatures = 0
         var changedAssignment = 0
@@ -178,7 +180,7 @@ trait EvalHelper extends Logging {
         var fileEx: FeatureExpr = FeatureExprFactory.True
         var trueFeatures: Set[SingleFeatureExpr] = Set()
         var falseFeatures: Set[SingleFeatureExpr] = Set()
-        var assignValues = new util.IdentityHashMap[String, String]()
+        val assignValues = new util.IdentityHashMap[String, String]()
 
         val enabledPattern: Pattern = java.util.regex.Pattern.compile("([^=]*)=.*")
         val disabledPattern: Pattern = java.util.regex.Pattern.compile("([^=]*) is*")
@@ -187,10 +189,9 @@ trait EvalHelper extends Logging {
             var matcher = enabledPattern.matcher(line)
             if (matcher.matches()) {
                 val name = matcher.group(1)
-
-                println("value " + line.substring(line.lastIndexOf('=') + 1))
+                val value = line.substring(line.lastIndexOf('=') + 1).trim
                 val feature = FeatureExprFactory.createDefinedExternal(name)
-                println(feature.feature)
+                if (!value.equals("y")) assignValues.put(feature.feature, value)
                 var fileExTmp = fileEx.and(feature)
                 if (correctFeatureModelIncompatibility) {
                     val isSat = fileExTmp.isSatisfiable(fm)
@@ -235,7 +236,7 @@ trait EvalHelper extends Logging {
                 }
             }
         }
-        trueFeatures.toList
+        (trueFeatures.toList, assignValues)
     }
 
     def loadConfigurationsFromCSVFile(csvFile: File, dimacsFile: File, features: List[SingleFeatureExpr], fm: FeatureModel, fnamePrefix: String = ""): (List[SimpleConfiguration], String) = {
