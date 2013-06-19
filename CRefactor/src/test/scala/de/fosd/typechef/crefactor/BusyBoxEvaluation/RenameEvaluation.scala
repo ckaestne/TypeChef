@@ -9,7 +9,8 @@ class RenameEvaluation extends BusyBoxEvaluation {
     @Test
     def evaluate() {
         val files = getBusyBoxFiles
-        files.map(file => performRefactor(new File(busyBoxPath + file)))
+        val refactor = files.par.map(file => performRefactor(new File(busyBoxPath + file)))
+        logger.info("Refactor succ: " + refactor.toList.contains(false))
     }
     def performRefactor(fileToRefactor: File): Boolean = {
         val parsed = parse(fileToRefactor)
