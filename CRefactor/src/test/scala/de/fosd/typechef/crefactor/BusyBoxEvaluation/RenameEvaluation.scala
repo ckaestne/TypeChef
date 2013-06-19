@@ -9,6 +9,13 @@ class RenameEvaluation extends BusyBoxEvaluation {
     @Test
     def evaluate() {
         println(completeBusyBoxPath)
+
+        val testData = getClass.getResource("/BusyBoxAllFeatures.config")
+        val fm = getClass.getResource("/busybox_Configs/")
+        val testData2 = getClass.getResource("/busybox_Configs/")
+        val file = new File(testData.getFile)
+        println(allFeatures)
+
         //analyseDir(new File(absoluteBusyBoxPath))
     }
     def performRefactor(fileToRefactor: File): Boolean = {
