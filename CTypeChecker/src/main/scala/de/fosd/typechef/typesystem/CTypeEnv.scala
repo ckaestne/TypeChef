@@ -144,6 +144,7 @@ trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTypi
             case CObj(_) => false
             case CCompound() => true
             case CIgnore() => true
+            case CBuiltinVaList() => true
         }
     }
 
