@@ -29,10 +29,7 @@ trait BusyBoxEvaluation extends EvalHelper {
         (Frontend.getAST, Frontend.getFeatureModel)
     }
 
-    def getTypeChefArguments(file: String): Array[String] = {
-        val pc = file.replace(".c", ".pc")
-        Array(file, "-c", systemProperties, "-x", "CONFIG_", "--include", includeHeader, "-I", includeDir, "--featureModelFExpr", featureModel, "--partialConfiguration", pc, "--debugInterface", "--recordTiming", "--parserstatistics")
-    }
+    def getTypeChefArguments(file: String): Array[String] = Array(file, "-c", systemProperties, "-x", "CONFIG_", "--include", includeHeader, "-I", includeDir, "--featureModelFExpr", featureModel, "--debugInterface", "--recordTiming", "--parserstatistics")
 
     protected def analyseDir(dirToAnalyse: File): Boolean = {
         if (dirToAnalyse.isDirectory) {
