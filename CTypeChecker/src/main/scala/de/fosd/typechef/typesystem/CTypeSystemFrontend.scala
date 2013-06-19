@@ -13,7 +13,6 @@ import linker.CInferInterface
  * @author kaestner
  *
  */
-
 class CTypeSystemFrontend(iast: TranslationUnit, featureModel: FeatureModel = FeatureExprFactory.default.featureModelFactory.empty) extends CTypeSystem with CInferInterface with EnforceTreeHelper {
 
 
@@ -60,7 +59,7 @@ class CTypeSystemFrontend(iast: TranslationUnit, featureModel: FeatureModel = Fe
      * @return
      */
     def checkAST: Boolean = {
-
+        println("isCalled")
         errors = List() // clear error list
         typecheckTranslationUnit(iast)
         if (errors.isEmpty)
