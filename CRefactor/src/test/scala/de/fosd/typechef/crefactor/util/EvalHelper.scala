@@ -17,9 +17,9 @@ trait EvalHelper extends Logging {
 
     val busyBoxFiles: String = completeBusyBoxPath + "/busybox_files"
 
-    val busyBoxPath = "/busybox-1.18.5/"
+    val busyBoxPath = completeBusyBoxPath + caseStudyPath + "/busybox-1.18.5/"
 
-    val busyBoxPathUntouched = "/busybox-1.18.5_untouched/"
+    val busyBoxPathUntouched = completeBusyBoxPath + caseStudyPath + "/busybox-1.18.5_untouched/"
 
     val result = "/result/"
 
@@ -138,10 +138,13 @@ trait EvalHelper extends Logging {
         def readIn(reader: BufferedReader): List[String] = {
             reader.readLine() match {
                 case null => List()
-                case x => List(x).:::(readIn(reader))
+                case x => List(x + ".c").:::(readIn(reader))
             }
         }
-        readIn(new BufferedReader(new FileReader(busyBoxFiles)))
+        val reader = new BufferedReader(new FileReader(busyBoxFiles))
+        val files = readIn(reader)
+        reader.close()
+        files
     }
 
     def getAllFeaturesFromConfigFile(fm: FeatureModel, file: File): List[SingleFeatureExpr] = {

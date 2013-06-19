@@ -8,26 +8,14 @@ import de.fosd.typechef.featureexpr.FeatureExpr
 class RenameEvaluation extends BusyBoxEvaluation {
     @Test
     def evaluate() {
-        println(completeBusyBoxPath)
-
-
-
-
-        val testData = getClass.getResource("/BusyBoxAllFeatures.config")
-        val fm = getClass.getResource("/busybox_Configs/")
-        val testData2 = getClass.getResource("/busybox_Configs/")
-        val file = new File(testData.getFile)
-        println(allFeatures)
-        println(allFeatures.size)
-        println(getBusyBoxFiles)
-
-        //analyseDir(new File(absoluteBusyBoxPath))
+        val files = getBusyBoxFiles
+        files.forall(file => performRefactor(new File(busyBoxPath + file)))
     }
     def performRefactor(fileToRefactor: File): Boolean = {
         val parsed = parse(fileToRefactor)
         val ast = parsed._1
         val fm = parsed._2
-
+        println(ast)
         false
     }
 
