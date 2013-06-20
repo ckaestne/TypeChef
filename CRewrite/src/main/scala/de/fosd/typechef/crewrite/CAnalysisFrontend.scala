@@ -1,11 +1,13 @@
 
 package de.fosd.typechef.crewrite
 
-import de.fosd.typechef.featureexpr._
-import java.io.{Writer, StringWriter}
-import de.fosd.typechef.typesystem._
 import scala.Some
+import java.io.{Writer, StringWriter}
+
+import de.fosd.typechef.featureexpr._
+import de.fosd.typechef.typesystem._
 import de.fosd.typechef.parser.c._
+import de.fosd.typechef.error._
 
 class CAnalysisFrontend(tunit: TranslationUnit, fm: FeatureModel = FeatureExprFactory.empty) extends CFGHelper with EnforceTreeHelper {
 
@@ -55,8 +57,8 @@ class CAnalysisFrontend(tunit: TranslationUnit, fm: FeatureModel = FeatureExprFa
         errors.isEmpty
     }
 
-    private def doubleFreeFunctionDef(f: FunctionDef, env: ASTEnv, udm: UseDeclMap, casestudy: String): List[AnalysisError] = {
-        var res: List[AnalysisError] = List()
+    private def doubleFreeFunctionDef(f: FunctionDef, env: ASTEnv, udm: UseDeclMap, casestudy: String): List[TypeChefError] = {
+        var res: List[TypeChefError] = List()
 
         // It's ok to use FeatureExprFactory.empty here.
         // Using the project's fm is too expensive since control
@@ -82,7 +84,7 @@ class CAnalysisFrontend(tunit: TranslationUnit, fm: FeatureModel = FeatureExprFa
                                 idecls = List(i)
                             for (ei <- idecls)
                                 if (xdecls.exists(_.eq(ei)))
-                                    res ::= new AnalysisError(h, "warning: Variable " + x.name + " is freed multiple times!", x)
+                                    res ::= new TypeChefError(Severity.Warning, h, "warning: Variable " + x.name + " is freed multiple times!", x, "")
                         }
                     }
         }
@@ -108,8 +110,8 @@ class CAnalysisFrontend(tunit: TranslationUnit, fm: FeatureModel = FeatureExprFa
         errors.isEmpty
     }
 
-    private def uninitializedMemory(f: FunctionDef, env: ASTEnv, udm: UseDeclMap): List[AnalysisError] = {
-        var res: List[AnalysisError] = List()
+    private def uninitializedMemory(f: FunctionDef, env: ASTEnv, udm: UseDeclMap): List[TypeChefError] = {
+        var res: List[TypeChefError] = List()
 
         // It's ok to use FeatureExprFactory.empty here.
         // Using the project's fm is too expensive since control
@@ -138,7 +140,7 @@ class CAnalysisFrontend(tunit: TranslationUnit, fm: FeatureModel = FeatureExprFa
                                 idecls = List(i)
                             for (ei <- idecls)
                                 if (xdecls.exists(_.eq(ei)))
-                                    res ::= new AnalysisError(h, "warning: Variable " + x.name + " is used uninitialized!", x)
+                                    res ::= new TypeChefError(Severity.Warning, h, "warning: Variable " + x.name + " is used uninitialized!", x, "")
                         }
                     }
         }
@@ -164,8 +166,8 @@ class CAnalysisFrontend(tunit: TranslationUnit, fm: FeatureModel = FeatureExprFa
         errors.isEmpty
     }
 
-    private def xfree(f: FunctionDef, env: ASTEnv, udm: UseDeclMap): List[AnalysisError] = {
-        var res: List[AnalysisError] = List()
+    private def xfree(f: FunctionDef, env: ASTEnv, udm: UseDeclMap): List[TypeChefError] = {
+        var res: List[TypeChefError] = List()
 
         // It's ok to use FeatureExprFactory.empty here.
         // Using the project's fm is too expensive since control
@@ -190,7 +192,7 @@ class CAnalysisFrontend(tunit: TranslationUnit, fm: FeatureModel = FeatureExprFa
                                 idecls = List(i)
                             for (ei <- idecls)
                                 if (xdecls.exists(_.eq(ei)))
-                                    res ::= new AnalysisError(h, "warning: Variable " + x.name + " is freed although not dynamically allocted!", x)
+                                    res ::= new TypeChefError(Severity.Warning, h, "warning: Variable " + x.name + " is freed although not dynamically allocted!", x, "")
                         }
                     }
         }
@@ -215,8 +217,8 @@ class CAnalysisFrontend(tunit: TranslationUnit, fm: FeatureModel = FeatureExprFa
         !errors.isEmpty
     }
 
-    private def danglingSwitchCode(f: FunctionDef, env: ASTEnv): List[AnalysisError] = {
-        var res: List[AnalysisError] = List()
+    private def danglingSwitchCode(f: FunctionDef, env: ASTEnv): List[TypeChefError] = {
+        var res: List[TypeChefError] = List()
 
         val ss = filterAllASTElems[SwitchStatement](f)
 
@@ -225,7 +227,7 @@ class CAnalysisFrontend(tunit: TranslationUnit, fm: FeatureModel = FeatureExprFa
 
             if (! ds.isEmpty) {
                 for (e <- ds)
-                    res ::= new AnalysisError(e.feature, "warning: switch statement has dangling code ", e.entry)
+                    res ::= new TypeChefError(Severity.Warning, e.feature, "warning: switch statement has dangling code ", e.entry, "")
             }
         }
 
