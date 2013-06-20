@@ -64,7 +64,6 @@ trait TestHelper {
         val r = p.phrase(p.statement)(in, FeatureExprFactory.True)
         r.asInstanceOf[p.Success[One[Statement]]].result.value
     }
-
     def parseTranslationUnit(code: String): TranslationUnit = {
         val in = CLexer.lex(code, null).setContext(new CTypeContext())
         val p = new CParser()

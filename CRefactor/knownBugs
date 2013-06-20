@@ -1,0 +1,2 @@
+- Unable to inline function matching the pattern foo(foo()) - bar(foo()) is working. 11.02.2012
+- Able to inline functions with no calls!

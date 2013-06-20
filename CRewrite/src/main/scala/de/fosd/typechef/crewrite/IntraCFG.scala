@@ -41,7 +41,6 @@ import de.fosd.typechef.featureexpr.{FeatureModel, FeatureExprFactory, FeatureEx
 // TODO analysis: There may be at most one default label in a switch statement.
 // TODO analysis: we can continue this list only by looking at constrains in [2]
 
-
 trait IntraCFG extends ASTNavigation with ConditionalNavigation {
 
     private implicit def optList2ASTList(l: List[Opt[AST]]) = l.map(_.entry)
@@ -63,7 +62,6 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
             else None
         }
     }
-
     private val predCCFGCache = new CFGCache()
     private val succCCFGCache = new CFGCache()
 
@@ -288,7 +286,7 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
             case t@WhileStatement(expr, s) => getExprPred(expr, ctx, oldres, fm, env) ++ filterBreakStatements(s, ctx, fm, env)
             case t@DoStatement(expr, s) => getExprPred(expr, ctx, oldres, fm, env) ++ filterBreakStatements(s, ctx, fm, env)
             case t@ForStatement(_, Some(expr2), _, s) => getExprPred(expr2, ctx, oldres, fm, env) ++
-                    filterBreakStatements(s, ctx, fm, env)
+                filterBreakStatements(s, ctx, fm, env)
             case t@ForStatement(_, _, _, s) => oldres ++ filterBreakStatements(s, ctx, fm, env)
 
             case c@CompoundStatement(innerStatements) => {
@@ -324,7 +322,7 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
                 else (newresctx, env.featureExpr(f), f) :: oldres
             }
             case f@FunctionDef(_, _, _, stmt) => predHelper(childAST(stmt), ctx, oldres, fm, env) ++
-                    filterReturnStatements(stmt, ctx, oldres, fm, env)
+                filterReturnStatements(stmt, ctx, oldres, fm, env)
 
             case s: Statement => getStmtPred(s, ctx, oldres, fm, env)
             case _ => followPred(source, ctx, oldres, fm, env)
@@ -414,7 +412,6 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
                         val newresctx = getNewResCtx(oldres, ctx, env.featureExpr(f))
                         val res = if (newresctx isContradiction (fm)) oldres
                         else (newresctx, env.featureExpr(f), f) :: oldres
-
                         if (retExpr.isDefined) findMethodCalls(retExpr.get, env, oldres, ctx, res)
                         else res
                     }
@@ -581,7 +578,7 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
             case One(value) => getExprSucc(value, ctx, oldres, fm, env)
             case Choice(_, thenBranch, elseBranch) =>
                 getCondExprSucc(thenBranch, ctx, oldres, fm, env) ++
-                        getCondExprSucc(elseBranch, ctx, oldres, fm, env)
+                    getCondExprSucc(elseBranch, ctx, oldres, fm, env)
         }
     }
 
@@ -617,7 +614,7 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
             case One(value) => getExprPred(value, ctx, oldres, fm, env)
             case Choice(_, thenBranch, elseBranch) =>
                 getCondExprPred(thenBranch, ctx, oldres, fm, env) ++
-                        getCondExprPred(elseBranch, ctx, oldres, fm, env)
+                    getCondExprPred(elseBranch, ctx, oldres, fm, env)
         }
     }
 
@@ -774,7 +771,7 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
                         // condition
                         if (isPartOf(nested_ast_elem, condition)) {
                             (if (thenExpr.isDefined) getExprSucc(thenExpr.get, ctx, oldres, fm, env) else List()) ++
-                                    getExprSucc(elseExpr, ctx, oldres, fm, env)
+                                getExprSucc(elseExpr, ctx, oldres, fm, env)
                         } else {
                             followSucc(t, ctx, oldres, fm, env)
                         }
@@ -903,7 +900,7 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
                     }
                     case t@WhileStatement(expr, s) if (isPartOf(nested_ast_elem, expr)) =>
                         (getStmtPred(t, ctx, oldres, fm, env) ++ getCondStmtPred(s, ctx, oldres, fm, env) ++
-                                filterContinueStatements(s, env.featureExpr(t), fm, env))
+                            filterContinueStatements(s, env.featureExpr(t), fm, env))
                     case t@WhileStatement(expr, _) => {
                         if (nested_ast_elem.isInstanceOf[AST] && nested_ast_elem.asInstanceOf[AST].eq(expr)) getStmtPred(t, ctx, oldres, fm, env)
                         else getExprPred(expr, ctx, oldres, fm, env)
@@ -1257,3 +1254,4 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
 trait NoFunctionLookup {
     def lookupFunctionDef(name: String): Conditional[Option[ExternalDef]] = One(None)
 }
+

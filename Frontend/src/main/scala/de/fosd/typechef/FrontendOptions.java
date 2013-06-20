@@ -19,7 +19,8 @@ import java.util.List;
 public class FrontendOptions extends LexerOptions implements ParserOptions {
     boolean parse = true,
             typecheck = false,
-			ifdeftoif = false,
+            ifdeftoif = false,
+            decluse = false,
             writeInterface = false,
             dumpcfg = false,
             doublefree = false,

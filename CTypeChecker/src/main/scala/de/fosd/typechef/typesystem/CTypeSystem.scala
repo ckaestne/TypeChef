@@ -98,7 +98,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
         checkRedeclaration(declarator.getName, funType, featureExpr, env, declarator, kind)
 
         //declared enums?
-        val newEnvEnum = env.addVars(enumDeclarations(specifiers, featureExpr, declarator), env.scope)
+        val newEnvEnum = env.addVars(enumDeclarations(specifiers, featureExpr, declarator, env), env.scope)
 
         //add type to environment for remaining code
         val newEnv = newEnvEnum.addVar(declarator.getName, featureExpr, f, funType, kind, newEnvEnum.scope)
@@ -591,6 +591,8 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
                 for (Opt(f, param) <- params)
                     checkTypeParam(param, expr and f, env)
             case DeclIdentifierList(_) =>
+            case DeclArrayAccess(Some(real_expr: Expr)) =>
+                getExprType(real_expr, expr, env)
             case DeclArrayAccess(_) =>
         }
     }
@@ -598,7 +600,8 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
 
     private def checkTypeDeclarator(declarator: Declarator, expr: FeatureExpr, env: Env) {
         declarator match {
-            case AtomicNamedDeclarator(pointers, _, extensions) =>
+            case AtomicNamedDeclarator(pointers, name, extensions) =>
+                addDecl(name, expr, env)
                 checkTypePointers(pointers, expr, env)
                 checkTypeDeclaratorExtensions(extensions, expr, env)
             case NestedNamedDeclarator(pointers, decl, extensions) =>

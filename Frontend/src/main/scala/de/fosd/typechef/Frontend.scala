@@ -8,15 +8,16 @@ package de.fosd.typechef
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.typesystem._
 import de.fosd.typechef.crewrite._
+import de.fosd.typechef.featureexpr.FeatureModel
 import lexer.options.OptionException
 import java.io.{FileWriter, File}
-import parser.TokenReader
-import de.fosd.typechef.featureexpr.sat.SATFeatureModel
+import parser.c.TranslationUnit
+import de.fosd.typechef.parser.TokenReader
 
 object Frontend {
 
-    // TODO: this is a dependency of Morpheus; should be removed eventually.
     private var storedAst: AST = null
+    private var featureModel: FeatureModel = null
 
     def main(args: Array[String]) {
         // load options
@@ -40,9 +41,7 @@ object Frontend {
                 println("TypeChef " + version)
                 return
             }
-        }
-
-        catch {
+        } catch {
             case o: OptionException =>
                 println("Invocation error: " + o.getMessage)
                 println("use parameter --help for more information.")
@@ -56,6 +55,10 @@ object Frontend {
         var lastStart: Long = 0
         var currentPeriod: String = "none"
         var times: Map[String, Long] = Map()
+
+        private def measure(checkpoint: String) {
+            times = times + (checkpoint -> System.currentTimeMillis())
+        }
 
         def start(period: String) {
             val now = System.currentTimeMillis()
@@ -79,7 +82,6 @@ object Frontend {
             }
             res
         }
-
     }
 
 
@@ -92,7 +94,6 @@ object Frontend {
 
         val fm = opt.getFeatureModel.and(opt.getLocalFeatureModel).and(opt.getFilePresenceCondition)
         opt.setFeatureModel(fm) //otherwise the lexer does not get the updated feature model with file presence conditions
-
         /*
         // create dimacs file from feature model
         opt.getFeatureModelTypeSystem.asInstanceOf[SATFeatureModel].writeToDimacsFile(new File(
@@ -101,7 +102,6 @@ object Frontend {
 
         System.exit(0)
         */
-
         if (!opt.getFilePresenceCondition.isSatisfiable(fm)) {
             println("file has contradictory presence condition. existing.") //otherwise this can lead to strange parser errors, because True is satisfiable, but anything else isn't
             return
@@ -124,12 +124,17 @@ object Frontend {
             if (ast != null) {
                 storedAst = ast
                 val fm_ts = opt.getFeatureModelTypeSystem.and(opt.getLocalFeatureModel).and(opt.getFilePresenceCondition)
+                featureModel = fm_ts
                 val ts = new CTypeSystemFrontend(ast.asInstanceOf[TranslationUnit], fm_ts)
 
                 /** I did some experiments with the TypeChef FeatureModel of Linux, in case I need the routines again, they are saved here. */
                 //Debug_FeatureModelExperiments.experiment(fm_ts)
 
                 if (opt.typecheck || opt.writeInterface) {
+                    //ProductGeneration.typecheckProducts(fm,fm_ts,ast,opt,
+                    //logMessage=("Time for lexing(ms): " + (t2-t1) + "\nTime for parsing(ms): " + (t3-t2) + "\n"))
+                    //ProductGeneration.estimateNumberOfVariants(ast, fm_ts)
+
                     stopWatch.start("typechecking")
                     println("type checking.")
                     ts.errors.map(errorXML.renderTypeError(_))
@@ -145,6 +150,7 @@ object Frontend {
                 }
                 if (opt.dumpcfg) {
                     stopWatch.start("dumpCFG")
+
                     val cf = new CAnalysisFrontend(ast.asInstanceOf[TranslationUnit], fm_ts)
                     cf.dumpCFG()
                 }
@@ -179,6 +185,7 @@ object Frontend {
 
     }
 
+
     def lex(opt: FrontendOptions): TokenReader[CToken, CTypeContext] = {
         val tokens = new lexer.Main().run(opt, opt.parse)
         val in = CLexer.prepareTokens(tokens)
@@ -190,6 +197,5 @@ object Frontend {
         fw.write(ast.toString)
         fw.close()
     }
-
     def getAST = storedAst
 }

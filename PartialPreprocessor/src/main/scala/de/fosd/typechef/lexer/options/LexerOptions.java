@@ -134,7 +134,7 @@ public class LexerOptions extends FeatureModelOptions implements ILexerOptions {
     protected Set<Feature> features = getDefaultFeatures();
     protected String lexOutputFile = "";
     protected boolean printVersion = false;
-    protected boolean lexPrintToStdout = true;
+    protected boolean lexPrintToStdout = false;
     protected boolean xtc = false;
 
     @Override

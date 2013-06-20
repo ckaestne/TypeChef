@@ -153,8 +153,8 @@ object TypeChef extends Build {
         ctypechecker,
         javaparser,
         crewrite,
-        frontend,
-        sampling
+        crefactor,
+        frontend
         )
 
     lazy val featureexpr = Project(
@@ -199,7 +199,8 @@ object TypeChef extends Build {
     lazy val ctypechecker = Project(
         "CTypeChecker",
         file("CTypeChecker"),
-        settings = buildSettings
+        settings = buildSettings ++
+                Seq(libraryDependencies <+= scalaVersion(kiamaDependency(_)))
     ) dependsOn(cparser % "test->test;compile->compile", conditionallib)
 
     lazy val javaparser = Project(
@@ -214,6 +215,12 @@ object TypeChef extends Build {
         settings = buildSettings ++
             Seq(libraryDependencies <+= scalaVersion(kiamaDependency(_)))
     ) dependsOn(cparser % "test->test;compile->compile", ctypechecker, conditionallib)
+
+    lazy val crefactor = Project(
+        "CRefactor",
+        file("CRefactor"),
+        settings = buildSettings
+    ) dependsOn(cparser % "test->test;compile->compile", ctypechecker, conditionallib, crewrite, frontend)
 
     lazy val sampling = Project(
         "Sampling",

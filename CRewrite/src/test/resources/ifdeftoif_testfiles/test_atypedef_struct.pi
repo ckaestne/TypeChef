@@ -1,0 +1,12 @@
+typedef struct md5_ctx_t {
+	int test;
+	void (*process_block)(struct md5_ctx_t*) ;
+} md5_ctx_t;
+typedef struct md5_ctx_t sha1_ctx_t;
+typedef struct md5_ctx_t sha256_ctx_t;
+typedef struct md5_ctx_t sha255_ctx_t;
+typedef struct sha512_ctx_t {
+	int what;
+} sha512_ctx_t;
+void md5_begin(md5_ctx_t *ctx) ;
+void md5_hash(md5_ctx_t *ctx, const void *data, int length) ;
