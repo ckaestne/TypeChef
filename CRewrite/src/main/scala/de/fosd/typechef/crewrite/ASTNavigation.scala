@@ -1,6 +1,6 @@
 package de.fosd.typechef.crewrite
 
-import de.fosd.typechef.parser.c.AST
+import de.fosd.typechef.parser.c.{ASTEnv, AST}
 import de.fosd.typechef.conditional._
 import de.fosd.typechef.featureexpr.FeatureExpr
 import scala.annotation.tailrec

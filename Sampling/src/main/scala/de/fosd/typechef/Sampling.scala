@@ -1,10 +1,10 @@
 package de.fosd.typechef
 
 import lexer.options.OptionException
-import parser.c._
-import parser.c.CTypeContext
+import de.fosd.typechef.parser.c._
 import parser.TokenReader
-import de.fosd.typechef.crewrite.EnforceTreeHelper
+import de.fosd.typechef.parser.c.TranslationUnit
+import de.fosd.typechef.parser.c.CTypeContext
 
 object Sampling extends EnforceTreeHelper {
     def main(args: Array[String]) {

@@ -2,7 +2,7 @@ package de.fosd.typechef.crewrite
 
 import de.fosd.typechef.featureexpr.FeatureExprFactory
 import de.fosd.typechef.conditional.{Choice, Opt}
-import de.fosd.typechef.parser.c.AST
+import de.fosd.typechef.parser.c.{EnforceTreeHelper, AST}
 import org.kiama.rewriting.Rewriter._
 
 object ProductDerivation extends EnforceTreeHelper {

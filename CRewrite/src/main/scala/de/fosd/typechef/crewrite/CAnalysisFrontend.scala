@@ -2,9 +2,10 @@
 package de.fosd.typechef.crewrite
 
 import de.fosd.typechef.featureexpr._
-import de.fosd.typechef.parser.c.{PrettyPrinter, SwitchStatement, TranslationUnit, FunctionDef}
 import java.io.{Writer, StringWriter}
 import de.fosd.typechef.typesystem._
+import scala.Some
+import de.fosd.typechef.parser.c._
 
 class CAnalysisFrontend(tunit: TranslationUnit, fm: FeatureModel = FeatureExprFactory.empty) extends CFGHelper with EnforceTreeHelper {
 

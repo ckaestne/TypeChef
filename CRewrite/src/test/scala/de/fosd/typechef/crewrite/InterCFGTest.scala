@@ -1,6 +1,6 @@
 package de.fosd.typechef.crewrite
 
-import de.fosd.typechef.parser.c.{FunctionDef, TestHelper}
+import de.fosd.typechef.parser.c.{CASTEnv, FunctionDef, TestHelper}
 import org.junit.Test
 import java.io.{StringWriter, FileNotFoundException, InputStream}
 import de.fosd.typechef.featureexpr.FeatureExprFactory

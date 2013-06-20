@@ -1,6 +1,6 @@
 package de.fosd.typechef.crewrite
 
-import de.fosd.typechef.parser.c.{FunctionDef, AST}
+import de.fosd.typechef.parser.c.{CASTEnv, ASTEnv, FunctionDef, AST}
 import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureModel}
 
 object CheckCFG extends IntraCFG with CFGHelper {

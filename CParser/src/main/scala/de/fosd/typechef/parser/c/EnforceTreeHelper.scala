@@ -1,8 +1,7 @@
-package de.fosd.typechef.typesystem
+package de.fosd.typechef.parser.c
 
 import org.kiama.rewriting.Rewriter._
-import de.fosd.typechef.parser.c._
-import de.fosd.typechef.conditional.One
+import de.fosd.typechef.conditional.{Opt, One}
 import de.fosd.typechef.error.WithPosition
 
 
@@ -18,7 +17,7 @@ trait EnforceTreeHelper {
     /**
      * unfortunately cloning loses position information, so we have to reassign it
      */
-    private def copyPositions(source: Product, target: Product) {
+    def copyPositions(source: Product, target: Product) {
         assert(source.getClass == target.getClass, "cloned tree should match exactly the original, typewise")
         if (source.isInstanceOf[WithPosition])
             target.asInstanceOf[WithPosition].range = source.asInstanceOf[WithPosition].range
@@ -48,6 +47,23 @@ trait EnforceTreeHelper {
             case n: AST => n.clone()
         })
         val cast = clone(ast).get.asInstanceOf[T]
+        copyPositions(ast, cast)
+        cast
+    }
+
+    // cparser creates dead ast nodes that causes problems in the control flow analysis (grouping of ast nodes etc.)
+    // the function removes dead nodes from the ast
+    // see issue: https://github.com/ckaestne/TypeChef/issues/4
+    def removeDeadNodes[T <: Product](ast: T, env: ASTEnv): T = {
+        assert(ast != null)
+
+        val removedead = manytd(rule {
+            case l: List[Opt[_]] => l.filter({
+                x => env.featureExpr(x).isSatisfiable()
+            })
+        })
+
+        val cast = removedead(ast).get.asInstanceOf[T]
         copyPositions(ast, cast)
         cast
     }

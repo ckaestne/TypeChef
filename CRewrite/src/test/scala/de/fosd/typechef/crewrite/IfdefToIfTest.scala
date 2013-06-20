@@ -4,7 +4,7 @@ import org.junit.{Ignore, Test}
 import org.kiama.rewriting.Rewriter._
 import de.fosd.typechef.featureexpr.sat._
 import de.fosd.typechef.parser.c._
-import de.fosd.typechef.crewrite.CASTEnv._
+import CASTEnv._
 import de.fosd.typechef.typesystem._
 import java.io._
 import java.util

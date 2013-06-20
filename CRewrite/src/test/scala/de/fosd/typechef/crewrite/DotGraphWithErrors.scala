@@ -1,6 +1,6 @@
 package de.fosd.typechef.crewrite
 
-import de.fosd.typechef.parser.c.{PrettyPrinter, AST}
+import de.fosd.typechef.parser.c.{ASTEnv, PrettyPrinter, AST}
 import de.fosd.typechef.conditional.Opt
 import java.io.Writer
 
