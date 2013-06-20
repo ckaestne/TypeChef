@@ -5,7 +5,7 @@ import org.junit.Test
 import java.io._
 import de.fosd.typechef.parser.c._
 import java.util.{Collections, IdentityHashMap}
-import de.fosd.typechef.crewrite.{ConditionalNavigation, ASTNavigation}
+import de.fosd.typechef.crewrite.{ConditionalNavigation}
 import de.fosd.typechef.parser.c.Id
 import de.fosd.typechef.parser.c.GnuAsmExpr
 import de.fosd.typechef.parser.c.CTypeContext

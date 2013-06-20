@@ -6,7 +6,7 @@ import de.fosd.typechef.typesystem.CEnvCache
 import de.fosd.typechef.crefactor.Morpheus
 import org.kiama.rewriting.Rewriter._
 import de.fosd.typechef.parser.c._
-import de.fosd.typechef.crewrite.{ConditionalNavigation, ASTNavigation}
+import de.fosd.typechef.crewrite.{ConditionalNavigation}
 import de.fosd.typechef.crefactor.frontend.util.Selection
 import de.fosd.typechef.parser.c.Id
 import scala.Some

@@ -1,4 +1,4 @@
-package de.fosd.typechef.crewrite
+package de.fosd.typechef.parser.c
 
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
