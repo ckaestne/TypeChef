@@ -915,9 +915,9 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
         val result_ast = TranslationUnit(featureStruct.defs ++ new_ast.asInstanceOf[TranslationUnit].defs)
         val transformTime = (tb.getCurrentThreadCpuTime() - time) / nstoms
 
-        val errors = getTypeSystem(result_ast).getASTerrors
+        val errors = getTypeSystem(result_ast).checkAST()
 
-        if (errors.isEmpty) {
+        if (!errors) {
             if (!(new File(path ++ "statistics.csv").exists)) {
                 writeToFile(path ++ "statistics.csv", getCSVHeader)
             }
@@ -927,13 +927,6 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
 
             (Some(result_ast), transformTime)
         } else {
-            val errorHeader = "-+ TypeErrors in " + fileName + " +-\n"
-            val errorString = errors mkString "\n"
-            if (!(new File(path ++ "type_errors.txt").exists)) {
-                writeToFile(path ++ "type_errors.txt", errorHeader + errorString + "\n\n")
-            } else {
-                appendToFile(path ++ "type_errors.txt", errorHeader + errorString + "\n\n")
-            }
             (None, 0)
         }
     }

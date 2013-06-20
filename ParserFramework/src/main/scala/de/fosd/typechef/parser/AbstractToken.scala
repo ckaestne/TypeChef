@@ -1,6 +1,7 @@
 package de.fosd.typechef.parser
 
 import de.fosd.typechef.featureexpr.FeatureExpr
+import de.fosd.typechef.error.Position
 
 trait AbstractToken {
   // used to determine splitting and joining

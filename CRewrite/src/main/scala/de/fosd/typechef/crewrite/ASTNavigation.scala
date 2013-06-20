@@ -3,7 +3,6 @@ package de.fosd.typechef.crewrite
 import de.fosd.typechef.parser.c.AST
 import de.fosd.typechef.conditional._
 import de.fosd.typechef.featureexpr.FeatureExpr
-import reflect.ClassManifest
 import scala.annotation.tailrec
 
 // simplified navigation support

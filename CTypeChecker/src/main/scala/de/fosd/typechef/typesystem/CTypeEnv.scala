@@ -56,9 +56,7 @@ trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTypi
       * Structs
       */
     def addStructDeclarationToEnv(e: Declaration, featureExpr: FeatureExpr, env: Env): Env = addStructDeclarationToEnv(e.declSpecs, featureExpr, env, e.init.isEmpty)
-
     def addStructDeclarationToEnv(e: StructDeclaration, featureExpr: FeatureExpr, env: Env): Env = addStructDeclarationToEnv(e.qualifierList, featureExpr, env, e.declaratorList.isEmpty)
-
     def addStructDeclarationToEnv(specifiers: List[Opt[Specifier]], featureExpr: FeatureExpr, initEnv: Env, declareIncompleteTypes: Boolean): Env = {
         var env = initEnv
         for (Opt(specFeature, specifier) <- specifiers) {
@@ -137,12 +135,11 @@ trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTypi
             case CPointer(t) => wf(t)
             case CArray(t, n) => wf(t) && (t != CVoid()) && n > 0
             case CFunction(param, ret) => wf(ret) && !arrayType(ret) && (
-                    param.forall(p => !arrayType(p) && p != CVoid())) &&
-                    param.dropRight(1).forall(wf(_)) &&
-                    lastParam(param.lastOption) //last param may be varargs
+                param.forall(p => !arrayType(p) && p != CVoid())) &&
+                param.dropRight(1).forall(wf(_)) &&
+                lastParam(param.lastOption) //last param may be varargs
             case CVarArgs() => false
             case CStruct(name, isUnion) => {
-                true
                 //TODO check struct welltypeness
                 if (structEnv.isComplete(name, isUnion).isSatisfiable())
                     nonEmptyWellformedEnv(structEnv.getFieldsMerged(name, isUnion), Some(name))
@@ -153,6 +150,7 @@ trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTypi
             case CObj(_) => false
             case CCompound() => true
             case CIgnore() => true
+            case CBuiltinVaList() => true
         }
     }
 
@@ -175,6 +173,7 @@ trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTypi
                         fields.getOrElse(Nil).foldRight(b)(
                             (optField, b) => addEnumDeclarationToEnv(optField.entry.qualifierList, featureExpr and specFeature and optField.feature, env.updateEnumEnv(b), optField.entry.declaratorList.isEmpty)
                         )
+
                     case TypeDefTypeSpecifier(name) =>
                         addTypeUse(name, env, featureExpr)
                         b

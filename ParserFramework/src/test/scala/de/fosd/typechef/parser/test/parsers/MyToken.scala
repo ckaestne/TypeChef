@@ -2,6 +2,7 @@ package de.fosd.typechef.parser.test.parsers
 
 import de.fosd.typechef.parser._
 import de.fosd.typechef.featureexpr.{FeatureExpr, FeatureExprFactory}
+import de.fosd.typechef.error.Position
 
 class MyToken(val text: String, val feature: FeatureExpr) extends ProfilingToken {
   def t() = text

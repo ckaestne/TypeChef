@@ -121,7 +121,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDeclU
 
             val csvEnding = "," + timeToParseAndTypeCheck + "," + timeToTransform + "," + timeToPrettyPrint
             writeToTextFile(singleFilePath ++ fileNameWithoutExtension ++ ".csv", getCSVHeader() + csvBeginning + new_ast._2 + csvEnding)
-            if (!i.getTypeSystem(getAstFromPi(new File(singleFilePath ++ fileNameWithoutExtension ++ ".ifdeftoif"))).checkAST) {
+            if (!i.getTypeSystem(getAstFromPi(new File(singleFilePath ++ fileNameWithoutExtension ++ ".ifdeftoif"))).checkAST()) {
                 println("\t--TypeCheck: " + false + "--\n")
             }
         }

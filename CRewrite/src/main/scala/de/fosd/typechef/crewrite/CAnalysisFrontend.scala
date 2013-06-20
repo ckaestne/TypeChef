@@ -91,7 +91,7 @@ class CAnalysisFrontend(tunit: TranslationUnit, fm: FeatureModel = FeatureExprFa
 
     def uninitializedMemory(): Boolean = {
         val ts = new CTypeSystemFrontend(tunit, fm) with CDeclUse
-        assert(ts.checkAST, "typecheck fails!")
+        assert(ts.checkAST(), "typecheck fails!")
         val env = CASTEnv.createASTEnv(tunit)
         val udm = ts.getUseDeclMap
 
@@ -147,7 +147,7 @@ class CAnalysisFrontend(tunit: TranslationUnit, fm: FeatureModel = FeatureExprFa
 
     def xfree(): Boolean = {
         val ts = new CTypeSystemFrontend(tunit, fm) with CDeclUse
-        assert(ts.checkAST, "typecheck fails!")
+        assert(ts.checkAST(), "typecheck fails!")
         val env = CASTEnv.createASTEnv(tunit)
         val udm = ts.getUseDeclMap
 

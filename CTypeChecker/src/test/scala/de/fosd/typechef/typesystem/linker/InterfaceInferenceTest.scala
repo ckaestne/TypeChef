@@ -91,6 +91,14 @@ class InterfaceInferenceTest extends TestHelper with FunSuite with ShouldMatcher
     assert(interface.imports.exists(_.name == "funpoint"))
   }
 
+    test("weak export annotations") {
+        val expectedWeakExports = interface.exports.filter(_.name == "weaklyExportedFunction")
+        assert(expectedWeakExports.size == 1)
+
+        val weakExports = interface.exports.filter(_.extraFlags contains WeakExport)
+        assert(expectedWeakExports == weakExports)
+    }
+
 
 }
 

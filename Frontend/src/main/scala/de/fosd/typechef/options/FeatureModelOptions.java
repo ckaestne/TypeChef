@@ -1,9 +1,15 @@
-package de.fosd.typechef.lexer.options;
+package de.fosd.typechef.options;
 
 import de.fosd.typechef.featureexpr.FeatureExpr;
 import de.fosd.typechef.featureexpr.FeatureExprParserJava;
 import de.fosd.typechef.featureexpr.FeatureModel;
 import de.fosd.typechef.lexer.FeatureExprLib;
+import de.fosd.typechef.lexer.options.ILexerOptions;
+import de.fosd.typechef.lexer.options.PartialConfiguration;
+import de.fosd.typechef.lexer.options.PartialConfigurationParser$;
+import de.fosd.typechef.options.OptionException;
+import de.fosd.typechef.options.Options;
+import de.fosd.typechef.typesystem.ICTypeSysOptions;
 import gnu.getopt.Getopt;
 import gnu.getopt.LongOpt;
 
@@ -16,21 +22,21 @@ import java.util.List;
  * Time: 11:06
  * To change this template use File | Settings | File Templates.
  */
-public class FeatureModelOptions extends Options implements IFeatureModelOptions {
+public abstract class FeatureModelOptions extends LexerOptions implements ILexerOptions {
     protected FeatureModel featureModel = null;
     protected FeatureModel featureModel_typeSystem = null;
     protected PartialConfiguration partialConfig = null;
 
 
     @Override
-    public FeatureModel getFeatureModel() {
+    public FeatureModel getLexerFeatureModel() {
         if (featureModel == null)
             return FeatureExprLib.featureModelFactory().empty();
         return featureModel;
     }
 
-    @Override
-    public FeatureModel getFeatureModelTypeSystem() {
+//    @Override
+    public FeatureModel getTypeSystemFeatureModel() {
         if (featureModel_typeSystem != null)
             return featureModel_typeSystem;
         if (featureModel == null)
@@ -75,7 +81,7 @@ public class FeatureModelOptions extends Options implements IFeatureModelOptions
             // all others load a standard feature model in which the prefix is set to "" (default is "CONFIG_"),
             // which is used in busybox and linux
             if (g.getOptarg().contains("linux") || g.getOptarg().contains("busybox"))
-                featureModel = FeatureExprLib.featureModelFactory().createFromDimacsFile_2Var(g.getOptarg());
+            featureModel = FeatureExprLib.featureModelFactory().createFromDimacsFile_2Var(g.getOptarg());
             else
                 featureModel = FeatureExprLib.featureModelFactory().createFromDimacsFile(g.getOptarg(), "");
         } else if (c == FM_FEXPR) {     //--featureModelFExpr
@@ -117,7 +123,8 @@ public class FeatureModelOptions extends Options implements IFeatureModelOptions
         featureModel = fm;
     }
 
-    public PartialConfiguration getPartialConfiguration() {
+    @Override
+    public PartialConfiguration getLexerPartialConfiguration() {
         return partialConfig;
     }
 }

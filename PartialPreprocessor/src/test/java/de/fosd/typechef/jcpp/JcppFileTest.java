@@ -170,6 +170,11 @@ public class JcppFileTest extends AbstractCheckTests {
     }
 
     @Test
+    public void testDivByZero3() throws LexerException, IOException {
+        testFile("test_div_by_zero3.c");
+    }
+
+    @Test
     public void testMacroPNF() throws LexerException, IOException {
         testFile("macroPFN.c");
     }

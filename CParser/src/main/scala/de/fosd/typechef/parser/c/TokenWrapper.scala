@@ -4,6 +4,7 @@ import de.fosd.typechef.parser._
 import de.fosd.typechef.featureexpr._
 import de.fosd.typechef.lexer._
 import de.fosd.typechef.LexerToken
+import de.fosd.typechef.error.Position
 
 
 /**

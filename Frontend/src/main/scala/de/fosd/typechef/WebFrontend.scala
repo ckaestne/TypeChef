@@ -32,7 +32,7 @@ object WebFrontend {
     def parse(file: File) {
 
         println("<h2>Input after macro expansion</h2><div class='output'><pre name='partiallypreprocessed'>")
-        val tokenStream = new Main().run(Array(file.getAbsolutePath), true, true, null)
+        val tokenStream = new Main().run(file, true, true, null)
         println("</pre></div>")
 
         println("<h2>Conditional Token Stream</h2><div class='output'><div name='tokenstream'>")
@@ -56,7 +56,7 @@ object WebFrontend {
         if (ast != null) {
             val ts = new CTypeSystemFrontend(ast.asInstanceOf[TranslationUnit]) with CInferInterface
             println("<h2>Type checking</h2><pre name='tsoutput'>")
-            ts.checkAST
+            ts.checkAST()
             println("</pre>")
             println("<h2>Module interface</h2><div class='output'><pre name='interface'>")
             println(ts.getInferredInterface().toString)

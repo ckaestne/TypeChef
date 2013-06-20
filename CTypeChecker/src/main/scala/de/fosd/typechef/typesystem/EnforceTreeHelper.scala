@@ -1,9 +1,9 @@
 package de.fosd.typechef.typesystem
 
-import de.fosd.typechef.parser.WithPosition
 import org.kiama.rewriting.Rewriter._
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.conditional.One
+import de.fosd.typechef.error.WithPosition
 
 
 /**

@@ -4,6 +4,7 @@ import de.fosd.typechef.parser.c._
 import lexer.FeatureExprLib
 import org.junit.Test
 import java.io.{FileNotFoundException, InputStream}
+import de.fosd.typechef.options.FeatureModelOptions
 
 class coverageGenerationTest extends TestHelper {
     val folder = "testfiles/"

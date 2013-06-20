@@ -24,6 +24,7 @@ class TokenSequenceToken extends Token {
     private int line;
     private int column;
     private Source source;
+    private String sourceStr;
 
     public TokenSequenceToken(int type, int line, int column,
                               List<Token> tokenList, Source source) {
@@ -33,6 +34,8 @@ class TokenSequenceToken extends Token {
         this.column = column;
         this.source = source;
         this.internalTokens = tokenList;
+        if (source == null) sourceStr = null;
+        else sourceStr = source.toString();
     }
 
     private Token firstToken() {
@@ -61,7 +64,12 @@ class TokenSequenceToken extends Token {
 
     @Override
     public String getSourceName() {
-        return source.toString();
+        return sourceStr;
+    }
+
+    @Override
+    public void setSourceName(String src) {
+        this.sourceStr = src;
     }
 
     @Override

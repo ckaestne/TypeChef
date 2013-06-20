@@ -205,6 +205,8 @@ case class CAnonymousStruct(fields: ConditionalTypeMap, isUnion: Boolean = false
 }
 
 case class CFunction(param: Seq[CType], ret: CType) extends CType {
+    var securityRelevant: Boolean = false
+
     override def toObj = this
     override def isFunction: Boolean = true
     override def toText = param.map(_.toText).mkString("(", ", ", ")") + " => " + ret.toText
@@ -215,6 +217,10 @@ case class CFunction(param: Seq[CType], ret: CType) extends CType {
             {ret.toXML}
         </ret>
     </function>
+    def markSecurityRelevant() = {
+        securityRelevant = true;
+        this
+    }
 }
 
 
@@ -235,6 +241,7 @@ case class CObj(t: CType) extends CType {
     override def isObject = true
     override def isFunction = t.isFunction
     override def isUnknown = t.isUnknown
+    override def toText = t.toText
     override def isIgnore = t.isIgnore
     def toXML = <obj>
         {t.toXML}
@@ -348,18 +355,23 @@ class ConditionalTypeMap(m: ConditionalMap[String, (AST, Conditional[CType])])
  * * CType -> type
  * * DeclarationKind -> declaration, definition, enum, or parameter
  * * Int -> Scope (0=top level, 1 = function, ...)
+ * * Linkage (isInternal) -> internal/external
  */
-class ConditionalVarEnv(m: ConditionalMap[String, (AST, Conditional[(CType, DeclarationKind, Int)])])
-    extends ConditionalCMap[(CType, DeclarationKind, Int)](m) {
+
+class ConditionalVarEnv(m: ConditionalMap[String, (AST, Conditional[(CType, DeclarationKind, Int, Linkage)])])
+    extends ConditionalCMap[(CType, DeclarationKind, Int, Linkage)](m) {
     def this() = this(new ConditionalMap())
     def apply(name: String): Conditional[CType] = lookupType(name)
-    def lookup(name: String): Conditional[(CType, DeclarationKind, Int)] = getOrElse(name, (CUnknown(name), KDeclaration, -1))
+    def lookup(name: String): Conditional[(CType, DeclarationKind, Int, Linkage)] = getOrElse(name, (CUnknown(name), KDeclaration, -1, NoLinkage))
     def lookupType(name: String): Conditional[CType] = lookup(name).map(_._1)
     def lookupKind(name: String): Conditional[DeclarationKind] = lookup(name).map(_._2)
     def lookupScope(name: String): Conditional[Int] = lookup(name).map(_._3)
-    def +(name: String, f: FeatureExpr, a: AST, t: Conditional[CType], kind: DeclarationKind, scope: Int) = new ConditionalVarEnv(m.+(name, f, (a, t.map(x => (x, kind, scope)))))
-    def ++(v: Seq[(String, FeatureExpr, AST, Conditional[CType], DeclarationKind, Int)]) =
-        v.foldLeft(this)((c, x) => c.+(x._1, x._2, x._3, x._4, x._5, x._6))
+    def lookupIsInternalLinkage(name: String): FeatureExpr = ConditionalLib.isTrue(lookup(name).map(_._4 == InternalLinkage))
+    def lookupIsExternalLinkage(name: String): FeatureExpr = ConditionalLib.isTrue(lookup(name).map(_._4 == ExternalLinkage))
+    def +(name: String, f: FeatureExpr, a: AST, t: Conditional[CType], kind: DeclarationKind, scope: Int, linkage: Linkage) = new ConditionalVarEnv(m.+(name, f, (a, t.map(x => (x, kind, scope, linkage)))))
+    def +(name: String, f: FeatureExpr, a: AST, t: Conditional[CType], kind: DeclarationKind, scope: Int, linkage: Conditional[Linkage]) = new ConditionalVarEnv(m.+(name, f, (a, ConditionalLib.mapCombination(t, linkage, (x: CType, l: Linkage) => (x, kind, scope, l)))))
+    def ++(v: Seq[(String, FeatureExpr, AST, Conditional[CType], DeclarationKind, Int, Linkage)]) =
+        v.foldLeft(this)((c, x) => c.+(x._1, x._2, x._3, x._4, x._5, x._6, x._7))
 }
 
 /**
@@ -493,6 +505,9 @@ trait CTypes extends COptionProvider {
         //ignore?
         if ((t1 == CIgnore()) || (t2 == CIgnore())) return true
 
+        //assignment pointer = 0
+        if (isPointer(t1) && isZero(t2)) return true
+        if (isPointer(t2) && isZero(t1)) return true
 
         //arithmetic operation?
         if (isArithmetic(t1) && isArithmetic(t2)) return true
@@ -500,11 +515,16 @@ trait CTypes extends COptionProvider {
         //_Bool = any scala value
         if (t1 == CBool() && isScalar(t2)) return true
 
-        //assignment pointer = 0
-        if (isPointer(t1) && isZero(t2)) return true
-        if (isPointer(t2) && isZero(t1)) return true
-
         false
+    }
+
+    /**
+     * we can report as a warning if both types are number, but they are not the same width or signed
+     */
+    def isForcedCoercion(expectedType: CType, foundType: CType): Boolean = {
+        val t1 = normalize(expectedType)
+        val t2 = normalize(foundType)
+        isArithmetic(t1) && isArithmetic(t2) && t1 != t2 && t2 != CZero() && !(t2 < t1)
     }
 
     private def funCompatible(t1: CType, t2: CType): Boolean = (t1, t2) match {
@@ -596,4 +616,19 @@ object KEnumVar extends DeclarationKind {
 
 object KParameter extends DeclarationKind {
     override def toString = "parameter"
+}
+
+
+sealed trait Linkage
+
+object ExternalLinkage extends Linkage {
+    override def toString = "external linkage"
+}
+
+object InternalLinkage extends Linkage {
+    override def toString = "internal linkage"
+}
+
+object NoLinkage extends Linkage {
+    override def toString = "no linkage"
 }

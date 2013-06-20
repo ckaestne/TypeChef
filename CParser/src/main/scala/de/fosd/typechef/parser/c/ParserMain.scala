@@ -5,6 +5,7 @@ import de.fosd.typechef.parser._
 import java.io.{FileWriter, File}
 import FeatureExprFactory.True
 import java.util.Collections
+import de.fosd.typechef.error.Position
 
 object MyUtil {
   implicit def runnable(f: () => Unit): Runnable =

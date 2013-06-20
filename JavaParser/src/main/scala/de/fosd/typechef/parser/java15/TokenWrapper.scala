@@ -3,7 +3,8 @@ package de.fosd.typechef.parser.java15
 import de.fosd.typechef.parser.java15.lexer.Token
 
 import de.fosd.typechef.featureexpr.FeatureExpr
-import de.fosd.typechef.parser.{AbstractToken, ProfilingToken, Position}
+import de.fosd.typechef.parser.{AbstractToken, ProfilingToken}
+import de.fosd.typechef.error.Position
 
 object TokenWrapper {
   def create(javaToken: Token, afeatureExpr: FeatureExpr, file: String) = {
