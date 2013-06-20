@@ -19,7 +19,6 @@ import de.fosd.typechef.lexer.FeatureExprLib
 import de.fosd.typechef.typesystem.CTypeSystemFrontend
 
 import org.kiama.rewriting.Rewriter._
-import scala.reflect.ClassTag
 
 
 /**
@@ -2313,13 +2312,13 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
         countNumberOfASTElementsHelper(ast)
     }
 
-    def countNumberOfElements[T <: AST](ast: AST)(implicit m: ClassTag[T]): Long = {
+    def countNumberOfElements[T <: AST](ast: AST)(implicit m: ClassManifest[T]): Long = {
         def countNumberHelper(a: Any): Long = {
             a match {
                 case l: List[_] => l.map(countNumberHelper).sum
                 case _: FeatureExpr => 0
                 case p: Product =>
-                    if (m.runtimeClass.isInstance(p)) {
+                    if (m.erasure.isInstance(p)) {
                         1 + p.productIterator.toList.map(countNumberHelper).sum
                     } else {
                         p.productIterator.toList.map(countNumberHelper).sum
@@ -2331,14 +2330,14 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
         countNumberHelper(ast)
     }
 
-    def countNumberOfVariableElements[T <: AST](ast: AST)(implicit m: ClassTag[T]): Long = {
+    def countNumberOfVariableElements[T <: AST](ast: AST)(implicit m: ClassManifest[T]): Long = {
         def countNumberHelper(a: Any, currentContext: FeatureExpr = trueF): Long = {
             val i = 0
             a match {
                 case l: List[_] => l.map(x => countNumberHelper(x, currentContext)).sum
                 case _: FeatureExpr => 0
                 case o@Opt(ft, entry: AST) =>
-                    if ((ft.implies(currentContext).isTautology() && !ft.equivalentTo(currentContext)) && m.runtimeClass.isInstance(entry)) {
+                    if ((ft.implies(currentContext).isTautology() && !ft.equivalentTo(currentContext)) && m.erasure.isInstance(entry)) {
                         1 + entry.productIterator.toList.map(x => countNumberHelper(x, ft)).sum
                     } else {
                         entry.productIterator.toList.map(x => countNumberHelper(x, ft)).sum
