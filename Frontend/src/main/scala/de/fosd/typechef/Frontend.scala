@@ -13,13 +13,10 @@ import parser.TokenReader
 import de.fosd.typechef.options.{FrontendOptionsWithConfigFiles, FrontendOptions, OptionException}
 import de.fosd.typechef.parser.c.CTypeContext
 import de.fosd.typechef.parser.c.TranslationUnit
-import de.fosd.typechef.featureexpr.FeatureModel
 
 object Frontend {
 
     private var storedAst: AST = null
-    private var featureModel: FeatureModel = null
-
 
     def main(args: Array[String]) {
         // load options
@@ -132,9 +129,11 @@ object Frontend {
             	val parserMain = new ParserMain(new CParser(fm))
             	val ast = parserMain.parserMain(in, opt)
 
-            	stopWatch.start("serialize")
-            	if (ast != null && opt.serializeAST)
-                	serializeAST(ast, opt.getSerializedASTFilename)
+            	if (ast != null && opt.serializeAST) {
+                    stopWatch.start("serialize")
+                    serializeAST(ast, opt.getSerializedASTFilename)
+                }
+
             }
 
             if (ast != null) {
