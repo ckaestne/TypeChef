@@ -198,7 +198,7 @@ object FamilyBasedVsSampleBased extends EnforceTreeHelper with ASTNavigation wit
         var msg = ""
         var startTime: Long = 0
 
-        if (extasks.find(_._1.equals("fileconfig")).isDefined) {
+        if (extasks.exists(_._1.equals("fileconfig"))) {
             msg = "omitting fileconfig generation, because a serialized version was loaded"
         } else {
             val configFile = if (caseStudy.equals("linux"))
@@ -227,7 +227,7 @@ object FamilyBasedVsSampleBased extends EnforceTreeHelper with ASTNavigation wit
         var msg = ""
         var startTime: Long = 0
 
-        if (extasks.find(_._1.equals("pairwise")).isDefined) {
+        if (extasks.exists(_._1.equals("pairwise"))) {
             msg = "omitting pairwise generation, because a serialized version was loaded"
             } else {
             var productsFile: File = null
@@ -265,7 +265,7 @@ object FamilyBasedVsSampleBased extends EnforceTreeHelper with ASTNavigation wit
         var log = ""
         var msg = ""
         var startTime: Long = 0
-        if (extasks.find(_._1.equals("coverage_noHeader")).isDefined) {
+        if (extasks.exists(_._1.equals("coverage_noHeader"))) {
             msg = "omitting coverage_noHeader generation, because a serialized version was loaded"
         } else {
             startTime = System.currentTimeMillis()
@@ -287,7 +287,7 @@ object FamilyBasedVsSampleBased extends EnforceTreeHelper with ASTNavigation wit
         var msg = ""
         var startTime: Long = 0
         if (caseStudy != "linux") {
-            if (extasks.find(_._1.equals("coverage")).isDefined) {
+            if (extasks.exists(_._1.equals("coverage"))) {
                 msg = "omitting coverage generation, because a serialized version was loaded"
             } else {
                 startTime = System.currentTimeMillis()
