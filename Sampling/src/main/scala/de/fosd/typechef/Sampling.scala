@@ -1,10 +1,10 @@
 package de.fosd.typechef
 
-import lexer.options.OptionException
 import de.fosd.typechef.parser.c._
 import parser.TokenReader
 import de.fosd.typechef.parser.c.TranslationUnit
 import de.fosd.typechef.parser.c.CTypeContext
+import de.fosd.typechef.options.OptionException
 
 object Sampling extends EnforceTreeHelper {
     def main(args: Array[String]) {
@@ -45,7 +45,7 @@ object Sampling extends EnforceTreeHelper {
         val errorXML = new ErrorXML(opt.getErrorXMLFile)
         opt.setRenderParserError(errorXML.renderParserError)
 
-        val fm = opt.getFeatureModel.and(opt.getLocalFeatureModel).and(opt.getFilePresenceCondition)
+        val fm = opt.getLexerFeatureModel.and(opt.getLocalFeatureModel).and(opt.getFilePresenceCondition)
         opt.setFeatureModel(fm)
         if (!opt.getFilePresenceCondition.isSatisfiable(fm)) {
             println("file has contradictory presence condition. existing.")
@@ -60,7 +60,7 @@ object Sampling extends EnforceTreeHelper {
         val ast = parserMain.parserMain(in, opt)
 
         if (ast != null) {
-            val fm_ts = opt.getFeatureModelTypeSystem.and(opt.getLocalFeatureModel).and(opt.getFilePresenceCondition)
+            val fm_ts = opt.getTypeSystemFeatureModel.and(opt.getLocalFeatureModel).and(opt.getFilePresenceCondition)
             val treeast = prepareAST[TranslationUnit](ast.asInstanceOf[TranslationUnit])
             FamilyBasedVsSampleBased.typecheckProducts(fm_ts, fm_ts, treeast, opt, "")
         }
