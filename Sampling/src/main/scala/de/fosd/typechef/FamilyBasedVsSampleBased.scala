@@ -4,22 +4,20 @@ import de.fosd.typechef.conditional.{One, Choice, Opt}
 import de.fosd.typechef.crewrite._
 import de.fosd.typechef.featureexpr._
 
-import bdd.{BDDFeatureExpr, BDDFeatureModel, SatSolver}
+import bdd.{BDDFeatureModel, SatSolver}
 import de.fosd.typechef.parser.c._
-import de.fosd.typechef.typesystem.{CTypeCache, CTypeSystemFrontend}
+import de.fosd.typechef.typesystem._
 import scala.collection.immutable.HashMap
 import scala.Predef._
 import scala._
-import collection.mutable
-import collection.mutable.{ListBuffer, HashSet, BitSet}
+import collection.mutable.ListBuffer
 import io.Source
 import java.util.regex.Pattern
 import java.lang.SuppressWarnings
 import java.io._
 import util.Random
-import java.util.Calendar
 import java.util.Collections
-import de.fosd.typechef.options.FrontendOptions
+import de.fosd.typechef.featureexpr.sat.{SATFeatureExprFactory, SATFeatureModel}
 
 /**
  *
