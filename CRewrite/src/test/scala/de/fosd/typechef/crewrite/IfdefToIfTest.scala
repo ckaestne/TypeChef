@@ -1418,7 +1418,7 @@ class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDeclU
                 filesTransformed = filesTransformed + 1
 
                 val startParsingAndTypeChecking = System.currentTimeMillis()
-                val source_ast = getAstFromPi(file)
+                val source_ast = i.fixTypeChefsFeatureExpressions(getAstFromPi(file))
                 typecheckTranslationUnit(source_ast)
                 val defUseMap = getDeclUseMap
                 val timeToParseAndTypeCheck = System.currentTimeMillis() - startParsingAndTypeChecking

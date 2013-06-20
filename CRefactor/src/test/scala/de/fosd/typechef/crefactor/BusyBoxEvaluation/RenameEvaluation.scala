@@ -1,7 +1,7 @@
 package de.fosd.typechef.crefactor.BusyBoxEvaluation
 
 import org.junit.Test
-import java.io.{InputStreamReader, BufferedReader, File}
+import java.io.File
 import de.fosd.typechef.parser.c.{Id, AST}
 import de.fosd.typechef.featureexpr.FeatureExpr
 import de.fosd.typechef.crefactor.util.{PrepareRefactoredASTforEval, TimeMeasurement}
@@ -14,7 +14,7 @@ class RenameEvaluation extends BusyBoxEvaluation {
 
     @Test
     def evaluate() {
-        val files = getBusyBoxFiles
+        val files = getBusyBoxFiles.reverse
         val refactor = files.map(file => {
             var stats = List[Any]()
             val parseTypeCheckMs = new TimeMeasurement
@@ -27,29 +27,11 @@ class RenameEvaluation extends BusyBoxEvaluation {
             stats ::= parseTypeCheckTime
             val result = applyRefactor(morpheus, stats)
             if (result._2) PrepareRefactoredASTforEval.prepare(result._1, morpheus.getFeatureModel, bb_file.getCanonicalPath, result._3, 0)
-            println("run")
-            val pb = new ProcessBuilder("./BuildAndTestBusyBox.sh")
-            pb.directory(new File("/local/janker/casestudies/busybox/busybox-1.18.5/"))
-            //val p = Runtime.getRuntime().exec("/local/janker/casestudies/busybox/busybox-1.18.5/BuildAndTestBusyBox.sh /")
-            val p = pb.start()
-            p.waitFor()
 
-            val reader =
-                new BufferedReader(new InputStreamReader(p.getInputStream()))
-            var line = reader.readLine()
-            while (line != null) {
-                line = reader.readLine()
-                println("line" + line)
-            }
-
-            val reader2 =
-                new BufferedReader(new InputStreamReader(p.getErrorStream()))
-            var line2 = reader2.readLine()
-            while (line2 != null) {
-                line2 = reader2.readLine()
-                println("line" + line2)
-            }
-            result._2
+            val verify = RefactorVerification.verify(bb_file, 0, fm)
+            var stat2 = result._4
+            stat2 = stat2.::(result._2 && verify)
+            writeStats(stat2, bb_file.getCanonicalPath, 0)
         })
         logger.info("Refactor succ: " + refactor.contains(false))
 
@@ -79,7 +61,9 @@ class RenameEvaluation extends BusyBoxEvaluation {
         val refactored = RenameIdentifier.rename(id, refactor_name, morpheus)
         val renamingTime = startRenaming.getTime
         var stats = stat.::(renamingTime)
-        stats ::= id :: toRename._2 :: features
+        stats = stats.::(id)
+        stats = stats.::(toRename._2)
+        stats = stats.::(features)
 
         val morpheus2 = new Morpheus(refactored, morpheus.getFeatureModel)
 

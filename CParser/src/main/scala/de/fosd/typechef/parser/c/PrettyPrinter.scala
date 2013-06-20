@@ -9,8 +9,11 @@ object PrettyPrinter {
     //pretty printer combinators, stolen from http://www.scala-blogs.org/2009/04/combinators-for-pretty-printers-part-1.html
     sealed abstract class Doc {
         def ~(that: Doc) = Cons(this, that)
+
         def ~~(that: Doc) = this ~ space ~ that
+
         def *(that: Doc) = this ~ line ~ that
+
         def ~>(that: Doc) = this ~ nest(2, line ~ that)
     }
 
@@ -25,12 +28,14 @@ object PrettyPrinter {
     case class Nest(n: Int, d: Doc) extends Doc
 
     implicit def string(s: String): Doc = Text(s)
+
     val line = Line
     val space = Text(" ")
     var newLineForIfdefs = true
-    def nest(n: Int, d: Doc) = Nest(n, d)
-    def block(d: Doc): Doc = "{" ~> d * "}"
 
+    def nest(n: Int, d: Doc) = Nest(n, d)
+
+    def block(d: Doc): Doc = "{" ~> d * "}"
 
     def layout(d: Doc): String = d match {
         case Empty => ""
@@ -81,13 +86,13 @@ object PrettyPrinter {
         case One(c: AST) => prettyPrint(c, list_feature_expr)
         case Choice(f, a: AST, b: AST) =>
             if (newLineForIfdefs) {
-          line ~
-            "#if" ~~ f.toTextExpr *
-            prettyPrint(a, f :: list_feature_expr) *
-            "#else" *
-            prettyPrint(b, f.not :: list_feature_expr) *
-            "#endif" ~
-              line
+                line ~
+                        "#if" ~~ f.toTextExpr *
+                        prettyPrint(a, f :: list_feature_expr) *
+                        "#else" *
+                        prettyPrint(b, f.not :: list_feature_expr) *
+                        "#endif" ~
+                                line
             } else {
                 "#if" ~~ f.toTextExpr *
                         prettyPrint(a, f :: list_feature_expr) *
@@ -95,15 +100,16 @@ object PrettyPrinter {
                         prettyPrint(b, f.not :: list_feature_expr) *
                         "#endif"
             }
+
         case Choice(f, a: Conditional[_], b: Conditional[_]) =>
             if (newLineForIfdefs) {
-          line ~
-            "#if" ~~ f.toTextExpr *
-            ppConditional(a, f :: list_feature_expr) *
-            "#else" *
-            ppConditional(b, f.not :: list_feature_expr) *
-            "#endif" ~
-              line
+                line ~
+                        "#if" ~~ f.toTextExpr *
+                        ppConditional(a, f :: list_feature_expr) *
+                        "#else" *
+                        ppConditional(b, f.not :: list_feature_expr) *
+                        "#endif" ~
+                                line
             } else {
                 "#if" ~~ f.toTextExpr *
                         ppConditional(a, f :: list_feature_expr) *
@@ -115,19 +121,20 @@ object PrettyPrinter {
 
     private def optConditional(e: Opt[AST], list_feature_expr: List[FeatureExpr]): Doc = {
         if (e.feature == FeatureExprFactory.True ||
-          list_feature_expr.foldLeft(FeatureExprFactory.True)(_ and _).implies(e.feature).isTautology())
-          prettyPrint(e.entry, list_feature_expr)
+                list_feature_expr.foldLeft(FeatureExprFactory.True)(_ and _).implies(e.feature).isTautology())
+            prettyPrint(e.entry, list_feature_expr)
         else if (newLineForIfdefs) {
-          line ~
-            "#if" ~~ e.feature.toTextExpr *
-            prettyPrint(e.entry, e.feature :: list_feature_expr) *
-            "#endif" ~
-              line
+            line ~
+                    "#if" ~~ e.feature.toTextExpr *
+                    prettyPrint(e.entry, e.feature :: list_feature_expr) *
+                    "#endif" ~
+                            line
         } else {
             "#if" ~~ e.feature.toTextExpr *
                     prettyPrint(e.entry, e.feature :: list_feature_expr) *
                     "#endif"
         }
+
     }
 
     def prettyPrint(ast: AST, list_feature_expr: List[FeatureExpr] = List(FeatureExprFactory.True)): Doc = {
@@ -135,6 +142,7 @@ object PrettyPrinter {
         implicit def prettyOpt(a: Opt[AST]): Doc = optConditional(a, list_feature_expr)
         implicit def prettyCond(a: Conditional[_]): Doc = ppConditional(a, list_feature_expr)
         implicit def prettyOptStr(a: Opt[String]): Doc = string(a.entry)
+
         // this method separates Opt elements of an input list variability-aware
         // problem is that when having for instance a function with one mandatory and one optional
         // parameter, e.g.,
@@ -173,6 +181,7 @@ object PrettyPrinter {
 
             res
         }
+
 
         def sep(l: List[Opt[AST]], s: (Doc, Doc) => Doc) = {
             val r: Doc = if (l.isEmpty) Empty else l.head
@@ -265,7 +274,7 @@ object PrettyPrinter {
             case CompoundAttribute(inner) => "(" ~ sep(inner, _ ~ "," ~~ _) ~ ")"
 
             case Declaration(declSpecs, init) =>
-                sep(declSpecs, _ ~~ _) ~~ commaSep(init) ~ ";"
+                sep(declSpecs, _ ~~ _) ~~ sepVaware(init, ",") ~ ";"
 
             case InitDeclaratorI(declarator, lst, Some(i)) =>
                 if (!lst.isEmpty) {
@@ -283,6 +292,7 @@ object PrettyPrinter {
 
             case AtomicNamedDeclarator(pointers, id, extensions) =>
                 sep(pointers, _ ~ _) ~ id ~ sep(extensions, _ ~ _)
+
             case NestedNamedDeclarator(pointers, nestedDecl, extensions) =>
                 sep(pointers, _ ~ _) ~ "(" ~ nestedDecl ~ ")" ~ sep(extensions, _ ~ _)
             case AtomicAbstractDeclarator(pointers, extensions) =>
@@ -346,7 +356,7 @@ object PrettyPrinter {
             case CompoundStatementExpr(compoundStatement: CompoundStatement) => "(" ~ compoundStatement ~ ")"
             case Pragma(command: StringLit) => "_Pragma(" ~ command ~ ")"
 
-      case e => assert(assertion = false, message = "match not exhaustive: " + e); ""
+      		case e => assert(assertion = false, message = "match not exhaustive: " + e); ""
         }
     }
 

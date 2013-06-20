@@ -75,6 +75,13 @@ class CTypeSystemFrontend(iast: TranslationUnit, featureModel: FeatureModel = Fe
         typecheckTranslationUnit(iast)
         return errors.isEmpty
     }
+
+    def getASTerrors: List[TypeError] = {
+        isSilent = true
+        errors = List() // clear error list
+        typecheckTranslationUnit(iast)
+        return errors
+    }
 }
 
 
