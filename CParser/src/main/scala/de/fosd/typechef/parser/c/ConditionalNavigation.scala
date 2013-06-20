@@ -1,7 +1,6 @@
-package de.fosd.typechef.crewrite
+package de.fosd.typechef.parser.c
 
 import de.fosd.typechef.conditional._
-import de.fosd.typechef.parser.c.{ASTEnv, AST}
 
 import org.kiama.rewriting.Rewriter._
 import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}

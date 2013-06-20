@@ -5,7 +5,6 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
 import de.fosd.typechef.featureexpr._
 import de.fosd.typechef.conditional._
-import de.fosd.typechef.parser.c._
 import de.fosd.typechef.featureexpr.FeatureExprFactory._
 import org.junit.Ignore
 

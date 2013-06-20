@@ -7,7 +7,6 @@ import de.fosd.typechef.parser.c._
 import java.util.{IdentityHashMap, Collections}
 import de.fosd.typechef.parser.c.TranslationUnit
 import de.fosd.typechef.parser.c.CTypeContext
-import de.fosd.typechef.crewrite.{ConditionalNavigation}
 import de.fosd.typechef.featureexpr.{FeatureExpr, FeatureExprFactory, FeatureModel, SingleFeatureExpr}
 import java.util.regex.Pattern
 import io.Source
