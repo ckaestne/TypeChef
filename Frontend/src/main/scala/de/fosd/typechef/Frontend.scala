@@ -167,7 +167,6 @@ object Frontend {
                 }
                 if (opt.dumpcfg) {
                     stopWatch.start("dumpCFG")
-
                     val cf = new CAnalysisFrontend(ast.asInstanceOf[TranslationUnit], fm_ts)
                     cf.dumpCFG()
                 }
@@ -189,7 +188,7 @@ object Frontend {
                 if (opt.danglingswitchcode) {
                     stopWatch.start("danglingswitchcode")
                     val ds = new CAnalysisFrontend(ast.asInstanceOf[TranslationUnit], fm_ts)
-                    ds.danglingSwitchCode()
+                    ds.cfgNonvoidFunction()
                 }
 
             }

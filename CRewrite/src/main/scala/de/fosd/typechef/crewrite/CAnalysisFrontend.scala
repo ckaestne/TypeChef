@@ -233,4 +233,31 @@ class CAnalysisFrontend(tunit: TranslationUnit, fm: FeatureModel = FeatureExprFa
 
         res
     }
+
+    def cfgNonVoidFunction(): Boolean = {
+        val ts = new CTypeSystemFrontend(tunit, fm) with CTypeCache
+        assert(ts.checkASTSilent, "typecheck fails!")
+        val env = CASTEnv.createASTEnv(tunit)
+
+        val fdefs = filterAllASTElems[FunctionDef](tunit)
+        val errors = fdefs.flatMap(cfgNonVoidFunction(_, env, ts))
+
+        if (errors.isEmpty) {
+            println("Control flow in non-void functions always ends in return statements!")
+        } else {
+            println(errors.map(_.toString + "\n").reduce(_ + _))
+        }
+
+        errors.isEmpty
+    }
+
+    private def cfgNonVoidFunction(f: FunctionDef, env: ASTEnv, ts: CTypeSystemFrontend with CTypeCache): List[TypeChefError] = {
+        val cf = new CFGNonVoidFunction(env, fm, ts)
+        var res = List[TypeChefError]()
+
+        for (e <- cf.cfgReturn(f))
+            res ::= new TypeChefError(Severity.Warning, e.feature, "Control flow of non-void function ends here!", e.entry, "")
+
+        res
+    }
 }

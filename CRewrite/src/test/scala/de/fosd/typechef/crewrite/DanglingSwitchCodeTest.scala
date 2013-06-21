@@ -3,7 +3,6 @@ package de.fosd.typechef.crewrite
 import org.junit.Test
 import org.scalatest.matchers.ShouldMatchers
 import de.fosd.typechef.parser.c._
-import de.fosd.typechef.typesystem.{CDeclUse, CTypeSystemFrontend}
 import scala.Predef._
 
 class DanglingSwitchCodeTest extends TestHelper with ShouldMatchers with CFGHelper with EnforceTreeHelper {
