@@ -5,8 +5,11 @@ import java.io.{Writer, FileReader, BufferedReader, File}
 
 
 class CFGNode(val kind: String, file: File, line: Int, val name: String, val fexpr: FeatureExpr) {
+
+    val id = IdGen.genId()
+
     def write(writer: Writer) {
-        writer.write("N;" + IdGen.genId() + ";" + kind + ";" + line + ";" + name + ";" + fexpr.toTextExpr + "\n")
+        writer.write("N;" + id + ";" + kind + ";" + file.getPath + ";" + line + ";" + name + ";" + fexpr.toTextExpr + "\n")
     }
     def and(f: FeatureExpr) = new CFGNode(kind, file, line, name, fexpr and f)
     override def toString(): String = kind + "-" + name
@@ -55,7 +58,7 @@ case class FileCFG(val nodes: Set[CFGNode], val edges: Set[(CFGNode, CFGNode, Fe
 
     def write(writer: Writer) {
         for (n <- nodes) n.write(writer)
-        for ((s, t, f) <- edges) writer.write("E;" + s + ";" + t + ";" + f.toTextExpr + "\n")
+        for ((s, t, f) <- edges) writer.write("E;" + s.id + ";" + t.id + ";" + f.toTextExpr + "\n")
     }
 
     def and(fexpr: FeatureExpr): FileCFG = {

@@ -68,13 +68,15 @@ object LinkBusyboxCFG extends App {
 
     FeatureExprFactory.setDefault(FeatureExprFactory.bdd)
 
+    val path = "."
+    //"/usr0/home/ckaestne/work/TypeChef/BusyboxAnalysis/gitbusybox/"
     var bigCFG = new FileCFG(Set(), Set())
 
-    for (file <- Source.fromFile("filelist").getLines()) {
-        val cfgFile = file + ".cfg"
+    for (file <- Source.fromFile(path + "filelist").getLines()) {
+        val cfgFile = path + file + ".cfg"
         print("linking " + cfgFile)
 
-        val pcFile = new File(file + ".pc")
+        val pcFile = new File(path + file + ".pc")
         val filePC = if (pcFile.exists()) new FeatureExprParser().parseFile(new FileInputStream(pcFile)) else True
         val cfg_ = WholeProjectCFG.loadFileCFG(new File(cfgFile))
         val cfg = cfg_ and filePC
@@ -85,7 +87,9 @@ object LinkBusyboxCFG extends App {
 
     println("writing result")
 
-    bigCFG.write(new FileWriter("finalcfg.cfg"))
+    val writer = new FileWriter(path + "finalcfg.cfg")
+    bigCFG.write(writer)
+    writer.close()
 
     println("done.")
 
