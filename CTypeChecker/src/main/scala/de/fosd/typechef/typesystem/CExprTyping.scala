@@ -249,6 +249,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                                     (fexpr, x) => if (isIntegral(x) || x.isIgnore) CSigned(CInt()) else reportTypeError(fexpr, "incorrect type, expected integer, was " + x, ue))
                                 case "!" => exprType.mapf(featureExpr,
                                     (fexpr, x) => if (isScalar(x) || x.isIgnore) CSigned(CInt()) else reportTypeError(fexpr, "incorrect type, expected scalar, was " + x, ue))
+                                case "__real__" | "__imag__" => One(CIgnore())
                                 case _ => One(reportTypeError(featureExpr, "unknown unary operator " + kind + " (TODO)", ue))
                             }
                         }
