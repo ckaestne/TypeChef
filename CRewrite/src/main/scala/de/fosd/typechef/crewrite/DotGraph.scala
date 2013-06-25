@@ -1,101 +1,228 @@
 package de.fosd.typechef.crewrite
 
-import de.fosd.typechef.parser.c.{PrettyPrinter, AST}
-import de.fosd.typechef.conditional.{Opt, ConditionalLib, Conditional}
+import de.fosd.typechef.parser.c._
+import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
+import de.fosd.typechef.conditional.Opt
+import de.fosd.typechef.parser.c.FunctionDef
+import java.io.Writer
+import java.util
 
-object DotGraph extends IOUtilities {
-  import java.io.File
+trait CFGWriter {
 
-  private val normalNodeFontName = "Calibri"
-  private val normalNodeFontColor = "black"
-  private val normalNodeFillColor = "white"
+    def writeNode(node: AST, env: ASTEnv, externalDefFExprs: Map[ExternalDef, FeatureExpr])
 
-  private val errorNodeFontName = "Calibri"
-  private val errorNodeFontColor = "black"
-  private val errorNodeFillColor = "#CD5200"
+    def writeEdge(source: AST, target: AST, fexpr: FeatureExpr)
 
-  private val normalConnectionEdgeColor = "black"
-  // https://mailman.research.att.com/pipermail/graphviz-interest/2001q2/000042.html
-  private val normalConnectionEdgeThickness = "setlinewidth(1)"
+    def writeFooter()
 
-  private val errorConnectionEdgeColor = "red"
-  private val errorConnectionEdgeThickness = "setlinewidth(4)"
+    def writeHeader(filename: String)
 
-  private def getTmpFileName = File.createTempFile("/tmp", ".dot")
+    def close()
 
-  // function takes a list of tupels with (source, [targets]) an environment and list of elements to highlight
-  // errors in the resulting dot files
-  // errorNodes and errorConnections are generated as part of predecessor successor checks
-  // e.g., missing nodes in pred are highlighted in the succ dot file
-  // and   missing connections in pred are similarly highlighted in the succ dot file
-  def map2file(m: List[(AST, List[Opt[AST]])], env: ASTEnv, errorNodes: List[AST] = List(), errorConnections: List[(AST, AST)] = List()) = {
-    var dotstring = ""
-    val fname = getTmpFileName
+    protected val printedNodes = new util.IdentityHashMap[AST, Object]()
+    protected val FOUND = new Object()
 
-    //
-    dotstring += "digraph \"" + fname.getName + "\" {" + "\n"
-    dotstring += "node [shape=record];\n"
-
-    // iterate ast elements and its successors and add nodes in for each ast element
-    for ((o, csuccs) <- m) {
-      val op = esc(PrettyPrinter.print(o))
-      dotstring += "\"" + System.identityHashCode(o) + "\""
-      dotstring += "["
-      dotstring += "label=\"{{" + op + "}|" + esc(env.featureExpr(o).toString()) + "}\", "
-
-      // current node is one of the error nodes
-      // apply specific formatting
-      if (errorNodes.filter(_.eq(o)).size > 0) {
-        dotstring += "color=\"" + errorNodeFontColor + "\", "
-        dotstring += "fontname=\"" + errorNodeFontName + "\", "
-        dotstring += "style=\"filled\"" + ", "
-        dotstring += "fillcolor=\"" + errorNodeFillColor + "\""
-      } else {
-        dotstring += "color=\"" + normalNodeFontColor + "\", "
-        dotstring += "fontname=\"" + normalNodeFontName + "\", "
-        dotstring += "style=\"filled\"" + ", "
-        dotstring += "fillcolor=\"" + normalNodeFillColor + "\""
-      }
-
-      dotstring += "];\n"
-
-      // iterate successors and add edges
-      for (Opt(f, succ) <- csuccs) {
-        dotstring += "\"" + System.identityHashCode(o) + "\" -> \"" + System.identityHashCode(succ) + "\""
-        dotstring += "["
-
-        // current connection is one of the erroneous connections
-        // apply specific formatting
-        if (errorConnections.filter({s => s._1.eq(succ) && s._2.eq(o)}).size > 0) {
-          dotstring += "label=\"" + f.toTextExpr + "\", "
-          dotstring += "color=\"" + errorConnectionEdgeColor + "\", "
-          dotstring += "style=\"" + errorConnectionEdgeThickness + "\""
-        } else {
-          dotstring += "label=\"" + f.toTextExpr + "\", "
-          dotstring += "color=\"" + normalConnectionEdgeColor + "\", "
-          dotstring += "style=\"" + normalConnectionEdgeThickness + "\""
+    protected def writeNodeOnce(o: AST, env: ASTEnv, map: Map[ExternalDef, FeatureExpr]) {
+        if (!printedNodes.containsKey(o)) {
+            printedNodes.put(o, FOUND)
+            writeNode(o, env, map)
         }
-        dotstring += "];\n"
-      }
+    }
+
+    def writeMethodGraph(m: List[(AST, List[Opt[AST]])], env: ASTEnv, externalDefFExprs: Map[ExternalDef, FeatureExpr]) {
+        // iterate ast elements and its successors and add nodes in for each ast element
+        for ((o, csuccs) <- m) {
+            writeNodeOnce(o, env, externalDefFExprs)
+
+            // iterate successors and add edges
+            for (Opt(f, succ) <- csuccs) {
+                writeNodeOnce(succ, env, externalDefFExprs)
+
+                writeEdge(o, succ, f)
+            }
+        }
+    }
+
+}
+
+class DotGraph(fwriter: Writer) extends IOUtilities with CFGWriter {
+
+    protected val normalNodeFontName = "Calibri"
+    protected val normalNodeFontColor = "black"
+    protected val normalNodeFillColor = "white"
+
+    private val externalDefNodeFontColor = "blue"
+
+    private val featureNodeFillColor = "#CD5200"
+
+    protected val normalConnectionEdgeColor = "black"
+    // https://mailman.research.att.com/pipermail/graphviz-interest/2001q2/000042.html
+    protected val normalConnectionEdgeThickness = "setlinewidth(1)"
+
+    private val featureConnectionEdgeColor = "red"
+
+    private def asText(o: AST): String = o match {
+        case FunctionDef(_, decl, _, _) => "Function " + o.getPositionFrom.getLine + ": " + decl.getName
+        case s: Statement => "Stmt " + s.getPositionFrom.getLine + ": " + PrettyPrinter.print(s).take(20)
+        case e: Expr => "Expr " + e.getPositionFrom.getLine + ": " + PrettyPrinter.print(e).take(20)
+        case Declaration(_, initDecl) => "Decl " + o.getPositionFrom.getLine + ": " + initDecl.map(_.entry.getName).mkString(", ")
+        case x => esc(PrettyPrinter.print(x)).take(20)
+    }
+
+    private def lookupFExpr(e: AST, env: ASTEnv, externalDefFExprs: Map[ExternalDef, FeatureExpr]): FeatureExpr = e match {
+        case o if env.isKnown(o) => env.featureExpr(o)
+        case e: ExternalDef => externalDefFExprs.get(e).getOrElse(FeatureExprFactory.True)
+        case _ => FeatureExprFactory.True
+    }
+
+    def writeEdge(source: AST, target: AST, fexpr: FeatureExpr) {
+        fwriter.write("\"" + System.identityHashCode(source) + "\" -> \"" + System.identityHashCode(target) + "\"")
+        fwriter.write("[")
+
+        fwriter.write("label=\"" + fexpr.toTextExpr + "\", ")
+        fwriter.write("color=\"" + (if (fexpr.isTautology()) normalConnectionEdgeColor else featureConnectionEdgeColor) + "\", ")
+        fwriter.write("style=\"" + normalConnectionEdgeThickness + "\"")
+        fwriter.write("];\n")
+    }
+
+    def writeNode(o: AST, env: ASTEnv, externalDefFExprs: Map[ExternalDef, FeatureExpr]) {
+        val op = esc(asText(o))
+        val fexpr = lookupFExpr(o, env, externalDefFExprs)
+        fwriter.write("\"" + System.identityHashCode(o) + "\"")
+        fwriter.write("[")
+        fwriter.write("label=\"{{" + op + "}|" + esc(fexpr.toString) + "}\", ")
+
+        fwriter.write("color=\"" + (if (o.isInstanceOf[ExternalDef]) externalDefNodeFontColor else normalNodeFontColor) + "\", ")
+        fwriter.write("fontname=\"" + normalNodeFontName + "\", ")
+        fwriter.write("style=\"filled\"" + ", ")
+        fwriter.write("fillcolor=\"" + (if (fexpr.isTautology()) normalNodeFillColor else featureNodeFillColor) + "\"")
+
+        fwriter.write("];\n")
+    }
+
+    def writeFooter() {
+        fwriter.write("}\n")
+    }
+
+    def writeHeader(title: String) {
+        fwriter.write("digraph \"" + title + "\" {" + "\n")
+        fwriter.write("node [shape=record];\n")
+    }
+
+    protected def esc(i: String) = {
+        i.replace("\n", "\\l").
+                replace("{", "\\{").
+                replace("}", "\\}").
+                replace("<", "\\<").
+                replace(">", "\\>").
+                replace("\"", "\\\"").
+                replace("|", "\\|").
+                replace(" ", "\\ ").
+                replace("\\\"", "\\\\\"").
+                replace("\\\\\"", "\\\\\\\"").
+                replace("\\\\\\\\\"", "\\\\\\\"")
+    }
+
+    def close() {
+        fwriter.close()
     }
 
 
-    dotstring = dotstring + "}\n"
-    writeToFile(fname.getAbsolutePath, dotstring)
-    fname
-  }
+}
 
-  private def esc(i: String) = {
-    i.replace("\n", "\\l").
-      replace("{", "\\{").
-      replace("}", "\\}").
-      replace("<", "\\<").
-      replace(">", "\\>").
-      replace("\"", "\\\"").
-      replace("|", "\\|").
-      replace(" ", "\\ ").
-      replace("\\\"", "\\\\\"").
-      replace("\\\\\"", "\\\\\\\"").
-      replace("\\\\\\\\\"", "\\\\\\\"")
-  }
+
+class CFGCSVWriter(fwriter: Writer) extends IOUtilities with CFGWriter {
+
+    /**
+     * output format in CSV
+     *
+     * we distinguish nodes and edges, nodes start with "N" edges with "E"
+     *
+     * nodes have the following format:
+     *
+     * N;id;kind;line;name;featureexpr
+     *
+     * id is an identifier that only has a meaning within a file and that is not stable over multiple runs
+     * kind is one of "function|declaration|statement|expression|unknown"
+     * line refers to the starting position in the .pi file
+     * name is used as a reference for functions and declarations and can be used to match nodes across files
+     * name in expressions and statements is used for debugging only and returns the first characters of the statement
+     * function names should be unique in the entire system for each configuration (that is, there may be multiple
+     * functions with the same name but mutually exclusive feature expressions)
+     * featureexpr describes the condition when the node is included
+     *
+     * edges do not have a line and title:
+     *
+     * E;sourceid;targetid;featureexpr
+     *
+     * they connect nodes within a file
+     * ids refer to node ids within the file
+     * nodeids are always declared before edges connecting them
+     *
+     * edges between files need to be computed separately based on declaration and function names
+     */
+
+    private def asText(o: AST): String = o match {
+        case FunctionDef(_, decl, _, _) => "function;" + o.getPositionFrom.getLine + ";" + decl.getName
+        case s: Statement => "statement;" + s.getPositionFrom.getLine + ";" + esc(PrettyPrinter.print(s).take(20))
+        case e: Expr => "expression;" + e.getPositionFrom.getLine + ";" + esc(PrettyPrinter.print(e).take(20))
+        case Declaration(_, initDecl) => "declaration;" + o.getPositionFrom.getLine + ";" + initDecl.map(_.entry.getName).mkString(",")
+        case x => "unknown;" + x.getPositionFrom.getLine + ";" + esc(PrettyPrinter.print(x).take(20))
+    }
+
+    private def lookupFExpr(e: AST, env: ASTEnv, externalDefFExprs: Map[ExternalDef, FeatureExpr]): FeatureExpr = e match {
+        case o if env.isKnown(o) => env.featureExpr(o)
+        case e: ExternalDef => externalDefFExprs.get(e).getOrElse(FeatureExprFactory.True)
+        case _ => FeatureExprFactory.True
+    }
+
+    def writeEdge(source: AST, target: AST, fexpr: FeatureExpr) {
+        fwriter.write("E;" + System.identityHashCode(source) + ";" + System.identityHashCode(target) + ";" + fexpr.toTextExpr + "\n")
+    }
+
+    def writeNode(o: AST, env: ASTEnv, externalDefFExprs: Map[ExternalDef, FeatureExpr]) {
+        val fexpr = lookupFExpr(o, env, externalDefFExprs)
+        fwriter.write("N;" + System.identityHashCode(o) + ";" + asText(o) + ";" + fexpr.toTextExpr + "\n")
+    }
+
+    def writeFooter() {
+        fwriter.write("}\n")
+    }
+
+    def writeHeader(title: String) {
+        fwriter.write("digraph \"" + title + "\" {" + "\n")
+        fwriter.write("node [shape=record];\n")
+    }
+
+    private def esc(i: String) = {
+        i.replace(";", "").
+                replace("\n", " ")
+    }
+
+    def close() {
+        fwriter.close()
+    }
+}
+
+
+class ComposedWriter(writers: List[CFGWriter]) extends CFGWriter {
+    def writeNode(node: AST, env: ASTEnv, externalDefFExprs: Map[ExternalDef, FeatureExpr]) {
+        writers.map(_.writeNode(node, env, externalDefFExprs))
+    }
+
+    def writeEdge(source: AST, target: AST, fexpr: FeatureExpr) {
+        writers.map(_.writeEdge(source, target, fexpr))
+    }
+
+    def writeFooter() {
+        writers.map(_.writeFooter())
+    }
+
+    def writeHeader(filename: String) {
+        writers.map(_.writeHeader(filename))
+    }
+
+    def close() {
+        writers.map(_.close())
+    }
 }

@@ -1,0 +1,10 @@
+struct _IO_FILE;
+
+struct _IO_FILE {
+	struct _IO_FILE *_chain;
+};
+
+int main(int argc, const char * argv[])
+{
+    return 0;
+}

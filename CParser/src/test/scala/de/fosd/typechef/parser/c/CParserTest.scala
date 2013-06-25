@@ -1127,7 +1127,6 @@ void bar() {
                             """, p.translationUnit)
     }
 
-
     @Test
     def test_uclibc {
         assertParseableAST( """

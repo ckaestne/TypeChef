@@ -18,12 +18,8 @@ class PrettyPrinterTest {
         //        val ast=new TranslationUnit(List())
         //
         //        println(PrettyPrinter.print(sp,ast))
-
         val f = FeatureExprFactory.True
-        val doc = prettyPrint(EnumSpecifier(Some(Id("e")), Some(List(
-            Opt(f, Enumerator(Id("test"), None)),
-            Opt(f, Enumerator(Id("test2"), None))
-        ))))
+        val doc = prettyPrint(EnumSpecifier(Some(Id("e")), Some(List(Opt(f, Enumerator(Id("test"), None)), Opt(f, Enumerator(Id("test2"), None))))))
 
         println(layout(doc))
     }
@@ -81,6 +77,7 @@ class PrettyPrinterTest {
     @Test def testEnumerator {
         parsePrintParse("enum e", p.enumSpecifier)
         parsePrintParse("enum e { a }", p.enumSpecifier)
+        parsePrintParse("enum e { a, }", p.enumSpecifier)
         parsePrintParse("enum { a }", p.enumSpecifier)
         parsePrintParse("enum e { a=1, b=3 }", p.enumSpecifier)
     }
@@ -308,8 +305,7 @@ class PrettyPrinterTest {
     private def _parseFile(fileName: String): TranslationUnit = {
         val inputStream = getClass.getResourceAsStream("/" + fileName)
         assertNotNull("file not found " + fileName, inputStream)
-        val result = p.phrase(p.translationUnit)(
-            CLexer.lexStream(inputStream, fileName, Collections.singletonList("testfiles/cgram/"), null), FeatureExprFactory.True)
+        val result = p.phrase(p.translationUnit)(CLexer.lexStream(inputStream, fileName, Collections.singletonList("testfiles/cgram/"), null), FeatureExprFactory.True)
 
         (result: @unchecked) match {
             case p.Success(ast, unparsed) => {
@@ -382,6 +378,63 @@ class PrettyPrinterTest {
         parsePrintParseDecl("struct a foo;")
         parsePrintParseDecl("struct a { double a;} foo;")
         parsePrintParseDecl("struct a;")
+    }
+
+    @Test def testVariableLists() {
+        parsePrintParse( """void foo(
+                int a
+
+                #ifdef B
+                , int b
+                #endif
+                ) { }
+                         """, p.functionDef)
+        // TODO does not work yet, before and after AST are not equal!
+        //        parsePrintParse("""void foo(
+        //                #ifdef A
+        //                int a
+        //                #else
+        //                double a
+        //                #endif
+        //                ) { }
+        //                        """, p.functionDef)
+        parsePrintParse( """void foo(
+                int a
+
+                #ifdef B
+                , int b
+                #else
+                , double b
+                #endif
+                ) { }
+                         """, p.translationUnit)
+        parsePrintParse( """
+                enum e {
+                       ONE
+                #ifdef A
+                       , TWO
+                       , THREE
+                #endif
+                }
+                         """.stripMargin, p.enumSpecifier)
+        parsePrintParse( """
+                enum e {
+                       ONE
+                       , TWO
+                #ifdef A
+                       , THREE
+                #endif
+                }
+                         """.stripMargin, p.enumSpecifier)
+        parsePrintParse( """
+                        int
+                        #ifdef A
+                        a
+                        #else
+                        b
+                        #endif
+                        ;
+                         """.stripMargin, p.declaration)
     }
 
 

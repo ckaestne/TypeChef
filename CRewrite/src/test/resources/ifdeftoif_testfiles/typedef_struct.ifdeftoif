@@ -1,0 +1,24 @@
+extern int __VERIFIER_NONDET_INT(void);
+int select_one()  {
+  if (__VERIFIER_NONDET_INT()) {
+    return 1;
+  }  
+  else {
+    return 0;
+  }
+}
+struct ifdef_options {
+  int config_feature_find_context;
+  int config_selinux;
+} options;
+void initOptions()  {
+  (options.config_feature_find_context = select_one());
+  (options.config_selinux = select_one());
+}
+typedef struct  {
+  int i;
+} _1_context_s_t;
+typedef _1_context_s_t *_1_context_t;
+void foo()  {
+  
+}

@@ -1,0 +1,27 @@
+union ktime {
+	int	tv64;
+
+	
+
+	
+ 	
+
+	
+
+};
+#if definedEx(CONFIG_PARAVIRT)
+typedef union ktime ktime_t;
+#endif
+
+
+struct hrtimer_cpu_base {
+#if (definedEx(CONFIG_X86_PAE) && definedEx(CONFIG_PARAVIRT) && (!definedEx(CONFIG_PARAVIRT) || definedEx(CONFIG_X86_PAE)))
+	ktime_t				expires_next;
+	int				hres_active;
+	int				hang_detected;
+	unsigned long			nr_events;
+	unsigned long			nr_retries;
+	unsigned long			nr_hangs;
+	ktime_t				max_hang_time;
+#endif
+};
