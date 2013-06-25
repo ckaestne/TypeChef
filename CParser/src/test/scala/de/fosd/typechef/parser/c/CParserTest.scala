@@ -99,7 +99,7 @@ class CParserTest {
                 if (expectErrorMsg || unparsed.atEnd)
                     Assert.fail("parsing succeeded unexpectedly with " + ast + " - " + unparsed)
             }
-            case p.NoSuccess(msg, unparsed, inner) =>;
+            case p.NoSuccess(msg, unparsed, inner) => ;
         }
     }
 
@@ -1141,29 +1141,34 @@ void bar() {
     }
 
     @Test
-    @Ignore("this is a bug in our parser. `jin:...' should be one labled statement, but is parsed as two statements; therefore the else does not match" )
+    @Ignore("this is a bug in our parser. `jin:...' should be one labled statement, but is parsed as two statements; therefore the else does not match")
     def test_labels {
         //based on a problem in uclibc
-        assertParseableAST("""if (0)
-                             |	    jin:{
-                             |		if ((a = *++haystack) == c)
-                             |		  goto crest;
-                             |	      }
-                             |	    else
-                             |	      a = *++haystack;""".stripMargin , p.statement)
+        assertParseableAST( """if (0)
+                              |	    jin:{
+                              |		if ((a = *++haystack) == c)
+                              |		  goto crest;
+                              |	      }
+                              |	    else
+                              |	      a = *++haystack;""".stripMargin, p.statement)
     }
     @Test
     def test_labels2 {
         //based on a problem in uclibc
-        assertParseableAST("""if (0)
-                             |	    {jin:{
-                             |		if ((a = *++haystack) == c)
-                             |		  goto crest;
-                             |	      }}
-                             |	    else
-                             |	      a = *++haystack;""".stripMargin , p.statement)
+        assertParseableAST( """if (0)
+                              |	    {jin:{
+                              |		if ((a = *++haystack) == c)
+                              |		  goto crest;
+                              |	      }}
+                              |	    else
+                              |	      a = *++haystack;""".stripMargin, p.statement)
     }
 
+    @Test
+    def test_forunsigned {
+        //based on a problem in uclibc; only working with a newer C standard C99 or GNUC99
+        //        assertParseableAST("""for (unsigned int t = 0; t < 16; ++t);""".stripMargin , p.statement)
+    }
 
 
     private def assertNoDeadNodes(ast: Product) {
