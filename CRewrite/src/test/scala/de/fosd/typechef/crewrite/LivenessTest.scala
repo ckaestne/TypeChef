@@ -256,6 +256,19 @@ class LivenessTest extends TestHelper with ShouldMatchers with IntraCFG with CFG
                     """)
     }
 
+    @Test def test_simple_alternative() {
+        runExample(
+            """
+              int foo() {
+                int x = 0;
+                #ifdef A
+                x = 2;
+                #endif
+                int y = x;
+              }
+            """.stripMargin)
+    }
+
     @Test def test_alternative() {
         runExample( """
       int foo() {
