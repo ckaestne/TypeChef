@@ -1,9 +1,5 @@
 package de.fosd.typechef
 
-/*
-* temporarily copied from PreprocessorFrontend due to technical problems
-*/
-
 
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.typesystem._
@@ -16,7 +12,6 @@ import de.fosd.typechef.parser.c.TranslationUnit
 
 object Frontend {
 
-    private var storedAst: AST = null
 
     def main(args: Array[String]) {
         // load options
@@ -95,14 +90,6 @@ object Frontend {
 
         val fm = opt.getLexerFeatureModel().and(opt.getLocalFeatureModel).and(opt.getFilePresenceCondition)
         opt.setFeatureModel(fm) //otherwise the lexer does not get the updated feature model with file presence conditions
-        /*
-        // create dimacs file from feature model
-        opt.getFeatureModelTypeSystem.asInstanceOf[SATFeatureModel].writeToDimacsFile(new File(
-            "/tmp/BB_fm.dimacs"
-        ))
-
-        System.exit(0)
-        */
         if (!opt.getFilePresenceCondition.isSatisfiable(fm)) {
             println("file has contradictory presence condition. existing.") //otherwise this can lead to strange parser errors, because True is satisfiable, but anything else isn't
             return
@@ -126,10 +113,10 @@ object Frontend {
 
             if (ast == null) {
                 //no parsing and serialization if read serialized ast
-            	val parserMain = new ParserMain(new CParser(fm))
-            	val ast = parserMain.parserMain(in, opt)
+                val parserMain = new ParserMain(new CParser(fm))
+                ast = parserMain.parserMain(in, opt)
 
-            	if (ast != null && opt.serializeAST) {
+                if (ast != null && opt.serializeAST) {
                     stopWatch.start("serialize")
                     serializeAST(ast, opt.getSerializedASTFilename)
                 }
@@ -140,8 +127,8 @@ object Frontend {
                 val fm_ts = opt.getTypeSystemFeatureModel.and(opt.getLocalFeatureModel).and(opt.getFilePresenceCondition)
                 val cachedTypes = opt.xfree // just an example
                 val ts = if (cachedTypes)
-                    new CTypeSystemFrontend(ast.asInstanceOf[TranslationUnit], fm_ts, opt) with CTypeCache
-                else new CTypeSystemFrontend(ast.asInstanceOf[TranslationUnit], fm_ts, opt)
+                        new CTypeSystemFrontend(ast.asInstanceOf[TranslationUnit], fm_ts, opt) with CTypeCache
+                    else new CTypeSystemFrontend(ast.asInstanceOf[TranslationUnit], fm_ts, opt)
 
                 /** I did some experiments with the TypeChef FeatureModel of Linux, in case I need the routines again, they are saved here. */
                 //Debug_FeatureModelExperiments.experiment(fm_ts)
@@ -223,6 +210,4 @@ object Frontend {
         fr.close()
         ast
     }
-
-    def getAST = storedAst
 }
