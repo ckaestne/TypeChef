@@ -2,24 +2,36 @@ package de.fosd.typechef.crewrite
 
 import de.fosd.typechef.featureexpr.{FeatureExprParser, FeatureExprFactory, FeatureExpr}
 import java.io.{Writer, FileReader, BufferedReader, File}
+import de.fosd.typechef.featureexpr.FeatureExprFactory.True
 
 
-class CFGNode(val kind: String, file: File, line: Int, val name: String, val fexpr: FeatureExpr) {
-
-    val id = IdGen.genId()
+case class CFGNode(val id: Int, val kind: String, val file: File, val line: Int, val name: String, val fexpr: FeatureExpr) {
 
     def write(writer: Writer) {
-        writer.write("N;" + id + ";" + kind + ";" + file.getPath + ";" + line + ";" + name + ";" + fexpr.toTextExpr + "\n")
+        writer.write("N;" + id + ";" + kind + ";" + (if (file != null) file.getPath else "null") + ";" + line + ";" + name + ";" + fexpr.toTextExpr + "\n")
     }
 
-    def and(f: FeatureExpr) = new CFGNode(kind, file, line, name, fexpr and f)
+    //    def and(f: FeatureExpr) = new CFGNode(kind, file, line, name, fexpr and f)
 
     override def toString: String = kind + "-" + name
+
+    //    override def hashCode = kind.hashCode + line + name.hashCode
+    //    override def equals(that: Any) = {
+    //        if (that.isInstanceOf[CFGNode]) {
+    //            val t = that.asInstanceOf[CFGNode]
+    //            (this.kind == t.kind) && (this.file == null || t.file ==null || this.file == t.file) && (this.line == t.line) && (this.name == t.name) && (this.fexpr equivalentTo t.fexpr)
+    //        } else super.equals(that)
+    //    }
 }
 
 case class FileCFG(nodes: Set[CFGNode], edges: Set[(CFGNode, CFGNode, FeatureExpr)]) {
 
+    def checkConsistency: Boolean =
+        edges.forall(e => (nodes contains e._1) && (nodes contains e._2))
+
     def link(that: FileCFG): FileCFG = {
+        assert(this.checkConsistency)
+        assert(that.checkConsistency)
 
         val thatFunctions: Map[String, Set[CFGNode]] = that.nodes.filter(_.kind == "function").groupBy(e => e.name)
         var thisReplacements: Map[CFGNode, Set[CFGNode]] = Map()
@@ -55,17 +67,20 @@ case class FileCFG(nodes: Set[CFGNode], edges: Set[(CFGNode, CFGNode, FeatureExp
         )
 
 
-        new FileCFG((this.nodes ++ that.nodes).filter(_.fexpr.isSatisfiable()), (newThisEdges ++ newThatEdges).filter(_._3.isSatisfiable()))
+        val n = new FileCFG((this.nodes ++ that.nodes).filter(_.fexpr.isSatisfiable()), (newThisEdges ++ newThatEdges).filter(_._3.isSatisfiable()))
+        assert(n.checkConsistency)
+        n
     }
 
     def write(writer: Writer) {
-        for (n <- nodes) n.write(writer)
-        for ((s, t, f) <- edges) writer.write("E;" + s.id + ";" + t.id + ";" + f.toTextExpr + "\n")
+        for (n <- nodes.toList.sortBy(_.id)) n.write(writer)
+        for ((s, t, f) <- edges) {
+            assert(nodes contains s)
+            assert(nodes contains t)
+            writer.write("E;" + s.id + ";" + t.id + ";" + f.toTextExpr + "\n")
+        }
     }
 
-    def and(fexpr: FeatureExpr): FileCFG = {
-        new FileCFG(nodes.map(_.and(fexpr)), edges.map(e => (e._1, e._2, e._3 and fexpr)))
-    }
 
     override def toString: String = "FileCFG(" + nodes + ", " + edges + ")"
 
@@ -84,9 +99,12 @@ object WholeProjectCFG {
     val featureExprParser = new FeatureExprParser(FeatureExprFactory.dflt)
 
 
-    def loadNode(s: String, file: File): (Int, CFGNode) = {
+    def loadNode(s: String, file: File, filePC: FeatureExpr, isRawFormat: Boolean): (Int, CFGNode) = {
         val fields = s.split(";")
-        (fields(1).toInt, new CFGNode(fields(2), file, fields(3).toInt, fields(4), parseFExpr(fields(5))))
+        if (isRawFormat)
+            (fields(1).toInt, new CFGNode(IdGen.genId(), fields(2), file, fields(3).toInt, fields(4), parseFExpr(fields(5)) and filePC))
+        else
+            (fields(1).toInt, new CFGNode(IdGen.genId(), fields(2), new File(fields(3)), fields(4).toInt, fields(5), parseFExpr(fields(6)) and filePC))
     }
 
     private def parseFExpr(s: String): FeatureExpr = featureExprParser.parse(s)
@@ -96,7 +114,14 @@ object WholeProjectCFG {
         (fields(1).toInt, fields(2).toInt, parseFExpr(fields(3)))
     }
 
-    def loadFileCFG(cfgFile: File): FileCFG = {
+    //load a CFG file for one file
+    def loadFileCFG(cfgFile: File, filePC: FeatureExpr = True): FileCFG = loadFile(cfgFile, filePC, true)
+
+    //load a whole-project CFG file as a result of a linking process
+    def loadCFG(cfgFile: File, filePC: FeatureExpr = True): FileCFG = loadFile(cfgFile, filePC, false)
+
+
+    private def loadFile(cfgFile: File, filePC: FeatureExpr, isRawFormat: Boolean): FileCFG = {
         val reader = new BufferedReader(new FileReader(cfgFile))
 
         var nodes = Map[Int, CFGNode]()
@@ -105,7 +130,7 @@ object WholeProjectCFG {
         var line = reader.readLine()
         while (line != null) {
             if (line.charAt(0) == 'N') {
-                val node = loadNode(line, cfgFile)
+                val node = loadNode(line, cfgFile, filePC, isRawFormat)
                 nodes = nodes + node
             }
             if (line.charAt(0) == 'E') {
@@ -116,9 +141,10 @@ object WholeProjectCFG {
             line = reader.readLine()
         }
 
-        new FileCFG(nodes.values.toSet, edges.toSet)
+        val n = new FileCFG(nodes.values.toSet, edges.toSet)
+        assert(n.checkConsistency)
+        n
     }
-
 
 }
 
