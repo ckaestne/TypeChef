@@ -247,7 +247,7 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface with CDeclU
                 val declExpr = env.structEnv.isComplete(name, isUnion)
                 if ((expr andNot declExpr).isSatisfiable()) {
                     val msg = (if (isUnion) "Union " else "Struct ") + name + " not defined or not complete." +
-                            (if ((expr and declExpr).isSatisfiable()) " (complete only in context " + declExpr + ")" else "")
+                        (if ((expr and declExpr).isSatisfiable()) " (complete only in context " + declExpr + ")" else "")
                     reportTypeError(expr andNot declExpr, msg, where, Severity.TypeLookupError)
                 }
             case CAnonymousStruct(fields, _) => //check fields
@@ -282,7 +282,7 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface with CDeclU
                 for (Opt(f, init) <- decl.init) yield {
                     val ctype = filterTransparentUnion(getDeclaratorType(init.declarator, returnType, featureExpr and f, eenv), init.attributes).simplify(featureExpr and f)
                     val declKind = if (init.hasInitializer) KDefinition else KDeclaration
-                    val linkage = getLinkage(init.getName, false, decl.declSpecs, env, decl)
+                    val linkage = getLinkage(init.getName, false, decl.declSpecs, featureExpr and f, env, decl)
 
                     eenv = eenv.addVar(init.getName, featureExpr and f, init, ctype,
                         declKind, env.scope, linkage)
@@ -588,12 +588,12 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface with CDeclU
      *
      * see http://publications.gbdirect.co.uk/c_book/chapter8/declarations_and_definitions.html
      */
-    protected def getLinkage(symbol: String, isFunctionDef: Boolean, specifiers: List[Opt[Specifier]], env: Env, where: AST): Conditional[Linkage] = {
+    protected def getLinkage(symbol: String, isFunctionDef: Boolean, specifiers: List[Opt[Specifier]], fexpr: FeatureExpr, env: Env, where: AST): Conditional[Linkage] = {
         val isStatic = getStaticCondition(specifiers)
         val isExtern = getExternCondition(specifiers)
         val isFileLevelScope = env.scope == 0
 
-        issueTypeError(Severity.OtherError, isStatic and isExtern, "static and extern specificers cannot occur together", where)
+        issueTypeError(Severity.OtherError, fexpr and isStatic and isExtern, "static and extern specificers cannot occur together", where)
 
         val wasInternal = env.varEnv.lookupIsInternalLinkage(symbol)
 

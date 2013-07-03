@@ -1031,5 +1031,55 @@ return 1;
 
 
     }
+
+    test("static/external problem") {
+        //problem from uclibc, that initially reported that static and extern occur together
+        val c = """
+                  |#if definedEx(__UCLIBC_HAS_THREADS__)
+                  |static pthread_mutex_t mylock =
+                  |#if (definedEx(__UCLIBC_HAS_THREADS__) && definedEx(__UCLIBC_HAS_THREADS_NATIVE__))
+                  |{ { 0, 0, 0, 0, 0, 0, { 0, 0 } } }
+                  |#endif
+                  |#if (!definedEx(__UCLIBC_HAS_THREADS_NATIVE__) && definedEx(__LINUXTHREADS_NEW__) && definedEx(__UCLIBC_HAS_THREADS__))
+                  |{0, 0, 0, PTHREAD_MUTEX_TIMED_NP,
+                  |
+                  |{ 0,
+                  |
+                  |0
+                  |
+                  |
+                  | }
+                  |
+                  |
+                  |}
+                  |#endif
+                  |#if (definedEx(__LINUXTHREADS_OLD__) && !definedEx(__LINUXTHREADS_NEW__) && !definedEx(__UCLIBC_HAS_THREADS_NATIVE__) && definedEx(__UCLIBC_HAS_THREADS__))
+                  |{0, 0, 0, PTHREAD_MUTEX_ADAPTIVE_NP,
+                  |
+                  |{ 0,
+                  |
+                  |0
+                  |
+                  |
+                  | }
+                  |
+                  |
+                  |}
+                  |#endif
+                  |#if (!definedEx(__UCLIBC_HAS_THREADS__) || (!definedEx(__LINUXTHREADS_OLD__) && !definedEx(__LINUXTHREADS_NEW__) && !definedEx(__UCLIBC_HAS_THREADS_NATIVE__)))
+                  |PTHREAD_MUTEX_INITIALIZER
+                  |#endif
+                  |
+                  |#endif
+                  |#if !definedEx(__UCLIBC_HAS_THREADS__)
+                  |extern void *__UCLIBC_MUTEX_DUMMY_mylock
+                  |#endif
+                  |;
+                """.stripMargin
+
+        expect(true) {
+            check(c)
+        }
+    }
 }
 

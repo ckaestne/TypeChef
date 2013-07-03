@@ -102,7 +102,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
         val newEnvEnum = env.addVars2(enumDeclarations(specifiers, featureExpr, declarator, env), env.scope)
 
         //add function type to environment for remaining code
-        val newEnv = newEnvEnum.addVar(declarator.getName, featureExpr, f, funType, kind, newEnvEnum.scope, getLinkage(declarator.getName, true, specifiers, env, declarator))
+        val newEnv = newEnvEnum.addVar(declarator.getName, featureExpr, f, funType, kind, newEnvEnum.scope, getLinkage(declarator.getName, true, specifiers, featureExpr, env, declarator))
         addDecl(declarator, featureExpr, env, false)
         addJumpStatements(stmt)
 
