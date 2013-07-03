@@ -168,8 +168,8 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
     protected def isPartOf(subterm: Product, term: Any): Boolean = {
         term match {
             case _: Product if (subterm.asInstanceOf[AnyRef].eq(term.asInstanceOf[AnyRef])) => true
-            case l: List[_] => l.map(isPartOf(subterm, _)).exists(_ == true)
-            case p: Product => p.productIterator.toList.map(isPartOf(subterm, _)).exists(_ == true)
+            case l: List[_] => l.exists(isPartOf(subterm, _))
+            case p: Product => p.productIterator.toList.exists(isPartOf(subterm, _))
             case _ => false
         }
     }
