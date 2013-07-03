@@ -193,7 +193,7 @@ abstract class MonotoneFW[T](val env: ASTEnv, val udm: UseDeclMap, val fm: Featu
             val orig = getOriginal(x)
             res = (orig, f) :: res
         }
-        res.filter(_._2.isSatisfiable(fm))
+        res.distinct.filter(_._2.isSatisfiable(fm))
     }
 
     protected def incached(a: AST) = {
@@ -215,7 +215,7 @@ abstract class MonotoneFW[T](val env: ASTEnv, val udm: UseDeclMap, val fm: Featu
             val orig = getOriginal(x)
             res = (orig, f) :: res
         }
-        res.filter(_._2.isSatisfiable(fm))
+        res.distinct.filter(_._2.isSatisfiable(fm))
     }
 }
 
