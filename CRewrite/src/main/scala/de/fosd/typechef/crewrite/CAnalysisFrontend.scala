@@ -9,7 +9,9 @@ import de.fosd.typechef.typesystem._
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.error._
 
-class CAnalysisFrontend(tunit: TranslationUnit, fm: FeatureModel = FeatureExprFactory.empty) extends CFGHelper with EnforceTreeHelper {
+class CAnalysisFrontend(tu: TranslationUnit, fm: FeatureModel = FeatureExprFactory.empty) extends CFGHelper with EnforceTreeHelper {
+
+    val tunit = prepareAST[TranslationUnit](tu)
 
     def dumpCFG(writer: Writer = new StringWriter()) {
         val fdefs = filterAllASTElems[FunctionDef](tunit)
@@ -118,16 +120,12 @@ class CAnalysisFrontend(tunit: TranslationUnit, fm: FeatureModel = FeatureExprFa
         // flow computation requires a lot of sat calls.
         // We use the proper fm in UninitializedMemory (see MonotoneFM).
         val ss = getAllPred(f, FeatureExprFactory.empty, env).reverse
-        val um = new UninitializedMemory(env, udm, FeatureExprFactory.empty)
+        val um = new UninitializedMemory(env, udm, fm)
         val nss = ss.map(_._1).filterNot(x => x.isInstanceOf[FunctionDef])
 
         for (s <- nss) {
             val g = um.getFunctionCallArguments(s)
             val in = um.in(s)
-
-            println(PrettyPrinter.print(s), " g: ", g, "i: ", in)
-            println("g: ", g.values.flatten.map(System.identityHashCode(_)))
-            println("i: ", in.map(_._1).map(System.identityHashCode(_)))
 
             for ((i, h) <- in)
                 for ((f, j) <- g)
@@ -174,7 +172,7 @@ class CAnalysisFrontend(tunit: TranslationUnit, fm: FeatureModel = FeatureExprFa
         // flow computation requires a lot of sat calls.
         // We use the proper fm in UninitializedMemory (see MonotoneFM).
         val ss = getAllPred(f, FeatureExprFactory.empty, env).reverse
-        val xf = new XFree(env, udm, FeatureExprFactory.empty, "")
+        val xf = new XFree(env, udm, fm, "")
         val nss = ss.map(_._1).filterNot(x => x.isInstanceOf[FunctionDef])
 
         for (s <- nss) {
@@ -218,20 +216,15 @@ class CAnalysisFrontend(tunit: TranslationUnit, fm: FeatureModel = FeatureExprFa
     }
 
     private def danglingSwitchCode(f: FunctionDef, env: ASTEnv): List[TypeChefError] = {
-        var res: List[TypeChefError] = List()
-
         val ss = filterAllASTElems[SwitchStatement](f)
+        val ds = new DanglingSwitchCode(env, FeatureExprFactory.empty)
 
-        for (s <- ss) {
-            val ds = new DanglingSwitchCode(env, FeatureExprFactory.empty).computeDanglingCode(s)
+        ss.flatMap(s => {
+            ds.danglingSwitchCode(s).map(e => {
+                new TypeChefError(Severity.Warning, e.feature, "warning: switch statement has dangling code ", e.entry, "")
+            })
 
-            if (! ds.isEmpty) {
-                for (e <- ds)
-                    res ::= new TypeChefError(Severity.Warning, e.feature, "warning: switch statement has dangling code ", e.entry, "")
-            }
-        }
-
-        res
+        })
     }
 
     def cfgNonVoidFunction(): Boolean = {
@@ -253,11 +246,73 @@ class CAnalysisFrontend(tunit: TranslationUnit, fm: FeatureModel = FeatureExprFa
 
     private def cfgNonVoidFunction(f: FunctionDef, env: ASTEnv, ts: CTypeSystemFrontend with CTypeCache): List[TypeChefError] = {
         val cf = new CFGNonVoidFunction(env, fm, ts)
-        var res = List[TypeChefError]()
 
-        for (e <- cf.cfgReturn(f))
-            res ::= new TypeChefError(Severity.Warning, e.feature, "Control flow of non-void function ends here!", e.entry, "")
+        cf.cfgReturn(f).map(
+            e => new TypeChefError(Severity.Warning, e.feature, "Control flow of non-void function ends here!", e.entry, "")
+        )
+    }
 
-        res
+    def checkStdLibFuncReturn(): Boolean = {
+        val ts = new CTypeSystemFrontend(tunit, fm)
+        assert(ts.checkAST(), "typecheck fails!")
+        val env = CASTEnv.createASTEnv(tunit)
+
+        val fdefs = filterAllASTElems[FunctionDef](tunit)
+        val errors = fdefs.flatMap(checkStdLibFuncReturn(_, env, ts.getUseDeclMap))
+
+        if (errors.isEmpty) {
+            println("Return values of stdlib functions are properly checked for errors!")
+        } else {
+            println(errors.map(_.toString + "\n").reduce(_ + _))
+        }
+
+        errors.isEmpty
+    }
+
+    private def checkStdLibFuncReturn(f: FunctionDef, env: ASTEnv, udm: UseDeclMap): List[TypeChefError] = {
+        var errors: List[TypeChefError] = List()
+        val ss = getAllSucc(f, FeatureExprFactory.empty, env).map(_._1).filterNot(_.isInstanceOf[FunctionDef])
+        val cl: List[CheckStdLibFuncReturn] = List(
+            //new CheckStdLibFuncReturn_EOF(env, udm, fm),
+            new CheckStdLibFuncReturn_Null(env, udm, fm)
+        )
+
+        for (s <- ss) {
+            for (cle <- cl) {
+                lazy val errorvalues = cle.errorreturn.map(PrettyPrinter.print(_)).mkString(" 'or' ")
+
+                // check CFG element directly; without dataflow analysis
+                for (e <- cle.checkForPotentialCalls(s)) {
+                    errors ::= new TypeChefError(Severity.SecurityWarning, env.featureExpr(e), "Return value of " +
+                        PrettyPrinter.print(e) + " is not properly checked for (" + errorvalues + ")!", e)
+                }
+
+                // stdlib call is assigned to a variable that we track with our dataflow analysis
+                // we check whether used variables that hold the value of a stdlib function are killed in s,
+                // if not we report an error
+                for ((e, fi) <- cle.out(s)) {
+                    for ((fu, u) <- cle.getUsedVariables(s)) {
+                        u.find(_ == e) match {
+                            case None =>
+                            case Some(x) => {
+                                val xdecls = udm.get(x)
+                                var edecls = udm.get(e)
+                                if (edecls == null) edecls = List(e)
+
+                                for (ee <- edecls) {
+                                    val kills = cle.kill(s)
+                                    if (xdecls.exists(_.eq(ee)) && (!kills.contains(fu) || kills.contains(fu) && !kills(fu).contains(x))) {
+                                        errors ::= new TypeChefError(Severity.SecurityWarning, fi, "The value of " +
+                                            PrettyPrinter.print(e) + " is not properly checked for (" + errorvalues + ")!", e)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        errors
     }
 }

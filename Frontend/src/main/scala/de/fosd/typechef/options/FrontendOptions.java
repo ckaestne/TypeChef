@@ -24,6 +24,7 @@ public class FrontendOptions extends CAnalysisOptions implements ParserOptions {
             uninitializedmemory = false,
             xfree = false,
             danglingswitchcode = false,
+            checkstdlibfuncreturn = false,
             serializeAST = false,
             reuseAST = false,
             writeDebugInterface = false,
@@ -46,6 +47,7 @@ public class FrontendOptions extends CAnalysisOptions implements ParserOptions {
     private final static char F_UNINITIALIZEDMEMORY = Options.genOptionId();
     private final static char F_XFREE = Options.genOptionId();
     private final static char F_DANGLINGSWITCHCODE = Options.genOptionId();
+    private final static char F_CHECKSTDLIBFUNCRETURN = Options.genOptionId();
     private final static char F_SERIALIZEAST = Options.genOptionId();
     private final static char F_REUSEAST = Options.genOptionId();  
 	private final static char F_RECORDTIMING = Options.genOptionId();
@@ -80,6 +82,10 @@ public class FrontendOptions extends CAnalysisOptions implements ParserOptions {
                         "Lex, parse, and check for usages of uninitialized variables."),
                 new Option("xfree", LongOpt.NO_ARGUMENT, F_XFREE, null,
                         "Lex, parse, and check for usages of freeing statically allocated memory."),
+                new Option("danglingswitchcode", LongOpt.NO_ARGUMENT, F_DANGLINGSWITCHCODE, null,
+                        "Lex, parse, and check switch statements for code that does not belong to case or default blocks"),
+                new Option("checkstdlibfuncreturn", LongOpt.NO_ARGUMENT, F_CHECKSTDLIBFUNCRETURN, null,
+                        "Lex, parse, and check return of standard-library functions for error values specified by the functions."),
 
                 new Option("output", LongOpt.REQUIRED_ARGUMENT, 'o', "file",
                         "Path to output files (no extension, creates .pi, .macrodbg etc files)."),
@@ -139,6 +145,8 @@ public class FrontendOptions extends CAnalysisOptions implements ParserOptions {
             parse = xfree = true;
         } else if (c == F_DANGLINGSWITCHCODE) {
             parse = danglingswitchcode = true;
+        } else if (c == F_CHECKSTDLIBFUNCRETURN) {
+            parse = checkstdlibfuncreturn = true;
         } else if (c == F_SERIALIZEAST) {
             serializeAST = true;
         } else if (c == F_REUSEAST) {

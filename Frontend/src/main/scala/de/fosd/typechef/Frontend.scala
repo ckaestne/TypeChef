@@ -127,7 +127,7 @@ object Frontend {
             if (ast == null) {
                 //no parsing and serialization if read serialized ast
             	val parserMain = new ParserMain(new CParser(fm))
-            	val ast = parserMain.parserMain(in, opt)
+            	ast = parserMain.parserMain(in, opt)
 
             	if (ast != null && opt.serializeAST) {
                     stopWatch.start("serialize")
@@ -188,7 +188,12 @@ object Frontend {
                 if (opt.danglingswitchcode) {
                     stopWatch.start("danglingswitchcode")
                     val ds = new CAnalysisFrontend(ast.asInstanceOf[TranslationUnit], fm_ts)
-                    ds.cfgNonvoidFunction()
+                    ds.danglingSwitchCode()
+                }
+                if (opt.checkstdlibfuncreturn) {
+                    stopWatch.start("checkstdlibfuncreturn")
+                    val cl = new CAnalysisFrontend(ast.asInstanceOf[TranslationUnit], fm_ts)
+                    cl.checkStdLibFuncReturn()
                 }
 
             }
