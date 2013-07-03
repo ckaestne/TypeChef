@@ -54,7 +54,6 @@ class UninitializedMemory(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) extend
         addAnnotation2ResultSet(res)
     }
 
-    // flow functions (flow => succ and flowR => pred)
     protected def flow(e: AST) = flowPred(e)
 
     protected def unionio(e: AST) = incached(e)
