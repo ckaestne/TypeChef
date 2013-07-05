@@ -92,6 +92,7 @@ trait CBuiltIn extends CEnv with CTypes with CDeclTyping {
             add_pre_buffer("extern long __builtin_alpha_cmpbge(long, long);\n");
             add_pre_buffer("extern long __builtin_labs(long);\n");
             add_pre_buffer("extern double __builtin_fabs(double);\n");
+            add_pre_buffer("extern float __builtin_nanf (const char *str);\n");
 
             //	/* Add Blackfin-specific stuff */
             //	add_pre_buffer(

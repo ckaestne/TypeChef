@@ -1,0 +1,32 @@
+struct leer;
+
+      struct student {
+        int id;
+        char *name;
+        float percentage;
+      } student1, student2, student3;
+
+      struct withInnerStruct {
+      struct innerStruct{
+      int inner;
+      };
+      int outer;
+      };
+
+      int main(void) {
+        struct student st;
+        struct student st2 = {10, "Joerg Liebig", 0.99};
+
+        st.id = 5;
+        student3.id = 10;
+        int i = student1.id;
+        i = st2.id;
+
+        student2.name = "Joerg";
+        student3.name = "Andi";
+
+        student3.percentage = 90.0;
+
+
+        return i;
+      }

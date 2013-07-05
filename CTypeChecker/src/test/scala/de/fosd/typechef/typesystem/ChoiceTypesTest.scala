@@ -17,7 +17,7 @@ class ChoiceTypesTest extends FunSuite with ShouldMatchers with CTypeSystem with
         t()
     }
     def t() {
-        val ast = getAST("""
+        val ast = getAST( """
          #ifdef X
          int a;
          #else
@@ -49,7 +49,7 @@ class ChoiceTypesTest extends FunSuite with ShouldMatchers with CTypeSystem with
 
 
     test("inlined functions") {
-        val ast = getAST("""static
+        val ast = getAST( """static
 #if !defined(CONFIG_OPTIMIZE_INLINING)
 inline __attribute__((always_inline))
 #endif

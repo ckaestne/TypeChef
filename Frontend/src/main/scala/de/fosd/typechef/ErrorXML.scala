@@ -57,14 +57,14 @@ class ErrorXML(errorFile: File) {
 
     def write() {
         if (errorFile != null)
-        /*if (errorFile.exists() && errors.isEmpty)
-            errorFile.delete();
-        else*/ {
-            val output = <errors>
-                {errors}
-            </errors>
-            XML.save(errorFile.getPath, output)
-        }
+            /*if (errorFile.exists() && errors.isEmpty)
+                errorFile.delete();
+            else*/ {
+                val output = <errors>
+                    {errors}
+                </errors>
+                XML.save(errorFile.getPath, output)
+            }
 
     }
 

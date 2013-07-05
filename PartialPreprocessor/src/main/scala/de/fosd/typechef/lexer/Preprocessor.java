@@ -2564,12 +2564,10 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable, VA
                                 // parse with parents state to allow macro expansion
                                 State oldState = state;
                                 state = state.parent;
-                                FeatureExpr localFeaturExpr = parse_featureExpr();
+                                FeatureExpr localFeaturExpr = isActive() ? parse_featureExpr() : FeatureExprLib.False();
                                 state = oldState;
                                 state.processElIf();
-                                state.putLocalFeature(
-                                        isParentActive() ? localFeaturExpr
-                                                : FeatureExprLib.False(), macros);
+                                state.putLocalFeature(localFeaturExpr, macros);
                                 tok = expr_token(true); /* unget */
 
                                 if (tok.getType() != NL)

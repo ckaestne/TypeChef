@@ -6,7 +6,7 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
 import org.scalatest.FunSuite
 import de.fosd.typechef.featureexpr.FeatureExprFactory.True
-import de.fosd.typechef.parser.c.TestHelper
+import de.fosd.typechef.parser.c.{Id, TestHelper}
 import de.fosd.typechef.conditional._
 
 @RunWith(classOf[JUnitRunner])
@@ -67,9 +67,9 @@ class ExprTypingTest extends CTypeSystem with CEnv with FunSuite with ShouldMatc
 
     val astructEnv: StructEnv =
         new StructEnv().addComplete(
-            "str", false, True, new ConditionalTypeMap() +("a", True, null, One(CDouble())) +("b", True, null, One(CStruct("str"))), 1).addComplete(
-            "vstrA", false, fx, new ConditionalTypeMap() +("a", fx and fy, null, _l) +("b", fx, null, One(CStruct("str"))), 1).addComplete(
-            "vstrB", false, True, new ConditionalTypeMap() +("a", True, null, _i) +("b", True, null, _i) +("c", fx.not, null, _i), 1
+            Id("str"), false, True, new ConditionalTypeMap() +("a", True, null, One(CDouble())) +("b", True, null, One(CStruct("str"))), 1).addComplete(
+            Id("vstrA"), false, fx, new ConditionalTypeMap() +("a", fx and fy, null, _l) +("b", fx, null, One(CStruct("str"))), 1).addComplete(
+            Id("vstrB"), false, True, new ConditionalTypeMap() +("a", True, null, _i) +("b", True, null, _i) +("c", fx.not, null, _i), 1
         )
 
     test("primitives and pointers") {
@@ -79,7 +79,7 @@ class ExprTypingTest extends CTypeSystem with CEnv with FunSuite with ShouldMatc
         expr("blub") should be(CUnknown().toCType)
         expr("a") should be(CDouble().toCType.toObj)
         expr("\"a\"") should be(CPointer(CSignUnspecified(CChar())).toCType)
-        expr("'0'") should be(CUnsigned(CChar()).toCType)
+        expr("'0'") should be(CSignUnspecified(CChar()).toCType)
         expr("&a") should be(CPointer(CDouble()).toCType.toObj)
         expr("*(&a)") should be(CDouble().toCType.toObj)
         expr("*a") should be(CUnknown().toCType)

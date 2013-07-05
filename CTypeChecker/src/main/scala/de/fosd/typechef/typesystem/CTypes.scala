@@ -327,7 +327,6 @@ case class CBuiltinVaList() extends AType {
     def toXML = <builtinvalist/>
 }
 
-
 /** errors */
 case class CUnknown(msg: String = "") extends AType {
     override def equals(that: Any) = that match {

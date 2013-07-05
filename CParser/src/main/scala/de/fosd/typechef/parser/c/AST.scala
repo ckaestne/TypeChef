@@ -92,7 +92,7 @@ case class ArrayAccess(expr: Expr) extends PostfixSuffix
 case class PostfixExpr(p: Expr, s: PostfixSuffix) extends Expr {
     //hack to propagate position information
     override def setPositionRange(from: Position, to: Position) = {
-        if (!p.hasPosition) p.setPositionRange(from, to);
+        if (!p.hasPosition) p.setPositionRange(from, to)
         super.setPositionRange(from, to)
     }
 }

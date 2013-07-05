@@ -251,6 +251,20 @@ class BDDFeatureExpr(private[featureexpr] val bdd: BDD) extends FeatureExpr {
      */
     def toTextExpr: String =
         toSATFeatureExpr().toTextExpr
+
+  	/**
+   	* Iterator[Array[(Byte,String)]]
+   	* Returns a iterator. Each element of the iterator is a clause of the CNF formula.
+   	* Each element of the clause-array is a single feature.
+   	* The feature is given as tuple (a,b): a==0 means the feature is negated, b is the name of the feature.
+   	*/
+  	def getBddAllSat: Iterator[Array[(Byte, String)]] = {
+    	def clause(d: Array[Byte]): Array[(Byte, String)] = d.zip(0 to (d.length - 1)).filter(_._1 >= 0).map(
+      		x => (x._1, FExprBuilder.lookupFeatureName(x._2))
+    	)
+    	bddAllSat.map(clause(_))
+  	}
+
     override def toString: String =
         toSATFeatureExpr().toString
 
@@ -258,7 +272,6 @@ class BDDFeatureExpr(private[featureexpr] val bdd: BDD) extends FeatureExpr {
         printbdd(bdd, "1", "0", " && ", " || ", i => "definedEx(" + FExprBuilder.lookupFeatureName(i) + ")")
     def toStringDNF: String =
         printbdd(bdd, "True", "False", " & ", " | ", FExprBuilder.lookupFeatureName(_))
-
 
     private[featureexpr] def toSATFeatureExpr(): FeatureExpr = toSATFeatureExpr(bdd)
     private[featureexpr] def toSATFeatureExpr(bdd: BDD): FeatureExpr =
@@ -268,7 +281,6 @@ class BDDFeatureExpr(private[featureexpr] val bdd: BDD) extends FeatureExpr {
             val v = sat.SATFeatureExprFactory.createDefinedExternal(FExprBuilder.lookupFeatureName(bdd.`var`()))
             (v and toSATFeatureExpr(bdd.high())) or (v.not and toSATFeatureExpr(bdd.low()))
         }
-
 
     private def printbdd(bdd: BDD, one: String, zero: String, and: String, or: String, toName: (Int) => String): String =
         if (bdd.isOne()) one
@@ -385,13 +397,11 @@ class BDDFeatureExpr(private[featureexpr] val bdd: BDD) extends FeatureExpr {
         }
         return Some(enabled, disabled)
     }
-
     private def writeReplace(): Object = new FeatureExprSerializationProxy(this.toTextExpr)
 }
 
 class SingleBDDFeatureExpr(id: Int) extends BDDFeatureExpr(lookupFeatureBDD(id)) with SingleFeatureExpr {
     def feature = lookupFeatureName(id)
-
     private def writeReplace(): Object = new FeatureExprSerializationProxy(this.toTextExpr)
 }
 
@@ -500,7 +510,6 @@ object True extends BDDFeatureExpr(FExprBuilder.TRUE) with DefaultPrint with Sin
     override def debug_print(ind: Int) = indent(ind) + toTextExpr + "\n"
     override def isSatisfiable(fm: FeatureModel) = true
     override def feature = toString
-
     private def writeReplace(): Object = new FeatureExprSerializationProxy(this.toTextExpr)
 }
 
@@ -510,7 +519,6 @@ object False extends BDDFeatureExpr(FExprBuilder.FALSE) with DefaultPrint with S
     override def debug_print(ind: Int) = indent(ind) + toTextExpr + "\n"
     override def isSatisfiable(fm: FeatureModel) = false
     override def feature = toString
-
     private def writeReplace(): Object = new FeatureExprSerializationProxy(this.toTextExpr)
 }
 

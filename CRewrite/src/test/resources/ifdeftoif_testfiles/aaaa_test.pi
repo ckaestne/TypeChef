@@ -1,0 +1,10 @@
+struct cpumask{
+	int i;
+	};
+struct cpumask;
+
+
+int main(int argc, const char * argv[])
+{
+    return 0;
+}

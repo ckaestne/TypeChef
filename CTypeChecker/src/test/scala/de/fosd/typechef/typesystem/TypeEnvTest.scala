@@ -13,6 +13,7 @@ import de.fosd.typechef.featureexpr.FeatureExprFactory
 
 @RunWith(classOf[JUnitRunner])
 class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeSystem with CEnvCache with CTypeCache with TestHelper {
+
     import CType.makeCType
 
     val _l = OneT(CSigned(CLong()).toCType)
@@ -98,7 +99,7 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeSystem with CEn
     }
 
 
-    private def OneT(t:CType): One[CType] = One(t)
+    private def OneT(t: CType): One[CType] = One(t)
 
     test("variable environment") {
         val env = lookupEnv(lastDecl).varEnv
@@ -229,7 +230,7 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeSystem with CEn
         println(fundef.stmt.asInstanceOf[CompoundStatement].innerStatements)
         println(env)
         env("v") match {
-            case One(CType(CPointer(CAnonymousStruct(_, _)),_,_,_)) =>
+            case One(CType(CPointer(CAnonymousStruct(_, _)), _, _, _)) =>
             case e => fail(e.toString)
         }
     }
@@ -262,7 +263,7 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeSystem with CEn
         val env = lookupEnv(ast.defs.last.entry).varEnv
         println(env)
         env("foo") match {
-            case One(CType(CAnonymousStruct(members, false),_,_,_)) =>
+            case One(CType(CAnonymousStruct(members, false), _, _, _)) =>
                 members("b3") should be(_i)
                 members("b1") should be(_i)
                 members("b2") should be(_i)
@@ -290,11 +291,11 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeSystem with CEn
                                  |} a;
                                  |
                                  |int x;
-          """.stripMargin)
+                               """.stripMargin)
         val env = lookupEnv(ast.defs.last.entry).varEnv
         println(env)
         env("a") match {
-            case One(CType(CAnonymousStruct(members, false),_,_,_)) =>
+            case One(CType(CAnonymousStruct(members, false), _, _, _)) =>
                 members("a") should be(_i)
                 members("b") should be(_i)
                 members("c") should be(_i)
@@ -303,26 +304,26 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeSystem with CEn
         }
 
         val ast2 = compileCode( """struct xx {
-                                 |  int a;
-                                 |  union {
-                                 |    struct {
-                                 |      int b;
-                                 |    };
-                                 |    struct {
-                                 |      int c;
-                                 |      int d;
-                                 |    };
-                                 |  };
-                                 |} a;
-                                 |
-                                 |int x;
-                               """.stripMargin)
+                                  |  int a;
+                                  |  union {
+                                  |    struct {
+                                  |      int b;
+                                  |    };
+                                  |    struct {
+                                  |      int c;
+                                  |      int d;
+                                  |    };
+                                  |  };
+                                  |} a;
+                                  |
+                                  |int x;
+                                """.stripMargin)
         val env2 = lookupEnv(ast2.defs.last.entry).structEnv
         println(env2)
-        val fields=env2.getFieldsMerged("xx",false)
-        fields("a")               should be(_i)
-        fields("b")               should be(_i)
-        fields("c")               should be(_i)
+        val fields = env2.getFieldsMerged("xx", false)
+        fields("a") should be(_i)
+        fields("b") should be(_i)
+        fields("c") should be(_i)
     }
 
     test("anonymous union vs struct") {
@@ -343,9 +344,9 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeSystem with CEn
                                 """.stripMargin)
         val env2 = lookupEnv(ast2.defs.last.entry).structEnv
         println(env2)
-        val fields=env2.getFieldsMerged("xx",false)
-        fields("a")               should be(_i)
-        fields("c")               should be(_i)
+        val fields = env2.getFieldsMerged("xx", false)
+        fields("a") should be(_i)
+        fields("c") should be(_i)
     }
 
     test("typedef environment") {
@@ -426,8 +427,8 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeSystem with CEn
         enumenv should contain key ("Color")
         enumenv should not contain key("Undef")
 
-        enumenv("Direction") should be(True)
-        enumenv("Color") should be(fy or fx)
+        enumenv("Direction") should be(True, Id("Direction"))
+        enumenv("Color") should be((fy or fx), Id("Color"))
 
         env("South") should be(Choice(fx, _i, OneT(CUndefined)))
         env("North") should be(_i)
@@ -545,7 +546,7 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeSystem with CEn
 
         //anonymous struct
         venv("vs4") match {
-            case One(CType(CAnonymousStruct(fields, false),_,_,_)) =>
+            case One(CType(CAnonymousStruct(fields, false), _, _, _)) =>
                 fields("a") should be(_i)
                 fields("b") should be(Choice(fy, _i, OneT(CUndefined)))
             case e => fail("vs4 illtyped: " + e)
@@ -712,7 +713,7 @@ class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeSystem with CEn
         last.varEnv("uncompressed") should be(OneT(CUnknown()))
         last.varEnv("SEQ_COPY") should be(_i)
 
-        last.enumEnv("lzma2_seq") should be(FeatureExprFactory.True)
+        last.enumEnv("lzma2_seq") should be(FeatureExprFactory.True, Id("lzma2_seq"))
     }
 
     test("joergs defuse example") {

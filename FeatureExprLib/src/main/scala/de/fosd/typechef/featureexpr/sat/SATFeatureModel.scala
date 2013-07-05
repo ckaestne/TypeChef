@@ -8,7 +8,6 @@ import java.io.File
 import de.fosd.typechef.featureexpr.{FeatureModelFactory, FeatureExpr, FeatureModel}
 import java.io.FileWriter
 
-
 /**
  * the feature model is a special container for a single feature expression
  * that is used very often in a conjunction
@@ -49,6 +48,7 @@ class SATFeatureModel(val variables: Map[String, Int], val clauses: IVec[IVecInt
         } finally {
             fileWriter.close()
         }
+
     }
 
     // export given FeatureModel fm to file name fileName
