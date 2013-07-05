@@ -36,32 +36,101 @@ import de.fosd.typechef.parser.c.AST
  * section 2.3 below.
  */
 
+case class CType(
+                    val atype: AType,
+                    val isObject: Boolean,
+                    val isVolatile: Boolean,
+                    val isConstant: Boolean) {
+
+    private def copy(atype: AType = this.atype, isObject: Boolean = this.isObject, isVolatile: Boolean = this.isVolatile, isConstant: Boolean = this.isConstant) = new CType(atype, isObject, isVolatile, isConstant)
+
+    //convert from object to value (lvalue to rvalue) if applicable; if already a type return the type
+    def toValue: CType = if (!isObject) this
+    else {
+        val newatype = atype match {
+            case CArray(g, _) if isObject => CPointer(g)
+            case _ => atype
+        }
+        copy(atype = newatype, isObject = false)
+    }
+    //special version for the linker, where toValue does not normalize Arrays to Pointers! (see CERT ARR31-C)
+    def toValueLinker = if (!isObject) this else copy(isObject = false)
+    def toObj: CType = if (isObject) this else copy(isObject = true)
+    def toVolatile(newVal: Boolean = true): CType = copy(isVolatile = newVal)
+    def toConst(newVal: Boolean = true): CType = copy(isConstant = newVal)
+
+    def isFunction: Boolean = atype.isFunction
+    def isUnknown: Boolean = atype.isUnknown
+    def isIgnore: Boolean = atype.isIgnore
+
+    def toText: String =
+        (if (isObject) "obj " else "") +
+            (if (isVolatile) "volatile " else "") +
+            (if (isConstant) "const " else "") +
+            atype.toText
+
+    def <(that: CType): Boolean = this.atype < that.atype
+
+    def map(f: AType => AType) = copy(atype = f(this.atype))
+
+    override def equals(that: Any) = that match {
+        case thattype: CType =>
+            (this.isUnknown && thattype.isUnknown) ||
+                (this.atype == thattype.atype && this.isObject == thattype.isObject && this.isConstant == thattype.isConstant && this.isVolatile == thattype.isVolatile)
+        case thattype: AType => throw new RuntimeException("comparison between CType and AType")
+        case _ => super.equals(that)
+    }
+    override def hashCode() = atype.hashCode()
+
+    def toXML: xml.Elem = {
+        var result = atype.toXML
+        //opposite order from parsing!
+        if (isConstant) result = <const>
+            {result}
+        </const>
+        if (isVolatile) result = <volatile>
+            {result}
+        </volatile>
+        if (isObject) result = <obj>
+            {result}
+        </obj>
+        result
+    }
+
+}
+
+import CType.makeCType
+
 sealed abstract class CBasicType {
     def <(that: CBasicType): Boolean
     def toXML: xml.Elem
     def toText: String //for debug purposes
 }
 
-sealed abstract class CType {
-    def toObj: CType = CObj(this)
-    //convert from object to value (lvalue to rvalue) if applicable; if already a type return the type
-    def toValue: CType = this
-    def isObject: Boolean = false
+
+sealed abstract class AType {
     def isFunction: Boolean = false
 
 
     /* map over this type considering variability */
-    def mapV(f: FeatureExpr, op: (FeatureExpr, CType) => CType): CType = op(f, this)
-    def map(op: CType => CType): CType = op(this)
+    def mapV(f: FeatureExpr, op: (FeatureExpr, AType) => AType): AType = op(f, this)
+    def map(op: AType => AType): AType = op(this)
 
     def isUnknown: Boolean = false
     def isIgnore: Boolean = false
 
     /** compares with of two types. if this<that, this type can be converted (widened) to that */
-    def <(that: CType): Boolean = false
+    def <(that: AType): Boolean = false
 
     def toXML: xml.Elem
     def toText: String = toString //for debug purposes
+
+    def toCType = new CType(this, false, false, false)
+
+    //    override def equals(that: Any) = that match {
+    //        case thattype: CType => throw new RuntimeException("comparison between AType and CType")
+    //        case _ => super.equals(that)
+    //    }
 }
 
 //    /** type without variability */
@@ -99,7 +168,7 @@ case class CLongLong() extends CBasicType {
 }
 
 
-case class CVoid() extends CType {
+case class CVoid() extends AType {
     override def toText = "void"
     def toXML = <void/>
 }
@@ -108,15 +177,15 @@ case class CVoid() extends CType {
  * zero is a special type for the constant 0
  * that is all: a function and an integer and a pointer
  */
-case class CZero() extends CType {
+case class CZero() extends AType {
     override def toText = "void"
     def toXML = <zero/>
 }
 
-abstract class CSignSpecifier(val basicType: CBasicType) extends CType
+abstract class CSignSpecifier(val basicType: CBasicType) extends AType
 
 case class CSigned(b: CBasicType) extends CSignSpecifier(b) {
-    override def <(that: CType) = that match {
+    override def <(that: AType) = that match {
         case CSigned(thatb) => b < thatb
         case _ => false
     }
@@ -127,7 +196,7 @@ case class CSigned(b: CBasicType) extends CSignSpecifier(b) {
 }
 
 case class CUnsigned(b: CBasicType) extends CSignSpecifier(b) {
-    override def <(that: CType) = that match {
+    override def <(that: AType) = that match {
         case CUnsigned(thatb) => b < thatb
         case _ => false
     }
@@ -138,7 +207,7 @@ case class CUnsigned(b: CBasicType) extends CSignSpecifier(b) {
 }
 
 case class CSignUnspecified(b: CBasicType) extends CSignSpecifier(b) {
-    override def <(that: CType) = that match {
+    override def <(that: AType) = that match {
         case CSignUnspecified(thatb) => b < thatb
         case _ => false
     }
@@ -148,37 +217,37 @@ case class CSignUnspecified(b: CBasicType) extends CSignSpecifier(b) {
     </nosign>
 }
 
-case class CBool() extends CType {
+case class CBool() extends AType {
     override def toText = "_Bool"
     def toXML = <_Bool/>
 }
 
 //implementationspecific for Char
 
-case class CFloat() extends CType {
+case class CFloat() extends AType {
     override def toText = "float"
     def toXML = <float/>
 }
 
-case class CDouble() extends CType {
+case class CDouble() extends AType {
     override def toText = "double"
     def toXML = <double/>
 }
 
-case class CLongDouble() extends CType {
+case class CLongDouble() extends AType {
     override def toText = "long double"
     def toXML = <longdouble/>
 }
 
-case class CPointer(t: CType) extends CType {
-    override def toText = "*" + t.toText
+case class CPointer(t: AType) extends AType {
+    override def toText = t.toText + "*"
     def toXML = <pointer>
         {t.toXML}
     </pointer>
 }
 
 //length is currently not analyzed. using always -1
-case class CArray(t: CType, length: Int = -1) extends CType {
+case class CArray(t: AType, length: Int = -1) extends AType {
     override def toText = t.toText + "[]"
     def toXML = <array length={length.toString}>
         {t.toXML}
@@ -190,24 +259,23 @@ case class CArray(t: CType, length: Int = -1) extends CType {
   * struct types have only a name. to decide whether a type is a complete type, we need
   * an environment (a complete type has known content, an incomplete type only has a name)
   * */
-case class CStruct(s: String, isUnion: Boolean = false) extends CType {
+case class CStruct(s: String, isUnion: Boolean = false) extends AType {
     override def toText = (if (isUnion) "union " else "struct ") + s
     def toXML = <struct isUnion={isUnion.toString}>
         {s}
     </struct>
 }
 
-case class CAnonymousStruct(fields: ConditionalTypeMap, isUnion: Boolean = false) extends CType {
+case class CAnonymousStruct(fields: ConditionalTypeMap, isUnion: Boolean = false) extends AType {
     override def toText = (if (isUnion) "union " else "struct ") + "{" + fields + "}"
     def toXML = <astruct isUnion={isUnion.toString}>
         {}
     </astruct>
 }
 
-case class CFunction(param: Seq[CType], ret: CType) extends CType {
+case class CFunction(param: Seq[CType], ret: CType) extends AType {
     var securityRelevant: Boolean = false
 
-    override def toObj = this
     override def isFunction: Boolean = true
     override def toText = param.map(_.toText).mkString("(", ", ", ")") + " => " + ret.toText
     def toXML = <function>
@@ -225,27 +293,14 @@ case class CFunction(param: Seq[CType], ret: CType) extends CType {
 
 
 //varargs should only occur in paramter lists
-case class CVarArgs() extends CType {
+case class CVarArgs() extends AType {
     override def toText = "..."
     def toXML = <vargs/>
 }
 
-/** objects in memory */
-case class CObj(t: CType) extends CType {
-    override def toObj = this
-    //no CObj(CObj(...))
-    override def toValue: CType = t match {
-        case CArray(g, _) => CPointer(g)
-        case _ => t
-    }
-    override def isObject = true
-    override def isFunction = t.isFunction
-    override def isUnknown = t.isUnknown
-    override def toText = t.toText
-    override def isIgnore = t.isIgnore
-    def toXML = <obj>
-        {t.toXML}
-    </obj>
+object CObj {
+    //shorthand for pattern matching with CType(x, true, _, _)
+    def unapply(x: CType): Option[AType] = if (x.isObject) Some(x.atype) else None
 }
 
 /**
@@ -254,7 +309,7 @@ case class CObj(t: CType) extends CType {
  * We currently don't care about internals.
  * CCompound can be cast into any array or structure
  */
-case class CCompound() extends CType {
+case class CCompound() extends AType {
     def toXML = <compound/>
 }
 
@@ -262,18 +317,18 @@ case class CCompound() extends CType {
  * CIgnore is a type for stuff we currently do not want to check
  * it can be cast to anything and is not considered an error
  */
-case class CIgnore() extends CType {
+case class CIgnore() extends AType {
     def toXML = <ignore/>
     override def isIgnore = true
 }
 
 
-case class CBuiltinVaList() extends CType {
+case class CBuiltinVaList() extends AType {
     def toXML = <builtinvalist/>
 }
+
 /** errors */
-case class CUnknown(msg: String = "") extends CType {
-    override def toObj = this
+case class CUnknown(msg: String = "") extends AType {
     override def equals(that: Any) = that match {
         case CUnknown(_) => true
         case _ => super.equals(that)
@@ -289,8 +344,21 @@ object CUndefined extends CUnknown("unknown")
  * xml reader
  */
 object CType {
-    def fromXML(node: scala.xml.NodeSeq): CType = {
-        var result: CType = CUnknown("fromXML error: " + node.text)
+
+
+    def fromXML(anode: scala.xml.NodeSeq): CType = {
+        var node = anode
+        var isVolatile = false
+        var isConst = false
+        var isObject = false
+        (node \ "obj").map(x => {isObject = true; node = x})
+        (node \ "volatile").map(x => {isVolatile = true; node = x})
+        (node \ "const").map(x => {isConst = true; node = x})
+        new CType(fromXMLAType(node), isObject, isVolatile, isConst)
+    }
+
+    def fromXMLAType(node: scala.xml.NodeSeq): AType = {
+        var result: AType = CUnknown("fromXML error: " + node.text)
         (node \ "signed").map(x => result = CSigned(fromXMLBasicType(x)))
         (node \ "unsigned").map(x => result = CUnsigned(fromXMLBasicType(x)))
         (node \ "nosign").map(x => result = CSignUnspecified(fromXMLBasicType(x)))
@@ -301,15 +369,14 @@ object CType {
         (node \ "double").map(x => result = CDouble())
         (node \ "longdouble").map(x => result = CLongDouble())
         (node \ "vargs").map(x => result = CVarArgs())
-        (node \ "pointer").map(x => result = CPointer(fromXML(x)))
-        (node \ "array").map(x => result = CArray(fromXML(x), x.attribute("length").get.head.text.toInt))
+        (node \ "pointer").map(x => result = CPointer(fromXMLAType(x)))
+        (node \ "array").map(x => result = CArray(fromXMLAType(x), x.attribute("length").get.head.text.toInt))
         (node \ "struct").map(x => result = CStruct(x.text.trim, x.attribute("isUnion").get.head.text.toBoolean))
         (node \ "astruct").map(x => result = CAnonymousStruct(new ConditionalTypeMap(), x.attribute("isUnion").get.head.text.toBoolean)) //TODO
         (node \ "function").map(x => result = CFunction(
             (x \ "param").map(fromXML(_)),
             fromXML((x \ "ret").head)
         ))
-        (node \ "obc").map(x => result = CObj(fromXML(x)))
         (node \ "compound").map(x => result = CCompound())
         (node \ "builtinvalist").map(x => result = CBuiltinVaList())
         (node \ "unkown").map(x => result = CUnknown(x.attribute("msg").get.text))
@@ -324,6 +391,16 @@ object CType {
         (node \ "long").map(x => result = CLong())
         (node \ "longlong").map(x => result = CLongLong())
         result
+    }
+
+    implicit def makeCType(x: AType): CType = new CType(x, false, false, false)
+
+
+    /**
+     * checks whether two (function) types are compatbile and can be linked together
+     */
+    def isLinkCompatible(a: CType, b: CType): Boolean = {
+        a.atype == b.atype
     }
 
 }
@@ -417,36 +494,36 @@ trait CTypes extends COptionProvider {
     type PtrEnv = Set[String]
 
 
-    implicit def toCType(x: CInt): CType = CSigned(x)
-    implicit def toCType(x: CChar): CType = CSignUnspecified(x)
-    implicit def toCType(x: CShort): CType = CSigned(x)
-    implicit def toCType(x: CLong): CType = CSigned(x)
+    implicit def toCType(x: CInt): AType = CSigned(x)
+    implicit def toCType(x: CChar): AType = CSignUnspecified(x)
+    implicit def toCType(x: CShort): AType = CSigned(x)
+    implicit def toCType(x: CLong): AType = CSigned(x)
 
-    def arrayType(t: CType): Boolean = t.toValue match {
+    def arrayType(t: CType): Boolean = t.atype match {
         case CArray(_, _) => true
         case _ => false
     }
 
     def isScalar(t: CType): Boolean = isArithmetic(t) || isPointer(t) || isFunction(t)
 
-    def isZero(t: CType): Boolean = t.toValue match {
+    def isZero(t: CType): Boolean = t.atype match {
         case CZero() => true
         case _ => false
     }
 
-    def isPointer(t: CType): Boolean = t.toValue match {
+    def isPointer(t: CType): Boolean = t.toValue.atype match {
         case CPointer(_) => true
         case CZero() => true
         //case function references => true
         case _ => false
     }
 
-    def isFunction(t: CType): Boolean = t.toValue match {
+    def isFunction(t: CType): Boolean = t.atype match {
         case CFunction(_, _) => true
         case _ => false
     }
 
-    def isIntegral(t: CType): Boolean = t.toValue match {
+    def isIntegral(t: CType): Boolean = t.atype match {
         case CZero() => true
         case CSigned(_) => true
         case CUnsigned(_) => true
@@ -454,23 +531,23 @@ trait CTypes extends COptionProvider {
         case CBool() => true
         case _ => false
     }
-    def isArithmetic(t: CType): Boolean = isIntegral(t) || (t.toValue match {
+    def isArithmetic(t: CType): Boolean = isIntegral(t) || (t.atype match {
         case CFloat() => true
         case CDouble() => true
         case CLongDouble() => true
         case _ => false
     })
 
-    def isArray(t: CType): Boolean = t.toValue match {
+    def isArray(t: CType): Boolean = t.atype match {
         case CArray(_, _) => true
         case _ => false
     }
-    def isStruct(t: CType): Boolean = t.toValue match {
+    def isStruct(t: CType): Boolean = t.atype match {
         case CStruct(_, _) => true
         case CAnonymousStruct(_, _) => true
         case _ => false
     }
-    def isCompound(t: CType): Boolean = t.toValue == CCompound()
+    def isCompound(t: CType): Boolean = t.atype == CCompound()
 
 
     /**
@@ -479,11 +556,11 @@ trait CTypes extends COptionProvider {
      * for "a=b;" with a:type1 and b:type2
      */
     def coerce(expectedType: CType, foundType: CType): Boolean = {
-        val t1 = normalize(expectedType)
-        val t2 = normalize(foundType)
-        def pointerCompat(a: CType): Boolean = a == CVoid() || a == CZero() || a == CIgnore()
+        val t1 = normalize(expectedType).atype
+        val t2 = normalize(foundType).atype
+        def pointerCompat(a: AType): Boolean = a == CVoid() || a == CZero() || a == CIgnore()
         //either void pointer?
-        if ((expectedType.toValue == CPointer(CVoid())) || (foundType.toValue == CPointer(CVoid()))) return true;
+        if ((expectedType.atype == CPointer(CVoid())) || (foundType.atype == CPointer(CVoid()))) return true;
         ((t1, t2) match {
             //void pointer are compatible to all other pointers and to functions (or only pointers to functions??)
             case (CPointer(a), CPointer(b)) if (pointerCompat(a) || pointerCompat(b)) => return true
@@ -521,13 +598,13 @@ trait CTypes extends COptionProvider {
     /**
      * we can report as a warning if both types are number, but they are not the same width or signed
      */
-    def isForcedCoercion(expectedType: CType, foundType: CType): Boolean = {
+    def isForcedCoercion(expectedType: AType, foundType: AType): Boolean = {
         val t1 = normalize(expectedType)
         val t2 = normalize(foundType)
         isArithmetic(t1) && isArithmetic(t2) && t1 != t2 && t2 != CZero() && !(t2 < t1)
     }
 
-    private def funCompatible(t1: CType, t2: CType): Boolean = (t1, t2) match {
+    private def funCompatible(t1: AType, t2: AType): Boolean = (t1, t2) match {
         case (CPointer(p1), CPointer(p2)) => funCompatible(p1, p2)
         case (CFunction(plist1, ret1), CFunction(plist2, ret2)) =>
             coerce(ret1, ret2) && (plist1.size == plist2.size) && (plist1 zip plist2).forall(x => coerce(x._1, x._2))
@@ -571,29 +648,42 @@ trait CTypes extends COptionProvider {
      *
      * * CVoid in function parameters is removed
      */
-    protected def normalize(t: CType): CType =
+    protected def normalize(t: CType): CType = t.map(normalize)
+    protected def normalize(t: AType): AType =
         addFunctionPointers(normalizeA(t))
 
 
     /** helper function, part of normalize */
-    private def normalizeA(t: CType): CType = t.toValue match {
-        case CPointer(x: CType) =>
+    private def normalizeA(t: AType): AType = t match {
+        case CPointer(x: AType) =>
             normalizeA(x) match {
                 case c: CFunction => c
                 case i: CIgnore => i
                 case e => CPointer(e)
             }
         case CArray(g, _) => normalizeA(CPointer(g)) //TODO do this recursively for all occurences of Array
-        case CFunction(p, rt) => CFunction(p.map(normalizeA).filter(_ != CVoid()), normalizeA(rt))
+        case CFunction(p, rt) => CFunction(p.map(_.map(normalizeA)).filter(_.atype != CVoid()), rt.map(normalizeA))
         case c => c
     }
 
+
     /** helper function, part of normalize */
-    private def addFunctionPointers(t: CType): CType = t match {
-        case CFunction(p, rt) => CPointer(CFunction(p.map(addFunctionPointers), addFunctionPointers(rt)))
+    private def addFunctionPointers(t: AType): AType = t match {
+        case CFunction(p, rt) => CPointer(CFunction(p.map(_.map(addFunctionPointers)), rt map addFunctionPointers))
         //congruence:
-        case CPointer(x: CType) => CPointer(addFunctionPointers(x))
+        case CPointer(x: AType) => CPointer(addFunctionPointers(x))
         case c => c
+    }
+
+
+    /**
+     * are both types char but with different signage?
+     */
+    protected def isCharSignCoercion(a: AType, b: AType): Boolean = (normalize(a), normalize(b)) match {
+        case (CPointer(aa), CPointer(bb)) => isCharSignCoercion(aa, bb)
+        case (aa: CSignSpecifier, bb: CSignSpecifier) =>
+            aa.basicType == CChar() && bb.basicType == CChar() && aa != bb
+        case _ => false
     }
 
 
