@@ -33,13 +33,17 @@ case class FileCFG(nodes: Set[CFGNode], edges: Set[(CFGNode, CFGNode, FeatureExp
         assert(this.checkConsistency)
         assert(that.checkConsistency)
 
+        var nodesToRemove = Set[CFGNode]()
+
         val thatFunctions: Map[String, Set[CFGNode]] = that.nodes.filter(_.kind == "function").groupBy(e => e.name)
         var thisReplacements: Map[CFGNode, Set[CFGNode]] = Map()
         for (node <- this.nodes) {
             if (node.kind == "declaration") {
                 val functions = thatFunctions.get(node.name)
-                if (functions.isDefined)
+                if (functions.isDefined) {
                     thisReplacements += (node -> functions.get)
+                    nodesToRemove = nodesToRemove + node
+                }
             }
         }
 
@@ -55,8 +59,10 @@ case class FileCFG(nodes: Set[CFGNode], edges: Set[(CFGNode, CFGNode, FeatureExp
         for (node <- that.nodes) {
             if (node.kind == "declaration") {
                 val functions = thisFunctions.get(node.name)
-                if (functions.isDefined)
+                if (functions.isDefined) {
                     thatReplacements += (node -> functions.get)
+                    nodesToRemove = nodesToRemove + node
+                }
             }
         }
 
