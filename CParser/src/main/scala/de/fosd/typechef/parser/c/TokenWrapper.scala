@@ -14,51 +14,51 @@ import de.fosd.typechef.error.Position
  */
 class CToken(token: LexerToken, number: Int) extends ProfilingToken with AbstractToken {
 
-  def getFeature = token.getFeature
+    def getFeature = token.getFeature
 
-  def isInteger = token.isNumberLiteral
+    def isInteger = token.isNumberLiteral
 
-  def isKeywordOrIdentifier = token.isKeywordOrIdentifier
+    def isKeywordOrIdentifier = token.isKeywordOrIdentifier
 
-  def getText: String = token.getText
+    def getText: String = token.getText
 
-  def isString: Boolean = token.isStringLiteral
+    def isString: Boolean = token.isStringLiteral
 
-  def isCharacter: Boolean = token.isCharacterLiteral
+    def isCharacter: Boolean = token.isCharacterLiteral
 
-  override def toString = "\"" + token.getText + "\"" + (if (!getFeature.isTautology) getFeature else "")
+    override def toString = "\"" + token.getText + "\"" + (if (!getFeature.isTautology) getFeature else "")
 
-  private lazy val pos = new TokenPosition(
-    if (token.getSourceName == null) null else token.getSourceName,
-    token.getLine,
-    token.getColumn,
-    number
-  )
+    private lazy val pos = new TokenPosition(
+        if (token.getSourceName == null) null else token.getSourceName,
+        token.getLine,
+        token.getColumn,
+        number
+    )
 
-  def getPosition = pos
+    def getPosition = pos
 }
 
 class TokenPosition(file: String, line: Int, column: Int, tokenNr: Int) extends Position {
-  def getFile = file
+    def getFile = file
 
-  def getLine = line
+    def getLine = line
 
-  def getColumn = column
+    def getColumn = column
 
-  //    override def toString = "token no. " + tokenNr + " (line: " + getLine + ")"
+    //    override def toString = "token no. " + tokenNr + " (line: " + getLine + ")"
 }
 
 
 object CToken {
 
-  /**
-   * Factory method for the creation of TokenWrappers.
-   */
-  def apply(token: LexerToken, number: Int) = {
-    new CToken(token, number)
-  }
+    /**
+     * Factory method for the creation of TokenWrappers.
+     */
+    def apply(token: LexerToken, number: Int) = {
+        new CToken(token, number)
+    }
 
-  val EOF = new CToken(new EOFToken(), -1) {
-    override def getFeature = FeatureExprFactory.False
-  }
+    val EOF = new CToken(new EOFToken(), -1) {
+        override def getFeature = FeatureExprFactory.False
+    }
 }

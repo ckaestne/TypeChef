@@ -206,8 +206,8 @@ object TypeChef extends Build {
         "CParser",
         file("CParser"),
         settings = buildSettings ++
-          Seq(parallelExecution in Test := false,
-            libraryDependencies <+= scalaVersion(kiamaDependency(_)))
+            Seq(parallelExecution in Test := false,
+                libraryDependencies <+= scalaVersion(kiamaDependency(_)))
     ) dependsOn(featureexpr, jcpp, parserexp, conditionallib, errorlib)
 
 
@@ -251,12 +251,12 @@ object TypeChef extends Build {
     ) dependsOn(cparser % "test->test;compile->compile", ctypechecker, crewrite, conditionallib, frontend, errorlib)
 
 
-    def kiamaDependency(scalaVersion: String, testOnly:Boolean=false) = {
-      val x=scalaVersion match {
-        case "2.9.1" => "com.googlecode.kiama" %% "kiama" % "1.2.0"
-        case _ => "com.googlecode.kiama" %% "kiama" % "1.4.0"
-      }
-      if (testOnly) x % "test" else x
+    def kiamaDependency(scalaVersion: String, testOnly: Boolean = false) = {
+        val x = scalaVersion match {
+            case "2.9.1" => "com.googlecode.kiama" %% "kiama" % "1.2.0"
+            case _ => "com.googlecode.kiama" %% "kiama" % "1.4.0"
+        }
+        if (testOnly) x % "test" else x
     }
 }
 

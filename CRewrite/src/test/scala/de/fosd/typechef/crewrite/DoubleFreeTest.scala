@@ -73,19 +73,19 @@ class DoubleFreeTest extends TestHelper with ShouldMatchers with CFGHelper with 
             );
             }
             """.stripMargin) should be(Map(FeatureExprFactory.True -> Set(Id("a"))))
-        getFreedMem(""" { free(a->b); } """.stripMargin) should be(Map(FeatureExprFactory.True -> Set(Id("b"))))
-        getFreedMem(""" { free(&(a->b)); } """.stripMargin) should be(Map(FeatureExprFactory.True -> Set(Id("b"))))
-        getFreedMem(""" { free(*(a->b)); } """.stripMargin) should be(Map(FeatureExprFactory.True -> Set(Id("b"))))
-        getFreedMem(""" { free(a->b->c); } """.stripMargin) should be(Map(FeatureExprFactory.True -> Set(Id("c"))))
-        getFreedMem(""" { free(a.b); } """.stripMargin) should be(Map(FeatureExprFactory.True -> Set(Id("b"))))
-        getFreedMem(""" { free(a[i]); }""".stripMargin) should be(Map(FeatureExprFactory.True -> Set(Id("a"))))
-        getFreedMem(""" { free(*a); }""".stripMargin) should be(Map(FeatureExprFactory.True -> Set(Id("a"))))
-        getFreedMem(""" { free(&a); }""".stripMargin) should be(Map(FeatureExprFactory.True -> Set(Id("a"))))
-        getFreedMem(""" { free(a[i]->b); }""".stripMargin) should be(Map(FeatureExprFactory.True -> Set(Id("b"))))
+        getFreedMem( """ { free(a->b); } """.stripMargin) should be(Map(FeatureExprFactory.True -> Set(Id("b"))))
+        getFreedMem( """ { free(&(a->b)); } """.stripMargin) should be(Map(FeatureExprFactory.True -> Set(Id("b"))))
+        getFreedMem( """ { free(*(a->b)); } """.stripMargin) should be(Map(FeatureExprFactory.True -> Set(Id("b"))))
+        getFreedMem( """ { free(a->b->c); } """.stripMargin) should be(Map(FeatureExprFactory.True -> Set(Id("c"))))
+        getFreedMem( """ { free(a.b); } """.stripMargin) should be(Map(FeatureExprFactory.True -> Set(Id("b"))))
+        getFreedMem( """ { free(a[i]); }""".stripMargin) should be(Map(FeatureExprFactory.True -> Set(Id("a"))))
+        getFreedMem( """ { free(*a); }""".stripMargin) should be(Map(FeatureExprFactory.True -> Set(Id("a"))))
+        getFreedMem( """ { free(&a); }""".stripMargin) should be(Map(FeatureExprFactory.True -> Set(Id("a"))))
+        getFreedMem( """ { free(a[i]->b); }""".stripMargin) should be(Map(FeatureExprFactory.True -> Set(Id("b"))))
     }
 
     @Test def test_double_free_simple() {
-        doubleFree("""
+        doubleFree( """
               void* malloc(int i) { return ((void*)0); }
               void free(void* p) { }
               int foo() {
@@ -98,8 +98,8 @@ class DoubleFreeTest extends TestHelper with ShouldMatchers with CFGHelper with 
                   }
                   return 0;
               }
-                      """.stripMargin) should be(true)
-        doubleFree("""
+                    """.stripMargin) should be(true)
+        doubleFree( """
                  void* malloc(int i) { return ((void*)0); }
                  void free(void* p) { }
                  void foo() {
@@ -109,7 +109,7 @@ class DoubleFreeTest extends TestHelper with ShouldMatchers with CFGHelper with 
                      free(a);
                  #endif
                  } """) should be(false)
-        doubleFree("""
+        doubleFree( """
               void* malloc(int i) { return ((void*)0); }
               void free(void* p) { }
               void foo() {
@@ -118,8 +118,8 @@ class DoubleFreeTest extends TestHelper with ShouldMatchers with CFGHelper with 
                   a = malloc(2);
                   free(a);
               }
-            """.stripMargin) should be(true)
-        doubleFree("""
+                    """.stripMargin) should be(true)
+        doubleFree( """
               void* malloc(int i) { return ((void*)0); }
               void free(void* p) { }
               void foo() {
@@ -130,16 +130,16 @@ class DoubleFreeTest extends TestHelper with ShouldMatchers with CFGHelper with 
               #endif
                   free(a);  // diagnostic
               }
-                      """.stripMargin) should be(false)
-        doubleFree("""
+                    """.stripMargin) should be(false)
+        doubleFree( """
               void* malloc(int i) { return ((void*)0); }
               void free(void* p) { }
               void foo() {
                   int *a = malloc(2);
                   free(a);
               }
-                      """.stripMargin) should be(true)
-        doubleFree("""
+                    """.stripMargin) should be(true)
+        doubleFree( """
               void* malloc(int i) { return ((void*)0); }
               void free(void* p) { }
               void* realloc(void* p, int i) { return ((void*)0); }
@@ -148,8 +148,8 @@ class DoubleFreeTest extends TestHelper with ShouldMatchers with CFGHelper with 
                   int *b = realloc(a, 3);
                   free(a);    // diagnostic
               }
-                      """.stripMargin) should be(false)
-        doubleFree("""
+                    """.stripMargin) should be(false)
+        doubleFree( """
               void* malloc(int i) { return ((void*)0); }
               void free(void* p) { }
               void* realloc(void* p, int i) { return ((void*)0); }
@@ -164,9 +164,9 @@ class DoubleFreeTest extends TestHelper with ShouldMatchers with CFGHelper with 
                   free(b);
               #endif
               }
-                      """.stripMargin) should be(true)
+                    """.stripMargin) should be(true)
         // take from: https://www.securecoding.cert.org/confluence/display/seccode/MEM31-C.+Free+dynamically+allocated+memory+exactly+once
-        doubleFree("""
+        doubleFree( """
               void* malloc(int i) { return ((void*)0); }
               void free(void* p) { }
               int f(int n) {
@@ -187,7 +187,7 @@ class DoubleFreeTest extends TestHelper with ShouldMatchers with CFGHelper with 
                   free(x);   // diagnostic
                   return error_condition;
               }
-                      """.stripMargin) should be(false)
+                    """.stripMargin) should be(false)
 
     }
 }

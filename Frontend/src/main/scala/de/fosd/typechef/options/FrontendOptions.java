@@ -47,8 +47,8 @@ public class FrontendOptions extends CAnalysisOptions implements ParserOptions {
     private final static char F_XFREE = Options.genOptionId();
     private final static char F_DANGLINGSWITCHCODE = Options.genOptionId();
     private final static char F_SERIALIZEAST = Options.genOptionId();
-    private final static char F_REUSEAST = Options.genOptionId();  
-	private final static char F_RECORDTIMING = Options.genOptionId();
+    private final static char F_REUSEAST = Options.genOptionId();
+    private final static char F_RECORDTIMING = Options.genOptionId();
     private final static char F_FILEPC = Options.genOptionId();
     private final static char F_PARSERSTATS = Options.genOptionId();
     private final static char F_HIDEPARSERRESULTS = Options.genOptionId();
@@ -242,6 +242,7 @@ public class FrontendOptions extends CAnalysisOptions implements ParserOptions {
     public String getCCFGFilename() {
         return outputStem + ".cfg";
     }
+
     public String getCCFGDotFilename() {
         return outputStem + ".cfg.dot";
     }

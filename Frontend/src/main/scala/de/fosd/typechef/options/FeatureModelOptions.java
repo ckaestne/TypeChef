@@ -7,9 +7,6 @@ import de.fosd.typechef.lexer.FeatureExprLib;
 import de.fosd.typechef.lexer.options.ILexerOptions;
 import de.fosd.typechef.lexer.options.PartialConfiguration;
 import de.fosd.typechef.lexer.options.PartialConfigurationParser$;
-import de.fosd.typechef.options.OptionException;
-import de.fosd.typechef.options.Options;
-import de.fosd.typechef.typesystem.ICTypeSysOptions;
 import gnu.getopt.Getopt;
 import gnu.getopt.LongOpt;
 
@@ -35,7 +32,7 @@ public abstract class FeatureModelOptions extends LexerOptions implements ILexer
         return featureModel;
     }
 
-//    @Override
+    //    @Override
     public FeatureModel getTypeSystemFeatureModel() {
         if (featureModel_typeSystem != null)
             return featureModel_typeSystem;
@@ -81,7 +78,7 @@ public abstract class FeatureModelOptions extends LexerOptions implements ILexer
             // all others load a standard feature model in which the prefix is set to "" (default is "CONFIG_"),
             // which is used in busybox and linux
             if (g.getOptarg().contains("linux") || g.getOptarg().contains("busybox"))
-            featureModel = FeatureExprLib.featureModelFactory().createFromDimacsFile_2Var(g.getOptarg());
+                featureModel = FeatureExprLib.featureModelFactory().createFromDimacsFile_2Var(g.getOptarg());
             else
                 featureModel = FeatureExprLib.featureModelFactory().createFromDimacsFile(g.getOptarg(), "");
         } else if (c == FM_FEXPR) {     //--featureModelFExpr

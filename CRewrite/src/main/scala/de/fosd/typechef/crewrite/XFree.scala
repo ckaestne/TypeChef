@@ -30,7 +30,7 @@ class XFree(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel, casestudy: String) e
     // get all declared variables without an initialization
     def gen(a: AST): Map[FeatureExpr, Set[Id]] = {
         var res = Set[Id]()
-        val variables = manytd(query{
+        val variables = manytd(query {
             case InitDeclaratorI(AtomicNamedDeclarator(_, i, _), _, None) => res += i
             case InitDeclaratorI(AtomicNamedDeclarator(_, i, _), _, Some(initializer)) => {
                 val pmallocs = filterASTElems[PostfixExpr](initializer)
@@ -55,15 +55,15 @@ class XFree(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel, casestudy: String) e
     // get variables that get an assignment with malloc
     def kill(a: AST): Map[FeatureExpr, Set[Id]] = {
         var res = Set[Id]()
-        val assignments = manytd(query{
+        val assignments = manytd(query {
             case AssignExpr(target@Id(_), "=", source) => {
                 val pmallocs = filterASTElems[PostfixExpr](source)
 
                 pmallocs.map(pe => {
                     pe match {
                         case PostfixExpr(i@Id(_), _) if (memcalls.contains(i.name)) =>
-                            if (env.featureExpr(i) equivalentTo(env.featureExpr(target))) {}
-                            else { res += target }
+                            if (env.featureExpr(i) equivalentTo (env.featureExpr(target))) {}
+                            else {res += target}
                         case _ =>
                     }
                 })
@@ -130,10 +130,10 @@ class XFree(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel, casestudy: String) e
                     res += ni
 
                 for (ce <- l.exprs.tail) {
-                    if (actx.reduce(_ or _) isTautology(fm))
+                    if (actx.reduce(_ or _) isTautology (fm))
                         finished = true
 
-                    if (!finished && actx.forall(_ and ce.feature isContradiction(fm))) {
+                    if (!finished && actx.forall(_ and ce.feature isContradiction (fm))) {
                         for (ni <- filterAllASTElems[Id](ce.entry))
                             res += ni
                         actx ::= ce.feature
