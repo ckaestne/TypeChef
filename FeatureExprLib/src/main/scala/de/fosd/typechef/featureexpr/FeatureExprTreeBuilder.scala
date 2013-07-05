@@ -71,7 +71,11 @@ trait FeatureExprTreeFactory extends FeatureExprValueOps {
             case Some(err) => return err
             case _ =>
                 (left, right) match {
-                    case (a: Value[_], b: Value[_]) => operation(a.value.asInstanceOf[T], b.value.asInstanceOf[T])
+                    case (a: Value[_], b: Value[_]) => try {
+                        operation(a.value.asInstanceOf[T], b.value.asInstanceOf[T])
+                    } catch {
+                        case e: ArithmeticException => System.err.println("ArithmeticException evaluating " + a.value + " op " + b.value); throw e
+                    }
                     case (i1: If[_], i2: If[_]) =>
                         createIf[T](i1.expr,
                             createIf[T](i2.expr, applyBinaryOperation(i1.thenBr.asInstanceOf[FeatureExprTree[T]], i2.thenBr.asInstanceOf[FeatureExprTree[T]])(operation), applyBinaryOperation(i1.thenBr.asInstanceOf[FeatureExprTree[T]], i2.elseBr.asInstanceOf[FeatureExprTree[T]])(operation)),

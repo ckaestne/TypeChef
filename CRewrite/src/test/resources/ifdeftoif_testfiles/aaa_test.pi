@@ -1,0 +1,14 @@
+typedef union {
+	int missing;
+} this_union;
+
+static inline this_union random_function_name(int val)
+{
+	return (this_union) { .missing = val };
+}
+
+int main(int argc, const char * argv[])
+{
+	(this_union) {.missing = argc };
+    return 0;
+}

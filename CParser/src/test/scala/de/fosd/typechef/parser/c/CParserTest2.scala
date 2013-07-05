@@ -45,6 +45,7 @@ class CParserTest2 extends TestCase {
         assertParseable("const", p.typeQualifier)
         assertParseable("restrict", p.typeQualifier)
         assertParseable("volatile", p.typeQualifier)
+        assertParseable("unsigned int", p.typeName)
     }
 
     def testPrimaryExpression {
@@ -69,7 +70,11 @@ class CParserTest2 extends TestCase {
         assertParseable("__builtin_offsetof(struct pt_regs,ss)", p.primaryExpr)
         // newParser("(offset > (__builtin_offsetof(struct pt_regs,ss)))").expr();
         assertParseable("__builtin_offsetof ( int , i.i )", p.primaryExpr)
+    }
 
+    def testBuiltInVaArgs {
+        assertParseable("ppfs->arg", p.assignExpr)
+        assertParseable("__builtin_va_arg(ppfs->arg,unsigned int)", p.primaryExpr)
     }
 
     def testStatements() {

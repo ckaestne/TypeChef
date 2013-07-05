@@ -4,7 +4,7 @@ import _root_.de.fosd.typechef.parser.c._
 import _root_.de.fosd.typechef.conditional._
 import _root_.de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
 
-trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTyping /*with CBuiltIn*/ {
+trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTyping with CDeclUse /*with CBuiltIn*/ {
 
 
     /**
@@ -73,23 +73,29 @@ trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTypi
     }
 
     def addStructDeclarationToEnv(specifier: Specifier, featureExpr: FeatureExpr, initEnv: Env, declareIncompleteTypes: Boolean): Env = specifier match {
-        case e@StructOrUnionSpecifier(isUnion, Some(Id(name)), Some(attributes)) => {
+        case e@StructOrUnionSpecifier(isUnion, Some(i@Id(name)), Some(attributes)) => {
             //for parsing the inner members, the struct itself is available incomplete
-            var env = initEnv.updateStructEnv(initEnv.structEnv.addIncomplete(name, isUnion, featureExpr, initEnv.scope))
+            var env = initEnv.updateStructEnv(initEnv.structEnv.addIncomplete(i, isUnion, featureExpr, initEnv.scope))
+            addDefinition(i, env)
+            attributes.foreach(x => addDefinition(x.entry, env))
             val members = parseStructMembers(attributes, featureExpr, env)
 
             //collect inner struct declarations recursively
             env = addInnerStructDeclarationsToEnv(attributes, featureExpr, env)
             checkStructRedeclaration(name, isUnion, featureExpr, env.scope, env, e)
-            env.updateStructEnv(env.structEnv.addComplete(name, isUnion, featureExpr, members, env.scope))
+            env.updateStructEnv(env.structEnv.addComplete(i, isUnion, featureExpr, members, env.scope))
         }
         //incomplete struct
         case e@StructOrUnionSpecifier(isUnion, Some(i@Id(name)), None) => {
             //we only add an incomplete declaration in specific cases when a declaration does not have a declarator ("struct x;")
-            if (declareIncompleteTypes)
-                initEnv.updateStructEnv(initEnv.structEnv.addIncomplete(name, isUnion, featureExpr, initEnv.scope))
-            else
+            if (declareIncompleteTypes) {
+                var env = initEnv.updateStructEnv(initEnv.structEnv.addIncomplete(i, isUnion, featureExpr, initEnv.scope))
+                addDefinition(i, env)
+                env
+            } else {
+                addStructDeclUse(i, initEnv, isUnion, featureExpr)
                 initEnv
+            }
         }
         case e@StructOrUnionSpecifier(_, None, Some(attributes)) =>
             addInnerStructDeclarationsToEnv(attributes, featureExpr, initEnv)
@@ -104,18 +110,20 @@ trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTypi
         env
     }
 
+    def wellformedC(structEnv: StructEnv, ptrEnv: PtrEnv, ctype: Conditional[CType]): Boolean = wellformed(structEnv, ptrEnv, ctype.map(_.atype))
 
-    def wellformed(structEnv: StructEnv, ptrEnv: PtrEnv, ctype: Conditional[CType]): Boolean =
+    def wellformed(structEnv: StructEnv, ptrEnv: PtrEnv, ctype: Conditional[AType]): Boolean =
         ctype.simplify.forall(wellformed(structEnv, ptrEnv, _))
 
-    def wellformed(structEnv: StructEnv, ptrEnv: PtrEnv, ctype: CType): Boolean = {
-        val wf = wellformed(structEnv, ptrEnv, _: CType)
+    def wellformed(structEnv: StructEnv, ptrEnv: PtrEnv, ctype: AType): Boolean = {
+        val wf = wellformed(structEnv, ptrEnv, _: AType)
         def nonEmptyWellformedEnv(m: ConditionalTypeMap, name: Option[String]) =
             !m.isEmpty && m.allTypes.forall(t => {
-                t.forall(_ != CVoid()) && wellformed(structEnv, (if (name.isDefined) ptrEnv + name.get else ptrEnv), t)
+                t.forall(_ != CVoid().toCType) && wellformed(structEnv, (if (name.isDefined) ptrEnv + name.get else ptrEnv), t.map(_.atype))
             })
-        def lastParam(p: Option[CType]) = p == None || p == Some(CVarArgs()) || wf(p.get)
-        ctype match {
+        def lastParam(p: Option[AType]) = p == None || p == Some(CVarArgs()) || wf(p.get)
+        /*if (ctype.isObject) false
+        else*/ ctype match {
             case CSigned(_) => true
             case CUnsigned(_) => true
             case CSignUnspecified(_) => true
@@ -127,11 +135,12 @@ trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTypi
             case CLongDouble() => true
             case CPointer(CStruct(s, _)) => ptrEnv contains s
             case CPointer(t) => wf(t)
-            case CArray(t, n) => wf(t) && (t != CVoid()) && n > 0
-            case CFunction(param, ret) => wf(ret) && !arrayType(ret) && (
-                param.forall(p => !arrayType(p) && p != CVoid())) &&
-                param.dropRight(1).forall(wf(_)) &&
-                lastParam(param.lastOption) //last param may be varargs
+            case CArray(t, n) =>
+                wf(t) && (t != CVoid()) && n > 0
+            case CFunction(param, ret) => wf(ret.atype) && !arrayType(ret.atype) && (
+                param.forall(p => !arrayType(p) && p != CVoid().toCType)) &&
+                param.dropRight(1).forall(p => wf(p.atype)) &&
+                lastParam(param.lastOption.map(_.atype)) //last param may be varargs
             case CVarArgs() => false
             case CStruct(name, isUnion) => {
                 //TODO check struct welltypeness
@@ -141,30 +150,38 @@ trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTypi
             }
             case CAnonymousStruct(members, _) => nonEmptyWellformedEnv(members, None)
             case CUnknown(_) => false
-            case CObj(_) => false
             case CCompound() => true
             case CIgnore() => true
+            case CBuiltinVaList() => true
         }
     }
 
 
-    def addEnumDeclarationToEnv(specifiers: List[Opt[Specifier]], featureExpr: FeatureExpr, enumEnv: EnumEnv, isHeadless: Boolean): EnumEnv =
-        specifiers.foldRight(enumEnv)({
+    def addEnumDeclarationToEnv(specifiers: List[Opt[Specifier]], featureExpr: FeatureExpr, env: Env, isHeadless: Boolean): EnumEnv = {
+        specifiers.foldRight(env.enumEnv)({
             (opt, b) => {
                 val specFeature = opt.feature
                 val typeSpec = opt.entry
                 typeSpec match {
-                    case EnumSpecifier(Some(Id(name)), l) if (isHeadless || !l.isEmpty) =>
-                        b + (name -> (featureExpr and specFeature or b.getOrElse(name, FeatureExprFactory.False)))
+                    case EnumSpecifier(Some(i@Id(name)), l) if (isHeadless || !l.isEmpty) =>
+                        var ft = FeatureExprFactory.False
+                        b.getOrElse(name, FeatureExprFactory.False) match {
+                            case f: FeatureExpr => ft = f
+                            case Tuple2(feat: FeatureExpr, id) => ft = feat
+                        }
+                        b + (name ->((featureExpr and specFeature or ft), i))
                     //recurse into structs
                     case StructOrUnionSpecifier(_, _, fields) =>
                         fields.getOrElse(Nil).foldRight(b)(
-                            (optField, b) => addEnumDeclarationToEnv(optField.entry.qualifierList, featureExpr and specFeature and optField.feature, b, optField.entry.declaratorList.isEmpty)
+                            (optField, b) => addEnumDeclarationToEnv(optField.entry.qualifierList, featureExpr and specFeature and optField.feature, env.updateEnumEnv(b), optField.entry.declaratorList.isEmpty)
                         )
 
+                    case TypeDefTypeSpecifier(name) =>
+                        addTypeUse(name, env, featureExpr)
+                        b
                     case _ => b
                 }
             }
         })
-
+    }
 }

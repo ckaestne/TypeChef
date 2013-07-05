@@ -1,0 +1,23 @@
+//
+//  main.c
+//  minStruct
+//
+//  Created by Andi on 06.12.12.
+//  Copyright (c) 2012 Andi. All rights reserved.
+//
+struct task_struct;
+
+
+static 
+#if !definedEx(CONFIG_OPTIMIZE_INLINING)
+inline __attribute__((always_inline))
+#endif
+#if definedEx(CONFIG_OPTIMIZE_INLINING)
+inline
+#endif
+ __attribute__((always_inline)) struct task_struct *get_current(void)
+;
+int main(int argc, const char * argv[])
+{
+    return 0;
+}

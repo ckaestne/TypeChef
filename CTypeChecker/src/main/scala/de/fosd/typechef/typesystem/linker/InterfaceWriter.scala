@@ -94,7 +94,6 @@ trait InterfaceWriter {
     private def extraFlagFromXML(node: scala.xml.Node): Seq[Option[CFlag]] = {
         (node \ "@name").map(n => if (n.text == "WeakExport") Some(WeakExport) else None)
     }
-
     private def posToXML(p: Position) =
         <pos>
             <file>

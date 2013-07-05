@@ -33,7 +33,6 @@ public abstract class LexerOptions extends Options implements ILexerOptions {
     private final static char PP_XTC = genOptionId();
     private final static char PP_ADJUSTLINES = genOptionId();
 
-
     @Override
     protected List<Options.OptionGroup> getOptionGroups() {
         List<OptionGroup> r = super.getOptionGroups();

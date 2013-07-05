@@ -92,7 +92,7 @@ case class ArrayAccess(expr: Expr) extends PostfixSuffix
 case class PostfixExpr(p: Expr, s: PostfixSuffix) extends Expr {
     //hack to propagate position information
     override def setPositionRange(from: Position, to: Position) = {
-        if (!p.hasPosition) p.setPositionRange(from, to);
+        if (!p.hasPosition) p.setPositionRange(from, to)
         super.setPositionRange(from, to)
     }
 }
@@ -209,6 +209,8 @@ case class ExternSpecifier() extends OtherSpecifier()
 case class ConstSpecifier() extends OtherSpecifier()
 
 case class RestrictSpecifier() extends OtherSpecifier()
+
+case class ThreadSpecifier() extends OtherSpecifier()
 
 case class StaticSpecifier() extends OtherSpecifier()
 

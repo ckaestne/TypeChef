@@ -99,7 +99,7 @@ class CParserTest {
                 if (expectErrorMsg || unparsed.atEnd)
                     Assert.fail("parsing succeeded unexpectedly with " + ast + " - " + unparsed)
             }
-            case p.NoSuccess(msg, unparsed, inner) =>;
+            case p.NoSuccess(msg, unparsed, inner) => ;
         }
     }
 
@@ -1126,6 +1126,49 @@ void bar() {
       a(){int**b[]={&&c};c:;}
                             """, p.translationUnit)
     }
+
+    @Test
+    def test_uclibc {
+        assertParseableAST( """
+                              __extension__ static __inline unsigned int
+                              __attribute__ ((__nothrow__)) gnu_dev_major (unsigned long long int __dev)
+                              {
+                                return ((__dev >> 8) & 0xfff) | ((unsigned int) (__dev >> 32) & ~0xfff);
+                              }
+
+                            """, p.translationUnit)
+    }
+
+    @Test
+    @Ignore("this is a bug in our parser. `jin:...' should be one labled statement, but is parsed as two statements; therefore the else does not match")
+    def test_labels {
+        //based on a problem in uclibc
+        assertParseableAST( """if (0)
+                              |	    jin:{
+                              |		if ((a = *++haystack) == c)
+                              |		  goto crest;
+                              |	      }
+                              |	    else
+                              |	      a = *++haystack;""".stripMargin, p.statement)
+    }
+    @Test
+    def test_labels2 {
+        //based on a problem in uclibc
+        assertParseableAST( """if (0)
+                              |	    {jin:{
+                              |		if ((a = *++haystack) == c)
+                              |		  goto crest;
+                              |	      }}
+                              |	    else
+                              |	      a = *++haystack;""".stripMargin, p.statement)
+    }
+
+    @Test
+    def test_forunsigned {
+        //based on a problem in uclibc; only working with a newer C standard C99 or GNUC99
+        //        assertParseableAST("""for (unsigned int t = 0; t < 16; ++t);""".stripMargin , p.statement)
+    }
+
 
     private def assertNoDeadNodes(ast: Product) {
         assertNoDeadNodes(ast, FeatureExprFactory.True, ast)

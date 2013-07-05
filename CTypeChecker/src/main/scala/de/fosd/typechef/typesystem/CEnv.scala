@@ -2,7 +2,7 @@ package de.fosd.typechef.typesystem
 
 import _root_.de.fosd.typechef.conditional._
 import _root_.de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
-import _root_.de.fosd.typechef.parser.c.AST
+import _root_.de.fosd.typechef.parser.c.{Id, AST}
 import FeatureExprFactory._
 
 /**
@@ -103,7 +103,7 @@ trait CEnv {
      *
      * the structEnv maps a tag name to a conditional tuple (isComplete, fields, scope)
      */
-    case class StructTag(isComplete: Boolean, fields: ConditionalTypeMap, scope: Int)
+    case class StructTag(isComplete: Boolean, fields: ConditionalTypeMap, scope: Int, id: Option[Id] = None)
 
     class StructEnv(private val env: Map[(String, Boolean), Conditional[StructTag]]) {
         def this() = this(Map())
@@ -114,21 +114,23 @@ trait CEnv {
         def isCompleteUnion(name: String) = isComplete(name, true)
         def isCompleteStruct(name: String) = isComplete(name, false)
 
-        def addIncomplete(name: String, isUnion: Boolean, condition: FeatureExpr, scope: Int) = {
+        def addIncomplete(id: Id, isUnion: Boolean, condition: FeatureExpr, scope: Int) = {
             //overwrites complete tags in lower scopes, but has no effects otherwise
+            val name = id.name
             val key = (name, isUnion)
             val prevTag: Conditional[StructTag] = env.getOrElse(key, One(incompleteTag))
-            val newTag: Conditional[StructTag] = Choice(condition, One(StructTag(false, emptyFields, scope)), One(incompleteTag))
+            val newTag: Conditional[StructTag] = Choice(condition, One(StructTag(false, emptyFields, scope, Some(id))), One(incompleteTag))
             val result = ConditionalLib.mapCombination(prevTag, newTag, (p: StructTag, n: StructTag) => if (n.scope > p.scope) n else p)
             new StructEnv(env + (key -> result))
         }
 
 
-        def addComplete(name: String, isUnion: Boolean, condition: FeatureExpr, fields: ConditionalTypeMap, scope: Int) = {
+        def addComplete(id: Id, isUnion: Boolean, condition: FeatureExpr, fields: ConditionalTypeMap, scope: Int) = {
             // always override previous results, check elsewhere that not replace incorrectly
+            val name = id.name
             val key = (name, isUnion)
             val prevTag: Conditional[StructTag] = env.getOrElse(key, One(incompleteTag))
-            val result: Conditional[StructTag] = Choice(condition, One(StructTag(true, fields, scope)), prevTag).simplify
+            val result: Conditional[StructTag] = Choice(condition, One(StructTag(true, fields, scope, Some(id))), prevTag).simplify
             new StructEnv(env + (key -> result))
 
             //            //TODO check distinct attribute names in each variant
@@ -141,6 +143,19 @@ trait CEnv {
         }
 
         def getFields(name: String, isUnion: Boolean): Conditional[ConditionalTypeMap] = env.getOrElse((name, isUnion), One(incompleteTag)).map(_.fields)
+        def someDefinition(name: String, isUnion: Boolean): Boolean = env contains(name, isUnion)
+
+        def getId(name: String, isUnion: Boolean): Conditional[Id] = {
+            def extractId(entry: Conditional[StructTag]): Conditional[Id] = {
+                entry match {
+                    case One(StructTag(_, _, _, Some(i: Id))) => One(i)
+                    case One(StructTag(_, _, _, None)) => One(null)
+                    case Choice(ft, entry1, entry2) => Choice(ft, extractId(entry1), extractId(entry2))
+                    case x => One(null)
+                }
+            }
+            extractId(env.get(name, isUnion).get)
+        }
 
         def getFieldsMerged(name: String, isUnion: Boolean): ConditionalTypeMap =
             getFields(name, isUnion).flatten((f, a, b) => a.and(f) ++ b.and(f.not))
@@ -165,7 +180,8 @@ trait CEnv {
      * No need to remember fields etc, because they are integers anyway and no further checking is done in C
      */
 
-    type EnumEnv = Map[String, FeatureExpr]
+    type EnumEnv = Map[String, Tuple2[FeatureExpr, Id]]
+    // type EnumEnv = Map[String, FeatureExpr]
 
     /**
      * label environment: stores which labels are reachable from a goto.

@@ -1,9 +1,5 @@
 package de.fosd.typechef
 
-/*
-* temporarily copied from PreprocessorFrontend due to technical problems
-*/
-
 
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.typesystem._
@@ -73,6 +69,18 @@ object Frontend {
 
         def get(period: String): Long = times.getOrElse(period, 0)
 
+        override def toString = {
+            var res = "timing "
+            val switems = times.toList.filterNot(x => x._1 == "none" || x._1 == "done")
+
+            if (switems.size > 0) {
+                res = res + "("
+                res = res + switems.map(_._1).reduce(_ + ", " + _)
+                res = res + ")\n"
+                res = res + switems.map(_._2.toString).reduce(_ + ";" + _)
+            }
+            res
+        }
     }
 
 
@@ -131,7 +139,7 @@ object Frontend {
         opt.setFeatureModel(fm) //otherwise the lexer does not get the updated feature model with file presence conditions
         if (!opt.getFilePresenceCondition.isSatisfiable(fm)) {
             println("file has contradictory presence condition. existing.") //otherwise this can lead to strange parser errors, because True is satisfiable, but anything else isn't
-            return;
+            return
         }
 
         var ast: AST = null
@@ -155,17 +163,21 @@ object Frontend {
                 val parserMain = new ParserMain(new CParser(fm))
                 ast = parserMain.parserMain(in, opt)
 
-                stopWatch.start("serialize")
-                if (ast != null && opt.serializeAST)
+                if (ast != null && opt.serializeAST) {
+                    stopWatch.start("serialize")
                     serializeAST(ast, opt.getSerializedASTFilename)
-            }
+                }
 
+            }
 
             astStats(ast.asInstanceOf[TranslationUnit],opt.getFilePresenceCondition)
 
             if (ast != null) {
                 val fm_ts = opt.getTypeSystemFeatureModel.and(opt.getLocalFeatureModel).and(opt.getFilePresenceCondition)
-                val ts = new CTypeSystemFrontend(ast.asInstanceOf[TranslationUnit], fm_ts, opt)
+                val cachedTypes = opt.xfree // just an example
+                val ts = if (cachedTypes)
+                        new CTypeSystemFrontend(ast.asInstanceOf[TranslationUnit], fm_ts, opt) with CTypeCache
+                    else new CTypeSystemFrontend(ast.asInstanceOf[TranslationUnit], fm_ts, opt)
 
                 /** I did some experiments with the TypeChef FeatureModel of Linux, in case I need the routines again, they are saved here. */
                 //Debug_FeatureModelExperiments.experiment(fm_ts)
@@ -189,16 +201,33 @@ object Frontend {
                     if (opt.writeDebugInterface)
                         ts.debugInterface(interface, new File(opt.getDebugInterfaceFilename))
                 }
-                if (opt.conditionalControlFlow) {
-                    stopWatch.start("controlFlow")
+                if (opt.dumpcfg) {
+                    stopWatch.start("dumpCFG")
 
                     val cf = new CAnalysisFrontend(ast.asInstanceOf[TranslationUnit], fm_ts)
-                    cf.checkCfG()
+                    val writer = new CFGCSVWriter(new FileWriter(new File(opt.getCCFGFilename)))
+                    val dotwriter = new DotGraph(new FileWriter(new File(opt.getCCFGDotFilename)))
+                    cf.writeCFG(opt.getFile, new ComposedWriter(List(dotwriter, writer)))
                 }
-                if (opt.dataFlow) {
-                    stopWatch.start("dataFlow")
-                    ProductGeneration.dataflowAnalysis(fm_ts, ast, opt,
-                        logMessage = ("Time for lexing(ms): " + (stopWatch.get("lexing")) + "\nTime for parsing(ms): " + (stopWatch.get("parsing")) + "\n"))
+                if (opt.doublefree) {
+                    stopWatch.start("doublefree")
+                    val df = new CAnalysisFrontend(ast.asInstanceOf[TranslationUnit], fm_ts)
+                    df.doubleFree()
+                }
+                if (opt.uninitializedmemory) {
+                    stopWatch.start("uninitializedmemory")
+                    val uv = new CAnalysisFrontend(ast.asInstanceOf[TranslationUnit], fm_ts)
+                    uv.uninitializedMemory()
+                }
+                if (opt.xfree) {
+                    stopWatch.start("xfree")
+                    val xf = new CAnalysisFrontend(ast.asInstanceOf[TranslationUnit], fm_ts)
+                    xf.xfree()
+                }
+                if (opt.danglingswitchcode) {
+                    stopWatch.start("danglingswitchcode")
+                    val ds = new CAnalysisFrontend(ast.asInstanceOf[TranslationUnit], fm_ts)
+                    ds.danglingSwitchCode()
                 }
 
             }
@@ -207,7 +236,7 @@ object Frontend {
         stopWatch.start("done")
         errorXML.write()
         if (opt.recordTiming)
-            println("timing (lexer, parser, type system, interface inference, conditional control flow, data flow)\n" + (stopWatch.get("lexing")) + ";" + (stopWatch.get("parsing")) + ";" + (stopWatch.get("typechecking")) + ";" + (stopWatch.get("interfaces")) + ";" + (stopWatch.get("controlFlow")) + ";" + (stopWatch.get("dataFlow")))
+            println(stopWatch)
 
     }
 
@@ -224,10 +253,14 @@ object Frontend {
         fw.close()
     }
 
-    def loadSerializedAST(filename: String): AST = {
-        val fr = new ObjectInputStream(new FileInputStream(filename))
+    def loadSerializedAST(filename: String): AST = try {
+        val fr = new ObjectInputStream(new FileInputStream(filename)) {
+            override protected def resolveClass(desc: ObjectStreamClass) = { /*println(desc);*/ super.resolveClass(desc) }
+        }
         val ast = fr.readObject().asInstanceOf[AST]
         fr.close()
         ast
+    } catch {
+        case e:ObjectStreamException => System.err.println("failed loading serialized AST: "+e.getMessage); null
     }
 }

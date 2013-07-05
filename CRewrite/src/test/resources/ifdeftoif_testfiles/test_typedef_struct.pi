@@ -1,0 +1,30 @@
+typedef struct __pthread_internal_list
+{
+  struct __pthread_internal_list *__prev;
+  struct __pthread_internal_list *__next;
+} __pthread_list_t;
+
+      int main(void) {
+        return 0;
+      }
+	  
+typedef union
+{
+  struct
+  {
+    int __lock;
+	} __data;
+} pthread_cond_t;
+
+enum __pid_type
+  {
+    F_OWNER_TID = 0,		/* Kernel thread.  */
+    F_OWNER_PID,		/* Process.  */
+    F_OWNER_PGRP,		/* Process group.  */
+    F_OWNER_GID = F_OWNER_PGRP	/* Alternative, obsolete name.  */
+  };
+
+struct f_owner_ex
+  {
+    enum __pid_type type;	/* Owner type of ID.  */
+  };

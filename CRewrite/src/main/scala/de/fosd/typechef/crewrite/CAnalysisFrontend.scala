@@ -2,76 +2,232 @@
 package de.fosd.typechef.crewrite
 
 import de.fosd.typechef.featureexpr._
-import org.kiama.rewriting.Rewriter._
-import de.fosd.typechef.conditional.{Opt, Choice}
-import de.fosd.typechef.parser.c.{PrettyPrinter, FunctionDef, AST}
+import java.io.{Writer, StringWriter}
+import de.fosd.typechef.typesystem._
+import scala.Some
+import de.fosd.typechef.parser.c._
 
-class CAnalysisFrontend(tunit: AST, fm: FeatureModel = FeatureExprFactory.default.featureModelFactory.empty) extends ConditionalNavigation with ConditionalControlFlow with IOUtilities with Liveness with EnforceTreeHelper {
+class CAnalysisFrontend(tunit: TranslationUnit, fm: FeatureModel = FeatureExprFactory.empty) extends CFGHelper with EnforceTreeHelper {
 
-  // derive a specific product from a given configuration
-  def deriveProductFromConfiguration[T <: Product](a: T, c: Configuration, env: ASTEnv): T = {
-    // manytd is crucial here; consider the following example
-    // Product1( c1, c2, c3, c4, c5)
-    // all changes the elements top down, so the parent is changed before the children and this
-    // way the lookup env.featureExpr(x) will not fail. Using topdown or everywherebu changes the children and so also the
-    // parent before the parent is processed so we get a NullPointerExceptions calling env.featureExpr(x). Reason is
-    // changed children lead to changed parent and a new hashcode so a call to env fails.
-    val pconfig = manytd(rule {
-      case Choice(feature, thenBranch, elseBranch) => if (c.config implies (if (env.containsASTElem(thenBranch)) env.featureExpr(thenBranch) else FeatureExprFactory.True) isTautology()) thenBranch else elseBranch
-      case l: List[Opt[_]] => {
-        var res: List[Opt[_]] = List()
-        // use l.reverse here to omit later reverse on res or use += or ++= in the thenBranch
-        for (o <- l.reverse)
-          if (o.feature == FeatureExprFactory.True)
-            res ::= o
-          else if (c.config implies (if (env.containsASTElem(o)) env.featureExpr(o) else FeatureExprFactory.True) isTautology()) {
-            res ::= o.copy(feature = FeatureExprFactory.True)
-          }
+    def writeCFG(title: String, writer: CFGWriter) {
+        val fdefs = filterAllASTElems[FunctionDef](tunit)
+        val env = CASTEnv.createASTEnv(tunit)
+        writer.writeHeader(title)
+
+        for (f <- fdefs) {
+            writer.writeMethodGraph(getAllSucc(f, fm, env), env, Map())
+        }
+        writer.writeFooter()
+        writer.close()
+
+        if (writer.isInstanceOf[StringWriter])
+            println(writer.toString)
+    }
+
+    def doubleFree() = {
+
+        val casestudy = {
+            tunit.getFile match {
+                case None => ""
+                case Some(x) => {
+                    if (x.contains("linux")) "linux"
+                    else if (x.contains("openssl")) "openssl"
+                    else ""
+                }
+            }
+        }
+
+        val ts = new CTypeSystemFrontend(tunit, fm) with CDeclUse
+        assert(ts.checkASTSilent, "typecheck fails!")
+        val env = CASTEnv.createASTEnv(tunit)
+        val udm = ts.getUseDeclMap
+
+        val fdefs = filterAllASTElems[FunctionDef](tunit)
+        val errors = fdefs.flatMap(doubleFreeFunctionDef(_, env, udm, casestudy))
+
+        if (errors.isEmpty) {
+            println("No double frees found!")
+        } else {
+            println(errors.map(_.toString + "\n").reduce(_ + _))
+        }
+
+        errors.isEmpty
+    }
+
+    private def doubleFreeFunctionDef(f: FunctionDef, env: ASTEnv, udm: UseDeclMap, casestudy: String): List[AnalysisError] = {
+        var res: List[AnalysisError] = List()
+
+        // It's ok to use FeatureExprFactory.empty here.
+        // Using the project's fm is too expensive since control
+        // flow computation requires a lot of sat calls.
+        // We use the proper fm in DoubleFree (see MonotoneFM).
+        val ss = getAllSucc(f, FeatureExprFactory.empty, env).reverse
+        val df = new DoubleFree(env, udm, fm, casestudy)
+
+        val nss = ss.map(_._1).filterNot(x => x.isInstanceOf[FunctionDef])
+
+        for (s <- nss) {
+            val g = df.gen(s)
+            val out = df.out(s)
+
+            for ((i, h) <- out)
+                for ((f, j) <- g)
+                    j.find(_ == i) match {
+                        case None =>
+                        case Some(x) => {
+                            val xdecls = udm.get(x)
+                            var idecls = udm.get(i)
+                            if (idecls == null)
+                                idecls = List(i)
+                            for (ei <- idecls)
+                                if (xdecls.exists(_.eq(ei)))
+                                    res ::= new AnalysisError(h, "warning: Variable " + x.name + " is freed multiple times!", x)
+                        }
+                    }
+        }
+
         res
-      }
-      // we need ast here because otherwise we have old and new elements in the resulting product
-      // and this might pollute our caches later
-      case a: AST => a.clone()
-    })
+    }
 
-    val x = pconfig(a).get.asInstanceOf[T]
-    appendToFile("output.c", PrettyPrinter.print(x.asInstanceOf[AST]))
-    assert(isVariable(x) == false, "product still contains variability")
-    x
-  }
+    def uninitializedMemory(): Boolean = {
+        val ts = new CTypeSystemFrontend(tunit, fm) with CDeclUse
+        assert(ts.checkAST(), "typecheck fails!")
+        val env = CASTEnv.createASTEnv(tunit)
+        val udm = ts.getUseDeclMap
 
-  def checkCfG() {
-    val fdefs = filterAllASTElems[FunctionDef](tunit)
-    fdefs.map(intraCfGFunctionDef(_))
-  }
+        val fdefs = filterAllASTElems[FunctionDef](tunit)
+        val errors = fdefs.flatMap(uninitializedMemory(_, env, udm))
 
-  def checkDataflow() {
-    val fdefs = filterAllASTElems[FunctionDef](tunit)
-    fdefs.map(intraDataflowAnalysis(_))
-  }
+        if (errors.isEmpty) {
+            println("No uages of uninitialized memory found!")
+        } else {
+            println(errors.map(_.toString + "\n").reduce(_ + _))
+        }
 
-  private def intraCfGFunctionDef(f: FunctionDef) = {
-    val env = CASTEnv.createASTEnv(f)
-    val s = getAllSucc(f, fm, env)
-    val p = getAllPred(f, fm, env)
+        errors.isEmpty
+    }
 
-    val errors = compareSuccWithPred(s, p, env)
-    CCFGErrorOutput.printCCFGErrors(s, p, errors, env)
+    private def uninitializedMemory(f: FunctionDef, env: ASTEnv, udm: UseDeclMap): List[AnalysisError] = {
+        var res: List[AnalysisError] = List()
 
-    errors.size > 0
-  }
+        // It's ok to use FeatureExprFactory.empty here.
+        // Using the project's fm is too expensive since control
+        // flow computation requires a lot of sat calls.
+        // We use the proper fm in UninitializedMemory (see MonotoneFM).
+        val ss = getAllPred(f, FeatureExprFactory.empty, env).reverse
+        val um = new UninitializedMemory(env, udm, FeatureExprFactory.empty)
+        val nss = ss.map(_._1).filterNot(x => x.isInstanceOf[FunctionDef])
 
-  private def intraDataflowAnalysis(f: FunctionDef) {
-    if (f.stmt.innerStatements.isEmpty) return
+        for (s <- nss) {
+            val g = um.getFunctionCallArguments(s)
+            val in = um.in(s)
 
-    val env = CASTEnv.createASTEnv(f)
-    setEnv(env)
-    val ss = getAllSucc(f.stmt.innerStatements.head.entry, FeatureExprFactory.empty, env)
-    val udr = determineUseDeclareRelation(f)
-    setUdr(udr)
-    setFm(fm)
+            println(PrettyPrinter.print(s), " g: ", g, "i: ", in)
+            println("g: ", g.values.flatten.map(System.identityHashCode(_)))
+            println("i: ", in.map(_._1).map(System.identityHashCode(_)))
 
-    val nss = ss.map(_._1).filterNot(x => x.isInstanceOf[FunctionDef])
-    for (s <- nss) in(s)
-  }
+            for ((i, h) <- in)
+                for ((f, j) <- g)
+                    j.find(_ == i) match {
+                        case None =>
+                        case Some(x) => {
+                            val xdecls = udm.get(x)
+                            var idecls = udm.get(i)
+                            if (idecls == null)
+                                idecls = List(i)
+                            for (ei <- idecls)
+                                if (xdecls.exists(_.eq(ei)))
+                                    res ::= new AnalysisError(h, "warning: Variable " + x.name + " is used uninitialized!", x)
+                        }
+                    }
+        }
+
+        res
+    }
+
+    def xfree(): Boolean = {
+        val ts = new CTypeSystemFrontend(tunit, fm) with CDeclUse
+        assert(ts.checkAST(), "typecheck fails!")
+        val env = CASTEnv.createASTEnv(tunit)
+        val udm = ts.getUseDeclMap
+
+        val fdefs = filterAllASTElems[FunctionDef](tunit)
+        val errors = fdefs.flatMap(xfree(_, env, udm))
+
+        if (errors.isEmpty) {
+            println("No uages of uninitialized memory found!")
+        } else {
+            println(errors.map(_.toString + "\n").reduce(_ + _))
+        }
+
+        errors.isEmpty
+    }
+
+    private def xfree(f: FunctionDef, env: ASTEnv, udm: UseDeclMap): List[AnalysisError] = {
+        var res: List[AnalysisError] = List()
+
+        // It's ok to use FeatureExprFactory.empty here.
+        // Using the project's fm is too expensive since control
+        // flow computation requires a lot of sat calls.
+        // We use the proper fm in UninitializedMemory (see MonotoneFM).
+        val ss = getAllPred(f, FeatureExprFactory.empty, env).reverse
+        val xf = new XFree(env, udm, FeatureExprFactory.empty, "")
+        val nss = ss.map(_._1).filterNot(x => x.isInstanceOf[FunctionDef])
+
+        for (s <- nss) {
+            val g = xf.freedVariables(s)
+            val in = xf.in(s)
+
+            for ((i, h) <- in)
+                for ((f, j) <- g)
+                    j.find(_ == i) match {
+                        case None =>
+                        case Some(x) => {
+                            val xdecls = udm.get(x)
+                            var idecls = udm.get(i)
+                            if (idecls == null)
+                                idecls = List(i)
+                            for (ei <- idecls)
+                                if (xdecls.exists(_.eq(ei)))
+                                    res ::= new AnalysisError(h, "warning: Variable " + x.name + " is freed although not dynamically allocted!", x)
+                        }
+                    }
+        }
+
+        res
+    }
+
+    def danglingSwitchCode(): Boolean = {
+        val ts = new CTypeSystemFrontend(tunit, fm) with CDeclUse
+        assert(ts.checkASTSilent, "typecheck fails!")
+        val env = CASTEnv.createASTEnv(tunit)
+
+        val fdefs = filterAllASTElems[FunctionDef](tunit)
+        val errors = fdefs.flatMap(danglingSwitchCode(_, env))
+
+        if (errors.isEmpty) {
+            println("No dangling code in switch statements found!")
+        } else {
+            println(errors.map(_.toString + "\n").reduce(_ + _))
+        }
+
+        !errors.isEmpty
+    }
+
+    private def danglingSwitchCode(f: FunctionDef, env: ASTEnv): List[AnalysisError] = {
+        var res: List[AnalysisError] = List()
+
+        val ss = filterAllASTElems[SwitchStatement](f)
+
+        for (s <- ss) {
+            val ds = new DanglingSwitchCode(env, FeatureExprFactory.empty).computeDanglingCode(s)
+
+            if (! ds.isEmpty) {
+                for (e <- ds)
+                    res ::= new AnalysisError(e.feature, "warning: switch statement has dangling code ", e.entry)
+            }
+        }
+
+        res
+    }
 }
