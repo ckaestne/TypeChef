@@ -1251,7 +1251,3 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
     }
 }
 
-trait NoFunctionLookup {
-    def lookupFunctionDef(name: String): Conditional[Option[ExternalDef]] = One(None)
-}
-
