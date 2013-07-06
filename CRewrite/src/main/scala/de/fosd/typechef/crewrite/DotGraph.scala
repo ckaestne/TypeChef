@@ -163,7 +163,13 @@ class CFGCSVWriter(fwriter: Writer) extends IOUtilities with CFGWriter {
      */
 
     private def asText(o: AST): String = o match {
-        case FunctionDef(_, decl, _, _) => "function;" + o.getPositionFrom.getLine + ";" + decl.getName
+        case FunctionDef(specs, decl, _, _) =>
+            //functions are tagged as inline or static if that modifier occurs at all. not handling conditional
+            //modifiers correctly yet
+            (if (specs.map(_.entry).contains(InlineSpecifier())) "function-inline;"
+            else if (specs.map(_.entry).contains(StaticSpecifier())) "function-static;"
+            else "function;") +
+                o.getPositionFrom.getLine + ";" + decl.getName
         case s: Statement => "statement;" + s.getPositionFrom.getLine + ";" + esc(PrettyPrinter.print(s).take(20))
         case e: Expr => "expression;" + e.getPositionFrom.getLine + ";" + esc(PrettyPrinter.print(e).take(20))
         case Declaration(_, initDecl) => "declaration;" + o.getPositionFrom.getLine + ";" + initDecl.map(_.entry.getName).mkString(",")
