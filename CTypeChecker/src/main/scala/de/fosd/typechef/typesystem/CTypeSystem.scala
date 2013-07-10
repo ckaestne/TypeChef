@@ -52,9 +52,9 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
                         lst.foreach(x => x.entry match {
                             case DeclParameterDeclList(lst2) =>
                                 lst2.foreach(y => y.entry match {
-                                    case ParameterDeclarationD(lst3, _) =>
+                                    case ParameterDeclarationD(lst3, _, _) =>
                                         lst3.foreach(z => z.entry match {
-                                            case StructOrUnionSpecifier(isUnion, Some(i: Id), _) =>
+                                            case StructOrUnionSpecifier(isUnion, Some(i: Id), _, _, _) =>
                                                 addStructDeclUse(i, newEnv, isUnion, featureExpr)
                                             case TypeDefTypeSpecifier(i: Id) =>
                                             //addTypeUse(i, env, z.feature)
@@ -593,12 +593,12 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
 
     def checkTypeParam(declaration: ParameterDeclaration, expr: FeatureExpr, env: Env) {
         declaration match {
-            case PlainParameterDeclaration(specifiers) =>
+            case PlainParameterDeclaration(specifiers, _) =>
                 checkTypeSpecifiers(specifiers, expr, env)
-            case ParameterDeclarationD(specifiers, decl) =>
+            case ParameterDeclarationD(specifiers, decl, _) =>
                 checkTypeSpecifiers(specifiers, expr, env)
                 checkTypeDeclarator(decl, expr, env)
-            case ParameterDeclarationAD(specifiers, abstDecl) =>
+            case ParameterDeclarationAD(specifiers, abstDecl, _) =>
                 checkTypeSpecifiers(specifiers, expr, env)
                 checkTypeAbstractDeclarator(abstDecl, expr, env)
             case VarArgs() =>
@@ -625,7 +625,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
                 addDecl(name, expr, env)
                 checkTypePointers(pointers, expr, env)
                 checkTypeDeclaratorExtensions(extensions, expr, env)
-            case NestedNamedDeclarator(pointers, decl, extensions) =>
+            case NestedNamedDeclarator(pointers, decl, extensions, _) =>
                 checkTypePointers(pointers, expr, env)
                 checkTypeDeclaratorExtensions(extensions, expr, env)
                 checkTypeDeclarator(decl, expr, env)
@@ -639,7 +639,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
                 checkTypePointers(pointers, expr, env)
                 checkTypeDeclaratorExtensions(extensions, expr, env)
 
-            case NestedAbstractDeclarator(pointers, nestedDecl, extensions) =>
+            case NestedAbstractDeclarator(pointers, nestedDecl, extensions, _) =>
                 checkTypePointers(pointers, expr, env)
                 checkTypeDeclaratorExtensions(extensions, expr, env)
                 checkTypeAbstractDeclarator(nestedDecl, expr, env)
@@ -685,7 +685,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
             //                if ((expr andNot declExpr).isSatisfiable)
             //                    reportTypeError(expr andNot declExpr, "Enum " + id.name + " not defined. (defined only in context " + declExpr + ")", specifier, Severity.TypeLookupError)
 
-            case StructOrUnionSpecifier(isUnion, Some(id), enumerators) =>
+            case StructOrUnionSpecifier(isUnion, Some(id), enumerators, _, _) =>
                 for (Opt(f, enumerator) <- enumerators.getOrElse(Nil))
                     checkTypeStructDeclaration(enumerator, expr and f, env)
             // checked at call site (when declaring a variable or calling a function)
@@ -693,7 +693,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
             //                if ((expr andNot declExpr).isSatisfiable)
             //                    reportTypeError(expr andNot declExpr, (if (isUnion) "Union " else "Struct ") + id.name + " not defined. (defined only in context " + declExpr + ")", specifier, Severity.TypeLookupError)
 
-            case StructOrUnionSpecifier(_, None, enumerators) =>
+            case StructOrUnionSpecifier(_, None, enumerators, _, _) =>
                 for (Opt(f, enumerator) <- enumerators.getOrElse(Nil))
                     checkTypeStructDeclaration(enumerator, expr and f, env)
 

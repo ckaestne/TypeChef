@@ -144,19 +144,19 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = false) e
 
     def structOrUnionSpecifier: MultiParser[StructOrUnionSpecifier] =
         structOrUnion ~ repOpt(attributeDecl) ~ structOrUnionSpecifierBody ^^ {
-            case isUnion ~ _ ~ ((id, list)) => StructOrUnionSpecifier(isUnion, id, list)
+            case isUnion ~ attr1 ~ ((id, list, attr2)) => StructOrUnionSpecifier(isUnion, id, list, attr1, attr2)
         }
 
-    private def structOrUnionSpecifierBody: MultiParser[(Option[Id], Option[List[Opt[StructDeclaration]]])] =
+    private def structOrUnionSpecifierBody: MultiParser[(Option[Id], Option[List[Opt[StructDeclaration]]],List[Opt[AttributeSpecifier]])] =
     // XXX: PG: SEMI after LCURLY????
         (ID ~~ LCURLY ~! (opt(SEMI) ~ structDeclarationList0 ~ RCURLY) ~ repOpt(attributeDecl) ^^ {
-            case id ~ _ ~ (_ ~ list ~ _) ~ _ => (Some(id), Some(list))
+            case id ~ _ ~ (_ ~ list ~ _) ~ attr => (Some(id), Some(list), attr)
         }) |
             (LCURLY ~ opt(SEMI) ~ structDeclarationList0 ~ RCURLY ~ repOpt(attributeDecl) ^^ {
-                case _ ~ _ ~ list ~ _ ~ _ => (None, Some(list))
+                case _ ~ _ ~ list ~ _ ~ attr => (None, Some(list), attr)
             }) |
             (ID ^^ {
-                case id => (Some(id), None)
+                case id => (Some(id), None, Nil)
             })
 
     def structOrUnion: MultiParser[Boolean] = // isUnion
@@ -242,7 +242,7 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = false) e
 
     def declarator: MultiParser[Declarator] =
     //XXX: why opt(attributeDecl) rather than rep?
-        (pointerGroup0 ~~ (ID | (LPAREN ~~> opt(attributeDecl) ~~ declarator <~ RPAREN)) ~
+        (pointerGroup0 ~~ (ID | (LPAREN ~~> repOpt(attributeDecl) ~~ declarator <~ RPAREN)) ~
             repOpt(
                 (LPAREN ~~> ((parameterDeclList ^^ {
                     DeclParameterDeclList(_)
@@ -258,8 +258,8 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = false) e
                     DeclArrayAccess(_)
                 }))) ^^ {
             case pointers ~ (id: Id) ~ ext => AtomicNamedDeclarator(pointers, id, ext);
-            case pointers ~ ((attr: Option[_ /*AttributeSpecifier*/ ]) ~ (decl: Declarator)) ~ ext =>
-                NestedNamedDeclarator(pointers, decl, ext)
+            case pointers ~ (attr ~ (decl: Declarator)) ~ ext =>
+                NestedNamedDeclarator(pointers, decl, ext, attr.asInstanceOf[List[Opt[AttributeSpecifier]]])
         }
 
     def parameterDeclList: MultiParser[List[Opt[ParameterDeclaration]]] =
@@ -274,10 +274,10 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = false) e
     //    //consumes trailing separators
 
     def parameterDeclaration: MultiParser[ParameterDeclaration] =
-        declSpecifiers ~ opt(declarator | nonemptyAbstractDeclarator) <~ opt(attributeDecl) ^^ {
-            case s ~ Some(d: Declarator) => ParameterDeclarationD(s, d)
-            case s ~ Some(d: AbstractDeclarator) => ParameterDeclarationAD(s, d)
-            case s ~ None => PlainParameterDeclaration(s)
+        declSpecifiers ~ opt(declarator | nonemptyAbstractDeclarator) ~ repOpt(attributeDecl) ^^ {
+            case s ~ Some(d: Declarator) ~ attr => ParameterDeclarationD(s, d, attr)
+            case s ~ Some(d: AbstractDeclarator) ~ attr => ParameterDeclarationAD(s, d, attr)
+            case s ~ None ~ attr => PlainParameterDeclaration(s, attr)
         }
 
     def functionDef: MultiParser[FunctionDef] =
@@ -450,7 +450,7 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = false) e
     // or no pointers, required nesting, possible extensions
     // or no pointers, no nesting, at least one extension
     def nonemptyAbstractDeclarator: MultiParser[AbstractDeclarator] =
-        (pointerGroup1 ~ opt(LPAREN ~ repOpt(attributeDecl) ~> nonemptyAbstractDeclarator <~ RPAREN) ~
+        (pointerGroup1 ~ opt(LPAREN ~> repOpt(attributeDecl) ~ nonemptyAbstractDeclarator <~ RPAREN) ~
             repOpt(
                 ((LPAREN ~> (optList(parameterDeclList) <~ (opt(COMMA) ~ RPAREN) ^^ {
                     DeclParameterDeclList(_)
@@ -459,10 +459,10 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = false) e
                     DeclArrayAccess(_)
                 })))
             ^^ {
-            case ptrs ~ Some(nestedADecl) ~ ext => NestedAbstractDeclarator(ptrs, nestedADecl, ext)
+            case ptrs ~ Some(attr ~ nestedADecl) ~ ext => NestedAbstractDeclarator(ptrs, nestedADecl, ext, attr)
             case ptrs ~ None ~ ext => AtomicAbstractDeclarator(ptrs, ext)
         }) |
-            ((LPAREN ~ repOpt(attributeDecl) ~> nonemptyAbstractDeclarator <~ RPAREN) ~
+            ((LPAREN ~> repOpt(attributeDecl) ~ nonemptyAbstractDeclarator <~ RPAREN) ~
                 repOpt(
                     ((LPAREN ~> (optList(parameterDeclList) <~ (opt(COMMA) ~ RPAREN) ^^ {
                         DeclParameterDeclList(_)
@@ -471,7 +471,7 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = false) e
                         DeclArrayAccess(_)
                     })))
                 ^^ {
-                case nestedADecl ~ ext => NestedAbstractDeclarator(List(), nestedADecl, ext)
+                case attr~nestedADecl ~ ext => NestedAbstractDeclarator(List(), nestedADecl, ext, attr)
             }) |
             (rep1(
                 ((LPAREN ~> (optList(parameterDeclList) <~ (opt(COMMA) ~ RPAREN) ^^ {
