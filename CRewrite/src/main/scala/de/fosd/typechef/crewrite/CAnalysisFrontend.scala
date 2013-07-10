@@ -6,16 +6,25 @@ import java.io.{Writer, StringWriter}
 import de.fosd.typechef.typesystem._
 import scala.Some
 import de.fosd.typechef.parser.c._
+import de.fosd.typechef.conditional.{Conditional, Opt, ConditionalMap}
 
-class CAnalysisFrontend(tunit: TranslationUnit, fm: FeatureModel = FeatureExprFactory.empty) extends CFGHelper with EnforceTreeHelper {
+class CAnalysisFrontend(tunit: TranslationUnit, fm: FeatureModel = FeatureExprFactory.empty) extends CFGHelper with InterCFG with EnforceTreeHelper {
+
 
     def writeCFG(title: String, writer: CFGWriter) {
         val fdefs = filterAllASTElems[FunctionDef](tunit)
         val env = CASTEnv.createASTEnv(tunit)
         writer.writeHeader(title)
 
+        def lookupFExpr(e: AST): FeatureExpr = e match {
+            case o if env.isKnown(o) => env.featureExpr(o)
+            case e: ExternalDef => externalDefFExprs.get(e).getOrElse(FeatureExprFactory.True)
+            case _ => FeatureExprFactory.True
+        }
+
+
         for (f <- fdefs) {
-            writer.writeMethodGraph(getAllSucc(f, fm, env), env, Map())
+            writer.writeMethodGraph(getAllSucc(f, fm, env), lookupFExpr)
         }
         writer.writeFooter()
         writer.close()
@@ -222,7 +231,7 @@ class CAnalysisFrontend(tunit: TranslationUnit, fm: FeatureModel = FeatureExprFa
         for (s <- ss) {
             val ds = new DanglingSwitchCode(env, FeatureExprFactory.empty).computeDanglingCode(s)
 
-            if (! ds.isEmpty) {
+            if (!ds.isEmpty) {
                 for (e <- ds)
                     res ::= new AnalysisError(e.feature, "warning: switch statement has dangling code ", e.entry)
             }
@@ -230,4 +239,6 @@ class CAnalysisFrontend(tunit: TranslationUnit, fm: FeatureModel = FeatureExprFa
 
         res
     }
+
+    def getTranslationUnit(): TranslationUnit = tunit
 }
