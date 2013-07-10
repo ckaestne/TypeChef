@@ -271,14 +271,14 @@ case class AtomicNamedDeclarator(override val pointers: List[Opt[Pointer]], id: 
     def getName = id.name
 }
 
-case class NestedNamedDeclarator(override val pointers: List[Opt[Pointer]], nestedDecl: Declarator, override val extensions: List[Opt[DeclaratorExtension]]) extends Declarator(pointers, extensions) {
+case class NestedNamedDeclarator(override val pointers: List[Opt[Pointer]], nestedDecl: Declarator, override val extensions: List[Opt[DeclaratorExtension]], attr: List[Opt[AttributeSpecifier]]) extends Declarator(pointers, extensions) {
     def getId = nestedDecl.getId
     def getName = nestedDecl.getName
 }
 
 case class AtomicAbstractDeclarator(override val pointers: List[Opt[Pointer]], override val extensions: List[Opt[DeclaratorAbstrExtension]]) extends AbstractDeclarator(pointers, extensions)
 
-case class NestedAbstractDeclarator(override val pointers: List[Opt[Pointer]], nestedDecl: AbstractDeclarator, override val extensions: List[Opt[DeclaratorAbstrExtension]]) extends AbstractDeclarator(pointers, extensions)
+case class NestedAbstractDeclarator(override val pointers: List[Opt[Pointer]], nestedDecl: AbstractDeclarator, override val extensions: List[Opt[DeclaratorAbstrExtension]], attr: List[Opt[AttributeSpecifier]]) extends AbstractDeclarator(pointers, extensions)
 
 
 sealed abstract class DeclaratorExtension extends AST
@@ -311,11 +311,11 @@ case class Pointer(specifier: List[Opt[Specifier]]) extends AST
 
 abstract class ParameterDeclaration(val specifiers: List[Opt[Specifier]]) extends AST
 
-case class PlainParameterDeclaration(override val specifiers: List[Opt[Specifier]]) extends ParameterDeclaration(specifiers)
+case class PlainParameterDeclaration(override val specifiers: List[Opt[Specifier]], attr: List[Opt[AttributeSpecifier]]) extends ParameterDeclaration(specifiers)
 
-case class ParameterDeclarationD(override val specifiers: List[Opt[Specifier]], decl: Declarator) extends ParameterDeclaration(specifiers)
+case class ParameterDeclarationD(override val specifiers: List[Opt[Specifier]], decl: Declarator, attr: List[Opt[AttributeSpecifier]]) extends ParameterDeclaration(specifiers)
 
-case class ParameterDeclarationAD(override val specifiers: List[Opt[Specifier]], decl: AbstractDeclarator) extends ParameterDeclaration(specifiers)
+case class ParameterDeclarationAD(override val specifiers: List[Opt[Specifier]], decl: AbstractDeclarator, attr: List[Opt[AttributeSpecifier]]) extends ParameterDeclaration(specifiers)
 
 trait OldParameterDeclaration extends AST
 
@@ -325,7 +325,7 @@ case class EnumSpecifier(id: Option[Id], enumerators: Option[List[Opt[Enumerator
 
 case class Enumerator(id: Id, assignment: Option[Expr]) extends AST
 
-case class StructOrUnionSpecifier(isUnion: Boolean, id: Option[Id], enumerators: Option[List[Opt[StructDeclaration]]]) extends TypeSpecifier
+case class StructOrUnionSpecifier(isUnion: Boolean, id: Option[Id], enumerators: Option[List[Opt[StructDeclaration]]], attributesBeforeBody: List[Opt[AttributeSpecifier]], attributesAfterBody: List[Opt[AttributeSpecifier]]) extends TypeSpecifier
 
 case class StructDeclaration(qualifierList: List[Opt[Specifier]], declaratorList: List[Opt[StructDecl]]) extends AST
 

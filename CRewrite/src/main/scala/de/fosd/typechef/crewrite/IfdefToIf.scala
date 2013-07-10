@@ -277,12 +277,12 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
         val structDeclList = defExSet.map(x => {
             Opt(trueF, StructDeclaration(List(Opt(trueF, IntSpecifier())), List(Opt(trueF, StructDeclarator(AtomicNamedDeclarator(List(), Id(x.feature.toLowerCase), List()), None, List())))))
         }).toList
-        val structDeclaration = Opt(trueF, Declaration(List(Opt(trueF, StructOrUnionSpecifier(false, Some(Id("ifdef_options")), Some(structDeclList)))), List(Opt(trueF, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("options"), List()), List(), None)))))
+        val structDeclaration = Opt(trueF, Declaration(List(Opt(trueF, StructOrUnionSpecifier(false, Some(Id("ifdef_options")), Some(structDeclList), Nil, Nil))), List(Opt(trueF, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("options"), List()), List(), None)))))
 
         if (!createFunctionsForModelChecking) {
             TranslationUnit(List(structDeclaration))
         } else {
-            val externDeclaration = Opt(trueF, Declaration(List(Opt(trueF, ExternSpecifier()), Opt(trueF, IntSpecifier())), List(Opt(trueF, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("__VERIFIER_NONDET_INT"), List(Opt(trueF, DeclParameterDeclList(List(Opt(trueF, PlainParameterDeclaration(List(Opt(trueF, VoidSpecifier()))))))))), List(), None)))))
+            val externDeclaration = Opt(trueF, Declaration(List(Opt(trueF, ExternSpecifier()), Opt(trueF, IntSpecifier())), List(Opt(trueF, InitDeclaratorI(AtomicNamedDeclarator(List(), Id("__VERIFIER_NONDET_INT"), List(Opt(trueF, DeclParameterDeclList(List(Opt(trueF, PlainParameterDeclaration(List(Opt(trueF, VoidSpecifier())),Nil))))))), List(), None)))))
 
             val function = Opt(trueF, FunctionDef(List(Opt(trueF, IntSpecifier())), AtomicNamedDeclarator(List(), Id("select_one"), List(Opt(trueF, DeclIdentifierList(List())))), List(), CompoundStatement(List(Opt(trueF, IfStatement(One(PostfixExpr(Id("__VERIFIER_NONDET_INT"), FunctionCall(ExprList(List())))), One(CompoundStatement(List(Opt(trueF, ReturnStatement(Some(Constant("1"))))))), List(), Some(One(CompoundStatement(List(Opt(trueF, ReturnStatement(Some(Constant("0"))))))))))))))
 
@@ -567,7 +567,7 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
                     val featurecombinations = getFeatureExpressions(decl)
                     val newDecls: List[Opt[Declaration]] = featurecombinations.map(x =>
                         filterOptsByFeature(decl.copy(entry = d.copy(declSpecs = declSpecs.map(x => x match {
-                            case o@Opt(_, StructOrUnionSpecifier(_, Some(i: Id), _)) => convertId(x, dcl.feature)
+                            case o@Opt(_, StructOrUnionSpecifier(_, Some(i: Id), _, _, _)) => convertId(x, dcl.feature)
                             case Opt(_, e: EnumSpecifier) => convertAllIds(x, dcl.feature)
                             case z => z
                         }), init = init.map(y => y match {
@@ -581,7 +581,7 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
                     newDecls
                 } else {
                     val tempDecl = decl.copy(entry = d.copy(declSpecs = declSpecs.map(x => x match {
-                        case o@Opt(_, StructOrUnionSpecifier(_, Some(i: Id), _)) => convertId(x, dcl.feature)
+                        case o@Opt(_, StructOrUnionSpecifier(_, Some(i: Id), _, _, _)) => convertId(x, dcl.feature)
                         case Opt(_, e: EnumSpecifier) => convertAllIds(x, dcl.feature)
                         case z => z
                     }), init = init.map(x => x match {
@@ -622,14 +622,14 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
                 } else {
                     init
                 }
-            case init@InitDeclaratorI(nnd@NestedNamedDeclarator(l, decl@AtomicNamedDeclarator(a, i: Id, b), r), attr, inits) =>
+            case init@InitDeclaratorI(nnd@NestedNamedDeclarator(l, decl@AtomicNamedDeclarator(a, i: Id, b), r, _), attr, inits) =>
                 if (i.name != "main") {
                     addIdUsages(i, ft)
                     replaceId.put(i, ft)
                     if (!IdMap.contains(ft)) {
                         IdMap += (ft -> IdMap.size)
                     }
-                    InitDeclaratorI(NestedNamedDeclarator(l, AtomicNamedDeclarator(a, Id("_" + IdMap.get(ft).get + "_" + i.name), b), r), attr, inits)
+                    InitDeclaratorI(NestedNamedDeclarator(l, AtomicNamedDeclarator(a, Id("_" + IdMap.get(ft).get + "_" + i.name), b), r, Nil), attr, inits)
                 } else {
                     init
                 }
@@ -2097,10 +2097,10 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
                             } else {
                                 o
                             }
-                        case o@Opt(ft, StructOrUnionSpecifier(a, Some(i: Id), b)) =>
+                        case o@Opt(ft, StructOrUnionSpecifier(a, Some(i: Id), b, _, _)) =>
                             if (defuse.containsKey(i)) {
                                 addIdUsages(i, feat)
-                                Opt(ft, StructOrUnionSpecifier(a, Some(Id("_" + IdMap.get(feat).get + "_" + i.name)), b))
+                                Opt(ft, StructOrUnionSpecifier(a, Some(Id("_" + IdMap.get(feat).get + "_" + i.name)), b, Nil, Nil))
                             } else {
                                 o
                             }

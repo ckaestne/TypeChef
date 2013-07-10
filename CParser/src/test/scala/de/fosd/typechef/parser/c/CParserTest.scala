@@ -402,7 +402,7 @@ class CParserTest {
 
     @Test def testDeclarator {
         assertParseResult(AtomicNamedDeclarator(List(), a, List()), "a", p.declarator)
-        assertParseResult(NestedNamedDeclarator(List(), AtomicNamedDeclarator(List(), a, lo(DeclArrayAccess(None))), List()), "(a[])", p.declarator)
+        assertParseResult(NestedNamedDeclarator(List(), AtomicNamedDeclarator(List(), a, lo(DeclArrayAccess(None))), List(), List()), "(a[])", p.declarator)
         assertParseResult(AtomicNamedDeclarator(lo(Pointer(List())), a, List()), "*a", p.declarator)
         assertParseResult(AtomicNamedDeclarator(lo(Pointer(List()), Pointer(List())), a, List()), "**a", p.declarator)
         assertParseResult(AtomicNamedDeclarator(lo(Pointer(lo(ConstSpecifier()))), a, List()), "*const a", p.declarator)

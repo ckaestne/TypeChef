@@ -13,7 +13,7 @@ trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTypi
      */
     protected final def parameterTypes(decl: Declarator, featureExpr: FeatureExpr, env: Env, oldStyleParam: ConditionalTypeMap): List[(String, FeatureExpr, AST, Conditional[CType])] =
         decl match {
-            case NestedNamedDeclarator(_, nestedDecl, _) => parameterTypes(nestedDecl, featureExpr, env, oldStyleParam)
+            case NestedNamedDeclarator(_, nestedDecl, _, _) => parameterTypes(nestedDecl, featureExpr, env, oldStyleParam)
             case atomicDecl: AtomicNamedDeclarator => parameterTypesAtomic(atomicDecl, featureExpr, env, oldStyleParam)
         }
 
@@ -26,13 +26,13 @@ trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTypi
                 for (Opt(paramFeature, param) <- paramDecls) {
                     val f = featureExpr and extensionFeature and paramFeature
                     param match {
-                        case PlainParameterDeclaration(specifiers) =>
+                        case PlainParameterDeclaration(specifiers, _) =>
                             //having int foo(void) is Ok, but for everything else we expect named parameters
                             val onlyVoid = !specifiers.exists(spec => (spec.feature and f).isSatisfiable() && spec.entry != VoidSpecifier())
                             assertTypeSystemConstraint(onlyVoid, featureExpr and extensionFeature and paramFeature, "no name, old parameter style?", param) //TODO
-                        case ParameterDeclarationD(specifiers, decl) =>
+                        case ParameterDeclarationD(specifiers, decl, _) =>
                             result = ((decl.getName, f, decl, getDeclarationType(specifiers, decl, f, env))) :: result
-                        case ParameterDeclarationAD(specifiers, decl) =>
+                        case ParameterDeclarationAD(specifiers, decl, _) =>
                             assertTypeSystemConstraint(false, featureExpr and extensionFeature and paramFeature, "no name, old parameter style?", param) //TODO
                         case VarArgs() => //TODO not accessible as parameter?
                     }
@@ -73,7 +73,7 @@ trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTypi
     }
 
     def addStructDeclarationToEnv(specifier: Specifier, featureExpr: FeatureExpr, initEnv: Env, declareIncompleteTypes: Boolean): Env = specifier match {
-        case e@StructOrUnionSpecifier(isUnion, Some(i@Id(name)), Some(attributes)) => {
+        case e@StructOrUnionSpecifier(isUnion, Some(i@Id(name)), Some(attributes), _, _) => {
             //for parsing the inner members, the struct itself is available incomplete
             var env = initEnv.updateStructEnv(initEnv.structEnv.addIncomplete(i, isUnion, featureExpr, initEnv.scope))
             addDefinition(i, env)
@@ -86,7 +86,7 @@ trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTypi
             env.updateStructEnv(env.structEnv.addComplete(i, isUnion, featureExpr, members, env.scope))
         }
         //incomplete struct
-        case e@StructOrUnionSpecifier(isUnion, Some(i@Id(name)), None) => {
+        case e@StructOrUnionSpecifier(isUnion, Some(i@Id(name)), None, _, _) => {
             //we only add an incomplete declaration in specific cases when a declaration does not have a declarator ("struct x;")
             if (declareIncompleteTypes) {
                 var env = initEnv.updateStructEnv(initEnv.structEnv.addIncomplete(i, isUnion, featureExpr, initEnv.scope))
@@ -97,7 +97,7 @@ trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTypi
                 initEnv
             }
         }
-        case e@StructOrUnionSpecifier(_, None, Some(attributes)) =>
+        case e@StructOrUnionSpecifier(_, None, Some(attributes), _, _) =>
             addInnerStructDeclarationsToEnv(attributes, featureExpr, initEnv)
         case _ => initEnv
     }
@@ -171,7 +171,7 @@ trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTypi
                         }
                         b + (name ->((featureExpr and specFeature or ft), i))
                     //recurse into structs
-                    case StructOrUnionSpecifier(_, _, fields) =>
+                    case StructOrUnionSpecifier(_, _, fields, _, _) =>
                         fields.getOrElse(Nil).foldRight(b)(
                             (optField, b) => addEnumDeclarationToEnv(optField.entry.qualifierList, featureExpr and specFeature and optField.feature, env.updateEnumEnv(b), optField.entry.declaratorList.isEmpty)
                         )
