@@ -2,20 +2,33 @@
 package de.fosd.typechef.crewrite
 
 import de.fosd.typechef.featureexpr._
-import java.io.{Writer, StringWriter}
+import java.io.StringWriter
 import de.fosd.typechef.typesystem._
 import scala.Some
 import de.fosd.typechef.parser.c._
 
-class CAnalysisFrontend(tunit: TranslationUnit, fm: FeatureModel = FeatureExprFactory.empty) extends CFGHelper with EnforceTreeHelper {
+sealed abstract class CAnalysisFrontend(tu: TranslationUnit) extends EnforceTreeHelper {
+    protected val tunit = prepareAST[TranslationUnit](tu)
+}
+
+class CInterAnalysisFrontend(tu: TranslationUnit, fm: FeatureModel = FeatureExprFactory.empty) extends CAnalysisFrontend(tu) with InterCFG with CFGHelper {
+
+    def getTranslationUnit(): TranslationUnit = tunit
 
     def writeCFG(title: String, writer: CFGWriter) {
         val fdefs = filterAllASTElems[FunctionDef](tunit)
         val env = CASTEnv.createASTEnv(tunit)
         writer.writeHeader(title)
 
+        def lookupFExpr(e: AST): FeatureExpr = e match {
+            case o if env.isKnown(o) => env.featureExpr(o)
+            case e: ExternalDef => externalDefFExprs.get(e).getOrElse(FeatureExprFactory.True)
+            case _ => FeatureExprFactory.True
+        }
+
+
         for (f <- fdefs) {
-            writer.writeMethodGraph(getAllSucc(f, fm, env), env, Map())
+            writer.writeMethodGraph(getAllSucc(f, fm, env), lookupFExpr)
         }
         writer.writeFooter()
         writer.close()
@@ -23,9 +36,11 @@ class CAnalysisFrontend(tunit: TranslationUnit, fm: FeatureModel = FeatureExprFa
         if (writer.isInstanceOf[StringWriter])
             println(writer.toString)
     }
+}
+
+class CIntraAnalysisFrontend(tu: TranslationUnit, fm: FeatureModel = FeatureExprFactory.empty) extends CAnalysisFrontend(tu) with IntraCFG with CFGHelper {
 
     def doubleFree() = {
-
         val casestudy = {
             tunit.getFile match {
                 case None => ""

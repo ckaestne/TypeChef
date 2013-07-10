@@ -21,7 +21,7 @@ class UninitializedMemoryTest extends TestHelper with ShouldMatchers with CFGHel
 
     def uninitializedMemory(code: String): Boolean = {
         val tunit = prepareAST[TranslationUnit](parseTranslationUnit(code))
-        val um = new CAnalysisFrontend(tunit)
+        val um = new CIntraAnalysisFrontend(tunit)
         um.uninitializedMemory()
     }
 

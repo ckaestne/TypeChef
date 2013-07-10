@@ -155,29 +155,29 @@ object Frontend {
                 if (opt.dumpcfg) {
                     stopWatch.start("dumpCFG")
 
-                    val cf = new CAnalysisFrontend(ast.asInstanceOf[TranslationUnit], fm_ts)
+                    val cf = new CInterAnalysisFrontend(ast.asInstanceOf[TranslationUnit], fm_ts)
                     val writer = new CFGCSVWriter(new FileWriter(new File(opt.getCCFGFilename)))
                     val dotwriter = new DotGraph(new FileWriter(new File(opt.getCCFGDotFilename)))
                     cf.writeCFG(opt.getFile, new ComposedWriter(List(dotwriter, writer)))
                 }
                 if (opt.Sdoublefree.isSelected) {
                     stopWatch.start("doublefree")
-                    val df = new CAnalysisFrontend(ast.asInstanceOf[TranslationUnit], fm_ts)
+                    val df = new CIntraAnalysisFrontend(ast.asInstanceOf[TranslationUnit], fm_ts)
                     df.doubleFree()
                 }
                 if (opt.Sunitializedmemory.isSelected) {
                     stopWatch.start("uninitializedmemory")
-                    val uv = new CAnalysisFrontend(ast.asInstanceOf[TranslationUnit], fm_ts)
+                    val uv = new CIntraAnalysisFrontend(ast.asInstanceOf[TranslationUnit], fm_ts)
                     uv.uninitializedMemory()
                 }
                 if (opt.Sxfree.isSelected) {
                     stopWatch.start("xfree")
-                    val xf = new CAnalysisFrontend(ast.asInstanceOf[TranslationUnit], fm_ts)
+                    val xf = new CIntraAnalysisFrontend(ast.asInstanceOf[TranslationUnit], fm_ts)
                     xf.xfree()
                 }
                 if (opt.Sdanglingswitchcode.isSelected) {
                     stopWatch.start("danglingswitchcode")
-                    val ds = new CAnalysisFrontend(ast.asInstanceOf[TranslationUnit], fm_ts)
+                    val ds = new CIntraAnalysisFrontend(ast.asInstanceOf[TranslationUnit], fm_ts)
                     ds.danglingSwitchCode()
                 }
 
