@@ -7,8 +7,9 @@ import de.fosd.typechef.typesystem.UseDeclMap
 import de.fosd.typechef.featureexpr.FeatureModel
 
 // implements a simple analysis of double-free
-// freeing memory multiple times [dblfree]
-// see http://www.open-std.org/jtc1/sc22/wg14/www/docs/n1669.pdf 5.22
+// freeing memory multiple times
+// https://www.securecoding.cert.org/confluence/display/seccode/MEM31-C.+Free+dynamically+allocated+memory+exactly+once
+// MEM31-C
 //
 // major limitations:
 //   - without an alias analysis we are not capable of
