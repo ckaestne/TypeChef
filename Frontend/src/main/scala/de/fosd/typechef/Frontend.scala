@@ -125,7 +125,7 @@ object Frontend {
 
             if (ast != null) {
                 val fm_ts = opt.getTypeSystemFeatureModel.and(opt.getLocalFeatureModel).and(opt.getFilePresenceCondition)
-                val cachedTypes = opt.Sxfree.isSelected // just an example
+                val cachedTypes = false //opt.warning_xfree // just an example
                 val ts = if (cachedTypes)
                         new CTypeSystemFrontend(ast.asInstanceOf[TranslationUnit], fm_ts, opt) with CTypeCache
                     else new CTypeSystemFrontend(ast.asInstanceOf[TranslationUnit], fm_ts, opt)
@@ -160,22 +160,22 @@ object Frontend {
                     val dotwriter = new DotGraph(new FileWriter(new File(opt.getCCFGDotFilename)))
                     cf.writeCFG(opt.getFile, new ComposedWriter(List(dotwriter, writer)))
                 }
-                if (opt.Sdoublefree.isSelected) {
+                if (opt.warning_double_free) {
                     stopWatch.start("doublefree")
                     val df = new CIntraAnalysisFrontend(ast.asInstanceOf[TranslationUnit], fm_ts)
                     df.doubleFree()
                 }
-                if (opt.Sunitializedmemory.isSelected) {
+                if (opt.warning_uninitialized_memory) {
                     stopWatch.start("uninitializedmemory")
                     val uv = new CIntraAnalysisFrontend(ast.asInstanceOf[TranslationUnit], fm_ts)
                     uv.uninitializedMemory()
                 }
-                if (opt.Sxfree.isSelected) {
+                if (opt.warning_xfree) {
                     stopWatch.start("xfree")
                     val xf = new CIntraAnalysisFrontend(ast.asInstanceOf[TranslationUnit], fm_ts)
                     xf.xfree()
                 }
-                if (opt.Sdanglingswitchcode.isSelected) {
+                if (opt.warning_dangling_switch_code) {
                     stopWatch.start("danglingswitchcode")
                     val ds = new CIntraAnalysisFrontend(ast.asInstanceOf[TranslationUnit], fm_ts)
                     ds.danglingSwitchCode()
