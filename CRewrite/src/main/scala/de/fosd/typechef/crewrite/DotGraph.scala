@@ -9,7 +9,7 @@ import java.util
 
 trait CFGWriter {
 
-    def writeNode(node: AST, env: ASTEnv, externalDefFExprs: Map[ExternalDef, FeatureExpr])
+    def writeNode(node: AST, fexpr: FeatureExpr)
 
     def writeEdge(source: AST, target: AST, fexpr: FeatureExpr)
 
@@ -22,21 +22,23 @@ trait CFGWriter {
     protected val printedNodes = new util.IdentityHashMap[AST, Object]()
     protected val FOUND = new Object()
 
-    protected def writeNodeOnce(o: AST, env: ASTEnv, map: Map[ExternalDef, FeatureExpr]) {
+
+
+    protected def writeNodeOnce(o: AST, fexpr: () => FeatureExpr) {
         if (!printedNodes.containsKey(o)) {
             printedNodes.put(o, FOUND)
-            writeNode(o, env, map)
+            writeNode(o, fexpr())
         }
     }
 
-    def writeMethodGraph(m: List[(AST, List[Opt[AST]])], env: ASTEnv, externalDefFExprs: Map[ExternalDef, FeatureExpr]) {
+    def writeMethodGraph(m: List[(AST, List[Opt[AST]])], lookupFExpr: AST => FeatureExpr) {
         // iterate ast elements and its successors and add nodes in for each ast element
         for ((o, csuccs) <- m) {
-            writeNodeOnce(o, env, externalDefFExprs)
+            writeNodeOnce(o, ()=>lookupFExpr(o))
 
             // iterate successors and add edges
             for (Opt(f, succ) <- csuccs) {
-                writeNodeOnce(succ, env, externalDefFExprs)
+                writeNodeOnce(succ, ()=>lookupFExpr(o))
 
                 writeEdge(o, succ, f)
             }
@@ -69,11 +71,6 @@ class DotGraph(fwriter: Writer) extends IOUtilities with CFGWriter {
         case x => esc(PrettyPrinter.print(x)).take(20)
     }
 
-    private def lookupFExpr(e: AST, env: ASTEnv, externalDefFExprs: Map[ExternalDef, FeatureExpr]): FeatureExpr = e match {
-        case o if env.isKnown(o) => env.featureExpr(o)
-        case e: ExternalDef => externalDefFExprs.get(e).getOrElse(FeatureExprFactory.True)
-        case _ => FeatureExprFactory.True
-    }
 
     def writeEdge(source: AST, target: AST, fexpr: FeatureExpr) {
         fwriter.write("\"" + System.identityHashCode(source) + "\" -> \"" + System.identityHashCode(target) + "\"")
@@ -85,9 +82,8 @@ class DotGraph(fwriter: Writer) extends IOUtilities with CFGWriter {
         fwriter.write("];\n")
     }
 
-    def writeNode(o: AST, env: ASTEnv, externalDefFExprs: Map[ExternalDef, FeatureExpr]) {
+    def writeNode(o: AST, fexpr: FeatureExpr) {
         val op = esc(asText(o))
-        val fexpr = lookupFExpr(o, env, externalDefFExprs)
         fwriter.write("\"" + System.identityHashCode(o) + "\"")
         fwriter.write("[")
         fwriter.write("label=\"{{" + op + "}|" + esc(fexpr.toString) + "}\", ")
@@ -111,16 +107,16 @@ class DotGraph(fwriter: Writer) extends IOUtilities with CFGWriter {
 
     protected def esc(i: String) = {
         i.replace("\n", "\\l").
-                replace("{", "\\{").
-                replace("}", "\\}").
-                replace("<", "\\<").
-                replace(">", "\\>").
-                replace("\"", "\\\"").
-                replace("|", "\\|").
-                replace(" ", "\\ ").
-                replace("\\\"", "\\\\\"").
-                replace("\\\\\"", "\\\\\\\"").
-                replace("\\\\\\\\\"", "\\\\\\\"")
+            replace("{", "\\{").
+            replace("}", "\\}").
+            replace("<", "\\<").
+            replace(">", "\\>").
+            replace("\"", "\\\"").
+            replace("|", "\\|").
+            replace(" ", "\\ ").
+            replace("\\\"", "\\\\\"").
+            replace("\\\\\"", "\\\\\\\"").
+            replace("\\\\\\\\\"", "\\\\\\\"")
     }
 
     def close() {
@@ -186,8 +182,7 @@ class CFGCSVWriter(fwriter: Writer) extends IOUtilities with CFGWriter {
         fwriter.write("E;" + System.identityHashCode(source) + ";" + System.identityHashCode(target) + ";" + fexpr.toTextExpr + "\n")
     }
 
-    def writeNode(o: AST, env: ASTEnv, externalDefFExprs: Map[ExternalDef, FeatureExpr]) {
-        val fexpr = lookupFExpr(o, env, externalDefFExprs)
+    def writeNode(o: AST, fexpr: FeatureExpr) {
         fwriter.write("N;" + System.identityHashCode(o) + ";" + asText(o) + ";" + fexpr.toTextExpr + "\n")
     }
 
@@ -199,7 +194,7 @@ class CFGCSVWriter(fwriter: Writer) extends IOUtilities with CFGWriter {
 
     private def esc(i: String) = {
         i.replace(";", "").
-                replace("\n", " ")
+            replace("\n", " ")
     }
 
     def close() {
@@ -209,8 +204,8 @@ class CFGCSVWriter(fwriter: Writer) extends IOUtilities with CFGWriter {
 
 
 class ComposedWriter(writers: List[CFGWriter]) extends CFGWriter {
-    def writeNode(node: AST, env: ASTEnv, externalDefFExprs: Map[ExternalDef, FeatureExpr]) {
-        writers.map(_.writeNode(node, env, externalDefFExprs))
+    def writeNode(node: AST, fexpr: FeatureExpr) {
+        writers.map(_.writeNode(node, fexpr))
     }
 
     def writeEdge(source: AST, target: AST, fexpr: FeatureExpr) {
