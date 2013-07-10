@@ -125,9 +125,9 @@ object Frontend {
 
             if (ast != null) {
                 val fm_ts = opt.getTypeSystemFeatureModel.and(opt.getLocalFeatureModel).and(opt.getFilePresenceCondition)
-                val cachedTypes = false //opt.warning_xfree // just an example
-                val ts = if (cachedTypes)
-                        new CTypeSystemFrontend(ast.asInstanceOf[TranslationUnit], fm_ts, opt) with CTypeCache
+                val cacheTypes = opt.warning_double_free || opt.warning_uninitialized_memory || opt.warning_xfree
+                val ts = if (cacheTypes)
+                        new CTypeSystemFrontend(ast.asInstanceOf[TranslationUnit], fm_ts, opt) with CTypeCache with CDeclUse
                     else new CTypeSystemFrontend(ast.asInstanceOf[TranslationUnit], fm_ts, opt)
 
                 /** I did some experiments with the TypeChef FeatureModel of Linux, in case I need the routines again, they are saved here. */
@@ -142,6 +142,9 @@ object Frontend {
                     println("type checking.")
                     ts.checkAST()
                     ts.errors.map(errorXML.renderTypeError(_))
+                } else if (cacheTypes) {
+                    stopWatch.start("typechecking")
+                    assert(ts.checkASTSilent, "typecheck fails!")
                 }
                 if (opt.writeInterface) {
                     stopWatch.start("interfaces")
@@ -163,17 +166,17 @@ object Frontend {
                 if (opt.warning_double_free) {
                     stopWatch.start("doublefree")
                     val df = new CIntraAnalysisFrontend(ast.asInstanceOf[TranslationUnit], fm_ts)
-                    df.doubleFree()
+                    df.doubleFree(ts.getUseDeclMap)
                 }
                 if (opt.warning_uninitialized_memory) {
                     stopWatch.start("uninitializedmemory")
                     val uv = new CIntraAnalysisFrontend(ast.asInstanceOf[TranslationUnit], fm_ts)
-                    uv.uninitializedMemory()
+                    uv.uninitializedMemory(ts.getUseDeclMap)
                 }
                 if (opt.warning_xfree) {
                     stopWatch.start("xfree")
                     val xf = new CIntraAnalysisFrontend(ast.asInstanceOf[TranslationUnit], fm_ts)
-                    xf.xfree()
+                    xf.xfree(ts.getUseDeclMap)
                 }
                 if (opt.warning_dangling_switch_code) {
                     stopWatch.start("danglingswitchcode")

@@ -3,9 +3,9 @@ package de.fosd.typechef.crewrite
 
 import de.fosd.typechef.featureexpr._
 import java.io.StringWriter
-import de.fosd.typechef.typesystem._
 import scala.Some
 import de.fosd.typechef.parser.c._
+import java.util
 
 sealed abstract class CAnalysisFrontend(tu: TranslationUnit) extends EnforceTreeHelper {
     protected val tunit = prepareAST[TranslationUnit](tu)
@@ -40,7 +40,9 @@ class CInterAnalysisFrontend(tu: TranslationUnit, fm: FeatureModel = FeatureExpr
 
 class CIntraAnalysisFrontend(tu: TranslationUnit, fm: FeatureModel = FeatureExprFactory.empty) extends CAnalysisFrontend(tu) with IntraCFG with CFGHelper {
 
-    def doubleFree() = {
+    import de.fosd.typechef.typesystem.UseDeclMap
+
+    def doubleFree(udm: UseDeclMap) = {
         val casestudy = {
             tunit.getFile match {
                 case None => ""
@@ -52,10 +54,7 @@ class CIntraAnalysisFrontend(tu: TranslationUnit, fm: FeatureModel = FeatureExpr
             }
         }
 
-        val ts = new CTypeSystemFrontend(tunit, fm) with CDeclUse
-        assert(ts.checkASTSilent, "typecheck fails!")
         val env = CASTEnv.createASTEnv(tunit)
-        val udm = ts.getUseDeclMap
 
         val fdefs = filterAllASTElems[FunctionDef](tunit)
         val errors = fdefs.flatMap(doubleFreeFunctionDef(_, env, udm, casestudy))
@@ -104,11 +103,8 @@ class CIntraAnalysisFrontend(tu: TranslationUnit, fm: FeatureModel = FeatureExpr
         res
     }
 
-    def uninitializedMemory(): Boolean = {
-        val ts = new CTypeSystemFrontend(tunit, fm) with CDeclUse
-        assert(ts.checkAST(), "typecheck fails!")
+    def uninitializedMemory(udm: UseDeclMap): Boolean = {
         val env = CASTEnv.createASTEnv(tunit)
-        val udm = ts.getUseDeclMap
 
         val fdefs = filterAllASTElems[FunctionDef](tunit)
         val errors = fdefs.flatMap(uninitializedMemory(_, env, udm))
@@ -160,11 +156,8 @@ class CIntraAnalysisFrontend(tu: TranslationUnit, fm: FeatureModel = FeatureExpr
         res
     }
 
-    def xfree(): Boolean = {
-        val ts = new CTypeSystemFrontend(tunit, fm) with CDeclUse
-        assert(ts.checkAST(), "typecheck fails!")
+    def xfree(udm: UseDeclMap): Boolean = {
         val env = CASTEnv.createASTEnv(tunit)
-        val udm = ts.getUseDeclMap
 
         val fdefs = filterAllASTElems[FunctionDef](tunit)
         val errors = fdefs.flatMap(xfree(_, env, udm))
@@ -213,8 +206,6 @@ class CIntraAnalysisFrontend(tu: TranslationUnit, fm: FeatureModel = FeatureExpr
     }
 
     def danglingSwitchCode(): Boolean = {
-        val ts = new CTypeSystemFrontend(tunit, fm) with CDeclUse
-        assert(ts.checkASTSilent, "typecheck fails!")
         val env = CASTEnv.createASTEnv(tunit)
 
         val fdefs = filterAllASTElems[FunctionDef](tunit)
@@ -237,7 +228,7 @@ class CIntraAnalysisFrontend(tu: TranslationUnit, fm: FeatureModel = FeatureExpr
         for (s <- ss) {
             val ds = new DanglingSwitchCode(env, FeatureExprFactory.empty).computeDanglingCode(s)
 
-            if (! ds.isEmpty) {
+            if (!ds.isEmpty) {
                 for (e <- ds)
                     res ::= new AnalysisError(e.feature, "warning: switch statement has dangling code ", e.entry)
             }
