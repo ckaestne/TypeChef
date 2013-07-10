@@ -98,7 +98,7 @@ class CAnalysisOptions extends FeatureModelOptions with ICTypeSysOptions with IC
         else if (c == 'a') {
             opts.map(_.isSelected = false)
         }
-        else if (c == 'X') {
+        else if (c == 'S') {
             var arg: String = g.getOptarg.toUpperCase
             arg = arg.replace('_', '-')
 
@@ -110,7 +110,7 @@ class CAnalysisOptions extends FeatureModelOptions with ICTypeSysOptions with IC
                     throw new OptionException("Analysis " + arg + " unknown. Known analyses: " + xopts.map(_.param).mkString(", "))
             }
         }
-        else if (c == 'x') {
+        else if (c == 's') {
             xopts.map(_.isSelected = false)
         }
         else return super.interpretOption(c, g)
