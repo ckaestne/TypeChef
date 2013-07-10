@@ -1,11 +1,13 @@
 package de.fosd.typechef.crewrite
 
-import de.fosd.typechef.parser.c.{CASTEnv, FunctionDef, TestHelper}
+import de.fosd.typechef.parser.c._
 import org.junit.Test
 import java.io.{StringWriter, FileNotFoundException, InputStream}
-import de.fosd.typechef.featureexpr.FeatureExprFactory
+import de.fosd.typechef.featureexpr.{FeatureExpr, FeatureExprFactory}
+import de.fosd.typechef.parser.c.TranslationUnit
+import de.fosd.typechef.parser.c.FunctionDef
 
-class InterCFGTest extends InterCFG with TestHelper with NoFunctionLookup with CFGHelper {
+class InterCFGTest extends InterCFG with TestHelper with CFGHelper {
 
   @Test def test_two_functions() {
     val folder = "testfiles/"
@@ -25,10 +27,17 @@ class InterCFGTest extends InterCFG with TestHelper with NoFunctionLookup with C
 
     val fsuccs = fdefs.map(getAllSucc(_, FeatureExprFactory.empty, env))
 
+      def lookupFExpr(e: AST): FeatureExpr = e match {
+          case o if env.isKnown(o) => env.featureExpr(o)
+          case _ => FeatureExprFactory.True
+      }
+
     for (s <- fsuccs)
-      dot.writeMethodGraph(s, env, Map())
+      dot.writeMethodGraph(s, lookupFExpr)
     dot.writeFooter()
     dot.close()
     println(a)
   }
+    // provide a lookup mechanism for function defs (from the type system or selfimplemented)
+    def getTranslationUnit(): TranslationUnit = null
 }
