@@ -95,7 +95,7 @@ object Frontend {
             return
         }
 
-        var ast: AST = null
+        var ast: TranslationUnit = null
         if (opt.reuseAST && opt.parse && new File(opt.getSerializedASTFilename).exists()) {
             println("loading AST.")
             ast = loadSerializedAST(opt.getSerializedASTFilename)
@@ -114,7 +114,7 @@ object Frontend {
             if (ast == null) {
                 //no parsing and serialization if read serialized ast
                 val parserMain = new ParserMain(new CParser(fm))
-                ast = parserMain.parserMain(in, opt)
+                ast = parserMain.parserMain(in, opt).asInstanceOf[TranslationUnit]
 
                 if (ast != null && opt.serializeAST) {
                     stopWatch.start("serialize")
@@ -125,8 +125,8 @@ object Frontend {
 
             if (ast != null) {
                 val fm_ts = opt.getTypeSystemFeatureModel.and(opt.getLocalFeatureModel).and(opt.getFilePresenceCondition)
-                val ts = new CTypeSystemFrontend(ast.asInstanceOf[TranslationUnit], fm_ts, opt)
-                lazy val sa = new CIntraAnalysisFrontend(ast.asInstanceOf[TranslationUnit], fm_ts, opt)
+                val ts = new CTypeSystemFrontend(ast, fm_ts, opt)
+                lazy val sa = new CIntraAnalysisFrontend(ast, fm_ts, opt)
 
                 /** I did some experiments with the TypeChef FeatureModel of Linux, in case I need the routines again, they are saved here. */
                 //Debug_FeatureModelExperiments.experiment(fm_ts)
@@ -153,7 +153,7 @@ object Frontend {
                 if (opt.dumpcfg) {
                     stopWatch.start("dumpCFG")
 
-                    val cf = new CInterAnalysisFrontend(ast.asInstanceOf[TranslationUnit], fm_ts, opt)
+                    val cf = new CInterAnalysisFrontend(ast, fm_ts)
                     val writer = new CFGCSVWriter(new FileWriter(new File(opt.getCCFGFilename)))
                     val dotwriter = new DotGraph(new FileWriter(new File(opt.getCCFGDotFilename)))
                     cf.writeCFG(opt.getFile, new ComposedWriter(List(dotwriter, writer)))
@@ -198,11 +198,11 @@ object Frontend {
         fw.close()
     }
 
-    def loadSerializedAST(filename: String): AST = try {
+    def loadSerializedAST(filename: String): TranslationUnit = try {
         val fr = new ObjectInputStream(new FileInputStream(filename)) {
             override protected def resolveClass(desc: ObjectStreamClass) = { /*println(desc);*/ super.resolveClass(desc) }
         }
-        val ast = fr.readObject().asInstanceOf[AST]
+        val ast = fr.readObject().asInstanceOf[TranslationUnit]
         fr.close()
         ast
     } catch {

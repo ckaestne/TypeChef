@@ -172,11 +172,6 @@ class CFGCSVWriter(fwriter: Writer) extends IOUtilities with CFGWriter {
         case x => "unknown;" + x.getPositionFrom.getLine + ";" + esc(PrettyPrinter.print(x).take(20))
     }
 
-    private def lookupFExpr(e: AST, env: ASTEnv, externalDefFExprs: Map[ExternalDef, FeatureExpr]): FeatureExpr = e match {
-        case o if env.isKnown(o) => env.featureExpr(o)
-        case e: ExternalDef => externalDefFExprs.get(e).getOrElse(FeatureExprFactory.True)
-        case _ => FeatureExprFactory.True
-    }
 
     def writeEdge(source: AST, target: AST, fexpr: FeatureExpr) {
         fwriter.write("E;" + System.identityHashCode(source) + ";" + System.identityHashCode(target) + ";" + fexpr.toTextExpr + "\n")
