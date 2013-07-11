@@ -3,16 +3,29 @@ package de.fosd.typechef.crewrite
 
 import de.fosd.typechef.featureexpr._
 import java.io.StringWriter
-import de.fosd.typechef.typesystem._
 import scala.Some
 import de.fosd.typechef.parser.c._
+import de.fosd.typechef.typesystem.{CDeclUse, CTypeCache, CTypeSystemFrontend}
 
-sealed abstract class CAnalysisFrontend(tu: TranslationUnit) extends EnforceTreeHelper {
+sealed abstract class CAnalysisFrontend(tu: TranslationUnit, fm: FeatureModel, opt: ICAnalysisOptions) extends EnforceTreeHelper {
+    // the result of CParser is sometimes a DAG instead of an AST
+    // prepareAST rewrites the DAG in order to get an AST
     protected val tunit = prepareAST[TranslationUnit](tu)
+
+    // some dataflow analyses need typing information
+    // this flag enables the use of CTypeCache in CTypeSystemFrontend
+    protected val cacheTypes: Boolean
+    protected lazy val ts = if (cacheTypes) new CTypeSystemFrontend(tunit, fm) with CTypeCache with CDeclUse
+                            else new CTypeSystemFrontend(tunit, fm) with CDeclUse
+
+    // we need to make sure that the input is free of typing errors
+    assert(ts.checkASTSilent, "typecheck fails!")
+    protected val env = CASTEnv.createASTEnv(tunit)
 }
 
-class CInterAnalysisFrontend(tu: TranslationUnit, fm: FeatureModel = FeatureExprFactory.empty) extends CAnalysisFrontend(tu) with InterCFG with CFGHelper {
+class CInterAnalysisFrontend(tu: TranslationUnit, fm: FeatureModel = FeatureExprFactory.empty, opt: ICAnalysisOptions = CAnalysisDefaultOptions) extends CAnalysisFrontend(tu, fm, opt) with InterCFG with CFGHelper {
 
+    protected val cacheTypes = false
     def getTranslationUnit(): TranslationUnit = tunit
 
     def writeCFG(title: String, writer: CFGWriter) {
@@ -38,7 +51,9 @@ class CInterAnalysisFrontend(tu: TranslationUnit, fm: FeatureModel = FeatureExpr
     }
 }
 
-class CIntraAnalysisFrontend(tu: TranslationUnit, fm: FeatureModel = FeatureExprFactory.empty) extends CAnalysisFrontend(tu) with IntraCFG with CFGHelper {
+class CIntraAnalysisFrontend(tu: TranslationUnit, fm: FeatureModel = FeatureExprFactory.empty, opt: ICAnalysisOptions = CAnalysisDefaultOptions) extends CAnalysisFrontend(tu, fm, opt) with IntraCFG with CFGHelper {
+
+    protected val cacheTypes: Boolean = false // use opt.<param> to enable cacheTypes for a specific analysis
 
     def doubleFree() = {
         val casestudy = {
@@ -52,13 +67,8 @@ class CIntraAnalysisFrontend(tu: TranslationUnit, fm: FeatureModel = FeatureExpr
             }
         }
 
-        val ts = new CTypeSystemFrontend(tunit, fm) with CDeclUse
-        assert(ts.checkASTSilent, "typecheck fails!")
-        val env = CASTEnv.createASTEnv(tunit)
-        val udm = ts.getUseDeclMap
-
         val fdefs = filterAllASTElems[FunctionDef](tunit)
-        val errors = fdefs.flatMap(doubleFreeFunctionDef(_, env, udm, casestudy))
+        val errors = fdefs.flatMap(doubleFreeFunctionDef(_, casestudy))
 
         if (errors.isEmpty) {
             println("No double frees found!")
@@ -69,7 +79,7 @@ class CIntraAnalysisFrontend(tu: TranslationUnit, fm: FeatureModel = FeatureExpr
         errors.isEmpty
     }
 
-    private def doubleFreeFunctionDef(f: FunctionDef, env: ASTEnv, udm: UseDeclMap, casestudy: String): List[AnalysisError] = {
+    private def doubleFreeFunctionDef(f: FunctionDef, casestudy: String): List[AnalysisError] = {
         var res: List[AnalysisError] = List()
 
         // It's ok to use FeatureExprFactory.empty here.
@@ -77,6 +87,7 @@ class CIntraAnalysisFrontend(tu: TranslationUnit, fm: FeatureModel = FeatureExpr
         // flow computation requires a lot of sat calls.
         // We use the proper fm in DoubleFree (see MonotoneFM).
         val ss = getAllSucc(f, FeatureExprFactory.empty, env).reverse
+        val udm = ts.getUseDeclMap
         val df = new DoubleFree(env, udm, fm, casestudy)
 
         val nss = ss.map(_._1).filterNot(x => x.isInstanceOf[FunctionDef])
@@ -105,13 +116,8 @@ class CIntraAnalysisFrontend(tu: TranslationUnit, fm: FeatureModel = FeatureExpr
     }
 
     def uninitializedMemory(): Boolean = {
-        val ts = new CTypeSystemFrontend(tunit, fm) with CDeclUse
-        assert(ts.checkAST(), "typecheck fails!")
-        val env = CASTEnv.createASTEnv(tunit)
-        val udm = ts.getUseDeclMap
-
         val fdefs = filterAllASTElems[FunctionDef](tunit)
-        val errors = fdefs.flatMap(uninitializedMemory(_, env, udm))
+        val errors = fdefs.flatMap(uninitializedMemory)
 
         if (errors.isEmpty) {
             println("No uages of uninitialized memory found!")
@@ -122,7 +128,7 @@ class CIntraAnalysisFrontend(tu: TranslationUnit, fm: FeatureModel = FeatureExpr
         errors.isEmpty
     }
 
-    private def uninitializedMemory(f: FunctionDef, env: ASTEnv, udm: UseDeclMap): List[AnalysisError] = {
+    private def uninitializedMemory(f: FunctionDef): List[AnalysisError] = {
         var res: List[AnalysisError] = List()
 
         // It's ok to use FeatureExprFactory.empty here.
@@ -130,6 +136,7 @@ class CIntraAnalysisFrontend(tu: TranslationUnit, fm: FeatureModel = FeatureExpr
         // flow computation requires a lot of sat calls.
         // We use the proper fm in UninitializedMemory (see MonotoneFM).
         val ss = getAllPred(f, FeatureExprFactory.empty, env).reverse
+        val udm = ts.getUseDeclMap
         val um = new UninitializedMemory(env, udm, FeatureExprFactory.empty)
         val nss = ss.map(_._1).filterNot(x => x.isInstanceOf[FunctionDef])
 
@@ -161,13 +168,8 @@ class CIntraAnalysisFrontend(tu: TranslationUnit, fm: FeatureModel = FeatureExpr
     }
 
     def xfree(): Boolean = {
-        val ts = new CTypeSystemFrontend(tunit, fm) with CDeclUse
-        assert(ts.checkAST(), "typecheck fails!")
-        val env = CASTEnv.createASTEnv(tunit)
-        val udm = ts.getUseDeclMap
-
         val fdefs = filterAllASTElems[FunctionDef](tunit)
-        val errors = fdefs.flatMap(xfree(_, env, udm))
+        val errors = fdefs.flatMap(xfree)
 
         if (errors.isEmpty) {
             println("No uages of uninitialized memory found!")
@@ -178,7 +180,7 @@ class CIntraAnalysisFrontend(tu: TranslationUnit, fm: FeatureModel = FeatureExpr
         errors.isEmpty
     }
 
-    private def xfree(f: FunctionDef, env: ASTEnv, udm: UseDeclMap): List[AnalysisError] = {
+    private def xfree(f: FunctionDef): List[AnalysisError] = {
         var res: List[AnalysisError] = List()
 
         // It's ok to use FeatureExprFactory.empty here.
@@ -186,6 +188,7 @@ class CIntraAnalysisFrontend(tu: TranslationUnit, fm: FeatureModel = FeatureExpr
         // flow computation requires a lot of sat calls.
         // We use the proper fm in UninitializedMemory (see MonotoneFM).
         val ss = getAllPred(f, FeatureExprFactory.empty, env).reverse
+        val udm = ts.getUseDeclMap
         val xf = new XFree(env, udm, FeatureExprFactory.empty, "")
         val nss = ss.map(_._1).filterNot(x => x.isInstanceOf[FunctionDef])
 
@@ -213,12 +216,8 @@ class CIntraAnalysisFrontend(tu: TranslationUnit, fm: FeatureModel = FeatureExpr
     }
 
     def danglingSwitchCode(): Boolean = {
-        val ts = new CTypeSystemFrontend(tunit, fm) with CDeclUse
-        assert(ts.checkASTSilent, "typecheck fails!")
-        val env = CASTEnv.createASTEnv(tunit)
-
         val fdefs = filterAllASTElems[FunctionDef](tunit)
-        val errors = fdefs.flatMap(danglingSwitchCode(_, env))
+        val errors = fdefs.flatMap(danglingSwitchCode)
 
         if (errors.isEmpty) {
             println("No dangling code in switch statements found!")
@@ -229,7 +228,7 @@ class CIntraAnalysisFrontend(tu: TranslationUnit, fm: FeatureModel = FeatureExpr
         !errors.isEmpty
     }
 
-    private def danglingSwitchCode(f: FunctionDef, env: ASTEnv): List[AnalysisError] = {
+    private def danglingSwitchCode(f: FunctionDef): List[AnalysisError] = {
         var res: List[AnalysisError] = List()
 
         val ss = filterAllASTElems[SwitchStatement](f)
@@ -237,7 +236,7 @@ class CIntraAnalysisFrontend(tu: TranslationUnit, fm: FeatureModel = FeatureExpr
         for (s <- ss) {
             val ds = new DanglingSwitchCode(env, FeatureExprFactory.empty).computeDanglingCode(s)
 
-            if (! ds.isEmpty) {
+            if (!ds.isEmpty) {
                 for (e <- ds)
                     res ::= new AnalysisError(e.feature, "warning: switch statement has dangling code ", e.entry)
             }

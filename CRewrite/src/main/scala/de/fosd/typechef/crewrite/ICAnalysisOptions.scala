@@ -36,3 +36,11 @@ trait ICAnalysisOptions {
     def warning_dangling_switch_code = false
 
 }
+
+trait CAnalysisOptionProvider {
+    protected def opts: ICAnalysisOptions = CAnalysisDefaultOptions
+}
+
+trait CAnalysisDefaultOptions extends ICAnalysisOptions
+
+object CAnalysisDefaultOptions extends CAnalysisDefaultOptions

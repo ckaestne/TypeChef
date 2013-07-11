@@ -34,11 +34,7 @@ class CAnalysisOptions extends FeatureModelOptions with ICTypeSysOptions with IC
 
 
     val opts: List[SecurityOption] = List(
-        Apointersign, Aintegeroverflow, Aimplicitcoercion, Alongdesignator, Aimplicitidentifier, Aconflictinglinkage, Avolatile, Aconst, Achar
-    )
-
-    val xopts: List[SecurityOption] = List(
-        Sdoublefree, Sxfree, Sunitializedmemory, Scasetermination, Sdanglingswitchcode
+        Apointersign, Aintegeroverflow, Aimplicitcoercion, Alongdesignator, Aimplicitidentifier, Aconflictinglinkage, Avolatile, Aconst, Achar, Sdoublefree, Sxfree, Sunitializedmemory, Scasetermination, Sdanglingswitchcode
     )
 
 
@@ -68,13 +64,7 @@ class CAnalysisOptions extends FeatureModelOptions with ICTypeSysOptions with IC
                     opts.map(o => " * " + o.param + (if (o.dflt) "*" else "") + ": " + o.expl).mkString("\n") +
                     "\n(Analyses with * are activated by default)."
             ),
-            new Options.Option("no-analysis", LongOpt.NO_ARGUMENT, 'a', null, "Disables ALL analyses."),
-            new Options.Option("static-analysis", LongOpt.REQUIRED_ARGUMENT, 'S', "type",
-                "Enables the static-analysis class: \n" +
-                    xopts.map(o => " * " + o.param + (if (o.dflt) "*" else "") + ": " + o.expl).mkString("\n") +
-                    "\n(Analyses with * are activated by default)."
-            ),
-            new Options.Option("no-static-analysis", LongOpt.NO_ARGUMENT, 's', null, "Disables ALL analyses.")
+            new Options.Option("no-analysis", LongOpt.NO_ARGUMENT, 'a', null, "Disables ALL analyses.")
         ))
 
         r
@@ -97,21 +87,6 @@ class CAnalysisOptions extends FeatureModelOptions with ICTypeSysOptions with IC
         }
         else if (c == 'a') {
             opts.map(_.isSelected = false)
-        }
-        else if (c == 'S') {
-            var arg: String = g.getOptarg.toUpperCase
-            arg = arg.replace('_', '-')
-
-            if (arg == "ALL") xopts.map(_.isSelected = true)
-            else {
-                val opt = xopts.filter(_.param.toUpperCase == arg).headOption
-                opt.map(_.isSelected = true)
-                if (!opt.isDefined)
-                    throw new OptionException("Analysis " + arg + " unknown. Known analyses: " + xopts.map(_.param).mkString(", "))
-            }
-        }
-        else if (c == 's') {
-            xopts.map(_.isSelected = false)
         }
         else return super.interpretOption(c, g)
         true

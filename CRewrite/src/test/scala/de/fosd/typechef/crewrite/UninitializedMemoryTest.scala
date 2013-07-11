@@ -4,6 +4,7 @@ import org.junit.Test
 import org.scalatest.matchers.ShouldMatchers
 import de.fosd.typechef.featureexpr.FeatureExprFactory
 import de.fosd.typechef.parser.c._
+import de.fosd.typechef.typesystem.{CDeclUse, CTypeSystemFrontend}
 
 class UninitializedMemoryTest extends TestHelper with ShouldMatchers with CFGHelper with EnforceTreeHelper {
 
@@ -22,6 +23,8 @@ class UninitializedMemoryTest extends TestHelper with ShouldMatchers with CFGHel
     def uninitializedMemory(code: String): Boolean = {
         val tunit = prepareAST[TranslationUnit](parseTranslationUnit(code))
         val um = new CIntraAnalysisFrontend(tunit)
+        val ts= new CTypeSystemFrontend(tunit) with CDeclUse
+        assert(ts.checkASTSilent, "typecheck fails!")
         um.uninitializedMemory()
     }
 
