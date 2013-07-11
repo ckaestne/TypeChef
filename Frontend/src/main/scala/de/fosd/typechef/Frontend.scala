@@ -125,10 +125,8 @@ object Frontend {
 
             if (ast != null) {
                 val fm_ts = opt.getTypeSystemFeatureModel.and(opt.getLocalFeatureModel).and(opt.getFilePresenceCondition)
-                val cachedTypes = false //opt.warning_xfree // just an example
-                val ts = if (cachedTypes)
-                        new CTypeSystemFrontend(ast, fm_ts, opt) with CTypeCache
-                    else new CTypeSystemFrontend(ast, fm_ts, opt)
+                val ts = new CTypeSystemFrontend(ast, fm_ts, opt)
+                lazy val sa = new CIntraAnalysisFrontend(ast, fm_ts, opt)
 
                 /** I did some experiments with the TypeChef FeatureModel of Linux, in case I need the routines again, they are saved here. */
                 //Debug_FeatureModelExperiments.experiment(fm_ts)
@@ -162,23 +160,19 @@ object Frontend {
                 }
                 if (opt.warning_double_free) {
                     stopWatch.start("doublefree")
-                    val df = new CIntraAnalysisFrontend(ast, fm_ts)
-                    df.doubleFree()
+                    sa.doubleFree()
                 }
                 if (opt.warning_uninitialized_memory) {
                     stopWatch.start("uninitializedmemory")
-                    val uv = new CIntraAnalysisFrontend(ast, fm_ts)
-                    uv.uninitializedMemory()
+                    sa.uninitializedMemory()
                 }
                 if (opt.warning_xfree) {
                     stopWatch.start("xfree")
-                    val xf = new CIntraAnalysisFrontend(ast, fm_ts)
-                    xf.xfree()
+                    sa.xfree()
                 }
                 if (opt.warning_dangling_switch_code) {
                     stopWatch.start("danglingswitchcode")
-                    val ds = new CIntraAnalysisFrontend(ast, fm_ts)
-                    ds.danglingSwitchCode()
+                    sa.danglingSwitchCode()
                 }
 
             }
