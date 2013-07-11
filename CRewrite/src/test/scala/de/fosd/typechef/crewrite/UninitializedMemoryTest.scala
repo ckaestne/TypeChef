@@ -25,8 +25,7 @@ class UninitializedMemoryTest extends TestHelper with ShouldMatchers with CFGHel
         val um = new CIntraAnalysisFrontend(tunit)
         val ts= new CTypeSystemFrontend(tunit) with CDeclUse
         assert(ts.checkASTSilent, "typecheck fails!")
-        val udm = ts.getUseDeclMap
-        um.uninitializedMemory(udm)
+        um.uninitializedMemory()
     }
 
     @Test def test_variables() {

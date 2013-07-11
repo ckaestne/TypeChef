@@ -20,9 +20,7 @@ class XFreeTest extends TestHelper with ShouldMatchers with CFGHelper with Enfor
     def xfree(code: String): Boolean = {
         val tunit = prepareAST[TranslationUnit](parseTranslationUnit(code))
         val xf = new CIntraAnalysisFrontend(tunit)
-        val ts= new CTypeSystemFrontend(tunit) with CDeclUse
-        assert(ts.checkASTSilent, "typecheck fails!")
-        xf.xfree(ts.getUseDeclMap)
+        xf.xfree()
     }
 
     @Test def test_variables() {

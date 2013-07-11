@@ -125,10 +125,8 @@ object Frontend {
 
             if (ast != null) {
                 val fm_ts = opt.getTypeSystemFeatureModel.and(opt.getLocalFeatureModel).and(opt.getFilePresenceCondition)
-                val cacheTypes = opt.warning_double_free || opt.warning_uninitialized_memory || opt.warning_xfree
-                val ts = if (cacheTypes)
-                        new CTypeSystemFrontend(ast.asInstanceOf[TranslationUnit], fm_ts, opt) with CTypeCache with CDeclUse
-                    else new CTypeSystemFrontend(ast.asInstanceOf[TranslationUnit], fm_ts, opt)
+                val ts = new CTypeSystemFrontend(ast.asInstanceOf[TranslationUnit], fm_ts, opt)
+                lazy val sa = new CIntraAnalysisFrontend(ast.asInstanceOf[TranslationUnit], fm_ts, opt)
 
                 /** I did some experiments with the TypeChef FeatureModel of Linux, in case I need the routines again, they are saved here. */
                 //Debug_FeatureModelExperiments.experiment(fm_ts)
@@ -142,9 +140,6 @@ object Frontend {
                     println("type checking.")
                     ts.checkAST()
                     ts.errors.map(errorXML.renderTypeError(_))
-                } else if (cacheTypes) {
-                    stopWatch.start("typechecking")
-                    assert(ts.checkASTSilent, "typecheck fails!")
                 }
                 if (opt.writeInterface) {
                     stopWatch.start("interfaces")
@@ -158,30 +153,26 @@ object Frontend {
                 if (opt.dumpcfg) {
                     stopWatch.start("dumpCFG")
 
-                    val cf = new CInterAnalysisFrontend(ast.asInstanceOf[TranslationUnit], fm_ts)
+                    val cf = new CInterAnalysisFrontend(ast.asInstanceOf[TranslationUnit], fm_ts, opt)
                     val writer = new CFGCSVWriter(new FileWriter(new File(opt.getCCFGFilename)))
                     val dotwriter = new DotGraph(new FileWriter(new File(opt.getCCFGDotFilename)))
                     cf.writeCFG(opt.getFile, new ComposedWriter(List(dotwriter, writer)))
                 }
                 if (opt.warning_double_free) {
                     stopWatch.start("doublefree")
-                    val df = new CIntraAnalysisFrontend(ast.asInstanceOf[TranslationUnit], fm_ts)
-                    df.doubleFree(ts.getUseDeclMap)
+                    sa.doubleFree()
                 }
                 if (opt.warning_uninitialized_memory) {
                     stopWatch.start("uninitializedmemory")
-                    val uv = new CIntraAnalysisFrontend(ast.asInstanceOf[TranslationUnit], fm_ts)
-                    uv.uninitializedMemory(ts.getUseDeclMap)
+                    sa.uninitializedMemory()
                 }
                 if (opt.warning_xfree) {
                     stopWatch.start("xfree")
-                    val xf = new CIntraAnalysisFrontend(ast.asInstanceOf[TranslationUnit], fm_ts)
-                    xf.xfree(ts.getUseDeclMap)
+                    sa.xfree()
                 }
                 if (opt.warning_dangling_switch_code) {
                     stopWatch.start("danglingswitchcode")
-                    val ds = new CIntraAnalysisFrontend(ast.asInstanceOf[TranslationUnit], fm_ts)
-                    ds.danglingSwitchCode()
+                    sa.danglingSwitchCode()
                 }
 
             }
