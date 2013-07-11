@@ -23,7 +23,7 @@ sealed abstract class CAnalysisFrontend(tu: TranslationUnit, fm: FeatureModel, o
     protected val env = CASTEnv.createASTEnv(tunit)
 }
 
-class CInterAnalysisFrontend(tu: TranslationUnit, fm: FeatureModel = FeatureExprFactory.empty, opt: ICAnalysisOptions) extends CAnalysisFrontend(tu, fm, opt) with InterCFG with CFGHelper {
+class CInterAnalysisFrontend(tu: TranslationUnit, fm: FeatureModel = FeatureExprFactory.empty, opt: ICAnalysisOptions = CAnalysisDefaultOptions) extends CAnalysisFrontend(tu, fm, opt) with InterCFG with CFGHelper {
 
     protected val cacheTypes = false
     def getTranslationUnit(): TranslationUnit = tunit
