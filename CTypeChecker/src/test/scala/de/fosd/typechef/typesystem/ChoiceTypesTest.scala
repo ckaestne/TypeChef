@@ -17,7 +17,7 @@ class ChoiceTypesTest extends FunSuite with ShouldMatchers with CTypeSystem with
         t()
     }
     def t() {
-        val ast = getAST("""
+        val ast = getAST( """
          #ifdef X
          int a;
          #else
@@ -42,14 +42,14 @@ class ChoiceTypesTest extends FunSuite with ShouldMatchers with CTypeSystem with
         typecheckTranslationUnit(ast)
         val env = lookupEnv(ast.defs.last.entry).varEnv
 
-        env("a") should be(Choice(fx.not, One(CDouble()), One(CSigned(CInt()))))
-        env("x") should be(Choice(fy, One(CDouble()), Choice(fx, One(CSigned(CInt())), One(CUndefined))))
-        env("b") should be(Choice(fx, One(CDouble()), One(CUndefined)))
+        env("a").map(_.atype) should be(Choice(fx.not, One(CDouble()), One(CSigned(CInt()))))
+        env("x").map(_.atype) should be(Choice(fy, One(CDouble()), Choice(fx, One(CSigned(CInt())), One(CUndefined))))
+        env("b").map(_.atype) should be(Choice(fx, One(CDouble()), One(CUndefined)))
     }
 
 
     test("inlined functions") {
-        val ast = getAST("""static
+        val ast = getAST( """static
 #if !defined(CONFIG_OPTIMIZE_INLINING)
 inline __attribute__((always_inline))
 #endif
@@ -62,7 +62,7 @@ inline
 }""")
         val env = checkTranslationUnit(ast, FeatureExprFactory.True, EmptyEnv).varEnv
         println(env)
-        env("__rcu_read_lock_bh") should be(One(CFunction(List(CVoid()), CVoid())))
+        env("__rcu_read_lock_bh").map(_.atype) should be(One(CFunction(List(CVoid()), CVoid())))
     }
 
 

@@ -23,7 +23,7 @@ class UninitializedMemory(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) extend
     def getFunctionCallArguments(e: AST) = {
         var res = Set[Id]()
         val fcs = filterAllASTElems[FunctionCall](e)
-        val arguments = manybu(query{
+        val arguments = manybu(query {
             case i: Id => res += i
             case PostfixExpr(i@Id(_), FunctionCall(_)) => res -= i
         })
@@ -35,7 +35,7 @@ class UninitializedMemory(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) extend
     // get all declared variables without an initialization
     def gen(a: AST): Map[FeatureExpr, Set[Id]] = {
         var res = Set[Id]()
-        val variables = manytd(query{
+        val variables = manytd(query {
             case InitDeclaratorI(AtomicNamedDeclarator(_, i, _), _, None) => res += i
         })
 
@@ -46,7 +46,7 @@ class UninitializedMemory(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) extend
     // get variables that get an assignment
     def kill(a: AST): Map[FeatureExpr, Set[Id]] = {
         var res = Set[Id]()
-        val assignments = manytd(query{
+        val assignments = manytd(query {
             case AssignExpr(target@Id(_), "=", _) => res += target
         })
 

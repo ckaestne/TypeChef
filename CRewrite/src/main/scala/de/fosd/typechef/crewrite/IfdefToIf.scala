@@ -176,12 +176,12 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
                     List(Opt(trueF, NArySubExpr("&&", UnaryOpExpr("!", transformFName(x._2)))))
                 else
                     List(Opt(trueF, NArySubExpr("&&", transformFName(x._2))))
-                        )).foldLeft(List(): List[Opt[NArySubExpr]])((a, b) => a ++ b)
+                    )).foldLeft(List(): List[Opt[NArySubExpr]])((a, b) => a ++ b)
             def clauseForHead(x: (Byte, String)): Expr = (if (x._1 == 0)
                 UnaryOpExpr("!", transformFName(x._2))
             else
                 transformFName(x._2)
-                    )
+                )
             val cnfClauses: List[Expr] = bdd.getBddAllSat.map(clause(_)).toList
             NAryExpr(cnfClauses.head,
                 cnfClauses.tail.foldLeft(List(): List[Opt[NArySubExpr]])((a, b: Expr) => a ++ List(Opt(trueF, NArySubExpr("||", b))))

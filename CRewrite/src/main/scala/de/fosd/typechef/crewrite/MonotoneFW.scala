@@ -45,7 +45,7 @@ abstract class MonotoneFW[T](val env: ASTEnv, val udm: UseDeclMap, val fm: Featu
     // create fresh T elements that we use in our analysis the declaration
     // of an incoming element
     protected def createFresh(i: T) = {
-        if (! dId2Fresh.containsKey(i)) {
+        if (!dId2Fresh.containsKey(i)) {
             val nt = t2T(i)
             dId2Fresh.put(i, nt)
         }
@@ -53,7 +53,7 @@ abstract class MonotoneFW[T](val env: ASTEnv, val udm: UseDeclMap, val fm: Featu
     }
 
     protected def getFresh(i: T) = {
-        if (! t2FreshT.containsKey(i)) {
+        if (!t2FreshT.containsKey(i)) {
             val nt = t2SetT(i)
             for (e <- nt)
                 freshT2T.put(e, i)
@@ -76,7 +76,6 @@ abstract class MonotoneFW[T](val env: ASTEnv, val udm: UseDeclMap, val fm: Featu
     // we create new Id using the freshTctr counter.
     protected def t2SetT(i: T): Set[T]
     protected def t2T(i: T): T
-
 
 
     protected val incache = new IdentityHashMapCache[ResultMap]()
@@ -143,7 +142,6 @@ abstract class MonotoneFW[T](val env: ASTEnv, val udm: UseDeclMap, val fm: Featu
         }
         curmap
     }
-
 
 
     // flow functions (flow => succ and flow => pred) functions of the

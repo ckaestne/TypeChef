@@ -20,10 +20,6 @@ public class FrontendOptions extends CAnalysisOptions implements ParserOptions {
             decluse = false,
             writeInterface = false,
             dumpcfg = false,
-            doublefree = false,
-            uninitializedmemory = false,
-            xfree = false,
-            danglingswitchcode = false,
             serializeAST = false,
             reuseAST = false,
             writeDebugInterface = false,
@@ -42,13 +38,9 @@ public class FrontendOptions extends CAnalysisOptions implements ParserOptions {
     private final static char F_WRITEPI = Options.genOptionId();
     private final static char F_DEBUGINTERFACE = Options.genOptionId();
     private final static char F_DUMPCFG = Options.genOptionId();
-    private final static char F_DOUBLEFREE = Options.genOptionId();
-    private final static char F_UNINITIALIZEDMEMORY = Options.genOptionId();
-    private final static char F_XFREE = Options.genOptionId();
-    private final static char F_DANGLINGSWITCHCODE = Options.genOptionId();
     private final static char F_SERIALIZEAST = Options.genOptionId();
-    private final static char F_REUSEAST = Options.genOptionId();  
-	private final static char F_RECORDTIMING = Options.genOptionId();
+    private final static char F_REUSEAST = Options.genOptionId();
+    private final static char F_RECORDTIMING = Options.genOptionId();
     private final static char F_FILEPC = Options.genOptionId();
     private final static char F_PARSERSTATS = Options.genOptionId();
     private final static char F_HIDEPARSERRESULTS = Options.genOptionId();
@@ -73,13 +65,6 @@ public class FrontendOptions extends CAnalysisOptions implements ParserOptions {
 
                 new Option("dumpcfg", LongOpt.NO_ARGUMENT, F_DUMPCFG, null,
                         "Lex, parse, and dump control flow graph"),
-
-                new Option("doublefree", LongOpt.NO_ARGUMENT, F_DOUBLEFREE, null,
-                        "Lex, parse, and check for possible double free of heap pointers."),
-                new Option("uninitializedmemory", LongOpt.NO_ARGUMENT, F_UNINITIALIZEDMEMORY, null,
-                        "Lex, parse, and check for usages of uninitialized variables."),
-                new Option("xfree", LongOpt.NO_ARGUMENT, F_XFREE, null,
-                        "Lex, parse, and check for usages of freeing statically allocated memory."),
 
                 new Option("output", LongOpt.REQUIRED_ARGUMENT, 'o', "file",
                         "Path to output files (no extension, creates .pi, .macrodbg etc files)."),
@@ -131,14 +116,6 @@ public class FrontendOptions extends CAnalysisOptions implements ParserOptions {
             parse = typecheck = writeInterface = true;
         } else if (c == F_DUMPCFG) {
             parse = dumpcfg = true;
-        } else if (c == F_DOUBLEFREE) {
-            parse = doublefree = true;
-        } else if (c == F_UNINITIALIZEDMEMORY) {
-            parse = uninitializedmemory = true;
-        } else if (c == F_XFREE) {
-            parse = xfree = true;
-        } else if (c == F_DANGLINGSWITCHCODE) {
-            parse = danglingswitchcode = true;
         } else if (c == F_SERIALIZEAST) {
             serializeAST = true;
         } else if (c == F_REUSEAST) {
@@ -239,6 +216,14 @@ public class FrontendOptions extends CAnalysisOptions implements ParserOptions {
         return outputStem + ".ast";
     }
 
+    public String getCCFGFilename() {
+        return outputStem + ".cfg";
+    }
+
+    public String getCCFGDotFilename() {
+        return outputStem + ".cfg.dot";
+    }
+
     public boolean printParserStatistics() {
         return parserStatistics;
     }
@@ -265,3 +250,4 @@ public class FrontendOptions extends CAnalysisOptions implements ParserOptions {
     }
 
 }
+

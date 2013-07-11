@@ -17,9 +17,9 @@ case class CSignature(name: String, ctype: CType, fexpr: FeatureExpr, pos: Seq[P
     override def toString =
         name + ": " + ctype.toText + " " + extraFlags.mkString("+") + "\t\tif " + fexpr + "\t\tat " + pos.mkString(", ")
 
-    override def hashCode = name.hashCode + ctype.hashCode()
+    override def hashCode = name.hashCode
     override def equals(that: Any) = that match {
-        case CSignature(thatName, thatCType, thatFexpr, thatPos, thatExtraFlags) => name == thatName && ctype == thatCType && fexpr.equivalentTo(thatFexpr) && pos == thatPos && extraFlags == thatExtraFlags
+        case CSignature(thatName, thatCType, thatFexpr, thatPos, thatExtraFlags) => name == thatName && CType.isLinkCompatible(ctype, thatCType) && fexpr.equivalentTo(thatFexpr) && pos == thatPos && extraFlags == thatExtraFlags
         case _ => false
     }
 

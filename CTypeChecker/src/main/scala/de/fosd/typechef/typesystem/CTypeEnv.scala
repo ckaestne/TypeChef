@@ -110,18 +110,20 @@ trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTypi
         env
     }
 
+    def wellformedC(structEnv: StructEnv, ptrEnv: PtrEnv, ctype: Conditional[CType]): Boolean = wellformed(structEnv, ptrEnv, ctype.map(_.atype))
 
-    def wellformed(structEnv: StructEnv, ptrEnv: PtrEnv, ctype: Conditional[CType]): Boolean =
+    def wellformed(structEnv: StructEnv, ptrEnv: PtrEnv, ctype: Conditional[AType]): Boolean =
         ctype.simplify.forall(wellformed(structEnv, ptrEnv, _))
 
-    def wellformed(structEnv: StructEnv, ptrEnv: PtrEnv, ctype: CType): Boolean = {
-        val wf = wellformed(structEnv, ptrEnv, _: CType)
+    def wellformed(structEnv: StructEnv, ptrEnv: PtrEnv, ctype: AType): Boolean = {
+        val wf = wellformed(structEnv, ptrEnv, _: AType)
         def nonEmptyWellformedEnv(m: ConditionalTypeMap, name: Option[String]) =
             !m.isEmpty && m.allTypes.forall(t => {
-                t.forall(_ != CVoid()) && wellformed(structEnv, (if (name.isDefined) ptrEnv + name.get else ptrEnv), t)
+                t.forall(_ != CVoid().toCType) && wellformed(structEnv, (if (name.isDefined) ptrEnv + name.get else ptrEnv), t.map(_.atype))
             })
-        def lastParam(p: Option[CType]) = p == None || p == Some(CVarArgs()) || wf(p.get)
-        ctype match {
+        def lastParam(p: Option[AType]) = p == None || p == Some(CVarArgs()) || wf(p.get)
+        /*if (ctype.isObject) false
+        else*/ ctype match {
             case CSigned(_) => true
             case CUnsigned(_) => true
             case CSignUnspecified(_) => true
@@ -133,11 +135,12 @@ trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTypi
             case CLongDouble() => true
             case CPointer(CStruct(s, _)) => ptrEnv contains s
             case CPointer(t) => wf(t)
-            case CArray(t, n) => wf(t) && (t != CVoid()) && n > 0
-            case CFunction(param, ret) => wf(ret) && !arrayType(ret) && (
-                param.forall(p => !arrayType(p) && p != CVoid())) &&
-                param.dropRight(1).forall(wf(_)) &&
-                lastParam(param.lastOption) //last param may be varargs
+            case CArray(t, n) =>
+                wf(t) && (t != CVoid()) && n > 0
+            case CFunction(param, ret) => wf(ret.atype) && !arrayType(ret.atype) && (
+                param.forall(p => !arrayType(p) && p != CVoid().toCType)) &&
+                param.dropRight(1).forall(p => wf(p.atype)) &&
+                lastParam(param.lastOption.map(_.atype)) //last param may be varargs
             case CVarArgs() => false
             case CStruct(name, isUnion) => {
                 //TODO check struct welltypeness
@@ -147,7 +150,6 @@ trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTypi
             }
             case CAnonymousStruct(members, _) => nonEmptyWellformedEnv(members, None)
             case CUnknown(_) => false
-            case CObj(_) => false
             case CCompound() => true
             case CIgnore() => true
             case CBuiltinVaList() => true

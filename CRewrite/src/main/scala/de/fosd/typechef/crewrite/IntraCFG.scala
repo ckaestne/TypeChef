@@ -68,6 +68,10 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
     // result type of pred/succ determination
     // List[(computed annotation, given annotation, ast node)]
     type CFGRes = List[(FeatureExpr, FeatureExpr, AST)]
+
+    // result of pred/succ computation
+    // classic control flow computation returns List[AST]
+    // the Opt stores the condition under which the AST element is the predecessor/successor of the input element
     type CFG = List[Opt[AST]]
 
     // during traversal of AST elements, we sometimes dig into elements, and don't want to get out again
@@ -1249,9 +1253,5 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
             followPred(parent, ctx, curres, fm, env)
         }
     }
-}
-
-trait NoFunctionLookup {
-    def lookupFunctionDef(name: String): Conditional[Option[ExternalDef]] = One(None)
 }
 

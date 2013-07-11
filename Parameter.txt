@@ -19,6 +19,7 @@ Parameters:
     --writePI                      Write lexer output into .pi file
     --debugInterface               Write interface in human readable format (requires --interface)
     --serializeAST                 Write ast to .ast file after parsing.
+    --reuseAST                     Reuse serialized .ast instead of parsing, if availabe.
     --recordTiming                 Report times for all phases.
     --filePC=file                  Presence condition for the file (format like --featureModelFExpr). Default 'file.pc'.
     --bdd                          Use BDD engine instead of SAT engine (provide as first parameter).
@@ -45,13 +46,28 @@ Parameters:
     --openFeat=text                List of flags with an unspecified value; other flags are considered undefined.
 
   Preprocessor warnings and debugging
-    --warning=type (-W)            Enables the named warning class (trigraphs, undef, unused-macros, endif-labels, error).
+    --warning=type (-W)            Enables the named warning class (trigraphs, undef, endif-labels, error).
     --no-warnings (-w)             Disables ALL warnings.
     --verbose (-v)                 Operates incredibly verbosely.
     --lexdebug                     Create debug files for macros and sources (enables debugfile-sources and debugfile-macrotable).
     --lexEnable=type               Enables a specific lexer feature (digraphs, trigraphs, linemarkers*, csyntax, keepcomments, keepallcomments, includenext*, gnucextensions*, debug-includepath, debug-verbose, debugfile-log, debugfile-sources, debugfile-macrotable, debugfile-tokenstream) Features with * are activated by default.
     --lexDisable=type              Disable a specific lexer feature.
     --lexNoStdout                  Do not print to stdout.
+    --adjustLines                  Report line numbers in output (.pi) file instead of source (.c and .h) files.
+
+  Analysis
+    --analysis=type (-A)           Enables the analysis class: 
+                                    * pointer-sign: Issue type error when pointers have incompatible signedness (undefined behavior)
+                                    * integer-overflow: Issue security warning on possible integer overflows in security-relevant locations (unintended effects and undefined behavior)
+                                    * implicit-coercion: Issue security warning on implicit integer coercion (unintended side effects)
+                                    * long-designator: Issue security warning on lowercase long designators (readability)
+                                    * implicit-identifier: Issue security warning on implicit identifier definitions (undefined behavior)
+                                    * conflicting-linkage: Issue security warning on conflicting linkage declarations (undefined behavior)
+                                    * volatile: Issue security warning on referencing a volatile object using a nonvolatile value (undefined behavior)
+                                    * const: Issue security warning on assigning to const value or casting away const qualification (undefined behavior)
+                                    * char: Issue warning when converting between 'char' types of different signness (unintended effects)
+                                   (Analyses with * are activated by default).
+    --no-anaysis (-a)              Disables ALL analyses.
 
   Feature models
     --featureModelDimacs=file      Dimacs file describing a feature model.
@@ -64,4 +80,4 @@ Parameters:
     --version                      Prints version number
     --help                         Displays help and usage information.
 
-TypeChef version 0.3.5_20130607155035
+TypeChef version 0.3.5_20130709150039

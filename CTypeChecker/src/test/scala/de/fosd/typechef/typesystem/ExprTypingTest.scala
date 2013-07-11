@@ -12,14 +12,14 @@ import de.fosd.typechef.conditional._
 @RunWith(classOf[JUnitRunner])
 class ExprTypingTest extends CTypeSystem with CEnv with FunSuite with ShouldMatchers with TestHelper {
 
-    val _i = One(CSigned(CInt()))
-    val _l = One(CSigned(CLong()))
-    val _d = One(CDouble())
-    val _oi = One(CObj(CSigned(CInt())))
-    val _ol = One(CObj(CSigned(CLong())))
-    val _od = One(CObj(CDouble()))
-    val _u = One(CUndefined)
-    val c_i_l = Choice(fx, _i, _l)
+    val _i: Conditional[CType] = One(CSigned(CInt()))
+    val _l: Conditional[CType] = One(CSigned(CLong()))
+    val _d: Conditional[CType] = One(CDouble())
+    val _oi: Conditional[CType] = One(CSigned(CInt()).toCType.toObj)
+    val _ol: Conditional[CType] = One(CSigned(CLong()).toCType.toObj)
+    val _od: Conditional[CType] = One(CDouble().toCType.toObj)
+    val _u: Conditional[CType] = One(CUndefined)
+    val c_i_l: Conditional[CType] = Choice(fx, _i, _l)
 
     protected def assertCondEquals(exp: Conditional[CType], act: Conditional[CType]) {
         assert(ConditionalLib.equals(exp, act), "Expected: " + exp + "\nActual:   " + act)
@@ -56,84 +56,84 @@ class ExprTypingTest extends CTypeSystem with CEnv with FunSuite with ShouldMatc
             ("funparam", True, CPointer(CFunction(Seq(), CDouble()))),
             ("funparamptr", True, CPointer(CPointer(CFunction(Seq(), CDouble())))),
             ("argv", True, CArray(CPointer(CSignUnspecified(CChar())), -1))
-        ).map(x => (x._1, x._2, null, One(x._3), KDeclaration, 0, NoLinkage)) ++ Seq(
+        ).map(x => (x._1, x._2, null, One(x._3.toCType), KDeclaration, 0, NoLinkage)) ++ Seq(
             ("c", True, null, c_i_l, KDeclaration, 0, NoLinkage),
-            ("vstruct", True, null, Choice(fx, One(CStruct("vstrA")), One(CStruct("vstrB"))), KDeclaration, 0, NoLinkage),
-            ("vstruct2", True, null, Choice(fx, One(CStruct("vstrA")), _u), KDeclaration, 0, NoLinkage),
+            ("vstruct", True, null, Choice(fx, One(CStruct("vstrA").toCType), One(CStruct("vstrB").toCType)), KDeclaration, 0, NoLinkage),
+            ("vstruct2", True, null, Choice(fx, One(CStruct("vstrA").toCType), _u), KDeclaration, 0, NoLinkage),
             ("cfun", True, null, Choice(fx,
-                One(CFunction(Seq(CSigned(CInt())), CSigned(CInt()))),
-                One(CFunction(Seq(CSigned(CInt()), CSigned(CInt())), CSigned(CLong())))), KDeclaration, 0, NoLinkage) //i->i or i,i->l
+                One(CFunction(Seq(CSigned(CInt())), CSigned(CInt())).toCType),
+                One(CFunction(Seq(CSigned(CInt()), CSigned(CInt())), CSigned(CLong())).toCType)), KDeclaration, 0, NoLinkage) //i->i or i,i->l
         ))
 
     val astructEnv: StructEnv =
         new StructEnv().addComplete(
-            Id("str"), false, True, new ConditionalTypeMap() +("a", True, null, One(CDouble())) +("b", True, null, One(CStruct("str"))),1).addComplete(
-            Id("vstrA"), false, fx, new ConditionalTypeMap() +("a", fx and fy, null, _l) +("b", fx, null, One(CStruct("str"))),1).addComplete(
-            Id("vstrB"), false, True, new ConditionalTypeMap() +("a", True, null, _i) +("b", True, null, _i) +("c", fx.not, null, _i),1
+            Id("str"), false, True, new ConditionalTypeMap() +("a", True, null, One(CDouble())) +("b", True, null, One(CStruct("str"))), 1).addComplete(
+            Id("vstrA"), false, fx, new ConditionalTypeMap() +("a", fx and fy, null, _l) +("b", fx, null, One(CStruct("str"))), 1).addComplete(
+            Id("vstrB"), false, True, new ConditionalTypeMap() +("a", True, null, _i) +("b", True, null, _i) +("c", fx.not, null, _i), 1
         )
 
     test("primitives and pointers") {
-        expr("0") should be(CZero())
-        expr("'\\0'") should be(CZero())
-        expr("1") should be(CSigned(CInt()))
-        expr("blub") should be(CUnknown())
-        expr("a") should be(CObj(CDouble()))
-        expr("\"a\"") should be(CPointer(CSignUnspecified(CChar())))
-        expr("'0'") should be(CUnsigned(CChar()))
-        expr("&a") should be(CPointer(CDouble()))
-        expr("*(&a)") should be(CObj(CDouble()))
-        expr("*a") should be(CUnknown())
-        expr("*v") should be(CUnknown())
-        expr("&foo") should be(CPointer(CFunction(Seq(), CDouble())))
+        expr("0") should be(CZero().toCType)
+        expr("'\\0'") should be(CZero().toCType)
+        expr("1") should be(CSigned(CInt()).toCType)
+        expr("blub") should be(CUnknown().toCType)
+        expr("a") should be(CDouble().toCType.toObj)
+        expr("\"a\"") should be(CPointer(CSignUnspecified(CChar())).toCType)
+        expr("'0'") should be(CSignUnspecified(CChar()).toCType)
+        expr("&a") should be(CPointer(CDouble()).toCType.toObj)
+        expr("*(&a)") should be(CDouble().toCType.toObj)
+        expr("*a") should be(CUnknown().toCType)
+        expr("*v") should be(CUnknown().toCType)
+        expr("&foo") should be(CPointer(CFunction(Seq(), CDouble())).toCType.toObj)
     }
 
     test("conditional primitives and pointers") {
-        exprV("ca") should be(Choice(fa, One(CObj(CDouble())), _u))
-        exprV("c") should be(c_i_l.map(CObj(_)))
-        exprV("&c") should be(c_i_l.map(CPointer(_)))
-        exprV("*c").simplify should be(One(CUnknown()))
+        exprV("ca") should be(Choice(fa, One(CDouble().toCType.toObj), _u))
+        exprV("c") should be(c_i_l.map(_.toObj))
+        exprV("&c") should be(c_i_l.map(_.map(CPointer(_)).toObj))
+        exprV("*c").simplify should be(One(CUnknown().toCType))
     }
 
     test("struct member access") {
-        expr("s.a") should be(CObj(CDouble()))
-        expr("strf().a") should be(CDouble())
-        expr("s.b") should be(CObj(CStruct("str")))
-        expr("s.b.a") should be(CObj(CDouble()))
-        expr("s.b.b.a") should be(CObj(CDouble()))
-        expr("(&s)->a") should be(CObj(CDouble()))
+        expr("s.a") should be(CDouble().toCType.toObj)
+        expr("strf().a") should be(CDouble().toCType)
+        expr("s.b") should be(CStruct("str").toCType.toObj)
+        expr("s.b.a") should be(CDouble().toCType.toObj)
+        expr("s.b.b.a") should be(CDouble().toCType.toObj)
+        expr("(&s)->a") should be(CDouble().toCType.toObj)
     }
     test("conditional struct member access") {
         assertCondEquals(
             exprV("vstruct.a"),
-            Choice(fx and fy, _ol, Choice(fx.not, _oi, One(CUndefined)))
+            Choice(fx and fy, _ol, Choice(fx.not, _oi, One(CUndefined.toCType)))
         )
         assertCondEquals(exprV("vstruct2.a"), Choice(fx and fy, _ol, _u))
         assertCondEquals(exprV("vstruct.b.a"), Choice(fx, _od, _u))
     }
 
     test("casts") {
-        expr("(double)3") should be(CDouble())
-        expr("(void*)foo") should be(CPointer(CVoid()))
-        expr("(int(*)())foo") should be(CPointer(CFunction(List(), CSigned(CInt()))))
+        expr("(double)3") should be(CDouble().toCType)
+        expr("(void*)foo") should be(CPointer(CVoid()).toCType)
+        expr("(int(*)())foo") should be(CPointer(CFunction(List(), CSigned(CInt()))).toCType)
     }
 
 
 
     test("function calls") {
-        expr("foo") should be(CFunction(Seq(), CDouble()))
-        expr("foo()") should be(CDouble())
-        expr("foo(1)") should be(CUnknown())
-        expr("bar") should be(CFunction(Seq(CDouble(), CPointer(CStruct("str"))), CVoid()))
-        expr("bar()") should be(CUnknown())
-        expr("bar(1,s)") should be(CUnknown())
-        expr("bar(1,&s)") should be(CVoid())
-        expr("funparam()") should be(CDouble())
-        expr("(*funparam)()") should be(CDouble())
-        expr("(****funparam)()") should be(CDouble())
-        expr("funparamptr()") should be(CUnknown())
-        expr("(*funparamptr)()") should be(CDouble())
-        expr(" __builtin_va_arg()") should be(CUnknown())
-        expr(" __builtin_va_arg(a, int*)") should be(CPointer(CSigned(CInt())))
+        expr("foo") should be(CFunction(Seq(), CDouble()).toCType.toObj)
+        expr("foo()") should be(CDouble().toCType)
+        expr("foo(1)") should be(CUnknown().toCType)
+        expr("bar") should be(CFunction(Seq(CDouble(), CPointer(CStruct("str"))), CVoid()).toCType.toObj)
+        expr("bar()") should be(CUnknown().toCType)
+        expr("bar(1,s)") should be(CUnknown().toCType)
+        expr("bar(1,&s)") should be(CVoid().toCType)
+        expr("funparam()") should be(CDouble().toCType)
+        expr("(*funparam)()") should be(CDouble().toCType)
+        expr("(****funparam)()") should be(CDouble().toCType)
+        expr("funparamptr()") should be(CUnknown().toCType)
+        expr("(*funparamptr)()") should be(CDouble().toCType)
+        expr(" __builtin_va_arg()") should be(CUnknown().toCType)
+        expr(" __builtin_va_arg(a, int*)") should be(CPointer(CSigned(CInt())).toCType)
     }
 
     test("conditional function calls") {
@@ -146,32 +146,32 @@ class ExprTypingTest extends CTypeSystem with CEnv with FunSuite with ShouldMatc
     }
 
     test("assignment") {
-        expr("a=2") should be(CDouble())
-        expr("a=s") should be(CUnknown())
-        expr("sp=0") should be(CPointer(CStruct("str")))
+        expr("a=2") should be(CDouble().toCType)
+        expr("a=s") should be(CUnknown().toCType)
+        expr("sp=0") should be(CPointer(CStruct("str")).toCType)
     }
     test("pre/post increment") {
-        expr("a++") should be(CDouble())
-        expr("a--") should be(CDouble())
-        expr("v++") should be(CUnknown())
-        expr("3++") should be(CUnknown())
-        expr("--a") should be(CDouble())
-        expr("++3") should be(CUnknown())
-        expr("*++argv") should be(CObj(CPointer(CSignUnspecified(CChar()))))
+        expr("a++") should be(CDouble().toCType)
+        expr("a--") should be(CDouble().toCType)
+        expr("v++") should be(CUnknown().toCType)
+        expr("3++") should be(CUnknown().toCType)
+        expr("--a") should be(CDouble().toCType)
+        expr("++3") should be(CUnknown().toCType)
+        expr("*++argv") should be(CPointer(CSignUnspecified(CChar())).toCType.toObj)
     }
     test("binary operation") {
-        expr("1+2") should be(CSigned(CInt()))
-        expr("1l+2") should be(CSigned(CLong()))
-        expr("1+2l") should be(CSigned(CLong()))
-        expr("a+=2") should be(CDouble())
+        expr("1+2") should be(CSigned(CInt()).toCType)
+        expr("1l+2") should be(CSigned(CLong()).toCType)
+        expr("1+2l") should be(CSigned(CLong()).toCType)
+        expr("a+=2") should be(CDouble().toCType)
     }
     test("unary op") {
-        expr("~i") should be(CSigned(CInt()))
+        expr("~i") should be(CSigned(CInt()).toCType)
         expr("~a").isUnknown should be(true)
     }
     test("conditional op") {
-        expr("i?i:i") should be(CSigned(CInt()))
-        expr("i?i:a") should be(CDouble())
+        expr("i?i:i") should be(CSigned(CInt()).toCType)
+        expr("i?i:a") should be(CDouble().toCType)
     }
     test("conditional binary operation") {
         assertCondEquals(_i,
@@ -195,7 +195,7 @@ class ExprTypingTest extends CTypeSystem with CEnv with FunSuite with ShouldMatc
 
     }
     test("compound statement expressions") {
-        expr("({1;foo();2;})") should be(CSigned(CInt()))
+        expr("({1;foo();2;})") should be(CSigned(CInt()).toCType)
     }
     test("conditional compound statement expressions") {
         exprV( """({1;
@@ -204,30 +204,30 @@ class ExprTypingTest extends CTypeSystem with CEnv with FunSuite with ShouldMatc
                     #ifdef X
                     2;
                     #endif
-                    })""") should be(Choice(fx, _i, One(CPointer(CSignUnspecified(CChar())))))
+                    })""") should be(Choice(fx, _i, One(CPointer(CSignUnspecified(CChar())).toCType)))
     }
 
     test("arrays") {
-        expr("arr[0]") should be(CObj(CDouble()))
+        expr("arr[0]") should be(CDouble().toCType.toObj)
     }
 
     test("operations") {
 
-        operationType("+", CPointer(CUnsigned(CLong())), CSigned(CInt()), null, null, EmptyEnv) should be(CPointer(CUnsigned(CLong())))
-        CObj(CArray(CUnsigned(CLong()), -1)).toValue should be(CPointer(CUnsigned(CLong())))
-        operationType("+", CObj(CArray(CUnsigned(CLong()), -1)), CSigned(CInt()), null, null, EmptyEnv) should be(CPointer(CUnsigned(CLong())))
+        operationType("+", CPointer(CUnsigned(CLong())), CSigned(CInt()), null, null, EmptyEnv) should be(CPointer(CUnsigned(CLong())).toCType)
+        CArray(CUnsigned(CLong()), -1).toCType.toObj.toValue should be(CPointer(CUnsigned(CLong())).toCType)
+        operationType("+", CArray(CUnsigned(CLong()), -1).toCType.toObj, CSigned(CInt()), null, null, EmptyEnv) should be(CPointer(CUnsigned(CLong())).toCType)
 
     }
 
     test("label deref") {
-        expr("&&foo") should be(CPointer(CVoid()))
+        expr("&&foo") should be(CPointer(CVoid()).toCType)
     }
 
     test("ignored types") {
-        expr("ig").toValue should be(CIgnore())
-        expr("&ig") should be(CPointer(CIgnore()))
-        expr("*ig") should be(CObj(CIgnore()))
-        expr("(double)ig") should be(CDouble())
+        expr("ig").toValue should be(CIgnore().toCType)
+        expr("&ig") should be(CPointer(CIgnore()).toCType.toObj)
+        expr("*ig") should be(CIgnore().toCType.toObj)
+        expr("(double)ig") should be(CDouble().toCType)
     }
 
     //    @Ignore

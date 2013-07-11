@@ -3,18 +3,11 @@ package de.fosd.typechef.crefactor.backend.refactor
 import de.fosd.typechef.crefactor._
 import backend.ASTSelection
 import de.fosd.typechef.parser.c._
-import de.fosd.typechef.crefactor.frontend.util.Selection
 import de.fosd.typechef.featureexpr.{FeatureExpr, FeatureExprFactory}
 import de.fosd.typechef.typesystem.{CType, DeclarationKind}
 import de.fosd.typechef.conditional
-import conditional.Choice
 import conditional.Conditional
-import conditional.One
-import conditional.Opt
 import scala._
-import scala.Some
-import de.fosd.typechef.typesystem.CUnknown
-import de.fosd.typechef.typesystem.CFunction
 import de.fosd.typechef.parser.c.SwitchStatement
 import scala.Some
 import de.fosd.typechef.parser.c.NAryExpr
@@ -55,7 +48,7 @@ object InlineFunction extends ASTSelection with Refactor {
 
     def getSelectedElements(morpheus: Morpheus, selection: Selection): List[AST] = {
         val functions = (filterASTElems[FunctionDef](morpheus.getAST) ::: filterASTElems[FunctionCall](morpheus.getAST)
-                ::: filterAllASTElems[NestedFunctionDef](morpheus.getAST)).filter(x => isSelected(x, morpheus.getASTEnv, selection))
+            ::: filterAllASTElems[NestedFunctionDef](morpheus.getAST)).filter(x => isSelected(x, morpheus.getASTEnv, selection))
         filterASTElementsForFile(functions, selection.getFilePath).sortWith(comparePosition)
     }
 

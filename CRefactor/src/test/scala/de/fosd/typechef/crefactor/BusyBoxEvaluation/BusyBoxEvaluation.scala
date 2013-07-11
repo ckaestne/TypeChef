@@ -2,7 +2,6 @@ package de.fosd.typechef.crefactor.BusyBoxEvaluation
 
 import java.io._
 import de.fosd.typechef.featureexpr.FeatureModel
-import org.junit.Test
 import de.fosd.typechef.crefactor.util.EvalHelper
 
 

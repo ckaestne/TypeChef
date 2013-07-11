@@ -28,6 +28,9 @@ class CertSecurityTest extends FunSuite with ShouldMatchers with TestHelper {
                 override def warning_long_designator = true
                 override def warning_conflicting_linkage = true
                 override def warning_implicit_identifier = true
+                override def warning_volatile = true
+                override def warning_const_assignment = true
+                override def warning_character_signed = true
             } else LinuxDefaultOptions
         ).checkAST(false)
     }
@@ -151,10 +154,10 @@ class CertSecurityTest extends FunSuite with ShouldMatchers with TestHelper {
 
 
     /**
-     * less simple type system rule
-     * potentially interesting
+     * less simple type system rule, requires tracking volatile
+     * (implemented for variables, not necessarily for function parameters if applicable there as well)
      */
-    ignore("EXP32-C. Do not access a volatile object through a non-volatile reference") {
+    test("EXP32-C. Do not access a volatile object through a non-volatile reference") {
         correctExpr(
             """
               |static volatile int **ipp;
@@ -168,6 +171,7 @@ class CertSecurityTest extends FunSuite with ShouldMatchers with TestHelper {
               |}
             """.stripMargin)
 
+
         errorExpr(
             """
               |static volatile int **ipp;
@@ -177,6 +181,21 @@ class CertSecurityTest extends FunSuite with ShouldMatchers with TestHelper {
               |//printf("i = %d.\n", i);
               |
               |ipp = &ip; /* produces warnings in modern compilers */
+              |*ipp = &i; /* valid */
+              |if (*ip != 0) { /* valid */
+              |  /* ... */
+              |}
+            """.stripMargin)
+
+
+        errorExpr(
+            """
+              |static volatile int **ipp;
+              |static int *ip;
+              |static volatile int i = 0;
+              |
+              |//printf("i = %d.\n", i);
+              |
               |ipp = (int**) &ip; /* constraint violation, also produces warnings */
               |*ipp = &i; /* valid */
               |if (*ip != 0) { /* valid */
@@ -185,5 +204,127 @@ class CertSecurityTest extends FunSuite with ShouldMatchers with TestHelper {
             """.stripMargin)
     }
 
-}
 
+    /**
+     * less simple type system rule, requires tracking const
+     */
+    test("EXP40-C. Do not modify constant values") {
+        correctExpr(
+            """
+              |char const **cpp;
+              |char *cp;
+              |char const c = 'A';
+              |
+              |*cpp = &c; /* valid */
+              |*cp = 'B'; /* valid */
+            """.stripMargin)
+
+
+        errorExpr(
+            """
+              |char const **cpp;
+              |char *cp;
+              |
+              |cpp = &cp; /* constraint violation */
+            """.stripMargin)
+
+        errorExpr(
+            """
+              |char
+              |#ifdef X
+              |  const
+              |#endif
+              |  **cpp;
+              |char *cp;
+              |
+              |cpp = &cp; /* constraint violation */
+            """.stripMargin)
+    }
+
+    test("EXP05-C. Do not cast away a const qualification") {
+        errorExpr(
+            """
+              |const char s[] = "foo";
+              |int main() {
+              |  *(char*)s = '\0';
+              |}
+            """.stripMargin)
+        correct(
+            """
+              |void remove_spaces(char *str, int slen) {
+              |  char *p = str;
+              |  int i;
+              |  for (i = 0; i < slen && str[i]; i++) {
+              |    if (str[i] != ' ') *p++ = str[i];
+              |  }
+              |  *p = '\0';
+              |}
+            """.stripMargin)
+        error(
+            """
+              |void remove_spaces(const char *str, int slen) {
+              |  char *p = (char *)str;
+              |  int i;
+              |  for (i = 0; i < slen && str[i]; i++) {
+              |    if (str[i] != ' ') *p++ = str[i];
+              |  }
+              |  *p = '\0';
+              |}
+            """.stripMargin)
+
+        error(
+            """
+              |void *memset(void *str, int c, int n);
+              |void test(){
+              |  const int vals[3] = {3, 4, 5};
+              |  memset(vals, 0, sizeof(vals));
+              |}
+            """.stripMargin)
+    }
+
+    test("STR04-C. Use plain char for characters in the basic character set") {
+        correct(
+            """
+              |int strlen(const char * p);
+              |void foo() {
+              |  int len;
+              |  char cstr[] = "char string";
+              |  len = strlen(cstr);
+              |}
+            """.stripMargin)
+
+        error(
+            """
+              |int strlen(const char * p);
+              |void foo() {
+              |  int len;
+              |  signed char cstr[] = "char string";
+              |  len = strlen(cstr);
+              |}
+            """.stripMargin)
+
+        error(
+            """
+              |int strlen(const char * p);
+              |void foo() {
+              |  int len;
+              |  unsigned char cstr[] = "char string";
+              |  len = strlen(cstr);
+              |}
+            """.stripMargin)
+
+        error(
+            """
+              |int strlen(const char * p);
+              |void foo() {
+              |  int len;
+              |#ifdef X
+              |  unsigned
+              |#endif
+              |     char cstr[] = "char string";
+              |  len = strlen(cstr);
+              |}
+            """.stripMargin)
+    }
+
+}

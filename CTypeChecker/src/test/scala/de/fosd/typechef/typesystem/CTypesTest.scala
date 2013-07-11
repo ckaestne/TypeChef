@@ -24,8 +24,8 @@ class CTypesTest extends CTypeSystem with FunSuite with ShouldMatchers {
             (("nwf3", false) -> new ConditionalTypeMap())
         ).mapValues(x => One(StructTag(true, x, 0))))
         val tEnv: PtrEnv = Set("Str", "wf2")
-        val wf = wellformed(sEnv, tEnv, _: CType) should be(true)
-        val nwf = wellformed(sEnv, tEnv, _: CType) should be(false)
+        val wf = wellformed(sEnv, tEnv, _: AType) should be(true)
+        val nwf = wellformed(sEnv, tEnv, _: AType) should be(false)
 
         wf(CSigned(CInt()))
         wf(CSigned(CChar()))
@@ -42,8 +42,8 @@ class CTypesTest extends CTypeSystem with FunSuite with ShouldMatchers {
         nwf(CArray(CVoid(), 3))
         nwf(CArray(CDouble(), 0))
         wf(CFunction(Seq(), CVoid()))
-        wf(CFunction(Seq(CInt()), CVoid()))
-        wf(CFunction(Seq(CInt(), CDouble()), CVoid()))
+        wf(CFunction(Seq(CInt().toCType), CVoid()))
+        wf(CFunction(Seq(CInt().toCType, CDouble()), CVoid()))
         nwf(CFunction(Seq(CPointer(CStruct("NoStr"))), CVoid()))
         nwf(CFunction(Seq(CVoid()), CVoid()))
         nwf(CFunction(Seq(CArray(CDouble(), 2)), CVoid()))
@@ -67,7 +67,7 @@ class CTypesTest extends CTypeSystem with FunSuite with ShouldMatchers {
     test("simple expression types") {
         val et = getExprType(_: PrimaryExpr, True, EmptyEnv)
 
-        et(Constant("1")) should be(One(CSigned(CInt())))
+        et(Constant("1")) should be(One(CSigned(CInt()).toCType))
     }
 
     test("choice types and their operations") {
@@ -86,9 +86,9 @@ class CTypesTest extends CTypeSystem with FunSuite with ShouldMatchers {
     }
 
     test("coersion") {
-        coerce(CDouble(), CInt()) should be(true)
-        coerce(CUnsigned(CInt()), CInt()) should be(true)
-        coerce(CStruct("a"), CInt()) should be(false)
+        coerce(CDouble(), CInt().toCType) should be(true)
+        coerce(CUnsigned(CInt()), CInt().toCType) should be(true)
+        coerce(CStruct("a"), CInt().toCType) should be(false)
         coerce(CPointer(CStruct("a")), CPointer(CVoid())) should be(true)
 
         coerce(CPointer(CVoid()), CPointer(CFunction(List(), CSigned(CInt())))) should be(true)

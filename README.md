@@ -203,7 +203,7 @@ In the context of a variability-aware **module system**, we discussed **type che
 
 A description of how we scaled **type system** and **data-flow analysis** and a performance comparison with sampling strategies can be found here:
 
-> J. Liebig, A. von Rhein, C. Kästner, S. Apel, J. Dörre, and C. Lengauer. [Large-Scale Variability-Aware Type Checking and Dataflow Analysis](http://www.cs.cmu.edu/~ckaestne/pdf/mip-1212.pdf). In Proceedings of the European Software Engineering Conference and ACM SIGSOFT Symposium on the Foundations of Software Engineering (ESEC/FSE), New York, NY: ACM Press, August 2013.
+> J. Liebig, A. von Rhein, C. Kästner, S. Apel, J. Dörre, and C. Lengauer. [Scalable Analysis of Variable Software](http://www.cs.cmu.edu/~ckaestne/pdf/fse13.pdf). In Proceedings of the European Software Engineering Conference and ACM SIGSOFT Symposium on the Foundations of Software Engineering (ESEC/FSE), New York, NY: ACM Press, August 2013.
 
 A more detailed discussion of the variability-aware **lexer** (or partial preprocessor) was presented at VaMoS 2011:
 

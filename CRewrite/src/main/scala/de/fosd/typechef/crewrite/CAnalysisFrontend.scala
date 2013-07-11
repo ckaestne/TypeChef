@@ -1,34 +1,46 @@
 
 package de.fosd.typechef.crewrite
 
-import scala.Some
-import java.io.{Writer, StringWriter}
-
 import de.fosd.typechef.featureexpr._
+import java.io.StringWriter
 import de.fosd.typechef.typesystem._
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.error._
 
-class CAnalysisFrontend(tunit: TranslationUnit, fm: FeatureModel = FeatureExprFactory.empty) extends CFGHelper with EnforceTreeHelper {
+sealed abstract class CAnalysisFrontend(tu: TranslationUnit) extends EnforceTreeHelper {
+    protected val tunit = prepareAST[TranslationUnit](tu)
+}
 
-    def dumpCFG(writer: Writer = new StringWriter()) {
+class CInterAnalysisFrontend(tu: TranslationUnit, fm: FeatureModel = FeatureExprFactory.empty) extends CAnalysisFrontend(tu) with InterCFG with CFGHelper {
+
+    def getTranslationUnit(): TranslationUnit = tunit
+
+    def writeCFG(title: String, writer: CFGWriter) {
         val fdefs = filterAllASTElems[FunctionDef](tunit)
-        val dump = new DotGraph(writer)
         val env = CASTEnv.createASTEnv(tunit)
-        dump.writeHeader("CFGDump")
+        writer.writeHeader(title)
+
+        def lookupFExpr(e: AST): FeatureExpr = e match {
+            case o if env.isKnown(o) => env.featureExpr(o)
+            case e: ExternalDef => externalDefFExprs.get(e).getOrElse(FeatureExprFactory.True)
+            case _ => FeatureExprFactory.True
+        }
+
 
         for (f <- fdefs) {
-            dump.writeMethodGraph(getAllSucc(f, fm, env), env, Map())
+            writer.writeMethodGraph(getAllSucc(f, fm, env), lookupFExpr)
         }
-        dump.writeFooter()
-        dump.close()
+        writer.writeFooter()
+        writer.close()
 
         if (writer.isInstanceOf[StringWriter])
             println(writer.toString)
     }
+}
+
+class CIntraAnalysisFrontend(tu: TranslationUnit, fm: FeatureModel = FeatureExprFactory.empty) extends CAnalysisFrontend(tu) with IntraCFG with CFGHelper {
 
     def doubleFree() = {
-
         val casestudy = {
             tunit.getFile match {
                 case None => ""

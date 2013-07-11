@@ -1,9 +1,5 @@
 package de.fosd.typechef
 
-/*
-* temporarily copied from PreprocessorFrontend due to technical problems
-*/
-
 
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.typesystem._
@@ -16,7 +12,6 @@ import de.fosd.typechef.parser.c.TranslationUnit
 
 object Frontend {
 
-    private var storedAst: AST = null
 
     def main(args: Array[String]) {
         // load options
@@ -95,20 +90,12 @@ object Frontend {
 
         val fm = opt.getLexerFeatureModel().and(opt.getLocalFeatureModel).and(opt.getFilePresenceCondition)
         opt.setFeatureModel(fm) //otherwise the lexer does not get the updated feature model with file presence conditions
-        /*
-        // create dimacs file from feature model
-        opt.getFeatureModelTypeSystem.asInstanceOf[SATFeatureModel].writeToDimacsFile(new File(
-            "/tmp/BB_fm.dimacs"
-        ))
-
-        System.exit(0)
-        */
         if (!opt.getFilePresenceCondition.isSatisfiable(fm)) {
             println("file has contradictory presence condition. existing.") //otherwise this can lead to strange parser errors, because True is satisfiable, but anything else isn't
             return
         }
 
-        var ast: AST = null
+        var ast: TranslationUnit = null
         if (opt.reuseAST && opt.parse && new File(opt.getSerializedASTFilename).exists()) {
             println("loading AST.")
             ast = loadSerializedAST(opt.getSerializedASTFilename)
@@ -126,10 +113,10 @@ object Frontend {
 
             if (ast == null) {
                 //no parsing and serialization if read serialized ast
-            	val parserMain = new ParserMain(new CParser(fm))
-            	ast = parserMain.parserMain(in, opt)
+                val parserMain = new ParserMain(new CParser(fm))
+                ast = parserMain.parserMain(in, opt).asInstanceOf[TranslationUnit]
 
-            	if (ast != null && opt.serializeAST) {
+                if (ast != null && opt.serializeAST) {
                     stopWatch.start("serialize")
                     serializeAST(ast, opt.getSerializedASTFilename)
                 }
@@ -138,10 +125,10 @@ object Frontend {
 
             if (ast != null) {
                 val fm_ts = opt.getTypeSystemFeatureModel.and(opt.getLocalFeatureModel).and(opt.getFilePresenceCondition)
-                val cachedTypes = opt.xfree // just an example
+                val cachedTypes = false //opt.warning_xfree // just an example
                 val ts = if (cachedTypes)
-                    new CTypeSystemFrontend(ast.asInstanceOf[TranslationUnit], fm_ts, opt) with CTypeCache
-                else new CTypeSystemFrontend(ast.asInstanceOf[TranslationUnit], fm_ts, opt)
+                        new CTypeSystemFrontend(ast, fm_ts, opt) with CTypeCache
+                    else new CTypeSystemFrontend(ast, fm_ts, opt)
 
                 /** I did some experiments with the TypeChef FeatureModel of Linux, in case I need the routines again, they are saved here. */
                 //Debug_FeatureModelExperiments.experiment(fm_ts)
@@ -168,27 +155,29 @@ object Frontend {
                 if (opt.dumpcfg) {
                     stopWatch.start("dumpCFG")
 
-                    val cf = new CAnalysisFrontend(ast.asInstanceOf[TranslationUnit], fm_ts)
-                    cf.dumpCFG()
+                    val cf = new CInterAnalysisFrontend(ast, fm_ts)
+                    val writer = new CFGCSVWriter(new FileWriter(new File(opt.getCCFGFilename)))
+                    val dotwriter = new DotGraph(new FileWriter(new File(opt.getCCFGDotFilename)))
+                    cf.writeCFG(opt.getFile, new ComposedWriter(List(dotwriter, writer)))
                 }
-                if (opt.doublefree) {
+                if (opt.warning_double_free) {
                     stopWatch.start("doublefree")
-                    val df = new CAnalysisFrontend(ast.asInstanceOf[TranslationUnit], fm_ts)
+                    val df = new CIntraAnalysisFrontend(ast, fm_ts)
                     df.doubleFree()
                 }
-                if (opt.uninitializedmemory) {
+                if (opt.warning_uninitialized_memory) {
                     stopWatch.start("uninitializedmemory")
-                    val uv = new CAnalysisFrontend(ast.asInstanceOf[TranslationUnit], fm_ts)
+                    val uv = new CIntraAnalysisFrontend(ast, fm_ts)
                     uv.uninitializedMemory()
                 }
-                if (opt.xfree) {
+                if (opt.warning_xfree) {
                     stopWatch.start("xfree")
-                    val xf = new CAnalysisFrontend(ast.asInstanceOf[TranslationUnit], fm_ts)
+                    val xf = new CIntraAnalysisFrontend(ast, fm_ts)
                     xf.xfree()
                 }
-                if (opt.danglingswitchcode) {
+                if (opt.warning_dangling_switch_code) {
                     stopWatch.start("danglingswitchcode")
-                    val ds = new CAnalysisFrontend(ast.asInstanceOf[TranslationUnit], fm_ts)
+                    val ds = new CIntraAnalysisFrontend(ast, fm_ts)
                     ds.danglingSwitchCode()
                 }
 
@@ -215,14 +204,14 @@ object Frontend {
         fw.close()
     }
 
-    def loadSerializedAST(filename: String): AST = {
+    def loadSerializedAST(filename: String): TranslationUnit = try {
         val fr = new ObjectInputStream(new FileInputStream(filename)) {
             override protected def resolveClass(desc: ObjectStreamClass) = { /*println(desc);*/ super.resolveClass(desc) }
         }
-        val ast = fr.readObject().asInstanceOf[AST]
+        val ast = fr.readObject().asInstanceOf[TranslationUnit]
         fr.close()
         ast
+    } catch {
+        case e:ObjectStreamException => System.err.println("failed loading serialized AST: "+e.getMessage); null
     }
-
-    def getAST = storedAst
 }

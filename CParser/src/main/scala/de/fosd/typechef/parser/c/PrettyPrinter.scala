@@ -87,52 +87,52 @@ object PrettyPrinter {
         case Choice(f, a: AST, b: AST) =>
             if (newLineForIfdefs) {
                 line ~
-                        "#if" ~~ f.toTextExpr *
-                        prettyPrint(a, f :: list_feature_expr) *
-                        "#else" *
-                        prettyPrint(b, f.not :: list_feature_expr) *
-                        "#endif" ~
-                                line
+                    "#if" ~~ f.toTextExpr *
+                    prettyPrint(a, f :: list_feature_expr) *
+                    "#else" *
+                    prettyPrint(b, f.not :: list_feature_expr) *
+                    "#endif" ~
+                        line
             } else {
                 "#if" ~~ f.toTextExpr *
-                        prettyPrint(a, f :: list_feature_expr) *
-                        "#else" *
-                        prettyPrint(b, f.not :: list_feature_expr) *
-                        "#endif"
+                    prettyPrint(a, f :: list_feature_expr) *
+                    "#else" *
+                    prettyPrint(b, f.not :: list_feature_expr) *
+                    "#endif"
             }
 
         case Choice(f, a: Conditional[_], b: Conditional[_]) =>
             if (newLineForIfdefs) {
                 line ~
-                        "#if" ~~ f.toTextExpr *
-                        ppConditional(a, f :: list_feature_expr) *
-                        "#else" *
-                        ppConditional(b, f.not :: list_feature_expr) *
-                        "#endif" ~
-                                line
+                    "#if" ~~ f.toTextExpr *
+                    ppConditional(a, f :: list_feature_expr) *
+                    "#else" *
+                    ppConditional(b, f.not :: list_feature_expr) *
+                    "#endif" ~
+                        line
             } else {
                 "#if" ~~ f.toTextExpr *
-                        ppConditional(a, f :: list_feature_expr) *
-                        "#else" *
-                        ppConditional(b, f.not :: list_feature_expr) *
-                        "#endif"
+                    ppConditional(a, f :: list_feature_expr) *
+                    "#else" *
+                    ppConditional(b, f.not :: list_feature_expr) *
+                    "#endif"
             }
     }
 
     private def optConditional(e: Opt[AST], list_feature_expr: List[FeatureExpr]): Doc = {
         if (e.feature == FeatureExprFactory.True ||
-                list_feature_expr.foldLeft(FeatureExprFactory.True)(_ and _).implies(e.feature).isTautology())
+            list_feature_expr.foldLeft(FeatureExprFactory.True)(_ and _).implies(e.feature).isTautology())
             prettyPrint(e.entry, list_feature_expr)
         else if (newLineForIfdefs) {
             line ~
-                    "#if" ~~ e.feature.toTextExpr *
-                    prettyPrint(e.entry, e.feature :: list_feature_expr) *
-                    "#endif" ~
-                            line
+                "#if" ~~ e.feature.toTextExpr *
+                prettyPrint(e.entry, e.feature :: list_feature_expr) *
+                "#endif" ~
+                    line
         } else {
             "#if" ~~ e.feature.toTextExpr *
-                    prettyPrint(e.entry, e.feature :: list_feature_expr) *
-                    "#endif"
+                prettyPrint(e.entry, e.feature :: list_feature_expr) *
+                "#endif"
         }
 
     }
@@ -349,14 +349,14 @@ object PrettyPrinter {
             case InitializerDesignatorC(id: Id) => id ~ ":"
             case InitializerAssigment(desgs) => spaceSep(desgs) ~~ "="
             case BuiltinOffsetof(typeName: TypeName, offsetofMemberDesignator) => "__builtin_offsetof(" ~ typeName ~ "," ~~ spaceSep(offsetofMemberDesignator) ~ ")"
-      		case OffsetofMemberDesignatorID(id: Id) => id
+            case OffsetofMemberDesignatorID(id: Id) => "." ~ id
             case OffsetofMemberDesignatorExpr(expr: Expr) => "[" ~ expr ~ "]"
             case BuiltinTypesCompatible(typeName1: TypeName, typeName2: TypeName) => "__builtin_types_compatible_p(" ~ typeName1 ~ "," ~~ typeName2 ~ ")"
             case BuiltinVaArgs(expr: Expr, typeName: TypeName) => "__builtin_va_arg(" ~ expr ~ "," ~~ typeName ~ ")"
             case CompoundStatementExpr(compoundStatement: CompoundStatement) => "(" ~ compoundStatement ~ ")"
             case Pragma(command: StringLit) => "_Pragma(" ~ command ~ ")"
 
-      		case e => assert(assertion = false, message = "match not exhaustive: " + e); ""
+            case e => assert(assertion = false, message = "match not exhaustive: " + e); ""
         }
     }
 

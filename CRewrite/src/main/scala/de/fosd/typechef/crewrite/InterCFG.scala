@@ -1,7 +1,7 @@
 package de.fosd.typechef.crewrite
 
 import de.fosd.typechef.featureexpr.{FeatureModel, FeatureExpr}
-import de.fosd.typechef.conditional.Conditional
+import de.fosd.typechef.conditional.{Opt, ConditionalMap, Conditional}
 import de.fosd.typechef.parser.c._
 import scala.Some
 
@@ -19,7 +19,30 @@ trait InterCFG extends IntraCFG {
 
     // provide a lookup mechanism for function defs (from the type system or selfimplemented)
     // return None if function cannot be found
-    def lookupFunctionDef(name: String): Conditional[Option[ExternalDef]]
+    def getTranslationUnit(): TranslationUnit
+
+    private var functionDefs: ConditionalMap[String, Option[ExternalDef]] = new ConditionalMap[String, Option[ExternalDef]]
+    private var functionFExpr: Map[ExternalDef, FeatureExpr] = Map()
+
+    if (getTranslationUnit != null)
+        for (Opt(f, externalDef) <- getTranslationUnit.defs) {
+            functionFExpr = functionFExpr + (externalDef -> f)
+            externalDef match {
+                case FunctionDef(_, decl, _, _) =>
+                    functionDefs = functionDefs +(decl.getName, f, Some(externalDef))
+                case Declaration(_, initDecls) =>
+                    for (Opt(fi, initDecl) <- initDecls) {
+                        functionDefs = functionDefs +(initDecl.getName, f and fi, Some(externalDef))
+                    }
+                case _ =>
+            }
+        }
+
+
+    def externalDefFExprs = functionFExpr
+    def lookupFunctionDef(name: String): Conditional[Option[ExternalDef]] = {
+        functionDefs.getOrElse(name, None)
+    }
 
     override private[crewrite] def findMethodCalls(t: AST, env: ASTEnv, oldres: CFGRes, ctx: FeatureExpr, _res: CFGRes): CFGRes = {
         var res: CFGRes = _res
