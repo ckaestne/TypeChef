@@ -175,4 +175,33 @@ class TestFeatureExpr extends TestCase {
         assert(expr4.evaluate(Set("a", "b")))
     }
 
+
+    private def assertEquivalent(exp:FeatureExpr, actual:FeatureExpr) = assert(exp equivalentTo  actual,"%s NOT equiv %s".format(exp ,  actual))
+    @Test
+    def testUniqueQuantificationBDD(){
+
+        FeatureExprFactory.setDefault(FeatureExprFactory.bdd)
+        val fb=FeatureExprFactory.createDefinedExternal("b")
+        val fc=FeatureExprFactory.createDefinedExternal("c")
+        val fd=FeatureExprFactory.createDefinedExternal("d")
+
+        val x = fb and (fc or fd)
+
+        assertEquivalent((fb xor (fb and fd)) ,  x.unique(fc))
+        assertEquivalent((fb xor (fb and fc)) ,  x.unique(fd))
+        assertEquivalent((fc or fd) xor False ,  x.unique(fb))
+    }
+    @Test
+    def testUniqueQuantificationSAT(){
+        FeatureExprFactory.setDefault(FeatureExprFactory.sat)
+        val fb=FeatureExprFactory.createDefinedExternal("b")
+        val fc=FeatureExprFactory.createDefinedExternal("c")
+        val fd=FeatureExprFactory.createDefinedExternal("d")
+
+        val x = fb and (fc or fd)
+
+        assertEquivalent((fb xor (fb and fd)) ,  x.unique(fc))
+        assertEquivalent((fb xor (fb and fc)) ,  x.unique(fd))
+        assertEquivalent((fc or fd) xor False ,  x.unique(fb))
+    }
 }

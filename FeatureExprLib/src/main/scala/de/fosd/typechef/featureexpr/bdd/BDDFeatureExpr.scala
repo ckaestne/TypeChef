@@ -142,6 +142,9 @@ class BDDFeatureExpr(private[featureexpr] val bdd: BDD) extends FeatureExpr {
     override def implies(that: FeatureExpr) = FExprBuilder.imp(this, asBDDFeatureExpr(that))
     override def xor(that: FeatureExpr) = FExprBuilder.xor(this, asBDDFeatureExpr(that))
 
+    override def unique(feature: SingleFeatureExpr): FeatureExpr = FExprBuilder.unique(this, asSingleBDDFeatureExpr(feature))
+
+
     // According to advanced textbooks, this representation is not always efficient:
     // not (a equiv b) generates 4 clauses, of which 2 are tautologies.
     // In positions of negative polarity (i.e. contravariant?), a equiv b is best transformed to
@@ -453,6 +456,7 @@ private[bdd] object FExprBuilder {
     def imp(a: BDDFeatureExpr, b: BDDFeatureExpr): BDDFeatureExpr = new BDDFeatureExpr(a.bdd imp b.bdd)
     def biimp(a: BDDFeatureExpr, b: BDDFeatureExpr): BDDFeatureExpr = new BDDFeatureExpr(a.bdd biimp b.bdd)
     def xor(a: BDDFeatureExpr, b: BDDFeatureExpr): BDDFeatureExpr = new BDDFeatureExpr(a.bdd xor b.bdd)
+    def unique(a: BDDFeatureExpr, b: SingleBDDFeatureExpr): BDDFeatureExpr = new BDDFeatureExpr(a.bdd.unique(b.bdd))
 
     def not(a: BDDFeatureExpr): BDDFeatureExpr = new BDDFeatureExpr(a.bdd.not())
 
@@ -527,6 +531,11 @@ object CastHelper {
     else {
         assert(fexpr.isInstanceOf[BDDFeatureExpr], "Expected BDDFeatureExpr but found " + fexpr.getClass.getCanonicalName + "; do not mix implementations of FeatureExprLib.") //FMCAST
         fexpr.asInstanceOf[BDDFeatureExpr]
+    }
+    def asSingleBDDFeatureExpr(fexpr: SingleFeatureExpr): SingleBDDFeatureExpr = if (fexpr == null) null
+    else {
+        assert(fexpr.isInstanceOf[SingleBDDFeatureExpr], "Expected SingleBDDFeatureExpr but found " + fexpr.getClass.getCanonicalName + "; do not mix implementations of FeatureExprLib.") //FMCAST
+        fexpr.asInstanceOf[SingleBDDFeatureExpr]
     }
     def asBDDFeatureModel(fm: FeatureModel): BDDFeatureModel =
         if (fm == null) null

@@ -59,6 +59,15 @@ trait FeatureExpr extends Serializable {
     def isTautology(fm: FeatureModel): Boolean = !this.not.isSatisfiable(fm)
     def isContradiction(fm: FeatureModel): Boolean = !isSatisfiable(fm)
 
+    /**
+     * unique existential quantification over feature "feature".
+     *
+     * This has the effect of substituting the feature by true and false respectively and returning the xor of both:
+     * this[feature->True] xor this[feature->False]
+     *
+     * It can be seen as identifying under which condition the feature matters for the result of the formula
+     */
+    def unique(feature: SingleFeatureExpr): FeatureExpr
 
     /**
      * uses a SAT solver to determine whether two expressions are
