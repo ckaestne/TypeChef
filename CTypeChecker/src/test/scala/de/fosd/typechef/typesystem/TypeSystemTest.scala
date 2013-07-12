@@ -20,6 +20,8 @@ class TypeSystemTest extends FunSuite with ShouldMatchers with TestHelper {
         new CTypeSystemFrontend(ast).checkAST()
     }
 
+    protected def correct(code: String) = expect(true) {check(code)}
+    protected def error(code: String) = expect(false) {check(code)}
 
     test("typecheck simple translation unit") {
         expect(true) {
@@ -1080,6 +1082,32 @@ return 1;
         expect(true) {
             check(c)
         }
+    }
+
+
+    test("enum initializer") {
+        correct( """
+                   |enum {
+                   |   A = 0,
+                   |   B = A + 0
+                   |};
+                   |void foo() { int x = A; }
+                 """.stripMargin)
+        error( """
+                   |enum {
+                   |   A = 0,
+                   |   B = A + 0
+                   |};
+                   |void foo() { int x = C; }
+                 """.stripMargin)
+
+        error( """
+                  |enum {
+                  |   _1_A = 0,
+                  |   B = A + 0
+                  |};
+                """.stripMargin)
+
     }
 }
 

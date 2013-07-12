@@ -465,6 +465,11 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
             }
         )
 
+    // expect scalar type for initializers
+    override protected def checkEnumInitializer(initializer: Expr, fexpr: FeatureExpr, env: Env) =
+        performExprCheck(initializer, isScalar, "expected scalar, found " + _, fexpr, env)
+
+
     //    private[typesystem] def evalSubExpr(subexpr: NAryExpr, context: FeatureExpr): Conditional[VValue] = expr match {
 
 
