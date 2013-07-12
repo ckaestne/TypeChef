@@ -4,6 +4,10 @@ import org.junit.Test
 import org.scalatest.matchers.ShouldMatchers
 import de.fosd.typechef.featureexpr.FeatureExprFactory
 import de.fosd.typechef.parser.c._
+import scala.Predef._
+import de.fosd.typechef.parser.c.TranslationUnit
+import de.fosd.typechef.parser.c.Id
+import de.fosd.typechef.typesystem.{CDeclUse, CTypeCache, CTypeSystemFrontend}
 
 class XFreeTest extends TestHelper with ShouldMatchers with CFGHelper with EnforceTreeHelper {
 

@@ -4,6 +4,7 @@ import org.junit.Test
 import org.scalatest.matchers.ShouldMatchers
 import de.fosd.typechef.featureexpr.FeatureExprFactory
 import de.fosd.typechef.parser.c._
+import de.fosd.typechef.typesystem.{CDeclUse, CTypeSystemFrontend}
 
 class DoubleFreeTest extends TestHelper with ShouldMatchers with CFGHelper with EnforceTreeHelper {
 
