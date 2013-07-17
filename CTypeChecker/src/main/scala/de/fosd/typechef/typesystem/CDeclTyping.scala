@@ -334,6 +334,7 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface with CDeclU
       * important: this recurses into structures!
       * */
     protected def enumDeclarations(specs: List[Opt[Specifier]], featureExpr: FeatureExpr, d: AST, env: Env): List[(String, FeatureExpr, AST, Conditional[CType], DeclarationKind, Conditional[Linkage])] = {
+        var localEnv = env
         var result = List[(String, FeatureExpr, AST, Conditional[CType], DeclarationKind, Conditional[Linkage])]()
         for (Opt(f, spec) <- specs) spec match {
             case EnumSpecifier(optId, Some(enums)) =>
@@ -342,6 +343,7 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface with CDeclU
                     case _ =>
                 }
                 for (Opt(f2, enum) <- enums) {
+                    enum.assignment.map(checkEnumInitializer(_, f and f2 and featureExpr, localEnv))
                     addDecl(enum, featureExpr and f and f2, env)
                     /*enum match {
                         case Enumerator(_, Some(BuiltinOffsetof(TypeName(specs, decl), offsetMember))) =>
@@ -350,6 +352,7 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface with CDeclU
                             }
                         case _ =>
                     }*/
+                    localEnv = localEnv.addVar(enum.id.name, featureExpr and f and f2, enum, One(CSigned(CInt()).toCType), KEnumVar, env.scope, One(NoLinkage))
                     result = (enum.id.name, featureExpr and f and f2, enum, One(CSigned(CInt()).toCType), KEnumVar, One(NoLinkage)) :: result
                 }
             //recurse into structs
@@ -360,6 +363,8 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface with CDeclU
         }
         result
     }
+
+    protected def checkEnumInitializer(initializer: Expr, fexpr: FeatureExpr, env: Env)
 
 
     /**

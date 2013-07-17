@@ -193,7 +193,7 @@ class DeclUseTest extends ConditionalNavigation with ASTNavigation with CDeclUse
         val result = runDefUseOnAst(source_ast)
         val numberOfDefinitions = 7
         val numberOfEntries = 1
-        val numberOfVariableIds = 0
+        val numberOfVariableIds = 1
         assert(result ==(numberOfDefinitions, numberOfEntries, numberOfVariableIds))
     }
 
