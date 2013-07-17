@@ -432,6 +432,42 @@ class LivenessTest extends TestHelper with ShouldMatchers with IntraCFG with CFG
                     """)
     }
 
+    @Test def test_NNH() {
+        runExample(
+            """
+      void foo(int x, int y, int z) {
+        x = 2;  // dead code
+        y = 4;
+        x = 1;
+        if (y > x) {
+          z = y;
+        } else {
+          z = y*y;
+        }
+        x = z;
+      }
+            """)
+    }
+
+    @Test def test_NNH_var() {
+        runExample(
+            """
+      void foo(int x, int y, int z) {
+        x = 2;   // not dead since x = 1 is variable
+        y = 4;
+        #ifdef A
+        x = 1;
+        #endif
+        if (y > x) {
+          z = y;
+        } else {
+          z = y*y;
+        }
+        x = z;
+      }
+            """)
+    }
+
 
     // http://www.exforsys.com/tutorials/c-language/c-expressions.html
     @Test def test_uses() {
