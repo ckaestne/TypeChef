@@ -12,9 +12,6 @@ Parameters:
     --typecheck (-t)               Lex, parse, and type check; but do not create interfaces.
     --interface                    Lex, parse, type check, and create interfaces.
     --dumpcfg                      Lex, parse, and dump control flow graph
-    --doublefree                   Lex, parse, and check for possible double free of heap pointers.
-    --uninitializedmemory          Lex, parse, and check for usages of uninitialized variables.
-    --xfree                        Lex, parse, and check for usages of freeing statically allocated memory.
     --output=file (-o)             Path to output files (no extension, creates .pi, .macrodbg etc files).
     --writePI                      Write lexer output into .pi file
     --debugInterface               Write interface in human readable format (requires --interface)
@@ -67,7 +64,15 @@ Parameters:
                                     * const: Issue security warning on assigning to const value or casting away const qualification (undefined behavior)
                                     * char: Issue warning when converting between 'char' types of different signness (unintended effects)
                                    (Analyses with * are activated by default).
-    --no-anaysis (-a)              Disables ALL analyses.
+    --no-analysis (-a)             Disables ALL analyses.
+    --static-analysis=type (-S)    Enables the static-analysis class: 
+                                    * doublefree: Issue a warning when dynamically allocated memory is freed multiple times
+                                    * xfree: Issue a warning when trying to free memory that was not allocated dynamically
+                                    * uninitializedmemory: Issue a warning when the value of a non-initialized variable is used
+                                    * caseterminiation: Issue a warning when statements following a case block within a switch aren't terminated using a break statement
+                                    * danglingswitchcode: Issue a warning when code in a switch statement doesn't occur within the control flow of a case or default statement
+                                   (Analyses with * are activated by default).
+    --no-static-analysis (-s)      Disables ALL analyses.
 
   Feature models
     --featureModelDimacs=file      Dimacs file describing a feature model.
@@ -80,4 +85,4 @@ Parameters:
     --version                      Prints version number
     --help                         Displays help and usage information.
 
-TypeChef version 0.3.5_20130709150039
+TypeChef version 0.3.5_20130711170744
