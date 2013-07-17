@@ -174,6 +174,14 @@ object Frontend {
                     stopWatch.start("danglingswitchcode")
                     sa.danglingSwitchCode()
                 }
+                if (opt.warning_cfg_in_non_void_func) {
+                    stopWatch.start("cfginnonvoidfunc")
+                    sa.cfgInNonVoidFunc()
+                }
+                if (opt.warning_stdlib_func_return) {
+                    stopWatch.start("checkstdlibfuncreturn")
+                    sa.stdLibFuncReturn()
+                }
 
             }
 

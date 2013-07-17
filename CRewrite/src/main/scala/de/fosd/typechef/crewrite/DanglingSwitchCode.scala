@@ -9,7 +9,7 @@ import de.fosd.typechef.conditional.Opt
 // https://www.securecoding.cert.org/confluence/display/seccode/MSC35-C.+Do+not+include+any+executable+statements+inside+a+switch+statement+before+the+first+case+label
 // MSC35-C
 class DanglingSwitchCode(env: ASTEnv, fm: FeatureModel) extends IntraCFG {
-    def computeDanglingCode(s: SwitchStatement): List[Opt[AST]] = {
+    def danglingSwitchCode(s: SwitchStatement): List[Opt[AST]] = {
         // get all successor elements of all expressions in the switch statement
         // SwitchStatement(expr, ...) and filter out other case statements, as fall through (case after case)
         // is allowed in this analysis

@@ -13,7 +13,7 @@ import de.fosd.typechef.conditional.Opt
 // page 5
 //  in(n) = gen(n) + (out(n) - kill(n))
 // out(n) = for s in succ(n) r = r + in(s); r
-class Liveness(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) extends MonotoneFW[Id](env, udm, fm) with IntraCFG with UsedDefinedDeclaredVariables {
+class Liveness(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) extends MonotoneFWId(env, udm, fm) with IntraCFG with UsedDefinedDeclaredVariables {
 
     // returns all declared variables with their annotation
     val declaresVar: PartialFunction[(Any), Map[FeatureExpr, Set[Id]]] = {
@@ -27,27 +27,4 @@ class Liveness(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) extends MonotoneF
 
     protected def unionio(e: AST) = incached(e)
     protected def genkillio(e: AST) = outcached(e)
-
-    // we create fresh T elements (here Id) using a counter
-    private var freshTctr = 0
-
-    private def getFreshCtr: Int = {
-        freshTctr = freshTctr + 1
-        freshTctr
-    }
-
-    def t2T(i: Id) = Id(getFreshCtr + "_" + i.name)
-
-    def t2SetT(i: Id) = {
-        var freshidset = Set[Id]()
-
-        if (udm.containsKey(i)) {
-            for (vi <- udm.get(i)) {
-                freshidset = freshidset.+(createFresh(vi))
-            }
-            freshidset
-        } else {
-            Set(addFreshT(i))
-        }
-    }
 }

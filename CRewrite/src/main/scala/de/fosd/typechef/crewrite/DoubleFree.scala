@@ -27,7 +27,7 @@ import de.fosd.typechef.featureexpr.FeatureModel
 // the function free, e.g.:
 // linux: kfree for kernel memory deallocation
 // openssl: OPENSSL_free (actually CRYPTO_free; OPENSSL_free is a CPP macro)
-class DoubleFree(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel, casestudy: String) extends MonotoneFW[Id](env, udm, fm) with IntraCFG with CFGHelper with ASTNavigation {
+class DoubleFree(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel, casestudy: String) extends MonotoneFWId(env, udm, fm) with IntraCFG with CFGHelper with ASTNavigation {
 
     val freecalls = {
         if (casestudy == "linux") List("free", "kfree")
@@ -142,27 +142,4 @@ class DoubleFree(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel, casestudy: Stri
 
     protected def unionio(e: AST) = incached(e)
     protected def genkillio(e: AST) = outcached(e)
-
-    // we create fresh T elements (here Id) using a counter
-    private var freshTctr = 0
-
-    private def getFreshCtr: Int = {
-        freshTctr = freshTctr + 1
-        freshTctr
-    }
-
-    def t2T(i: Id) = Id(getFreshCtr + "_" + i.name)
-
-    def t2SetT(i: Id) = {
-        var freshidset = Set[Id]()
-
-        if (udm.containsKey(i)) {
-            for (vi <- udm.get(i)) {
-                freshidset = freshidset.+(createFresh(vi))
-            }
-            freshidset
-        } else {
-            Set(addFreshT(i))
-        }
-    }
 }

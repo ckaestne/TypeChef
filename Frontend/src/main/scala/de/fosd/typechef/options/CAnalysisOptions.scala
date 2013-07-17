@@ -31,6 +31,8 @@ class CAnalysisOptions extends FeatureModelOptions with ICTypeSysOptions with IC
     private val Sunitializedmemory = SecurityOption("uninitializedmemory", "Issue a warning when the value of a non-initialized variable is used", false)
     private val Scasetermination = SecurityOption("caseterminiation", "Issue a warning when statements following a case block within a switch aren't terminated using a break statement", false)
     private val Sdanglingswitchcode = SecurityOption("danglingswitchcode", "Issue a warning when code in a switch statement doesn't occur within the control flow of a case or default statement", false)
+    private val Scfginnonvoidfunc = SecurityOption("cfginnonvoidfunction", "Issue a warning when control flow in non-void function reaches no return statement", false)
+    private val Sstdlibfuncreturn = SecurityOption("checkstdlibfuncreturn", "Issue a warning when the return value of a standard library function is not check for its error values", false)
 
 
     val opts: List[SecurityOption] = List(
@@ -54,6 +56,8 @@ class CAnalysisOptions extends FeatureModelOptions with ICTypeSysOptions with IC
     override def warning_uninitialized_memory: Boolean = Sunitializedmemory.isSelected
     override def warning_case_termination: Boolean = Scasetermination.isSelected
     override def warning_dangling_switch_code: Boolean = Sdanglingswitchcode.isSelected
+    override def warning_cfg_in_non_void_func: Boolean = Scfginnonvoidfunc.isSelected
+    override def warning_stdlib_func_return: Boolean = Sstdlibfuncreturn.isSelected
 
     override protected def getOptionGroups: java.util.List[Options.OptionGroup] = {
         val r: java.util.List[Options.OptionGroup] = super.getOptionGroups

@@ -42,8 +42,7 @@ abstract class MonotoneFW[T](val env: ASTEnv, val udm: UseDeclMap, val fm: Featu
     private val dId2Fresh = new java.util.IdentityHashMap[T, T]()
     private val freshT2T = new java.util.IdentityHashMap[T, T]()
 
-    // create fresh T elements that we use in our analysis the declaration
-    // of an incoming element
+    // create fresh T elements that we use in our analysis
     protected def createFresh(i: T) = {
         if (!dId2Fresh.containsKey(i)) {
             val nt = t2T(i)
@@ -80,23 +79,6 @@ abstract class MonotoneFW[T](val env: ASTEnv, val udm: UseDeclMap, val fm: Featu
 
     protected val incache = new IdentityHashMapCache[ResultMap]()
     protected val outcache = new IdentityHashMapCache[ResultMap]()
-
-    // add annotation to elements of a Set[Id]
-    protected def addAnnotation2ResultSet(in: Set[Id]): Map[FeatureExpr, Set[Id]] = {
-        var res = Map[FeatureExpr, Set[Id]]()
-
-        for (r <- in) {
-            val rfexp = env.featureExpr(r)
-
-            val key = res.find(_._1 equivalentTo rfexp)
-            key match {
-                case None => res = res.+((rfexp, Set(r)))
-                case Some((k, v)) => res = res.+((k, v ++ Set(r)))
-            }
-        }
-
-        res
-    }
 
     // gen and kill function, will be implemented by the concrete dataflow classes
     def gen(a: AST): Map[FeatureExpr, Set[T]]
@@ -211,7 +193,7 @@ abstract class MonotoneFW[T](val env: ASTEnv, val udm: UseDeclMap, val fm: Featu
             val orig = getOriginal(x)
             res = (orig, f) :: res
         }
-        res.filter(_._2.isSatisfiable(fm))
+        res.distinct.filter(_._2.isSatisfiable(fm))
     }
 
     protected def incached(a: AST) = {
@@ -233,7 +215,50 @@ abstract class MonotoneFW[T](val env: ASTEnv, val udm: UseDeclMap, val fm: Featu
             val orig = getOriginal(x)
             res = (orig, f) :: res
         }
-        res.filter(_._2.isSatisfiable(fm))
+        res.distinct.filter(_._2.isSatisfiable(fm))
+    }
+}
+
+// specialization of MonotoneFW for Ids; helps to reduce code cloning, i.e., cloning of t2T, ...
+abstract class MonotoneFWId(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) extends MonotoneFW[Id](env, udm, fm) {
+    // add annotation to elements of a Set[Id]
+    protected def addAnnotation2ResultSet(in: Set[Id]): Map[FeatureExpr, Set[Id]] = {
+        var res = Map[FeatureExpr, Set[Id]]()
+
+        for (r <- in) {
+            val rfexp = env.featureExpr(r)
+
+            val key = res.find(_._1 equivalentTo rfexp)
+            key match {
+                case None => res = res.+((rfexp, Set(r)))
+                case Some((k, v)) => res = res.+((k, v ++ Set(r)))
+            }
+        }
+
+        res
+    }
+
+    // we create fresh T elements (here Id) using a counter
+    private var freshTctr = 0
+
+    private def getFreshCtr: Int = {
+        freshTctr = freshTctr + 1
+        freshTctr
+    }
+
+    def t2T(i: Id) = Id(getFreshCtr + "_" + i.name)
+
+    def t2SetT(i: Id) = {
+        var freshidset = Set[Id]()
+
+        if (udm.containsKey(i)) {
+            for (vi <- udm.get(i)) {
+                freshidset = freshidset.+(createFresh(vi))
+            }
+            freshidset
+        } else {
+            Set(addFreshT(i))
+        }
     }
 }
 

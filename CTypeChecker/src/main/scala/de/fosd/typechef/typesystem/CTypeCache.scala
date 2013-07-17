@@ -1,25 +1,27 @@
 package de.fosd.typechef.typesystem
 
+import java.util.IdentityHashMap
+
 import de.fosd.typechef.parser.c.{FunctionDef, Expr, AST}
 import de.fosd.typechef.conditional.Conditional
 import de.fosd.typechef.featureexpr.FeatureExpr
 
 
 trait CTypeCache extends CTypeSystemInterface {
-    private var cacheExpr: Map[Expr, Conditional[CType]] = Map()
-    private var cacheFun: Map[FunctionDef, Conditional[CType]] = Map()
+    private val cacheExpr: IdentityHashMap[Expr, Conditional[CType]] = new IdentityHashMap()
+    private val cacheFun: IdentityHashMap[FunctionDef, Conditional[CType]] = new IdentityHashMap()
 
     override protected def typedExpr(expr: Expr, ctype: Conditional[CType], featureExpr: FeatureExpr, env: Env) {
-        cacheExpr = cacheExpr + (expr -> ctype)
+        cacheExpr.put(expr, ctype)
         super.typedExpr(expr, ctype, featureExpr, env)
     }
     override protected def typedFunction(fun: FunctionDef, ctype: Conditional[CType], featureExpr: FeatureExpr) {
-        cacheFun = cacheFun + (fun -> ctype)
+        cacheFun.put(fun, ctype)
         super.typedFunction(fun, ctype, featureExpr)
     }
 
-    def lookupExprType(expr: Expr): Conditional[CType] = cacheExpr(expr)
-    def lookupFunType(fun: FunctionDef): Conditional[CType] = cacheFun(fun)
+    def lookupExprType(expr: Expr): Conditional[CType] = cacheExpr.get(expr)
+    def lookupFunType(fun: FunctionDef): Conditional[CType] = cacheFun.get(fun)
 
 }
 

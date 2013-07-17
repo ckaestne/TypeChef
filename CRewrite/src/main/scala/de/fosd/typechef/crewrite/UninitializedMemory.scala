@@ -18,7 +18,7 @@ import de.fosd.typechef.featureexpr.{FeatureExpr, FeatureModel}
 //     in a different function
 //   - this analysis does not cover use of dynamically allocated
 //     memory which is usually covered by other analysis tools.
-class UninitializedMemory(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) extends MonotoneFW[Id](env, udm, fm) with IntraCFG with CFGHelper with ASTNavigation {
+class UninitializedMemory(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) extends MonotoneFWId(env, udm, fm) with IntraCFG with CFGHelper with ASTNavigation {
     // get all Id's passed to a function
     def getFunctionCallArguments(e: AST) = {
         var res = Set[Id]()
@@ -54,32 +54,8 @@ class UninitializedMemory(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) extend
         addAnnotation2ResultSet(res)
     }
 
-    // flow functions (flow => succ and flowR => pred)
     protected def flow(e: AST) = flowPred(e)
 
     protected def unionio(e: AST) = incached(e)
     protected def genkillio(e: AST) = outcached(e)
-
-    // we create fresh T elements (here Id) using a counter
-    private var freshTctr = 0
-
-    private def getFreshCtr: Int = {
-        freshTctr = freshTctr + 1
-        freshTctr
-    }
-
-    def t2T(i: Id) = Id(getFreshCtr + "_" + i.name)
-
-    def t2SetT(i: Id) = {
-        var freshidset = Set[Id]()
-
-        if (udm.containsKey(i)) {
-            for (vi <- udm.get(i)) {
-                freshidset = freshidset.+(createFresh(vi))
-            }
-            freshidset
-        } else {
-            Set(addFreshT(i))
-        }
-    }
 }
