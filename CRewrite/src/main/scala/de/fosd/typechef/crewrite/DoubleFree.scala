@@ -49,7 +49,7 @@ class DoubleFree(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel, casestudy: Stri
         })
 
         mempointers(a)
-        addAnnotation2ResultSet(res)
+        addAnnotations(res)
     }
 
     // returns a list of Ids with names of variables that a freed
@@ -135,10 +135,13 @@ class DoubleFree(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel, casestudy: Stri
         })
 
         freedpointers(a)
-        addAnnotation2ResultSet(res)
+        addAnnotations(res)
     }
 
-    protected def flow(e: AST) = flowSucc(e)
+    protected def F(e: AST) = flowR(e)
+
+    protected val i = L
+    protected val b = L
 
     protected def unionio(e: AST) = incached(e)
     protected def genkillio(e: AST) = outcached(e)

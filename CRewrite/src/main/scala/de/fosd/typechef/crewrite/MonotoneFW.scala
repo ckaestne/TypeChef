@@ -24,7 +24,7 @@ import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureModel, FeatureEx
 // determination
 //
 // for more information about monotone frameworks
-// see "Principles of Program Analysis" by (Nielson, Nielson, Hankin)
+// see "Principles of Program Analysis" by (Nielson, Nielson, Hankin) [NNH99]
 
 // env: ASTEnv; environment used for navigation in the AST during predecessor and
 //              successor determination
@@ -36,7 +36,8 @@ abstract class MonotoneFW[T](val env: ASTEnv, val udm: UseDeclMap, val fm: Featu
     // dataflow, such as identifiers (type Id) may have different declarations
     // (alternative types). so we track alternative elements here using two
     // maps
-    // t2FreshT is a 1:1 mapping of T declarations to fresh T elements for our analysis
+    // t2FreshT is a 1:1 mapping of T declarations to fresh T elements for our analysis;
+    //          fresh means we use a new identifier that does not exist yet.
     // freshT2T is the reverse of t2FreshT
     private val t2FreshT = new java.util.IdentityHashMap[T, Set[T]]()
     private val dId2Fresh = new java.util.IdentityHashMap[T, T]()
@@ -77,10 +78,10 @@ abstract class MonotoneFW[T](val env: ASTEnv, val udm: UseDeclMap, val fm: Featu
     protected def t2T(i: T): T
 
 
-    protected val incache = new IdentityHashMapCache[ResultMap]()
-    protected val outcache = new IdentityHashMapCache[ResultMap]()
+    protected val incache = new IdentityHashMapCache[L]()
+    protected val outcache = new IdentityHashMapCache[L]()
 
-    // gen and kill function, will be implemented by the concrete dataflow classes
+    // gen and kill function, will be implemented by the concrete dataflow class
     def gen(a: AST): Map[FeatureExpr, Set[T]]
     def kill(a: AST): Map[FeatureExpr, Set[T]]
 
@@ -96,9 +97,15 @@ abstract class MonotoneFW[T](val env: ASTEnv, val udm: UseDeclMap, val fm: Featu
     //      are easy and can be delayed to the point at which we *really* need
     //      the result. The delay also involves simplifications of feature
     //      expressions such as "a or (not a) => true".
-    type ResultMap = Map[T, FeatureExpr]
+    //
+    // property space L represents a complete lattice, i.e., it is a partially ordered set (L,⊑)
+    // ⊑ is either ⊆ (subset) or ⊇ (superset)
+    // according to the ascending chain condition (see [NNH99], Appendix A)
+    // l1 ⊑ l2 ⊑ ... eventually stabilises (finite set of T elements in analysis), i.e., ∃n: ln = ln+1 = ...
+    type L = Map[T, FeatureExpr]
+    protected val L = Map[T, FeatureExpr]()
 
-    private def diff(map: ResultMap, fexp: FeatureExpr, d: Set[T]) = {
+    private def diff(map: L, fexp: FeatureExpr, d: Set[T]) = {
         var curmap = map
         for (e <- d) {
             curmap.get(e) match {
@@ -114,7 +121,7 @@ abstract class MonotoneFW[T](val env: ASTEnv, val udm: UseDeclMap, val fm: Featu
         curmap
     }
 
-    private def union(map: ResultMap, fexp: FeatureExpr, j: Set[T]) = {
+    private def union(map: L, fexp: FeatureExpr, j: Set[T]) = {
         var curmap = map
         for (e <- j) {
             curmap.get(e) match {
@@ -126,23 +133,42 @@ abstract class MonotoneFW[T](val env: ASTEnv, val udm: UseDeclMap, val fm: Featu
     }
 
 
-    // flow functions (flow => succ and flow => pred) functions of the
-    // framework
-    protected def flow(e: AST): CFG
-    protected def flowSucc(e: AST): CFG = succ(e, FeatureExprFactory.empty, env)
-    protected def flowPred(e: AST): CFG = pred(e, FeatureExprFactory.empty, env)
+    // finite flow F (flow => succ and flowR => pred)
+    // beware [NNH99] define the analysis: Analysis_○(l) = {Analysis_●(l') | (l',l) ∈ F} ⊔ i_E^l
+    // so they reverse the order going from l to l' (see (l',l) ∈ F)
+    // here we use the more natural form mean flow  => predecessor (backward analysis)
+    //                                    and flowR => successor (forward analysis)
+    // we don't reverse the order here but keep the names for flow and flowR consistent with the book
+    protected def F(e: AST): CFG
+    protected def flow(e: AST): CFG = pred(e, FeatureExprFactory.empty, env)
+    protected def flowR(e: AST): CFG = succ(e, FeatureExprFactory.empty, env)
 
-    protected def unionio(e: AST): ResultMap
-    protected def genkillio(e: AST): ResultMap
+    // we compute the flow on the fly and FunctionDef represents our only element in E (extremal labels),
+    // i.e., FunctionDef is the "last" and the "first" element (label) in flow resp. flowR (see F definition)
+    private type E = FunctionDef
 
-    protected val uniononly: AST => ResultMap = {
-        circular[AST, ResultMap](Map[T, FeatureExpr]()) {
-            case e => {
-                var fl = flow(e)
+    // extremal value for all elements of E
+    protected val i: L
 
-                fl = fl.filterNot(x => x.entry.isInstanceOf[FunctionDef])
+    // bottom element of our lattice ⊥; we can't use ⊥ as a variable name
+    // this needs to be a function since we have to create each time a new, fresh bottom element
+    // otherwise the fix-point computation in circular ends up with a NullPointerException
+    protected def b: L
 
-                var res = Map[T, FeatureExpr]()
+    // protected def combinationOperator(e: AST): L
+    protected def unionio(e: AST): L
+    protected def genkillio(e: AST): L
+
+    // dataflow computations based on the monotone framework use a fix-point algorithm
+    // for the implementation we use kiama's circular function, which keeps track
+    // of the results
+    protected val uniononly: AST => L = {
+        circular[AST, L](b) {
+            case _: FunctionDef => i
+            case l => {
+                var fl = F(l)
+
+                var res = b
                 for (s <- fl) {
                     for ((r, f) <- unionio(s.entry))
                         res = union(res, f and s.feature, Set(r))
@@ -152,14 +178,14 @@ abstract class MonotoneFW[T](val env: ASTEnv, val udm: UseDeclMap, val fm: Featu
         }
     }
 
-    protected val genkill: AST => ResultMap = {
-        circular[AST, ResultMap](Map[T, FeatureExpr]()) {
-            case FunctionDef(_, _, _, _) => Map[T, FeatureExpr]()
-            case t => {
-                val g = gen(t)
-                val k = kill(t)
+    protected val genkill: AST => L = {
+        circular[AST, L](b) {
+            case _: FunctionDef => i
+            case l => {
+                val g = gen(l)
+                val k = kill(l)
 
-                var res = genkillio(t)
+                var res = genkillio(l)
                 for ((fexp, v) <- k)
                     for (x <- v)
                         res = diff(res, fexp, getFresh(x))
@@ -193,6 +219,7 @@ abstract class MonotoneFW[T](val env: ASTEnv, val udm: UseDeclMap, val fm: Featu
             val orig = getOriginal(x)
             res = (orig, f) :: res
         }
+        // TODO the distinct call should not be necessary
         res.distinct.filter(_._2.isSatisfiable(fm))
     }
 
@@ -215,6 +242,7 @@ abstract class MonotoneFW[T](val env: ASTEnv, val udm: UseDeclMap, val fm: Featu
             val orig = getOriginal(x)
             res = (orig, f) :: res
         }
+        // TODO the distinct call should not be necessary
         res.distinct.filter(_._2.isSatisfiable(fm))
     }
 }
@@ -222,7 +250,7 @@ abstract class MonotoneFW[T](val env: ASTEnv, val udm: UseDeclMap, val fm: Featu
 // specialization of MonotoneFW for Ids; helps to reduce code cloning, i.e., cloning of t2T, ...
 abstract class MonotoneFWId(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) extends MonotoneFW[Id](env, udm, fm) {
     // add annotation to elements of a Set[Id]
-    protected def addAnnotation2ResultSet(in: Set[Id]): Map[FeatureExpr, Set[Id]] = {
+    protected def addAnnotations(in: Set[Id]): Map[FeatureExpr, Set[Id]] = {
         var res = Map[FeatureExpr, Set[Id]]()
 
         for (r <- in) {

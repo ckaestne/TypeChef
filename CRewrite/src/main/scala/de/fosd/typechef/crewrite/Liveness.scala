@@ -13,17 +13,31 @@ import de.fosd.typechef.conditional.Opt
 // page 5
 //  in(n) = gen(n) + (out(n) - kill(n))
 // out(n) = for s in succ(n) r = r + in(s); r
+//
+// instance of the liveness analysis using the monotone framework
+// L  = P(Var*)
+// ⊑  = ⊆             // see MonotonFW
+// ∐  = ⋃            // combinationOperator
+// ⊥  = ∅             // b
+// i  = ∅
+// E  = {FunctionDef} // see MonotoneFW
+// F  = flowR
+// f  = ??
+// fl = ??
 class Liveness(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) extends MonotoneFWId(env, udm, fm) with IntraCFG with UsedDefinedDeclaredVariables {
 
     // returns all declared variables with their annotation
     val declaresVar: PartialFunction[(Any), Map[FeatureExpr, Set[Id]]] = {
-        case a => addAnnotation2ResultSet(declares(a))
+        case a => addAnnotations(declares(a))
     }
 
-    def gen(a: AST): Map[FeatureExpr, Set[Id]] = { addAnnotation2ResultSet(uses(a)) }
-    def kill(a: AST): Map[FeatureExpr, Set[Id]] = { addAnnotation2ResultSet(defines(a)) }
+    def gen(a: AST): Map[FeatureExpr, Set[Id]] = { addAnnotations(uses(a)) }
+    def kill(a: AST): Map[FeatureExpr, Set[Id]] = { addAnnotations(defines(a)) }
 
-    protected def flow(e: AST) = flowSucc(e)
+    protected def F(e: AST) = flowR(e)
+
+    protected val i = L
+    protected def b = Map[Id, FeatureExpr]()
 
     protected def unionio(e: AST) = incached(e)
     protected def genkillio(e: AST) = outcached(e)

@@ -49,7 +49,7 @@ class XFree(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel, casestudy: String) e
         })
 
         variables(a)
-        addAnnotation2ResultSet(res)
+        addAnnotations(res)
     }
 
     // get variables that get an assignment with malloc
@@ -71,7 +71,7 @@ class XFree(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel, casestudy: String) e
         })
 
         assignments(a)
-        addAnnotation2ResultSet(res)
+        addAnnotations(res)
     }
 
     // returns a list of Ids with names of variables that a freed
@@ -157,11 +157,14 @@ class XFree(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel, casestudy: String) e
         })
 
         freedvariables(a)
-        addAnnotation2ResultSet(res)
+        addAnnotations(res)
     }
 
     // flow functions (flow => succ and flowR => pred)
-    protected def flow(e: AST) = flowPred(e)
+    protected def F(e: AST) = flow(e)
+
+    protected val i = L
+    protected val b = L
 
     protected def unionio(e: AST) = incached(e)
     protected def genkillio(e: AST) = outcached(e)

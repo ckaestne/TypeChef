@@ -48,7 +48,7 @@ abstract class StdLibFuncReturn(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) 
         })
 
         retvar(a)
-        addAnnotation2ResultSet(res)
+        addAnnotations(res)
     }
 
     private def subtermIsPartOfTerm(subterm: Product, term: Any): List[Product] = {
@@ -74,7 +74,7 @@ abstract class StdLibFuncReturn(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) 
         })
 
         checkvar(a)
-        addAnnotation2ResultSet(res)
+        addAnnotations(res)
     }
 
     // function checks function calls directly, without having to track a variable
@@ -117,9 +117,12 @@ abstract class StdLibFuncReturn(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) 
         erroreouscalls
     }
 
-    def getUsedVariables(a: AST) = { addAnnotation2ResultSet(uses(a)) }
+    def getUsedVariables(a: AST) = { addAnnotations(uses(a)) }
 
-    protected def flow(e: AST) = flowPred(e)
+    protected def F(e: AST) = flow(e)
+
+    protected val i = L
+    protected val b = L
 
     protected def unionio(e: AST) = incached(e)
     protected def genkillio(e: AST) = outcached(e)

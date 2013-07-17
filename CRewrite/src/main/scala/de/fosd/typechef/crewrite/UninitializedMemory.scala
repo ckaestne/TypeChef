@@ -29,7 +29,7 @@ class UninitializedMemory(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) extend
         })
 
         fcs.map(arguments(_))
-        addAnnotation2ResultSet(res)
+        addAnnotations(res)
     }
 
     // get all declared variables without an initialization
@@ -40,7 +40,7 @@ class UninitializedMemory(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) extend
         })
 
         variables(a)
-        addAnnotation2ResultSet(res)
+        addAnnotations(res)
     }
 
     // get variables that get an assignment
@@ -51,10 +51,13 @@ class UninitializedMemory(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) extend
         })
 
         assignments(a)
-        addAnnotation2ResultSet(res)
+        addAnnotations(res)
     }
 
-    protected def flow(e: AST) = flowPred(e)
+    protected def F(e: AST) = flow(e)
+
+    protected val i = L
+    protected val b = L
 
     protected def unionio(e: AST) = incached(e)
     protected def genkillio(e: AST) = outcached(e)
