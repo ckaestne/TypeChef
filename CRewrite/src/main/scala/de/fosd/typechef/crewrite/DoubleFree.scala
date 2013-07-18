@@ -4,7 +4,7 @@ import org.kiama.rewriting.Rewriter._
 
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.typesystem.UseDeclMap
-import de.fosd.typechef.featureexpr.FeatureModel
+import de.fosd.typechef.featureexpr.{FeatureExpr, FeatureModel}
 
 // implements a simple analysis of double-free
 // freeing memory multiple times
@@ -108,10 +108,10 @@ class DoubleFree(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel, casestudy: Stri
                     res += ni
 
                 for (ce <- l.exprs.tail) {
-                    if (actx.reduce(_ or _) isTautology(fm))
+                    if (actx.reduce(_ or _) isTautology fm)
                         finished = true
 
-                    if (!finished && actx.forall(_ and ce.feature isContradiction(fm))) {
+                    if (!finished && actx.forall(_ and ce.feature isContradiction fm)) {
                         for (ni <- filterAllASTElems[Id](ce.entry))
                             res += ni
                         actx ::= ce.feature
@@ -140,9 +140,10 @@ class DoubleFree(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel, casestudy: Stri
 
     protected def F(e: AST) = flowR(e)
 
-    protected val i = L
-    protected val b = L
+    protected val i = Map[Id, FeatureExpr]()
+    protected def b = Map[Id, FeatureExpr]()
+    protected def combinationOperator(r: L, f: FeatureExpr, s: Set[Id]) = union(r, f, s)
 
-    protected def unionio(e: AST) = incached(e)
-    protected def genkillio(e: AST) = outcached(e)
+    protected def circle(e: AST) = exitcache(e)
+    protected def point(e: AST) = entrycache(e)
 }

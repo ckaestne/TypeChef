@@ -22,8 +22,6 @@ import de.fosd.typechef.conditional.Opt
 // i  = ∅
 // E  = {FunctionDef} // see MonotoneFW
 // F  = flowR
-// f  = ??
-// fl = ??
 class Liveness(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) extends MonotoneFWId(env, udm, fm) with IntraCFG with UsedDefinedDeclaredVariables {
 
     // returns all declared variables with their annotation
@@ -34,11 +32,14 @@ class Liveness(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) extends MonotoneF
     def gen(a: AST): Map[FeatureExpr, Set[Id]] = { addAnnotations(uses(a)) }
     def kill(a: AST): Map[FeatureExpr, Set[Id]] = { addAnnotations(defines(a)) }
 
-    protected def F(e: AST) = flowR(e)
-
-    protected val i = L
+    protected val i = Map[Id, FeatureExpr]()
     protected def b = Map[Id, FeatureExpr]()
+    protected def combinationOperator(r: L, f: FeatureExpr, s: Set[Id]) = union(r, f, s)
 
-    protected def unionio(e: AST) = incached(e)
-    protected def genkillio(e: AST) = outcached(e)
+    // liveness analysis is a backward analysis (flowR)
+    // so circle concerns exit conditions
+    // and point concerns entry conditions
+    protected def F(e: AST) = flowR(e)
+    protected def circle(e: AST) = exitcache(e)
+    protected def point(e: AST) = entrycache(e)
 }

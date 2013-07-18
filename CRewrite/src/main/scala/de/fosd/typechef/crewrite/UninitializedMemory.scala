@@ -36,7 +36,7 @@ class UninitializedMemory(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) extend
     def gen(a: AST): Map[FeatureExpr, Set[Id]] = {
         var res = Set[Id]()
         val variables = manytd(query {
-            case InitDeclaratorI(AtomicNamedDeclarator(_, i, _), _, None) => res += i
+            case InitDeclaratorI(AtomicNamedDeclarator(_, i: Id, _), _, None) => res += i
         })
 
         variables(a)
@@ -56,9 +56,10 @@ class UninitializedMemory(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) extend
 
     protected def F(e: AST) = flow(e)
 
-    protected val i = L
-    protected val b = L
+    protected val i = Map[Id, FeatureExpr]()
+    protected def b = Map[Id, FeatureExpr]()
+    protected def combinationOperator(r: L, f: FeatureExpr, s: Set[Id]) = union(r, f, s)
 
-    protected def unionio(e: AST) = incached(e)
-    protected def genkillio(e: AST) = outcached(e)
+    protected def circle(e: AST) = exitcache(e)
+    protected def point(e: AST) = entrycache(e)
 }

@@ -31,15 +31,15 @@ class XFree(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel, casestudy: String) e
     def gen(a: AST): Map[FeatureExpr, Set[Id]] = {
         var res = Set[Id]()
         val variables = manytd(query {
-            case InitDeclaratorI(AtomicNamedDeclarator(_, i, _), _, None) => res += i
-            case InitDeclaratorI(AtomicNamedDeclarator(_, i, _), _, Some(initializer)) => {
+            case InitDeclaratorI(AtomicNamedDeclarator(_, i: Id, _), _, None) => res += i
+            case InitDeclaratorI(AtomicNamedDeclarator(_, i: Id, _), _, Some(initializer)) => {
                 val pmallocs = filterASTElems[PostfixExpr](initializer)
 
                 if (pmallocs.isEmpty) res += i
                 else pmallocs.map(pe => {
                     pe match {
-                        case PostfixExpr(m@Id(_), _) if (memcalls.contains(m.name)) =>
-                            if (env.featureExpr(m) equivalentTo (env.featureExpr(i))) {}
+                        case PostfixExpr(m@Id(_), _) if memcalls.contains(m.name) =>
+                            if (env.featureExpr(m) equivalentTo env.featureExpr(i)) {}
                             else {
                                 res += i
                             }
@@ -61,8 +61,8 @@ class XFree(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel, casestudy: String) e
 
                 pmallocs.map(pe => {
                     pe match {
-                        case PostfixExpr(i@Id(_), _) if (memcalls.contains(i.name)) =>
-                            if (env.featureExpr(i) equivalentTo (env.featureExpr(target))) {}
+                        case PostfixExpr(i@Id(_), _) if memcalls.contains(i.name) =>
+                            if (env.featureExpr(i) equivalentTo env.featureExpr(target)) {}
                             else {res += target}
                         case _ =>
                     }
@@ -130,10 +130,10 @@ class XFree(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel, casestudy: String) e
                     res += ni
 
                 for (ce <- l.exprs.tail) {
-                    if (actx.reduce(_ or _) isTautology (fm))
+                    if (actx.reduce(_ or _) isTautology fm)
                         finished = true
 
-                    if (!finished && actx.forall(_ and ce.feature isContradiction (fm))) {
+                    if (!finished && actx.forall(_ and ce.feature isContradiction fm)) {
                         for (ni <- filterAllASTElems[Id](ce.entry))
                             res += ni
                         actx ::= ce.feature
@@ -163,9 +163,10 @@ class XFree(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel, casestudy: String) e
     // flow functions (flow => succ and flowR => pred)
     protected def F(e: AST) = flow(e)
 
-    protected val i = L
-    protected val b = L
+    protected val i = Map[Id, FeatureExpr]()
+    protected def b = Map[Id, FeatureExpr]()
+    protected def combinationOperator(r: L, f: FeatureExpr, s: Set[Id]) = union(r, f, s)
 
-    protected def unionio(e: AST) = incached(e)
-    protected def genkillio(e: AST) = outcached(e)
+    protected def circle(e: AST) = exitcache(e)
+    protected def point(e: AST) = entrycache(e)
 }

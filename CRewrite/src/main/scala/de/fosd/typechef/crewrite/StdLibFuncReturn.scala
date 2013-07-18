@@ -2,7 +2,7 @@ package de.fosd.typechef.crewrite
 
 import org.kiama.rewriting.Rewriter._
 
-import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureModel}
+import de.fosd.typechef.featureexpr.{FeatureExpr, FeatureExprFactory, FeatureModel}
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.typesystem._
 import de.fosd.typechef.parser.c.PostfixExpr
@@ -39,7 +39,7 @@ abstract class StdLibFuncReturn(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) 
                     }
                 )
             }
-            case InitDeclaratorI(AtomicNamedDeclarator(_, i, _), _, Some(init)) =>
+            case InitDeclaratorI(AtomicNamedDeclarator(_, i: Id, _), _, Some(init)) =>
                 filterAllASTElems[PostfixExpr](init).map(
                     pfe => pfe match {
                         case PostfixExpr(Id(name), FunctionCall(_)) => if (function.contains(name)) res += i
@@ -106,7 +106,7 @@ abstract class StdLibFuncReturn(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) 
                 // iterate errorreturn and check whether one of the elements in there occurs somewhere in the
                 // NAryExpr, i.e., we check "e" and "others" of NAryExpr
                 errorreturn.map(e => {
-                    if ((ne.get.others.exists(sne => isPartOf(e, sne)) || isPartOf(e, ne.get.e))) {}
+                    if (ne.get.others.exists(sne => isPartOf(e, sne)) || isPartOf(e, ne.get.e)) {}
                     else erroreouscalls ::= c
                 })
             } else {
@@ -121,11 +121,12 @@ abstract class StdLibFuncReturn(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) 
 
     protected def F(e: AST) = flow(e)
 
-    protected val i = L
-    protected val b = L
+    protected val i = Map[Id, FeatureExpr]()
+    protected def b = Map[Id, FeatureExpr]()
+    protected def combinationOperator(r: L, f: FeatureExpr, s: Set[Id]) = union(r, f, s)
 
-    protected def unionio(e: AST) = incached(e)
-    protected def genkillio(e: AST) = outcached(e)
+    protected def circle(e: AST) = exitcache(e)
+    protected def point(e: AST) = entrycache(e)
 }
 
 class StdLibFuncReturn_Null(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) extends StdLibFuncReturn(env, udm, fm) {

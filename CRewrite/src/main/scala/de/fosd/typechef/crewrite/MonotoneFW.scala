@@ -78,8 +78,8 @@ abstract class MonotoneFW[T](val env: ASTEnv, val udm: UseDeclMap, val fm: Featu
     protected def t2T(i: T): T
 
 
-    protected val incache = new IdentityHashMapCache[L]()
-    protected val outcache = new IdentityHashMapCache[L]()
+    protected val exitcache = new IdentityHashMapCache[L]()
+    protected val entrycache = new IdentityHashMapCache[L]()
 
     // gen and kill function, will be implemented by the concrete dataflow class
     def gen(a: AST): Map[FeatureExpr, Set[T]]
@@ -103,41 +103,58 @@ abstract class MonotoneFW[T](val env: ASTEnv, val udm: UseDeclMap, val fm: Featu
     // according to the ascending chain condition (see [NNH99], Appendix A)
     // l1 ⊑ l2 ⊑ ... eventually stabilises (finite set of T elements in analysis), i.e., ∃n: ln = ln+1 = ...
     type L = Map[T, FeatureExpr]
-    protected val L = Map[T, FeatureExpr]()
 
-    private def diff(map: L, fexp: FeatureExpr, d: Set[T]) = {
-        var curmap = map
+    private def diff(l: L, fexp: FeatureExpr, d: Set[T]): L = {
+        var curl = l
         for (e <- d) {
-            curmap.get(e) match {
+            curl.get(e) match {
                 case None =>
                 case Some(x) => {
                     if (fexp.not and x isContradiction())
-                        curmap = curmap.-(e)
+                        curl = curl.-(e)
                     else
-                        curmap = curmap + ((e, fexp.not and x))
+                        curl = curl + ((e, fexp.not and x))
                 }
             }
         }
-        curmap
+        curl
     }
 
-    private def union(map: L, fexp: FeatureExpr, j: Set[T]) = {
-        var curmap = map
-        for (e <- j) {
-            curmap.get(e) match {
-                case None => curmap = curmap.+((e, fexp))
-                case Some(x) => curmap = curmap.+((e, fexp or x))
+    protected def intersection(l: L, fexp: FeatureExpr, d: Set[T]): L = {
+        var curl = l
+        for (e <- d) {
+            curl.get(e) match {
+                case None =>
+                case Some(x) => {
+                    if (fexp.not and x isContradiction())
+                        curl = curl.-(e)
+                    else
+                        curl = curl + ((e, fexp and x))
+                }
             }
         }
-        curmap
+        curl
+    }
+
+    protected def union(l: L, fexp: FeatureExpr, j: Set[T]): L = {
+        var curl = l
+        for (e <- j) {
+            curl.get(e) match {
+                case None => curl = curl.+((e, fexp))
+                case Some(x) => curl = curl.+((e, fexp or x))
+            }
+        }
+        curl
     }
 
 
     // finite flow F (flow => succ and flowR => pred)
-    // beware [NNH99] define the analysis: Analysis_○(l) = {Analysis_●(l') | (l',l) ∈ F} ⊔ i_E^l
-    // so they reverse the order going from l to l' (see (l',l) ∈ F)
-    // here we use the more natural form mean flow  => predecessor (backward analysis)
-    //                                    and flowR => successor (forward analysis)
+    // beware [NNH99] define the analysis: Analysis_○(l) = ∐{Analysis_●(l') | (l',l) ∈ F} ⊔ i_E^l
+    // so they reverse the order going from l to l' (notice that (l',l) ∈ F)
+    // here we use the more natural form mean flow  => predecessor (forward analysis)
+    //                                        result elements flow from predecessor to successor
+    //                                    and flowR => successor (backward analysis);
+    //                                        result elements flow from successor to predecessor
     // we don't reverse the order here but keep the names for flow and flowR consistent with the book
     protected def F(e: AST): CFG
     protected def flow(e: AST): CFG = pred(e, FeatureExprFactory.empty, env)
@@ -155,37 +172,57 @@ abstract class MonotoneFW[T](val env: ASTEnv, val udm: UseDeclMap, val fm: Featu
     // otherwise the fix-point computation in circular ends up with a NullPointerException
     protected def b: L
 
-    // protected def combinationOperator(e: AST): L
-    protected def unionio(e: AST): L
-    protected def genkillio(e: AST): L
-
     // dataflow computations based on the monotone framework use a fix-point algorithm
     // for the implementation we use kiama's circular function, which keeps track
     // of the results
-    protected val uniononly: AST => L = {
+    // the framework defines two functions:
+    //   Analysis_○(l) = ∐{Analysis_●(l') | (l',l) ∈ F} ⊔ i_E^l
+    //                   where i_E^l = i if l ∈ E
+    //                     or  i_E^l = ⊥ if l ∉ E
+    //   Analysis_●(l) = f_l(Analysis_○(l))
+    //
+    // for forward analysis such as available expressions, F is flow, Analysis_○ concerns entry, Analysis_● concerns exit
+    // for backward analysis such as liveness analysis, F is flowR, Analysis_○ concerns exit, Analysis_● concerns entry
+    // we name the two functions ∐ and f_l in Analysis_○ and Analysis_● combinator and f_l
+    // we name Analysis_○ circle and Analysis_● point
+
+    // ∐ is either ⋃ (n-ary union) or ⋂ (n-ary intersection) and has to be defined by the analysis instance
+    protected def combinationOperator(l: L, fexp: FeatureExpr, j: Set[T]): L
+
+    // depending on the kind of analysis circle and point are defined in a different way
+    // forward analysis: F is flow; Analysis_○ (circle) concerns entry conditions; Analysis_● concerns exit conditions
+    // backward analysis: F is flowR: Analysis_○ (circle) concerns exit conditions; Analysis_● concerns entry conditions
+    //          entry   |  ○             ∧  ●
+    //    x++;          | flow           | flow
+    //          exit    ∨  ●             |  ○
+    // circle and point use entrycache and exitcache
+    protected def circle(e: AST): L
+    protected def point(e: AST): L
+
+    protected val combinator: AST => L = {
         circular[AST, L](b) {
-            case _: FunctionDef => i
+            case _: E => i
             case l => {
                 var fl = F(l)
 
                 var res = b
                 for (s <- fl) {
-                    for ((r, f) <- unionio(s.entry))
-                        res = union(res, f and s.feature, Set(r))
+                    for ((r, f) <- circle(s.entry))
+                        res = combinationOperator(res, f and s.feature, Set(r))
                 }
                 res
             }
         }
     }
 
-    protected val genkill: AST => L = {
+    protected val f_l: AST => L = {
         circular[AST, L](b) {
-            case _: FunctionDef => i
+            case _: E => i
             case l => {
                 val g = gen(l)
                 val k = kill(l)
 
-                var res = genkillio(l)
+                var res = point(l)
                 for ((fexp, v) <- k)
                     for (x <- v)
                         res = diff(res, fexp, getFresh(x))
@@ -198,21 +235,20 @@ abstract class MonotoneFW[T](val env: ASTEnv, val udm: UseDeclMap, val fm: Featu
         }
     }
 
-    // using caching for efficiency and filtering out false positives
-    // using the feature model
-    protected def outcached(a: AST) = {
-        outcache.lookup(a) match {
+    // using caching for efficiency
+    protected def entrycache(a: AST): L = {
+        entrycache.lookup(a) match {
             case Some(v) => v
             case None => {
-                val r = uniononly(a)
-                outcache.update(a, r)
+                val r = combinator(a)
+                entrycache.update(a, r)
                 r
             }
         }
     }
 
     def out(a: AST) = {
-        val o = outcached(a)
+        val o = entrycache(a)
         var res = List[(T, FeatureExpr)]()
 
         for ((x, f) <- o) {
@@ -223,19 +259,19 @@ abstract class MonotoneFW[T](val env: ASTEnv, val udm: UseDeclMap, val fm: Featu
         res.distinct.filter(_._2.isSatisfiable(fm))
     }
 
-    protected def incached(a: AST) = {
-        incache.lookup(a) match {
+    protected def exitcache(a: AST): L = {
+        exitcache.lookup(a) match {
             case Some(v) => v
             case None => {
-                val r = genkill(a)
-                incache.update(a, r)
+                val r = f_l(a)
+                exitcache.update(a, r)
                 r
             }
         }
     }
 
     def in(a: AST) = {
-        val o = incached(a)
+        val o = exitcache(a)
         var res = List[(T, FeatureExpr)]()
 
         for ((x, f) <- o) {
