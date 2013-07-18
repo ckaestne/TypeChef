@@ -16,12 +16,14 @@ import de.fosd.typechef.conditional.Opt
 //
 // instance of the liveness analysis using the monotone framework
 // L  = P(Var*)
-// ⊑  = ⊆             // see MonotonFW
+// ⊑  = ⊆             // see MonotoneFW
 // ∐  = ⋃            // combinationOperator
 // ⊥  = ∅             // b
 // i  = ∅
 // E  = {FunctionDef} // see MonotoneFW
 // F  = flowR
+// Analysis_○ = exit
+// Analysis_● = entry
 class Liveness(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) extends MonotoneFWId(env, udm, fm) with IntraCFG with UsedDefinedDeclaredVariables {
 
     // returns all declared variables with their annotation

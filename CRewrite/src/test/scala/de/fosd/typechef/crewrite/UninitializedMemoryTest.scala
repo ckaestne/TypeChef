@@ -8,7 +8,13 @@ import de.fosd.typechef.typesystem.{CDeclUse, CTypeSystemFrontend}
 
 class UninitializedMemoryTest extends TestHelper with ShouldMatchers with CFGHelper with EnforceTreeHelper {
 
-    private def getUninitializedVariables(code: String) = {
+    private def getKilledVariables(code: String) = {
+        val a = parseCompoundStmt(code)
+        val um = new UninitializedMemory(CASTEnv.createASTEnv(a), null, null)
+        um.kill(a)
+    }
+
+    private def getGeneratedVariables(code: String) = {
         val a = parseCompoundStmt(code)
         val um = new UninitializedMemory(CASTEnv.createASTEnv(a), null, null)
         um.gen(a)
@@ -29,13 +35,26 @@ class UninitializedMemoryTest extends TestHelper with ShouldMatchers with CFGHel
     }
 
     @Test def test_variables() {
-        getUninitializedVariables("{ int a; }") should be(Map(FeatureExprFactory.True -> Set(Id("a"))))
-        getUninitializedVariables("{ int a = 2; }") should be(Map())
-        getUninitializedVariables("{ int a, b = 1; }") should be(Map(FeatureExprFactory.True -> Set(Id("a"))))
-        getUninitializedVariables("{ int a = 1, b; }") should be(Map(FeatureExprFactory.True -> Set(Id("b"))))
-        getUninitializedVariables("{ int *a; }") should be(Map(FeatureExprFactory.True -> Set(Id("a"))))
-        getUninitializedVariables("{ int a[5]; }") should be(Map(FeatureExprFactory.True -> Set(Id("a"))))
-        getUninitializedVariables("""{
+        getKilledVariables("{ int a; }") should be(Map())
+        getKilledVariables("{ int a = 2; }") should be(Map(FeatureExprFactory.True -> Set(Id("a"))))
+        getKilledVariables("{ int a, b = 1; }") should be(Map(FeatureExprFactory.True -> Set(Id("b"))))
+        getKilledVariables("{ int a = 1, b; }") should be(Map(FeatureExprFactory.True -> Set(Id("a"))))
+        getKilledVariables("{ int *a; }") should be(Map())
+        getKilledVariables("{ a = 2; }") should be(Map(FeatureExprFactory.True -> Set(Id("a"))))
+        getKilledVariables("{ int a[5]; }") should be(Map())
+        getKilledVariables("""{
+              #ifdef A
+              int a;
+              #endif
+              }""".stripMargin) should be(Map())
+        getGeneratedVariables("{ int a; }") should be(Map(FeatureExprFactory.True -> Set(Id("a"))))
+        getGeneratedVariables("{ int a = 2; }") should be(Map())
+        getGeneratedVariables("{ int a, b = 1; }") should be(Map(FeatureExprFactory.True -> Set(Id("a"))))
+        getGeneratedVariables("{ int a = 1, b; }") should be(Map(FeatureExprFactory.True -> Set(Id("b"))))
+        getGeneratedVariables("{ int *a; }") should be(Map(FeatureExprFactory.True -> Set(Id("a"))))
+        getGeneratedVariables("{ a = 2; }") should be(Map())
+        getGeneratedVariables("{ int a[5]; }") should be(Map(FeatureExprFactory.True -> Set(Id("a"))))
+        getGeneratedVariables("""{
               #ifdef A
               int a;
               #endif

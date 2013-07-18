@@ -87,7 +87,7 @@ abstract class MonotoneFW[T](val env: ASTEnv, val udm: UseDeclMap, val fm: Featu
 
     // while monotone framework usually works on Sets
     // we use maps here for efficiency reasons:
-    //   1. the obvious shift from non-variability-aware monotone framework to
+    //   1. The obvious shift from non-variability-aware monotone framework to
     //      a variability-aware version is to change the type of the result set
     //      from Set[Id] to Set[Opt[Id]]. However this changes involves many lookups
     //      and changes to the set.
@@ -97,6 +97,8 @@ abstract class MonotoneFW[T](val env: ASTEnv, val udm: UseDeclMap, val fm: Featu
     //      are easy and can be delayed to the point at which we *really* need
     //      the result. The delay also involves simplifications of feature
     //      expressions such as "a or (not a) => true".
+    //   3. In general, Map[Id, FeatureExpr] is the generalization of Set[Id] with
+    //      FeatureExpr in {True, False}. Therefore, we adapopt a Map here instead of a Set.
     //
     // property space L represents a complete lattice, i.e., it is a partially ordered set (L,⊑)
     // ⊑ is either ⊆ (subset) or ⊇ (superset)
@@ -192,10 +194,11 @@ abstract class MonotoneFW[T](val env: ASTEnv, val udm: UseDeclMap, val fm: Featu
     // depending on the kind of analysis circle and point are defined in a different way
     // forward analysis: F is flow; Analysis_○ (circle) concerns entry conditions; Analysis_● concerns exit conditions
     // backward analysis: F is flowR; Analysis_○ (circle) concerns exit conditions; Analysis_● concerns entry conditions
+    // flow is always from ○ to ●; and therefore we map entry/exit (which are fix) either to ○ or ●
     //          entry   |  ○             ∧  ●
-    //    x++;          | flow           | flow
+    //    x++;          | flow           | flowR
     //          exit    ∨  ●             |  ○
-    // circle and point use entrycache and exitcache
+    // circle and point use entrycache and exitcache for efficiency reasons
     protected def circle(e: AST): L
     protected def point(e: AST): L
 

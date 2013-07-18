@@ -18,28 +18,47 @@ import de.fosd.typechef.featureexpr.{FeatureExpr, FeatureModel}
 //     in a different function
 //   - this analysis does not cover use of dynamically allocated
 //     memory which is usually covered by other analysis tools.
+//
+//
+// Should be rewritten to a ReachingDefinition problem.
+// the properties specified below do not match one of the MonotoneFW instances in [NNH99] so far.
+// However, the analysis works for the simple examples written in UninitializedMemoryTest.scala
+// instance of the monotone framework
+// L  = P(Var*)
+// ⊑  = ⊆             // see MonotoneFW
+// ∐  = ⋃            // combinationOperator
+// ⊥  = ∅             // b
+// i  = ∅             // should be {(x,?)|x ∈ FV(S*)}
+// E  = {FunctionDef} // see MonotoneFW
+// F  = flow
+// Analysis_○ = exit  // should be entry
+// Analysis_● = entry // should be exit
 class UninitializedMemory(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) extends MonotoneFWId(env, udm, fm) with IntraCFG with CFGHelper with ASTNavigation {
-    // get all Id's passed to a function
-    def getFunctionCallArguments(e: AST) = {
-        var res = Set[Id]()
-        val fcs = filterAllASTElems[FunctionCall](e)
-        val arguments = manybu(query {
-            case i: Id => res += i
-            case PostfixExpr(i@Id(_), FunctionCall(_)) => res -= i
+
+    // get all function-call arguments
+    def getFunctionCallArguments(a: AST): Map[FeatureExpr, Set[Id]] = {
+        var resid = Set[Id]()
+        val fcs = filterAllASTElems[PostfixExpr](a)
+
+        // get all ids except function names (should be extended to other ids, such as typedefs, too)
+        // since we traverse bottom up, one result set is sufficient.
+        val functionCallArguments = manybu(query {
+            case i: Id => resid += i
+            case PostfixExpr(i: Id, _: FunctionCall) => resid -= i
         })
 
-        fcs.map(arguments(_))
-        addAnnotations(res)
+        fcs.map(functionCallArguments)
+        addAnnotations(resid)
     }
 
-    // get all declared variables without an initialization
+    // get all uninitialized variables
     def gen(a: AST): Map[FeatureExpr, Set[Id]] = {
         var res = Set[Id]()
-        val variables = manytd(query {
+        val uninitializedVariables = manybu(query {
             case InitDeclaratorI(AtomicNamedDeclarator(_, i: Id, _), _, None) => res += i
         })
 
-        variables(a)
+        uninitializedVariables(a)
         addAnnotations(res)
     }
 
@@ -47,12 +66,26 @@ class UninitializedMemory(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) extend
     def kill(a: AST): Map[FeatureExpr, Set[Id]] = {
         var res = Set[Id]()
         val assignments = manytd(query {
-            case AssignExpr(target@Id(_), "=", _) => res += target
+            case InitDeclaratorI(AtomicNamedDeclarator(_, i: Id, _), _, Some(_)) => res += i
+            case AssignExpr(i@Id(_), "=", _) => res += i
         })
 
         assignments(a)
         addAnnotations(res)
     }
+
+//    private def filli(f: FunctionDef) = {
+//        var res = Map[Id, FeatureExpr]()
+//        val getvars = manytd(query {
+//            case i: Id => {
+//                for (u <- udm.get(i))
+//                    res += ((addFreshT(u), env.featureExpr(u)))
+//            }
+//        })
+//
+//        getvars(f)
+//        res
+//    }
 
     protected def F(e: AST) = flow(e)
 

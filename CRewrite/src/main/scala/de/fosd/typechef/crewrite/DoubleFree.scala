@@ -27,6 +27,19 @@ import de.fosd.typechef.featureexpr.{FeatureExpr, FeatureModel}
 // the function free, e.g.:
 // linux: kfree for kernel memory deallocation
 // openssl: OPENSSL_free (actually CRYPTO_free; OPENSSL_free is a CPP macro)
+//
+// instance of the monotone framework
+// similar to liveness computation: we check whether the variable passed to free, lives out to another free call
+// assignments in between kill our gen property of a call to free
+// L  = P(Var*)
+// ⊑  = ⊆             // see MonotoneFW
+// ∐  = ⋃            // combinationOperator
+// ⊥  = ∅             // b
+// i  = ∅
+// E  = {FunctionDef} // see MonotoneFW
+// F  = flowR
+// Analysis_○ = exit
+// Analysis_● = entry
 class DoubleFree(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel, casestudy: String) extends MonotoneFWId(env, udm, fm) with IntraCFG with CFGHelper with ASTNavigation {
 
     val freecalls = {

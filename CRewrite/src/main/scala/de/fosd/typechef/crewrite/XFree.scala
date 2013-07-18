@@ -14,6 +14,20 @@ import de.fosd.typechef.featureexpr.{FeatureExpr, FeatureModel}
 //     is a conservative analysis for program flow
 //     so the analysis will likely produce a lot
 //     of false positives
+//
+// Should be rewritten to a ReachingDefinition problem.
+// the properties specified below do not match one of the MonotoneFW instances in [NNH99] so far.
+// However, the analysis works for the simple examples written in UninitializedMemoryTest.scala
+// instance of the monotone framework
+// L  = P(Var*)
+// ⊑  = ⊆             // see MonotoneFW
+// ∐  = ⋃            // combinationOperator
+// ⊥  = ∅             // b
+// i  = ∅             // should be {(x,?)|x ∈ FV(S*)}
+// E  = {FunctionDef} // see MonotoneFW
+// F  = flow
+// Analysis_○ = exit  // should be entry
+// Analysis_● = entry // should be exit
 class XFree(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel, casestudy: String) extends MonotoneFWId(env, udm, fm) with IntraCFG with CFGHelper with ASTNavigation with UsedDefinedDeclaredVariables {
 
     val freecalls = {

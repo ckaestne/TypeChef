@@ -21,6 +21,18 @@ import de.fosd.typechef.conditional.Opt
 // 4. we don't check whether a variable is only used in a context, in which we can exclude errors,
 //    e.g., if (x == EOF) { ... } else { q = x; // no error }; if-then-else check for all conditions
 // 5. the check for erroreous return values could be in a separate function, e.g., checkCorrectReturnValue(x)
+//
+// instance of the monotone framework
+// TODO analysis is unfinished and untested!
+// L  = P(Var*)
+// ⊑  = ⊆             // see MonotoneFW
+// ∐  = ??
+// ⊥  = ??
+// i  = ??
+// E  = {FunctionDef} // see MonotoneFW
+// F  = ??
+// Analysis_○ = ??
+// Analysis_● = ??
 abstract class StdLibFuncReturn(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) extends MonotoneFWId(env, udm, fm) with UsedDefinedDeclaredVariables {
     // list of standard library functions and their possible error returns
     // taken from above website
