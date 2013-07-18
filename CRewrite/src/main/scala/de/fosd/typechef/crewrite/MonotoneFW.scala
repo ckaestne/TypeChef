@@ -151,10 +151,10 @@ abstract class MonotoneFW[T](val env: ASTEnv, val udm: UseDeclMap, val fm: Featu
     // finite flow F (flow => succ and flowR => pred)
     // beware [NNH99] define the analysis: Analysis_○(l) = ∐{Analysis_●(l') | (l',l) ∈ F} ⊔ i_E^l
     // so they reverse the order going from l to l' (notice that (l',l) ∈ F)
-    // here we use the more natural form mean flow  => predecessor (forward analysis)
-    //                                        result elements flow from predecessor to successor
-    //                                    and flowR => successor (backward analysis);
-    //                                        result elements flow from successor to predecessor
+    //  flow  => predecessor (forward analysis)
+    //           result elements flow from predecessor to successor
+    //  flowR => successor (backward analysis);
+    //           result elements flow from successor to predecessor
     // we don't reverse the order here but keep the names for flow and flowR consistent with the book
     protected def F(e: AST): CFG
     protected def flow(e: AST): CFG = pred(e, FeatureExprFactory.empty, env)
@@ -191,7 +191,7 @@ abstract class MonotoneFW[T](val env: ASTEnv, val udm: UseDeclMap, val fm: Featu
 
     // depending on the kind of analysis circle and point are defined in a different way
     // forward analysis: F is flow; Analysis_○ (circle) concerns entry conditions; Analysis_● concerns exit conditions
-    // backward analysis: F is flowR: Analysis_○ (circle) concerns exit conditions; Analysis_● concerns entry conditions
+    // backward analysis: F is flowR; Analysis_○ (circle) concerns exit conditions; Analysis_● concerns entry conditions
     //          entry   |  ○             ∧  ●
     //    x++;          | flow           | flow
     //          exit    ∨  ●             |  ○
@@ -203,7 +203,7 @@ abstract class MonotoneFW[T](val env: ASTEnv, val udm: UseDeclMap, val fm: Featu
         circular[AST, L](b) {
             case _: E => i
             case l => {
-                var fl = F(l)
+                val fl = F(l)
 
                 var res = b
                 for (s <- fl) {
