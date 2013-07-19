@@ -106,9 +106,10 @@ abstract class MonotoneFW[T](val env: ASTEnv, val udm: UseDeclMap, val fm: Featu
     // l1 ⊑ l2 ⊑ ... eventually stabilises (finite set of T elements in analysis), i.e., ∃n: ln = ln+1 = ...
     type L = Map[T, FeatureExpr]
 
-    private def diff(l: L, fexp: FeatureExpr, d: Set[T]): L = {
+    // TODO: rewrite to diff: L x L -> L
+    private def diff(l: L, l2: L): L = {
         var curl = l
-        for (e <- d) {
+        for ((e, fexp) <- l2) {
             curl.get(e) match {
                 case None =>
                 case Some(x) => {
@@ -122,25 +123,21 @@ abstract class MonotoneFW[T](val env: ASTEnv, val udm: UseDeclMap, val fm: Featu
         curl
     }
 
-    protected def intersection(l: L, fexp: FeatureExpr, d: Set[T]): L = {
-        var curl = l
-        for (e <- d) {
+    protected def intersection(l1: L, l2: L): L = {
+        var curl = l1
+        curl --= (l1.keySet  l2.keySet)
+        for ((e, fexp) <- l2) {
             curl.get(e) match {
                 case None =>
-                case Some(x) => {
-                    if (fexp.not and x isContradiction())
-                        curl = curl.-(e)
-                    else
-                        curl = curl + ((e, fexp and x))
-                }
+                case Some(x) => curl = curl + ((e, fexp and x))
             }
         }
         curl
     }
 
-    protected def union(l: L, fexp: FeatureExpr, j: Set[T]): L = {
+    protected def union(l: L, l2: L): L = {
         var curl = l
-        for (e <- j) {
+        for ((e, fexp) <- l2) {
             curl.get(e) match {
                 case None => curl = curl.+((e, fexp))
                 case Some(x) => curl = curl.+((e, fexp or x))
@@ -189,7 +186,7 @@ abstract class MonotoneFW[T](val env: ASTEnv, val udm: UseDeclMap, val fm: Featu
     // we name Analysis_○ circle and Analysis_● point
 
     // ∐ is either ⋃ (n-ary union) or ⋂ (n-ary intersection) and has to be defined by the analysis instance
-    protected def combinationOperator(l: L, fexp: FeatureExpr, j: Set[T]): L
+    protected def combinationOperator(l1: L, l2: L): L
 
     // depending on the kind of analysis circle and point are defined in a different way
     // forward analysis: F is flow; Analysis_○ (circle) concerns entry conditions; Analysis_● concerns exit conditions
@@ -209,13 +206,20 @@ abstract class MonotoneFW[T](val env: ASTEnv, val udm: UseDeclMap, val fm: Featu
                 val fl = F(l)
 
                 var res = b
-                for (s <- fl) {
-                    for ((r, f) <- circle(s.entry))
-                        res = combinationOperator(res, f and s.feature, Set(r))
-                }
+                for (s <- fl)
+                    res = combinationOperator(res, circle(s.entry))
                 res
             }
         }
+    }
+
+    private def createLFromSetT(s: Set[T], fexp: FeatureExpr): L = {
+        var res = Map[T, FeatureExpr]()
+        s.map({
+            x => for (n <- getFresh(x))
+                res += ((n, fexp))
+        })
+        res
     }
 
     protected val f_l: AST => L = {
@@ -227,12 +231,10 @@ abstract class MonotoneFW[T](val env: ASTEnv, val udm: UseDeclMap, val fm: Featu
 
                 var res = point(l)
                 for ((fexp, v) <- k)
-                    for (x <- v)
-                        res = diff(res, fexp, getFresh(x))
+                    res = diff(res, createLFromSetT(v, fexp))
 
                 for ((fexp, v) <- g)
-                    for (x <- v)
-                        res = union(res, fexp, getFresh(x))
+                    res = union(res, createLFromSetT(v, fexp))
                 res
             }
         }

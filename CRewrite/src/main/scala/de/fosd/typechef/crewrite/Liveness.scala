@@ -36,7 +36,7 @@ class Liveness(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) extends MonotoneF
 
     protected val i = Map[Id, FeatureExpr]()
     protected def b = Map[Id, FeatureExpr]()
-    protected def combinationOperator(r: L, f: FeatureExpr, s: Set[Id]) = union(r, f, s)
+    protected def combinationOperator(l1: L, l2: L) = union(l1, l2)
 
     // liveness analysis is a backward analysis (flowR)
     // so circle concerns exit conditions

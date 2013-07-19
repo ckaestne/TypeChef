@@ -135,7 +135,7 @@ abstract class StdLibFuncReturn(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) 
 
     protected val i = Map[Id, FeatureExpr]()
     protected def b = Map[Id, FeatureExpr]()
-    protected def combinationOperator(r: L, f: FeatureExpr, s: Set[Id]) = union(r, f, s)
+    protected def combinationOperator(l1: L, l2: L) = union(l1, l2)
 
     protected def circle(e: AST) = exitcache(e)
     protected def point(e: AST) = entrycache(e)
