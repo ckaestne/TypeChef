@@ -4,7 +4,7 @@ import org.kiama.rewriting.Rewriter._
 
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.typesystem.UseDeclMap
-import de.fosd.typechef.featureexpr.{FeatureExpr, FeatureModel}
+import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureModel}
 
 // implements reaching definitions (rd) dataflow analysis
 // see http://en.wikipedia.org/wiki/Reaching_definition
@@ -31,31 +31,56 @@ import de.fosd.typechef.featureexpr.{FeatureExpr, FeatureModel}
 //     in a different function
 class ReachingDefintions(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel, f: FunctionDef) extends MonotoneFWIdLab(env, udm, fm) with IntraCFG with CFGHelper with ASTNavigation with UsedDefinedDeclaredVariables {
 
+    private var defs = Set[PGT]()
+
     private def initb(f: FunctionDef) = {
-        var res = Set[PGT]()
+        var res = l
 
         val getdefs = manytd{ query {
-            case AssignExpr(i: Id, "=", _) => res += ((i, System.identityHashCode(i)))
-            case InitDeclaratorI(i: Id, _, _) => res += ((i, System.identityHashCode(i)))
+            case AssignExpr(i: Id, "=", _) => res = union(res, createLFromSetT(addAnnotations(Set((i, -1)))))
+            case InitDeclaratorI(AtomicNamedDeclarator(_, i: Id, _), _, _) => res = union(res, createLFromSetT(addAnnotations(Set((i, -1)))))
         }}
 
         getdefs(f)
-        addAnnotations(res)
+        res
+    }
+
+    private def initdefs(f: FunctionDef) = {
+        val getdefs = manytd{ query {
+            case AssignExpr(i: Id, "=", _) => defs += ((i, System.identityHashCode(i)))
+            case InitDeclaratorI(AtomicNamedDeclarator(_, i: Id, _), _, _) => defs += ((i, System.identityHashCode(i)))
+        }}
+
+        getdefs(f)
     }
 
     def gen(a: AST) = {
-        addAnnotations(addLabels(defines(a)))
+        var res = Set[PGT]()
+
+        for (d <- defines(a))
+            res ++= defs.filter(_ == (d, System.identityHashCode(d)))
+
+        addAnnotations(res)
     }
 
     def kill(a: AST) = {
-        addAnnotations(addLabels(uses(a) diff defines(a)))
+        var res = Set[PGT]()
+
+        // res contains all but the current definition
+        for (d <- defines(a))
+            res ++= defs.filter(r => r._1 == d && r._2 != System.identityHashCode(d))
+
+        addAnnotations(res)
     }
 
     protected def F(e: AST) = flow(e)
     protected def circle(e: AST) = entrycache(e)
     protected def point(e: AST) = exitcache(e)
 
-    protected val i = Map[PGT, FeatureExpr]()
-    protected def b = initb(f)
-    protected def combinationOperator(l1: L, l2: L) = intersection(l1, l2)
+    protected val i = initb(f)
+    initdefs(f)
+    println(defs)
+    println(i)
+    protected def b = l
+    protected def combinationOperator(l1: L, l2: L) = union(l1, l2)
 }

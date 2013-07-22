@@ -107,9 +107,6 @@ class CIntraAnalysisFrontend(tu: TranslationUnit, fm: FeatureModel = FeatureExpr
             val g = df.gen(s)
             val out = df.out(s)
 
-            println("gen: ", g)
-            println("out: ", out)
-
             for ((i, h) <- out)
                 g.find(_._1 == i) match {
                     case None =>
