@@ -36,34 +36,34 @@ class UninitializedMemoryTest extends TestHelper with ShouldMatchers with CFGHel
 
     @Test def test_variables() {
         getKilledVariables("{ int a; }") should be(Map())
-        getKilledVariables("{ int a = 2; }") should be(Map(FeatureExprFactory.True -> Set(Id("a"))))
-        getKilledVariables("{ int a, b = 1; }") should be(Map(FeatureExprFactory.True -> Set(Id("b"))))
-        getKilledVariables("{ int a = 1, b; }") should be(Map(FeatureExprFactory.True -> Set(Id("a"))))
+        getKilledVariables("{ int a = 2; }") should be(Map(Id("a") -> FeatureExprFactory.True))
+        getKilledVariables("{ int a, b = 1; }") should be(Map(Id("b") -> FeatureExprFactory.True))
+        getKilledVariables("{ int a = 1, b; }") should be(Map(Id("a") -> FeatureExprFactory.True))
         getKilledVariables("{ int *a; }") should be(Map())
-        getKilledVariables("{ a = 2; }") should be(Map(FeatureExprFactory.True -> Set(Id("a"))))
+        getKilledVariables("{ a = 2; }") should be(Map(Id("a") -> FeatureExprFactory.True))
         getKilledVariables("{ int a[5]; }") should be(Map())
         getKilledVariables("""{
               #ifdef A
               int a;
               #endif
               }""".stripMargin) should be(Map())
-        getGeneratedVariables("{ int a; }") should be(Map(FeatureExprFactory.True -> Set(Id("a"))))
+        getGeneratedVariables("{ int a; }") should be(Map(Id("a") -> FeatureExprFactory.True))
         getGeneratedVariables("{ int a = 2; }") should be(Map())
-        getGeneratedVariables("{ int a, b = 1; }") should be(Map(FeatureExprFactory.True -> Set(Id("a"))))
-        getGeneratedVariables("{ int a = 1, b; }") should be(Map(FeatureExprFactory.True -> Set(Id("b"))))
-        getGeneratedVariables("{ int *a; }") should be(Map(FeatureExprFactory.True -> Set(Id("a"))))
+        getGeneratedVariables("{ int a, b = 1; }") should be(Map(Id("a") -> FeatureExprFactory.True))
+        getGeneratedVariables("{ int a = 1, b; }") should be(Map(Id("b") -> FeatureExprFactory.True))
+        getGeneratedVariables("{ int *a; }") should be(Map(Id("a") -> FeatureExprFactory.True))
         getGeneratedVariables("{ a = 2; }") should be(Map())
-        getGeneratedVariables("{ int a[5]; }") should be(Map(FeatureExprFactory.True -> Set(Id("a"))))
+        getGeneratedVariables("{ int a[5]; }") should be(Map(Id("a") -> FeatureExprFactory.True))
         getGeneratedVariables("""{
               #ifdef A
               int a;
               #endif
-              }""".stripMargin) should be(Map(fa -> Set(Id("a"))))
+              }""".stripMargin) should be(Map(Id("a") -> fa))
     }
 
     @Test def test_functioncall_arguments() {
-        getFunctionCallArguments("foo(a,b)") should be(Map(FeatureExprFactory.True -> Set(Id("a"), Id("b"))))
-        getFunctionCallArguments("foo(a,bar(c))") should be(Map(FeatureExprFactory.True -> Set(Id("a"), Id("c"))))
+        getFunctionCallArguments("foo(a,b)") should be(Map(Id("a") -> FeatureExprFactory.True, Id("b") -> FeatureExprFactory.True))
+        getFunctionCallArguments("foo(a,bar(c))") should be(Map(Id("a") -> FeatureExprFactory.True, Id("c") -> FeatureExprFactory.True))
     }
 
     @Test def test_uninitialized_memory_simple() {

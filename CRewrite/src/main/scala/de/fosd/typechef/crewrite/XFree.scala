@@ -42,7 +42,7 @@ class XFree(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel, casestudy: String) e
     }
 
     // get all declared variables without an initialization
-    def gen(a: AST): Map[FeatureExpr, Set[Id]] = {
+    def gen(a: AST): L = {
         var res = Set[Id]()
         val variables = manytd(query {
             case InitDeclaratorI(AtomicNamedDeclarator(_, i: Id, _), _, None) => res += i
@@ -67,7 +67,7 @@ class XFree(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel, casestudy: String) e
     }
 
     // get variables that get an assignment with malloc
-    def kill(a: AST): Map[FeatureExpr, Set[Id]] = {
+    def kill(a: AST): L = {
         var res = Set[Id]()
         val assignments = manytd(query {
             case AssignExpr(target@Id(_), "=", source) => {

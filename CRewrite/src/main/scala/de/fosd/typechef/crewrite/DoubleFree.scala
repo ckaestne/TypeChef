@@ -4,7 +4,7 @@ import org.kiama.rewriting.Rewriter._
 
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.typesystem.UseDeclMap
-import de.fosd.typechef.featureexpr.{FeatureExpr, FeatureModel}
+import de.fosd.typechef.featureexpr.FeatureModel
 
 // implements a simple analysis of double-free
 // freeing memory multiple times
@@ -53,7 +53,7 @@ class DoubleFree(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel, casestudy: Stri
     // calloc, malloc, and realloc, since we do get a lot of false positives, when
     // neglecting reassignments. It doesn't matter where the pointer allocation comes
     // from, we only care about double freeing.
-    def kill(a: AST) = {
+    def kill(a: AST): L = {
         var res = Set[Id]()
         val mempointers = manytd(query {
             case AssignExpr(target@Id(_), "=", _) => {
@@ -68,7 +68,7 @@ class DoubleFree(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel, casestudy: Stri
     // returns a list of Ids with names of variables that a freed
     // by call to free or realloc
     // using the terminology of liveness we return pointers that have that are in use
-    def gen(a: AST) = {
+    def gen(a: AST): L = {
 
         var res = Set[Id]()
 
@@ -153,8 +153,8 @@ class DoubleFree(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel, casestudy: Stri
 
     protected def F(e: AST) = flowR(e)
 
-    protected val i = Map[Id, FeatureExpr]()
-    protected def b = Map[Id, FeatureExpr]()
+    protected val i = l
+    protected def b = l
     protected def combinationOperator(l1: L, l2: L) = union(l1, l2)
 
     protected def circle(e: AST) = exitcache(e)

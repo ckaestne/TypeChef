@@ -107,20 +107,22 @@ class CIntraAnalysisFrontend(tu: TranslationUnit, fm: FeatureModel = FeatureExpr
             val g = df.gen(s)
             val out = df.out(s)
 
+            println("gen: ", g)
+            println("out: ", out)
+
             for ((i, h) <- out)
-                for ((f, j) <- g)
-                    j.find(_ == i) match {
-                        case None =>
-                        case Some(x) => {
-                            val xdecls = udm.get(x)
-                            var idecls = udm.get(i)
-                            if (idecls == null)
-                                idecls = List(i)
-                            for (ei <- idecls)
-                                if (xdecls.exists(_.eq(ei)))
-                                    res ::= new TypeChefError(Severity.Warning, h, "warning: Variable " + x.name + " is freed multiple times!", x, "")
-                        }
+                g.find(_._1 == i) match {
+                    case None =>
+                    case Some((x, _)) => {
+                        val xdecls = udm.get(x)
+                        var idecls = udm.get(i)
+                        if (idecls == null)
+                            idecls = List(i)
+                        for (ei <- idecls)
+                            if (xdecls.exists(_.eq(ei)))
+                                res ::= new TypeChefError(Severity.Warning, h, "warning: Variable " + x.name + " is freed multiple times!", x, "")
                     }
+                }
         }
 
         res
@@ -157,19 +159,18 @@ class CIntraAnalysisFrontend(tu: TranslationUnit, fm: FeatureModel = FeatureExpr
             val in = um.in(s)
 
             for ((i, h) <- in)
-                for ((f, j) <- g)
-                    j.find(_ == i) match {
-                        case None =>
-                        case Some(x) => {
-                            val xdecls = udm.get(x)
-                            var idecls = udm.get(i)
-                            if (idecls == null)
-                                idecls = List(i)
-                            for (ei <- idecls)
-                                if (xdecls.exists(_.eq(ei)))
-                                    res ::= new TypeChefError(Severity.Warning, h, "warning: Variable " + x.name + " is used uninitialized!", x, "")
-                        }
+                g.find(_._1 == i) match {
+                    case None =>
+                    case Some((x, _)) => {
+                        val xdecls = udm.get(x)
+                        var idecls = udm.get(i)
+                        if (idecls == null)
+                            idecls = List(i)
+                        for (ei <- idecls)
+                            if (xdecls.exists(_.eq(ei)))
+                                res ::= new TypeChefError(Severity.Warning, h, "warning: Variable " + x.name + " is used uninitialized!", x, "")
                     }
+                }
         }
 
         res
@@ -206,19 +207,18 @@ class CIntraAnalysisFrontend(tu: TranslationUnit, fm: FeatureModel = FeatureExpr
             val in = xf.in(s)
 
             for ((i, h) <- in)
-                for ((f, j) <- g)
-                    j.find(_ == i) match {
-                        case None =>
-                        case Some(x) => {
-                            val xdecls = udm.get(x)
-                            var idecls = udm.get(i)
-                            if (idecls == null)
-                                idecls = List(i)
-                            for (ei <- idecls)
-                                if (xdecls.exists(_.eq(ei)))
-                                    res ::= new TypeChefError(Severity.Warning, h, "warning: Variable " + x.name + " is freed although not dynamically allocted!", x, "")
-                        }
+                g.find(_._1 == i) match {
+                    case None =>
+                    case Some((x, _)) => {
+                        val xdecls = udm.get(x)
+                        var idecls = udm.get(i)
+                        if (idecls == null)
+                            idecls = List(i)
+                        for (ei <- idecls)
+                            if (xdecls.exists(_.eq(ei)))
+                                res ::= new TypeChefError(Severity.Warning, h, "warning: Variable " + x.name + " is freed although not dynamically allocted!", x, "")
                     }
+                }
         }
 
         res
@@ -308,26 +308,24 @@ class CIntraAnalysisFrontend(tu: TranslationUnit, fm: FeatureModel = FeatureExpr
                 // stdlib call is assigned to a variable that we track with our dataflow analysis
                 // we check whether used variables that hold the value of a stdlib function are killed in s,
                 // if not we report an error
-                for ((e, fi) <- cle.out(s)) {
-                    for ((fu, u) <- cle.getUsedVariables(s)) {
-                        u.find(_ == e) match {
-                            case None =>
-                            case Some(x) => {
-                                val xdecls = udm.get(x)
-                                var edecls = udm.get(e)
-                                if (edecls == null) edecls = List(e)
+                val g = cle.getUsedVariables(s)
+                for ((e, fi) <- cle.out(s))
+                    g.find(_ == e) match {
+                        case None =>
+                        case Some(x) => {
+                            val xdecls = udm.get(x)
+                            var edecls = udm.get(e)
+                            if (edecls == null) edecls = List(e)
 
-                                for (ee <- edecls) {
-                                    val kills = cle.kill(s)
-                                    if (xdecls.exists(_.eq(ee)) && (!kills.contains(fu) || kills.contains(fu) && !kills(fu).contains(x))) {
-                                        errors ::= new TypeChefError(Severity.SecurityWarning, fi, "The value of " +
-                                            PrettyPrinter.print(e) + " is not properly checked for (" + errorvalues + ")!", e)
-                                    }
+                            for (ee <- edecls) {
+                                val kills = cle.kill(s)
+                                if (xdecls.exists(_.eq(ee)) && !kills.contains(x._1)) {
+                                    errors ::= new TypeChefError(Severity.SecurityWarning, fi, "The value of " +
+                                        PrettyPrinter.print(e) + " is not properly checked for (" + errorvalues + ")!", e)
                                 }
                             }
                         }
                     }
-                }
             }
         }
 

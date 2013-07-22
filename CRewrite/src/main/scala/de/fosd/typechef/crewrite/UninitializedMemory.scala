@@ -4,7 +4,7 @@ import org.kiama.rewriting.Rewriter._
 
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.typesystem.UseDeclMap
-import de.fosd.typechef.featureexpr.{FeatureExpr, FeatureModel}
+import de.fosd.typechef.featureexpr.FeatureModel
 
 // implements a simple analysis of uninitalized memory
 // https://www.securecoding.cert.org/confluence/display/seccode/EXP33-C.+Do+not+reference+uninitialized+memory
@@ -36,7 +36,7 @@ import de.fosd.typechef.featureexpr.{FeatureExpr, FeatureModel}
 class UninitializedMemory(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) extends MonotoneFWId(env, udm, fm) with IntraCFG with CFGHelper with ASTNavigation {
 
     // get all function-call arguments
-    def getFunctionCallArguments(a: AST): Map[FeatureExpr, Set[Id]] = {
+    def getFunctionCallArguments(a: AST): L = {
         var resid = Set[Id]()
         val fcs = filterAllASTElems[PostfixExpr](a)
 
@@ -52,7 +52,7 @@ class UninitializedMemory(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) extend
     }
 
     // get all uninitialized variables
-    def gen(a: AST): Map[FeatureExpr, Set[Id]] = {
+    def gen(a: AST): L = {
         var res = Set[Id]()
         val uninitializedVariables = manybu(query {
             case InitDeclaratorI(AtomicNamedDeclarator(_, i: Id, _), _, None) => res += i
@@ -63,7 +63,7 @@ class UninitializedMemory(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) extend
     }
 
     // get variables that get an assignment
-    def kill(a: AST): Map[FeatureExpr, Set[Id]] = {
+    def kill(a: AST): L = {
         var res = Set[Id]()
         val assignments = manytd(query {
             case InitDeclaratorI(AtomicNamedDeclarator(_, i: Id, _), _, Some(_)) => res += i
@@ -89,8 +89,8 @@ class UninitializedMemory(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) extend
 
     protected def F(e: AST) = flow(e)
 
-    protected val i = Map[Id, FeatureExpr]()
-    protected def b = Map[Id, FeatureExpr]()
+    protected val i = l
+    protected def b = l
     protected def combinationOperator(l1: L, l2: L) = union(l1, l2)
 
     protected def circle(e: AST) = exitcache(e)

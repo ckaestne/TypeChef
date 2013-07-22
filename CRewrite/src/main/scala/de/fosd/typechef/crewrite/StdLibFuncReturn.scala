@@ -2,7 +2,7 @@ package de.fosd.typechef.crewrite
 
 import org.kiama.rewriting.Rewriter._
 
-import de.fosd.typechef.featureexpr.{FeatureExpr, FeatureExprFactory, FeatureModel}
+import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureModel}
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.typesystem._
 import de.fosd.typechef.parser.c.PostfixExpr
@@ -39,7 +39,7 @@ abstract class StdLibFuncReturn(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) 
     val function: List[String]
     val errorreturn: List[AST]
 
-    def gen(a: AST) = {
+    def gen(a: AST): L = {
         var res = Set[Id]()
 
         // we track variables with the return value of a stdlib function call that is in function
@@ -72,7 +72,7 @@ abstract class StdLibFuncReturn(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) 
         }
     }
 
-    def kill(a: AST) = {
+    def kill(a: AST): L = {
         var res = Set[Id]()
 
         val checkvar = manytd(query {
@@ -133,8 +133,8 @@ abstract class StdLibFuncReturn(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) 
 
     protected def F(e: AST) = flow(e)
 
-    protected val i = Map[Id, FeatureExpr]()
-    protected def b = Map[Id, FeatureExpr]()
+    protected val i = l
+    protected def b = l
     protected def combinationOperator(l1: L, l2: L) = union(l1, l2)
 
     protected def circle(e: AST) = exitcache(e)

@@ -4,7 +4,6 @@ import org.junit.Test
 import org.scalatest.matchers.ShouldMatchers
 import de.fosd.typechef.featureexpr.FeatureExprFactory
 import de.fosd.typechef.parser.c._
-import de.fosd.typechef.typesystem.{CDeclUse, CTypeSystemFrontend}
 
 class DoubleFreeTest extends TestHelper with ShouldMatchers with CFGHelper with EnforceTreeHelper {
 
@@ -22,7 +21,7 @@ class DoubleFreeTest extends TestHelper with ShouldMatchers with CFGHelper with 
     }
 
     @Test def test_free() {
-        getFreedMem("{ free(a); }") should be(Map(FeatureExprFactory.True -> Set(Id("a"))))
+        getFreedMem("{ free(a); }") should be(Map(Id("a") -> FeatureExprFactory.True))
         getFreedMem(
             """
             {
@@ -30,7 +29,7 @@ class DoubleFreeTest extends TestHelper with ShouldMatchers with CFGHelper with 
               free(a);
               #endif
             }
-            """.stripMargin) should be(Map(fa -> Set(Id("a"))))
+            """.stripMargin) should be(Map(Id("a") -> fa))
         getFreedMem(
             """
             {
@@ -42,13 +41,13 @@ class DoubleFreeTest extends TestHelper with ShouldMatchers with CFGHelper with 
               #endif
               );
             }
-            """.stripMargin) should be(Map(fa -> Set(Id("a")), fa.not() -> Set(Id("b"))))
+            """.stripMargin) should be(Map(Id("a") -> fa, Id("b") -> fa.not()))
         getFreedMem(
             """
             {
               realloc(a, 2);
             }
-            """.stripMargin) should be(Map(FeatureExprFactory.True -> Set(Id("a"))))
+            """.stripMargin) should be(Map(Id("a") -> FeatureExprFactory.True))
         getFreedMem(
             """
             {
@@ -60,7 +59,7 @@ class DoubleFreeTest extends TestHelper with ShouldMatchers with CFGHelper with 
             #endif
               , 2);
             }
-            """.stripMargin) should be(Map(fa -> Set(Id("a")), fa.not() -> Set(Id("b"))))
+            """.stripMargin) should be(Map(Id("a") -> fa, Id("b") -> fa.not()))
         getFreedMem(
             """
             {
@@ -73,16 +72,16 @@ class DoubleFreeTest extends TestHelper with ShouldMatchers with CFGHelper with 
             #endif
             );
             }
-            """.stripMargin) should be(Map(FeatureExprFactory.True -> Set(Id("a"))))
-        getFreedMem( """ { free(a->b); } """.stripMargin) should be(Map(FeatureExprFactory.True -> Set(Id("b"))))
-        getFreedMem( """ { free(&(a->b)); } """.stripMargin) should be(Map(FeatureExprFactory.True -> Set(Id("b"))))
-        getFreedMem( """ { free(*(a->b)); } """.stripMargin) should be(Map(FeatureExprFactory.True -> Set(Id("b"))))
-        getFreedMem( """ { free(a->b->c); } """.stripMargin) should be(Map(FeatureExprFactory.True -> Set(Id("c"))))
-        getFreedMem( """ { free(a.b); } """.stripMargin) should be(Map(FeatureExprFactory.True -> Set(Id("b"))))
-        getFreedMem( """ { free(a[i]); }""".stripMargin) should be(Map(FeatureExprFactory.True -> Set(Id("a"))))
-        getFreedMem( """ { free(*a); }""".stripMargin) should be(Map(FeatureExprFactory.True -> Set(Id("a"))))
-        getFreedMem( """ { free(&a); }""".stripMargin) should be(Map(FeatureExprFactory.True -> Set(Id("a"))))
-        getFreedMem( """ { free(a[i]->b); }""".stripMargin) should be(Map(FeatureExprFactory.True -> Set(Id("b"))))
+            """.stripMargin) should be(Map(Id("a") -> FeatureExprFactory.True))
+        getFreedMem( """ { free(a->b); } """.stripMargin) should be(Map(Id("b") -> FeatureExprFactory.True))
+        getFreedMem( """ { free(&(a->b)); } """.stripMargin) should be(Map(Id("b") -> FeatureExprFactory.True))
+        getFreedMem( """ { free(*(a->b)); } """.stripMargin) should be(Map(Id("b") -> FeatureExprFactory.True))
+        getFreedMem( """ { free(a->b->c); } """.stripMargin) should be(Map(Id("c") -> FeatureExprFactory.True))
+        getFreedMem( """ { free(a.b); } """.stripMargin) should be(Map(Id("b") -> FeatureExprFactory.True))
+        getFreedMem( """ { free(a[i]); }""".stripMargin) should be(Map(Id("a") -> FeatureExprFactory.True))
+        getFreedMem( """ { free(*a); }""".stripMargin) should be(Map(Id("a") -> FeatureExprFactory.True))
+        getFreedMem( """ { free(&a); }""".stripMargin) should be(Map(Id("a") -> FeatureExprFactory.True))
+        getFreedMem( """ { free(a[i]->b); }""".stripMargin) should be(Map(Id("b") -> FeatureExprFactory.True))
     }
 
     @Test def test_double_free_simple() {

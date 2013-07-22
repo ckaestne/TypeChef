@@ -27,15 +27,20 @@ import de.fosd.typechef.conditional.Opt
 class Liveness(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) extends MonotoneFWId(env, udm, fm) with IntraCFG with UsedDefinedDeclaredVariables {
 
     // returns all declared variables with their annotation
-    val declaresVar: PartialFunction[(Any), Map[FeatureExpr, Set[Id]]] = {
+    val declaresVar: PartialFunction[(Any), L] = {
         case a => addAnnotations(declares(a))
     }
 
-    def gen(a: AST): Map[FeatureExpr, Set[Id]] = { addAnnotations(uses(a)) }
-    def kill(a: AST): Map[FeatureExpr, Set[Id]] = { addAnnotations(defines(a)) }
+    def gen(a: AST): L = {
+        addAnnotations(uses(a))
+    }
 
-    protected val i = Map[Id, FeatureExpr]()
-    protected def b = Map[Id, FeatureExpr]()
+    def kill(a: AST):L = {
+        addAnnotations(defines(a))
+    }
+
+    protected val i = l
+    protected def b = l
     protected def combinationOperator(l1: L, l2: L) = union(l1, l2)
 
     // liveness analysis is a backward analysis (flowR)

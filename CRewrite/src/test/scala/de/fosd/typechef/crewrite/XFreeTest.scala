@@ -24,9 +24,9 @@ class XFreeTest extends TestHelper with ShouldMatchers with CFGHelper with Enfor
     }
 
     @Test def test_variables() {
-        getUninitializedVariables("{ int a; }") should be(Map(FeatureExprFactory.True -> Set(Id("a"))))
-        getUninitializedVariables("{ int a = 2; }") should be(Map(FeatureExprFactory.True -> Set(Id("a"))))
-        getUninitializedVariables("{ int a, b = 1; }") should be(Map(FeatureExprFactory.True -> Set(Id("a"), Id("b"))))
+        getUninitializedVariables("{ int a; }") should be(Map(Id("a") -> FeatureExprFactory.True))
+        getUninitializedVariables("{ int a = 2; }") should be(Map(Id("a") -> FeatureExprFactory.True))
+        getUninitializedVariables("{ int a, b = 1; }") should be(Map(Id("a") -> FeatureExprFactory.True, Id("b") -> FeatureExprFactory.True))
         getUninitializedVariables("{ int *a = (int*)malloc(2); }") should be(Map())
     }
 
