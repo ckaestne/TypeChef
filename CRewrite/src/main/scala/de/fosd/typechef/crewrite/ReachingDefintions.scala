@@ -3,7 +3,7 @@ package de.fosd.typechef.crewrite
 import org.kiama.rewriting.Rewriter._
 
 import de.fosd.typechef.parser.c._
-import de.fosd.typechef.typesystem.UseDeclMap
+import de.fosd.typechef.typesystem.{DeclUseMap, UseDeclMap}
 import de.fosd.typechef.featureexpr.FeatureModel
 
 // implements reaching definitions (rd) dataflow analysis
@@ -29,41 +29,64 @@ import de.fosd.typechef.featureexpr.FeatureModel
 //     so the analysis will likely produce a lot
 //     of false positives, because memory can be initialized
 //     in a different function
-class ReachingDefintions(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel, f: FunctionDef) extends MonotoneFWIdLab(env, udm, fm) with IntraCFG with CFGHelper with ASTNavigation with UsedDefinedDeclaredVariables {
+class ReachingDefintions(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: FeatureModel, f: FunctionDef) extends MonotoneFWIdLab(env, fm) with IntraCFG with CFGHelper with ASTNavigation with UsedDefinedDeclaredVariables {
 
+    private val cachePGT = new IdentityHashMapCache[PGT]()
+    private var defs = Set[PGT]()
 
-
-    private def initdefs(f: FunctionDef) = {
-
-    }
-
-    private def initi(f: FunctionDef): L = {
-        var res = l
-
-        val getdefs = manytd{ query {
+    private def init(f: FunctionDef) = {
+        val getdefs = manytd( query {
             case AssignExpr(i: Id, "=", _) => {
-                for (d <- udm.get(i))
-                    res += ((Id(d.name + "_" + System.identityHashCode(d).toString), env.featureExpr(d)))
+                cachePGT.update(i, (i, System.identityHashCode(i)))
+                defs += cachePGT.lookup(i).get
+
+                if (udm.containsKey(i))
+                    for (x <- udm.get(i)) {
+                        print("")
+                        cachePGT.update(x, (x, System.identityHashCode(i)))
+                        defs += cachePGT.lookup(x).get
+                        getFresh(cachePGT.lookup(x).get)
+                    }
             }
             case InitDeclaratorI(AtomicNamedDeclarator(_, i: Id, _), _, _) => {
-                for (d <- udm.get(i))
-                    res += ((Id(d.name + "_" + System.identityHashCode(d).toString), env.featureExpr(d)))
+                cachePGT.update(i, (i, System.identityHashCode(i)))
+                defs += cachePGT.lookup(i).get
+
+                if (udm.containsKey(i))
+                    for (x <- udm.get(i)) {
+                        cachePGT.update(x, (x, System.identityHashCode(i)))
+                        defs += cachePGT.lookup(x).get
+                        getFresh(cachePGT.lookup(x).get)
+                    }
             }
-        }}
+        })
 
         getdefs(f)
-        res
     }
 
-    def gen(a: AST) = addAnnotations(defines(a))
-    def kill(a: AST) = addAnnotations(defines(a))
+    def gen(a: AST) = addAnnotations(defines(a).flatMap(cachePGT.lookup))
+    def kill(a: AST) = {
+        var res = l
+
+        for (d <- defines(a)) {
+            res += ((cachePGT.lookup(d).get, env.featureExpr(d)))
+            if (udm.containsKey(d)) {
+                for (de <- udm.get(d)) {
+                    res += ((cachePGT.lookup(de).get, env.featureExpr(d)))
+                    for (u <- dum.get(de))
+                        res += ((cachePGT.lookup(de).get, env.featureExpr(d)))
+                }
+            }
+        }
+        res
+    }
 
     protected def F(e: AST) = flow(e)
     protected def circle(e: AST) = entrycache(e)
     protected def point(e: AST) = exitcache(e)
 
-    protected val i = initi(f)
-    println(i)
+    init(f)
+    protected val i = addAnnotations(defs)
     protected def b = l
     protected def combinationOperator(l1: L, l2: L) = union(l1, l2)
 }

@@ -18,7 +18,8 @@ class ReachingDefinitionsTest extends TestHelper with ShouldMatchers with IntraC
         val ts = new CTypeSystemFrontend(TranslationUnit(List(Opt(FeatureExprFactory.True, a)))) with CDeclUse
         assert(ts.checkASTSilent, "typecheck fails!")
         val udm = ts.getUseDeclMap
-        val rd = new ReachingDefintions(env, udm, FeatureExprFactory.empty, a)
+        val dum = ts.getDeclUseMap
+        val rd = new ReachingDefintions(env, dum, udm, FeatureExprFactory.empty, a)
 
         for (s <- ss) {
             println(PrettyPrinter.print(s) + "  gen: " + rd.gen(s) + "   kill: " + rd.kill(s) +
