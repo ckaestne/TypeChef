@@ -273,8 +273,7 @@ sealed abstract class MonotoneFW[T](val env: ASTEnv, val fm: FeatureModel) exten
             val orig = getOriginal(x)
             res = (orig, f) :: res
         }
-        // TODO the distinct call should not be necessary
-        res.distinct.filter(_._2.isSatisfiable(fm))
+        res.filter(_._2.isSatisfiable(fm))
     }
 
     protected def f_lcached(a: AST): L = {
@@ -298,8 +297,7 @@ sealed abstract class MonotoneFW[T](val env: ASTEnv, val fm: FeatureModel) exten
             val orig = getOriginal(x)
             res = (orig, f) :: res
         }
-        // TODO the distinct call should not be necessary
-        res.distinct.filter(_._2.isSatisfiable(fm))
+        res.filter(_._2.isSatisfiable(fm))
     }
 }
 
