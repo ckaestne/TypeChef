@@ -45,6 +45,29 @@ class ReachingDefinitionsTest extends TestHelper with ShouldMatchers with IntraC
     }""")
     }
 
+    @Test def test_standard_reachingdefinitions_example2_optional() {
+        runExample( """
+      void foo(int x, int y) {
+        y = 3;
+        #ifdef A
+        y = 4;
+        #endif
+        x = y;
+    }""")
+    }
+
+    @Test def test_standard_reachingdefinitions_example2_alternative() {
+        runExample( """
+      void foo(int x, int y) {
+        #ifdef A
+        y = 3;
+        #else
+        y = 4;
+        #endif
+        x = y;
+    }""")
+    }
+
     @Test def test_standard_reachingdefinitions_example3() {
         runExample( """
       void foo(int x, int y, int z) {
