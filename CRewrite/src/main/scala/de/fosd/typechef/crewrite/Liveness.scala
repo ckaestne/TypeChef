@@ -4,8 +4,6 @@ import de.fosd.typechef.featureexpr._
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.typesystem.UseDeclMap
 
-import de.fosd.typechef.conditional.Opt
-
 // liveness analysis based on monotone framework
 // liveness computes all variables that are used before their next write
 //
@@ -43,8 +41,8 @@ class Liveness(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) extends MonotoneF
 
     // cf. http://www.cs.colostate.edu/~mstrout/CS553/slides/lecture03.pdf
     // page 5
-    //  in(n) = gen(n) + (out(n) - kill(n))
-    // out(n) = for s in succ(n) r = r + in(s); r
+    //  in(a) = gen(a) + (out(a) - kill(a))
+    // out(a) = for s in succ(n) r = r + in(s); r
     protected def incached(a: AST): L = f_lcached(a)
     protected def outcached(a: AST): L = combinatorcached(a)
 }

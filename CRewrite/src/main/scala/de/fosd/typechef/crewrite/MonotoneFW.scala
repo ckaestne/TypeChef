@@ -38,19 +38,24 @@ abstract class MonotoneFW[T](val env: ASTEnv, val fm: FeatureModel) extends Attr
     //          fresh means we use a new identifier that does not exist yet.
     // freshT2T is the reverse of t2FreshT
     private val t2FreshT = new java.util.IdentityHashMap[T, Set[T]]()
-    private val dId2Fresh = new java.util.IdentityHashMap[T, T]()
     private val freshT2T = new java.util.IdentityHashMap[T, T]()
 
-    // create fresh T elements that we use in our analysis
-    protected def createFresh(i: T) = {
-        if (!dId2Fresh.containsKey(i)) {
+    // due to shadowing and multiple types a single variable can have,
+    // we assign each variable a new identifier
+    // definition 2 fresh definition
+    private val dId2Freshd = new java.util.IdentityHashMap[T, T]()
+
+    // create a fresh definition for a given definition
+    protected def createFreshDefinition(i: T) = {
+        if (!dId2Freshd.containsKey(i)) {
             val nt = t2T(i)
-            dId2Fresh.put(i, nt)
+            dId2Freshd.put(i, nt)
         }
-        dId2Fresh.get(i)
+        dId2Freshd.get(i)
     }
 
-    protected def getFresh(i: T) = {
+    // add all fresh definitions of a given (usage) variable to the caches
+    protected def getFreshDefinitionFromUsage(i: T) = {
         if (!t2FreshT.containsKey(i)) {
             val nt = t2SetT(i)
             for (e <- nt)
@@ -60,13 +65,14 @@ abstract class MonotoneFW[T](val env: ASTEnv, val fm: FeatureModel) extends Attr
         t2FreshT.get(i)
     }
 
-    protected def addFreshT(i: T) = {
-        val nt = createFresh(i)
+    // add a fresh definition for a given "old" definition
+    protected def getFreshDefinition(i: T) = {
+        val nt = createFreshDefinition(i)
         freshT2T.put(nt, i)
         nt
     }
 
-    // get the original T element of a freshly created T element
+    // get the original T element
     protected def getOriginal(i: T) = freshT2T.get(i)
 
     // abstract function that creates the fresh T elements we use here
@@ -310,11 +316,11 @@ abstract class MonotoneFWId(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) exte
 
         if (udm.containsKey(i)) {
             for (vi <- udm.get(i)) {
-                freshidset = freshidset.+(createFresh(vi))
+                freshidset = freshidset.+(createFreshDefinition(vi))
             }
             freshidset
         } else {
-            Set(addFreshT(i))
+            Set(getFreshDefinition(i))
         }
     }
 
@@ -322,7 +328,7 @@ abstract class MonotoneFWId(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) exte
         var res = l
 
         for ((x, f) <- s)
-            for (n <- getFresh(x))
+            for (n <- getFreshDefinitionFromUsage(x))
                 res += ((n, f))
         res
     }
@@ -344,11 +350,11 @@ abstract class MonotoneFWIdLab(env: ASTEnv, fm: FeatureModel) extends MonotoneFW
 
     def t2T(i: PGT) = i
 
-    def t2SetT(i: PGT) = Set(addFreshT(i))
+    def t2SetT(i: PGT) = Set(getFreshDefinition(i))
 
     protected def createLFromSetT(s: L): L = {
         for ((x, _) <- s)
-            getFresh(x)
+            getFreshDefinitionFromUsage(x)
         s
     }
 }

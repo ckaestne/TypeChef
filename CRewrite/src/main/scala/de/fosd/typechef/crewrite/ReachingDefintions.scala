@@ -44,14 +44,14 @@ class ReachingDefintions(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: Feat
 
         def add2Caches(i: Id) = {
             cachePGT.update(i, (i, System.identityHashCode(i)))
-            getFresh(cachePGT.lookup(i).get)
+            getFreshDefinitionFromUsage(cachePGT.lookup(i).get)
 
             if (udm.containsKey(i))
                 for (x <- udm.get(i)) {
                     cachePGT.update(x, (x, System.identityHashCode(x)))
                     if (! isPartOf(x, f.stmt))
                         fvs += cachePGT.lookup(x).get
-                    getFresh(cachePGT.lookup(x).get)
+                    getFreshDefinitionFromUsage(cachePGT.lookup(x).get)
                 }
         }
 
@@ -105,11 +105,12 @@ class ReachingDefintions(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: Feat
     protected def F(e: AST) = flow(e)
 
     init(f)
-    println(fvs)
     protected val i = addAnnotations(fvs)
     protected def b = l
     protected def combinationOperator(l1: L, l2: L) = union(l1, l2)
 
+    //  in(a) = for p in pred(a) r = r + out(p)
+    // out(a) = gen(a) + (in(a) - kill(a))
     protected def incached(a: AST): L = combinatorcached(a)
     protected def outcached(a: AST): L = f_lcached(a)
 }
