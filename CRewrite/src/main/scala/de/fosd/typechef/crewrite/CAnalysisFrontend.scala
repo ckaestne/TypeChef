@@ -109,8 +109,7 @@ class CIntraAnalysisFrontend(tu: TranslationUnit, fm: FeatureModel = FeatureExpr
             val in = df.in(s)
 
             for (((i, _), h) <- in)
-                // ((t, _), _) => t == i ??
-                g.find(_._1._1 == i) match {
+                g.find { case ((t, _), _) => t == i } match {
                     case None =>
                     case Some(((x, _), _)) => {
                         val xdecls = udm.get(x)
