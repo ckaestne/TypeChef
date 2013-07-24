@@ -10,7 +10,7 @@ class DoubleFreeTest extends TestHelper with ShouldMatchers with CFGHelper with 
     // check freed pointers
     private def getFreedMem(code: String) = {
         val a = parseCompoundStmt(code)
-        val df = new DoubleFree(CASTEnv.createASTEnv(a), null, null, "")
+        val df = new DoubleFree(CASTEnv.createASTEnv(a), null, null, null, "")
         df.gen(a)
     }
 

@@ -97,20 +97,21 @@ class CIntraAnalysisFrontend(tu: TranslationUnit, fm: FeatureModel = FeatureExpr
         // Using the project's fm is too expensive since control
         // flow computation requires a lot of sat calls.
         // We use the proper fm in DoubleFree (see MonotoneFM).
-        val ss = getAllSucc(f, FeatureExprFactory.empty, env).reverse
+        val ss = getAllPred(f, FeatureExprFactory.empty, env)
+        val dum = ts.getDeclUseMap
         val udm = ts.getUseDeclMap
-        val df = new DoubleFree(env, udm, fm, casestudy)
+        val df = new DoubleFree(env, dum, udm, fm, casestudy)
 
         val nss = ss.map(_._1).filterNot(x => x.isInstanceOf[FunctionDef])
 
         for (s <- nss) {
             val g = df.gen(s)
-            val out = df.out(s)
+            val in = df.in(s)
 
-            for ((i, h) <- out)
-                g.find(_._1 == i) match {
+            for (((i, _), h) <- in)
+                g.find(_._1._1 == i) match {
                     case None =>
-                    case Some((x, _)) => {
+                    case Some(((x, _), _)) => {
                         val xdecls = udm.get(x)
                         var idecls = udm.get(i)
                         if (idecls == null)
