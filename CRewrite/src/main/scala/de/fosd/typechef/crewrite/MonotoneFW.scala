@@ -29,7 +29,7 @@ import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureModel, FeatureEx
 // env: ASTEnv; environment used for navigation in the AST during predecessor and
 //              successor determination
 // fm: FeatureModel; feature model used for filtering out false positives
-abstract class MonotoneFW[T](val env: ASTEnv, val fm: FeatureModel) extends AttributionBase with IntraCFG {
+sealed abstract class MonotoneFW[T](val env: ASTEnv, val fm: FeatureModel) extends AttributionBase with IntraCFG {
 
     // dataflow, such as identifiers (type Id) may have different declarations
     // (alternative types). so we track alternative elements here using two
@@ -80,10 +80,12 @@ abstract class MonotoneFW[T](val env: ASTEnv, val fm: FeatureModel) extends Attr
     // we create new Id using the freshTctr counter.
     protected def t2SetT(i: T): Set[T]
     protected def t2T(i: T): T
-    protected def createLFromSetT(s: L): L
 
-    protected val f_lcache = new IdentityHashMapCache[L]()
-    protected val combinatorcache = new IdentityHashMapCache[L]()
+    // map given elements from gen/kill to those elements maintained by the framework
+    protected def mapGenKillElements2MonotoneElements(s: L): L
+
+    private val f_lcache = new IdentityHashMapCache[L]()
+    private val combinatorcache = new IdentityHashMapCache[L]()
 
     // gen and kill function, will be implemented by the concrete dataflow class
     def gen(a: AST): L
@@ -229,9 +231,9 @@ abstract class MonotoneFW[T](val env: ASTEnv, val fm: FeatureModel) extends Attr
                 val k = kill(a)
 
                 var res = circle(a)
-                res = diff(res, createLFromSetT(k))
+                res = diff(res, mapGenKillElements2MonotoneElements(k))
 
-                res = union(res, createLFromSetT(g))
+                res = union(res, mapGenKillElements2MonotoneElements(g))
                 res
             }
         }
@@ -309,9 +311,9 @@ abstract class MonotoneFWId(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) exte
         freshTctr
     }
 
-    def t2T(i: Id) = Id(getFreshCtr + "_" + i.name)
+    protected def t2T(i: Id) = Id(getFreshCtr + "_" + i.name)
 
-    def t2SetT(i: Id) = {
+    protected def t2SetT(i: Id) = {
         var freshidset = Set[Id]()
 
         if (udm.containsKey(i)) {
@@ -324,7 +326,7 @@ abstract class MonotoneFWId(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) exte
         }
     }
 
-    protected def createLFromSetT(s: L): L = {
+    protected def mapGenKillElements2MonotoneElements(s: L): L = {
         var res = l
 
         for ((x, f) <- s)
@@ -348,13 +350,19 @@ abstract class MonotoneFWIdLab(env: ASTEnv, fm: FeatureModel) extends MonotoneFW
         res
     }
 
-    def t2T(i: PGT) = i
+    // all three functions do basically nothing, since the PGT (Id x its HashCode) input
+    // is already in a form (i.e., unique elements) that can be maintained by the monotone framework
+    protected def t2T(i: PGT) = i
 
-    def t2SetT(i: PGT) = Set(getFreshDefinition(i))
+    protected def t2SetT(i: PGT) = Set(getFreshDefinition(i))
 
-    protected def createLFromSetT(s: L): L = {
+    protected def mapGenKillElements2MonotoneElements(s: L): L = {
+        // we traverse the input so all elements from s are added
+        // to our internal cache t2FreshT
         for ((x, _) <- s)
             getFreshDefinitionFromUsage(x)
+
+        // the output remains the same
         s
     }
 }
