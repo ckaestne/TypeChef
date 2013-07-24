@@ -3,7 +3,7 @@ package de.fosd.typechef.crewrite
 import org.kiama.attribution.AttributionBase
 
 import de.fosd.typechef.parser.c._
-import de.fosd.typechef.typesystem.{DeclUseMap, UseDeclMap}
+import de.fosd.typechef.typesystem.UseDeclMap
 import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureModel, FeatureExpr}
 
 // this abstract class provides a standard implementation of
@@ -165,7 +165,7 @@ abstract class MonotoneFW[T](val env: ASTEnv, val fm: FeatureModel) extends Attr
     // i.e., FunctionDef is the "last" and the "first" element (label) in flow resp. flowR (see F definition)
     private type E = FunctionDef
 
-    // extremal value for all elements of E
+    // extremal value for E
     protected val i: L
 
     // bottom element of our lattice ⊥; we can't use ⊥ as a variable name
@@ -204,12 +204,12 @@ abstract class MonotoneFW[T](val env: ASTEnv, val fm: FeatureModel) extends Attr
     protected val combinator: AST => L = {
         circular[AST, L](b) {
             case _: E => i
-            case l => {
-                val fl = F(l)
+            case a => {
+                val fl = F(a)
 
                 var res = b
                 for (s <- fl)
-                    res = combinationOperator(res, circle(s.entry))
+                    res = combinationOperator(res, point(s.entry))
                 res
             }
         }
@@ -220,11 +220,11 @@ abstract class MonotoneFW[T](val env: ASTEnv, val fm: FeatureModel) extends Attr
     protected val f_l: AST => L = {
         circular[AST, L](b) {
             case _: E => i
-            case l => {
-                val g = gen(l)
-                val k = kill(l)
+            case a => {
+                val g = gen(a)
+                val k = kill(a)
 
-                var res = point(l)
+                var res = circle(a)
                 res = diff(res, createLFromSetT(k))
 
                 res = union(res, createLFromSetT(g))
@@ -246,11 +246,8 @@ abstract class MonotoneFW[T](val env: ASTEnv, val fm: FeatureModel) extends Attr
     }
 
     def out(a: AST) = {
-        val o = entrycache(a)
+        val o = exitcache(a)
         var res = List[(T, FeatureExpr)]()
-        println("o: " + o)
-        println("freshT2T: " + freshT2T)
-        println("t2FreshT: " + t2FreshT)
         for ((x, f) <- o) {
             val orig = getOriginal(x)
             res = (orig, f) :: res
@@ -271,7 +268,7 @@ abstract class MonotoneFW[T](val env: ASTEnv, val fm: FeatureModel) extends Attr
     }
 
     def in(a: AST) = {
-        val o = exitcache(a)
+        val o = entrycache(a)
         var res = List[(T, FeatureExpr)]()
 
         for ((x, f) <- o) {

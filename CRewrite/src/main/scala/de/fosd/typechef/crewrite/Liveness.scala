@@ -47,6 +47,6 @@ class Liveness(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) extends MonotoneF
     // so circle concerns exit conditions
     // and point concerns entry conditions
     protected def F(e: AST) = flowR(e)
-    protected def circle(e: AST) = exitcache(e)
-    protected def point(e: AST) = entrycache(e)
+    protected def circle(e: AST) = entrycache(e)
+    protected def point(e: AST) = exitcache(e)
 }
