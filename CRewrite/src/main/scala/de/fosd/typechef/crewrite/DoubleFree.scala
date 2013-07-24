@@ -29,16 +29,16 @@ import de.fosd.typechef.featureexpr.FeatureModel
 // openssl: OPENSSL_free (actually CRYPTO_free; OPENSSL_free is a CPP macro)
 //
 // instance of the monotone framework
-// similar to liveness computation: we check whether the variable passed to free, lives out to another free call
-// assignments in between kill our gen property of a call to free
-// L  = P(Var*)
+// similar to reaching definition computation: we check whether the variable passed to free is
+// a "reach in" from another free call.
+// L  = P(Var* x Lab*)
 // ⊑  = ⊆             // see MonotoneFW
 // ∐  = ⋃             // combinationOperator
 // ⊥  = ∅             // b
 // i  = ∅             // is empty because we are only interested in free/realloc and assignments
 // E  = {FunctionDef} // see MonotoneFW
 // F  = flow
-class DoubleFree(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: FeatureModel, casestudy: String) extends MonotoneFWIdLab(env, fm) with IntraCFG with CFGHelper with ASTNavigation {
+class DoubleFree(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: FeatureModel, f: FunctionDef, casestudy: String) extends MonotoneFWIdLab(env, fm) with IntraCFG with CFGHelper with ASTNavigation {
 
     val freecalls = {
         if (casestudy == "linux") List("free", "kfree")
@@ -50,30 +50,34 @@ class DoubleFree(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: FeatureModel
     // is is crucial for the computations within the monotone framework
     private val cachePGT = new IdentityHashMapCache[PGT]()
 
-    // Returns a set of Ids that have been reassigned with a new memory location.
-    // We don't go for calls to standard memory allocation functions, such as
-    // calloc, malloc, and realloc, since we do get a lot of false positives, when
-    // neglecting reassignments. It doesn't matter where the pointer allocation comes
-    // from, we only care about double freeing.
-    def kill(a: AST): L = {
-        var res = l
-        val mempointers = manytd(query {
-            case AssignExpr(target@Id(_), "=", _) => {
-                if (cachePGT.lookup(target).isEmpty)
-                    cachePGT.update(target, (target, System.identityHashCode(target)))
-                res += ((cachePGT.lookup(target).get, env.featureExpr(target)))
+    private def init(f: FunctionDef) = {
+        for (k <- getRelevantKillIds(f.stmt)) cachePGT.update(k, (k, System.identityHashCode(k)))
+        for (g <- getRelevantGenIds(f.stmt)) cachePGT.update(g, (g, System.identityHashCode(g)))
+    }
+
+    private def getRelevantKillIds(a: AST): List[Id] = {
+        var res = List[Id]()
+        val assignments = manytd(query {
+            case AssignExpr(target: Id, "=", _) => {
+                res ::= target
+
+                if (udm.containsKey(target)) {
+                    for (td <- udm.get(target)) {
+                        res ::= td
+                        if (dum.containsKey(td))
+                            for (tu <- dum.get(td))
+                                res ::= tu
+                    }
+                }
             }
         })
 
-        mempointers(a)
+        assignments(a)
         res
     }
 
-    // returns a list of Ids with names of variables that a freed
-    // by call to free or realloc
-    // using the terminology of liveness we return pointers that have that are in use
-    def gen(a: AST): L = {
-        var res = l
+    private def getRelevantGenIds(a: AST): List[Id] = {
+        var res = List[Id]()
 
         // add a free target independent of & and *
         def addFreeTarget(e: Expr) {
@@ -81,9 +85,7 @@ class DoubleFree(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: FeatureModel
             val sp = filterAllASTElems[PointerPostfixSuffix](e)
             if (!sp.isEmpty) {
                 for (spe <- filterAllASTElems[Id](sp.reverse.head)) {
-                    if (cachePGT.lookup(spe).isEmpty)
-                        cachePGT.update(spe, (spe, System.identityHashCode(spe)))
-                    res += ((cachePGT.lookup(spe).get, env.featureExpr(spe)))
+                    res ::= spe
                 }
 
                 return
@@ -97,7 +99,7 @@ class DoubleFree(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: FeatureModel
                         case PostfixExpr(i: Id, ArrayAccess(_)) => {
                             if (cachePGT.lookup(i).isEmpty)
                                 cachePGT.update(i, (i, System.identityHashCode(i)))
-                            res += ((cachePGT.lookup(i).get, env.featureExpr(i)))
+                            res ::= i
                         }
                         case _ =>
                     }
@@ -112,7 +114,7 @@ class DoubleFree(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: FeatureModel
             for (ni <- fp) {
                 if (cachePGT.lookup(ni).isEmpty)
                     cachePGT.update(ni, (ni, System.identityHashCode(ni)))
-                res += ((cachePGT.lookup(ni).get, env.featureExpr(ni)))
+                res ::= ni
             }
         }
 
@@ -133,7 +135,7 @@ class DoubleFree(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: FeatureModel
                 for (ni <- filterAllASTElems[Id](l.exprs.head.entry)) {
                     if (cachePGT.lookup(ni).isEmpty)
                         cachePGT.update(ni, (ni, System.identityHashCode(ni)))
-                    res += ((cachePGT.lookup(ni).get, env.featureExpr(ni)))
+                    res ::= ni
                 }
 
                 for (ce <- l.exprs.tail) {
@@ -144,7 +146,7 @@ class DoubleFree(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: FeatureModel
                         for (ni <- filterAllASTElems[Id](ce.entry)) {
                             if (cachePGT.lookup(ni).isEmpty)
                                 cachePGT.update(ni, (ni, System.identityHashCode(ni)))
-                            res += ((cachePGT.lookup(ni).get, env.featureExpr(ni)))
+                            res ::= ni
                         }
                         actx ::= ce.feature
                     } else {
@@ -170,8 +172,25 @@ class DoubleFree(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: FeatureModel
         res
     }
 
+    def kill(a: AST): L = {
+        var res = l
+
+        for (k <- getRelevantKillIds(a)) res += ((cachePGT.lookup(k).get, env.featureExpr(k)))
+        res
+    }
+
+    // returns a list of Ids with names of variables that a freed
+    // by call to free or realloc
+    def gen(a: AST): L = {
+        var res = l
+
+        for (g <- getRelevantGenIds(a)) res += ((cachePGT.lookup(g).get, env.featureExpr(g)))
+        res
+    }
+
     protected def F(e: AST) = flow(e)
 
+    init(f)
     protected val i = l
     protected def b = l
     protected def combinationOperator(l1: L, l2: L) = union(l1, l2)

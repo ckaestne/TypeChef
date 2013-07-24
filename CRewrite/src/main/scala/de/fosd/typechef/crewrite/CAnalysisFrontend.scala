@@ -23,7 +23,6 @@ sealed abstract class CAnalysisFrontend(tu: TranslationUnit, fm: FeatureModel, o
     protected def ts: CTypeSystemFrontend with CTypeCache with CDeclUse = {
         if (tsi == null) {
             // TODO we always have to enable CTypeCache and CDeclUse, although the selected analyses (see opt) do not use them
-            //
             tsi = new CTypeSystemFrontend(tunit, fm) with CTypeCache with CDeclUse
             assert(tsi.checkASTSilent, "typecheck fails!")
             tsi
@@ -100,7 +99,7 @@ class CIntraAnalysisFrontend(tu: TranslationUnit, fm: FeatureModel = FeatureExpr
         val ss = getAllPred(f, FeatureExprFactory.empty, env)
         val dum = ts.getDeclUseMap
         val udm = ts.getUseDeclMap
-        val df = new DoubleFree(env, dum, udm, fm, casestudy)
+        val df = new DoubleFree(env, dum, udm, fm, f, casestudy)
 
         val nss = ss.map(_._1).filterNot(x => x.isInstanceOf[FunctionDef])
 
