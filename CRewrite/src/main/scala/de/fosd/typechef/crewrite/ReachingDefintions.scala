@@ -34,33 +34,25 @@ class ReachingDefintions(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: Feat
     private val cachePGT = new IdentityHashMapCache[PGT]()
     private var fvs = Set[PGT]()
 
-
     private def init(f: FunctionDef) = {
+
+        def add2Caches(i: Id) = {
+            cachePGT.update(i, (i, System.identityHashCode(i)))
+            getFresh(cachePGT.lookup(i).get)
+
+            if (udm.containsKey(i))
+                for (x <- udm.get(i)) {
+                    cachePGT.update(x, (x, System.identityHashCode(x)))
+                    if (! isPartOf(x, f.stmt))
+                        fvs += cachePGT.lookup(x).get
+                    getFresh(cachePGT.lookup(x).get)
+                }
+        }
+
         val getdefs = manytd( query {
-            case AssignExpr(i: Id, "=", _) => {
-                cachePGT.update(i, (i, System.identityHashCode(i)))
-                getFresh(cachePGT.lookup(i).get)
-
-                if (udm.containsKey(i))
-                    for (x <- udm.get(i)) {
-                        cachePGT.update(x, (x, System.identityHashCode(x)))
-                        if (! isPartOf(x, f.stmt))
-                            fvs += cachePGT.lookup(x).get
-                        getFresh(cachePGT.lookup(x).get)
-                    }
-            }
-            case InitDeclaratorI(AtomicNamedDeclarator(_, i: Id, _), _, _) => {
-                cachePGT.update(i, (i, System.identityHashCode(i)))
-                getFresh(cachePGT.lookup(i).get)
-
-                if (udm.containsKey(i))
-                    for (x <- udm.get(i)) {
-                        cachePGT.update(x, (x, System.identityHashCode(x)))
-                        if (! isPartOf(x, f.stmt))
-                            fvs += cachePGT.lookup(x).get
-                        getFresh(cachePGT.lookup(x).get)
-                    }
-            }
+            case AssignExpr(PointerDerefExpr(i: Id), "=", _) => add2Caches(i)
+            case AssignExpr(i: Id, "=", _) => add2Caches(i)
+            case InitDeclaratorI(AtomicNamedDeclarator(_, i: Id, _), _, _) => add2Caches(i)
         })
 
         getdefs(f)
@@ -78,6 +70,8 @@ class ReachingDefintions(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: Feat
                         if (cachePGT.lookup(u).isDefined && !d.eq(u))
                             res += ((cachePGT.lookup(u).get, env.featureExpr(d)))
                 }
+            } else {
+                res += ((cachePGT.lookup(d).get, env.featureExpr(d)))
             }
         }
         res
@@ -86,7 +80,6 @@ class ReachingDefintions(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: Feat
     protected def F(e: AST) = flow(e)
 
     init(f)
-    println(fvs)
     protected val i = addAnnotations(fvs)
     protected def b = l
     protected def combinationOperator(l1: L, l2: L) = union(l1, l2)
