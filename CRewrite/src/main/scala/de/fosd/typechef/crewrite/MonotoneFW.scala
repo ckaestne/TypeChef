@@ -83,6 +83,13 @@ sealed abstract class MonotoneFW[T](val env: ASTEnv, val fm: FeatureModel) exten
 
     // map given elements from gen/kill to those elements maintained by the framework
     protected def mapGenKillElements2MonotoneElements(s: L): L
+    private def updateFeatureExprOfMonotoneElements(s: L, f: FeatureExpr): L = {
+        var res = l
+
+        for ((x, of) <- s)
+            res += ((x, of and f))
+        res
+    }
 
     private val f_lcache = new IdentityHashMapCache[L]()
     private val combinatorcache = new IdentityHashMapCache[L]()
@@ -216,8 +223,14 @@ sealed abstract class MonotoneFW[T](val env: ASTEnv, val fm: FeatureModel) exten
                 val fl = F(a)
 
                 var res = b
-                for (s <- fl)
-                    res = combinationOperator(res, point(s.entry))
+
+                // propagate flow condition to current result elements and combine them using
+                // combinationOperator
+                for (s <- fl) {
+                    val x = updateFeatureExprOfMonotoneElements(point(s.entry), s.feature)
+                    res = combinationOperator(res, x)
+                }
+
                 res
             }
         }
