@@ -311,10 +311,10 @@ abstract class MonotoneFWId(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) exte
         freshTctr
     }
 
-    protected def t2T(i: Id) = Id(getFreshCtr + "_" + i.name)
+    protected def t2T(i: PGT) = Id(getFreshCtr + "_" + i.name)
 
-    protected def t2SetT(i: Id) = {
-        var freshidset = Set[Id]()
+    protected def t2SetT(i: PGT) = {
+        var freshidset = Set[PGT]()
 
         if (udm.containsKey(i)) {
             for (vi <- udm.get(i)) {
