@@ -92,4 +92,7 @@ class UninitializedMemory(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) extend
     protected val i = l
     protected def b = l
     protected def combinationOperator(l1: L, l2: L) = union(l1, l2)
+
+    protected def incache(a: AST): L = f_lcached(a)
+    protected def outcache(a: AST): L = combinatorcached(a)
 }

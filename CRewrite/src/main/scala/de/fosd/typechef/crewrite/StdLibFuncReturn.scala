@@ -136,6 +136,12 @@ abstract class StdLibFuncReturn(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) 
     protected val i = l
     protected def b = l
     protected def combinationOperator(l1: L, l2: L) = union(l1, l2)
+
+    protected def circle(e: AST) = combinatorcached(e)
+    protected def point(e: AST) = f_lcached(e)
+
+    protected def incache(a: AST): L = f_lcached(a)
+    protected def outcache(a: AST): L = combinatorcached(a)
 }
 
 class StdLibFuncReturn_Null(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) extends StdLibFuncReturn(env, udm, fm) {

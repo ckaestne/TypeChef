@@ -76,9 +76,8 @@ abstract class MonotoneFW[T](val env: ASTEnv, val fm: FeatureModel) extends Attr
     protected def t2T(i: T): T
     protected def createLFromSetT(s: L): L
 
-
-    protected val exitcache = new IdentityHashMapCache[L]()
-    protected val entrycache = new IdentityHashMapCache[L]()
+    protected val f_lcache = new IdentityHashMapCache[L]()
+    protected val combinatorcache = new IdentityHashMapCache[L]()
 
     // gen and kill function, will be implemented by the concrete dataflow class
     def gen(a: AST): L
@@ -198,8 +197,8 @@ abstract class MonotoneFW[T](val env: ASTEnv, val fm: FeatureModel) extends Attr
     //    x++;          | flow           | flowR
     //          exit    ∨  ●             |  ○
     // circle and point use entrycache and exitcache for efficiency reasons
-    protected def circle(e: AST): L
-    protected def point(e: AST): L
+    protected def circle(e: AST): L = combinatorcached(e)
+    protected def point(e: AST): L = f_lcached(e)
 
     protected val combinator: AST => L = {
         circular[AST, L](b) {
@@ -232,12 +231,12 @@ abstract class MonotoneFW[T](val env: ASTEnv, val fm: FeatureModel) extends Attr
     }
 
     // using caching for efficiency
-    protected def entrycache(a: AST): L = {
-        entrycache.lookup(a) match {
+    protected def combinatorcached(a: AST): L = {
+        combinatorcache.lookup(a) match {
             case Some(v) => v
             case None => {
                 val r = combinator(a)
-                entrycache.update(a, r)
+                combinatorcache.update(a, r)
                 r
             }
         }
@@ -256,12 +255,12 @@ abstract class MonotoneFW[T](val env: ASTEnv, val fm: FeatureModel) extends Attr
         res.distinct.filter(_._2.isSatisfiable(fm))
     }
 
-    protected def exitcache(a: AST): L = {
-        exitcache.lookup(a) match {
+    protected def f_lcached(a: AST): L = {
+        f_lcache.lookup(a) match {
             case Some(v) => v
             case None => {
                 val r = f_l(a)
-                exitcache.update(a, r)
+                f_lcache.update(a, r)
                 r
             }
         }
@@ -325,12 +324,6 @@ abstract class MonotoneFWId(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) exte
                 res += ((n, f))
         res
     }
-
-    protected def circle(e: AST) = entrycache(e)
-    protected def point(e: AST) = exitcache(e)
-
-    protected def incache(a: AST): L = exitcache(a)
-    protected def outcache(a: AST): L = entrycache(a)
 }
 
 // specialization of MonotoneFW for Ids with Labels (Var x Lab)
@@ -356,12 +349,6 @@ abstract class MonotoneFWIdLab(env: ASTEnv, fm: FeatureModel) extends MonotoneFW
             getFresh(x)
         s
     }
-
-    protected def circle(e: AST) = entrycache(e)
-    protected def point(e: AST) = exitcache(e)
-
-    protected def incache(a: AST): L = entrycache(a)
-    protected def outcache(a: AST): L = exitcache(a)
 }
 
 class IdentityHashMapCache[A] {

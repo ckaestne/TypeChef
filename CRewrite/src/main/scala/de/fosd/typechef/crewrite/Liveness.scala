@@ -22,8 +22,8 @@ import de.fosd.typechef.conditional.Opt
 // i  = ∅
 // E  = {FunctionDef} // see MonotoneFW
 // F  = flowR
-// Analysis_○ = exit
-// Analysis_● = entry
+// Analysis_○ = combinator
+// Analysis_● = f_l
 class Liveness(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) extends MonotoneFWId(env, udm, fm) with IntraCFG with UsedDefinedDeclaredVariables {
 
     // returns all declared variables with their annotation
@@ -47,4 +47,7 @@ class Liveness(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) extends MonotoneF
     // so circle concerns exit conditions
     // and point concerns entry conditions
     protected def F(e: AST) = flowR(e)
+
+    protected def incache(a: AST): L = f_lcached(a)
+    protected def outcache(a: AST): L = combinatorcached(a)
 }
