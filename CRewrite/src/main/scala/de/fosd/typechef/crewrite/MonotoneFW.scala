@@ -325,6 +325,12 @@ abstract class MonotoneFWId(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) exte
                 res += ((n, f))
         res
     }
+
+    protected def circle(e: AST) = entrycache(e)
+    protected def point(e: AST) = exitcache(e)
+
+    protected def incache(a: AST): L = exitcache(a)
+    protected def outcache(a: AST): L = entrycache(a)
 }
 
 // specialization of MonotoneFW for Ids with Labels (Var x Lab)
@@ -350,6 +356,12 @@ abstract class MonotoneFWIdLab(env: ASTEnv, fm: FeatureModel) extends MonotoneFW
             getFresh(x)
         s
     }
+
+    protected def circle(e: AST) = entrycache(e)
+    protected def point(e: AST) = exitcache(e)
+
+    protected def incache(a: AST): L = entrycache(a)
+    protected def outcache(a: AST): L = exitcache(a)
 }
 
 class IdentityHashMapCache[A] {

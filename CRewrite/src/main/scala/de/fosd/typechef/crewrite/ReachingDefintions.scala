@@ -84,15 +84,10 @@ class ReachingDefintions(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: Feat
     }
 
     protected def F(e: AST) = flow(e)
-    protected def circle(e: AST) = entrycache(e)
-    protected def point(e: AST) = exitcache(e)
 
     init(f)
     println(fvs)
     protected val i = addAnnotations(fvs)
     protected def b = l
     protected def combinationOperator(l1: L, l2: L) = union(l1, l2)
-
-    protected def incache(a: AST): L = entrycache(a)
-    protected def outcache(a: AST): L = exitcache(a)
 }
