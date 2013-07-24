@@ -72,7 +72,7 @@ class ReachingDefintions(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: Feat
     // gen(d: y = f(x_1, ..., x_n) = {d}
     def gen(a: AST) = addAnnotations(defines(a).flatMap(cachePGT.lookup))
 
-    // get all definitions that are killed in a; requires global knowledge of the function;
+    // get all definitions that are killed in a; requires global knowledge of the function (defs(y));
     // to do so, we get all definitions in a, get their declarations and all possible usages,
     // finally, we get their tuples from the cache
     // kill(d: y = f(x_1, ..., x_n) = defs(y) \ {d}
@@ -84,7 +84,7 @@ class ReachingDefintions(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: Feat
             // get all declarations of a definition, ...
             if (udm.containsKey(d)) {
                 for (de <- udm.get(d)) {
-                    // ... add it to the result set, ...
+                    // ... add it to the result set, ... defs(y)
                     res += ((cachePGT.lookup(de).get, env.featureExpr(d)))
 
                     // ... and traverse all usages of the declaration and add it to the result set.
