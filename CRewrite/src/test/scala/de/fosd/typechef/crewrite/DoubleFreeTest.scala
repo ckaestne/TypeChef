@@ -84,6 +84,23 @@ class DoubleFreeTest extends TestHelper with ShouldMatchers with CFGHelper with 
         getFreedMem( """ { free(a[i]->b); }""".stripMargin) should be(Map(Id("b") -> FeatureExprFactory.True))
     }
 
+    @Test def test_shadowing() {
+        doubleFree( """
+              void* malloc(int i) { return ((void*)0); }
+              void free(void* p) { }
+              void foo() {
+                  int *a = malloc(2);
+                  if (a) {
+                    #ifdef A
+                    int *a = malloc(3);
+                    #endif
+                    free(a);
+                  }
+                  free(a);  // diagnostic
+              }
+                    """.stripMargin) should be(false)
+    }
+
     @Test def test_double_free_simple() {
         doubleFree( """
               void* malloc(int i) { return ((void*)0); }
