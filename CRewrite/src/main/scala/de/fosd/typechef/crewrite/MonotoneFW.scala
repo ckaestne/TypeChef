@@ -215,8 +215,6 @@ abstract class MonotoneFW[T](val env: ASTEnv, val fm: FeatureModel) extends Attr
         }
     }
 
-
-
     protected val f_l: AST => L = {
         circular[AST, L](b) {
             case _: E => i
@@ -245,8 +243,10 @@ abstract class MonotoneFW[T](val env: ASTEnv, val fm: FeatureModel) extends Attr
         }
     }
 
+    protected def outcache(a: AST): L
+
     def out(a: AST) = {
-        val o = exitcache(a)
+        val o = outcache(a)
         var res = List[(T, FeatureExpr)]()
         for ((x, f) <- o) {
             val orig = getOriginal(x)
@@ -267,8 +267,9 @@ abstract class MonotoneFW[T](val env: ASTEnv, val fm: FeatureModel) extends Attr
         }
     }
 
+    protected def incache(a: AST): L
     def in(a: AST) = {
-        val o = entrycache(a)
+        val o = incache(a)
         var res = List[(T, FeatureExpr)]()
 
         for ((x, f) <- o) {

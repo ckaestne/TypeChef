@@ -183,4 +183,7 @@ class XFree(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel, casestudy: String) e
 
     protected def circle(e: AST) = exitcache(e)
     protected def point(e: AST) = entrycache(e)
+
+    protected def incache(a: AST): L = exitcache(a)
+    protected def outcache(a: AST): L = entrycache(a)
 }

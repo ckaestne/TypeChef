@@ -92,4 +92,7 @@ class ReachingDefintions(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: Feat
     protected val i = addAnnotations(fvs)
     protected def b = l
     protected def combinationOperator(l1: L, l2: L) = union(l1, l2)
+
+    protected def incache(a: AST): L = entrycache(a)
+    protected def outcache(a: AST): L = exitcache(a)
 }

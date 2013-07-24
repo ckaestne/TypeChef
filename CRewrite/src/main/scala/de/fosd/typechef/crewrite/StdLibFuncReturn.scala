@@ -139,6 +139,9 @@ abstract class StdLibFuncReturn(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) 
 
     protected def circle(e: AST) = exitcache(e)
     protected def point(e: AST) = entrycache(e)
+
+    protected def incache(a: AST): L = exitcache(a)
+    protected def outcache(a: AST): L = entrycache(a)
 }
 
 class StdLibFuncReturn_Null(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) extends StdLibFuncReturn(env, udm, fm) {
