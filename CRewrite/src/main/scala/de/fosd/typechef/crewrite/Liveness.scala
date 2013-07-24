@@ -9,11 +9,6 @@ import de.fosd.typechef.conditional.Opt
 // liveness analysis based on monotone framework
 // liveness computes all variables that are used before their next write
 //
-// cf. http://www.cs.colostate.edu/~mstrout/CS553/slides/lecture03.pdf
-// page 5
-//  in(n) = gen(n) + (out(n) - kill(n))
-// out(n) = for s in succ(n) r = r + in(s); r
-//
 // instance of the liveness analysis using the monotone framework
 // L  = P(Var*)
 // ⊑  = ⊆             // see MonotoneFW
@@ -22,8 +17,6 @@ import de.fosd.typechef.conditional.Opt
 // i  = ∅
 // E  = {FunctionDef} // see MonotoneFW
 // F  = flowR
-// Analysis_○ = combinator
-// Analysis_● = f_l
 class Liveness(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) extends MonotoneFWId(env, udm, fm) with IntraCFG with UsedDefinedDeclaredVariables {
 
     // returns all declared variables with their annotation
@@ -48,6 +41,10 @@ class Liveness(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) extends MonotoneF
     // and point concerns entry conditions
     protected def F(e: AST) = flowR(e)
 
-    protected def incache(a: AST): L = f_lcached(a)
-    protected def outcache(a: AST): L = combinatorcached(a)
+    // cf. http://www.cs.colostate.edu/~mstrout/CS553/slides/lecture03.pdf
+    // page 5
+    //  in(n) = gen(n) + (out(n) - kill(n))
+    // out(n) = for s in succ(n) r = r + in(s); r
+    protected def incached(a: AST): L = f_lcached(a)
+    protected def outcached(a: AST): L = combinatorcached(a)
 }

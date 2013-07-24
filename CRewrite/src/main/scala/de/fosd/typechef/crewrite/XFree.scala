@@ -181,6 +181,6 @@ class XFree(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel, casestudy: String) e
     protected def b = Map[Id, FeatureExpr]()
     protected def combinationOperator(l1: L, l2: L) = union(l1, l2)
 
-    protected def incache(a: AST): L = f_lcached(a)
-    protected def outcache(a: AST): L = combinatorcached(a)
+    protected def incached(a: AST): L = f_lcached(a)
+    protected def outcached(a: AST): L = combinatorcached(a)
 }

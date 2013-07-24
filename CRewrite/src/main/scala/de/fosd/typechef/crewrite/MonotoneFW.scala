@@ -189,14 +189,15 @@ abstract class MonotoneFW[T](val env: ASTEnv, val fm: FeatureModel) extends Attr
     // ∐ is either ⋃ (n-ary union) or ⋂ (n-ary intersection) and has to be defined by the analysis instance
     protected def combinationOperator(l1: L, l2: L): L
 
-    // depending on the kind of analysis circle and point are defined in a different way
-    // forward analysis: F is flow; Analysis_○ (circle) concerns entry conditions; Analysis_● concerns exit conditions
-    // backward analysis: F is flowR; Analysis_○ (circle) concerns exit conditions; Analysis_● concerns entry conditions
-    // flow is always from ○ to ●; and therefore we map entry/exit (which are fix) either to ○ or ●
-    //          entry   |  ○             ∧  ●
-    //    x++;          | flow           | flowR
-    //          exit    ∨  ●             |  ○
-    // circle and point use entrycache and exitcache for efficiency reasons
+    // depending on the analysis in and out are defined differently, although they always represent the
+    // results before a CFG statement resp. after a CFG statement
+    // forward analysis: F is flow (results flow from predecessor to successor elements)
+    // backward analysis: F is flowR (results flow from successor to predecessor elements)
+    // the side (in/out) at which the flow function is called also calls combinator (we merge results)
+    // the remaining side calls f_l
+    //      in          |      (combinator)  ∧       (f_l)
+    //    x++;          | flow (pred)        | flowR (succ)
+    //      out         ∨      (f_l)         |       (combinator)
     protected def circle(e: AST): L = combinatorcached(e)
     protected def point(e: AST): L = f_lcached(e)
 
@@ -242,10 +243,10 @@ abstract class MonotoneFW[T](val env: ASTEnv, val fm: FeatureModel) extends Attr
         }
     }
 
-    protected def outcache(a: AST): L
+    protected def outcached(a: AST): L
 
     def out(a: AST) = {
-        val o = outcache(a)
+        val o = outcached(a)
         var res = List[(T, FeatureExpr)]()
         for ((x, f) <- o) {
             val orig = getOriginal(x)
@@ -266,9 +267,10 @@ abstract class MonotoneFW[T](val env: ASTEnv, val fm: FeatureModel) extends Attr
         }
     }
 
-    protected def incache(a: AST): L
+    protected def incached(a: AST): L
+
     def in(a: AST) = {
-        val o = incache(a)
+        val o = incached(a)
         var res = List[(T, FeatureExpr)]()
 
         for ((x, f) <- o) {
