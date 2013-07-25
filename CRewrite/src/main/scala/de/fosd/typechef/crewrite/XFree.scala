@@ -3,8 +3,8 @@ package de.fosd.typechef.crewrite
 import org.kiama.rewriting.Rewriter._
 
 import de.fosd.typechef.parser.c._
-import de.fosd.typechef.typesystem.UseDeclMap
-import de.fosd.typechef.featureexpr.{FeatureExpr, FeatureModel}
+import de.fosd.typechef.typesystem.{DeclUseMap, UseDeclMap}
+import de.fosd.typechef.featureexpr.FeatureModel
 
 // implements a simple analysis of freeing memory that was not dynamically allocated
 // https://www.securecoding.cert.org/confluence/display/seccode/MEM34-C.+Only+free+memory+allocated+dynamically
@@ -15,77 +15,74 @@ import de.fosd.typechef.featureexpr.{FeatureExpr, FeatureModel}
 //     so the analysis will likely produce a lot
 //     of false positives
 //
-// Should be rewritten to a ReachingDefinition problem.
-// the properties specified below do not match one of the MonotoneFW instances in [NNH99] so far.
-// However, the analysis works for the simple examples written in UninitializedMemoryTest.scala
-// instance of the monotone framework
-// L  = P(Var*)
-// ⊑  = ⊆             // see MonotoneFW
+// L  = P((Var* x Lab*))
+// ⊑  = ⊆            // see MonotoneFW
 // ∐  = ⋃            // combinationOperator
-// ⊥  = ∅             // b
-// i  = ∅             // should be {(x,?)|x ∈ FV(S*)}
+// ⊥  = ∅            // b
+// i  = ∅            // should be {(x,?)|x ∈ FV(S*)}
 // E  = {FunctionDef} // see MonotoneFW
 // F  = flow
-// Analysis_○ = exit  // should be entry
-// Analysis_● = entry // should be exit
-class XFree(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel, casestudy: String) extends MonotoneFWId(env, udm, fm) with IntraCFG with CFGHelper with ASTNavigation with UsedDefinedDeclaredVariables {
+class XFree(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: FeatureModel, f: FunctionDef, casestudy: String) extends MonotoneFWIdLab(env, fm) with IntraCFG with CFGHelper with ASTNavigation with UsedDefinedDeclaredVariables {
 
-    val freecalls = {
+    // we store PGT elements in a cache so we can return each time the same PGT elements
+    // is is crucial for the computations within the monotone framework
+    private val cachePGT = new IdentityHashMapCache[PGT]()
+
+    private val freecalls = {
         if (casestudy == "linux") List("free", "kfree")
         else if (casestudy == "openssl") List("free", "CRYPTO_free")
         else List("free")
     }
 
-    val memcalls = {
+    private val memcalls = {
         if (casestudy == "linux") List("malloc", "kmalloc")
         else List("malloc")
     }
 
+    private def init(f: FunctionDef) = {
+        for (k <- getRelevantKillIds(f.stmt)) cachePGT.update(k, (k, System.identityHashCode(k)))
+        for (g <- getRelevantGenIds(f.stmt)) cachePGT.update(g, (g, System.identityHashCode(g)))
+    }
+
     // get all declared variables without an initialization
-    def gen(a: AST): L = {
-        var res = Set[Id]()
+    private def getRelevantGenIds(a: AST): List[Id] = {
+        var res = List[Id]()
         val variables = manytd(query {
-            case InitDeclaratorI(AtomicNamedDeclarator(_, i: Id, _), _, None) => res += i
+            case InitDeclaratorI(AtomicNamedDeclarator(_, i: Id, _), _, None) => res ::= i
             case InitDeclaratorI(AtomicNamedDeclarator(_, i: Id, _), _, Some(initializer)) => {
                 val pmallocs = filterASTElems[PostfixExpr](initializer)
 
-                if (pmallocs.isEmpty) res += i
-                else pmallocs.map(pe => {
-                    pe match {
-                        case PostfixExpr(m@Id(_), _) if memcalls.contains(m.name) =>
-                            if (env.featureExpr(m) equivalentTo env.featureExpr(i)) {}
-                            else {
-                                res += i
-                            }
-                    }
-                })
+                if (pmallocs.isEmpty) res ::= i
+                else pmallocs.map {
+                    case PostfixExpr(m: Id, _) if memcalls.contains(m.name) =>
+                        if (env.featureExpr(m) equivalentTo env.featureExpr(i)) {}
+                        else res ::= i
+                }
             }
         })
 
         variables(a)
-        addAnnotations(res)
+        res
     }
 
     // get variables that get an assignment with malloc
-    def kill(a: AST): L = {
-        var res = Set[Id]()
+    private def getRelevantKillIds(a: AST): List[Id] = {
+        var res = List[Id]()
         val assignments = manytd(query {
-            case AssignExpr(target@Id(_), "=", source) => {
+            case AssignExpr(target: Id, "=", source) => {
                 val pmallocs = filterASTElems[PostfixExpr](source)
 
-                pmallocs.map(pe => {
-                    pe match {
-                        case PostfixExpr(i@Id(_), _) if memcalls.contains(i.name) =>
-                            if (env.featureExpr(i) equivalentTo env.featureExpr(target)) {}
-                            else {res += target}
-                        case _ =>
-                    }
-                })
+                pmallocs.map {
+                    case PostfixExpr(i: Id, _) if memcalls.contains(i.name) =>
+                        if (env.featureExpr(i) equivalentTo env.featureExpr(target)) {}
+                        else res ::= target
+                    case _ =>
+                }
             }
         })
 
         assignments(a)
-        addAnnotations(res)
+        res
     }
 
     // returns a list of Ids with names of variables that a freed
@@ -93,7 +90,7 @@ class XFree(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel, casestudy: String) e
     // using the terminology of liveness we return pointers that have that are in use
     def freedVariables(a: AST) = {
 
-        var res = Set[Id]()
+        var res = List[Id]()
 
         // add a free target independent of & and *
         def addFreeTarget(e: Expr) {
@@ -101,7 +98,7 @@ class XFree(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel, casestudy: String) e
             val sp = filterAllASTElems[PointerPostfixSuffix](e)
             if (!sp.isEmpty) {
                 for (spe <- filterAllASTElems[Id](sp.reverse.head))
-                    res += spe
+                    res ::= spe
 
                 return
             }
@@ -111,7 +108,7 @@ class XFree(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel, casestudy: String) e
             if (!ap.isEmpty) {
                 for (ape <- filterAllASTElems[PostfixExpr](e)) {
                     ape match {
-                        case PostfixExpr(i@Id(_), ArrayAccess(_)) => res += i
+                        case PostfixExpr(i@Id(_), ArrayAccess(_)) => res ::= i
                         case _ =>
                     }
                 }
@@ -123,7 +120,7 @@ class XFree(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel, casestudy: String) e
             val fp = filterAllASTElems[Id](e)
 
             for (ni <- fp)
-                res += ni
+                res ::= ni
         }
 
 
@@ -141,7 +138,7 @@ class XFree(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel, casestudy: String) e
                 var finished = false
 
                 for (ni <- filterAllASTElems[Id](l.exprs.head.entry))
-                    res += ni
+                    res ::= ni
 
                 for (ce <- l.exprs.tail) {
                     if (actx.reduce(_ or _) isTautology fm)
@@ -149,7 +146,7 @@ class XFree(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel, casestudy: String) e
 
                     if (!finished && actx.forall(_ and ce.feature isContradiction fm)) {
                         for (ni <- filterAllASTElems[Id](ce.entry))
-                            res += ni
+                            res ::= ni
                         actx ::= ce.feature
                     } else {
                         finished = true
@@ -171,16 +168,30 @@ class XFree(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel, casestudy: String) e
         })
 
         freedvariables(a)
-        addAnnotations(res)
+        res
     }
 
-    // flow functions (flow => succ and flowR => pred)
+    def kill(a: AST): L = {
+        var res = l
+
+        for (k <- getRelevantKillIds(a)) res += ((cachePGT.lookup(k).get, env.featureExpr(k)))
+        res
+    }
+
+    def gen(a: AST): L = {
+        var res = l
+
+        for (g <- getRelevantGenIds(a)) res += ((cachePGT.lookup(g).get, env.featureExpr(g)))
+        res
+    }
+
     protected def F(e: AST) = flow(e)
 
-    protected val i = Map[Id, FeatureExpr]()
-    protected def b = Map[Id, FeatureExpr]()
+    init(f)
+    protected val i = l
+    protected def b = l
     protected def combinationOperator(l1: L, l2: L) = union(l1, l2)
 
-    protected def incached(a: AST): L = f_lcached(a)
-    protected def outcached(a: AST): L = combinatorcached(a)
+    protected def incached(a: AST): L = combinatorcached(a)
+    protected def outcached(a: AST): L = f_lcached(a)
 }
