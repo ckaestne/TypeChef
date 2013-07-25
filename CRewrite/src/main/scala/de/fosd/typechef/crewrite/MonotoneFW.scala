@@ -101,7 +101,7 @@ sealed abstract class MonotoneFW[T](val env: ASTEnv, val fm: FeatureModel) exten
     // we use maps here for efficiency reasons:
     //   1. The obvious shift from non-variability-aware monotone framework to
     //      a variability-aware version is to change the type of the result set
-    //      from Set[Id] to Set[Opt[Id]]. However this changes involves many lookups
+    //      from Set[Id] to Set[Opt[Id]]. However this changes involves many look-ups
     //      and changes to the set.
     //   2. We use Map[T, FeatureExpr] since T is our basic element of interest.
     //      FeatureExpr do not matter so far (they are prominent when using Opt
@@ -110,7 +110,7 @@ sealed abstract class MonotoneFW[T](val env: ASTEnv, val fm: FeatureModel) exten
     //      the result. The delay also involves simplifications of feature
     //      expressions such as "a or (not a) => true".
     //   3. In general, Map[Id, FeatureExpr] is the generalization of Set[Id] with
-    //      FeatureExpr in {True, False}. Therefore, we adapopt a Map here instead of a Set.
+    //      FeatureExpr in {True, False}. Therefore, we adopt a Map here instead of a Set.
     //
     // property space L represents a complete lattice, i.e., it is a partially ordered set (L,⊑)
     // ⊑ is either ⊆ (subset) or ⊇ (superset)
@@ -118,7 +118,7 @@ sealed abstract class MonotoneFW[T](val env: ASTEnv, val fm: FeatureModel) exten
     // l1 ⊑ l2 ⊑ ... eventually stabilises (finite set of T elements in analysis), i.e., ∃n: ln = ln+1 = ...
     type L = Map[T, FeatureExpr]
 
-    // preserve the generic type of the MonotonFW class, so that it is available in subclasses
+    // preserve the generic type of the MonotoneFW class, so that it is available in subclasses
     type PGT = T
     protected def l = Map[T, FeatureExpr]()
 
