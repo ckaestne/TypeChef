@@ -147,18 +147,19 @@ class CIntraAnalysisFrontend(tu: TranslationUnit, fm: FeatureModel = FeatureExpr
         // flow computation requires a lot of sat calls.
         // We use the proper fm in UninitializedMemory (see MonotoneFM).
         val ss = getAllPred(f, FeatureExprFactory.empty, env).reverse
+        val dum = ts.getDeclUseMap
         val udm = ts.getUseDeclMap
-        val um = new UninitializedMemory(env, udm, FeatureExprFactory.empty)
+        val um = new UninitializedMemory(env, dum, udm, FeatureExprFactory.empty, f)
         val nss = ss.map(_._1).filterNot(x => x.isInstanceOf[FunctionDef])
 
         for (s <- nss) {
             val g = um.getFunctionCallArguments(s)
             val in = um.in(s)
 
-            for ((i, h) <- in)
-                g.find(_._1 == i) match {
+            for (((i, _), h) <- in)
+                g.find { case ((t, _), _) => t == i } match {
                     case None =>
-                    case Some((x, _)) => {
+                    case Some(((x, _), _)) => {
                         val xdecls = udm.get(x)
                         var idecls = udm.get(i)
                         if (idecls == null)

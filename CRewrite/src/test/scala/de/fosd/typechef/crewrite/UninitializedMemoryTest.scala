@@ -9,20 +9,20 @@ import de.fosd.typechef.typesystem.{CDeclUse, CTypeSystemFrontend}
 class UninitializedMemoryTest extends TestHelper with ShouldMatchers with CFGHelper with EnforceTreeHelper {
 
     private def getKilledVariables(code: String) = {
-        val a = parseCompoundStmt(code)
-        val um = new UninitializedMemory(CASTEnv.createASTEnv(a), null, null)
+        val a = parseFunctionDef(code)
+        val um = new UninitializedMemory(CASTEnv.createASTEnv(a), null, null, null, a)
         um.kill(a)
     }
 
     private def getGeneratedVariables(code: String) = {
-        val a = parseCompoundStmt(code)
-        val um = new UninitializedMemory(CASTEnv.createASTEnv(a), null, null)
+        val a = parseFunctionDef(code)
+        val um = new UninitializedMemory(CASTEnv.createASTEnv(a), null, null, null, a)
         um.gen(a)
     }
 
     private def getFunctionCallArguments(code: String) = {
-        val a = parseExpr(code)
-        val um = new UninitializedMemory(CASTEnv.createASTEnv(a), null, null)
+        val a = parseFunctionDef(code)
+        val um = new UninitializedMemory(CASTEnv.createASTEnv(a), null, null, null, a)
         um.getFunctionCallArguments(a)
     }
 
@@ -35,35 +35,35 @@ class UninitializedMemoryTest extends TestHelper with ShouldMatchers with CFGHel
     }
 
     @Test def test_variables() {
-        getKilledVariables("{ int a; }") should be(Map())
-        getKilledVariables("{ int a = 2; }") should be(Map(Id("a") -> FeatureExprFactory.True))
-        getKilledVariables("{ int a, b = 1; }") should be(Map(Id("b") -> FeatureExprFactory.True))
-        getKilledVariables("{ int a = 1, b; }") should be(Map(Id("a") -> FeatureExprFactory.True))
-        getKilledVariables("{ int *a; }") should be(Map())
-        getKilledVariables("{ a = 2; }") should be(Map(Id("a") -> FeatureExprFactory.True))
-        getKilledVariables("{ int a[5]; }") should be(Map())
-        getKilledVariables("""{
+        getKilledVariables("void foo(){ int a; }").map {case ((x, _), f) => (x, f)} should be(Map())
+        getKilledVariables("void foo(){ int a = 2; }").map {case ((x, _), f) => (x, f)} should be(Map(Id("a") -> FeatureExprFactory.True))
+        getKilledVariables("void foo(){ int a, b = 1; }").map {case ((x, _), f) => (x, f)} should be(Map(Id("b") -> FeatureExprFactory.True))
+        getKilledVariables("void foo(){ int a = 1, b; }").map {case ((x, _), f) => (x, f)} should be(Map(Id("a") -> FeatureExprFactory.True))
+        getKilledVariables("void foo(){ int *a; }").map {case ((x, _), f) => (x, f)} should be(Map())
+        getKilledVariables("void foo(){ a = 2; }").map {case ((x, _), f) => (x, f)} should be(Map(Id("a") -> FeatureExprFactory.True))
+        getKilledVariables("void foo(){ int a[5]; }").map {case ((x, _), f) => (x, f)} should be(Map())
+        getKilledVariables("""void foo(){
               #ifdef A
               int a;
               #endif
-              }""".stripMargin) should be(Map())
-        getGeneratedVariables("{ int a; }") should be(Map(Id("a") -> FeatureExprFactory.True))
-        getGeneratedVariables("{ int a = 2; }") should be(Map())
-        getGeneratedVariables("{ int a, b = 1; }") should be(Map(Id("a") -> FeatureExprFactory.True))
-        getGeneratedVariables("{ int a = 1, b; }") should be(Map(Id("b") -> FeatureExprFactory.True))
-        getGeneratedVariables("{ int *a; }") should be(Map(Id("a") -> FeatureExprFactory.True))
-        getGeneratedVariables("{ a = 2; }") should be(Map())
-        getGeneratedVariables("{ int a[5]; }") should be(Map(Id("a") -> FeatureExprFactory.True))
-        getGeneratedVariables("""{
+              }""".stripMargin).map {case ((x, _), f) => (x, f)} should be(Map())
+        getGeneratedVariables("void foo(){ int a; }").map {case ((x, _), f) => (x, f)} should be(Map(Id("a") -> FeatureExprFactory.True))
+        getGeneratedVariables("void foo(){ int a = 2; }").map {case ((x, _), f) => (x, f)} should be(Map())
+        getGeneratedVariables("void foo(){ int a, b = 1; }").map {case ((x, _), f) => (x, f)} should be(Map(Id("a") -> FeatureExprFactory.True))
+        getGeneratedVariables("void foo(){ int a = 1, b; }").map {case ((x, _), f) => (x, f)} should be(Map(Id("b") -> FeatureExprFactory.True))
+        getGeneratedVariables("void foo(){ int *a; }").map {case ((x, _), f) => (x, f)} should be(Map(Id("a") -> FeatureExprFactory.True))
+        getGeneratedVariables("void foo(){ a = 2; }").map {case ((x, _), f) => (x, f)} should be(Map())
+        getGeneratedVariables("void foo(){ int a[5]; }").map {case ((x, _), f) => (x, f)} should be(Map(Id("a") -> FeatureExprFactory.True))
+        getGeneratedVariables("""void foo(){
               #ifdef A
               int a;
               #endif
-              }""".stripMargin) should be(Map(Id("a") -> fa))
+              }""".stripMargin).map {case ((x, _), f) => (x, f)} should be(Map(Id("a") -> fa))
     }
 
     @Test def test_functioncall_arguments() {
-        getFunctionCallArguments("foo(a,b)") should be(Map(Id("a") -> FeatureExprFactory.True, Id("b") -> FeatureExprFactory.True))
-        getFunctionCallArguments("foo(a,bar(c))") should be(Map(Id("a") -> FeatureExprFactory.True, Id("c") -> FeatureExprFactory.True))
+        getFunctionCallArguments("void foo(){ foo(a,b); }").map {case ((x, _), f) => (x, f)} should be(Map(Id("a") -> FeatureExprFactory.True, Id("b") -> FeatureExprFactory.True))
+        getFunctionCallArguments("void foo(){ foo(a,bar(c)); }").map {case ((x, _), f) => (x, f)} should be(Map(Id("a") -> FeatureExprFactory.True, Id("c") -> FeatureExprFactory.True))
     }
 
     @Test def test_uninitialized_memory_simple() {
