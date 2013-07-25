@@ -76,8 +76,7 @@ sealed abstract class MonotoneFW[T](val env: ASTEnv, val fm: FeatureModel) exten
     protected def getOriginal(i: T) = freshT2T.get(i)
 
     // abstract function that creates the fresh T elements we use here
-    // in our analysis. typical for analysis such as double free
-    // we create new Id using the freshTctr counter.
+    // in our analysis.
     protected def t2SetT(i: T): Set[T]
     protected def t2T(i: T): T
 
@@ -94,7 +93,7 @@ sealed abstract class MonotoneFW[T](val env: ASTEnv, val fm: FeatureModel) exten
     private val f_lcache = new IdentityHashMapCache[L]()
     private val combinatorcache = new IdentityHashMapCache[L]()
 
-    // gen and kill function, will be implemented by the concrete dataflow class
+    // gen and kill function, will be implemented by the concrete dataflow analysis
     def gen(a: AST): L
     def kill(a: AST): L
 
@@ -129,7 +128,7 @@ sealed abstract class MonotoneFW[T](val env: ASTEnv, val fm: FeatureModel) exten
             curl.get(e) match {
                 case None =>
                 case Some(x) => {
-                    if (fexp.not and x isContradiction()) curl = curl -e
+                    if (fexp.not and x isContradiction()) curl = curl - e
                     else curl = curl + ((e, fexp.not and x))
                 }
             }
@@ -273,7 +272,7 @@ sealed abstract class MonotoneFW[T](val env: ASTEnv, val fm: FeatureModel) exten
             val orig = getOriginal(x)
             res = (orig, f) :: res
         }
-        res.filter(_._2.isSatisfiable(fm))
+        res.filter { case (_, f) => f.isSatisfiable(fm) }
     }
 
     protected def f_lcached(a: AST): L = {
@@ -297,7 +296,7 @@ sealed abstract class MonotoneFW[T](val env: ASTEnv, val fm: FeatureModel) exten
             val orig = getOriginal(x)
             res = (orig, f) :: res
         }
-        res.filter(_._2.isSatisfiable(fm))
+        res.filter { case (_, f) => f.isSatisfiable(fm) }
     }
 }
 
@@ -347,7 +346,7 @@ abstract class MonotoneFWId(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) exte
     }
 }
 
-// specialization of MonotoneFW for Ids with Labels (Var x Lab)
+// specialization of MonotoneFW for Ids with Labels (Var* x Lab*)
 // we use as label System.identityHashCode of the tracked variables
 abstract class MonotoneFWIdLab(env: ASTEnv, fm: FeatureModel) extends MonotoneFW[(Id, Int)](env, fm) {
     // add annotation to elements of a Set[PGT]
@@ -373,7 +372,7 @@ abstract class MonotoneFWIdLab(env: ASTEnv, fm: FeatureModel) extends MonotoneFW
         for ((x, _) <- s)
             getFreshDefinitionFromUsage(x)
 
-        // the output remains the same
+        // the output remains the same since freshT == T
         s
     }
 }

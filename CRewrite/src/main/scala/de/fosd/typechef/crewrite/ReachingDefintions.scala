@@ -30,8 +30,8 @@ class ReachingDefintions(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: Feat
 
     // we store all elements that can be created with gen and kill
     // in a cache, so that we pass each time the same object to the monotonefw
-    // this is crucial as (Id("a"), 1234) != (Id("a"), 1234) since () is an operator
-    // for tuple creation (checking reference equality)
+    // this is crucial as (Id("a"), 1234) != (Id("a"), 1234), since () is an operator
+    // for tuple creation. all elements are checked internally for reference equality!
     private val cachePGT = new IdentityHashMapCache[PGT]()
 
     // set of free variables in f
