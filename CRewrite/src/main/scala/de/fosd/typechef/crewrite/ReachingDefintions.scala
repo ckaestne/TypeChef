@@ -26,7 +26,7 @@ import de.fosd.typechef.featureexpr.FeatureModel
 //     so the analysis will likely produce a lot
 //     of false positives, because memory can be initialized
 //     in a different function
-class ReachingDefintions(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: FeatureModel, f: FunctionDef) extends MonotoneFWIdLab(env, fm) with IntraCFG with CFGHelper with ASTNavigation with UsedDefinedDeclaredVariables {
+class ReachingDefintions(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: FeatureModel, f: FunctionDef) extends MonotoneFWIdLab(env, null, null, fm, null) with IntraCFG with CFGHelper with ASTNavigation with UsedDefinedDeclaredVariables {
 
     // we store all elements that can be created with gen and kill
     // in a cache, so that we pass each time the same object to the monotonefw

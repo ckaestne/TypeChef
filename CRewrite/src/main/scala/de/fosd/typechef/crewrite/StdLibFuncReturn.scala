@@ -26,36 +26,28 @@ import de.fosd.typechef.conditional.Opt
 // i  = ??
 // E  = {FunctionDef} // see MonotoneFW
 // F  = ??
-sealed abstract class StdLibFuncReturn(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: FeatureModel, f: FunctionDef) extends MonotoneFWIdLab(env, fm) with UsedDefinedDeclaredVariables {
+sealed abstract class StdLibFuncReturn(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: FeatureModel, f: FunctionDef) extends MonotoneFWIdLab(env, dum, udm, fm, f) with UsedDefinedDeclaredVariables {
     // list of standard library functions and their possible error returns
     // taken from above website
     val function: List[String]
     val errorreturn: List[AST]
 
-    private val cachePGT = new IdentityHashMapCache[PGT]()
-
-    private def init(f: FunctionDef) = {
-        for (k <- getRelevantKillIds(f.stmt)) cachePGT.update(k, (k, System.identityHashCode(k)))
-        for (g <- getRelevantGenIds(f.stmt)) cachePGT.update(g, (g, System.identityHashCode(g)))
-        for (u <- getRelevantUsedVariables(f.stmt)) cachePGT.update(u, (u, System.identityHashCode(u)))
-    }
-
-    private def getRelevantGenIds(a: AST): List[Id] = {
-        var res = List[Id]()
+    def gen(a: AST): L = {
+        var res = l
 
         // we track variables with the return value of a stdlib function call that is in function
         val retvar = manytd(query {
             case AssignExpr(i@Id(_), "=", source) => {
                 filterAllASTElems[PostfixExpr](source).map(
                     pfe => pfe match {
-                        case PostfixExpr(Id(name), FunctionCall(_)) => if (function.contains(name)) res ::= i
+                        case PostfixExpr(Id(name), FunctionCall(_)) => if (function.contains(name)) res ++= fromCache(i)
                     }
                 )
             }
             case InitDeclaratorI(AtomicNamedDeclarator(_, i: Id, _), _, Some(init)) =>
                 filterAllASTElems[PostfixExpr](init).map(
                     pfe => pfe match {
-                        case PostfixExpr(Id(name), FunctionCall(_)) => if (function.contains(name)) res ::= i
+                        case PostfixExpr(Id(name), FunctionCall(_)) => if (function.contains(name)) res ++= fromCache(i)
                     }
                 )
         })
@@ -73,8 +65,8 @@ sealed abstract class StdLibFuncReturn(env: ASTEnv, dum: DeclUseMap, udm: UseDec
         }
     }
 
-    private def getRelevantKillIds(a: AST): List[Id] = {
-        var res = List[Id]()
+    def kill(a: AST): L = {
+        var res = l
 
         val checkvar = manytd(query {
             case NAryExpr(i@Id(_), others) => {
@@ -82,16 +74,12 @@ sealed abstract class StdLibFuncReturn(env: ASTEnv, dum: DeclUseMap, udm: UseDec
                 val fexp = existingerrchecks.foldRight(FeatureExprFactory.False)((x, y) => env.featureExpr(x) or y)
 
                 if (env.featureExpr(i).equivalentTo(fexp, fm))
-                    res ::= i
+                    res ++= fromCache(i, true)
             }
         })
 
         checkvar(a)
         res
-    }
-
-    private def getRelevantUsedVariables(a: AST): List[Id] = {
-        uses(a).toList
     }
 
     // function checks function calls directly, without having to track a variable
@@ -133,33 +121,16 @@ sealed abstract class StdLibFuncReturn(env: ASTEnv, dum: DeclUseMap, udm: UseDec
         erroreouscalls
     }
 
-    def kill(a: AST): L = {
-        var res = l
-
-        for (k <- getRelevantKillIds(a)) res += ((cachePGT.lookup(k).get, env.featureExpr(k)))
-        res
-    }
-
-    // returns a list of Ids with names of variables that a freed
-    // by call to free or realloc
-    def gen(a: AST): L = {
-        var res = l
-
-        for (g <- getRelevantGenIds(a)) res += ((cachePGT.lookup(g).get, env.featureExpr(g)))
-        res
-    }
-
     def getUsedVariables(a: AST): L = {
         var res = l
 
-        for (u <- getRelevantUsedVariables(a)) res += ((cachePGT.lookup(u).get, env.featureExpr(u)))
+        for (u <- uses(a)) res ++= fromCache(u)
 
         res
     }
 
     protected def F(e: AST) = flow(e)
 
-    init(f)
     protected val i = l
     protected def b = l
     protected def combinationOperator(l1: L, l2: L) = union(l1, l2)

@@ -287,10 +287,11 @@ class CIntraAnalysisFrontend(tu: TranslationUnit, fm: FeatureModel = FeatureExpr
         var errors: List[TypeChefError] = List()
         val ss = getAllSucc(f, FeatureExprFactory.empty, env).map(_._1).filterNot(_.isInstanceOf[FunctionDef])
         val udm = ts.getUseDeclMap
+        val dum = ts.getDeclUseMap
         val cl: List[StdLibFuncReturn] = List(
             //new StdLibFuncReturn_EOF(env, udm, fm),
 
-            new StdLibFuncReturn_Null(env, udm, fm)
+            new StdLibFuncReturn_Null(env, dum, udm, fm, f)
         )
 
         for (s <- ss) {
@@ -308,7 +309,7 @@ class CIntraAnalysisFrontend(tu: TranslationUnit, fm: FeatureModel = FeatureExpr
                 // we check whether used variables that hold the value of a stdlib function are killed in s,
                 // if not we report an error
                 val g = cle.getUsedVariables(s)
-                for ((e, fi) <- cle.out(s))
+                for (((e, _), fi) <- cle.out(s))
                     g.find(_ == e) match {
                         case None =>
                         case Some(x) => {

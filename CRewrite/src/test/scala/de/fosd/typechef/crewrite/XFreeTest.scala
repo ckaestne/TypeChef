@@ -13,7 +13,7 @@ class XFreeTest extends TestHelper with ShouldMatchers with CFGHelper with Enfor
     private def getUninitializedVariables(code: String) = {
         val a = parseFunctionDef(code)
         val xf = new XFree(CASTEnv.createASTEnv(a), null, null, null, a, "")
-        xf.gen(a)
+        xf.gen(a).map {case ((x, _), f) => (x, f)}
     }
 
     def xfree(code: String): Boolean = {
@@ -23,10 +23,10 @@ class XFreeTest extends TestHelper with ShouldMatchers with CFGHelper with Enfor
     }
 
     @Test def test_variables() {
-        getUninitializedVariables("void foo() { int a; }").map {case ((x, _), f) => (x, f)} should be(Map(Id("a") -> FeatureExprFactory.True))
-        getUninitializedVariables("void foo() { int a = 2; }").map {case ((x, _), f) => (x, f)} should be(Map(Id("a") -> FeatureExprFactory.True))
-        getUninitializedVariables("void foo() { int a, b = 1; }").map {case ((x, _), f) => (x, f)} should be(Map(Id("a") -> FeatureExprFactory.True, Id("b") -> FeatureExprFactory.True))
-        getUninitializedVariables("void foo() { int *a = (int*)malloc(2); }").map {case ((x, _), f) => (x, f)} should be(Map())
+        getUninitializedVariables("void foo() { int a; }") should be(Map(Id("a") -> FeatureExprFactory.True))
+        getUninitializedVariables("void foo() { int a = 2; }") should be(Map(Id("a") -> FeatureExprFactory.True))
+        getUninitializedVariables("void foo() { int a, b = 1; }") should be(Map(Id("a") -> FeatureExprFactory.True, Id("b") -> FeatureExprFactory.True))
+        getUninitializedVariables("void foo() { int *a = (int*)malloc(2); }") should be(Map())
     }
 
     @Test def test_xfree_simple() {

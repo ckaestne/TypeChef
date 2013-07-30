@@ -30,19 +30,19 @@ class LivenessTest extends TestHelper with ShouldMatchers with IntraCFG with CFG
     private def runDefinesExample(code: String) = {
         val a = parseStmt(code)
         val lv = new Liveness(CASTEnv.createASTEnv(a), null, null)
-        lv.kill(a)
+        lv.kill(a).map {case (x, f) => (x, f)}
     }
 
     private def runUsesExample(code: String) = {
         val a = parseStmt(code)
         val lv = new Liveness(CASTEnv.createASTEnv(a), null, null)
-        lv.gen(a)
+        lv.gen(a).map {case (x, f) => (x, f)}
     }
 
     private def runDeclaresExample(code: String) = {
         val a = parseDecl(code)
         val lv = new Liveness(CASTEnv.createASTEnv(a), null, null)
-        lv.declaresVar(a)
+        lv.declaresVar(a).map {case (x, f) => (x, f)}
     }
 
     @Test def test_return_function() {

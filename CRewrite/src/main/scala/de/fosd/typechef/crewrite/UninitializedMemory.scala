@@ -26,23 +26,14 @@ import de.fosd.typechef.featureexpr.FeatureModel
 // i  = ∅             // empty is ok
 // E  = {FunctionDef} // see MonotoneFW
 // F  = flow
-class UninitializedMemory(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: FeatureModel, f: FunctionDef) extends MonotoneFWIdLab(env, fm) with IntraCFG with CFGHelper with ASTNavigation {
-
-    private val cachePGT = new IdentityHashMapCache[PGT]()
-
-    private def init(f: FunctionDef) = {
-        for (k <- getRelevantKillIds(f.stmt)) cachePGT.update(k, (k, System.identityHashCode(k)))
-        for (g <- getRelevantGenIds(f.stmt)) cachePGT.update(g, (g, System.identityHashCode(g)))
-        for (c <- getRelevantFunctionCallArguments(f.stmt)) cachePGT.update(c, (c, System.identityHashCode(c)))
-
-    }
+class UninitializedMemory(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: FeatureModel, f: FunctionDef) extends MonotoneFWIdLab(env, dum, udm, fm, f) with IntraCFG with CFGHelper with ASTNavigation {
 
     // get all function-call arguments
     def getFunctionCallArguments(a: AST): L = {
         var res = l
 
         for (c <- getRelevantFunctionCallArguments(a))
-            res += ((cachePGT.lookup(c).get, env.featureExpr(c)))
+            res ++= fromCache(c)
         res
     }
 
@@ -63,10 +54,10 @@ class UninitializedMemory(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: Fea
     }
 
     // get all uninitialized variables
-    private def getRelevantGenIds(a: AST): List[Id] = {
-        var res = List[Id]()
+    def gen(a: AST): L = {
+        var res = l
         val uninitializedVariables = manybu(query {
-            case InitDeclaratorI(AtomicNamedDeclarator(_, i: Id, _), _, None) => res ::= i
+            case InitDeclaratorI(AtomicNamedDeclarator(_, i: Id, _), _, None) => res ++= fromCache(i)
         })
 
         uninitializedVariables(a)
@@ -74,24 +65,12 @@ class UninitializedMemory(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: Fea
     }
 
     // get variables that get an assignment
-    private def getRelevantKillIds(a: AST): List[Id] = {
-        var res = List[Id]()
-
-        def addDeclUse(i: Id) = {
-            res ::= i
-            if (udm != null && udm.containsKey(i)) {
-                for (td <- udm.get(i)) {
-                    res ::= td
-                    if (dum != null && dum.containsKey(td))
-                        for (tu <- dum.get(td))
-                            res ::= tu
-                }
-            }
-        }
+    def kill(a: AST): L = {
+        var res = l
 
         val assignments = manytd(query {
-            case InitDeclaratorI(AtomicNamedDeclarator(_, i: Id, _), _, Some(_)) => addDeclUse(i)
-            case AssignExpr(i: Id, "=", _) => addDeclUse(i)
+            case InitDeclaratorI(AtomicNamedDeclarator(_, i: Id, _), _, Some(_)) => res ++= fromCache(i, true)
+            case AssignExpr(i: Id, "=", _) => res ++= fromCache(i, true)
         })
 
         assignments(a)
@@ -99,23 +78,8 @@ class UninitializedMemory(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: Fea
         res
     }
 
-    def kill(a: AST): L = {
-        var res = l
-
-        for (k <- getRelevantKillIds(a)) res += ((cachePGT.lookup(k).get, env.featureExpr(k)))
-        res
-    }
-
-    def gen(a: AST): L = {
-        var res = l
-
-        for (g <- getRelevantGenIds(a)) res += ((cachePGT.lookup(g).get, env.featureExpr(g)))
-        res
-    }
-
     protected def F(e: AST) = flow(e)
 
-    init(f)
     protected val i = l
     protected def b = l
     protected def combinationOperator(l1: L, l2: L) = union(l1, l2)
