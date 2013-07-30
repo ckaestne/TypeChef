@@ -130,7 +130,7 @@ class CIntraAnalysisFrontend(tu: TranslationUnit, fm: FeatureModel = FeatureExpr
         val errors = fdefs.flatMap(uninitializedMemory)
 
         if (errors.isEmpty) {
-            println("No uages of uninitialized memory found!")
+            println("No usages of uninitialized memory found!")
         } else {
             println(errors.map(_.toString + "\n").reduce(_ + _))
         }
@@ -149,7 +149,7 @@ class CIntraAnalysisFrontend(tu: TranslationUnit, fm: FeatureModel = FeatureExpr
         val ss = getAllPred(f, FeatureExprFactory.empty, env).reverse
         val dum = ts.getDeclUseMap
         val udm = ts.getUseDeclMap
-        val um = new UninitializedMemory(env, dum, udm, FeatureExprFactory.empty, f)
+        val um = new UninitializedMemory(env, dum, udm, fm, f)
         val nss = ss.map(_._1).filterNot(x => x.isInstanceOf[FunctionDef])
 
         for (s <- nss) {
@@ -179,7 +179,7 @@ class CIntraAnalysisFrontend(tu: TranslationUnit, fm: FeatureModel = FeatureExpr
         val errors = fdefs.flatMap(xfree)
 
         if (errors.isEmpty) {
-            println("No uages of uninitialized memory found!")
+            println("No static allocated memory is freed!")
         } else {
             println(errors.map(_.toString + "\n").reduce(_ + _))
         }
@@ -198,7 +198,7 @@ class CIntraAnalysisFrontend(tu: TranslationUnit, fm: FeatureModel = FeatureExpr
         val ss = getAllPred(f, FeatureExprFactory.empty, env).reverse
         val dum = ts.getDeclUseMap
         val udm = ts.getUseDeclMap
-        val xf = new XFree(env, dum, udm, FeatureExprFactory.empty, f, "")
+        val xf = new XFree(env, dum, udm, fm, f, "")
         val nss = ss.map(_._1).filterNot(x => x.isInstanceOf[FunctionDef])
 
         for (s <- nss) {

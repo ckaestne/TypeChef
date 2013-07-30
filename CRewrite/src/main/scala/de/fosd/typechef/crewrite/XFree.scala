@@ -55,8 +55,8 @@ class XFree(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: FeatureModel, f: 
                 if (pmallocs.isEmpty) res ::= i
                 else pmallocs.map {
                     case PostfixExpr(m: Id, _) if memcalls.contains(m.name) =>
-                        if (env.featureExpr(m) equivalentTo env.featureExpr(i)) {}
-                        else res ::= i
+                        if (! env.featureExpr(m) equivalentTo env.featureExpr(i)) res ::= i
+                    case _ =>
                 }
             }
         })
@@ -74,8 +74,7 @@ class XFree(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: FeatureModel, f: 
 
                 pmallocs.map {
                     case PostfixExpr(i: Id, _) if memcalls.contains(i.name) =>
-                        if (env.featureExpr(i) equivalentTo env.featureExpr(target)) {}
-                        else res ::= target
+                        if (! env.featureExpr(i) equivalentTo env.featureExpr(target)) res ::= target
                     case _ =>
                 }
             }
