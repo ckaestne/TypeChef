@@ -5,9 +5,6 @@ import org.kiama.rewriting.Rewriter._
 import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureModel}
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.typesystem._
-import de.fosd.typechef.parser.c.PostfixExpr
-import de.fosd.typechef.parser.c.Id
-import de.fosd.typechef.parser.c.FunctionCall
 import de.fosd.typechef.conditional.Opt
 
 // https://www.securecoding.cert.org/confluence/display/seccode/ERR33-C.+Detect+and+handle+standard+library+errors
@@ -20,10 +17,8 @@ import de.fosd.typechef.conditional.Opt
 //    e.g., if (x == EOF) { // error handling }
 // 4. we don't check whether a variable is only used in a context, in which we can exclude errors,
 //    e.g., if (x == EOF) { ... } else { q = x; // no error }; if-then-else check for all conditions
-// 5. the check for erroreous return values could be in a separate function, e.g., checkCorrectReturnValue(x)
+// 5. the check for erroneous return values could be in a separate function, e.g., checkCorrectReturnValue(x)
 //
-// instance of the monotone framework
-// TODO analysis is unfinished and untested!
 // L  = P(Var*)
 // ⊑  = ⊆             // see MonotoneFW
 // ∐  = ??
@@ -31,36 +26,42 @@ import de.fosd.typechef.conditional.Opt
 // i  = ??
 // E  = {FunctionDef} // see MonotoneFW
 // F  = ??
-// Analysis_○ = ??
-// Analysis_● = ??
-abstract class StdLibFuncReturn(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) extends MonotoneFWId(env, udm, fm) with UsedDefinedDeclaredVariables {
+sealed abstract class StdLibFuncReturn(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: FeatureModel, f: FunctionDef) extends MonotoneFWIdLab(env, fm) with UsedDefinedDeclaredVariables {
     // list of standard library functions and their possible error returns
     // taken from above website
     val function: List[String]
     val errorreturn: List[AST]
 
-    def gen(a: AST): L = {
-        var res = Set[Id]()
+    private val cachePGT = new IdentityHashMapCache[PGT]()
+
+    private def init(f: FunctionDef) = {
+        for (k <- getRelevantKillIds(f.stmt)) cachePGT.update(k, (k, System.identityHashCode(k)))
+        for (g <- getRelevantGenIds(f.stmt)) cachePGT.update(g, (g, System.identityHashCode(g)))
+        for (u <- getRelevantUsedVariables(f.stmt)) cachePGT.update(u, (u, System.identityHashCode(u)))
+    }
+
+    private def getRelevantGenIds(a: AST): List[Id] = {
+        var res = List[Id]()
 
         // we track variables with the return value of a stdlib function call that is in function
         val retvar = manytd(query {
             case AssignExpr(i@Id(_), "=", source) => {
                 filterAllASTElems[PostfixExpr](source).map(
                     pfe => pfe match {
-                        case PostfixExpr(Id(name), FunctionCall(_)) => if (function.contains(name)) res += i
+                        case PostfixExpr(Id(name), FunctionCall(_)) => if (function.contains(name)) res ::= i
                     }
                 )
             }
             case InitDeclaratorI(AtomicNamedDeclarator(_, i: Id, _), _, Some(init)) =>
                 filterAllASTElems[PostfixExpr](init).map(
                     pfe => pfe match {
-                        case PostfixExpr(Id(name), FunctionCall(_)) => if (function.contains(name)) res += i
+                        case PostfixExpr(Id(name), FunctionCall(_)) => if (function.contains(name)) res ::= i
                     }
                 )
         })
 
         retvar(a)
-        addAnnotations(res)
+        res
     }
 
     private def subtermIsPartOfTerm(subterm: Product, term: Any): List[Product] = {
@@ -72,8 +73,8 @@ abstract class StdLibFuncReturn(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) 
         }
     }
 
-    def kill(a: AST): L = {
-        var res = Set[Id]()
+    private def getRelevantKillIds(a: AST): List[Id] = {
+        var res = List[Id]()
 
         val checkvar = manytd(query {
             case NAryExpr(i@Id(_), others) => {
@@ -81,12 +82,16 @@ abstract class StdLibFuncReturn(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) 
                 val fexp = existingerrchecks.foldRight(FeatureExprFactory.False)((x, y) => env.featureExpr(x) or y)
 
                 if (env.featureExpr(i).equivalentTo(fexp, fm))
-                    res += i
+                    res ::= i
             }
         })
 
         checkvar(a)
-        addAnnotations(res)
+        res
+    }
+
+    private def getRelevantUsedVariables(a: AST): List[Id] = {
+        uses(a).toList
     }
 
     // function checks function calls directly, without having to track a variable
@@ -118,8 +123,7 @@ abstract class StdLibFuncReturn(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) 
                 // iterate errorreturn and check whether one of the elements in there occurs somewhere in the
                 // NAryExpr, i.e., we check "e" and "others" of NAryExpr
                 errorreturn.map(e => {
-                    if (ne.get.others.exists(sne => isPartOf(e, sne)) || isPartOf(e, ne.get.e)) {}
-                    else erroreouscalls ::= c
+                    if (! (ne.get.others.exists(sne => isPartOf(e, sne)) || isPartOf(e, ne.get.e))) erroreouscalls ::= c
                 })
             } else {
                 erroreouscalls ::= c
@@ -129,19 +133,42 @@ abstract class StdLibFuncReturn(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) 
         erroreouscalls
     }
 
-    def getUsedVariables(a: AST) = { addAnnotations(uses(a)) }
+    def kill(a: AST): L = {
+        var res = l
+
+        for (k <- getRelevantKillIds(a)) res += ((cachePGT.lookup(k).get, env.featureExpr(k)))
+        res
+    }
+
+    // returns a list of Ids with names of variables that a freed
+    // by call to free or realloc
+    def gen(a: AST): L = {
+        var res = l
+
+        for (g <- getRelevantGenIds(a)) res += ((cachePGT.lookup(g).get, env.featureExpr(g)))
+        res
+    }
+
+    def getUsedVariables(a: AST): L = {
+        var res = l
+
+        for (u <- getRelevantUsedVariables(a)) res += ((cachePGT.lookup(u).get, env.featureExpr(u)))
+
+        res
+    }
 
     protected def F(e: AST) = flow(e)
 
+    init(f)
     protected val i = l
     protected def b = l
     protected def combinationOperator(l1: L, l2: L) = union(l1, l2)
 
-    protected def incached(a: AST): L = f_lcached(a)
-    protected def outcached(a: AST): L = combinatorcached(a)
+    protected def incached(a: AST): L = combinatorcached(a)
+    protected def outcached(a: AST): L = f_lcached(a)
 }
 
-class StdLibFuncReturn_Null(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) extends StdLibFuncReturn(env, udm, fm) {
+class StdLibFuncReturn_Null(env: ASTEnv, dum: UseDeclMap, udm: UseDeclMap, fm: FeatureModel, f: FunctionDef) extends StdLibFuncReturn(env, dum, udm, fm, f) {
 
     val function: List[String] = List(
         "aligned_alloc",
@@ -184,7 +211,7 @@ class StdLibFuncReturn_Null(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) exte
             Some(AtomicAbstractDeclarator(List(Opt(FeatureExprFactory.True, Pointer(List()))),List()))),Constant("0")))
 }
 
-class StdLibFuncReturn_EOF(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) extends StdLibFuncReturn(env, udm, fm) {
+class StdLibFuncReturn_EOF(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: FeatureModel, f: FunctionDef) extends StdLibFuncReturn(env, dum, udm, fm, f) {
 
     val function: List[String] = List(
         "fclose",
