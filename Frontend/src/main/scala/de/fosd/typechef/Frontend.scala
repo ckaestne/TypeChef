@@ -50,29 +50,32 @@ object Frontend {
     private class StopWatch {
         var lastStart: Long = 0
         var currentPeriod: String = "none"
-        var times: Map[String, Long] = Map()
+        var currentPeriodId: Int = 0
+        var times: Map[(Int, String), Long] = Map()
+
+        private def genId(): Int = { currentPeriodId += 1; currentPeriodId }
 
         private def measure(checkpoint: String) {
-            times = times + (checkpoint -> System.currentTimeMillis())
+            times = times + ((genId(), checkpoint) -> System.currentTimeMillis())
         }
 
         def start(period: String) {
             val now = System.currentTimeMillis()
             val lastTime = now - lastStart
-            times = times + (currentPeriod -> lastTime)
+            times = times + ((genId(), currentPeriod) -> lastTime)
             lastStart = now
             currentPeriod = period
         }
 
-        def get(period: String): Long = times.getOrElse(period, 0)
+        def get(period: String): Long = times.filter(v => v._1._2 == period).headOption.map(_._2).getOrElse(0)
 
         override def toString = {
             var res = "timing "
-            val switems = times.toList.filterNot(x => x._1 == "none" || x._1 == "done")
+            val switems = times.toList.filterNot(x => x._1._2 == "none" || x._1._2 == "done").sortBy(_._1._1)
 
             if (switems.size > 0) {
                 res = res + "("
-                res = res + switems.map(_._1).reduce(_ + ", " + _)
+                res = res + switems.map(_._1._2).reduce(_ + ", " + _)
                 res = res + ")\n"
                 res = res + switems.map(_._2.toString).reduce(_ + ";" + _)
             }
