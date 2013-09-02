@@ -14,12 +14,149 @@ import de.fosd.typechef.error._
  *
  */
 
-trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with CExprTyping with CBuiltIn with CDeclUse {
+trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with CExprTyping with CBuiltIn {
 
     def typecheckTranslationUnit(tunit: TranslationUnit, featureModel: FeatureExpr = FeatureExprFactory.True) {
         assert(tunit != null, "cannot type check Translation Unit, tunit is null")
         clearDeclUseMap()
         checkTranslationUnit(tunit, featureModel, InitialEnv)
+    }
+
+    /**
+     * this inlines structs to anonymous structs and removes all variability from structs by exploding the data structure
+     *
+     * the resulting types will not have structs (only AnonymousStructs) and no inner choices
+     */
+    def explodeType(ctype: AType, env: Env, fexpr: FeatureExpr): Conditional[AType] = {
+        def e(x: AType) = explodeType(x, env, fexpr)
+        ctype match {
+            case CPointer(p) => e(p).map(CPointer(_))
+            case CArray(p, l) => e(p).map(CArray(_, l))
+            case CStruct(name, isUnion) => env.structEnv.getFields(name, isUnion).mapr(m => e(CAnonymousStruct(m, isUnion)))
+            case CAnonymousStruct(fields, isUnion) =>
+                val fieldsFlat = for (key <- fields.keys)
+                yield fields(key).mapr(x => e(x.atype)).toOptList.filterNot(_.entry.isUnknown).map(_.map(x => (key -> x)))
+                val fieldsAlt = ConditionalLib.explodeOptList(fieldsFlat.flatten.toList)
+                fieldsAlt.map(ff => CAnonymousStruct(new ConditionalTypeMap() ++ ff.map(
+                    f => (f._1, FeatureExprFactory.True, (null, One(f._2.toCType))) //Seq[(String, FeatureExpr, (AST, Conditional[CType]))]
+                ), isUnion))
+            case CFunction(p, r) => {
+                val pars: List[Opt[AType]] = p.flatMap(pi => e(pi.atype).toOptList).toList
+                val explodedPars = ConditionalLib.explodeOptList(pars)
+                val rt = e(r.atype)
+                ConditionalLib.mapCombination(explodedPars, rt, (p: Seq[AType], r: AType) => CFunction(p.map(_.toCType), r.toCType)).simplify(fexpr)
+            }
+            case o => One(o)
+        }
+    }
+
+    def intBasedDifference(a: AType, b: AType): Boolean = {
+        if (a == b) false
+        else (a, b) match {
+            case (a, b) if isIntegral(a.toCType) && isIntegral(b.toCType) => true
+            case (CPointer(a), CPointer(b)) => intBasedDifference(a, b)
+            case (CArray(a, _), CArray(b, _)) => intBasedDifference(a, b)
+            case (CFunction(ap, ar), CFunction(bp, br)) => intBasedDifference(ar.atype, br.atype) ||
+                (ap zip bp).map(x => intBasedDifference(x._1.atype, x._2.atype)).fold(false)(_ || _)
+            case _ => false
+        }
+
+
+    }
+
+    def removeStructs(ctype: AType): AType = {
+        def e(x: AType) = removeStructs(x)
+        ctype match {
+            case CPointer(p) => CPointer(e(p))
+            case CArray(p, l) => CArray(e(p), l)
+            case s@CStruct(name, isUnion) => s
+            case CAnonymousStruct(fields, isUnion) => CStruct("anonymous", isUnion)
+            case CFunction(p, r) => CFunction(p.map(pi => e(pi.atype).toCType), e(r.atype).toCType)
+            case o => o
+        }
+    }
+
+
+    def isInHeader(symbol: String, env: Env): Boolean = {
+        val vast = env.varEnv.getAstOrElse(symbol, new EmptyStatement())
+        val ast = vast.toOptList.head.entry
+        isInHeader(ast)
+    }
+    def isInHeader(ast: AST): Boolean = {
+        if (ast != null)
+            if (ast.getFile.isDefined && !ast.getFile.get.endsWith(".h"))
+                return false
+        return true
+    }
+
+    var counter = Map[String, Int]()
+
+    def variabilityTypedefStatistics(env: Env) {
+        val keys = env.typedefEnv.keys
+
+
+        for (symbol <- keys) {
+            val ctype = env.typedefEnv(symbol).map(x => removeStructs(normalize(x.atype))).toOptList
+            val altTypes = ctype.filterNot(_.entry.isUnknown)
+            val uniqueAltTypes = altTypes.groupBy(_.entry.toText).mapValues(l => (l.foldLeft(FeatureExprFactory.False)(_ or _.feature), l.foldLeft[AType](null)((a, b) => b.entry)))
+
+            val size = uniqueAltTypes.size
+            var isDiff = false
+            if (size > 1) {
+                isDiff = intBasedDifference(uniqueAltTypes.head._2._2, uniqueAltTypes.last._2._2) //only difference between two items is checked
+//                if (isDiff)
+//                    println("%s - %d: %s".format(symbol, size, uniqueAltTypes.map(x => x._1 + " IF " + x._2._1).mkString("\n  ", "\n  ", "")))
+            }
+
+            val statsKey = "TD" + (if (isDiff) "2" else "1")
+            counter = counter + (statsKey -> (counter.getOrElse(statsKey, 0) + 1))
+        }
+    }
+
+
+    def count(isHeader: Boolean, isDiff: Boolean, isLocalVariable: Boolean) {
+        val key = (if (!isHeader) "L" else "") +
+            (if (isLocalVariable) "V" else "TL") +
+            (if (isDiff) "2" else "1")
+
+        counter = counter + (key -> (counter.getOrElse(key, 0) + 1))
+    }
+
+    def variabilityStatistics(env: Env, location: AST = null) {
+        val scope = env.scope
+        if (scope != 0 && isInHeader(location)) return
+        val isLocalVariable = scope != 0
+
+        val symbols = env.varEnv.keys
+
+
+        for (symbol <- symbols) {
+            val ctype = env.varEnv.lookup(symbol).map(x => (removeStructs(normalize(x._1.atype)), x._2, x._3, x._4)).toOptList.filter(_.entry._3 == scope)
+            val altTypes = ctype.filterNot(_.entry._1.isUnknown)
+            val uniqueAltTypes = altTypes.groupBy(_.entry._1.toText).mapValues(l => (l.foldLeft(FeatureExprFactory.False)(_ or _.feature), l.foldLeft[AType](null)((a, b) => b.entry._1)))
+
+            def isHeader = isInHeader(symbol, env)
+
+            val size = uniqueAltTypes.size
+            if (size > 1) {
+                val isDiff = intBasedDifference(uniqueAltTypes.head._2._2, uniqueAltTypes.last._2._2) //only difference between two items is checked
+                count(isHeader, isDiff, isLocalVariable)
+//                if (isDiff)
+//                    println("%s - %d: %s".format(symbol, size, uniqueAltTypes.map(x => x._1 + " IF " + x._2._1).mkString("\n  ", "\n  ", "")))
+//                else
+//                    System.err.println("%s - %d: %s".format(symbol, size, uniqueAltTypes.map(x => x._1 + " IF " + x._2._1).mkString("\n  ", "\n  ", "")))
+            }
+            else if (size >= 1) count(isHeader, false, isLocalVariable)
+
+        }
+    }
+    def printVariabilityStatistics() {
+        println("vartypestats;%d;%d;%d;%d;%d;%d;%d;%d".format(
+            counter.getOrElse("TL1", 0), counter.getOrElse("TL2", 0),
+            counter.getOrElse("LTL1", 0), counter.getOrElse("LTL2", 0),
+            counter.getOrElse("LV1", 0), counter.getOrElse("LV2", 0),
+            counter.getOrElse("TD1", 0), counter.getOrElse("TD2", 0)
+        ))
     }
 
     private[typesystem] def checkTranslationUnit(tunit: TranslationUnit, featureExpr: FeatureExpr, initialEnv: Env): Env = {
@@ -29,6 +166,11 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
             env = checkExternalDef(e, featureExpr and f, env)
         }
         env.forceOpenCompletenessChecks()
+
+        variabilityStatistics(env)
+        variabilityTypedefStatistics(env)
+        printVariabilityStatistics()
+
         env
     }
 
@@ -261,7 +403,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
         addEnv(stmt, env)
 
         stmt match {
-            case CompoundStatement(innerStmts) =>
+            case c@CompoundStatement(innerStmts) =>
                 //get a type of every inner feature, propagate environments between siblings, collect OptList of types (with one type for every statement, under the same conditions)
                 var innerEnv = env.incScope()
                 val typeOptList: List[Opt[Conditional[CType]]] =
@@ -270,6 +412,9 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
                         innerEnv = newEnv
                         Opt(stmtFeature, stmtType)
                     }
+
+                variabilityStatistics(innerEnv, c)
+
 
                 //return last type
                 val lastType: Conditional[Option[Conditional[CType]]] = ConditionalLib.lastEntry(typeOptList)
