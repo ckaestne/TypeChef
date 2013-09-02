@@ -141,7 +141,7 @@ object Frontend {
 
                     stopWatch.start("typechecking")
                     println("type checking.")
-                    ts.checkAST()
+                    ts.checkAST2(opt.getFile)
                     ts.errors.map(errorXML.renderTypeError(_))
                 }
                 if (opt.writeInterface) {

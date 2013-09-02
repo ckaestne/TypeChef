@@ -5,6 +5,7 @@ import de.fosd.typechef.featureexpr._
 import de.fosd.typechef.conditional._
 import linker.CInferInterface
 import de.fosd.typechef.error._
+import java.io.FileWriter
 
 /**
  * checks an AST (from CParser) for type errors (especially dangling references)
@@ -56,6 +57,12 @@ class CTypeSystemFrontend(iast: TranslationUnit,
             	println("  - " + e)
         	}
     }
+
+    def checkAST2(filename:String,ignoreWarnings: Boolean = true): Boolean = {
+        statsOutputFile=new FileWriter(filename+".stmtlog", false)
+        checkAST(ignoreWarnings)
+    }
+
 
 
     /**

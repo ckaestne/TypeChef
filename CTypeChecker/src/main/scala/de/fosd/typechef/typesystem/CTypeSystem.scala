@@ -4,6 +4,7 @@ import _root_.de.fosd.typechef.featureexpr._
 import _root_.de.fosd.typechef.conditional._
 import _root_.de.fosd.typechef.parser.c._
 import de.fosd.typechef.error._
+import java.io.FileWriter
 
 /**
  * checks an AST (from CParser) for type errors (especially dangling references)
@@ -104,13 +105,20 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
             var isDiff = false
             if (size > 1) {
                 isDiff = intBasedDifference(uniqueAltTypes.head._2._2, uniqueAltTypes.last._2._2) //only difference between two items is checked
-//                if (isDiff)
-//                    println("%s - %d: %s".format(symbol, size, uniqueAltTypes.map(x => x._1 + " IF " + x._2._1).mkString("\n  ", "\n  ", "")))
+                //                if (isDiff)
+                //                    println("%s - %d: %s".format(symbol, size, uniqueAltTypes.map(x => x._1 + " IF " + x._2._1).mkString("\n  ", "\n  ", "")))
             }
 
             val statsKey = "TD" + (if (isDiff) "2" else "1")
             counter = counter + (statsKey -> (counter.getOrElse(statsKey, 0) + 1))
         }
+    }
+
+
+    var statsOutputFile: FileWriter = null
+    def logStmtFExpr(expr: FeatureExpr) = {
+        if (statsOutputFile != null)
+            statsOutputFile.append(expr.toString+"\n")
     }
 
 
@@ -141,10 +149,10 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
             if (size > 1) {
                 val isDiff = intBasedDifference(uniqueAltTypes.head._2._2, uniqueAltTypes.last._2._2) //only difference between two items is checked
                 count(isHeader, isDiff, isLocalVariable)
-//                if (isDiff)
-//                    println("%s - %d: %s".format(symbol, size, uniqueAltTypes.map(x => x._1 + " IF " + x._2._1).mkString("\n  ", "\n  ", "")))
-//                else
-//                    System.err.println("%s - %d: %s".format(symbol, size, uniqueAltTypes.map(x => x._1 + " IF " + x._2._1).mkString("\n  ", "\n  ", "")))
+                //                if (isDiff)
+                //                    println("%s - %d: %s".format(symbol, size, uniqueAltTypes.map(x => x._1 + " IF " + x._2._1).mkString("\n  ", "\n  ", "")))
+                //                else
+                //                    System.err.println("%s - %d: %s".format(symbol, size, uniqueAltTypes.map(x => x._1 + " IF " + x._2._1).mkString("\n  ", "\n  ", "")))
             }
             else if (size >= 1) count(isHeader, false, isLocalVariable)
 
@@ -364,6 +372,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
                 }
     }
 
+
     /**
      * returns a type and a changed environment for subsequent statements
      *
@@ -399,6 +408,8 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
         def checkExprX(expr: Expr, check: CType => Boolean, errorMsg: CType => String, featureExpr: FeatureExpr) =
             performExprCheck(expr, check, errorMsg, featureExpr, env)
         def nop = (One(CVoid().toCType), env) //(One(CUnknown("no type for " + stmt)), env)
+
+        logStmtFExpr(featureExpr)
 
         addEnv(stmt, env)
 
