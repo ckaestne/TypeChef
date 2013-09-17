@@ -60,7 +60,9 @@ class CTypeSystemFrontend(iast: TranslationUnit,
 
     def checkAST2(filename:String,ignoreWarnings: Boolean = true): Boolean = {
         statsOutputFile=new FileWriter(filename+".stmtlog", false)
-        checkAST(ignoreWarnings)
+        val r=checkAST(ignoreWarnings)
+        statsOutputFile.close()
+        r
     }
 
 
