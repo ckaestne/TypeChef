@@ -18,11 +18,12 @@ sealed abstract class CAnalysisFrontend(tu: TranslationUnit, fm: FeatureModel, o
     protected val tunit = prepareAST[TranslationUnit](tu)
 
     // some dataflow analyses need typing (CTypeCache) and/or reference information (CDeclUse)
-    protected var tsi: CTypeSystemFrontend with CTypeCache with CDeclUse = null
+    private var tsi: CTypeSystemFrontend with CTypeCache with CDeclUse = null
 
     protected def ts: CTypeSystemFrontend with CTypeCache with CDeclUse = {
         if (tsi == null) {
             // TODO we always have to enable CTypeCache and CDeclUse, although the selected analyses (see opt) do not use them
+            // TODO type checking should be done outside of CAnalysisFrontend since doing it here adds time for type checking for first applied dataflow analysis :(; in case someone moves the code make sure prepareAST (see above) is also moved, since we have to keep the AST and typechecking information consistent for the analyses here!!!
             tsi = new CTypeSystemFrontend(tunit, fm) with CTypeCache with CDeclUse
             assert(tsi.checkASTSilent, "typecheck fails!")
             tsi
@@ -30,7 +31,6 @@ sealed abstract class CAnalysisFrontend(tu: TranslationUnit, fm: FeatureModel, o
             tsi
         }
     }
-    assert(ts.checkASTSilent, "typecheck fails!")
 
     protected val env = CASTEnv.createASTEnv(tunit)
 }
