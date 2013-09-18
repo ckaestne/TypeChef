@@ -10,7 +10,7 @@ import de.fosd.typechef.options.{FrontendOptionsWithConfigFiles, FrontendOptions
 import de.fosd.typechef.parser.c.CTypeContext
 import de.fosd.typechef.parser.c.TranslationUnit
 
-object Frontend {
+object Frontend extends EnforceTreeHelper {
 
 
     def main(args: Array[String]) {
@@ -102,6 +102,7 @@ object Frontend {
         if (opt.reuseAST && opt.parse && new File(opt.getSerializedASTFilename).exists()) {
             println("loading AST.")
             ast = loadSerializedAST(opt.getSerializedASTFilename)
+            ast = prepareAST[TranslationUnit](ast)
             if (ast == null)
                 println("... failed reading AST\n")
         }
@@ -118,6 +119,7 @@ object Frontend {
                 //no parsing and serialization if read serialized ast
                 val parserMain = new ParserMain(new CParser(fm))
                 ast = parserMain.parserMain(in, opt).asInstanceOf[TranslationUnit]
+                ast = prepareAST[TranslationUnit](ast)
 
                 if (ast != null && opt.serializeAST) {
                     stopWatch.start("serialize")
@@ -128,8 +130,8 @@ object Frontend {
 
             if (ast != null) {
                 val fm_ts = opt.getTypeSystemFeatureModel.and(opt.getLocalFeatureModel).and(opt.getFilePresenceCondition)
-                val ts = new CTypeSystemFrontend(ast, fm_ts, opt)
-                lazy val sa = new CIntraAnalysisFrontend(ast, fm_ts, opt)
+                lazy val ts = new CTypeSystemFrontend(ast, fm_ts, opt) with CTypeCache with CDeclUse
+                lazy val sa = new CIntraAnalysisFrontend(ast, ts, fm_ts)
 
                 /** I did some experiments with the TypeChef FeatureModel of Linux, in case I need the routines again, they are saved here. */
                 //Debug_FeatureModelExperiments.experiment(fm_ts)

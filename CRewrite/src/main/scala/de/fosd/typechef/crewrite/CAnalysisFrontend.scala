@@ -12,35 +12,17 @@ import de.fosd.typechef.parser.c.FunctionDef
 import de.fosd.typechef.parser.c.TranslationUnit
 
 
-sealed abstract class CAnalysisFrontend(tu: TranslationUnit, fm: FeatureModel, opt: ICAnalysisOptions) extends EnforceTreeHelper {
-    // the result of CParser is sometimes a DAG instead of an AST
-    // prepareAST rewrites the DAG in order to get an AST
-    protected val tunit = prepareAST[TranslationUnit](tu)
-
-    // some dataflow analyses need typing (CTypeCache) and/or reference information (CDeclUse)
-    private var tsi: CTypeSystemFrontend with CTypeCache with CDeclUse = null
-
-    protected def ts: CTypeSystemFrontend with CTypeCache with CDeclUse = {
-        if (tsi == null) {
-            // TODO we always have to enable CTypeCache and CDeclUse, although the selected analyses (see opt) do not use them
-            // TODO type checking should be done outside of CAnalysisFrontend since doing it here adds time for type checking for first applied dataflow analysis :(; in case someone moves the code make sure prepareAST (see above) is also moved, since we have to keep the AST and typechecking information consistent for the analyses here!!!
-            tsi = new CTypeSystemFrontend(tunit, fm) with CTypeCache with CDeclUse
-            assert(tsi.checkASTSilent, "typecheck fails!")
-            tsi
-        } else {
-            tsi
-        }
-    }
+sealed abstract class CAnalysisFrontend(tunit: TranslationUnit) extends CFGHelper {
+    protected val fdefs = filterAllASTElems[FunctionDef](tunit)
 
     protected val env = CASTEnv.createASTEnv(tunit)
 }
 
-class CInterAnalysisFrontend(tu: TranslationUnit, fm: FeatureModel = FeatureExprFactory.empty, opt: ICAnalysisOptions = CAnalysisDefaultOptions) extends CAnalysisFrontend(tu, fm, opt) with InterCFG with CFGHelper {
+class CInterAnalysisFrontend(tunit: TranslationUnit, fm: FeatureModel = FeatureExprFactory.empty) extends CAnalysisFrontend(tunit) with InterCFG with CFGHelper {
 
     def getTranslationUnit(): TranslationUnit = tunit
 
     def writeCFG(title: String, writer: CFGWriter) {
-        val fdefs = filterAllASTElems[FunctionDef](tunit)
         val env = CASTEnv.createASTEnv(tunit)
         writer.writeHeader(title)
 
@@ -62,7 +44,7 @@ class CInterAnalysisFrontend(tu: TranslationUnit, fm: FeatureModel = FeatureExpr
     }
 }
 
-class CIntraAnalysisFrontend(tu: TranslationUnit, fm: FeatureModel = FeatureExprFactory.empty, opt: ICAnalysisOptions = CAnalysisDefaultOptions) extends CAnalysisFrontend(tu, fm, opt) with IntraCFG with CFGHelper {
+class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend with CTypeCache with CDeclUse, fm: FeatureModel = FeatureExprFactory.empty) extends CAnalysisFrontend(tunit) with IntraCFG with CFGHelper {
 
     def doubleFree() = {
         val casestudy = {
@@ -76,7 +58,6 @@ class CIntraAnalysisFrontend(tu: TranslationUnit, fm: FeatureModel = FeatureExpr
             }
         }
 
-        val fdefs = filterAllASTElems[FunctionDef](tunit)
         val errors = fdefs.flatMap(doubleFreeFunctionDef(_, casestudy))
 
         if (errors.isEmpty) {
@@ -126,7 +107,6 @@ class CIntraAnalysisFrontend(tu: TranslationUnit, fm: FeatureModel = FeatureExpr
     }
 
     def uninitializedMemory(): Boolean = {
-        val fdefs = filterAllASTElems[FunctionDef](tunit)
         val errors = fdefs.flatMap(uninitializedMemory)
 
         if (errors.isEmpty) {
@@ -175,7 +155,6 @@ class CIntraAnalysisFrontend(tu: TranslationUnit, fm: FeatureModel = FeatureExpr
     }
 
     def xfree(): Boolean = {
-        val fdefs = filterAllASTElems[FunctionDef](tunit)
         val errors = fdefs.flatMap(xfree)
 
         if (errors.isEmpty) {
@@ -224,7 +203,6 @@ class CIntraAnalysisFrontend(tu: TranslationUnit, fm: FeatureModel = FeatureExpr
     }
 
     def danglingSwitchCode(): Boolean = {
-        val fdefs = filterAllASTElems[FunctionDef](tunit)
         val errors = fdefs.flatMap(danglingSwitchCode)
 
         if (errors.isEmpty) {
@@ -250,7 +228,6 @@ class CIntraAnalysisFrontend(tu: TranslationUnit, fm: FeatureModel = FeatureExpr
     }
 
     def cfgInNonVoidFunc(): Boolean = {
-        val fdefs = filterAllASTElems[FunctionDef](tunit)
         val errors = fdefs.flatMap(cfgInNonVoidFunc)
 
         if (errors.isEmpty) {
@@ -271,7 +248,6 @@ class CIntraAnalysisFrontend(tu: TranslationUnit, fm: FeatureModel = FeatureExpr
     }
 
     def stdLibFuncReturn(): Boolean = {
-        val fdefs = filterAllASTElems[FunctionDef](tunit)
         val errors = fdefs.flatMap(stdLibFuncReturn)
 
         if (errors.isEmpty) {

@@ -4,12 +4,14 @@ import org.junit.Test
 import org.scalatest.matchers.ShouldMatchers
 import de.fosd.typechef.parser.c._
 import scala.Predef._
+import de.fosd.typechef.typesystem.{CTypeCache, CDeclUse, CTypeSystemFrontend}
 
 class CFGInNonVoidFuncTest extends TestHelper with ShouldMatchers with CFGHelper with EnforceTreeHelper {
 
     def cfgInNonVoidFunc(code: String): Boolean = {
         val tunit = prepareAST[TranslationUnit](parseTranslationUnit(code))
-        val cf = new CIntraAnalysisFrontend(tunit)
+        val ts = new CTypeSystemFrontend(tunit) with CTypeCache with CDeclUse
+        val cf = new CIntraAnalysisFrontend(tunit, ts)
         cf.cfgInNonVoidFunc()
     }
 

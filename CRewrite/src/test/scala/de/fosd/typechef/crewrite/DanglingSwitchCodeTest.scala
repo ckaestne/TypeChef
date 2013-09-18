@@ -9,7 +9,7 @@ class DanglingSwitchCodeTest extends TestHelper with ShouldMatchers with CFGHelp
 
     def danglingSwitchCode(code: String): Boolean = {
         val tunit = prepareAST[TranslationUnit](parseTranslationUnit(code))
-        val ds = new CIntraAnalysisFrontend(tunit)
+        val ds = new CIntraAnalysisFrontend(tunit, null)
         ds.danglingSwitchCode()
     }
 
