@@ -18,6 +18,7 @@ class DoubleFreeTest extends TestHelper with ShouldMatchers with CFGHelper with 
     def doubleFree(code: String): Boolean = {
         val tunit = prepareAST[TranslationUnit](parseTranslationUnit(code))
         val ts = new CTypeSystemFrontend(tunit) with CTypeCache with CDeclUse
+        assert(ts.checkASTSilent, "typecheck fails!")
         val df = new CIntraAnalysisFrontend(tunit, ts)
         df.doubleFree()
     }

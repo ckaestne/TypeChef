@@ -11,6 +11,7 @@ class CFGInNonVoidFuncTest extends TestHelper with ShouldMatchers with CFGHelper
     def cfgInNonVoidFunc(code: String): Boolean = {
         val tunit = prepareAST[TranslationUnit](parseTranslationUnit(code))
         val ts = new CTypeSystemFrontend(tunit) with CTypeCache with CDeclUse
+        assert(ts.checkASTSilent, "typecheck fails!")
         val cf = new CIntraAnalysisFrontend(tunit, ts)
         cf.cfgInNonVoidFunc()
     }
