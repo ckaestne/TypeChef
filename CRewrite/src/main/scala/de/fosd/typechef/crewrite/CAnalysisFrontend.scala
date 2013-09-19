@@ -44,9 +44,10 @@ class CInterAnalysisFrontend(tunit: TranslationUnit, fm: FeatureModel = FeatureE
     }
 }
 
+// TODO: Running all analyses on a per function level would be faster, since reoccuring computations such as getAllSucc had to be done only once. However determining analysis times would take more effort.
 class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend with CTypeCache with CDeclUse, fm: FeatureModel = FeatureExprFactory.empty) extends CAnalysisFrontend(tunit) with IntraCFG with CFGHelper {
 
-    def doubleFree() = {
+    def doubleFree(): Boolean = {
         val casestudy = {
             tunit.getFile match {
                 case None => ""
@@ -58,7 +59,7 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
             }
         }
 
-        val errors = fdefs.flatMap(doubleFreeFunctionDef(_, casestudy))
+        val errors = fdefs.flatMap(doubleFree(_, casestudy))
 
         if (errors.isEmpty) {
             println("No double frees found!")
@@ -70,14 +71,15 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
     }
 
 
-    private def doubleFreeFunctionDef(f: FunctionDef, casestudy: String): List[TypeChefError] = {
+    private def doubleFree(f: FunctionDef, casestudy: String): List[TypeChefError] = {
+        println("analyzing function (doublefree): " + f.getName)
         var res: List[TypeChefError] = List()
 
         // It's ok to use FeatureExprFactory.empty here.
         // Using the project's fm is too expensive since control
         // flow computation requires a lot of sat calls.
         // We use the proper fm in DoubleFree (see MonotoneFM).
-        val ss = getAllPred(f, FeatureExprFactory.empty, env)
+        val ss = getAllSucc(f, FeatureExprFactory.empty, env)
         val dum = ts.getDeclUseMap
         val udm = ts.getUseDeclMap
         val df = new DoubleFree(env, dum, udm, fm, f, casestudy)
@@ -120,13 +122,14 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
 
 
     private def uninitializedMemory(f: FunctionDef): List[TypeChefError] = {
+        println("analyzing function (uninitializedmemory): " + f.getName)
         var res: List[TypeChefError] = List()
 
         // It's ok to use FeatureExprFactory.empty here.
         // Using the project's fm is too expensive since control
         // flow computation requires a lot of sat calls.
         // We use the proper fm in UninitializedMemory (see MonotoneFM).
-        val ss = getAllPred(f, FeatureExprFactory.empty, env).reverse
+        val ss = getAllSucc(f, FeatureExprFactory.empty, env).reverse
         val dum = ts.getDeclUseMap
         val udm = ts.getUseDeclMap
         val um = new UninitializedMemory(env, dum, udm, fm, f)
@@ -140,7 +143,9 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
                 g.find { case ((t, _), _) => t == i } match {
                     case None =>
                     case Some(((x, _), _)) => {
-                        val xdecls = udm.get(x)
+                        var xdecls = udm.get(x)
+                        if (xdecls == null)
+                            xdecls = List(x)
                         var idecls = udm.get(i)
                         if (idecls == null)
                             idecls = List(i)
@@ -168,13 +173,14 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
 
 
     private def xfree(f: FunctionDef): List[TypeChefError] = {
+        println("analyzing function (xfree): " + f.getName)
         var res: List[TypeChefError] = List()
 
         // It's ok to use FeatureExprFactory.empty here.
         // Using the project's fm is too expensive since control
         // flow computation requires a lot of sat calls.
         // We use the proper fm in UninitializedMemory (see MonotoneFM).
-        val ss = getAllPred(f, FeatureExprFactory.empty, env).reverse
+        val ss = getAllSucc(f, FeatureExprFactory.empty, env).reverse
         val dum = ts.getDeclUseMap
         val udm = ts.getUseDeclMap
         val xf = new XFree(env, dum, udm, fm, f, "")
@@ -216,6 +222,7 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
 
 
     private def danglingSwitchCode(f: FunctionDef): List[TypeChefError] = {
+        println("analyzing function (danglingswitch): " + f.getName)
         val ss = filterAllASTElems[SwitchStatement](f)
         val ds = new DanglingSwitchCode(env, FeatureExprFactory.empty)
 
@@ -240,6 +247,7 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
     }
 
     private def cfgInNonVoidFunc(f: FunctionDef): List[TypeChefError] = {
+        println("analyzing function (cfginnonvoid): " + f.getName)
         val cf = new CFGInNonVoidFunc(env, fm, ts)
 
         cf.cfgInNonVoidFunc(f).map(
@@ -260,6 +268,7 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
     }
 
     private def stdLibFuncReturn(f: FunctionDef): List[TypeChefError] = {
+        println("analyzing function (stdlibfuncreturn): " + f.getName)
         var errors: List[TypeChefError] = List()
         val ss = getAllSucc(f, FeatureExprFactory.empty, env).map(_._1).filterNot(_.isInstanceOf[FunctionDef])
         val udm = ts.getUseDeclMap
