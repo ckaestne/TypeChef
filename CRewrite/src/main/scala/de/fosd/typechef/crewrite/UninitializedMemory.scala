@@ -57,7 +57,7 @@ class UninitializedMemory(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: Fea
     def gen(a: AST): L = {
         var res = l
         val uninitializedVariables = manybu(query {
-            case InitDeclaratorI(AtomicNamedDeclarator(_, i: Id, _), _, None) => res ++= fromCache(i)
+            case InitDeclaratorI(AtomicNamedDeclarator(Nil, i: Id, _), _, None) => res ++= fromCache(i) // we do not track pointers!
         })
 
         uninitializedVariables(a)
