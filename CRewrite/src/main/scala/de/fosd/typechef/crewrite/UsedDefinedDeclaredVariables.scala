@@ -20,8 +20,7 @@ trait UsedDefinedDeclaredVariables {
     // returns all defined Ids independent of their annotation
     def defines(a: Any): Set[Id] =
         a match {
-            case i@Id(_) => Set(i)
-            case AssignExpr(target, _, source) => defines(target)
+            case AssignExpr(target: Id, _, source) => Set(target)
             case DeclarationStatement(d) => defines(d)
             case Declaration(_, init) => init.flatMap(defines).toSet
             case InitDeclaratorI(i, _, _) => defines(i)
