@@ -130,8 +130,8 @@ object Frontend extends EnforceTreeHelper {
 
             if (ast != null) {
                 val fm_ts = opt.getTypeSystemFeatureModel.and(opt.getLocalFeatureModel).and(opt.getFilePresenceCondition)
-                lazy val ts = new CTypeSystemFrontend(ast, fm_ts, opt) with CTypeCache with CDeclUse
-                lazy val sa = new CIntraAnalysisFrontend(ast, ts, fm_ts)
+                val ts = new CTypeSystemFrontend(ast, fm_ts, opt) with CTypeCache with CDeclUse
+                val sa = new CIntraAnalysisFrontend(ast, ts, fm_ts)
 
                 /** I did some experiments with the TypeChef FeatureModel of Linux, in case I need the routines again, they are saved here. */
                 //Debug_FeatureModelExperiments.experiment(fm_ts)
