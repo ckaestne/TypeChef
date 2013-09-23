@@ -40,7 +40,7 @@ class ErrorXML(errorFile: File) {
         return null; //Object instead of Unit because going into Java code
     }
 
-    def renderTypeError(typeError: TypeChefError) {
+    def renderTypeChefError(typeError: TypeChefError) {
         if (errorFile != null)
             errors = <typeerror>
                 <featurestr>

@@ -54,6 +54,8 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
     private lazy val udm = ts.getUseDeclMap
     private lazy val dum = ts.getDeclUseMap
 
+    var errors: List[TypeChefError] = List()
+
     def doubleFree(): Boolean = {
         val casestudy = {
             tunit.getFile match {
@@ -66,15 +68,15 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
             }
         }
 
-        val errors = fanalyze.flatMap(doubleFree(_, casestudy))
+        val err = fanalyze.flatMap(doubleFree(_, casestudy))
 
-        if (errors.isEmpty) {
+        if (err.isEmpty) {
             println("No double frees found!")
         } else {
-            println(errors.map(_.toString + "\n").reduce(_ + _))
+            println(err.map(_.toString + "\n").reduce(_ + _))
         }
-
-        errors.isEmpty
+        errors ++= err
+        err.isEmpty
     }
 
 
@@ -114,15 +116,15 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
     }
 
     def uninitializedMemory(): Boolean = {
-        val errors = fanalyze.flatMap(uninitializedMemory)
+        val err = fanalyze.flatMap(uninitializedMemory)
 
-        if (errors.isEmpty) {
+        if (err.isEmpty) {
             println("No usages of uninitialized memory found!")
         } else {
-            println(errors.map(_.toString + "\n").reduce(_ + _))
+            println(err.map(_.toString + "\n").reduce(_ + _))
         }
-
-        errors.isEmpty
+        errors ++= err
+        err.isEmpty
     }
 
 
@@ -163,15 +165,15 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
     }
 
     def xfree(): Boolean = {
-        val errors = fanalyze.flatMap(xfree)
+        val err = fanalyze.flatMap(xfree)
 
-        if (errors.isEmpty) {
+        if (err.isEmpty) {
             println("No static allocated memory is freed!")
         } else {
-            println(errors.map(_.toString + "\n").reduce(_ + _))
+            println(err.map(_.toString + "\n").reduce(_ + _))
         }
-
-        errors.isEmpty
+        errors ++= err
+        err.isEmpty
     }
 
 
@@ -211,15 +213,15 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
     }
 
     def danglingSwitchCode(): Boolean = {
-        val errors = fanalyze.flatMap { x => danglingSwitchCode(x._1) }
+        val err = fanalyze.flatMap { x => danglingSwitchCode(x._1) }
 
-        if (errors.isEmpty) {
+        if (err.isEmpty) {
             println("No dangling code in switch statements found!")
         } else {
-            println(errors.map(_.toString + "\n").reduce(_ + _))
+            println(err.map(_.toString + "\n").reduce(_ + _))
         }
-
-        !errors.isEmpty
+        errors ++= err
+        err.isEmpty
     }
 
 
@@ -236,15 +238,15 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
     }
 
     def cfgInNonVoidFunc(): Boolean = {
-        val errors = fanalyze.flatMap(cfgInNonVoidFunc)
+        val err = fanalyze.flatMap(cfgInNonVoidFunc)
 
-        if (errors.isEmpty) {
+        if (err.isEmpty) {
             println("Control flow in non-void functions always ends in return statements!")
         } else {
-            println(errors.map(_.toString + "\n").reduce(_ + _))
+            println(err.map(_.toString + "\n").reduce(_ + _))
         }
-
-        errors.isEmpty
+        errors ++= err
+        err.isEmpty
     }
 
     private def cfgInNonVoidFunc(fa: (FunctionDef, List[(AST, List[Opt[AST]])])): List[TypeChefError] = {
@@ -256,19 +258,19 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
     }
 
     def stdLibFuncReturn(): Boolean = {
-        val errors = fanalyze.flatMap(stdLibFuncReturn)
+        val err = fanalyze.flatMap(stdLibFuncReturn)
 
-        if (errors.isEmpty) {
+        if (err.isEmpty) {
             println("Return values of stdlib functions are properly checked for errors!")
         } else {
-            println(errors.map(_.toString + "\n").reduce(_ + _))
+            println(err.map(_.toString + "\n").reduce(_ + _))
         }
-
-        errors.isEmpty
+        errors ++= err
+        err.isEmpty
     }
 
     private def stdLibFuncReturn(fa: (FunctionDef, List[(AST, List[Opt[AST]])])): List[TypeChefError] = {
-        var errors: List[TypeChefError] = List()
+        var err: List[TypeChefError] = List()
         val cl: List[StdLibFuncReturn] = List(
             //new StdLibFuncReturn_EOF(env, udm, fm),
 
@@ -281,7 +283,7 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
 
                 // check CFG element directly; without dataflow analysis
                 for (e <- cle.checkForPotentialCalls(s)) {
-                    errors ::= new TypeChefError(Severity.SecurityWarning, env.featureExpr(e), "Return value of " +
+                    err ::= new TypeChefError(Severity.SecurityWarning, env.featureExpr(e), "Return value of " +
                         PrettyPrinter.print(e) + " is not properly checked for (" + errorvalues + ")!", e)
                 }
 
@@ -302,7 +304,7 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
                                 for (ee <- edecls) {
                                     val kills = cle.kill(s)
                                     if (xdecls.exists(_.eq(ee)) && !kills.contains(x._1)) {
-                                        errors ::= new TypeChefError(Severity.SecurityWarning, fi, "The value of " +
+                                        err ::= new TypeChefError(Severity.SecurityWarning, fi, "The value of " +
                                             PrettyPrinter.print(e) + " is not properly checked for (" + errorvalues + ")!", e)
                                     }
                                 }
@@ -311,7 +313,7 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
                     }
             }
         }
-
-        errors
+        errors ++= err
+        err
     }
 }

@@ -144,7 +144,7 @@ object Frontend extends EnforceTreeHelper {
                     stopWatch.start("typechecking")
                     println("type checking.")
                     ts.checkAST()
-                    ts.errors.map(errorXML.renderTypeError(_))
+                    ts.errors.map(errorXML.renderTypeChefError)
                 }
                 if (opt.writeInterface) {
                     stopWatch.start("interfaces")
@@ -187,7 +187,7 @@ object Frontend extends EnforceTreeHelper {
                     stopWatch.start("checkstdlibfuncreturn")
                     sa.stdLibFuncReturn()
                 }
-
+                sa.errors.map(errorXML.renderTypeChefError)
             }
 
         }
