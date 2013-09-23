@@ -268,7 +268,6 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
     }
 
     private def stdLibFuncReturn(fa: (FunctionDef, List[(AST, List[Opt[AST]])])): List[TypeChefError] = {
-        println("analyzing following function with stdlibfuncreturn: " + fa._1.getName)
         var errors: List[TypeChefError] = List()
         val cl: List[StdLibFuncReturn] = List(
             //new StdLibFuncReturn_EOF(env, udm, fm),
