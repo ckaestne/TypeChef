@@ -56,7 +56,7 @@ class UninitializedMemoryTest extends TestHelper with ShouldMatchers with CFGHel
         getGeneratedVariables("void foo(){ int a = 2; }") should be(Map())
         getGeneratedVariables("void foo(){ int a, b = 1; }") should be(Map(Id("a") -> FeatureExprFactory.True))
         getGeneratedVariables("void foo(){ int a = 1, b; }") should be(Map(Id("b") -> FeatureExprFactory.True))
-        getGeneratedVariables("void foo(){ int *a; }") should be(Map())
+        getGeneratedVariables("void foo(){ int *a; }") should be(Map(Id("a") -> FeatureExprFactory.True))
         getGeneratedVariables("void foo(){ a = 2; }") should be(Map())
         getGeneratedVariables("void foo(){ int a[5]; }") should be(Map(Id("a") -> FeatureExprFactory.True))
         getGeneratedVariables("""void foo(){
