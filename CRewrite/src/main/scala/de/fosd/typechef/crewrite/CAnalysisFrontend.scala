@@ -79,7 +79,6 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
 
 
     private def doubleFree(fa: (FunctionDef, List[(AST, List[Opt[AST]])]), casestudy: String): List[TypeChefError] = {
-        println("analyzing following function with doublefree: " + fa._1.getName)
         var res: List[TypeChefError] = List()
 
         val df = new DoubleFree(env, dum, udm, FeatureExprFactory.empty, fa._1, casestudy)
@@ -128,7 +127,6 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
 
 
     private def uninitializedMemory(fa: (FunctionDef, List[(AST, List[Opt[AST]])])): List[TypeChefError] = {
-        println("analyzing following function with uninitializedmemory: " + fa._1.getName)
         var res: List[TypeChefError] = List()
 
         val um = new UninitializedMemory(env, dum, udm, FeatureExprFactory.empty, fa._1)
@@ -178,7 +176,6 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
 
 
     private def xfree(fa: (FunctionDef, List[(AST, List[Opt[AST]])])): List[TypeChefError] = {
-        println("analyzing following function with xfree: " + fa._1.getName)
         var res: List[TypeChefError] = List()
 
         val xf = new XFree(env, dum, udm, FeatureExprFactory.empty, fa._1, "")
@@ -227,7 +224,6 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
 
 
     private def danglingSwitchCode(f: FunctionDef): List[TypeChefError] = {
-        println("analyzing following function with danglingswitch: " + f.getName)
         val ss = filterAllASTElems[SwitchStatement](f)
         val ds = new DanglingSwitchCode(env, FeatureExprFactory.empty)
 
@@ -252,7 +248,6 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
     }
 
     private def cfgInNonVoidFunc(fa: (FunctionDef, List[(AST, List[Opt[AST]])])): List[TypeChefError] = {
-        println("analyzing function (cfginnonvoid): " + fa._1.getName)
         val cf = new CFGInNonVoidFunc(env, fm, ts)
 
         cf.cfgInNonVoidFunc(fa._1).map(
