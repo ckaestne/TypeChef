@@ -82,10 +82,6 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
         println("analyzing following function with doublefree: " + fa._1.getName)
         var res: List[TypeChefError] = List()
 
-        // It's ok to use FeatureExprFactory.empty here.
-        // Using the project's fm is too expensive since control
-        // flow computation requires a lot of sat calls.
-        // We use the proper fm in DoubleFree (see MonotoneFM).
         val df = new DoubleFree(env, dum, udm, FeatureExprFactory.empty, fa._1, casestudy)
 
         val nss = fa._2.map(_._1).filterNot(x => x.isInstanceOf[FunctionDef])
@@ -135,10 +131,6 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
         println("analyzing following function with uninitializedmemory: " + fa._1.getName)
         var res: List[TypeChefError] = List()
 
-        // It's ok to use FeatureExprFactory.empty here.
-        // Using the project's fm is too expensive since control
-        // flow computation requires a lot of sat calls.
-        // We use the proper fm in UninitializedMemory (see MonotoneFM).
         val um = new UninitializedMemory(env, dum, udm, FeatureExprFactory.empty, fa._1)
         val nss = fa._2.map(_._1).filterNot(x => x.isInstanceOf[FunctionDef])
 
@@ -189,10 +181,6 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
         println("analyzing following function with xfree: " + fa._1.getName)
         var res: List[TypeChefError] = List()
 
-        // It's ok to use FeatureExprFactory.empty here.
-        // Using the project's fm is too expensive since control
-        // flow computation requires a lot of sat calls.
-        // We use the proper fm in UninitializedMemory (see MonotoneFM).
         val xf = new XFree(env, dum, udm, FeatureExprFactory.empty, fa._1, "")
         val nss = fa._2.map(_._1).filterNot(x => x.isInstanceOf[FunctionDef])
 
