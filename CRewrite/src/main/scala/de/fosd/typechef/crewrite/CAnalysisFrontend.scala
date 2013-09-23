@@ -79,34 +79,40 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
 
 
     private def doubleFree(fa: (FunctionDef, List[(AST, List[Opt[AST]])]), casestudy: String): List[TypeChefError] = {
-        println("analyzing function (doublefree): " + fa._1.getName)
+        println("analyzing following function with doublefree: " + fa._1.getName)
         var res: List[TypeChefError] = List()
 
         // It's ok to use FeatureExprFactory.empty here.
         // Using the project's fm is too expensive since control
         // flow computation requires a lot of sat calls.
         // We use the proper fm in DoubleFree (see MonotoneFM).
-        val df = new DoubleFree(env, dum, udm, fm, fa._1, casestudy)
+        val df = new DoubleFree(env, dum, udm, FeatureExprFactory.empty, fa._1, casestudy)
 
         val nss = fa._2.map(_._1).filterNot(x => x.isInstanceOf[FunctionDef])
 
         for (s <- nss) {
             val g = df.gen(s)
-            val in = df.in(s)
 
-            for (((i, _), h) <- in)
-                g.find { case ((t, _), _) => t == i } match {
-                    case None =>
-                    case Some(((x, _), _)) => {
-                        val xdecls = udm.get(x)
-                        var idecls = udm.get(i)
-                        if (idecls == null)
-                            idecls = List(i)
-                        for (ei <- idecls)
-                            if (xdecls.exists(_.eq(ei)))
-                                res ::= new TypeChefError(Severity.Warning, h, "warning: Variable " + x.name + " is freed multiple times!", x, "")
+            if (g.size > 0) {
+                val in = df.in(s)
+
+                for (((i, _), h) <- in)
+                    g.find { case ((t, _), _) => t == i } match {
+                        case None =>
+                        case Some(((x, _), _)) => {
+                            if (h.isSatisfiable(fm)) {
+                                val xdecls = udm.get(x)
+                                var idecls = udm.get(i)
+                                if (idecls == null)
+                                    idecls = List(i)
+                                for (ei <- idecls)
+                                    if (xdecls.exists(_.eq(ei)))
+                                        res ::= new TypeChefError(Severity.Warning, h, "warning: Variable " + x.name + " is freed multiple times!", x, "")
+                            }
+                        }
                     }
-                }
+
+            }
         }
 
         res
@@ -126,35 +132,41 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
 
 
     private def uninitializedMemory(fa: (FunctionDef, List[(AST, List[Opt[AST]])])): List[TypeChefError] = {
-        println("analyzing function (uninitializedmemory): " + fa._1.getName)
+        println("analyzing following function with uninitializedmemory: " + fa._1.getName)
         var res: List[TypeChefError] = List()
 
         // It's ok to use FeatureExprFactory.empty here.
         // Using the project's fm is too expensive since control
         // flow computation requires a lot of sat calls.
         // We use the proper fm in UninitializedMemory (see MonotoneFM).
-        val um = new UninitializedMemory(env, dum, udm, fm, fa._1)
+        val um = new UninitializedMemory(env, dum, udm, FeatureExprFactory.empty, fa._1)
         val nss = fa._2.map(_._1).filterNot(x => x.isInstanceOf[FunctionDef])
 
         for (s <- nss) {
             val g = um.getFunctionCallArguments(s)
-            val in = um.in(s)
 
-            for (((i, _), h) <- in)
-                g.find { case ((t, _), _) => t == i } match {
-                    case None =>
-                    case Some(((x, _), _)) => {
-                        var xdecls = udm.get(x)
-                        if (xdecls == null)
-                            xdecls = List(x)
-                        var idecls = udm.get(i)
-                        if (idecls == null)
-                            idecls = List(i)
-                        for (ei <- idecls)
-                            if (xdecls.exists(_.eq(ei)))
-                                res ::= new TypeChefError(Severity.Warning, h, "warning: Variable " + x.name + " is used uninitialized!", x, "")
+            if (g.size > 0) {
+                val in = um.in(s)
+
+                for (((i, _), h) <- in)
+                    g.find { case ((t, _), _) => t == i } match {
+                        case None =>
+                        case Some(((x, _), _)) => {
+                            if (h.isSatisfiable(fm)) {
+                                var xdecls = udm.get(x)
+                                if (xdecls == null)
+                                    xdecls = List(x)
+                                var idecls = udm.get(i)
+                                if (idecls == null)
+                                    idecls = List(i)
+                                for (ei <- idecls)
+                                    if (xdecls.exists(_.eq(ei)))
+                                        res ::= new TypeChefError(Severity.Warning, h, "warning: Variable " + x.name + " is used uninitialized!", x, "")
+                            }
+                        }
                     }
-                }
+
+            }
         }
 
         res
@@ -174,33 +186,40 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
 
 
     private def xfree(fa: (FunctionDef, List[(AST, List[Opt[AST]])])): List[TypeChefError] = {
-        println("analyzing function (xfree): " + fa._1.getName)
+        println("analyzing following function with xfree: " + fa._1.getName)
         var res: List[TypeChefError] = List()
 
         // It's ok to use FeatureExprFactory.empty here.
         // Using the project's fm is too expensive since control
         // flow computation requires a lot of sat calls.
         // We use the proper fm in UninitializedMemory (see MonotoneFM).
-        val xf = new XFree(env, dum, udm, fm, fa._1, "")
+        val xf = new XFree(env, dum, udm, FeatureExprFactory.empty, fa._1, "")
         val nss = fa._2.map(_._1).filterNot(x => x.isInstanceOf[FunctionDef])
 
         for (s <- nss) {
             val g = xf.freedVariables(s)
-            val in = xf.in(s)
 
-            for (((i,_), h) <- in)
-                g.find(_ == i) match {
-                    case None =>
-                    case Some(x) => {
-                        val xdecls = udm.get(x)
-                        var idecls = udm.get(i)
-                        if (idecls == null)
-                            idecls = List(i)
-                        for (ei <- idecls)
-                            if (xdecls.exists(_.eq(ei)))
-                                res ::= new TypeChefError(Severity.Warning, h, "warning: Variable " + x.name + " is freed although not dynamically allocted!", x, "")
+            if (g.size > 0) {
+                val in = xf.in(s)
+
+                for (((i,_), h) <- in)
+                    g.find(_ == i) match {
+                        case None =>
+                        case Some(x) => {
+                            if (h.isSatisfiable(fm)) {
+                                val xdecls = udm.get(x)
+                                var idecls = udm.get(i)
+                                if (idecls == null)
+                                    idecls = List(i)
+                                for (ei <- idecls)
+                                    if (xdecls.exists(_.eq(ei)))
+                                        res ::= new TypeChefError(Severity.Warning, h, "warning: Variable " + x.name + " is freed although not dynamically allocted!", x, "")
+                            }
+
+                        }
                     }
-                }
+
+            }
         }
 
         res
@@ -220,7 +239,7 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
 
 
     private def danglingSwitchCode(f: FunctionDef): List[TypeChefError] = {
-        println("analyzing function (danglingswitch): " + f.getName)
+        println("analyzing following function with danglingswitch: " + f.getName)
         val ss = filterAllASTElems[SwitchStatement](f)
         val ds = new DanglingSwitchCode(env, FeatureExprFactory.empty)
 
@@ -266,12 +285,12 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
     }
 
     private def stdLibFuncReturn(fa: (FunctionDef, List[(AST, List[Opt[AST]])])): List[TypeChefError] = {
-        println("analyzing function (stdlibfuncreturn): " + fa._1.getName)
+        println("analyzing following function with stdlibfuncreturn: " + fa._1.getName)
         var errors: List[TypeChefError] = List()
         val cl: List[StdLibFuncReturn] = List(
             //new StdLibFuncReturn_EOF(env, udm, fm),
 
-            new StdLibFuncReturn_Null(env, dum, udm, fm, fa._1)
+            new StdLibFuncReturn_Null(env, dum, udm, FeatureExprFactory.empty, fa._1)
         )
 
         for ((s, _) <- fa._2) {
@@ -293,15 +312,17 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
                     g.find(_ == e) match {
                         case None =>
                         case Some(x) => {
-                            val xdecls = udm.get(x)
-                            var edecls = udm.get(e)
-                            if (edecls == null) edecls = List(e)
+                            if (fi.isSatisfiable(fm)) {
+                                val xdecls = udm.get(x)
+                                var edecls = udm.get(e)
+                                if (edecls == null) edecls = List(e)
 
-                            for (ee <- edecls) {
-                                val kills = cle.kill(s)
-                                if (xdecls.exists(_.eq(ee)) && !kills.contains(x._1)) {
-                                    errors ::= new TypeChefError(Severity.SecurityWarning, fi, "The value of " +
-                                        PrettyPrinter.print(e) + " is not properly checked for (" + errorvalues + ")!", e)
+                                for (ee <- edecls) {
+                                    val kills = cle.kill(s)
+                                    if (xdecls.exists(_.eq(ee)) && !kills.contains(x._1)) {
+                                        errors ::= new TypeChefError(Severity.SecurityWarning, fi, "The value of " +
+                                            PrettyPrinter.print(e) + " is not properly checked for (" + errorvalues + ")!", e)
+                                    }
                                 }
                             }
                         }
