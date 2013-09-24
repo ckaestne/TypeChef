@@ -50,13 +50,13 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
     private implicit def condition2AST(c: Conditional[AST]) = childAST(c)
 
     class CFGCache {
-        private val cache = new java.util.IdentityHashMap[Product, List[Opt[AST]]]()
+        private val cache = new java.util.IdentityHashMap[Product, List[Opt[CFGStmt]]]()
 
-        def update(k: Product, v: List[Opt[AST]]) {
+        def update(k: Product, v: List[Opt[CFGStmt]]) {
             cache.put(k, v)
         }
 
-        def lookup(k: Product): Option[List[Opt[AST]]] = {
+        def lookup(k: Product): Option[List[Opt[CFGStmt]]] = {
             val v = cache.get(k)
             if (v != null) Some(v)
             else None
@@ -67,12 +67,12 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
 
     // result type of pred/succ determination
     // List[(computed annotation, given annotation, ast node)]
-    type CFGRes = List[(FeatureExpr, FeatureExpr, AST)]
+    type CFGRes = List[(FeatureExpr, FeatureExpr, CFGStmt)]
 
     // result of pred/succ computation
     // classic control flow computation returns List[AST]
     // the Opt stores the condition under which the AST element is the predecessor/successor of the input element
-    type CFG = List[Opt[AST]]
+    type CFG = List[Opt[CFGStmt]]
 
     // during traversal of AST elements, we sometimes dig into elements, and don't want to get out again
     // we use the barrier list to add elements we do not want to get out again;
@@ -820,12 +820,14 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
                     if (env.previous(t) != null) lconds ++ getStmtPred(t, ctx, oldres, fm, env)
                     else {
                         val tparent = parentAST(t, env)
-                        if (tparent.isInstanceOf[CaseStatement]) {
-                            val newresctx = getNewResCtx(oldres, ctx, env.featureExpr(tparent))
-                            if (newresctx isContradiction (fm)) lconds
-                            else (newresctx, env.featureExpr(tparent), tparent) :: lconds
+                        tparent match {
+                            case c: CaseStatement => {
+                                val newresctx = getNewResCtx(oldres, ctx, env.featureExpr(tparent))
+                                if (newresctx isContradiction (fm)) lconds
+                                else (newresctx, env.featureExpr(tparent), c) :: lconds
+                            }
+                            case x: AST => lconds ++ getStmtPred(tparent, ctx, oldres, fm, env)
                         }
-                        else lconds ++ getStmtPred(tparent, ctx, oldres, fm, env)
                     }
                 }
             }
