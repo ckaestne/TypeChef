@@ -52,7 +52,7 @@ class CInterAnalysisFrontend(tu: TranslationUnit, fm: FeatureModel = FeatureExpr
 
 
         for (f <- fdefs) {
-            writer.writeMethodGraph(getAllSucc(f, fm, env), lookupFExpr)
+            writer.writeMethodGraph(getAllSucc(f, fm, env), lookupFExpr, f.declarator.getName)
         }
         writer.writeFooter()
         writer.close()

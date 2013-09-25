@@ -33,7 +33,7 @@ class InterCFGTest extends InterCFG with TestHelper with CFGHelper {
       }
 
     for (s <- fsuccs)
-      dot.writeMethodGraph(s, lookupFExpr)
+      dot.writeMethodGraph(s, lookupFExpr, "")
     dot.writeFooter()
     dot.close()
     println(a)
