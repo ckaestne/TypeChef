@@ -9,6 +9,7 @@ import parser.TokenReader
 import de.fosd.typechef.options.{FrontendOptionsWithConfigFiles, FrontendOptions, OptionException}
 import de.fosd.typechef.parser.c.CTypeContext
 import de.fosd.typechef.parser.c.TranslationUnit
+import de.fosd.typechef.featureexpr.FeatureExpr
 
 object Frontend extends EnforceTreeHelper {
 
@@ -163,6 +164,7 @@ object Frontend extends EnforceTreeHelper {
                     val dotwriter = new DotGraph(new FileWriter(new File(opt.getCCFGDotFilename)))
                     cf.writeCFG(opt.getFile, new ComposedWriter(List(dotwriter, writer)))
                 }
+                FeatureExpr.printSatStatistics
                 if (opt.warning_double_free) {
                     stopWatch.start("doublefree")
                     sa.doubleFree()
@@ -187,6 +189,7 @@ object Frontend extends EnforceTreeHelper {
                     stopWatch.start("checkstdlibfuncreturn")
                     sa.stdLibFuncReturn()
                 }
+                FeatureExpr.printSatStatistics
                 sa.errors.map(errorXML.renderTypeChefError)
             }
 
