@@ -1187,7 +1187,7 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
                 x => {
                     val ctxx = env.featureExpr(x)
                     val newres = if (isCFGInstructionSucc(x)) {
-                        List((getNewResCtx(curres, ctx, ctxx), ctxx, x))
+                        List((getNewResCtx(curres, ctx, ctxx), ctxx, x.asInstanceOf[CFGStmt])) : CFGRes
                     } else {
                         if (barrierExists(x)) {
                             succHelper(x, ctx, curres, fm, env)
@@ -1243,7 +1243,7 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
                             else {
                                 val newresctx = getNewResCtx(curres, ctx, ctxx)
                                 if (newresctx isContradiction fm) List()
-                                else List((newresctx, ctxx, x))
+                                else List((newresctx, ctxx, x.asInstanceOf[CFGStmt]))
                             }
                         }
                         else curres = predHelper(x, ctx, curres, fm, env)

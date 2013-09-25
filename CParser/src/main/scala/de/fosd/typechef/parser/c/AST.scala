@@ -62,6 +62,7 @@ trait AST extends Product with Serializable with Cloneable with WithPosition {
 }
 
 trait CFGStmt extends AST
+trait CDef extends AST
 
 sealed abstract class Expr extends AST with CFGStmt
 
@@ -337,16 +338,16 @@ case class StructInitializer(expr: Expr, attributes: List[Opt[AttributeSpecifier
 
 case class AsmExpr(isVolatile: Boolean, expr: Expr) extends AST with ExternalDef
 
-case class FunctionDef(specifiers: List[Opt[Specifier]], declarator: Declarator, oldStyleParameters: List[Opt[OldParameterDeclaration]], stmt: CompoundStatement) extends AST with ExternalDef with CFGStmt {
+case class FunctionDef(specifiers: List[Opt[Specifier]], declarator: Declarator, oldStyleParameters: List[Opt[OldParameterDeclaration]], stmt: CompoundStatement) extends AST with ExternalDef with CFGStmt with CDef {
     def getName = declarator.getName
 }
 
-case class NestedFunctionDef(isAuto: Boolean, specifiers: List[Opt[Specifier]], declarator: Declarator, parameters: List[Opt[Declaration]], stmt: CompoundStatement) extends CompoundDeclaration {
+case class NestedFunctionDef(isAuto: Boolean, specifiers: List[Opt[Specifier]], declarator: Declarator, parameters: List[Opt[Declaration]], stmt: CompoundStatement) extends CompoundDeclaration with CDef {
     def getName = declarator.getName
 }
 
 
-trait ExternalDef extends AST
+trait ExternalDef extends AST with CFGStmt
 
 case class EmptyExternalDef() extends ExternalDef
 
