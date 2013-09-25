@@ -48,13 +48,62 @@ class CInterAnalysisFrontend(tunit: TranslationUnit, fm: FeatureModel = FeatureE
     }
 }
 
-// TODO: Running all analyses on a per function level would be faster, since reoccuring computations such as getAllSucc had to be done only once. However determining analysis times would take more effort.
+// TODO: refactoring different dataflow analyses into a composite will reduce code: handling of invalid paths, error printing ...
 class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend with CTypeCache with CDeclUse, fm: FeatureModel = FeatureExprFactory.empty) extends CAnalysisFrontend(tunit) with IntraCFG with CFGHelper {
 
     private lazy val udm = ts.getUseDeclMap
     private lazy val dum = ts.getDeclUseMap
 
     var errors: List[TypeChefError] = List()
+
+    def deadStore(): Boolean = {
+        val err = fanalyze.flatMap(deadStore)
+
+        if (err.isEmpty) {
+            println("No dead stores found!")
+        } else {
+            println(err.map(_.toString + "\n").reduce(_ + _))
+        }
+        errors ++= err
+        err.isEmpty
+    }
+
+    private def deadStore(fa: (FunctionDef, List[(AST, List[Opt[AST]])])): List[TypeChefError] = {
+        var res: List[TypeChefError] = List()
+
+        val df = new Liveness(env, udm, FeatureExprFactory.empty)
+
+        val nss = fa._2.map(_._1).filterNot(x => x.isInstanceOf[FunctionDef])
+
+        for (s <- nss) {
+            val k = df.kill(s)
+
+            if (k.size > 0) {
+                val out = df.out(s)
+
+                for ((i, fi) <- k) {
+                    out.find { case (t, _) => t == i } match {
+                        case None => {
+                            res ::= new TypeChefError(Severity.Warning, fi, "warning: Variable " + i.name + " is a dead store!", i, "")
+                        }
+                        case Some((x, z)) => {
+                            if (! z.isTautology(fm)) {
+                                val xdecls = udm.get(x)
+                                var idecls = udm.get(i)
+                                if (idecls == null)
+                                    idecls = List(i)
+                                for (ei <- idecls)
+                                    if (xdecls.exists(_.eq(ei)))
+                                        res ::= new TypeChefError(Severity.Warning, z.not(), "warning: Variable " + i.name + " is a dead store!", i, "")
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        res
+    }
 
     def doubleFree(): Boolean = {
         val casestudy = {

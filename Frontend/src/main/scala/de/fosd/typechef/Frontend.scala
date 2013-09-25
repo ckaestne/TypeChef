@@ -187,6 +187,10 @@ object Frontend extends EnforceTreeHelper {
                     stopWatch.start("checkstdlibfuncreturn")
                     sa.stdLibFuncReturn()
                 }
+                if (opt.warning_dead_store) {
+                    stopWatch.start("deadstore")
+                    sa.deadStore()
+                }
                 sa.errors.map(errorXML.renderTypeChefError)
             }
 

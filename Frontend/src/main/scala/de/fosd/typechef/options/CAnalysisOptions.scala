@@ -33,10 +33,11 @@ class CAnalysisOptions extends FeatureModelOptions with ICTypeSysOptions with IC
     private val Sdanglingswitchcode = SecurityOption("danglingswitchcode", "Issue a warning when code in a switch statement doesn't occur within the control flow of a case or default statement", false)
     private val Scfginnonvoidfunc = SecurityOption("cfginnonvoidfunction", "Issue a warning when control flow in non-void function reaches no return statement", false)
     private val Sstdlibfuncreturn = SecurityOption("checkstdlibfuncreturn", "Issue a warning when the return value of a standard library function is not check for its error values", false)
+    private val Sdeadstore = SecurityOption("deadstore", "Issue a warning when values stored to variables are never read afterwards", false)
 
 
     val opts: List[SecurityOption] = List(
-        Apointersign, Aintegeroverflow, Aimplicitcoercion, Alongdesignator, Aimplicitidentifier, Aconflictinglinkage, Avolatile, Aconst, Achar, Sdoublefree, Sxfree, Sunitializedmemory, Scasetermination, Sdanglingswitchcode, Scfginnonvoidfunc, Sstdlibfuncreturn
+        Apointersign, Aintegeroverflow, Aimplicitcoercion, Alongdesignator, Aimplicitidentifier, Aconflictinglinkage, Avolatile, Aconst, Achar, Sdoublefree, Sxfree, Sunitializedmemory, Scasetermination, Sdanglingswitchcode, Scfginnonvoidfunc, Sstdlibfuncreturn, Sdeadstore
     )
 
 
@@ -58,6 +59,7 @@ class CAnalysisOptions extends FeatureModelOptions with ICTypeSysOptions with IC
     override def warning_dangling_switch_code: Boolean = Sdanglingswitchcode.isSelected
     override def warning_cfg_in_non_void_func: Boolean = Scfginnonvoidfunc.isSelected
     override def warning_stdlib_func_return: Boolean = Sstdlibfuncreturn.isSelected
+    override def warning_dead_store: Boolean = Sdeadstore.isSelected
 
     override protected def getOptionGroups: java.util.List[Options.OptionGroup] = {
         val r: java.util.List[Options.OptionGroup] = super.getOptionGroups

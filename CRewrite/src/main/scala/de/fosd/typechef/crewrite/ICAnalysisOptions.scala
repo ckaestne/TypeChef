@@ -46,6 +46,10 @@ trait ICAnalysisOptions {
     // https://www.securecoding.cert.org/confluence/display/seccode/ERR33-C.+Detect+and+handle+standard+library+errors
     // ERR33-C     high      likely      medium     P18     L1
     def warning_stdlib_func_return = false
+
+    // -A deadstore
+    // see: http://en.wikipedia.org/wiki/Dead_store and "clang -cc1 -analyze -analyzer-checker-help"
+    def warning_dead_store = false
 }
 
 trait CAnalysisOptionProvider {
