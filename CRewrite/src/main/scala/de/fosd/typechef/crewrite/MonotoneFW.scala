@@ -272,6 +272,8 @@ sealed abstract class MonotoneFW[T](val env: ASTEnv, val fm: FeatureModel) exten
             val orig = getOriginal(x)
             res = (orig, f) :: res
         }
+        // joining values from different paths can lead to duplicates.
+        // remove them and filter out values from unsatisfiable paths.
         res.distinct.filter { case (_, f) => f.isSatisfiable(fm) }
     }
 
