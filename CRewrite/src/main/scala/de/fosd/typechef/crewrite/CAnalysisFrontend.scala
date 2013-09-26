@@ -84,7 +84,11 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
                 for ((i, fi) <- k) {
                     out.find { case (t, _) => t == i } match {
                         case None => {
-                            res ::= new TypeChefError(Severity.Warning, fi, "warning: Variable " + i.name + " is a dead store!", i, "")
+                            var idecls = udm.get(i)
+                            if (idecls == null)
+                                idecls = List(i)
+                            if (idecls.exists(isPartOf(_, fa._1)))
+                                res ::= new TypeChefError(Severity.Warning, fi, "warning: Variable " + i.name + " is a dead store!", i, "")
                         }
                         case Some((x, z)) => {
                             if (! z.isTautology(fm)) {
@@ -92,9 +96,13 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
                                 var idecls = udm.get(i)
                                 if (idecls == null)
                                     idecls = List(i)
-                                for (ei <- idecls)
-                                    if (xdecls.exists(_.eq(ei)))
+                                for (ei <- idecls) {
+                                    // with isPartOf we reduce the number of false positives, since we only check local variables and function parameters.
+                                    // an assignment to a global variable might be used in another function
+                                    if (isPartOf(ei, fa._1) && xdecls.exists(_.eq(ei)))
                                         res ::= new TypeChefError(Severity.Warning, z.not(), "warning: Variable " + i.name + " is a dead store!", i, "")
+                                }
+
                             }
                         }
                     }
