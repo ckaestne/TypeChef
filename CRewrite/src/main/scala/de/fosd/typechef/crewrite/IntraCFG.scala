@@ -495,13 +495,15 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
 
             case t: Statement => {
                 val condexprs = filterAllASTElems[ConditionalExpr](t)
-                if (condexprs.size > 0) {
+                var res = if (condexprs.size > 0) {
                     val fexpcondexprs = env.featureExpr(condexprs.head.condition)
                     val newresctx = getNewResCtx(oldres, ctx, fexpcondexprs)
                     if (newresctx isContradiction (fm)) List()
                     else List((newresctx, fexpcondexprs, condexprs.head.condition))
                 }
                 else getStmtSucc(t, ctx, oldres, fm, env)
+                res = findMethodCalls(t, env, oldres, ctx, res)
+                res
             }
             case t => followSucc(t, ctx, oldres, fm, env)
         }
