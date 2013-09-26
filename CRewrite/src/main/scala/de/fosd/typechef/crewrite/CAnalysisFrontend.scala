@@ -15,13 +15,10 @@ import de.fosd.typechef.conditional.Opt
 
 sealed abstract class CAnalysisFrontend(tunit: TranslationUnit) extends CFGHelper {
     protected val env = CASTEnv.createASTEnv(tunit)
-    private val fdefs = filterAllASTElems[FunctionDef](tunit)
-    protected val fanalyze = fdefs.map {
-        x => (x, getAllSucc(x, FeatureExprFactory.empty, env))
-    }
+    protected val fdefs = filterAllASTElems[FunctionDef](tunit)
 }
 
-class CInterAnalysisFrontend(tunit: TranslationUnit, fm: FeatureModel = FeatureExprFactory.empty) extends CAnalysisFrontend(tunit) with InterCFG with CFGHelper {
+class CInterAnalysisFrontend(tunit: TranslationUnit, fm: FeatureModel = FeatureExprFactory.empty) extends CAnalysisFrontend(tunit) with InterCFG {
 
     def getTranslationUnit(): TranslationUnit = tunit
 
@@ -35,9 +32,7 @@ class CInterAnalysisFrontend(tunit: TranslationUnit, fm: FeatureModel = FeatureE
             case _ => FeatureExprFactory.True
         }
 
-        // although we use fanalyze here, we recompute getAllSucc with fm
-        // TODO: simplify filtering result with SatSolver.
-        for ((f, _) <- fanalyze) {
+        for (f <- fdefs) {
             writer.writeMethodGraph(getAllSucc(f, fm, env), lookupFExpr)
         }
         writer.writeFooter()
@@ -49,10 +44,14 @@ class CInterAnalysisFrontend(tunit: TranslationUnit, fm: FeatureModel = FeatureE
 }
 
 // TODO: refactoring different dataflow analyses into a composite will reduce code: handling of invalid paths, error printing ...
-class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend with CTypeCache with CDeclUse, fm: FeatureModel = FeatureExprFactory.empty) extends CAnalysisFrontend(tunit) with IntraCFG with CFGHelper {
+class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend with CTypeCache with CDeclUse, fm: FeatureModel = FeatureExprFactory.empty) extends CAnalysisFrontend(tunit) with IntraCFG {
 
     private lazy val udm = ts.getUseDeclMap
     private lazy val dum = ts.getDeclUseMap
+
+    private val fanalyze = fdefs.map {
+        x => (x, getAllSucc(x, FeatureExprFactory.empty, env))
+    }
 
     var errors: List[TypeChefError] = List()
 
