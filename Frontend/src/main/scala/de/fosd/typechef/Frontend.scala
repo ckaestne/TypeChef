@@ -9,6 +9,7 @@ import parser.TokenReader
 import de.fosd.typechef.options.{FrontendOptionsWithConfigFiles, FrontendOptions, OptionException}
 import de.fosd.typechef.parser.c.CTypeContext
 import de.fosd.typechef.parser.c.TranslationUnit
+import de.fosd.typechef.featureexpr.FeatureExpr
 
 object Frontend extends EnforceTreeHelper {
 
@@ -191,6 +192,7 @@ object Frontend extends EnforceTreeHelper {
                     stopWatch.start("deadstore")
                     sa.deadStore()
                 }
+				FeatureExpr.printSatStatistics
                 sa.errors.map(errorXML.renderTypeChefError)
             }
 

@@ -216,9 +216,17 @@ class BDDFeatureExpr(private[featureexpr] val bdd: BDD) extends FeatureExpr {
         //combination with a small FeatureExpr feature model
         else if (fm.clauses.isEmpty) (bdd and fm.extraConstraints.bdd and fm.assumptions.bdd).satOne() != FExprBuilder.FALSE
         //combination with SAT
-        else cacheIsSatisfiable.getOrElseUpdate(fm,
-            SatSolver.isSatisfiable(fm, toDnfClauses(toScalaAllSat((bdd and fm.extraConstraints.bdd).not().allsat())), FExprBuilder.lookupFeatureName)
-        )
+        else {
+            if (!cacheIsSatisfiable.isDefinedAt(fm))
+                FeatureExpr.incSatCalls
+            else {
+                FeatureExpr.incCachedSatCalls
+                FeatureExpr.incSatCalls
+            }
+            cacheIsSatisfiable.getOrElseUpdate(fm,
+                SatSolver.isSatisfiable(fm, toDnfClauses(toScalaAllSat((bdd and fm.extraConstraints.bdd).not().allsat())), FExprBuilder.lookupFeatureName)
+            )
+        }
     }
 
     /**
@@ -314,7 +322,7 @@ class BDDFeatureExpr(private[featureexpr] val bdd: BDD) extends FeatureExpr {
     }
 
 
-    private val cacheIsSatisfiable: WeakHashMap[FeatureModel, Boolean] = WeakHashMap()
+    private val cacheIsSatisfiable: WeakHashMap[BDDFeatureModel, Boolean] = WeakHashMap()
 
 
     /**
