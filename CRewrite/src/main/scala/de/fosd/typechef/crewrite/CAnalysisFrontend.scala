@@ -37,7 +37,7 @@ class CInterAnalysisFrontend(tunit: TranslationUnit, fm: FeatureModel = FeatureE
         for (f <- fdefs) {
             writer.writeMethodGraph(getAllSucc(f, FeatureExprFactory.empty, env).map {
                 x => (x._1, x._2.distinct.filter { y => y.feature.isSatisfiable(fm)}) // filter duplicates and wrong succs
-            }, lookupFExpr)
+            }, lookupFExpr, f.declarator.getName)
         }
         writer.writeFooter()
         writer.close()
