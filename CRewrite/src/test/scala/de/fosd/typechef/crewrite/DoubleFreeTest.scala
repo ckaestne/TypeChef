@@ -4,6 +4,7 @@ import org.junit.Test
 import org.scalatest.matchers.ShouldMatchers
 import de.fosd.typechef.featureexpr.FeatureExprFactory
 import de.fosd.typechef.parser.c._
+import de.fosd.typechef.typesystem.{CDeclUse, CTypeCache, CTypeSystemFrontend}
 
 class DoubleFreeTest extends TestHelper with ShouldMatchers with CFGHelper with EnforceTreeHelper {
 
@@ -16,7 +17,9 @@ class DoubleFreeTest extends TestHelper with ShouldMatchers with CFGHelper with 
 
     def doubleFree(code: String): Boolean = {
         val tunit = prepareAST[TranslationUnit](parseTranslationUnit(code))
-        val df = new CIntraAnalysisFrontend(tunit)
+        val ts = new CTypeSystemFrontend(tunit) with CTypeCache with CDeclUse
+        assert(ts.checkASTSilent, "typecheck fails!")
+        val df = new CIntraAnalysisFrontend(tunit, ts)
         df.doubleFree()
     }
 

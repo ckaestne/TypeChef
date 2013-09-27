@@ -14,13 +14,11 @@ object FeatureExprHelper {
         freshFeatureNameCounter = freshFeatureNameCounter + 1;
         "__fresh" + freshFeatureNameCounter;
     }
-
     /** map for caching of already solved SAT checks
      * Different objects A and B of class BDDFeatureExpr may refer to the same internal BDD and have the same hashcode and have equal-equality.
      * If a result was stored for A, this result will also be returned for B, because A.equals(B) .
      */
     val cacheIsSatisfiable: WeakHashMap[(BDDFeatureExpr, FeatureModel), Boolean] = WeakHashMap()
-
 }
 
 
@@ -319,6 +317,10 @@ class BDDFeatureExpr(private[featureexpr] val bdd: BDD) extends FeatureExpr {
         )
         allsat.map(clause(_))
     }
+
+
+
+
 
     /**
      * helper function for statistics and such that determines which
