@@ -9,7 +9,7 @@ class DanglingSwitchCodeTest extends TestHelper with ShouldMatchers with CFGHelp
 
     def danglingSwitchCode(code: String): Boolean = {
         val tunit = prepareAST[TranslationUnit](parseTranslationUnit(code))
-        val ds = new CIntraAnalysisFrontend(tunit)
+        val ds = new CIntraAnalysisFrontend(tunit, null)
         ds.danglingSwitchCode()
     }
 
@@ -23,7 +23,7 @@ class DanglingSwitchCodeTest extends TestHelper with ShouldMatchers with CFGHelp
                     default: a+3;
                   }
                }
-        """.stripMargin) should be(true)
+        """.stripMargin) should be(false)
     }
 
     danglingSwitchCode( """
@@ -34,7 +34,7 @@ class DanglingSwitchCodeTest extends TestHelper with ShouldMatchers with CFGHelp
                     default: a+3;
                   }
                }
-    """.stripMargin) should be(false)
+    """.stripMargin) should be(true)
 
     danglingSwitchCode( """
                void f(void) {
@@ -47,7 +47,7 @@ class DanglingSwitchCodeTest extends TestHelper with ShouldMatchers with CFGHelp
                     default: a+3;
                   }
                }
-    """.stripMargin) should be(true)
+    """.stripMargin) should be(false)
 
     danglingSwitchCode( """
                void f(void) {
@@ -62,6 +62,6 @@ class DanglingSwitchCodeTest extends TestHelper with ShouldMatchers with CFGHelp
                   }
                   #endif
                }
-    """.stripMargin) should be(false)
+    """.stripMargin) should be(true)
 }
 

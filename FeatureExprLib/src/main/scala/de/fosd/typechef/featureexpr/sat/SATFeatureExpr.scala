@@ -140,6 +140,18 @@ sealed abstract class SATFeatureExpr extends FeatureExpr {
             assert(fm.isInstanceOf[SATFeatureModel])
             fm.asInstanceOf[SATFeatureModel]
         }
+
+        // count total and cached sat calls for solving feature expressions with SAT
+        // we only consider non-trivial (!= True, and != False) feature expressions
+        if (this != FeatureExprFactory.True && this != FeatureExprFactory.False) {
+            if (!cacheIsSatisfiable.isDefinedAt(f))
+                FeatureExpr.incSatCalls
+            else {
+                FeatureExpr.incCachedSatCalls
+                FeatureExpr.incSatCalls
+            }
+        }
+
         cacheIsSatisfiable.getOrElseUpdate(f, new SatSolver().isSatisfiable(toCnfEquiSat, f))
     }
 

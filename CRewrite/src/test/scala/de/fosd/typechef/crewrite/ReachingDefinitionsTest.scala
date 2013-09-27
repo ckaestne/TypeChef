@@ -120,4 +120,21 @@ class ReachingDefinitionsTest extends TestHelper with ShouldMatchers with IntraC
             """.stripMargin
         )
     }
+
+    @Test def test_defuse() {
+        runExample(
+            """
+              void foo() {
+                int x;
+                int a = 0;
+                if (x) {
+                  a = 1;
+                } else {
+                  a = 2;
+                }
+                int z = a + x;
+              }
+            """.stripMargin
+        )
+    }
 }
