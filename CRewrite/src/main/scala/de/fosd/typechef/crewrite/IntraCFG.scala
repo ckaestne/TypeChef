@@ -77,7 +77,7 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
     // during traversal of AST elements, we sometimes dig into elements, and don't want to get out again
     // we use the barrier list to add elements we do not want to get out again;
     // in case we determine where we come from.
-    var barrier: List[AST] = List()
+    private var barrier: List[AST] = List()
 
     // determines predecessor of a given element
     // results are cached for secondary evaluation

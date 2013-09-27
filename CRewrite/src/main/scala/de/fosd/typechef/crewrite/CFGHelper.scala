@@ -8,7 +8,7 @@ trait CFGHelper extends IntraCFG {
 
     // determine recursively all succs check
     def getAllSucc(i: AST, fm: FeatureModel, env: ASTEnv) = {
-        var r = List[(AST, List[Opt[AST]])]()
+        var r = List[(AST, CFG)]()
         var s = List(i)
         var d = List[AST]()
         var c: AST = null
@@ -28,7 +28,7 @@ trait CFGHelper extends IntraCFG {
 
     // determine recursively all pred
     def getAllPred(i: AST, fm: FeatureModel, env: ASTEnv) = {
-        var r = List[(AST, List[Opt[AST]])]()
+        var r = List[(AST, CFG)]()
         var s = List(i)
         var d = List[AST]()
         var c: AST = null
