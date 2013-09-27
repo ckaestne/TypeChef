@@ -15,7 +15,7 @@ class CFGInNonVoidFunc(env: ASTEnv, fm: FeatureModel, ts: CTypeSystemFrontend) e
         val wlist: List[Opt[AST]] = pred(f, FeatureExprFactory.empty, env)
         var res: List[Opt[AST]] = List()
 
-        val ftypes = ts.lookupFunType(f)
+        val ftypes = ts.asInstanceOf[CTypeSystemFrontend with CTypeCache].lookupFunType(f)
 
         for (litem <- wlist) {
             litem match {
