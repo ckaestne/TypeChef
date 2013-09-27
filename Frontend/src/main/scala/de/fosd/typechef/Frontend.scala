@@ -150,7 +150,7 @@ object Frontend extends EnforceTreeHelper {
                     stopWatch.start("typechecking")
                     println("type checking.")
                     ts.checkAST()
-                    ts.errors.map(errorXML.renderTypeChefError)
+                    ts.errors.map(errorXML.renderTypeError)
                 }
                 if (opt.writeInterface) {
                     stopWatch.start("interfaces")
@@ -200,7 +200,6 @@ object Frontend extends EnforceTreeHelper {
                         stopWatch.start("deadstore")
                         sa.deadStore()
                     }
-                    sa.errors.map(errorXML.renderTypeChefError)
                 }
 
             }
