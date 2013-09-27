@@ -14,6 +14,7 @@ import de.fosd.typechef.conditional.Opt
 
 
 sealed abstract class CAnalysisFrontend(tunit: TranslationUnit) extends CFGHelper {
+
     protected val env = CASTEnv.createASTEnv(tunit)
     protected val fdefs = filterAllASTElems[FunctionDef](tunit)
 }
@@ -32,6 +33,7 @@ class CInterAnalysisFrontend(tunit: TranslationUnit, fm: FeatureModel = FeatureE
             case _ => FeatureExprFactory.True
         }
 
+
         for (f <- fdefs) {
             writer.writeMethodGraph(getAllSucc(f, FeatureExprFactory.empty, env).map {
                 x => (x._1, x._2.distinct.filter { y => y.feature.isSatisfiable(fm)}) // filter duplicates and wrong succs
@@ -46,7 +48,7 @@ class CInterAnalysisFrontend(tunit: TranslationUnit, fm: FeatureModel = FeatureE
 }
 
 // TODO: refactoring different dataflow analyses into a composite will reduce code: handling of invalid paths, error printing ...
-class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend with CTypeCache with CDeclUse, fm: FeatureModel = FeatureExprFactory.empty) extends CAnalysisFrontend(tunit) with IntraCFG {
+class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend, fm: FeatureModel = FeatureExprFactory.empty) extends CAnalysisFrontend(tunit) with IntraCFG {
 
     private lazy val udm = ts.getUseDeclMap
     private lazy val dum = ts.getDeclUseMap
@@ -133,6 +135,7 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
         } else {
             println(err.map(_.toString + "\n").reduce(_ + _))
         }
+
         errors ++= err
         err.isEmpty
     }
@@ -147,29 +150,27 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
 
         for (s <- nss) {
             val g = df.gen(s)
-
             if (g.size > 0) {
-                val in = df.in(s)
+            val in = df.in(s)
 
-                for (((i, _), h) <- in)
-                    g.find { case ((t, _), _) => t == i } match {
-                        case None =>
-                        case Some(((x, _), _)) => {
+            for (((i, _), h) <- in)
+                g.find { case ((t, _), _) => t == i } match {
+                    case None =>
+                    case Some(((x, _), _)) => {
                             if (h.isSatisfiable(fm)) {
-                                val xdecls = udm.get(x)
-                                var idecls = udm.get(i)
-                                if (idecls == null)
-                                    idecls = List(i)
-                                for (ei <- idecls)
-                                    if (xdecls.exists(_.eq(ei)))
-                                        res ::= new TypeChefError(Severity.Warning, h, "warning: Variable " + x.name + " is freed multiple times!", x, "")
-                            }
-                        }
+                        val xdecls = udm.get(x)
+                        var idecls = udm.get(i)
+                        if (idecls == null)
+                            idecls = List(i)
+                        for (ei <- idecls)
+                            if (xdecls.exists(_.eq(ei)))
+                                res ::= new TypeChefError(Severity.Warning, h, "warning: Variable " + x.name + " is freed multiple times!", x, "")
                     }
+                }
+        }
 
             }
         }
-
         res
     }
 
@@ -181,6 +182,7 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
         } else {
             println(err.map(_.toString + "\n").reduce(_ + _))
         }
+
         errors ++= err
         err.isEmpty
     }
@@ -194,29 +196,27 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
 
         for (s <- nss) {
             val g = um.getFunctionCallArguments(s)
-
             if (g.size > 0) {
-                val in = um.in(s)
+            val in = um.in(s)
 
-                for (((i, _), h) <- in)
-                    g.find { case ((t, _), _) => t == i } match {
-                        case None =>
-                        case Some(((x, _), _)) => {
+            for (((i, _), h) <- in)
+                g.find { case ((t, _), _) => t == i } match {
+                    case None =>
+                    case Some(((x, _), _)) => {
                             if (h.isSatisfiable(fm)) {
                                 var xdecls = udm.get(x)
                                 if (xdecls == null)
                                     xdecls = List(x)
-                                var idecls = udm.get(i)
-                                if (idecls == null)
-                                    idecls = List(i)
-                                for (ei <- idecls)
-                                    if (xdecls.exists(_.eq(ei)))
-                                        res ::= new TypeChefError(Severity.Warning, h, "warning: Variable " + x.name + " is used uninitialized!", x, "")
-                            }
+                        var idecls = udm.get(i)
+                        if (idecls == null)
+                            idecls = List(i)
+                        for (ei <- idecls)
+                            if (xdecls.exists(_.eq(ei)))
+                                res ::= new TypeChefError(Severity.Warning, h, "warning: Variable " + x.name + " is used uninitialized!", x, "")
+                    }
                         }
                     }
-
-            }
+                }
         }
 
         res
@@ -230,6 +230,7 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
         } else {
             println(err.map(_.toString + "\n").reduce(_ + _))
         }
+
         errors ++= err
         err.isEmpty
     }
@@ -243,28 +244,25 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
 
         for (s <- nss) {
             val g = xf.freedVariables(s)
-
             if (g.size > 0) {
-                val in = xf.in(s)
+            val in = xf.in(s)
 
-                for (((i,_), h) <- in)
-                    g.find(_ == i) match {
-                        case None =>
-                        case Some(x) => {
+            for (((i,_), h) <- in)
+                g.find(_ == i) match {
+                    case None =>
+                    case Some(x) => {
                             if (h.isSatisfiable(fm)) {
-                                val xdecls = udm.get(x)
-                                var idecls = udm.get(i)
-                                if (idecls == null)
-                                    idecls = List(i)
-                                for (ei <- idecls)
-                                    if (xdecls.exists(_.eq(ei)))
-                                        res ::= new TypeChefError(Severity.Warning, h, "warning: Variable " + x.name + " is freed although not dynamically allocted!", x, "")
-                            }
-
+                        val xdecls = udm.get(x)
+                        var idecls = udm.get(i)
+                        if (idecls == null)
+                            idecls = List(i)
+                        for (ei <- idecls)
+                            if (xdecls.exists(_.eq(ei)))
+                                res ::= new TypeChefError(Severity.Warning, h, "warning: Variable " + x.name + " is freed although not dynamically allocted!", x, "")
+                    }
                         }
                     }
-
-            }
+                }
         }
 
         res
@@ -278,6 +276,7 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
         } else {
             println(err.map(_.toString + "\n").reduce(_ + _))
         }
+
         errors ++= err
         err.isEmpty
     }
@@ -303,6 +302,7 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
         } else {
             println(err.map(_.toString + "\n").reduce(_ + _))
         }
+
         errors ++= err
         err.isEmpty
     }
@@ -323,6 +323,7 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
         } else {
             println(err.map(_.toString + "\n").reduce(_ + _))
         }
+
         errors ++= err
         err.isEmpty
     }
@@ -355,21 +356,22 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
                         case None =>
                         case Some(x) => {
                             if (fi.isSatisfiable(fm)) {
-                                val xdecls = udm.get(x)
-                                var edecls = udm.get(e)
-                                if (edecls == null) edecls = List(e)
+                            val xdecls = udm.get(x)
+                            var edecls = udm.get(e)
+                            if (edecls == null) edecls = List(e)
 
-                                for (ee <- edecls) {
-                                    val kills = cle.kill(s)
-                                    if (xdecls.exists(_.eq(ee)) && !kills.contains(x._1)) {
+                            for (ee <- edecls) {
+                                val kills = cle.kill(s)
+                                if (xdecls.exists(_.eq(ee)) && !kills.contains(x._1)) {
                                         err ::= new TypeChefError(Severity.SecurityWarning, fi, "The value of " +
-                                            PrettyPrinter.print(e) + " is not properly checked for (" + errorvalues + ")!", e)
-                                    }
+                                        PrettyPrinter.print(e) + " is not properly checked for (" + errorvalues + ")!", e)
                                 }
                             }
                         }
                     }
             }
+        }
+
         }
         errors ++= err
         err

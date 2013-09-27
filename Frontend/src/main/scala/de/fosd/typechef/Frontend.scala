@@ -131,8 +131,13 @@ object Frontend extends EnforceTreeHelper {
 
             if (ast != null) {
                 val fm_ts = opt.getTypeSystemFeatureModel.and(opt.getLocalFeatureModel).and(opt.getFilePresenceCondition)
-                val ts = new CTypeSystemFrontend(ast, fm_ts, opt) with CTypeCache with CDeclUse
-                val sa = new CIntraAnalysisFrontend(ast, ts, fm_ts)
+
+                // some dataflow analyses require typing information
+                val ts = if (opt.typechecksa)
+                            new CTypeSystemFrontend(ast, fm_ts, opt) with CTypeCache with CDeclUse
+                         else
+                            new CTypeSystemFrontend(ast, fm_ts, opt)
+
 
                 /** I did some experiments with the TypeChef FeatureModel of Linux, in case I need the routines again, they are saved here. */
                 //Debug_FeatureModelExperiments.experiment(fm_ts)
@@ -164,36 +169,40 @@ object Frontend extends EnforceTreeHelper {
                     val dotwriter = new DotGraph(new FileWriter(new File(opt.getCCFGDotFilename)))
                     cf.writeCFG(opt.getFile, new ComposedWriter(List(dotwriter, writer)))
                 }
-                if (opt.warning_double_free) {
-                    stopWatch.start("doublefree")
-                    sa.doubleFree()
+
+                if (opt.staticanalyses) {
+                    val sa = new CIntraAnalysisFrontend(ast, ts.asInstanceOf[CTypeSystemFrontend with CTypeCache with CDeclUse], fm_ts)
+                    if (opt.warning_double_free) {
+                        stopWatch.start("doublefree")
+                        sa.doubleFree()
+                    }
+                    if (opt.warning_uninitialized_memory) {
+                        stopWatch.start("uninitializedmemory")
+                        sa.uninitializedMemory()
+                    }
+                    if (opt.warning_xfree) {
+                        stopWatch.start("xfree")
+                        sa.xfree()
+                    }
+                    if (opt.warning_dangling_switch_code) {
+                        stopWatch.start("danglingswitchcode")
+                        sa.danglingSwitchCode()
+                    }
+                    if (opt.warning_cfg_in_non_void_func) {
+                        stopWatch.start("cfginnonvoidfunc")
+                        sa.cfgInNonVoidFunc()
+                    }
+                    if (opt.warning_stdlib_func_return) {
+                        stopWatch.start("checkstdlibfuncreturn")
+                        sa.stdLibFuncReturn()
+                    }
+                    if (opt.warning_dead_store) {
+                        stopWatch.start("deadstore")
+                        sa.deadStore()
+                    }
+                    sa.errors.map(errorXML.renderTypeChefError)
                 }
-                if (opt.warning_uninitialized_memory) {
-                    stopWatch.start("uninitializedmemory")
-                    sa.uninitializedMemory()
-                }
-                if (opt.warning_xfree) {
-                    stopWatch.start("xfree")
-                    sa.xfree()
-                }
-                if (opt.warning_dangling_switch_code) {
-                    stopWatch.start("danglingswitchcode")
-                    sa.danglingSwitchCode()
-                }
-                if (opt.warning_cfg_in_non_void_func) {
-                    stopWatch.start("cfginnonvoidfunc")
-                    sa.cfgInNonVoidFunc()
-                }
-                if (opt.warning_stdlib_func_return) {
-                    stopWatch.start("checkstdlibfuncreturn")
-                    sa.stdLibFuncReturn()
-                }
-                if (opt.warning_dead_store) {
-                    stopWatch.start("deadstore")
-                    sa.deadStore()
-                }
-				FeatureExpr.printSatStatistics
-                sa.errors.map(errorXML.renderTypeChefError)
+
             }
 
         }
