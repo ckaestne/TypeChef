@@ -6,7 +6,7 @@ import de.fosd.typechef.parser.c._
 import de.fosd.typechef.typesystem.{DeclUseMap, UseDeclMap}
 import de.fosd.typechef.featureexpr.FeatureModel
 
-// implements a simple analysis of uninitalized memory
+// implements a simple analysis of uninitialized memory
 // https://www.securecoding.cert.org/confluence/display/seccode/EXP33-C.+Do+not+reference+uninitialized+memory
 // EXP33
 //
@@ -37,14 +37,16 @@ class UninitializedMemory(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: Fea
         res
     }
 
+    // returns all arguments (no references!) for a given AST (CFGStmt)
     private def getRelevantFunctionCallArguments(a: AST): List[Id] = {
         var resid = List[Id]()
         val fcs = filterAllASTElems[PostfixExpr](a)
 
         // get all ids except function names (should be extended to other ids, such as typedefs, too)
-        // since we traverse bottom up, one result set is sufficient.
         val functionCallArguments = manybu(query {
             case i: Id => resid ::= i
+            case PointerCreationExpr(i: Id) => resid = resid.filterNot(_.eq(i))
+            // remove function-call identifiers, that have been previously added by bottom-up traversal
             case PostfixExpr(i: Id, _: FunctionCall) => resid = resid.filterNot(_.eq(i))
         })
 
