@@ -202,6 +202,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                             prepareArray
                         } mapf(featureExpr, {
                             case (f, CObj(t)) if (isScalar(t)) => t //apparently ++ also works on arrays
+                            case (f, CObj(CIgnore())) => CIgnore()
                             //TODO check?: not on function references
                             case (f, e) => reportTypeError(f, "wrong type argument to increment " + e, pe)
                         })
