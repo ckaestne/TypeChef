@@ -215,4 +215,12 @@ class RedeclarationTest extends FunSuite with ShouldMatchers with TestHelper {
                    """)
         }
     }
+
+    test("redeclaration with CIgnore") {
+        expect(true) {
+            check("typedef union { int x; } X __attribute__ ((__transparent_union__)); \n" +
+                "int foo(X a);\n" +
+                "int foo(int a);")
+        }
+    }
 }

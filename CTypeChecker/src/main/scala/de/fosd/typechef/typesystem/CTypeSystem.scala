@@ -145,12 +145,15 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
             //two prototypes
             case (CPointer(CFunction(newParam, newRet)), CPointer(CFunction(prevParam, prevRet))) if (newKind == KDeclaration && prevKind == KDeclaration) =>
                 //must have same return type and same parameters (for common parameters)
-                return (newRet == prevRet) && (newParam.zip(prevParam).forall(x => x._1 == x._2))
+                return isEqualOrIgnore(newRet, prevRet) && (newParam.zip(prevParam).forall(x => isEqualOrIgnore(x._1, x._2)))
 
             //function overriding a prototype or vice versa
             case (CPointer(CFunction(_, _)), CPointer(CFunction(_, _))) if ((newKind == KDefinition && prevKind == KDeclaration) || (newKind == KDeclaration && prevKind == KDefinition)) =>
                 //must have the exact same type
                 return newType == prevType
+
+            case (a,b) if a.isIgnore || b.isIgnore => return true
+
             case _ =>
         }
 
@@ -167,6 +170,9 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
         //function definitions may never be redeclared
         false
     }
+
+    private def isEqualOrIgnore(a:CType, b:CType):Boolean =
+        (a==b) || a.isIgnore || b.isIgnore
 
 
     private def checkInitializer(initExpr: Expr, expectedType: Conditional[CType], featureExpr: FeatureExpr, env: Env) {
