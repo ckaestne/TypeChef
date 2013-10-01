@@ -41,6 +41,7 @@ sealed abstract class StdLibFuncReturn(env: ASTEnv, dum: DeclUseMap, udm: UseDec
                 filterAllASTElems[PostfixExpr](source).map(
                     pfe => pfe match {
                         case PostfixExpr(Id(name), FunctionCall(_)) => if (function.contains(name)) res ++= fromCache(i)
+                        case _ =>
                     }
                 )
             }
@@ -48,6 +49,7 @@ sealed abstract class StdLibFuncReturn(env: ASTEnv, dum: DeclUseMap, udm: UseDec
                 filterAllASTElems[PostfixExpr](init).map(
                     pfe => pfe match {
                         case PostfixExpr(Id(name), FunctionCall(_)) => if (function.contains(name)) res ++= fromCache(i)
+                        case _ =>
                     }
                 )
         })

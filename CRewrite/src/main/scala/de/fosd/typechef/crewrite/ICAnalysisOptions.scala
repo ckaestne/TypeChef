@@ -6,6 +6,17 @@ package de.fosd.typechef.crewrite
 
 trait ICAnalysisOptions {
 
+    // for convenience: group all dataflow analyses
+    def staticanalyses = {
+        typechecksa || warning_case_termination || warning_dangling_switch_code
+    }
+
+    // for convenience: groups all dataflow analyses that need typechecking information!
+    def typechecksa = {
+        warning_double_free || warning_xfree || warning_uninitialized_memory || warning_cfg_in_non_void_func || warning_stdlib_func_return || warning_dead_store
+    }
+
+
     // -A doublefree
     // https://www.securecoding.cert.org/confluence/display/seccode/MEM31-C.+Free+dynamically+allocated+memory+exactly+once
     // MEM31-C     high     probable     medium     P12     L1
@@ -46,6 +57,10 @@ trait ICAnalysisOptions {
     // https://www.securecoding.cert.org/confluence/display/seccode/ERR33-C.+Detect+and+handle+standard+library+errors
     // ERR33-C     high      likely      medium     P18     L1
     def warning_stdlib_func_return = false
+
+    // -A deadstore
+    // see: http://en.wikipedia.org/wiki/Dead_store and "clang -cc1 -analyze -analyzer-checker-help"
+    def warning_dead_store = false
 }
 
 trait CAnalysisOptionProvider {

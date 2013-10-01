@@ -21,7 +21,6 @@ trait FeatureExpr extends Serializable {
     def and(that: FeatureExpr): FeatureExpr
     def not(): FeatureExpr
 
-
     //equals, hashcode
 
 
@@ -114,6 +113,20 @@ trait FeatureExpr extends Serializable {
 
     //this method needs to be copied into all concrete subclasses!
     private def writeReplace(): Object = new FeatureExprSerializationProxy(this.toTextExpr)
+}
+
+object FeatureExpr {
+    private var totalSatCalls = 0
+    def incSatCalls = { totalSatCalls += 1 }
+
+    private var cachedSatCalls = 0
+    def incCachedSatCalls = { cachedSatCalls += 1 }
+
+    def printSatStatistics = {
+        println("#total sat calls:  " + totalSatCalls)
+        println("#cached sat calls: " + cachedSatCalls)
+        println("in percent: " + (cachedSatCalls*100.0/totalSatCalls))
+    }
 }
 
 class FeatureExprSerializationProxy(fexpr: String) extends Serializable {
