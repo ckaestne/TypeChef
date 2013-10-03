@@ -132,6 +132,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
         })
     }
 
+
     /**
      *
      */
@@ -142,17 +143,17 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
         if (newScope > prevScope) return true; //always fine
 
         (newType.atype, prevType.atype) match {
+            case (a, b) if containsIgnore(a) || containsIgnore(b) => return true
+
             //two prototypes
             case (CPointer(CFunction(newParam, newRet)), CPointer(CFunction(prevParam, prevRet))) if (newKind == KDeclaration && prevKind == KDeclaration) =>
                 //must have same return type and same parameters (for common parameters)
-                return isEqualOrIgnore(newRet, prevRet) && (newParam.zip(prevParam).forall(x => isEqualOrIgnore(x._1, x._2)))
+                return (newRet == prevRet) && (newParam.zip(prevParam).forall(x => x._1 == x._2))
 
             //function overriding a prototype or vice versa
-            case (CPointer(CFunction(_, _)), CPointer(CFunction(_, _))) if ((newKind == KDefinition && prevKind == KDeclaration) || (newKind == KDeclaration && prevKind == KDefinition)) =>
+            case (CPointer(CFunction(newParam, newRet)), CPointer(CFunction(prevParam, prevRet))) if ((newKind == KDefinition && prevKind == KDeclaration) || (newKind == KDeclaration && prevKind == KDefinition)) =>
                 //must have the exact same type
                 return newType == prevType
-
-            case (a,b) if a.isIgnore || b.isIgnore => return true
 
             case _ =>
         }
@@ -171,9 +172,17 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
         false
     }
 
-    private def isEqualOrIgnore(a:CType, b:CType):Boolean =
-        (a==b) || a.isIgnore || b.isIgnore
+    private def isEqualOrIgnore(a: CType, b: CType): Boolean =
+        (a == b) || a.isIgnore || b.isIgnore
 
+    def containsIgnore(cType: CType): Boolean = containsIgnore(cType.atype)
+    def containsIgnore(aType: AType): Boolean = aType.isIgnore || (aType match {
+        case CPointer(p) => containsIgnore(p)
+        case CArray(p, _) => containsIgnore(p)
+        case CFunction(p, r) => containsIgnore(r) || p.exists(containsIgnore(_))
+        case CAnonymousStruct(f, _) => f.allTypes.exists(_.exists(containsIgnore(_)))
+        case _ => false
+    })
 
     private def checkInitializer(initExpr: Expr, expectedType: Conditional[CType], featureExpr: FeatureExpr, env: Env) {
         val foundType = getExprType(initExpr, featureExpr, env)
