@@ -546,7 +546,7 @@ object FamilyBasedVsSampleBased extends EnforceTreeHelper with ASTNavigation wit
         val (configGenLog: String, typecheckingTasks: List[Task]) =
             buildConfigurations(family_ast, fm_ts, opt, configSerializationDir, caseStudy)
         saveSerializationOfTasks(typecheckingTasks, features, configSerializationDir, opt.getFile)
-        analyzeTasks(typecheckingTasks, family_ast, fm, opt, thisFilePath, startLog = configGenLog)
+        //analyzeTasks(typecheckingTasks, family_ast, fm, opt, thisFilePath, startLog = configGenLog)
     }
 
   def median(s: Seq[Long]) = {

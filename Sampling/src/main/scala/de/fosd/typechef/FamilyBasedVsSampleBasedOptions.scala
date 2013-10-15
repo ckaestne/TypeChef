@@ -3,10 +3,10 @@ package de.fosd.typechef
 import java.util
 import gnu.getopt.{Getopt, LongOpt}
 import java.lang.String
-import de.fosd.typechef.options.{Options, FrontendOptions}
+import de.fosd.typechef.options.{FrontendOptionsWithConfigFiles, Options, FrontendOptions}
 import de.fosd.typechef.options.Options.OptionGroup
 
-class FamilyBasedVsSampleBasedOptions extends FrontendOptions {
+class FamilyBasedVsSampleBasedOptions extends FrontendOptionsWithConfigFiles {
     private[typechef] var singleconf: Boolean = false
     private[typechef] var codecoverage: Boolean = false
     private[typechef] var codecoverageNH: Boolean = false
