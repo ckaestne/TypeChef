@@ -183,7 +183,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                                         if (opts.warning_implicit_coercion && isForcedCoercion(ltype.atype, rtype.atype))
                                             reportTypeError(fexpr, "Implicit coercion of integer types (%s <- %s), consider a cast".format(ltype.toText, rtype.toText), ae, Severity.SecurityWarning, "implicit_coercion")
                                         if (opts.warning_character_signed && isCharSignCoercion(ltype.atype, rtype.atype))
-                                            reportTypeError(featureExpr, "Incompatible character types '%s <- %s'; consider a cast".format(ltype.toText, rtype.toText), expr, Severity.SecurityWarning, "char_signness")
+                                            reportTypeError(fexpr, "Incompatible character types '%s <- %s'; consider a cast".format(ltype.toText, rtype.toText), expr, Severity.SecurityWarning, "char_signness")
 
                                         prepareArray(ltype).toValue
                                     }
@@ -214,7 +214,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                                 val isPointerArith = (pointerArthOp(subExpr.op) || pointerArthAssignOp(subExpr.op)) && isPointer(ctype)
                                 val subExprType = etF(subExpr.e, fexpr, if (isPointerArith) env.markSecurityRelevant("array access/pointer arithmetic") else env)
 
-                                subExprType map (subExprType => operationType(subExpr.op, ctype, subExprType, ne, fexpr, env))
+                                subExprType mapf (fexpr, (fexpr, subExprType) => operationType(subExpr.op, ctype, subExprType, ne, fexpr, env))
                             }
                         )
                     //a[e]
