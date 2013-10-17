@@ -561,7 +561,7 @@ object FamilyBasedVsSampleBased extends EnforceTreeHelper with ASTNavigation wit
     }
 
     private def warmUp(tu: TranslationUnit) {
-        val ts = new CTypeSystemFrontend(tu)
+        val ts = new CTypeSystemFrontend(tu) with CDeclUse
         ts.checkASTSilent
         ts.checkASTSilent
         ts.checkASTSilent
@@ -612,7 +612,7 @@ object FamilyBasedVsSampleBased extends EnforceTreeHelper with ASTNavigation wit
             warmUp(ast)
         }
 
-        val ts = new CTypeSystemFrontend(tunit, fm)
+        val ts = new CTypeSystemFrontend(tunit, fm) with CDeclUse
         lastTime = tb.getCurrentThreadCpuTime
         foundError |= !ts.checkASTSilent
         curTime = (tb.getCurrentThreadCpuTime - lastTime)
@@ -653,7 +653,7 @@ object FamilyBasedVsSampleBased extends EnforceTreeHelper with ASTNavigation wit
                         "(" + selectedFeatures.size + ")"
                 )
 
-                val ts = new CTypeSystemFrontend(product)
+                val ts = new CTypeSystemFrontend(product) with CDeclUse
 
                 // typechecking measurement
                 var foundError: Boolean = false
