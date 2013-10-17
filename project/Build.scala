@@ -168,7 +168,8 @@ object TypeChef extends Build {
         cparser,
         ctypechecker,
         javaparser,
-        crewrite,
+        javascriptparser,
+        //crewrite,
         frontend
         )
 
@@ -228,6 +229,13 @@ object TypeChef extends Build {
         "JavaParser",
         file("JavaParser"),
         settings = buildSettings
+    ) dependsOn(featureexpr, parserexp, conditionallib, errorlib)
+
+    lazy val javascriptparser = Project(
+        "JavaScriptParser",
+        file("JavaScriptParser"),
+        settings = buildSettings ++
+            (libraryDependencies += "rhino" % "js" % "1.7R2")
     ) dependsOn(featureexpr, parserexp, conditionallib, errorlib)
 
     lazy val crewrite = Project(
