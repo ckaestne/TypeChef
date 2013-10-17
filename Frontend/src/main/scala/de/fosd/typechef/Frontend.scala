@@ -102,8 +102,12 @@ object Frontend extends EnforceTreeHelper {
         var ast: TranslationUnit = null
         if (opt.reuseAST && opt.parse && new File(opt.getSerializedASTFilename).exists()) {
             println("loading AST.")
+            try {
             ast = loadSerializedAST(opt.getSerializedASTFilename)
             ast = prepareAST[TranslationUnit](ast)
+            } catch {
+                case e: Throwable => println(e.getMessage); ast=null
+            }
             if (ast == null)
                 println("... failed reading AST\n")
         }
