@@ -17,10 +17,11 @@ import de.fosd.typechef.error.Position
 //}
 
 class JSToken(
-                      image: String,
-                      featureExpr: FeatureExpr,
-                      position: Position,
-                      kind: Int) extends AbstractToken with ProfilingToken {
+                 image: String,
+                 featureExpr: FeatureExpr,
+                 position: Position,
+                 kind: Int,
+                 val afterNewLine: Boolean) extends AbstractToken with ProfilingToken {
 
     def getFeature(): FeatureExpr = featureExpr
 

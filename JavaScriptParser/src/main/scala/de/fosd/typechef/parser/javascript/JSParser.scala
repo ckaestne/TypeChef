@@ -33,9 +33,11 @@ class JSParser extends MultiFeatureParser {
         case "[" => tokenids(Token.LB)
         case "]" => tokenids(Token.RB)
         case ";" => tokenids(Token.SEMI)
+        case ":" => tokenids(Token.COLON)
         case "," => tokenids(Token.COMMA)
-        case "=" => tokenids(Token.EQ)
+        case "=" => tokenids(Token.ASSIGN)
         case "." => tokenids(Token.DOT)
+        case "/" => tokenids(Token.DIV)
         case _ => fail("unsupported keyword " + s)
     }
 
@@ -62,7 +64,7 @@ class JSParser extends MultiFeatureParser {
 
 
     def Statement: MultiParser[JSStatement] =
-        (Block |
+        Block |
             VariableStatement |
             EmptyStatement |
             ExpressionStatement |
@@ -76,60 +78,60 @@ class JSParser extends MultiFeatureParser {
             SwitchStatement |
             ThrowStatement |
             TryStatement |
-            DebuggerStatement) ^^ {x => JSStatement()}
+            DebuggerStatement | fail("expected statement")
 
-    def Block = StatementList ^^ {JSBlock(_)}
+    def Block = "{" ~> StatementList <~ "}" ^^ {JSBlock(_)}
 
     def StatementList = repOpt(Statement)
 
     def VariableStatement =
-        Token.VAR ~ repSepPlain(VariableDeclaration, ",");
+        Token.VAR ~> rep1Sep(VariableDeclaration, ",") <~ ";" ^^ {JSVariableStatement(_)}
 
     def VariableDeclarationListNoIn = repSepPlain1(VariableDeclarationNoIn, ",")
 
     def VariableDeclaration =
-        Identifier ~ opt(Initialiser)
+        Identifier ~ opt(Initialiser) ^^ {case n ~ i => JSVariableDeclaration(n, i)}
 
     def VariableDeclarationNoIn =
-        Identifier ~ opt(InitialiserNoIn)
+        Identifier ~ opt(InitialiserNoIn) ^^ {case n ~ i => JSVariableDeclaration(n, i)}
 
     def Initialiser =
-        "=" ~ AssignmentExpression
+        "=" ~> AssignmentExpression
 
     def InitialiserNoIn =
-        "=" ~ AssignmentExpressionNoIn
+        "=" ~> AssignmentExpressionNoIn
 
     def EmptyStatement =
-        ";"
+        ";" ^^ {x => JSEmptyStatement()}
 
     def ExpressionStatement =
-        Expression ~ ";"
+        Expression <~ ";" ^^ {JSExprStatement(_)}
 
     def IfStatement =
-        Token.IF ~ "(" ~ Expression ~ ")" ~ Statement ~ opt(Token.ELSE ~ Statement)
+        Token.IF ~ "(" ~ Expression ~ ")" ~ Statement ~ opt(Token.ELSE ~ Statement) ^^ {x => JSOtherStatement()}
 
     def IterationStatement =
-        (Token.DO ~ Statement ~ Token.WHILE ~ "(" ~ Expression ~ ")" ~ ";") |
+        ((Token.DO ~ Statement ~ Token.WHILE ~ "(" ~ Expression ~ ")" ~ ";") |
             (Token.WHILE ~ "(" ~ Expression ~ ")" ~ Statement) |
             (Token.FOR ~ "(" ~ opt(ExpressionNoIn) ~ ";" ~ opt(Expression) ~ ";" ~ opt(Expression) ~ ")" ~ Statement) |
-            (Token.FOR ~ "(" ~ Token.VAR ~ VariableDeclarationListNoIn ~ ";" ~ opt(Expression) ~ ";" ~ opt(Expression) ~ ")" ~ Statement)
-    (Token.FOR ~ "(" ~ LeftHandSideExpression ~ Token.IN ~ Expression ~ ")" ~ Statement)
-    (Token.FOR ~ "(" ~ Token.VAR ~ VariableDeclarationNoIn ~ Token.IN ~ Expression ~ ")" ~ Statement)
+            (Token.FOR ~ "(" ~ Token.VAR ~ VariableDeclarationListNoIn ~ ";" ~ opt(Expression) ~ ";" ~ opt(Expression) ~ ")" ~ Statement) |
+            (Token.FOR ~ "(" ~ LeftHandSideExpression ~ Token.IN ~ Expression ~ ")" ~ Statement) |
+            (Token.FOR ~ "(" ~ Token.VAR ~ VariableDeclarationNoIn ~ Token.IN ~ Expression ~ ")" ~ Statement)) ^^ {x => JSOtherStatement()}
 
     def ContinueStatement =
-        Token.CONTINUE ~ opt(Identifier) ~ ";"
+        Token.CONTINUE ~ opt(Identifier) ~ ";" ^^ {x => JSOtherStatement()}
 
     def BreakStatement =
-        Token.BREAK ~ opt(Identifier) ~ ";"
+        Token.BREAK ~ opt(Identifier) ~ ";" ^^ {x => JSOtherStatement()}
 
     def ReturnStatement =
-        Token.RETURN ~ opt(Expression) ~ ";"
+        Token.RETURN ~ opt(Expression) ~ ";" ^^ {x => JSOtherStatement()}
 
     def WithStatement =
-        Token.WITH ~ "(" ~ Expression ~ ")" ~ Statement;
+        Token.WITH ~ "(" ~ Expression ~ ")" ~ Statement ^^ {x => JSOtherStatement()}
 
     def SwitchStatement =
-        Token.SWITCH ~ "(" ~ Expression ~ ")" ~ CaseBlock
+        Token.SWITCH ~ "(" ~ Expression ~ ")" ~ CaseBlock ^^ {x => JSOtherStatement()}
 
     def CaseBlock =
         "{" ~ CaseClauses ~ opt(DefaultClause ~ CaseClauses) ~ "}"
@@ -144,13 +146,13 @@ class JSParser extends MultiFeatureParser {
         Token.DEFAULT ~ ":" ~ StatementList
 
     def LabelledStatement =
-        Identifier ~ ":" ~ Statement
+        Identifier ~ ":" ~ Statement ^^ {x => JSOtherStatement()}
 
     def ThrowStatement =
-        Token.THROW ~ Expression ~ ";"
+        Token.THROW ~ Expression ~ ";" ^^ {x => JSOtherStatement()}
 
     def TryStatement =
-        Token.TRY ~ Block ~ ((Catch ~ opt(Finally)) | Finally)
+        Token.TRY ~ Block ~ ((Catch ~ opt(Finally)) | Finally) ^^ {x => JSOtherStatement()}
 
     def Catch =
         Token.CATCH ~ "(" ~ Identifier ~ ")" ~ Block
@@ -159,18 +161,18 @@ class JSParser extends MultiFeatureParser {
         Token.FINALLY ~ Block
 
     def DebuggerStatement =
-        Token.DEBUGGER ~ ";"
+        Token.DEBUGGER ~ ";" ^^ {x => JSOtherStatement()}
 
 
-    def PrimaryExpression :MultiParser[Any]=
-        tokenids(Token.THIS) |
-            Identifier |
+    def PrimaryExpression: MultiParser[JSExpression] =
+        tokenids(Token.THIS) ^^ {x => JSThis()} |
+            Identifier ^^ {JSId(_)} |
             Literal |
-            ArrayLiteral |
-            ObjectLiteral |
-            ("(" ~ Expression ~ ")")
+            ArrayLiteral ^^ {x => JSExpr()} |
+            ObjectLiteral ^^ {x => JSExpr()} |
+            ("(" ~> Expression <~ ")")
 
-    def Literal = Token.NULL | Token.TRUE | Token.FALSE | Token.NUMBER | Token.STRING | Token.REGEXP
+    def Literal = (tokenids(Token.NULL) | tokenids(Token.TRUE) | tokenids(Token.FALSE) | tokenids(Token.NUMBER) | tokenids(Token.STRING)) ^^ {x => JSLit(x.getText())} | RegularExpressionLiteral
 
     //    See 11.1.4
     def ArrayLiteral =
@@ -184,141 +186,187 @@ class JSParser extends MultiFeatureParser {
 
 
     def PropertyAssignment =
-        (PropertyName ~ ":" ~ AssignmentExpression) |
-            (Token.GET ~ PropertyName ~ "(" ~ ")" ~ "{" ~ FunctionBody ~ "}") |
-            (Token.SET ~ PropertyName ~ "(" ~ PropertySetParameterList ~ ")" ~ "{" ~ FunctionBody ~ "}")
+        (Token.GET ~ PropertyName ~ "(" ~ ")" ~ "{" ~ FunctionBody ~ "}") |
+            (Token.SET ~ PropertyName ~ "(" ~ PropertySetParameterList ~ ")" ~ "{" ~ FunctionBody ~ "}") |
+            (PropertyName ~ ":" ~ AssignmentExpression)
 
     def PropertyName =
         Identifier |
-            Token.STRING|
+            Token.STRING |
             Token.NUMBER
 
     def PropertySetParameterList = Identifier
 
-    def MemberExpression:MultiParser[Any] =
-        PrimaryExpression |
+    def MemberExpression: MultiParser[JSExpression] =
+        (PrimaryExpression |
             FunctionExpression |
-            (MemberExpression ~ "[" ~ Expression ~ "]") |
-            (MemberExpression ~ "." ~ Identifier/*Name*/) |
-            (Token.NEW ~ MemberExpression ~ Arguments)
+            (Token.NEW ~ MemberExpression ~ Arguments ^^ {x => JSExpr()})) ~
+            repPlain(("[" ~ Expression ~ "]") |
+                ("." ~ Identifier /*Name*/)) ^^ {case e ~ p => e}
 
-    def NewExpression:MultiParser[Any] =
-        MemberExpression |
-            (Token.NEW ~ NewExpression)
 
-    def CallExpression :MultiParser[Any]=
-        (MemberExpression ~ Arguments) |
-            (CallExpression ~ (Arguments |
+    //    def NewExpression: MultiParser[Any] =
+    //        MemberExpression |
+    //            (Token.NEW ~ NewExpression)
+
+    def LeftHandSideExpression: MultiParser[JSExpression] =
+        ((MemberExpression ~ opt(Arguments) ^^ {case e ~ Some(a) => JSFunctionCall(e, a); case e ~ None => e}) ~
+            repPlain((Arguments |
                 ("[" ~ Expression ~ "]") |
-                ("." ~ Identifier/*Name*/)))
+                ("." ~ Identifier /*Name*/))) ^^ {case x ~ e => x}) |
+            (Token.NEW ~ LeftHandSideExpression ^^ {x => JSExpr()})
 
-    def Arguments = "(" ~ repSepPlain(AssignmentExpression, ",") ~ ")"
+
+    def Arguments = "(" ~> repSepPlain(AssignmentExpression, ",") <~ ")"
 
 
-    def LeftHandSideExpression =
-        NewExpression |
-            CallExpression
+    //    def LeftHandSideExpression =
+    //        NewExpression |
+    //            CallExpression
 
-    def PostfixExpression =
-        LeftHandSideExpression ~ opt(Token.INC | Token.DEC)
+    def PostfixExpression: MultiParser[JSExpression] =
+        LeftHandSideExpression ~ opt(tokenids(Token.INC) | Token.DEC) ^^ {case e ~ p => e}
 
-    def UnaryExpression:MultiParser[Any] =
-        (Token.DELPROP ~ UnaryExpression) |
-            (Token.VOID ~ UnaryExpression) |
-            (Token.TYPEOF ~ UnaryExpression) |
-            (Token.INC ~ UnaryExpression) |
-            (Token.DEC ~ UnaryExpression) |
-            (Token.ADD ~ UnaryExpression) |
-            (Token.SUB ~ UnaryExpression) |
-            (Token.NEG ~ UnaryExpression) |
-            (Token.NOT ~ UnaryExpression) |
+    def UnaryExpression: MultiParser[JSExpression] =
+        (Token.DELPROP ~ UnaryExpression ^^ {x => JSExpr()}) |
+            (Token.VOID ~ UnaryExpression ^^ {x => JSExpr()}) |
+            (Token.TYPEOF ~ UnaryExpression ^^ {x => JSExpr()}) |
+            (Token.INC ~ UnaryExpression ^^ {x => JSExpr()}) |
+            (Token.DEC ~ UnaryExpression ^^ {x => JSExpr()}) |
+            (Token.ADD ~ UnaryExpression ^^ {x => JSExpr()}) |
+            (Token.SUB ~ UnaryExpression ^^ {x => JSExpr()}) |
+            (Token.BITNOT ~ UnaryExpression ^^ {x => JSExpr()}) |
+            (Token.NOT ~ UnaryExpression ^^ {x => JSExpr()}) |
             PostfixExpression
 
 
     def MultiplicativeExpression =
-        repSepPlain(UnaryExpression, Token.MUL | Token.DIV | Token.MOD)
+        naryExpr(UnaryExpression, tokenids(Token.MUL) | Token.DIV | Token.MOD)
 
     //    See 11.6
     def AdditiveExpression =
-        repSepPlain(MultiplicativeExpression, Token.ADD | Token.SUB)
+        naryExpr(MultiplicativeExpression, tokenids(Token.ADD) | Token.SUB)
 
     def ShiftExpression =
-        repSepPlain(AdditiveExpression, Token.LSH | Token.RSH | Token.URSH)
+        naryExpr(AdditiveExpression, tokenids(Token.LSH) | Token.RSH | Token.URSH)
 
     def RelationalExpression =
-        repSepPlain(ShiftExpression, Token.LT | Token.GT | Token.GE | Token.LE | Token.INSTANCEOF | Token.IN)
+        naryExpr(ShiftExpression, tokenids(Token.LT) | Token.GT | Token.GE | Token.LE | Token.INSTANCEOF | Token.IN)
 
     def RelationalExpressionNoIn =
-        repSepPlain(ShiftExpression, Token.LT | Token.GT | Token.GE | Token.LE | Token.INSTANCEOF)
+        naryExpr(ShiftExpression, tokenids(Token.LT) | Token.GT | Token.GE | Token.LE | Token.INSTANCEOF)
 
     def EqualityExpression =
-        repSepPlain(RelationalExpression, Token.EQ | Token.NE | Token.SHEQ | Token.SHNE)
+        naryExpr(RelationalExpression, tokenids(Token.EQ) | Token.NE | Token.SHEQ | Token.SHNE)
     def EqualityExpressionNoIn =
-        repSepPlain(RelationalExpressionNoIn, Token.EQ | Token.NE | Token.SHEQ | Token.SHNE)
+        naryExpr(RelationalExpressionNoIn, tokenids(Token.EQ) | Token.NE | Token.SHEQ | Token.SHNE)
 
     def BitwiseANDExpression =
-        repSepPlain(EqualityExpression, Token.BITAND)
+        naryExpr(EqualityExpression, Token.BITAND)
 
     def BitwiseANDExpressionNoIn =
-        repSepPlain(EqualityExpressionNoIn, Token.BITAND)
+        naryExpr(EqualityExpressionNoIn, Token.BITAND)
 
     def BitwiseXORExpression =
-        repSepPlain(BitwiseANDExpression, Token.BITXOR)
+        naryExpr(BitwiseANDExpression, Token.BITXOR)
 
     def BitwiseXORExpressionNoIn =
-        repSepPlain(BitwiseANDExpressionNoIn, Token.BITXOR)
+        naryExpr(BitwiseANDExpressionNoIn, Token.BITXOR)
 
     def BitwiseORExpression =
-        repSepPlain(BitwiseXORExpression, Token.BITOR)
+        naryExpr(BitwiseXORExpression, Token.BITOR)
 
     def BitwiseORExpressionNoIn =
-        repSepPlain(BitwiseXORExpressionNoIn, Token.BITOR)
+        naryExpr(BitwiseXORExpressionNoIn, Token.BITOR)
 
     def LogicalANDExpression =
-        repSepPlain(BitwiseORExpression, Token.AND)
+        naryExpr(BitwiseORExpression, Token.AND)
 
     def LogicalANDExpressionNoIn =
-        repSepPlain(BitwiseORExpressionNoIn, Token.AND)
+        naryExpr(BitwiseORExpressionNoIn, Token.AND)
 
     def LogicalORExpression =
-        repSepPlain(LogicalANDExpression, Token.OR)
+        naryExpr(LogicalANDExpression, Token.OR)
 
     def LogicalORExpressionNoIn =
-        repSepPlain(LogicalANDExpressionNoIn, Token.OR)
+        naryExpr(LogicalANDExpressionNoIn, Token.OR)
 
-    def ConditionalExpression :MultiParser[Any]=
-        LogicalANDExpression ~ repPlain(Token.HOOK ~ AssignmentExpression ~ ":" ~ AssignmentExpression)
+    private def naryExpr(expr: MultiParser[JSExpression], op: MultiParser[Elem]): MultiParser[JSExpression] =
+        expr ~ opt(op ~ naryExpr(expr, op)) ^^ {
+            case e1 ~ Some(o ~ e2) => JSBinaryOp(e1, o.getKind(), e2)
+            case e ~ None => e
+        }
+
+    def ConditionalExpression: MultiParser[JSExpression] =
+        LogicalORExpression ~ repPlain(Token.HOOK ~ AssignmentExpression ~ ":" ~ AssignmentExpression) ^^ {case e ~ _ => e}
     def ConditionalExpressionNoIn =
-        LogicalANDExpressionNoIn ~ repPlain(Token.HOOK ~ AssignmentExpression ~ ":" ~ AssignmentExpressionNoIn)
+        LogicalORExpressionNoIn ~ repPlain(Token.HOOK ~ AssignmentExpression ~ ":" ~ AssignmentExpressionNoIn)
 
-    def AssignmentExpression :MultiParser[Any]=
-        ConditionalExpression |
-            (LeftHandSideExpression ~ AssignmentOp ~ AssignmentExpression)
-
-    def AssignmentOp = "=" |
-        Token.ASSIGN_BITOR |
-        Token.ASSIGN_BITXOR |
-        Token.ASSIGN_BITAND |
-        Token.ASSIGN_LSH |
-        Token.ASSIGN_RSH |
-        Token.ASSIGN_URSH |
-        Token.ASSIGN_ADD |
-        Token.ASSIGN_SUB |
-        Token.ASSIGN_MUL |
-        Token.ASSIGN_DIV |
-        Token.ASSIGN_MOD
+    def AssignmentExpression: MultiParser[JSExpression] =
+        ConditionalExpression ~ opt(AssignmentOp ~ AssignmentExpression) ^^ {
+            case e ~ Some(o ~ e2) => JSAssignment(e, o.getKind, e2)
+            case e ~ None => e
+        } |
+            fail("expected assignexpr")
 
 
-    def AssignmentExpressionNoIn:MultiParser[Any] =
-        ConditionalExpressionNoIn |
-            (LeftHandSideExpression ~ AssignmentOp ~ AssignmentExpressionNoIn)
+    def AssignmentOp: MultiParser[Elem] = tokenids(Token.ASSIGN) |
+        tokenids(Token.ASSIGN_BITOR) |
+        tokenids(Token.ASSIGN_BITXOR) |
+        tokenids(Token.ASSIGN_BITAND) |
+        tokenids(Token.ASSIGN_LSH) |
+        tokenids(Token.ASSIGN_RSH) |
+        tokenids(Token.ASSIGN_URSH) |
+        tokenids(Token.ASSIGN_ADD) |
+        tokenids(Token.ASSIGN_SUB) |
+        tokenids(Token.ASSIGN_MUL) |
+        tokenids(Token.ASSIGN_DIV) |
+        tokenids(Token.ASSIGN_MOD)
 
-    def Expression:MultiParser[Any] =
-        AssignmentExpression |
-            (Expression ~ "," ~ AssignmentExpression)
 
-    def ExpressionNoIn :MultiParser[Any]=
-        AssignmentExpressionNoIn |
-            (ExpressionNoIn ~ "," ~ AssignmentExpressionNoIn)
+    def AssignmentExpressionNoIn: MultiParser[JSExpression] =
+        ConditionalExpression ~ opt(AssignmentOp ~ AssignmentExpressionNoIn) ^^ {
+            case e ~ Some(o ~ e2) => JSAssignment(e, o.getKind, e2)
+            case e ~ None => e
+        }
+
+    def Expression =
+        repSepPlain1(AssignmentExpression, ",") ^^ {x => if (x.size == 1) x.head else JSExprList(x)}
+
+    def ExpressionNoIn =
+        repSepPlain1(AssignmentExpressionNoIn, ",") ^^ {x => JSExpr()}
+
+
+    def RegularExpressionLiteral =
+        "/" ~ RegularExpressionBody ~ "/" ~ opt(RegularExpressionFlags) ^^ {x => JSExpr()}
+
+    def RegularExpressionBody =
+        RegularExpressionFirstChar ~ RegularExpressionChars
+
+    def RegularExpressionChars =
+        repPlain(RegularExpressionChar)
+
+    def RegularExpressionFirstChar =
+        token("regex", t => !t.afterNewLine && !(Set(Token.MUL, Token.DIV, Token.LB, Token.ERROR) contains t.getKind())) |
+            RegularExpressionBackslashSequence |
+            RegularExpressionClass
+
+    def RegularExpressionChar =
+        token("regex", t => !t.afterNewLine && !(Set(Token.DIV, Token.LB, Token.ERROR) contains t.getKind())) |
+            RegularExpressionBackslashSequence |
+            RegularExpressionClass
+
+    def RegularExpressionBackslashSequence =
+        Token.ERROR ~ token("any", x => true)
+
+    def RegularExpressionClass =
+        "[" ~ repPlain(RegularExpressionClassChar) ~ "]"
+
+    def RegularExpressionClassChar =
+        token("regex", t => !t.afterNewLine && !(Set(Token.RB, Token.ERROR) contains t.getKind())) |
+            RegularExpressionBackslashSequence
+
+    def RegularExpressionFlags = token("regexflags", _.getText().matches("[gimy]*"))
+
 
 }
