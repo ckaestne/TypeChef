@@ -2,6 +2,7 @@ package de.fosd.typechef.parser.javascript
 
 import de.fosd.typechef.parser._
 import de.fosd.typechef.conditional.{Opt, Conditional}
+import de.fosd.typechef.parser.javascript.rhino.Token
 
 //
 ///*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -23,560 +24,301 @@ class JSParser extends MultiFeatureParser {
     // */
     //
 
-    implicit def keyword(s: String): MultiParser[Elem] = token(s, _.getText == s)
+    implicit def keyword(s: String): MultiParser[Elem] = s match {
+        //token(s, _.getText == s)
+        case "{" => tokenids(Token.LC)
+        case "}" => tokenids(Token.RC)
+        case "(" => tokenids(Token.LP)
+        case ")" => tokenids(Token.RP)
+        case "[" => tokenids(Token.LB)
+        case "]" => tokenids(Token.RB)
+        case ";" => tokenids(Token.SEMI)
+        case "," => tokenids(Token.COMMA)
+        case "=" => tokenids(Token.EQ)
+        case "." => tokenids(Token.DOT)
+        case _ => fail("unsupported keyword " + s)
+    }
+
+    implicit def tokenids(s: Int): MultiParser[Elem] = token(Token.typeToName(s), _.getKind() == s)
 
     def Program: MultiParser[Conditional[JSProgram]] =
-        repOpt(SourceElement) ^^! { JSProgram(_) }
+        repOpt(SourceElement) ^^! {JSProgram(_)}
 
-    def SourceElement: MultiParser[JSSourceElement] = "import" ^^ {null}
+    def SourceElement: MultiParser[JSSourceElement] = FunctionDeclaration | Statement
 
-//
-//    def PackageDeclaration =
-//        opt("package" ~> Name <~ ";") ^^! {_ map JPackageDecl}
-//
-//    def ImportDeclaration: MultiParser[JImport] =
-//        "import" ~> opt("static") ~ Name ~ opt("." ~ "*") <~ ";" ^^ {
-//            case static ~ name ~ dotStar => JImport(static.isDefined, name, dotStar.isDefined)
-//        }
-//
-//    def Modifiers = repOpt(Modifier)
-//
-//    def Modifier =
-//        (("public"
-//            |
-//            "static"
-//            |
-//            "protected"
-//            |
-//            "private"
-//            |
-//            "final"
-//            |
-//            "abstract"
-//            |
-//            "synchronized"
-//            |
-//            "native"
-//            |
-//            "transient"
-//            |
-//            "volatile"
-//            |
-//            "strictfp") ^^ {(t: Elem) => JAtomicModifier(t.getText)}
-//            |
-//            Annotation
-//            | fail("expected modifier"))
-//
-//    def TypeDeclaration: MultiParser[JTypeDecl] =
-//        (";" ^^ {x => JEmptyTypeDecl()}
-//            | (Modifiers ~ ClassOrInterfaceDeclaration) ^^ {case mod ~ (coi ~ id ~ tp ~ el ~ il ~ body) => JClassOrInterfaceDecl(mod, coi.getText() == "interface", id, tp, el, il, body)}
-//            | (Modifiers ~ EnumDeclaration) ^^ {case mod ~ (id ~ implList ~ body) => JEnumDecl(mod, id, implList, body)}
-//            | (Modifiers ~ AnnotationTypeDeclaration) ^^ {case mod ~ cl => JAnnotationTypeDecl(mod, cl)}
-//            | fail("expected TypeDeclaration"))
-//
-//    def ClassOrInterfaceDeclaration =
-//        ClassOrInterface ~ IDENTIFIER ~ optList(TypeParameters) ~ optList(ExtendsList) ~
-//            optList(ImplementsList) ~ ClassOrInterfaceBody
-//
-//    def ClassOrInterface: MultiParser[Elem] = "class" | "interface"
-//
-//    def ExtendsList: MultiParser[List[Opt[JClassOrInterfaceType]]] =
-//        "extends" ~> rep1Sep(ClassOrInterfaceType, ",")
-//
-//    def ImplementsList: MultiParser[List[Opt[JClassOrInterfaceType]]] =
-//        "implements" ~> rep1Sep(ClassOrInterfaceType, ",")
-//
-//    def EnumDeclaration =
-//        "enum" ~> IDENTIFIER ~
-//            optList(ImplementsList) ~
-//            EnumBody
-//
-//    def EnumBody: MultiParser[Any] =
-//        "{" ~>
-//            rep1Sep(EnumConstant, ",") ~
-//            opt(EnumBodyInternal) <~
-//            "}"
-//
-//    def EnumBodyInternal: MultiParser[Any] = ";" ~ repOpt(ClassOrInterfaceBodyDeclaration) !
-//
-//    def EnumConstant: MultiParser[Any] =
-//        IDENTIFIER ~ opt(Arguments) ~ opt(ClassOrInterfaceBody) !
-//
-//    def TypeParameters: MultiParser[List[Opt[Any]]] =
-//        "<" ~> rep1Sep(TypeParameter, ",") <~ ">"
-//
-//    def TypeParameter: MultiParser[Any] =
-//        IDENTIFIER ~ opt(TypeBound) !
-//
-//    def TypeBound =
-//        "extends" ~> rep1Sep(ClassOrInterfaceType, "&") !
-//
-//    def ClassOrInterfaceBody: MultiParser[List[Opt[JBodyDeclaration]]] =
-//        "{" ~> repOpt(ClassOrInterfaceBodyDeclaration) <~ "}"
-//
-//    def ClassOrInterfaceBodyDeclaration: MultiParser[JBodyDeclaration] =
-//        (Initializer
-//            | Modifiers ~ ClassOrInterfaceDeclaration ^^ {case mod ~ (coi ~ id ~ tp ~ el ~ il ~ body) => JClassOrInterfaceDecl(mod, coi.getText() == "interface", id, tp, el, il, body)}
-//            | Modifiers ~ EnumDeclaration ^^ {case mod ~ (id ~ implList ~ body) => JEnumDecl(mod, id, implList, body)}
-//            | Modifiers ~ ConstructorDeclaration ^^ {case mod ~ (tp ~ id ~ p ~ e ~ _ ~ sc ~ stmts ~ _) => JConstructorDecl(mod, tp, id, p, e, sc, stmts)}
-//            | Modifiers ~ FieldDeclaration ^^ {case mod ~ (t ~ vars) => JFieldDecl(mod, t, vars)}
-//            | Modifiers ~ MethodDeclaration ^^ {case mod ~ (tp ~ rt ~ (id ~ param ~ array) ~ ex ~ body) => JMethodDecl(mod, tp, rt, id, param, array.size, ex, body)}
-//            | ";" ^^ {t => JEmptyBodyDecl()})
-//
-//    def FieldDeclaration =
-//        Type ~ rep1Sep(VariableDeclarator, ",") <~ ";"
-//
-//    def VariableDeclarator: MultiParser[JVariableDeclarator] =
-//        VariableDeclaratorId ~ opt("=" ~> VariableInitializer) ^^ {case (id ~ a) ~ init => JVariableDeclarator(id, a.size, init)}
-//
-//    def VariableDeclaratorId =
-//        IDENTIFIER ~ repPlain("[" ~ "]")
-//
-//    def VariableInitializer: MultiParser[Any] =
-//        ArrayInitializer | Expression
-//
-//    def ArrayInitializer: MultiParser[Any] =
-//        "{" ~> repSep(VariableInitializer, ",") <~ (opt(",") ~ "}") !
-//
-//    def MethodDeclaration =
-//        optList(TypeParameters) ~
-//            ResultType ~
-//            MethodDeclarator ~ optList("throws" ~> NameList) ~
-//            MethodDeclarationBody
-//
-//    def MethodDeclarationBody: MultiParser[Option[JBlock]] =
-//        Block ^^ {Some(_)} |
-//            ";" ^^ {t => None}
-//
-//    def MethodDeclarator =
-//        IDENTIFIER ~ FormalParameters ~ repPlain("[" ~ "]")
-//
-//    def FormalParameters: MultiParser[List[Opt[Any]]] =
-//        "(" ~> repSep(FormalParameter, ",") <~ ")"
-//
-//    def FormalParameter: MultiParser[Any] =
-//        opt(Annotation) ~ opt("final") ~ Type ~ opt("...") ~ VariableDeclaratorId !
-//
-//    def ConstructorDeclaration =
-//        optList(TypeParameters) ~ IDENTIFIER ~ FormalParameters ~ optList("throws" ~> NameList) ~ "{" ~ opt(ExplicitConstructorInvocation) ~ repOpt(BlockStatement) ~ "}"
-//
-//    def ExplicitConstructorInvocation: MultiParser[Any] =
-//        ("this" ~ Arguments <~ ";") |
-//            ((opt(PrimaryExpression ~ ".") ~ "super" ~ Arguments <~ ";")) !
-//
-//    def Initializer: MultiParser[JInitializer] =
-//        opt("static") ~ Block ^^ {case s ~ b => JInitializer(s.isDefined, b)}
-//
-//    /*
-//    * Type, name and expression syntax follows.
-//    */
-//
-//    def Type: MultiParser[JType] =
-//        (ReferenceTypeP | PrimitiveType) ^^ JType
-//
-//    def ReferenceTypeP: MultiParser[Any] =
-//        (PrimitiveType ~ rep1("[" ~ "]")) |
-//            (ClassOrInterfaceType ~ repOpt("[" ~ "]")) !
-//
-//    def ClassOrInterfaceType: MultiParser[JClassOrInterfaceType] =
-//        ParamType ~
-//            repPlain("." ~> ParamType) ^^ {case o ~ i => JClassOrInterfaceType(o, i)}
-//
-//    private def ParamType = IDENTIFIER ~ opt(TypeArguments) ^^ {case id ~ ta => JParamType(id, ta)}
-//
-//    def TypeArguments: MultiParser[Any] =
-//        "<" ~> rep1Sep(TypeArgument, ",") <~ ">" !
-//
-//    def TypeArgument: MultiParser[Any] =
-//        ReferenceTypeP |
-//            ("?" ~ opt(WildcardBounds)) !
-//
-//    def WildcardBounds: MultiParser[Any] =
-//        ("extends" ~ ReferenceTypeP) |
-//            ("super" ~ ReferenceTypeP) !
-//
-//    def PrimitiveType: MultiParser[Any] =
-//        ("boolean"
-//            |
-//            "char"
-//            |
-//            "byte"
-//            |
-//            "short"
-//            |
-//            "int"
-//            |
-//            "long"
-//            |
-//            "float"
-//            |
-//            "double") !
-//
-//    def ResultType: MultiParser[JType] =
-//        "void" ^^ {t => JType(t)} |
-//            Type
-//
-//    def Name: MultiParser[JName] =
-//        rep1Sep(IDENTIFIER, ".") ^^ {JName(_)}
-//
-//    def NameList: MultiParser[List[Opt[JName]]] = rep1Sep(Name, ",")
-//
-//    /*
-//    * Expression syntax follows.
-//    */
-//
-//    /*
-//    * This expansion has been written this way instead of:
-//    *   Assignment | ConditionalExpression
-//    * for performance reasons.
-//    * However, it is a weakening of the grammar for it allows the LHS of
-//    * assignments to be any conditional expression whereas it can only be
-//    * a primary expression.  Consider adding a semantic predicate to work
-//    * around this.
-//    */
-//    def Expression: MultiParser[Any] =
-//        ConditionalExpression ~ opt(AssignExp) !
-//
-//    def AssignExp: MultiParser[Any] =
-//        AssignmentOperator ~ Expression !
-//
-//    def AssignmentOperator: MultiParser[Any] =
-//        "=" | "*=" | "/=" | "%=" | "+=" | "-=" | "<<=" | ">>=" | ">>>=" | "&=" | "^=" | "|=" !
-//
-//    def ConditionalExpression: MultiParser[Any] =
-//        ConditionalExpressionFull | ConditionalOrExpression !
-//
-//    def ConditionalExpressionFull: MultiParser[Any] =
-//        ConditionalOrExpression <~ "?" ~ Expression <~ ":" ~ Expression !
-//
-//    def ConditionalOrExpression: MultiParser[Any] =
-//        rep1Sep(ConditionalAndExpression, "||") !
-//
-//    def ConditionalAndExpression: MultiParser[Any] =
-//        rep1Sep(InclusiveOrExpression, "&&") !
-//
-//    def InclusiveOrExpression: MultiParser[Any] =
-//        rep1Sep(ExclusiveOrExpression, "|") !
-//
-//    def ExclusiveOrExpression: MultiParser[Any] =
-//        rep1Sep(AndExpression, "^") !
-//
-//    def AndExpression: MultiParser[Any] =
-//        rep1Sep(EqualityExpression, "&") !
-//
-//    def EqualityExpression: MultiParser[Any] =
-//        rep1Sep(InstanceOfExpression, "==" | "!=") !
-//
-//    def InstanceOfExpression: MultiParser[Any] =
-//        RelationalExpression ~ opt("instanceof" ~ Type) !
-//
-//    def RelationalExpression: MultiParser[Any] =
-//        rep1Sep(ShiftExpression, "<" | ">" | "<=" | ">=") !
-//
-//    def ShiftExpression: MultiParser[Any] =
-//        rep1Sep(AdditiveExpression, ShiftOp) !
-//
-//    def ShiftOp: MultiParser[Any] = "<<" | ">" ~ ">" ~ opt(">") !
-//
-//    def AdditiveExpression: MultiParser[Any] =
-//        rep1Sep(MultiplicativeExpression, AdditiveOp) !
-//
-//    def MultiplicativeExpression: MultiParser[Any] =
-//        rep1Sep(UnaryExpression, "*" | "/" | "%") !
-//
-//    def AdditiveOp: MultiParser[Any] = "+" | "-" !
-//
-//    def UnaryExpression: MultiParser[Any] =
-//        ((AdditiveOp ~ UnaryExpression)
-//            |
-//            PreIncrementExpression
-//            |
-//            PreDecrementExpression
-//            |
-//            UnaryExpressionNotPlusMinus) !
-//
-//    def PreIncrementExpression: MultiParser[Any] =
-//        "++" ~ PrimaryExpression !
-//
-//    def PreDecrementExpression: MultiParser[Any] =
-//        "--" ~ PrimaryExpression !
-//
-//    def UnaryExpressionNotPlusMinus: MultiParser[Any] =
-//        (UnaryOp ~ UnaryExpression
-//            |
-//            CastExpression
-//            |
-//            PostfixExpression) !
-//
-//    def UnaryOp: MultiParser[Any] = "~" | "!" !
-//
-//    def PostfixExpression: MultiParser[Any] =
-//        PrimaryExpression ~ opt(PostfixOp) !
-//
-//    def PostfixOp: MultiParser[Any] = "++" | "--" !
-//
-//    def CastExpression: MultiParser[Any] =
-//        ("(" ~> Type <~ ")" ~ UnaryExpression) |
-//            ("(" ~> Type <~ ")" ~ UnaryExpressionNotPlusMinus) !
-//
-//    def PrimaryExpression: MultiParser[Any] =
-//        PrimaryPrefix ~ repOpt(PrimarySuffix) !
-//
-//    def MemberSelector: MultiParser[Any] =
-//        "." ~ TypeArguments ~ IDENTIFIER !() named ("MemberSelector")
-//
-//    def PrimaryPrefix: MultiParser[Any] =
-//        (Literal
-//            | ("this")
-//            | ("super" ~ "." ~ IDENTIFIER)
-//            | ("(" ~> Expression <~ ")")
-//            | (AllocationExpression)
-//            | (ResultType ~ "." ~ "class")
-//            | (Name)) !
-//
-//    def PrimarySuffix: MultiParser[Any] =
-//        (("." ~ "this")
-//            | ("." ~ AllocationExpression)
-//            | (MemberSelector)
-//            | ("[" ~> Expression <~ "]")
-//            | ("." ~ IDENTIFIER)
-//            | (Arguments)) !
-//
-//    def IDENTIFIER: MultiParser[JId] = token("<IDENTIFIER>",
-//        _.getKind == Java15ParserConstants.IDENTIFIER) ^^ {(t: Elem) => JId(t.getText())}
-//
-//    def Literal: MultiParser[Any] =
-//        (token("<INTEGER_LITERAL>", _.getKind == Java15ParserConstants.INTEGER_LITERAL)
-//            |
-//            token("<FLOATING_POINT_LITERAL>", _.getKind == Java15ParserConstants.FLOATING_POINT_LITERAL)
-//            |
-//            token("<CHARACTER_LITERAL>", _.getKind == Java15ParserConstants.CHARACTER_LITERAL)
-//            |
-//            token("<STRING_LITERAL>", _.getKind == Java15ParserConstants.STRING_LITERAL)
-//            |
-//            BooleanLiteral
-//            |
-//            NullLiteral) !
-//
-//    def BooleanLiteral: MultiParser[Any] =
-//        "true" | "false" !
-//
-//    def NullLiteral: MultiParser[Any] =
-//        "null" !
-//
-//    def Arguments: MultiParser[Any] =
-//        "(" ~> opt(ArgumentList) <~ ")" !
-//
-//    def ArgumentList: MultiParser[Any] =
-//        rep1Sep(Expression, ",") !
-//
-//    def AllocationExpression: MultiParser[Any] =
-//        ("new" ~ PrimitiveType ~ ArrayDimsAndInits) |
-//            ("new" ~ ClassOrInterfaceType ~ opt(TypeArguments) ~ AllocationExpressionInit) !
-//
-//    def AllocationExpressionInit: MultiParser[Any] =
-//        ArrayDimsAndInits |
-//            (Arguments ~ opt(ClassOrInterfaceBody)) !
-//
-//    /*
-//    * The third LOOK_AHEAD specification below is to parse to PrimarySuffix
-//    * if there is an expression between the "opt(...)".
-//    */
-//    def ArrayDimsAndInits: MultiParser[Any] =
-//        (rep1("[" ~ Expression ~ "]") ~ opt("[" ~ "]")) |
-//            (rep1("[" ~ "]") ~ ArrayInitializer) !
-//
-//    /*
-//    * Statement syntax follows.
-//    */
-//    def Statement: MultiParser[Any] =
-//        (LabeledStatement
-//            |
-//            AssertStatement
-//            |
-//            Block
-//            |
-//            EmptyStatement
-//            | (StatementExpression <~ ";")
-//            |
-//            SwitchStatement
-//            |
-//            IfStatement
-//            |
-//            WhileStatement
-//            |
-//            DoStatement
-//            |
-//            ForStatement
-//            |
-//            BreakStatement
-//            |
-//            ContinueStatement
-//            |
-//            ReturnStatement
-//            |
-//            ThrowStatement
-//            |
-//            SynchronizedStatement
-//            |
-//            TryStatement | fail("expected Statement")) !() named ("Statement")
-//
-//    def AssertStatement: MultiParser[Any] =
-//        "assert" ~ Expression ~ opt(":" ~ Expression) ~ ";" !
-//
-//    def LabeledStatement: MultiParser[Any] =
-//        IDENTIFIER ~ ":" ~ Statement !() named ("LabeledStatement")
-//
-//    def Block: MultiParser[JBlock] =
-//        "{" ~> repOpt(BlockStatement) <~ "}" ^^ JBlock
-//
-//    def BlockStatement: MultiParser[Any] =
-//        (LocalVariableDeclaration <~ ";") |
-//            Statement |
-//            ClassOrInterfaceDeclaration !() named ("BlockStatement")
-//
-//    def LocalVariableDeclaration: MultiParser[Any] =
-//        opt(Annotation) ~ opt("final") ~ Type ~ rep1Sep(VariableDeclarator, ",") !() named ("LocalVariableDeclaration")
-//
-//    def EmptyStatement: MultiParser[Any] =
-//        ";" !() named ("EmptyStatement")
-//
-//    /*
-//    * The last expansion of this production accepts more than the legal
-//    * Java expansions for StatementExpression.  This expansion does not
-//    * use PostfixExpression for performance reasons.
-//    */
-//    def StatementExpression: MultiParser[Any] =
-//        (PreIncrementExpression
-//            | PreDecrementExpression
-//            | (PrimaryExpression ~ opt(StatementExpressionAssignment))) !() named ("ExpressionStatement");
-//
-//    def StatementExpressionAssignment: MultiParser[Any] =
-//        "++" |
-//            "--" |
-//            (AssignmentOperator ~ Expression) !() named ("StatementExpressionAssignment");
-//
-//    def SwitchStatement: MultiParser[Any] =
-//        "switch" ~ "(" ~ Expression ~ ")" ~ "{" ~ repOpt(SwitchLabel ~ repOpt(BlockStatement)) ~ "}" !
-//
-//    def SwitchLabel: MultiParser[Any] =
-//        ("case" ~ Expression ~ ":") |
-//            ("default" ~ ":") !;
-//
-//    /*
-//    * The disambiguating algorithm of JavaCC automatically binds dangling
-//    * else's to the innermost if statement.  The LOOK_AHEAD specification
-//    * is to tell JavaCC that we know what we are doing.
-//    */
-//    def IfStatement: MultiParser[Any] =
-//        "if" ~ "(" ~ Expression ~ ")" ~ Statement ~ repOpt(ElIfStatement) ~ opt("else" ~ Statement) !;
-//
-//    private def ElIfStatement: MultiParser[Any] =
-//        "else" ~ "if" ~! "(" ~ Expression ~ ")" ~ Statement !;
-//
-//    def WhileStatement: MultiParser[Any] =
-//        "while" ~ "(" ~ Expression ~ ")" ~ Statement !;
-//
-//    def DoStatement: MultiParser[Any] =
-//        "do" ~ Statement ~ "while" ~ "(" ~ Expression ~ ")" ~ ";" !
-//
-//    def ForStatement: MultiParser[Any] =
-//        "for" ~ "(" ~ ForStatementInternal ~ ")" ~ Statement !
-//
-//    def ForStatementInternal: MultiParser[Any] =
-//        (opt(Annotation) ~ opt("final") ~ Type ~ IDENTIFIER ~ ":" ~ Expression) |
-//            (opt(ForInit) ~ ";" ~ opt(Expression) ~ ";" ~ opt(ForUpdate)) !
-//
-//    def ForInit: MultiParser[Any] =
-//        LocalVariableDeclaration |
-//            StatementExpressionList !;
-//
-//    def StatementExpressionList: MultiParser[Any] =
-//        rep1Sep(StatementExpression, ",") !() named ("StatementExpressionList");
-//
-//    def ForUpdate: MultiParser[Any] =
-//        StatementExpressionList !;
-//
-//    def BreakStatement: MultiParser[Any] =
-//        "break" ~ opt(IDENTIFIER) ~ ";" !;
-//
-//    def ContinueStatement: MultiParser[Any] =
-//        "continue" ~ opt(IDENTIFIER) ~ ";" !;
-//
-//    def ReturnStatement: MultiParser[Any] =
-//        "return" ~ opt(Expression) ~ ";" !;
-//
-//    def ThrowStatement: MultiParser[Any] =
-//        "throw" ~ Expression ~ ";" !;
-//
-//    def SynchronizedStatement: MultiParser[Any] =
-//        "synchronized" ~ "(" ~ Expression ~ ")" ~ Block !;
-//
-//    def TryStatement: MultiParser[Any] =
-//    /*
-//    * Semantic check required here to make sure that at least one
-//    * finally/catch is present.
-//    */
-//        "try" ~ Block ~ TryStatementEnd !
-//
-//    def TryStatementEnd: MultiParser[Any] =
-//        repOpt(CatchBlock) ~ opt("finally" ~ Block) !;
-//
-//    def CatchBlock: MultiParser[Any] =
-//        "catch" ~ "(" ~ FormalParameter ~ ")" ~ Block !;
-//
-//    /* We use productions to match >>>, >> and > so that we can keep the
-//    * type declaration syntax with generics clean
-//    */
-//
-//    /* Annotation syntax follows. */
-//
-//    def Annotation: MultiParser[JAnnotation] =
-//        (NormalAnnotation |
-//            SingleMemberAnnotation |
-//            MarkerAnnotation) ^^ JAnnotation
-//
-//    def NormalAnnotation: MultiParser[Any] =
-//        "@" ~ Name ~ "(" ~ opt(MemberValuePairs) ~ ")" !;
-//
-//    def MarkerAnnotation: MultiParser[Any] =
-//        "@" ~ Name !;
-//
-//    def SingleMemberAnnotation: MultiParser[Any] =
-//        "@" ~ Name ~ "(" ~ MemberValue ~ ")" !;
-//
-//    def MemberValuePairs: MultiParser[Any] =
-//        rep1Sep(MemberValuePair, ",") !;
-//
-//    def MemberValuePair: MultiParser[Any] =
-//        IDENTIFIER ~ "=" ~ MemberValue !;
-//
-//    def MemberValue: MultiParser[Any] =
-//        Annotation |
-//            MemberValueArrayInitializer |
-//            ConditionalExpression !;
-//
-//    def MemberValueArrayInitializer: MultiParser[Any] =
-//        "{" ~ rep1Sep(MemberValue, ",") ~ opt(",") ~ "}" !;
-//
-//    /* Annotation Types. */
-//
-//    def AnnotationTypeDeclaration: MultiParser[Any] =
-//        "@" ~ "interface" ~ IDENTIFIER ~ AnnotationTypeBody !;
-//
-//    def AnnotationTypeBody: MultiParser[Any] =
-//        "{" ~ repOpt(AnnotationTypeMemberDeclaration) ~ "}" !;
-//
-//    def AnnotationTypeMemberDeclaration: MultiParser[Any] =
-//        ((Modifiers ~ Type ~ IDENTIFIER ~ "(" ~ ")" ~ opt(DefaultValue) ~ ";")
-//            | (Modifiers ~ ClassOrInterfaceDeclaration)
-//            | (Modifiers ~ EnumDeclaration)
-//            | (Modifiers ~ AnnotationTypeDeclaration)
-//            | (Modifiers ~ FieldDeclaration)
-//            |
-//            ";") !
-//
-//    def DefaultValue: MultiParser[Any] =
-//        "default" ~ MemberValue !
+    def FunctionDeclaration: MultiParser[JSFunctionDeclaration] =
+        Token.FUNCTION ~ Identifier ~ "(" ~ FormalParameterList ~ ")" ~ "{" ~ FunctionBody ~ "}" ^^ {
+            case _ ~ id ~ _ ~ param ~ _ ~ _ ~ body ~ _ => JSFunctionDeclaration(id, param, body)
+        }
+
+    def FunctionExpression: MultiParser[JSFunctionExpression] =
+        Token.FUNCTION ~ opt(Identifier) ~ "(" ~ FormalParameterList ~ ")" ~ "{" ~ FunctionBody ~ "}" ^^ {
+            case _ ~ id ~ _ ~ param ~ _ ~ _ ~ body ~ _ => JSFunctionExpression(id, param, body)
+        }
+
+    def Identifier: MultiParser[String] = token("id", _.getKind() == Token.NAME) ^^ {_.getText()}
+    def FormalParameterList: MultiParser[Any] = repSepPlain(Identifier, ",")
+    def FunctionBody: MultiParser[JSProgram] = repOpt(SourceElement) ^^ {JSProgram(_)}
+
+
+    def Statement: MultiParser[JSStatement] =
+        (Block |
+            VariableStatement |
+            EmptyStatement |
+            ExpressionStatement |
+            IfStatement |
+            IterationStatement |
+            ContinueStatement |
+            BreakStatement |
+            ReturnStatement |
+            WithStatement |
+            LabelledStatement |
+            SwitchStatement |
+            ThrowStatement |
+            TryStatement |
+            DebuggerStatement) ^^ {x => JSStatement()}
+
+    def Block = StatementList ^^ {JSBlock(_)}
+
+    def StatementList = repOpt(Statement)
+
+    def VariableStatement =
+        Token.VAR ~ repSepPlain(VariableDeclaration, ",");
+
+    def VariableDeclarationListNoIn = repSepPlain1(VariableDeclarationNoIn, ",")
+
+    def VariableDeclaration =
+        Identifier ~ opt(Initialiser)
+
+    def VariableDeclarationNoIn =
+        Identifier ~ opt(InitialiserNoIn)
+
+    def Initialiser =
+        "=" ~ AssignmentExpression
+
+    def InitialiserNoIn =
+        "=" ~ AssignmentExpressionNoIn
+
+    def EmptyStatement =
+        ";"
+
+    def ExpressionStatement =
+        Expression ~ ";"
+
+    def IfStatement =
+        Token.IF ~ "(" ~ Expression ~ ")" ~ Statement ~ opt(Token.ELSE ~ Statement)
+
+    def IterationStatement =
+        (Token.DO ~ Statement ~ Token.WHILE ~ "(" ~ Expression ~ ")" ~ ";") |
+            (Token.WHILE ~ "(" ~ Expression ~ ")" ~ Statement) |
+            (Token.FOR ~ "(" ~ opt(ExpressionNoIn) ~ ";" ~ opt(Expression) ~ ";" ~ opt(Expression) ~ ")" ~ Statement) |
+            (Token.FOR ~ "(" ~ Token.VAR ~ VariableDeclarationListNoIn ~ ";" ~ opt(Expression) ~ ";" ~ opt(Expression) ~ ")" ~ Statement)
+    (Token.FOR ~ "(" ~ LeftHandSideExpression ~ Token.IN ~ Expression ~ ")" ~ Statement)
+    (Token.FOR ~ "(" ~ Token.VAR ~ VariableDeclarationNoIn ~ Token.IN ~ Expression ~ ")" ~ Statement)
+
+    def ContinueStatement =
+        Token.CONTINUE ~ opt(Identifier) ~ ";"
+
+    def BreakStatement =
+        Token.BREAK ~ opt(Identifier) ~ ";"
+
+    def ReturnStatement =
+        Token.RETURN ~ opt(Expression) ~ ";"
+
+    def WithStatement =
+        Token.WITH ~ "(" ~ Expression ~ ")" ~ Statement;
+
+    def SwitchStatement =
+        Token.SWITCH ~ "(" ~ Expression ~ ")" ~ CaseBlock
+
+    def CaseBlock =
+        "{" ~ CaseClauses ~ opt(DefaultClause ~ CaseClauses) ~ "}"
+
+    def CaseClauses =
+        repOpt(CaseClause)
+
+    def CaseClause =
+        Token.CASE ~ Expression ~ ":" ~ StatementList
+
+    def DefaultClause =
+        Token.DEFAULT ~ ":" ~ StatementList
+
+    def LabelledStatement =
+        Identifier ~ ":" ~ Statement
+
+    def ThrowStatement =
+        Token.THROW ~ Expression ~ ";"
+
+    def TryStatement =
+        Token.TRY ~ Block ~ ((Catch ~ opt(Finally)) | Finally)
+
+    def Catch =
+        Token.CATCH ~ "(" ~ Identifier ~ ")" ~ Block
+
+    def Finally =
+        Token.FINALLY ~ Block
+
+    def DebuggerStatement =
+        Token.DEBUGGER ~ ";"
+
+
+    def PrimaryExpression :MultiParser[Any]=
+        tokenids(Token.THIS) |
+            Identifier |
+            Literal |
+            ArrayLiteral |
+            ObjectLiteral |
+            ("(" ~ Expression ~ ")")
+
+    def Literal = Token.NULL | Token.TRUE | Token.FALSE | Token.NUMBER | Token.STRING | Token.REGEXP
+
+    //    See 11.1.4
+    def ArrayLiteral =
+        "[" ~ repSepPlain(_Element, ",") ~ repPlain(",") ~ "]"
+
+    def _Element = repPlain(",") ~ AssignmentExpression
+
+
+    def ObjectLiteral =
+        "{" ~ repSepPlain(PropertyAssignment, ",") ~ opt(",") ~ "}"
+
+
+    def PropertyAssignment =
+        (PropertyName ~ ":" ~ AssignmentExpression) |
+            (Token.GET ~ PropertyName ~ "(" ~ ")" ~ "{" ~ FunctionBody ~ "}") |
+            (Token.SET ~ PropertyName ~ "(" ~ PropertySetParameterList ~ ")" ~ "{" ~ FunctionBody ~ "}")
+
+    def PropertyName =
+        Identifier |
+            Token.STRING|
+            Token.NUMBER
+
+    def PropertySetParameterList = Identifier
+
+    def MemberExpression:MultiParser[Any] =
+        PrimaryExpression |
+            FunctionExpression |
+            (MemberExpression ~ "[" ~ Expression ~ "]") |
+            (MemberExpression ~ "." ~ Identifier/*Name*/) |
+            (Token.NEW ~ MemberExpression ~ Arguments)
+
+    def NewExpression:MultiParser[Any] =
+        MemberExpression |
+            (Token.NEW ~ NewExpression)
+
+    def CallExpression :MultiParser[Any]=
+        (MemberExpression ~ Arguments) |
+            (CallExpression ~ (Arguments |
+                ("[" ~ Expression ~ "]") |
+                ("." ~ Identifier/*Name*/)))
+
+    def Arguments = "(" ~ repSepPlain(AssignmentExpression, ",") ~ ")"
+
+
+    def LeftHandSideExpression =
+        NewExpression |
+            CallExpression
+
+    def PostfixExpression =
+        LeftHandSideExpression ~ opt(Token.INC | Token.DEC)
+
+    def UnaryExpression:MultiParser[Any] =
+        (Token.DELPROP ~ UnaryExpression) |
+            (Token.VOID ~ UnaryExpression) |
+            (Token.TYPEOF ~ UnaryExpression) |
+            (Token.INC ~ UnaryExpression) |
+            (Token.DEC ~ UnaryExpression) |
+            (Token.ADD ~ UnaryExpression) |
+            (Token.SUB ~ UnaryExpression) |
+            (Token.NEG ~ UnaryExpression) |
+            (Token.NOT ~ UnaryExpression) |
+            PostfixExpression
+
+
+    def MultiplicativeExpression =
+        repSepPlain(UnaryExpression, Token.MUL | Token.DIV | Token.MOD)
+
+    //    See 11.6
+    def AdditiveExpression =
+        repSepPlain(MultiplicativeExpression, Token.ADD | Token.SUB)
+
+    def ShiftExpression =
+        repSepPlain(AdditiveExpression, Token.LSH | Token.RSH | Token.URSH)
+
+    def RelationalExpression =
+        repSepPlain(ShiftExpression, Token.LT | Token.GT | Token.GE | Token.LE | Token.INSTANCEOF | Token.IN)
+
+    def RelationalExpressionNoIn =
+        repSepPlain(ShiftExpression, Token.LT | Token.GT | Token.GE | Token.LE | Token.INSTANCEOF)
+
+    def EqualityExpression =
+        repSepPlain(RelationalExpression, Token.EQ | Token.NE | Token.SHEQ | Token.SHNE)
+    def EqualityExpressionNoIn =
+        repSepPlain(RelationalExpressionNoIn, Token.EQ | Token.NE | Token.SHEQ | Token.SHNE)
+
+    def BitwiseANDExpression =
+        repSepPlain(EqualityExpression, Token.BITAND)
+
+    def BitwiseANDExpressionNoIn =
+        repSepPlain(EqualityExpressionNoIn, Token.BITAND)
+
+    def BitwiseXORExpression =
+        repSepPlain(BitwiseANDExpression, Token.BITXOR)
+
+    def BitwiseXORExpressionNoIn =
+        repSepPlain(BitwiseANDExpressionNoIn, Token.BITXOR)
+
+    def BitwiseORExpression =
+        repSepPlain(BitwiseXORExpression, Token.BITOR)
+
+    def BitwiseORExpressionNoIn =
+        repSepPlain(BitwiseXORExpressionNoIn, Token.BITOR)
+
+    def LogicalANDExpression =
+        repSepPlain(BitwiseORExpression, Token.AND)
+
+    def LogicalANDExpressionNoIn =
+        repSepPlain(BitwiseORExpressionNoIn, Token.AND)
+
+    def LogicalORExpression =
+        repSepPlain(LogicalANDExpression, Token.OR)
+
+    def LogicalORExpressionNoIn =
+        repSepPlain(LogicalANDExpressionNoIn, Token.OR)
+
+    def ConditionalExpression :MultiParser[Any]=
+        LogicalANDExpression ~ repPlain(Token.HOOK ~ AssignmentExpression ~ ":" ~ AssignmentExpression)
+    def ConditionalExpressionNoIn =
+        LogicalANDExpressionNoIn ~ repPlain(Token.HOOK ~ AssignmentExpression ~ ":" ~ AssignmentExpressionNoIn)
+
+    def AssignmentExpression :MultiParser[Any]=
+        ConditionalExpression |
+            (LeftHandSideExpression ~ AssignmentOp ~ AssignmentExpression)
+
+    def AssignmentOp = "=" |
+        Token.ASSIGN_BITOR |
+        Token.ASSIGN_BITXOR |
+        Token.ASSIGN_BITAND |
+        Token.ASSIGN_LSH |
+        Token.ASSIGN_RSH |
+        Token.ASSIGN_URSH |
+        Token.ASSIGN_ADD |
+        Token.ASSIGN_SUB |
+        Token.ASSIGN_MUL |
+        Token.ASSIGN_DIV |
+        Token.ASSIGN_MOD
+
+
+    def AssignmentExpressionNoIn:MultiParser[Any] =
+        ConditionalExpressionNoIn |
+            (LeftHandSideExpression ~ AssignmentOp ~ AssignmentExpressionNoIn)
+
+    def Expression:MultiParser[Any] =
+        AssignmentExpression |
+            (Expression ~ "," ~ AssignmentExpression)
+
+    def ExpressionNoIn :MultiParser[Any]=
+        AssignmentExpressionNoIn |
+            (ExpressionNoIn ~ "," ~ AssignmentExpressionNoIn)
 
 }
