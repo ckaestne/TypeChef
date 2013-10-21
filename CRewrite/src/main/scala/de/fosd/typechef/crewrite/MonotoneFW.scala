@@ -248,10 +248,10 @@ sealed abstract class MonotoneFW[T](val env: ASTEnv, val fm: FeatureModel) exten
         }
     }
 
-    protected def outcached(a: AST): L
+    protected def outfunction(a: AST): L
 
     def out(a: AST) = {
-        val o = outcached(a)
+        val o = outfunction(a)
         var res = List[(T, FeatureExpr)]()
         for ((x, f) <- o) {
             val orig = getOriginal(x)
@@ -262,10 +262,10 @@ sealed abstract class MonotoneFW[T](val env: ASTEnv, val fm: FeatureModel) exten
         res.distinct.filter { case (_, f) => f.isSatisfiable(fm) }
     }
 
-    protected def incached(a: AST): L
+    protected def infunction(a: AST): L
 
     def in(a: AST) = {
-        val o = incached(a)
+        val o = infunction(a)
         var res = List[(T, FeatureExpr)]()
 
         for ((x, f) <- o) {
