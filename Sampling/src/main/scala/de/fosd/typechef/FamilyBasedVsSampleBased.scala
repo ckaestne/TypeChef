@@ -635,6 +635,8 @@ object FamilyBasedVsSampleBased extends EnforceTreeHelper with ASTNavigation wit
         fw.write(reslist.map(_._1).mkString(";") + "\n")
         fw.write(reslist.map(_._2).mkString(";") + "\n")
 
+        println(sw.toString)
+
         fw.close()
     }
 
