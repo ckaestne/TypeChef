@@ -201,25 +201,25 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend, fm
         val nss = fa._2.map(_._1).filterNot(x => x.isInstanceOf[FunctionDef])
 
         for (s <- nss) {
-            val g = um.getFunctionCallArguments(s)
+            val g = um.getRelevantIdUsages(s)
             if (g.size > 0) {
-            val in = um.in(s)
+                val in = um.in(s)
 
-            for (((i, _), h) <- in)
-                g.find { case ((t, _), _) => t == i } match {
-                    case None =>
-                    case Some(((x, _), _)) => {
+                for (((i, _), h) <- in)
+                    g.find { case ((t, _), _) => t == i } match {
+                        case None =>
+                        case Some(((x, _), _)) => {
                             if (h.isSatisfiable(fm)) {
                                 var xdecls = udm.get(x)
                                 if (xdecls == null)
                                     xdecls = List(x)
-                        var idecls = udm.get(i)
-                        if (idecls == null)
-                            idecls = List(i)
-                        for (ei <- idecls)
-                            if (xdecls.exists(_.eq(ei)))
-                                res ::= new TypeChefError(Severity.Warning, h, "warning: Variable " + x.name + " is used uninitialized!", x, "")
-                    }
+                                var idecls = udm.get(i)
+                                if (idecls == null)
+                                    idecls = List(i)
+                                for (ei <- idecls)
+                                    if (xdecls.exists(_.eq(ei)))
+                                        res ::= new TypeChefError(Severity.Warning, h, "warning: Variable " + x.name + " is used uninitialized!", x, "")
+                            }
                         }
                     }
                 }

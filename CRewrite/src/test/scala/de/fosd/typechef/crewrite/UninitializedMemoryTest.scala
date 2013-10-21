@@ -25,12 +25,6 @@ class UninitializedMemoryTest extends TestHelper with ShouldMatchers with CFGHel
         um.gen(a).map {case ((x, _), f) => (x, f)}
     }
 
-    private def getFunctionCallArguments(code: String) = {
-        val a = parseFunctionDef(code)
-        val um = new UninitializedMemory(CASTEnv.createASTEnv(a), null, null, null, a)
-        um.getFunctionCallArguments(a).map {case ((x, _), f) => (x, f)}
-    }
-
     def uninitializedMemory(code: String): Boolean = {
         val tunit = prepareAST[TranslationUnit](parseTranslationUnit(code))
         val ts = new CTypeSystemFrontend(tunit) with CTypeCache with CDeclUse
@@ -64,11 +58,6 @@ class UninitializedMemoryTest extends TestHelper with ShouldMatchers with CFGHel
               int a;
               #endif
               }""".stripMargin) should be(Map(Id("a") -> fa))
-    }
-
-    @Test def test_functioncall_arguments() {
-        getFunctionCallArguments("void foo(){ foo(a,b); }") should be(Map(Id("a") -> FeatureExprFactory.True, Id("b") -> FeatureExprFactory.True))
-        getFunctionCallArguments("void foo(){ foo(a,bar(c)); }") should be(Map(Id("a") -> FeatureExprFactory.True, Id("c") -> FeatureExprFactory.True))
     }
 
     @Test def test_uninitialized_memory_simple() {
