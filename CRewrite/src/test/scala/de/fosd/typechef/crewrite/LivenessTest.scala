@@ -397,6 +397,20 @@ class LivenessTest extends TestHelper with ShouldMatchers with IntraCFG with CFG
                     """)
     }
 
+    @Test def test_simple_for() {
+        runExample(
+            """
+              void foo(int min, int max, int alpha, int* key) {
+                int i, n;
+                for (n = min; n <= max; n++) {
+                  for (i = 0; i < alpha; i++) {
+                    key[i] = key[i] + alpha;
+                  }
+                }
+              }
+            """.stripMargin)
+    }
+
     @Test def test_sven() {
         runExample( """
       void foo() {
@@ -494,9 +508,12 @@ class LivenessTest extends TestHelper with ShouldMatchers with IntraCFG with CFG
 
     // http://www.exforsys.com/tutorials/c-language/c-expressions.html
     @Test def test_uses() {
+        runUsesExample("!a;") should be(Map(Id("a") -> FeatureExprFactory.True))
         runUsesExample("a;") should be(Map(Id("a") -> FeatureExprFactory.True))
         runUsesExample("a++;") should be(Map(Id("a") -> FeatureExprFactory.True))
         runUsesExample("++a;") should be(Map(Id("a") -> FeatureExprFactory.True))
+        runUsesExample("a--;") should be(Map(Id("a") -> FeatureExprFactory.True))
+        runUsesExample("--a;") should be(Map(Id("a") -> FeatureExprFactory.True))
         runUsesExample("a[b];") should be(Map(Id("a") -> FeatureExprFactory.True, Id("b") -> FeatureExprFactory.True))
         runUsesExample("f(a, b, c);") should be(Map(Id("a") -> FeatureExprFactory.True, Id("b") -> FeatureExprFactory.True, Id("c") -> FeatureExprFactory.True))
         runUsesExample("a.b;") should be(Map(Id("a") -> FeatureExprFactory.True))

@@ -37,7 +37,7 @@ class ReachingDefintions(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: Feat
     // set of free variables in f
     // {(x,?) x ∈ FV(S*)}
     // stored with identityHashCode instead of ?
-    private var fvs = Set[PGT]()
+    private var fvs = List[PGT]()
 
     // initialize caches with elements that are returned by gen/kill
     private def init(f: FunctionDef) = {
@@ -50,7 +50,7 @@ class ReachingDefintions(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: Feat
                 for (x <- udm.get(i)) {
                     cachePGT.update(x, (x, System.identityHashCode(x)))
                     if (! isPartOf(x, f.stmt))
-                        fvs += cachePGT.lookup(x).get
+                        fvs ::= cachePGT.lookup(x).get
                     getFreshDefinitionFromUsage(cachePGT.lookup(x).get)
                 }
         }
@@ -111,6 +111,6 @@ class ReachingDefintions(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: Feat
 
     //  in(a) = for p in pred(a) r = r + out(p)
     // out(a) = gen(a) + (in(a) - kill(a))
-    protected def incached(a: AST): L = combinatorcached(a)
-    protected def outcached(a: AST): L = f_lcached(a)
+    protected def incached(a: AST): L = combinator(a)
+    protected def outcached(a: AST): L = f_l(a)
 }

@@ -76,16 +76,21 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend, fm
 
         val df = new Liveness(env, udm, FeatureExprFactory.empty)
 
-        val nss = fa._2.map(_._1).filterNot(x => x.isInstanceOf[FunctionDef])
+        val nss = fa._2.map(_._1).filterNot(x => x.isInstanceOf[FunctionDef]).reverse
 
         for (s <- nss) {
             val k = df.kill(s)
+            println(PrettyPrinter.print(s), df.out(s))
 
             if (k.size > 0) {
                 val out = df.out(s)
 
+
                 for ((i, fi) <- k) {
-                    out.find { case (t, _) => t == i } match {
+                    // code such as "int a;" occurs frequently and issues an error
+                    // we filter them out by checking the declaration use map for usages
+                    if (dum.containsKey(i) && dum.get(i).size > 0) {}
+                    else out.find { case (t, _) => t == i } match {
                         case None => {
                             var idecls = udm.get(i)
                             if (idecls == null)
@@ -95,7 +100,9 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend, fm
                         }
                         case Some((x, z)) => {
                             if (! z.isTautology(fm)) {
-                                val xdecls = udm.get(x)
+                                var xdecls = udm.get(x)
+                                if (xdecls == null)
+                                    xdecls = List(x)
                                 var idecls = udm.get(i)
                                 if (idecls == null)
                                     idecls = List(i)
