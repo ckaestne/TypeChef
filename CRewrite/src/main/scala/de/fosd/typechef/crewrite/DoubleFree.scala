@@ -142,4 +142,6 @@ class DoubleFree(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: FeatureModel
 
     protected def infunction(a: AST): L = combinator(a)
     protected def outfunction(a: AST): L = f_l(a)
+
+    protected def isForward = true
 }

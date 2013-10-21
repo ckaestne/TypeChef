@@ -209,8 +209,18 @@ sealed abstract class MonotoneFW[T](val env: ASTEnv, val fm: FeatureModel) exten
     //      in          |      (combinator)  ∧       (f_l)
     //    x++;          | flow (pred)        | flowR (succ)
     //      out         ∨      (f_l)         |       (combinator)
-    protected def circle(e: AST): L = combinator(e)
-    protected def point(e: AST): L = f_l(e)
+    protected def circle(e: AST): L = {
+        val c = combinatorcache.lookup(e)
+        c.getOrElse(combinator(e))
+    }
+    protected def point(e: AST): L = {
+        val c = f_lcache.lookup(e)
+        c.getOrElse(f_l(e))
+    }
+
+    protected def isForward: Boolean
+    private val f_lcache = new IdentityHashMapCache[L]()
+    private val combinatorcache = new IdentityHashMapCache[L]()
 
     protected val combinator: AST => L = {
         circular[AST, L](b) {
@@ -252,6 +262,8 @@ sealed abstract class MonotoneFW[T](val env: ASTEnv, val fm: FeatureModel) exten
 
     def out(a: AST) = {
         val o = outfunction(a)
+        if (isForward) f_lcache.update(a, o)
+        else combinatorcache.update(a, o)
         var res = List[(T, FeatureExpr)]()
         for ((x, f) <- o) {
             val orig = getOriginal(x)
@@ -266,6 +278,8 @@ sealed abstract class MonotoneFW[T](val env: ASTEnv, val fm: FeatureModel) exten
 
     def in(a: AST) = {
         val o = infunction(a)
+        if (isForward) combinatorcache.update(a,o)
+        else f_lcache.update(a, o)
         var res = List[(T, FeatureExpr)]()
 
         for ((x, f) <- o) {
