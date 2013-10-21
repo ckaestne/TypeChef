@@ -80,7 +80,6 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend, fm
 
         for (s <- nss) {
             val k = df.kill(s)
-            println(PrettyPrinter.print(s), df.out(s))
 
             if (k.size > 0) {
                 val out = df.out(s)
