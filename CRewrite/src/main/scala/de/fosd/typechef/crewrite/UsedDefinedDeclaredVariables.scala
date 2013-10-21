@@ -38,6 +38,7 @@ trait UsedDefinedDeclaredVariables {
     // returns all used Ids independent of their annotation
     def uses(a: Any): List[Id] = {
         a match {
+            case CastExpr(_, expr) => uses(expr)
             case ForStatement(expr1, expr2, expr3, _) => uses(expr1) ++ uses(expr2) ++ uses(expr3)
             case ReturnStatement(Some(x)) => uses(x)
             case WhileStatement(expr, _) => uses(expr)
