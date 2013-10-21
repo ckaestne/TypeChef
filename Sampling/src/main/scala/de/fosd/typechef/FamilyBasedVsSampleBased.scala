@@ -515,11 +515,9 @@ object FamilyBasedVsSampleBased extends EnforceTreeHelper with ASTNavigation wit
         }
         countNumberOfASTElementsHelper(ast)
     }
-
-
-
-    def typecheckProducts(fm_scanner: FeatureModel, fm_ts: FeatureModel, ast: AST, opt: FamilyBasedVsSampleBasedOptions,
-                          logMessage: String) {
+    
+    def initSampling(fm_scanner: FeatureModel, fm: FeatureModel, ast: TranslationUnit, opt: FamilyBasedVsSampleBasedOptions,
+                     logMessage: String): (String, String, List[Task]) = {
         var caseStudy = ""
         var thisFilePath: String = ""
         val fileAbsPath = new File(".").getAbsolutePath + opt.getFile
@@ -536,17 +534,116 @@ object FamilyBasedVsSampleBased extends EnforceTreeHelper with ASTNavigation wit
             thisFilePath = opt.getFile
         }
 
-        val fm = fm_ts // I got false positives while using the other fm
-        val family_ast = prepareAST[TranslationUnit](ast.asInstanceOf[TranslationUnit])
-
-        println("starting product checking.")
-
         val configSerializationDir = new File(thisFilePath.substring(0, thisFilePath.length - 2))
 
         val (configGenLog: String, typecheckingTasks: List[Task]) =
-            buildConfigurations(family_ast, fm_ts, opt, configSerializationDir, caseStudy)
+            buildConfigurations(ast, fm, opt, configSerializationDir, caseStudy)
         saveSerializationOfTasks(typecheckingTasks, features, configSerializationDir, opt.getFile)
-        //analyzeTasks(typecheckingTasks, family_ast, fm, opt, thisFilePath, startLog = configGenLog)
+        (configGenLog, thisFilePath, typecheckingTasks)
+    }
+
+    private class StopWatch {
+        var lastStart: Long = 0
+        var currentPeriod: String = "none"
+        var currentPeriodId: Int = 0
+        var times: Map[(Int, String), Long] = Map()
+        val tb = java.lang.management.ManagementFactory.getThreadMXBean
+        val nstoms = 1000000
+
+        private def genId(): Int = { currentPeriodId += 1; currentPeriodId }
+
+        def start(period: String) {
+            val now = tb.getCurrentThreadCpuTime
+            val lastTime = (now - lastStart) / nstoms
+            times = times + ((genId(), currentPeriod) -> lastTime)
+            lastStart = now
+            currentPeriod = period
+        }
+
+        def get(period: String): Long = times.filter(v => v._1._2 == period).headOption.map(_._2).getOrElse(0)
+
+        override def toString = {
+            var res = "timing "
+            val switems = times.toList.filterNot(x => x._1._2 == "none" || x._1._2 == "done").sortBy(_._1._1)
+
+            if (switems.size > 0) {
+                res = res + "("
+                res = res + switems.map(_._1._2).reduce(_ + ", " + _)
+                res = res + ")\n"
+                res = res + switems.map(_._2.toString).reduce(_ + ";" + _)
+            }
+            res
+        }
+    }
+
+    def checkErrorsAgainstSamplingConfigs(fm_scanner: FeatureModel, fm: FeatureModel, ast: TranslationUnit, opt: FamilyBasedVsSampleBasedOptions,
+                                          logMessage: String) {
+
+        val (log, fileID, samplingTasks) = initSampling(fm_scanner, fm, ast, opt, logMessage)
+        println("starting error checking.")
+        val sw = new StopWatch()
+
+        sw.start("typechecking")
+        val ts = new CTypeSystemFrontend(ast, fm, opt) with CTypeCache with CDeclUse
+        ts.checkASTSilent
+        sw.start("initsa")
+        val sa = new CIntraAnalysisFrontend(ast, ts.asInstanceOf[CTypeSystemFrontend with CTypeCache with CDeclUse], fm)
+
+        val outFilePrefix: String = fileID.substring(0, fileID.length - 2)
+
+        sw.start("doublefree")
+        sa.doubleFree()
+        sw.start("uninitializedmemory")
+        sa.uninitializedMemory()
+        sw.start("xfree")
+        sa.xfree()
+        sw.start("danglingswitchcode")
+        sa.danglingSwitchCode()
+        sw.start("cfginnonvoidfunc")
+        sa.cfgInNonVoidFunc()
+        sw.start("checkstdlibfuncreturn")
+        sa.stdLibFuncReturn()
+        sw.start("deadstore")
+        sa.deadStore()
+        sw.start("done")
+
+        val file: File = new File(outFilePrefix + ".errreport")
+        file.getParentFile.mkdirs()
+        val fw: FileWriter = new FileWriter(file)
+        fw.write("File : " + fileID + "\n")
+        fw.write("Features : " + features.size + "\n")
+        fw.write(log + "\n")
+
+        fw.write("Potential number of data-flow errors: " + sa.errors.size + "\n\n")
+
+        for (e <- sa.errors) fw.write(e + "\n\n")
+
+        var caughterrorsmap = Map[String, Integer]()
+        for ((name, _) <- samplingTasks) caughterrorsmap += ((name, 0))
+
+
+        // check for each error whether the tasklist of an sampling approach contains a configuration
+        // that fullfills the error condition (using evaluate)
+        for (e <- sa.errors) {
+            for ((name, tasklist) <- samplingTasks) {
+                if (tasklist.exists { x => e.condition.evaluate(x.getTrueSet.map(_.feature)) })
+                    caughterrorsmap += ((name, 1 + caughterrorsmap(name)))
+            }
+        }
+
+        val reslist = ("all", sa.errors.size) :: caughterrorsmap.toList.sortBy(_._1)
+        fw.write(reslist.map(_._1).mkString(";") + "\n")
+        fw.write(reslist.map(_._2).mkString(";") + "\n")
+
+        fw.close()
+    }
+
+    def typecheckProducts(fm_scanner: FeatureModel, fm: FeatureModel, ast: TranslationUnit, opt: FamilyBasedVsSampleBasedOptions,
+                          logMessage: String) {
+
+        val (configGenLog, thisFilePath, typecheckingTasks) = initSampling(fm_scanner, fm, ast, opt, logMessage)
+        println("starting product checking.")
+        analyzeTasks(typecheckingTasks, ast, fm, opt, thisFilePath, startLog = configGenLog)
     }
 
   def median(s: Seq[Long]) = {
@@ -683,7 +780,7 @@ object FamilyBasedVsSampleBased extends EnforceTreeHelper with ASTNavigation wit
             configCheckingResults ::=(taskDesc, (configs.size, productDerivationTimes.reverse, configurationsWithErrors, dfProductTimes.reverse, tcProductTimes.reverse))
         }
 
-        val file: File = new File(outFilePrefix + ".vaareport")
+      val file: File = new File(outFilePrefix + ".vaareport")
       file.getParentFile.mkdirs()
       val fw: FileWriter = new FileWriter(file)
       fw.write("File : " + fileID + "\n")
