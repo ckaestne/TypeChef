@@ -62,7 +62,7 @@ object Sampling extends EnforceTreeHelper {
         if (ast != null) {
             val fm_ts = opt.getTypeSystemFeatureModel.and(opt.getLocalFeatureModel).and(opt.getFilePresenceCondition)
             val treeast = prepareAST[TranslationUnit](ast.asInstanceOf[TranslationUnit])
-            FamilyBasedVsSampleBased.checkErrorsAgainstSamplingConfigs(fm_ts, fm_ts, treeast, opt, "")
+            FamilyBasedVsSampleBased.typecheckProducts(fm_ts, fm_ts, treeast, opt, "")
         }
     }
 

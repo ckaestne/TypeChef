@@ -249,6 +249,8 @@ sealed abstract class MonotoneFW[T](val env: ASTEnv, val fm: FeatureModel) exten
         }
     }
 
+    protected def combinator_cached(a: AST) = combinatorcache.lookup(a).getOrElse(combinator(a))
+
     protected val f_l: AST => L = {
         circular[AST, L](b) {
             case _: E => i
@@ -267,6 +269,8 @@ sealed abstract class MonotoneFW[T](val env: ASTEnv, val fm: FeatureModel) exten
             }
         }
     }
+
+    protected def f_l_cached(a: AST) = f_lcache.lookup(a).getOrElse(f_l(a))
 
     protected def outfunction(a: AST): L
 
