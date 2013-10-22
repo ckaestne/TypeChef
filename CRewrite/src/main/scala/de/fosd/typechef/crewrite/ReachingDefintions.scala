@@ -78,7 +78,7 @@ class ReachingDefintions(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: Feat
     // kill(d: y = f(x_1, ..., x_n) = defs(y) \ {d}
     // the annotation here belongs to the original definition we get from a
     def kill(a: AST) = {
-        var res = l
+        var res = lvar
 
         for (d <- defines(a)) {
             // get all declarations of a definition, ...
@@ -105,9 +105,9 @@ class ReachingDefintions(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: Feat
     protected def F(e: AST) = flow(e)
 
     init(f)
-    protected val i = addAnnotations(fvs)
+    protected val i = l //addAnnotations(fvs)
     protected def b = l
-    protected def combinationOperator(l1: L, l2: L) = union(l1, l2)
+    protected def combinationOperator(l1: L, l2: LVAR) = union(l1, l2)
 
     //  in(a) = for p in pred(a) r = r + out(p)
     // out(a) = gen(a) + (in(a) - kill(a))

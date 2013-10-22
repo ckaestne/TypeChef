@@ -29,9 +29,9 @@ import de.fosd.typechef.featureexpr.FeatureModel
 class UninitializedMemory(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: FeatureModel, f: FunctionDef) extends MonotoneFWIdLab(env, dum, udm, fm, f) with IntraCFG with CFGHelper with ASTNavigation with UsedDefinedDeclaredVariables {
 
     // returns all arguments (no references!) for a given AST (CFGStmt)
-    def getRelevantIdUsages(a: AST): L = {
+    def getRelevantIdUsages(a: AST): LVAR = {
         var resid = uses(a)
-        var res = l
+        var res = lvar
         val funccalls = filterAllASTElems[PostfixExpr](a)
 
         val filterids = manybu(query {
@@ -50,8 +50,8 @@ class UninitializedMemory(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: Fea
     }
 
     // get all uninitialized variables
-    def gen(a: AST): L = {
-        var res = l
+    def gen(a: AST): LVAR = {
+        var res = lvar
         val uninitializedVariables = manybu(query {
             case InitDeclaratorI(AtomicNamedDeclarator(_, i: Id, _), _, None) => res ++= fromCache(i)
         })
@@ -61,8 +61,8 @@ class UninitializedMemory(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: Fea
     }
 
     // get variables that get an assignment
-    def kill(a: AST): L = {
-        var res = l
+    def kill(a: AST): LVAR = {
+        var res = lvar
 
         val assignments = manytd(query {
             case InitDeclaratorI(AtomicNamedDeclarator(_, i: Id, _), _, Some(_)) => res ++= fromCache(i, true)
@@ -83,7 +83,7 @@ class UninitializedMemory(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: Fea
 
     protected val i = l
     protected def b = l
-    protected def combinationOperator(l1: L, l2: L) = union(l1, l2)
+    protected def combinationOperator(l1: L, l2: LVAR) = union(l1, l2)
 
     protected def infunction(a: AST): L = combinator(a)
     protected def outfunction(a: AST): L = f_l(a)

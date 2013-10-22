@@ -18,21 +18,21 @@ import de.fosd.typechef.typesystem.UseDeclMap
 class Liveness(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) extends MonotoneFWId(env, udm, fm) with IntraCFG with UsedDefinedDeclaredVariables {
 
     // returns all declared variables with their annotation
-    val declaresVar: PartialFunction[(Any), L] = {
+    val declaresVar: PartialFunction[(Any), LVAR] = {
         case a => addAnnotations(declares(a))
     }
 
-    def gen(a: AST): L = {
+    def gen(a: AST): LVAR = {
         addAnnotations(uses(a))
     }
 
-    def kill(a: AST):L = {
+    def kill(a: AST): LVAR = {
         addAnnotations(defines(a))
     }
 
     protected val i = l
     protected def b = l
-    protected def combinationOperator(l1: L, l2: L) = union(l1, l2)
+    protected def combinationOperator(l1: L, l2: LVAR) = union(l1, l2)
 
     // liveness analysis is a backward analysis (flowR)
     // so circle concerns exit conditions
@@ -43,8 +43,8 @@ class Liveness(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) extends MonotoneF
     // page 5
     //  in(a) = gen(a) + (out(a) - kill(a))
     // out(a) = for s in succ(n) r = r + in(s); r
-    protected def infunction(a: AST): L = f_l_cached(a)
-    protected def outfunction(a: AST): L = combinator_cached(a)
+    protected def infunction(a: AST): L = f_l(a)
+    protected def outfunction(a: AST): L = combinator(a)
 
     protected def isForward = false
 }

@@ -46,8 +46,8 @@ class DoubleFree(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: FeatureModel
         else List("free")
     }
 
-    def kill(a: AST): L = {
-        var res = l
+    def kill(a: AST): LVAR = {
+        var res = lvar
         val assignments = manytd(query {
             case AssignExpr(target: Id, "=", _) => res ++= fromCache(target, true)
         })
@@ -56,8 +56,8 @@ class DoubleFree(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: FeatureModel
         res
     }
 
-    def gen(a: AST): L = {
-        var res = l
+    def gen(a: AST): LVAR = {
+        var res = lvar
 
         // add a free target independent of & and *
         def addFreeTarget(e: Expr) {
@@ -138,7 +138,7 @@ class DoubleFree(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: FeatureModel
 
     protected val i = l
     protected def b = l
-    protected def combinationOperator(l1: L, l2: L) = union(l1, l2)
+    protected def combinationOperator(l1: L, l2: LVAR) = union(l1, l2)
 
     protected def infunction(a: AST): L = combinator(a)
     protected def outfunction(a: AST): L = f_l(a)
