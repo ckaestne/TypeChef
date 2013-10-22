@@ -531,7 +531,7 @@ void test1(int *code,
     }
 
     // !!! does not terminate !!!
-    @Ignore def test_longsatformulas() {
+    @Test def test_longsatformulas() {
         runExample(
             """
               void foo() {

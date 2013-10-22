@@ -129,11 +129,8 @@ sealed abstract class MonotoneFW[T](val env: ASTEnv, val fm: FeatureModel) exten
         var curl = l1
         for ((e, fexp) <- l2) {
             if (curl.contains(e)) {
-                if (fexp.not and rmap.getOrElse(e, FeatureExprFactory.True) isContradiction()) curl = curl - e
-                else {
-                    curl = curl + e
-                    rmap += ((e, fexp.not and rmap.getOrElse(e, FeatureExprFactory.True)))
-                }
+                curl = curl + e
+                rmap += ((e, fexp.not and rmap.getOrElse(e, FeatureExprFactory.True)))
             }
         }
         curl
