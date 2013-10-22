@@ -505,6 +505,31 @@ class LivenessTest extends TestHelper with ShouldMatchers with IntraCFG with CFG
             """)
     }
 
+    @Test def test_nested_loops() {
+        runExample(
+            """
+static
+void test1(int *code,
+        int *length,
+        int minLen,
+        int maxLen,
+        int alphaSize)
+{
+    int n, vec, i;
+
+    vec = 0;
+    for (n = minLen; n <= maxLen; n++) {
+
+        for (i = 0; i < alphaSize; i++)
+            ;
+        #ifdef A
+        vec <<= 1; // dead store
+        #endif
+    }
+}
+            """.stripMargin)
+    }
+
 
     // http://www.exforsys.com/tutorials/c-language/c-expressions.html
     @Test def test_uses() {
