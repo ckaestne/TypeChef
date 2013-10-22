@@ -81,6 +81,7 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend, fm
         for (s <- nss) {
             val k = df.kill(s)
 
+            println(PrettyPrinter.print(s), df.out(s))
             if (k.size > 0) {
                 val out = df.out(s)
 
@@ -163,18 +164,17 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend, fm
                 g.find { case ((t, _), _) => t == i } match {
                     case None =>
                     case Some(((x, _), _)) => {
-                            if (h.isSatisfiable(fm)) {
-                        val xdecls = udm.get(x)
-                        var idecls = udm.get(i)
-                        if (idecls == null)
-                            idecls = List(i)
-                        for (ei <- idecls)
-                            if (xdecls.exists(_.eq(ei)))
-                                res ::= new TypeChefError(Severity.Warning, h, "warning: Variable " + x.name + " is freed multiple times!", x, "")
+                        if (h.isSatisfiable(fm)) {
+                            val xdecls = udm.get(x)
+                            var idecls = udm.get(i)
+                            if (idecls == null)
+                                idecls = List(i)
+                            for (ei <- idecls)
+                                if (xdecls.exists(_.eq(ei)))
+                                    res ::= new TypeChefError(Severity.Warning, h, "warning: Variable " + x.name + " is freed multiple times!", x, "")
+                        }
                     }
                 }
-        }
-
             }
         }
         res
@@ -222,7 +222,7 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend, fm
                             }
                         }
                     }
-                }
+            }
         }
 
         res
@@ -251,24 +251,24 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend, fm
         for (s <- nss) {
             val g = xf.freedVariables(s)
             if (g.size > 0) {
-            val in = xf.in(s)
+                val in = xf.in(s)
 
-            for (((i,_), h) <- in)
-                g.find(_ == i) match {
-                    case None =>
-                    case Some(x) => {
+                for (((i,_), h) <- in)
+                    g.find(_ == i) match {
+                        case None =>
+                        case Some(x) => {
                             if (h.isSatisfiable(fm)) {
-                        val xdecls = udm.get(x)
-                        var idecls = udm.get(i)
-                        if (idecls == null)
-                            idecls = List(i)
-                        for (ei <- idecls)
-                            if (xdecls.exists(_.eq(ei)))
-                                res ::= new TypeChefError(Severity.Warning, h, "warning: Variable " + x.name + " is freed although not dynamically allocted!", x, "")
-                    }
+                                val xdecls = udm.get(x)
+                                var idecls = udm.get(i)
+                                if (idecls == null)
+                                    idecls = List(i)
+                                for (ei <- idecls)
+                                    if (xdecls.exists(_.eq(ei)))
+                                        res ::= new TypeChefError(Severity.Warning, h, "warning: Variable " + x.name + " is freed although not dynamically allocted!", x, "")
+                            }
                         }
                     }
-                }
+            }
         }
 
         res
