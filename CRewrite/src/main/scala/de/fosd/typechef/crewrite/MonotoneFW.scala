@@ -2,6 +2,8 @@ package de.fosd.typechef.crewrite
 
 import org.kiama.attribution.AttributionBase
 
+import scala.collection.JavaConversions._
+
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.typesystem.{DeclUseMap, UseDeclMap}
 import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureModel, FeatureExpr}
@@ -222,6 +224,9 @@ sealed abstract class MonotoneFW[T](val env: ASTEnv, val fm: FeatureModel) exten
     private val f_lcache = new IdentityHashMapCache[L]()
     private val combinatorcache = new IdentityHashMapCache[L]()
 
+    private val instable_f_lcache = new IdentityHashMapCache[L]()
+    private val instable_combinatorcache = new IdentityHashMapCache[L]()
+
     protected val combinator: AST => L = {
         circular[AST, L](b) {
             case _: E => i
@@ -236,6 +241,8 @@ sealed abstract class MonotoneFW[T](val env: ASTEnv, val fm: FeatureModel) exten
                     val x = updateFeatureExprOfMonotoneElements(point(s.entry), s.feature)
                     res = combinationOperator(res, x)
                 }
+
+                instable_combinatorcache.update(a, res)
 
                 res
             }
@@ -253,6 +260,9 @@ sealed abstract class MonotoneFW[T](val env: ASTEnv, val fm: FeatureModel) exten
                 res = diff(res, mapGenKillElements2MonotoneElements(k))
 
                 res = union(res, mapGenKillElements2MonotoneElements(g))
+
+                instable_f_lcache.update(a, res)
+
                 res
             }
         }
@@ -262,8 +272,15 @@ sealed abstract class MonotoneFW[T](val env: ASTEnv, val fm: FeatureModel) exten
 
     def out(a: AST) = {
         val o = outfunction(a)
-        if (isForward) f_lcache.update(a, o)
-        else combinatorcache.update(a, o)
+
+        if (isForward) {
+            for (x <- instable_f_lcache.keySet)
+                f_lcache.update(a, instable_f_lcache.lookup(x).get)
+        } else {
+            for (x <- instable_combinatorcache.keySet)
+                combinatorcache.update(x, instable_combinatorcache.lookup(x).get)
+        }
+
         var res = List[(T, FeatureExpr)]()
         for ((x, f) <- o) {
             val orig = getOriginal(x)
@@ -278,8 +295,15 @@ sealed abstract class MonotoneFW[T](val env: ASTEnv, val fm: FeatureModel) exten
 
     def in(a: AST) = {
         val o = infunction(a)
-        if (isForward) combinatorcache.update(a,o)
-        else f_lcache.update(a, o)
+
+        if (isForward) {
+            for (x <- instable_combinatorcache.keySet)
+                combinatorcache.update(a, instable_combinatorcache.lookup(x).get)
+        } else {
+            for (x <- instable_f_lcache.keySet)
+                f_lcache.update(a, instable_f_lcache.lookup(x).get)
+        }
+
         var res = List[(T, FeatureExpr)]()
 
         for ((x, f) <- o) {
@@ -408,4 +432,5 @@ class IdentityHashMapCache[A] {
         if (v != null) Some(v)
         else None
     }
+    def keySet = cache.keySet()
 }
