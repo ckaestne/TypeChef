@@ -271,9 +271,7 @@ sealed abstract class MonotoneFW[T](val env: ASTEnv, val fm: FeatureModel) exten
             val orig = getOriginal(x)
             res = (orig, rmap.get(x).get) :: res
         }
-        // joining values from different paths can lead to duplicates.
-        // remove them and filter out values from unsatisfiable paths.
-        res.distinct.filter { case (_, f) => f.isSatisfiable(fm) }
+        res.filter { case (_, f) => f.isSatisfiable(fm) }
     }
 
     protected def infunction(a: AST): L
@@ -287,7 +285,7 @@ sealed abstract class MonotoneFW[T](val env: ASTEnv, val fm: FeatureModel) exten
             val orig = getOriginal(x)
             res = (orig, rmap.get(x).get) :: res
         }
-        res.distinct.filter { case (_, f) => f.isSatisfiable(fm) }
+        res.filter { case (_, f) => f.isSatisfiable(fm) }
     }
 }
 
