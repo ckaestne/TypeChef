@@ -36,8 +36,8 @@ class XFree(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: FeatureModel, f: 
     }
 
     // get all declared variables without an initialization
-    def gen(a: AST): LVAR = {
-        var res = lvar
+    def gen(a: AST): L = {
+        var res = l
         val variables = manytd(query {
             case InitDeclaratorI(AtomicNamedDeclarator(_, i: Id, _), _, None) => res ++= fromCache(i)
             case InitDeclaratorI(AtomicNamedDeclarator(_, i: Id, _), _, Some(initializer)) => {
@@ -57,8 +57,8 @@ class XFree(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: FeatureModel, f: 
     }
 
     // get variables that get an assignment with malloc
-    def kill(a: AST): LVAR = {
-        var res = lvar
+    def kill(a: AST): L = {
+        var res = l
         val assignments = manytd(query {
             case AssignExpr(target: Id, "=", source) => {
                 val pmallocs = filterASTElems[PostfixExpr](source)
@@ -165,7 +165,7 @@ class XFree(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: FeatureModel, f: 
 
     protected val i = l
     protected def b = l
-    protected def combinationOperator(l1: L, l2: LVAR) = union(l1, l2)
+    protected def combinationOperator(l1: L, l2: L) = union(l1, l2)
 
     protected def infunction(a: AST): L = combinator(a)
     protected def outfunction(a: AST): L = f_l(a)

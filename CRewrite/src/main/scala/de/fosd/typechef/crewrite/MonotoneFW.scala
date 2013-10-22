@@ -2,8 +2,6 @@ package de.fosd.typechef.crewrite
 
 import org.kiama.attribution.AttributionBase
 
-import scala.collection.JavaConversions._
-
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.typesystem.{DeclUseMap, UseDeclMap}
 import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureModel, FeatureExpr}
@@ -83,9 +81,9 @@ sealed abstract class MonotoneFW[T](val env: ASTEnv, val fm: FeatureModel) exten
     protected def t2T(i: T): T
 
     // map given elements from gen/kill to those elements maintained by the framework
-    protected def mapGenKillElements2MonotoneElements(s: LVAR): LVAR
-    private def updateFeatureExprOfMonotoneElements(s: LVAR, f: FeatureExpr): LVAR = {
-        var res = lvar
+    protected def mapGenKillElements2MonotoneElements(s: L): L
+    private def updateFeatureExprOfMonotoneElements(s: L, f: FeatureExpr): L = {
+        var res = l
 
         for ((x, of) <- s)
             res += ((x, of and f))
@@ -93,8 +91,8 @@ sealed abstract class MonotoneFW[T](val env: ASTEnv, val fm: FeatureModel) exten
     }
 
     // gen and kill function, will be implemented by the concrete dataflow analysis
-    def gen(a: AST): LVAR
-    def kill(a: AST): LVAR
+    def gen(a: AST): L
+    def kill(a: AST): L
 
     // while monotone framework usually works on Sets
     // we use maps here for efficiency reasons:
@@ -115,46 +113,46 @@ sealed abstract class MonotoneFW[T](val env: ASTEnv, val fm: FeatureModel) exten
     // ⊑ is either ⊆ (subset) or ⊇ (superset)
     // according to the ascending chain condition (see [NNH99], Appendix A)
     // l1 ⊑ l2 ⊑ ... eventually stabilises (finite set of T elements in analysis), i.e., ∃n: ln = ln+1 = ...
-    type L = Set[T]
-    type LVAR = Map[T, FeatureExpr]
+    type L = Map[T, FeatureExpr]
 
     // preserve the generic type of the MonotoneFW class, so that it is available in subclasses
     type PGT = T
-    protected def l = Set[T]()
-    protected def lvar = Map[T, FeatureExpr]()
+    protected def l = Map[T, FeatureExpr]()
 
-    private var rmap = Map[T, FeatureExpr]()
-
-    private def diff(l1: L, l2: LVAR): L = {
-        var curl = l1
+    private def diff(l: L, l2: L): L = {
+        var curl = l
         for ((e, fexp) <- l2) {
-            if (curl.contains(e)) {
-                curl = curl + e
-                rmap += ((e, fexp.not and rmap.getOrElse(e, FeatureExprFactory.True)))
+            curl.get(e) match {
+                case None =>
+                case Some(x) => {
+                    curl = curl + ((e, fexp.not and x))
+                }
             }
         }
         curl
     }
 
-    protected def intersection(l1: L, l2: LVAR): L = {
+    protected def intersection(l1: L, l2: L): L = {
         var curl = l1
-        val k1 = l1
+        val k1 = l1.keySet
         val k2 = l2.keySet
         curl --= ((k1 union k2) diff (k1 intersect k2))
         for ((e, fexp) <- l2) {
-            if (curl.contains(e)) {
-                curl = curl + e
-                rmap += ((e, fexp and rmap.getOrElse(e, FeatureExprFactory.True)))
+            curl.get(e) match {
+                case None =>
+                case Some(x) => curl = curl + ((e, fexp and x))
             }
         }
         curl
     }
 
-    protected def union(l1: L, l2: LVAR): L = {
-        var curl = l1
+    protected def union(l: L, l2: L): L = {
+        var curl = l
         for (i@(e, fexp) <- l2) {
-            curl = curl + e
-            rmap += ((e, fexp or rmap.getOrElse(e, FeatureExprFactory.False)))
+            curl.get(e) match {
+                case None => curl = curl + i
+                case Some(x) => curl = curl + ((e, fexp or x))
+            }
         }
         curl
     }
@@ -199,7 +197,7 @@ sealed abstract class MonotoneFW[T](val env: ASTEnv, val fm: FeatureModel) exten
     // we name Analysis_○ circle and Analysis_● point
 
     // ∐ is either ⋃ (n-ary union) or ⋂ (n-ary intersection) and has to be defined by the analysis instance
-    protected def combinationOperator(l1: L, l2: LVAR): L
+    protected def combinationOperator(l1: L, l2: L): L
 
     // depending on the analysis in and out are defined differently, although they always represent the
     // results before a CFG statement resp. after a CFG statement
@@ -210,19 +208,12 @@ sealed abstract class MonotoneFW[T](val env: ASTEnv, val fm: FeatureModel) exten
     //      in          |      (combinator)  ∧       (f_l)
     //    x++;          | flow (pred)        | flowR (succ)
     //      out         ∨      (f_l)         |       (combinator)
-    protected def circle(e: AST): L = combinatorcache.lookup(e).getOrElse(combinator(e))
-    protected def point(e: AST): L = f_lcache.lookup(e).getOrElse(f_l(e))
+    protected def circle(e: AST): L = combinator(e)
+    protected def point(e: AST): L = f_l(e)
 
     protected def isForward: Boolean
-
-    private def LToLVAR(l: L): LVAR = {
-        l.foldLeft(Map[T, FeatureExpr]()){ (r, e) => r + ((e, rmap.get(e).get)) }
-    }
-
-    private val combinatorcache = new IdentityHashMapCache[L]()
-    private val instable_combinatorcache = new IdentityHashMapCache[L]()
     private val f_lcache = new IdentityHashMapCache[L]()
-    private val instable_f_lcache = new IdentityHashMapCache[L]()
+    private val combinatorcache = new IdentityHashMapCache[L]()
 
     protected val combinator: AST => L = {
         circular[AST, L](b) {
@@ -235,23 +226,21 @@ sealed abstract class MonotoneFW[T](val env: ASTEnv, val fm: FeatureModel) exten
                 // propagate flow condition to current result elements and combine them using
                 // combinationOperator
                 for (s <- fl) {
-                    val x = updateFeatureExprOfMonotoneElements(LToLVAR(point(s.entry)), s.feature)
+                    val x = updateFeatureExprOfMonotoneElements(point(s.entry), s.feature)
                     res = combinationOperator(res, x)
                 }
 
-                instable_combinatorcache.update(a, res)
                 res
             }
         }
     }
 
-    protected def combinatorcached(e: AST) = combinatorcache.lookup(e).getOrElse(combinator(e))
+    protected def combinator_cached(a: AST) = combinatorcache.lookup(a).getOrElse(combinator(a))
 
     protected val f_l: AST => L = {
         circular[AST, L](b) {
             case _: E => i
             case a => {
-
                 val g = gen(a)
                 val k = kill(a)
 
@@ -260,31 +249,26 @@ sealed abstract class MonotoneFW[T](val env: ASTEnv, val fm: FeatureModel) exten
 
                 res = union(res, mapGenKillElements2MonotoneElements(g))
 
-                instable_f_lcache.update(a, res)
                 res
             }
         }
     }
 
-    protected def f_lcached(e: AST) = f_lcache.lookup(e).getOrElse(f_l(e))
+    protected def f_l_cached(a: AST) = f_lcache.lookup(a).getOrElse(f_l(a))
 
     protected def outfunction(a: AST): L
 
     def out(a: AST) = {
         val o = outfunction(a)
 
-        if (isForward) {
-            for (e <- instable_f_lcache.keySet) f_lcache.update(e, instable_f_lcache.lookup(e).get)
-        } else {
-            for (e <- instable_combinatorcache.keySet) combinatorcache.update(e, instable_combinatorcache.lookup(e).get)
-        }
-
         var res = List[(T, FeatureExpr)]()
-        for (x <- o) {
+        for ((x, f) <- o) {
             val orig = getOriginal(x)
-            res = (orig, rmap.get(x).get) :: res
+            res = (orig, f) :: res
         }
-        res.filter { case (_, f) => f.isSatisfiable(fm) }
+        // joining values from different paths can lead to duplicates.
+        // remove them and filter out values from unsatisfiable paths.
+        res.distinct.filter { case (_, f) => f.isSatisfiable(fm) }
     }
 
     protected def infunction(a: AST): L
@@ -292,19 +276,13 @@ sealed abstract class MonotoneFW[T](val env: ASTEnv, val fm: FeatureModel) exten
     def in(a: AST) = {
         val o = infunction(a)
 
-        if (isForward) {
-            for (e <- instable_combinatorcache.keySet) combinatorcache.update(e, instable_combinatorcache.lookup(e).get)
-        } else {
-            for (e <- instable_f_lcache.keySet) f_lcache.update(e, instable_f_lcache.lookup(e).get)
-        }
-
         var res = List[(T, FeatureExpr)]()
 
-        for (x <- o) {
+        for ((x, f) <- o) {
             val orig = getOriginal(x)
-            res = (orig, rmap.get(x).get) :: res
+            res = (orig, f) :: res
         }
-        res.filter { case (_, f) => f.isSatisfiable(fm) }
+        res.distinct.filter { case (_, f) => f.isSatisfiable(fm) }
     }
 }
 
@@ -312,8 +290,8 @@ sealed abstract class MonotoneFW[T](val env: ASTEnv, val fm: FeatureModel) exten
 abstract class MonotoneFWId(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) extends MonotoneFW[Id](env, fm) {
     // add annotation to elements of a List[PGT]
     // this function is used to add feature expression information to set generated by gen and kill
-    protected def addAnnotations(in: List[PGT]): LVAR = {
-        var res = lvar
+    protected def addAnnotations(in: List[PGT]): L = {
+        var res = l
 
         for (r <- in)
             res += ((r, env.featureExpr(r)))
@@ -344,8 +322,8 @@ abstract class MonotoneFWId(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) exte
         }
     }
 
-    protected def mapGenKillElements2MonotoneElements(s: LVAR): LVAR = {
-        var res = lvar
+    protected def mapGenKillElements2MonotoneElements(s: L): L = {
+        var res = l
 
         for ((x, f) <- s)
             for (n <- getFreshDefinitionFromUsage(x))
@@ -359,8 +337,8 @@ abstract class MonotoneFWId(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) exte
 abstract class MonotoneFWIdLab(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: FeatureModel, f: FunctionDef) extends MonotoneFW[(Id, Int)](env, fm) {
     // add annotation to elements of a List[PGT]
     // this function is used to add feature expression information to set generated by gen and kill
-    protected def addAnnotations(in: List[PGT]): LVAR = {
-        var res = lvar
+    protected def addAnnotations(in: List[PGT]): L = {
+        var res = l
 
         for (r <- in)
             res += ((r, env.featureExpr(r._1)))
@@ -374,7 +352,7 @@ abstract class MonotoneFWIdLab(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm
 
     protected def t2SetT(i: PGT) = Set(getFreshDefinition(i))
 
-    protected def mapGenKillElements2MonotoneElements(s: LVAR): LVAR = {
+    protected def mapGenKillElements2MonotoneElements(s: L): L = {
         // we traverse the input so all elements from s are added
         // to our internal cache t2FreshT
         for ((x, _) <- s)
@@ -390,8 +368,8 @@ abstract class MonotoneFWIdLab(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm
     // so (1, "1") has not the same reference as (1, "1")
     private val cachePGT = new IdentityHashMapCache[(PGT, FeatureExpr)]()
 
-    protected def fromCache(i: Id, isKill: Boolean = false): LVAR = {
-        var res = lvar
+    protected def fromCache(i: Id, isKill: Boolean = false): L = {
+        var res = l
         if (cachePGT.lookup(i).isEmpty) cachePGT.update(i, ((i, System.identityHashCode(i)), env.featureExpr(i)))
         res += cachePGT.lookup(i).get
 

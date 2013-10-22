@@ -32,8 +32,8 @@ sealed abstract class StdLibFuncReturn(env: ASTEnv, dum: DeclUseMap, udm: UseDec
     val function: List[String]
     val errorreturn: List[AST]
 
-    def gen(a: AST): LVAR = {
-        var res = lvar
+    def gen(a: AST): L = {
+        var res = l
 
         // we track variables with the return value of a stdlib function call that is in function
         val retvar = manytd(query {
@@ -67,8 +67,8 @@ sealed abstract class StdLibFuncReturn(env: ASTEnv, dum: DeclUseMap, udm: UseDec
         }
     }
 
-    def kill(a: AST): LVAR = {
-        var res = lvar
+    def kill(a: AST): L = {
+        var res = l
 
         val checkvar = manytd(query {
             case NAryExpr(i@Id(_), others) => {
@@ -123,8 +123,8 @@ sealed abstract class StdLibFuncReturn(env: ASTEnv, dum: DeclUseMap, udm: UseDec
         erroreouscalls
     }
 
-    def getUsedVariables(a: AST): LVAR = {
-        var res = lvar
+    def getUsedVariables(a: AST): L = {
+        var res = l
 
         for (u <- uses(a)) res ++= fromCache(u)
 
@@ -135,7 +135,7 @@ sealed abstract class StdLibFuncReturn(env: ASTEnv, dum: DeclUseMap, udm: UseDec
 
     protected val i = l
     protected def b = l
-    protected def combinationOperator(l1: L, l2: LVAR) = union(l1, l2)
+    protected def combinationOperator(l1: L, l2: L) = union(l1, l2)
 
     protected def infunction(a: AST): L = combinator(a)
     protected def outfunction(a: AST): L = f_l(a)
