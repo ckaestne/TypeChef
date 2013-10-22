@@ -32,14 +32,6 @@ class JSToken(
     def getPosition(): Position = position
 
     override def toString = "\"" + image + "\"" + (if (!getFeature.isTautology()) getFeature else "")
-
-    def isInteger: Boolean = false
-
-    def isIdentifier: Boolean = false
-
-    def isString: Boolean = false
-
-    def isCharacter: Boolean = false
 }
 
 class JPosition(file: String, line: Int, col: Int) extends Position {

@@ -8,7 +8,7 @@ import de.fosd.typechef.parser.TokenReader
 import org.junit.Assert._
 import org.junit.Test
 
-class ParserTest {
+class JSParserTest {
 
 
 
