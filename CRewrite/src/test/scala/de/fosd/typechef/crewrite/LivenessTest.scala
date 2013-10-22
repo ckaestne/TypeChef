@@ -1,16 +1,16 @@
 package de.fosd.typechef.crewrite
 
-import org.junit.Test
+import org.junit.{Ignore, Test}
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.featureexpr.FeatureExprFactory
 import org.scalatest.matchers.ShouldMatchers
 import de.fosd.typechef.typesystem.{CDeclUse, CTypeSystemFrontend}
 import de.fosd.typechef.conditional.Opt
 
-class LivenessTest extends TestHelper with ShouldMatchers with IntraCFG with CFGHelper {
+class LivenessTest extends EnforceTreeHelper with TestHelper with ShouldMatchers with IntraCFG with CFGHelper {
 
     private def runExample(code: String) {
-        val a = parseFunctionDef(code)
+        val a = prepareAST[FunctionDef](parseFunctionDef(code))
 
         val env = CASTEnv.createASTEnv(a)
         val ss = getAllSucc(a.stmt.innerStatements.head.entry, FeatureExprFactory.empty, env).map(_._1).filterNot(x => x.isInstanceOf[FunctionDef])
@@ -527,6 +527,75 @@ void test1(int *code,
         #endif
     }
 }
+            """.stripMargin)
+    }
+
+    // !!! does not terminate !!!
+    @Ignore def test_longsatformulas() {
+        runExample(
+            """
+              void foo() {
+                int a;
+              #ifdef Z
+                a = -1;
+                #ifdef A
+                if (a > 0) {
+                  a = 1;
+                } else
+                #endif
+                #ifdef B
+                if (a > 1) {
+                  a = 2;
+                } else
+                #endif
+                  goto err;
+                a = 2;
+                return;
+                err:
+              #endif
+                 a = 3;
+              }
+            """.stripMargin)
+    }
+
+    // !!! does not terminate !!!
+    @Test def test_longsatformulas2() {
+        runExample(
+            """
+              void foo() {
+                int a;
+              #ifdef Z
+                a = -1;
+                #if defined(A) && defined(B)
+                if (a > 0) {
+                  a = 1;
+                } else
+                if (a > 1) {
+                  a = 2;
+                } else
+                  goto err;
+                #endif
+                #if defined(A) && !defined(B)
+                if (a > 0) {
+                  a = 1;
+                } else
+                  goto err;
+                #endif
+                #if !defined(A) && defined(B)
+                if (a > 1) {
+                  a = 2;
+                } else
+                  goto err;
+                #endif
+                #if !defined(A) && !defined(B)
+                  goto err;
+                #endif
+                a = 2;
+                return;
+                err:
+              #endif
+                 a = 3;
+              }
             """.stripMargin)
     }
 
