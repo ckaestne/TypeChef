@@ -2,6 +2,8 @@ package de.fosd.typechef.crewrite
 
 import org.kiama.attribution.AttributionBase
 
+import scala.collection.JavaConversions._
+
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.typesystem.{DeclUseMap, UseDeclMap}
 import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureModel, FeatureExpr}
@@ -211,18 +213,19 @@ sealed abstract class MonotoneFW[T](val env: ASTEnv, val fm: FeatureModel) exten
     //      in          |      (combinator)  ∧       (f_l)
     //    x++;          | flow (pred)        | flowR (succ)
     //      out         ∨      (f_l)         |       (combinator)
-    protected def circle(e: AST): L = combinator(e)
-    protected def point(e: AST): L = f_l(e)
+    protected def circle(e: AST): L = combinatorcache.lookup(e).getOrElse(combinator(e))
+    protected def point(e: AST): L = f_lcache.lookup(e).getOrElse(f_l(e))
 
     protected def isForward: Boolean
 
     private def LToLVAR(l: L): LVAR = {
-        var res = Map[T, FeatureExpr]()
-        l.foreach {
-            x => res += ((x, rmap.get(x).get))
-        }
-        res
+        l.foldLeft(Map[T, FeatureExpr]()){ (r, e) => r + ((e, rmap.get(e).get)) }
     }
+
+    private val combinatorcache = new IdentityHashMapCache[L]()
+    private val instable_combinatorcache = new IdentityHashMapCache[L]()
+    private val f_lcache = new IdentityHashMapCache[L]()
+    private val instable_f_lcache = new IdentityHashMapCache[L]()
 
     protected val combinator: AST => L = {
         circular[AST, L](b) {
@@ -239,15 +242,19 @@ sealed abstract class MonotoneFW[T](val env: ASTEnv, val fm: FeatureModel) exten
                     res = combinationOperator(res, x)
                 }
 
+                instable_combinatorcache.update(a, res)
                 res
             }
         }
     }
 
+    protected def combinatorcached(e: AST) = combinatorcache.lookup(e).getOrElse(combinator(e))
+
     protected val f_l: AST => L = {
         circular[AST, L](b) {
             case _: E => i
             case a => {
+
                 val g = gen(a)
                 val k = kill(a)
 
@@ -256,15 +263,24 @@ sealed abstract class MonotoneFW[T](val env: ASTEnv, val fm: FeatureModel) exten
 
                 res = union(res, mapGenKillElements2MonotoneElements(g))
 
+                instable_f_lcache.update(a, res)
                 res
             }
         }
     }
 
+    protected def f_lcached(e: AST) = f_lcache.lookup(e).getOrElse(f_l(e))
+
     protected def outfunction(a: AST): L
 
     def out(a: AST) = {
         val o = outfunction(a)
+
+        if (isForward) {
+            for (e <- instable_f_lcache.keySet) f_lcache.update(e, instable_f_lcache.lookup(e).get)
+        } else {
+            for (e <- instable_combinatorcache.keySet) combinatorcache.update(e, instable_combinatorcache.lookup(e).get)
+        }
 
         var res = List[(T, FeatureExpr)]()
         for (x <- o) {
@@ -278,6 +294,12 @@ sealed abstract class MonotoneFW[T](val env: ASTEnv, val fm: FeatureModel) exten
 
     def in(a: AST) = {
         val o = infunction(a)
+
+        if (isForward) {
+            for (e <- instable_combinatorcache.keySet) combinatorcache.update(e, instable_combinatorcache.lookup(e).get)
+        } else {
+            for (e <- instable_f_lcache.keySet) f_lcache.update(e, instable_f_lcache.lookup(e).get)
+        }
 
         var res = List[(T, FeatureExpr)]()
 
