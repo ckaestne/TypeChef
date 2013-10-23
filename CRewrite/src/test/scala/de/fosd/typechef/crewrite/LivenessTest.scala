@@ -558,13 +558,12 @@ void test1(int *code,
             """.stripMargin)
     }
 
-    // !!! does not terminate !!!
     @Test def test_longsatformulas2() {
         runExample(
             """
               void foo() {
                 int a;
-              #ifdef Z
+                #if defined(Z)
                 a = -1;
                 #if defined(A) && defined(B)
                 if (a > 0) {
@@ -595,6 +594,36 @@ void test1(int *code,
                 err:
               #endif
                  a = 3;
+              }
+            """.stripMargin)
+    }
+
+    @Test def test_longsatformulas3() {
+        runExample(
+            """
+              void foo() {
+                int a, b, c, d, e, f, g, h;
+                again:;
+                a = 2;
+                #if defined(Z) || defined(Y)
+                  a = 1;
+                  #ifdef A
+                  b = 2 + a;
+                  #endif
+                  c = 1;
+                  #ifdef B
+                  g = 2 + a;
+                  a = 2;
+                  #endif
+
+                  #ifdef C
+                  f = f + 1 + a;
+                  goto again;
+                  #endif
+
+                  goto again;
+                #endif
+                h = a + b + c + d + e + f + g;
               }
             """.stripMargin)
     }
