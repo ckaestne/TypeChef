@@ -696,7 +696,7 @@ object FamilyBasedVsSampleBased extends EnforceTreeHelper with ASTNavigation wit
 
       // measurement
       val tb = java.lang.management.ManagementFactory.getThreadMXBean
-      var foundError: Boolean = false
+      var errorfree: Boolean = false
       var lastTime: Long = 0
       var curTime: Long = 0
 
@@ -714,7 +714,7 @@ object FamilyBasedVsSampleBased extends EnforceTreeHelper with ASTNavigation wit
 
         val ts = new CTypeSystemFrontend(tunit, fm)
         lastTime = tb.getCurrentThreadCpuTime
-        foundError |= !ts.checkASTSilent
+        errorfree = ts.checkASTSilent
         curTime = (tb.getCurrentThreadCpuTime - lastTime)
         val familyTime: Long = curTime / nstoms
 
@@ -802,7 +802,7 @@ object FamilyBasedVsSampleBased extends EnforceTreeHelper with ASTNavigation wit
             fw.write("\n")
         }
 
-        fw.write("Errors in family check: " + (if (foundError) "No" else "Yes") + "\n")
+        fw.write("Errors in family check: " + (if (errorfree) "Yes" else "No") + "\n")
         fw.write("Time Family:      " + familyTime + " ms\n")
         fw.write("Dataflow Time Family:     " + timeDfFamily + " ms\n")
         fw.close()
