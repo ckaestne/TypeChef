@@ -660,14 +660,14 @@ object FamilyBasedVsSampleBased extends EnforceTreeHelper with ASTNavigation wit
     }
 
     private def warmUp(tu: TranslationUnit) {
-        val ts = new CTypeSystemFrontend(tu)
-        ts.checkASTSilent
-        ts.checkASTSilent
-        ts.checkASTSilent
-        val udm = ts.getUseDeclMap
-        liveness(tu, udm)
-        liveness(tu, udm)
-        liveness(tu, udm)
+//        val ts = new CTypeSystemFrontend(tu)
+//        ts.checkASTSilent
+//        ts.checkASTSilent
+//        ts.checkASTSilent
+//        val udm = ts.getUseDeclMap
+//        liveness(tu, udm)
+//        liveness(tu, udm)
+//        liveness(tu, udm)
     }
 
     private def liveness(tunit: AST, udm: UseDeclMap, fm: FeatureModel = FeatureExprFactory.empty) {
@@ -677,13 +677,19 @@ object FamilyBasedVsSampleBased extends EnforceTreeHelper with ASTNavigation wit
 
     private def intraDataflowAnalysis(f: FunctionDef, udm: UseDeclMap, fm: FeatureModel) {
         if (f.stmt.innerStatements.isEmpty) return
+
+        println("compute liveness for " + f.getName)
         val env = CASTEnv.createASTEnv(f)
-        val ss = getAllSucc(f, FeatureExprFactory.empty, env).reverse
+
+        val pp = getAllPred(f, FeatureExprFactory.empty, env)
         val li = new Liveness(env, udm, FeatureExprFactory.empty)
 
-        val nss = ss.map(_._1).filterNot(x => x.isInstanceOf[FunctionDef])
+        val nss = pp.map(_._1).filterNot(x => x.isInstanceOf[FunctionDef])
         for (s <- nss) {
-            li.out(s)
+            val t0 = System.currentTimeMillis()
+            val o = li.out(s)
+            val t1 = System.currentTimeMillis()
+            if (f.getName == "tar_main") println(s, t1-t0, o)
         }
     }
 
@@ -795,16 +801,16 @@ object FamilyBasedVsSampleBased extends EnforceTreeHelper with ASTNavigation wit
             fw.write("(" + taskDesc + ")Processed configurations: " + numConfigs + "\n")
             fw.write("(" + taskDesc + ")Product Derivation Times: " + productDerivationTimes.mkString(",") + "\n")
             fw.write("(" + taskDesc + ")Configurations with errors: " + errors + "\n")
-            fw.write("(" + taskDesc + ")TimeSum Products: " + tcProductTimes.filter(_ > 0).sum + " ms\n")
-            fw.write("(" + taskDesc + ")Times Products: " + tcProductTimes.mkString(",") + "\n")
+            fw.write("(" + taskDesc + ")TypecheckingSum Products: " + tcProductTimes.filter(_ > 0).sum + " ms\n")
+            fw.write("(" + taskDesc + ")Typechecking Products: " + tcProductTimes.mkString(",") + "\n")
             fw.write("(" + taskDesc + ")DataflowSum Products: " + dfProductTimes.filter(_ > 0).sum + " ms\n")
             fw.write("(" + taskDesc + ")Dataflow Products: " + dfProductTimes.mkString(",") + "\n")
             fw.write("\n")
         }
 
-        fw.write("Errors in family check: " + (if (errorfree) "Yes" else "No") + "\n")
-        fw.write("Time Family:      " + familyTime + " ms\n")
-        fw.write("Dataflow Time Family:     " + timeDfFamily + " ms\n")
+        fw.write("No type errors in file: " + (if (errorfree) "Yes" else "No") + "\n")
+        fw.write("Typechecking Time Family: " + familyTime + " ms\n")
+        fw.write("Dataflow Time Family: " + timeDfFamily + " ms\n")
         fw.close()
 
     }

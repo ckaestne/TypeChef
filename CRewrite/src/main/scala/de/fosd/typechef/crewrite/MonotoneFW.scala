@@ -1,10 +1,9 @@
 package de.fosd.typechef.crewrite
 
-import org.kiama.attribution.AttributionBase
-
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.typesystem.{DeclUseMap, UseDeclMap}
 import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureModel, FeatureExpr}
+import org.kiama.attribution.AttributionBase
 
 // this abstract class provides a standard implementation of
 // the monotone framework, a general framework for dataflow analyses
@@ -125,7 +124,7 @@ sealed abstract class MonotoneFW[T](val env: ASTEnv, val fm: FeatureModel) exten
             curl.get(e) match {
                 case None =>
                 case Some(x) => {
-                    curl = curl + ((e, fexp.not and x))
+                    curl = curl + ((e, x and fexp.not))
                 }
             }
         }
@@ -140,7 +139,7 @@ sealed abstract class MonotoneFW[T](val env: ASTEnv, val fm: FeatureModel) exten
         for ((e, fexp) <- l2) {
             curl.get(e) match {
                 case None =>
-                case Some(x) => curl = curl + ((e, fexp and x))
+                case Some(x) => curl = curl + ((e, x and fexp))
             }
         }
         curl
@@ -151,7 +150,7 @@ sealed abstract class MonotoneFW[T](val env: ASTEnv, val fm: FeatureModel) exten
         for (i@(e, fexp) <- l2) {
             curl.get(e) match {
                 case None => curl = curl + i
-                case Some(x) => curl = curl + ((e, fexp or x))
+                case Some(x) => curl = curl + ((e, x or fexp))
             }
         }
         curl
@@ -211,10 +210,6 @@ sealed abstract class MonotoneFW[T](val env: ASTEnv, val fm: FeatureModel) exten
     protected def circle(e: AST): L = combinator(e)
     protected def point(e: AST): L = f_l(e)
 
-    protected def isForward: Boolean
-    private val f_lcache = new IdentityHashMapCache[L]()
-    private val combinatorcache = new IdentityHashMapCache[L]()
-
     protected val combinator: AST => L = {
         circular[AST, L](b) {
             case _: E => i
@@ -235,8 +230,6 @@ sealed abstract class MonotoneFW[T](val env: ASTEnv, val fm: FeatureModel) exten
         }
     }
 
-    protected def combinator_cached(a: AST) = combinatorcache.lookup(a).getOrElse(combinator(a))
-
     protected val f_l: AST => L = {
         circular[AST, L](b) {
             case _: E => i
@@ -249,12 +242,12 @@ sealed abstract class MonotoneFW[T](val env: ASTEnv, val fm: FeatureModel) exten
 
                 res = union(res, mapGenKillElements2MonotoneElements(g))
 
+//                if (findPriorASTElem[FunctionDef](a, env).get.getName == "tar_main")
+//                    println(res, " of ", PrettyPrinter.print(a).replace("\n", ""))
                 res
             }
         }
     }
-
-    protected def f_l_cached(a: AST) = f_lcache.lookup(a).getOrElse(f_l(a))
 
     protected def outfunction(a: AST): L
 
@@ -297,6 +290,8 @@ abstract class MonotoneFWId(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) exte
             res += ((r, env.featureExpr(r)))
 
         res
+        // TODO remove
+        Map()
     }
 
     // we create fresh T elements (here Id) using a counter

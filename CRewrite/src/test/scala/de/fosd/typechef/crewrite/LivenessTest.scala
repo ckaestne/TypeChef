@@ -628,6 +628,72 @@ void test1(int *code,
             """.stripMargin)
     }
 
+    @Test def test_ifcascade() {
+        runExample(
+            """
+            void foo() {
+              int a = 0;
+              if (a == 1) a = 2;
+              |if (a == 1) a = 2;
+              |if (a == 1) a = 2;
+              |if (a == 1) a = 2;
+              |if (a == 1) a = 2;
+              |if (a == 1) a = 2;
+              |if (a == 1) a = 2;
+              |if (a == 1) a = 2;
+              |if (a == 1) a = 2;
+              |if (a == 1) a = 2;
+              |if (a == 1) a = 2;
+              |if (a == 1) a = 2;
+              |if (a == 1) a = 2;
+              |if (a == 1) a = 2;
+              |if (a == 1) a = 2;
+              |if (a == 1) a = 2;
+              |if (a == 1) a = 2;
+              |if (a == 1) a = 2;
+              |if (a == 1) a = 2;
+              |if (a == 1) a = 2;
+              |if (a == 1) a = 2;
+              |if (a == 1) a = 2;
+              |if (a == 1) a = 2;
+              |if (a == 1) a = 2;
+              |if (a == 1) a = 2;
+              |if (a == 1) a = 2;
+              |if (a == 1) a = 2;
+              |if (a == 1) a = 2;
+              |if (a == 1) a = 2;
+              |if (a == 1) a = 2;
+              |if (a == 1) a = 2;
+              |if (a == 1) a = 2;
+              |if (a == 1) a = 2;
+              |if (a == 1) a = 2;
+              |if (a == 1) a = 2;
+              |if (a == 1) a = 2;
+              |if (a == 1) a = 2;
+              |if (a == 1) a = 2;
+              |while (a == 1)
+              |  continue;
+              |
+              |while (a == 2) {
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |}
+              |
+              |
+            }
+            """.stripMargin
+        )
+    }
+
 
     // http://www.exforsys.com/tutorials/c-language/c-expressions.html
     @Test def test_uses() {

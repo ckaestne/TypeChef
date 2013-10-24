@@ -45,6 +45,4 @@ class Liveness(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) extends MonotoneF
     // out(a) = for s in succ(n) r = r + in(s); r
     protected def infunction(a: AST): L = f_l(a)
     protected def outfunction(a: AST): L = combinator(a)
-
-    protected def isForward = false
 }

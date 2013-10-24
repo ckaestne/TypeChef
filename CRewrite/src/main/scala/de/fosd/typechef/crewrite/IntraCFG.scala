@@ -63,7 +63,7 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
         }
     }
     private val predCCFGCache = new CFGCache()
-    private val succCCFGCache = new CFGCache()
+    protected val succCCFGCache = new CFGCache()
 
     // result type of pred/succ determination
     // List[(computed annotation, given annotation, CFGStmt node)]
