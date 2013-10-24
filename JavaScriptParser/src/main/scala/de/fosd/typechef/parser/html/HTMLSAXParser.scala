@@ -11,7 +11,7 @@ import de.fosd.typechef.error.WithPosition
 // * which is again based on the publically available JavaCC grammar
 // */
 //
-class HTMLParser extends MultiFeatureParser {
+class HTMLSAXParser extends MultiFeatureParser {
     type Elem = CharacterToken
     type TypeContext = Null
 
@@ -33,7 +33,7 @@ class HTMLParser extends MultiFeatureParser {
     def HtmlElement: MultiParser[HElement] = HtmlTag | HtmlText
 
     def HtmlTag: MultiParser[HTag] = '<' ~ opt('/') ~ (WSs ?) ~ Identifier ~ optList(WSs ~> Attributes) ~ (WSs ?) ~ opt('/' <~ (WSs ?)) ~ '>' ^^ {
-        case _ ~ c ~ _ ~ id ~ attr ~ _ ~ c2 ~ _ => HTag(id, c.isDefined || c2.isDefined, attr)
+        case _ ~ c ~ _ ~ id ~ attr ~ _ ~ c2 ~ _ => HTag(id, c.isDefined, c2.isDefined, attr)
     }
 
     def HtmlText: MultiParser[HText] = rep1(token("no < or >", x => !(Set('<', '>') contains x.getKindChar()))) ^^ {HText(_)}

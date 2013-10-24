@@ -11,7 +11,7 @@ class HtmlParserTest {
 
 
 
-    val p = new HTMLParser()
+    val p = new HTMLSAXParser()
 
     def assertParseable(code: String, mainProduction: (TokenReader[CharacterToken, Null], FeatureExpr) => p.MultiParseResult[Any]) {
         var tokens=Lexer.lex(new StringReader(code))
