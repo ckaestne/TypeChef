@@ -2,6 +2,7 @@ package de.fosd.typechef.parser.c
 
 import de.fosd.typechef.conditional._
 import de.fosd.typechef.error.{WithPosition, Position}
+import org.kiama.attribution.Attributable
 
 /**
  * AST for C
@@ -57,7 +58,7 @@ LocalLabelDeclaration -- label names
   */
 
 //Expressions
-trait AST extends Product with Serializable with Cloneable with WithPosition {
+trait AST extends Product with Serializable with Cloneable with WithPosition with Attributable {
     override def clone(): AST.this.type = super.clone().asInstanceOf[AST.this.type]
 }
 

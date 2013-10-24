@@ -628,6 +628,20 @@ void test1(int *code,
             """.stripMargin)
     }
 
+    @Test def test_alex() {
+        runExample(
+            """
+              void foo() {
+                int a, b, c;
+                again:
+
+                c = a;
+                if (1) goto again;
+                else a = b;
+              }
+            """.stripMargin)
+    }
+
     @Test def test_ifcascade() {
         runExample(
             """
@@ -687,6 +701,371 @@ void test1(int *code,
               |  if (a > 1) a = 3;
               |  if (a > 1) a = 3;
               |}
+              |while (a == 2) {
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |}
+              |while (a == 2) {
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |}
+              |while (a == 2) {
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |}
+              |while (a == 2) {
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |}
+              |while (a == 2) {
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |}
+              |while (a == 2) {
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |}
+              |while (a == 2) {
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |}
+              |while (a == 2) {
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |}
+              |while (a == 2) {
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |}
+              |while (a == 2) {
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |}
+              |while (a == 2) {
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |}while (a == 2) {
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |}while (a == 2) {
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |}
+              |while (a == 2) {
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |}
+              |while (a == 2) {
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |}while (a == 2) {
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |}while (a == 2) {
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |}while (a == 2) {
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |}while (a == 2) {
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |}
+              |while (a == 2) {
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |}
+              |while (a == 2) {
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |}while (a == 2) {
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |}while (a == 2) {
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |}while (a == 2) {
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |}while (a == 2) {
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |}
+              |while (a == 2) {
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |}
+              |while (a == 2) {
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |}
+              |while (a == 2) {
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |  if (a > 1) a = 3;
+              |}
+              |
+              |
+              |
+              |
+              |
+              |
+              |
+              |
+              |
+              |
+              |
               |
               |
             }

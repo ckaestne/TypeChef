@@ -685,6 +685,9 @@ object FamilyBasedVsSampleBased extends EnforceTreeHelper with ASTNavigation wit
         val li = new Liveness(env, udm, FeatureExprFactory.empty)
 
         val nss = pp.map(_._1).filterNot(x => x.isInstanceOf[FunctionDef])
+
+        println("rough number of ids", pp.flatMap { x => li.uses(x._1) } size)
+
         for (s <- nss) {
             val t0 = System.currentTimeMillis()
             val o = li.out(s)
