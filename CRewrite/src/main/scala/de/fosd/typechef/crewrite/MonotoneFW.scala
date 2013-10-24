@@ -207,8 +207,8 @@ sealed abstract class MonotoneFW[T](val env: ASTEnv, val fm: FeatureModel) exten
     //      in          |      (combinator)  ∧       (f_l)
     //    x++;          | flow (pred)        | flowR (succ)
     //      out         ∨      (f_l)         |       (combinator)
-    protected def circle(e: AST): L = combinator(e)
-    protected def point(e: AST): L = f_l(e)
+//    protected def circle(e: AST): L = combinator(e)
+//    protected def point(e: AST): L = f_l(e)
 
     protected val combinator: AST => L = {
         circular[AST, L](b) {
@@ -221,7 +221,7 @@ sealed abstract class MonotoneFW[T](val env: ASTEnv, val fm: FeatureModel) exten
                 // propagate flow condition to current result elements and combine them using
                 // combinationOperator
                 for (s <- fl) {
-                    val x = updateFeatureExprOfMonotoneElements(point(s.entry), s.feature)
+                    val x = updateFeatureExprOfMonotoneElements(f_l(s.entry), s.feature)
                     res = combinationOperator(res, x)
                 }
 
@@ -237,7 +237,7 @@ sealed abstract class MonotoneFW[T](val env: ASTEnv, val fm: FeatureModel) exten
                 val g = gen(a)
                 val k = kill(a)
 
-                var res = circle(a)
+                var res = combinator(a)
                 res = diff(res, mapGenKillElements2MonotoneElements(k))
 
                 res = union(res, mapGenKillElements2MonotoneElements(g))
@@ -246,10 +246,10 @@ sealed abstract class MonotoneFW[T](val env: ASTEnv, val fm: FeatureModel) exten
         }
     }
 
-    protected def outfunction(a: AST): L
+    //protected def outfunction(a: AST): L
 
     def out(a: AST) = {
-        val o = outfunction(a)
+        val o = combinator(a)
 
         var res = List[(T, FeatureExpr)]()
         for ((x, f) <- o) {
@@ -261,10 +261,10 @@ sealed abstract class MonotoneFW[T](val env: ASTEnv, val fm: FeatureModel) exten
         res.distinct.filter { case (_, f) => f.isSatisfiable(fm) }
     }
 
-    protected def infunction(a: AST): L
+    //protected def infunction(a: AST): L
 
     def in(a: AST) = {
-        val o = infunction(a)
+        val o = f_l(a)
 
         var res = List[(T, FeatureExpr)]()
 
