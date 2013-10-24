@@ -241,9 +241,6 @@ sealed abstract class MonotoneFW[T](val env: ASTEnv, val fm: FeatureModel) exten
                 res = diff(res, mapGenKillElements2MonotoneElements(k))
 
                 res = union(res, mapGenKillElements2MonotoneElements(g))
-
-//                if (findPriorASTElem[FunctionDef](a, env).get.getName == "tar_main")
-//                    println(res, " of ", PrettyPrinter.print(a).replace("\n", ""))
                 res
             }
         }
