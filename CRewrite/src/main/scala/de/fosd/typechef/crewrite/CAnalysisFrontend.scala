@@ -74,7 +74,7 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend, fm
     private def deadStore(fa: (FunctionDef, List[(AST, List[Opt[AST]])])): List[TypeChefError] = {
         var res: List[TypeChefError] = List()
 
-        val df = new Liveness(env, udm, FeatureExprFactory.empty)
+        val df = new Liveness(fa._1, env, udm, FeatureExprFactory.empty)
 
         val nss = fa._2.map(_._1).filterNot(x => x.isInstanceOf[FunctionDef]).reverse
 

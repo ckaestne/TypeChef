@@ -660,14 +660,14 @@ object FamilyBasedVsSampleBased extends EnforceTreeHelper with ASTNavigation wit
     }
 
     private def warmUp(tu: TranslationUnit) {
-//        val ts = new CTypeSystemFrontend(tu)
-//        ts.checkASTSilent
-//        ts.checkASTSilent
-//        ts.checkASTSilent
-//        val udm = ts.getUseDeclMap
-//        liveness(tu, udm)
-//        liveness(tu, udm)
-//        liveness(tu, udm)
+        val ts = new CTypeSystemFrontend(tu)
+        ts.checkASTSilent
+        ts.checkASTSilent
+        ts.checkASTSilent
+        val udm = ts.getUseDeclMap
+        liveness(tu, udm)
+        liveness(tu, udm)
+        liveness(tu, udm)
     }
 
     private def liveness(tunit: AST, udm: UseDeclMap, fm: FeatureModel = FeatureExprFactory.empty) {
@@ -678,21 +678,14 @@ object FamilyBasedVsSampleBased extends EnforceTreeHelper with ASTNavigation wit
     private def intraDataflowAnalysis(f: FunctionDef, udm: UseDeclMap, fm: FeatureModel) {
         if (f.stmt.innerStatements.isEmpty) return
 
-        println("compute liveness for " + f.getName)
         val env = CASTEnv.createASTEnv(f)
-
         val pp = getAllPred(f, FeatureExprFactory.empty, env)
-        val li = new Liveness(env, udm, FeatureExprFactory.empty)
+        val li = new Liveness(f, env, udm, FeatureExprFactory.empty)
 
         val nss = pp.map(_._1).filterNot(x => x.isInstanceOf[FunctionDef])
 
-        println("rough number of ids", pp.flatMap { x => li.uses(x._1) } size)
-
         for (s <- nss) {
-            val t0 = System.currentTimeMillis()
-            val o = li.out(s)
-            val t1 = System.currentTimeMillis()
-            if (f.getName == "tar_main") println(s, t1-t0, o)
+            li.out(s)
         }
     }
 

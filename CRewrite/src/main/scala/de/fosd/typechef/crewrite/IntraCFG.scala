@@ -69,11 +69,6 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
     // List[(computed annotation, given annotation, CFGStmt node)]
     type CFGRes = List[(FeatureExpr, FeatureExpr, CFGStmt)]
 
-    // result of pred/succ computation
-    // classic control flow computation returns List[CFGStmt]
-    // the Opt stores the condition under which the CFGStmt element is the predecessor/successor of the input element
-    type CFG = List[Opt[CFGStmt]]
-
     // during traversal of AST elements, we sometimes dig into elements, and don't want to get out again
     // we use the barrier list to add elements we do not want to get out again;
     // in case we determine where we come from.
