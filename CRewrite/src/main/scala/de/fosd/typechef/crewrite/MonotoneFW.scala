@@ -201,8 +201,9 @@ sealed abstract class MonotoneFW[T](val f: FunctionDef, env: ASTEnv, val fm: Fea
         curl
     }
 
-    type IN = (Boolean, L)
-    type OUT = (Boolean, L)
+    type IOR = (Boolean, L)
+    type IN = IOR
+    type OUT = IOR
     type R = (IN, OUT)
 
     val memo = new IdentityHashMapCache[R]()
@@ -293,12 +294,14 @@ sealed abstract class MonotoneFW[T](val f: FunctionDef, env: ASTEnv, val fm: Fea
 //        }
 //    }
 
-    def out(a: AST) = {
+
+
+    private def getValues(a: AST, f: R => IOR) = {
         val r = memo.lookup(a)
 
         if (r.isDefined) {
             var res = List[(T, FeatureExpr)]()
-            for ((x, f) <- r.get._2._2) {
+            for ((x, f) <- f(r.get)._2) {
                 val orig = getOriginal(x)
                 res = (orig, f) :: res
             }
@@ -310,22 +313,8 @@ sealed abstract class MonotoneFW[T](val f: FunctionDef, env: ASTEnv, val fm: Fea
         }
     }
 
-    def in(a: AST) = {
-        val r = memo.lookup(a)
-
-        if (r.isDefined) {
-            var res = List[(T, FeatureExpr)]()
-            for ((x, f) <- r.get._1._2) {
-                val orig = getOriginal(x)
-                res = (orig, f) :: res
-            }
-            // joining values from different paths can lead to duplicates.
-            // remove them and filter out values from unsatisfiable paths.
-            res.distinct.filter { case (_, fexp) => fexp.isSatisfiable(fm) }
-        } else {
-            l
-        }
-    }
+    def in(a: AST) = getValues(a, { _._1 })
+    def out(a: AST) = getValues(a, { _._2 } )
 }
 
 // specialization of MonotoneFW for Ids (Var); helps to reduce code cloning, i.e., cloning of t2T, ...
