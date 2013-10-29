@@ -168,7 +168,7 @@ object FamilyBasedVsSampleBased extends EnforceTreeHelper with ASTNavigation wit
         var taskList: ListBuffer[Task] = ListBuffer()
         // it seems that the scala lists cannot be serialized, so i use java ArrayLists
         val savedFeatures: java.util.ArrayList[String] = readObject[java.util.ArrayList[String]](new File(mainDir, "featurehashmap.ser"))
-        assert(savedFeatures.equals(toJavaList(featureList.map((_.feature)))))
+        assert(savedFeatures.equals(toJavaList(featureList.map(_.feature))))
         for (file <- mainDir.listFiles()) {
             val fn = file.getName
             if (!fn.equals("featurehashmap.ser") && fn.endsWith(".ser")) {
@@ -661,31 +661,32 @@ object FamilyBasedVsSampleBased extends EnforceTreeHelper with ASTNavigation wit
 
     private def warmUp(tu: TranslationUnit) {
         val ts = new CTypeSystemFrontend(tu)
+        val env = CASTEnv.createASTEnv(tu)
         ts.checkASTSilent
         ts.checkASTSilent
         ts.checkASTSilent
         val udm = ts.getUseDeclMap
-        liveness(tu, udm)
-        liveness(tu, udm)
-        liveness(tu, udm)
+        liveness(tu, udm, env)
+        liveness(tu, udm, env)
+        liveness(tu, udm, env)
     }
 
-    private def liveness(tunit: AST, udm: UseDeclMap, fm: FeatureModel = FeatureExprFactory.empty) {
+    private def liveness(tunit: AST, udm: UseDeclMap, env: ASTEnv, fm: FeatureModel = FeatureExprFactory.empty) {
         val fdefs = filterAllASTElems[FunctionDef](tunit)
-        fdefs.map(intraDataflowAnalysis(_, udm, fm))
+        fdefs.map( x => intraDataflowAnalysis(x, udm, env.featureSet(x), fm))
     }
 
-    private def intraDataflowAnalysis(f: FunctionDef, udm: UseDeclMap, fm: FeatureModel) {
+    private def intraDataflowAnalysis(f: FunctionDef, udm: UseDeclMap, ctx: Set[FeatureExpr]= Set(FeatureExprFactory.True), fm: FeatureModel) {
         if (f.stmt.innerStatements.isEmpty) return
 
-        val env = CASTEnv.createASTEnv(f)
+        val env = CASTEnv.createASTEnv(f, ctx)
         val pp = getAllPred(f, FeatureExprFactory.empty, env)
         val li = new Liveness(f, env, udm, FeatureExprFactory.empty)
 
         val nss = pp.map(_._1).filterNot(x => x.isInstanceOf[FunctionDef])
 
         for (s <- nss) {
-            li.out(s)
+            li.in(s)
         }
     }
 
@@ -717,21 +718,22 @@ object FamilyBasedVsSampleBased extends EnforceTreeHelper with ASTNavigation wit
         val ts = new CTypeSystemFrontend(tunit, fm)
         lastTime = tb.getCurrentThreadCpuTime
         errorfree = ts.checkASTSilent
-        curTime = (tb.getCurrentThreadCpuTime - lastTime)
+        curTime = tb.getCurrentThreadCpuTime - lastTime
         val familyTime: Long = curTime / nstoms
 
-        println("fam-time: " + (familyTime))
+        println("fam-time: " + familyTime)
 
       // analysis initialization and warm-up
       var lastTimeDf: Long = 0
       var curTimeDf: Long = 0
  
         lastTimeDf = tb.getCurrentThreadCpuTime
-        liveness(tunit, ts.getUseDeclMap, fm)
-        curTimeDf = (tb.getCurrentThreadCpuTime - lastTimeDf)
+        val env = CASTEnv.createASTEnv(tunit)
+        liveness(tunit, ts.getUseDeclMap, env, fm)
+        curTimeDf = tb.getCurrentThreadCpuTime - lastTimeDf
         val timeDfFamily = curTimeDf / nstoms
 
-        if (tasks.size > 0) println("start task - checking (" + (tasks.size) + " tasks)")
+        if (tasks.size > 0) println("start task - checking (" + tasks.size + " tasks)")
         // results (taskName, (NumConfigs, productDerivationTimes, errors, typecheckingTimes, dataflowTimes))
         var configCheckingResults: List[(String, (Int, List[Long], Int, List[Long], List[Long]))] = List()
         val outFilePrefix: String = fileID.substring(0, fileID.length - 2)
@@ -748,7 +750,8 @@ object FamilyBasedVsSampleBased extends EnforceTreeHelper with ASTNavigation wit
                 val productDerivationStart = tb.getCurrentThreadCpuTime
                 val selectedFeatures = config.getTrueSet.map(_.feature)
                 val product: TranslationUnit = ProductDerivation.deriveProduct[TranslationUnit](tunit, selectedFeatures)
-                val productDerivationDiff = (tb.getCurrentThreadCpuTime - productDerivationStart)
+
+                val productDerivationDiff = tb.getCurrentThreadCpuTime - productDerivationStart
                 productDerivationTimes ::= (productDerivationDiff / nstoms)
                 println("checking configuration " + current_config + " of " + configs.size + " (" +
                         fileID + " , " + taskDesc + ")" + "(" + countNumberOfASTElements(product) + ")" +
@@ -764,7 +767,7 @@ object FamilyBasedVsSampleBased extends EnforceTreeHelper with ASTNavigation wit
 
                 lastTime = tb.getCurrentThreadCpuTime
                 foundError |= !ts.checkASTSilent
-                curTime = (tb.getCurrentThreadCpuTime - lastTime)
+                curTime = tb.getCurrentThreadCpuTime - lastTime
                 val productTime: Long = curTime / nstoms
 
                 tcProductTimes ::= productTime // append to the beginning of tcProductTimes
@@ -773,8 +776,9 @@ object FamilyBasedVsSampleBased extends EnforceTreeHelper with ASTNavigation wit
                 var lastTimeDf: Long = 0
                 var curTimeDf: Long = 0
                 lastTimeDf = tb.getCurrentThreadCpuTime
-                liveness(product, ts.getUseDeclMap)
-                curTimeDf = (tb.getCurrentThreadCpuTime - lastTimeDf)
+                val envproduct = CASTEnv.createASTEnv(product)
+                liveness(product, ts.getUseDeclMap, envproduct)
+                curTimeDf = tb.getCurrentThreadCpuTime - lastTimeDf
                 val timeDataFlowProduct = curTimeDf / nstoms
 
                 dfProductTimes ::= timeDataFlowProduct // add to the head - reverse later
@@ -1083,7 +1087,7 @@ object FamilyBasedVsSampleBased extends EnforceTreeHelper with ASTNavigation wit
         // using this is not correct when different files have different presence conditions
         val useUnsatCombinationsCache = false
         val unsatCombinationsCache: scala.collection.immutable.HashSet[String] = if (useUnsatCombinationsCache && unsatCombinationsCacheFile.exists()) {
-            new scala.collection.immutable.HashSet[String] ++ (Source.fromFile(unsatCombinationsCacheFile).getLines()).toSet
+            new scala.collection.immutable.HashSet[String] ++ Source.fromFile(unsatCombinationsCacheFile).getLines().toSet
         } else {
             scala.collection.immutable.HashSet()
         }
@@ -1111,7 +1115,7 @@ object FamilyBasedVsSampleBased extends EnforceTreeHelper with ASTNavigation wit
                         collectAnnotationLeafNodes(x, previousFeatureExprs, previousFile)
                     }
                 case x: AST => {
-                    val newPreviousFile = (if (x.getFile.isDefined) x.getFile.get else previousFile)
+                    val newPreviousFile = if (x.getFile.isDefined) x.getFile.get else previousFile
                     if (x.productArity == 0) {
                         // termination point of recursion
                         if (includeVariabilityFromHeaderFiles ||
@@ -1144,7 +1148,7 @@ object FamilyBasedVsSampleBased extends EnforceTreeHelper with ASTNavigation wit
                 }
             }
         }
-        collectAnnotationLeafNodes(astRoot, List(FeatureExprFactory.True), (if (astRoot.getFile.isDefined) astRoot.getFile.get else null))
+        collectAnnotationLeafNodes(astRoot, List(FeatureExprFactory.True), if (astRoot.getFile.isDefined) astRoot.getFile.get else null)
 
         // now optNodes contains all Opt[..] nodes in the file, and choiceNodes all Choice nodes.
         // True node never needs to be handled
@@ -1243,7 +1247,7 @@ object FamilyBasedVsSampleBased extends EnforceTreeHelper with ASTNavigation wit
             " unsatisfiableCombinations:" + unsatCombinations + "\n" +
                 " already covered combinations:" + alreadyCoveredCombinations + "\n" +
                 " created combinations:" + retList.size + "\n" +
-                (if (!includeVariabilityFromHeaderFiles) (" Features in CFile: " + getFeaturesInCoveredExpressions.size + "\n") else "") +
+                (if (!includeVariabilityFromHeaderFiles) " Features in CFile: " + getFeaturesInCoveredExpressions.size + "\n" else "") +
                 " found " + nodeExpressions.size + " NodeExpressions\n" +
                 " found " + simpleAndNodes + " simpleAndNodes, " + simpleOrNodes + " simpleOrNodes and " + complexNodes + " complex nodes.\n")
     }
