@@ -176,6 +176,10 @@ object Frontend extends EnforceTreeHelper {
 
                 if (opt.staticanalyses) {
                     val sa = new CIntraAnalysisFrontend(ast, ts.asInstanceOf[CTypeSystemFrontend with CTypeCache with CDeclUse], fm_ts)
+                    if (opt.warning_liveness) {
+                        stopWatch.start("liveness")
+                        sa.liveness()
+                    }
                     if (opt.warning_double_free) {
                         stopWatch.start("doublefree")
                         sa.doubleFree()

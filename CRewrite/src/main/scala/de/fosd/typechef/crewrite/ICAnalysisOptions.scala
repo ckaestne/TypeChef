@@ -13,7 +13,7 @@ trait ICAnalysisOptions {
 
     // for convenience: groups all dataflow analyses that need typechecking information!
     def typechecksa = {
-        warning_double_free || warning_xfree || warning_uninitialized_memory || warning_cfg_in_non_void_func || warning_stdlib_func_return || warning_dead_store
+        warning_double_free || warning_xfree || warning_uninitialized_memory || warning_cfg_in_non_void_func || warning_stdlib_func_return || warning_dead_store || warning_liveness
     }
 
 
@@ -61,6 +61,8 @@ trait ICAnalysisOptions {
     // -A deadstore
     // see: http://en.wikipedia.org/wiki/Dead_store and "clang -cc1 -analyze -analyzer-checker-help"
     def warning_dead_store = false
+
+    def warning_liveness = false
 }
 
 trait CAnalysisOptionProvider {

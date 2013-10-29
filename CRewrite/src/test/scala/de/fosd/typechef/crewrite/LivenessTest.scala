@@ -740,4 +740,8 @@ void test1(int *code,
         int i;
       } u;""") should be(Map(Id("u") -> FeatureExprFactory.True))
     }
+
+    @Test def test_tar() {
+        runFileExample("tar.pi")
+    }
 }

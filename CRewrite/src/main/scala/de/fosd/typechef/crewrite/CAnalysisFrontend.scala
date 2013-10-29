@@ -59,6 +59,23 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend, fm
 
     var errors: List[TypeChefError] = List()
 
+    def liveness(): Boolean = {
+        fanalyze.flatMap(liveness)
+        true
+    }
+
+    private def liveness(fa: (FunctionDef, List[(AST, List[Opt[AST]])])): List[Unit] = {
+        val df = new Liveness(env, udm, FeatureExprFactory.empty)
+
+        val nss = fa._2.map(_._1).filterNot(x => x.isInstanceOf[FunctionDef]).reverse
+        println("analyzing function " + fa._1.getName)
+
+        for (s <- nss)
+            df.out(s)
+
+        List()
+    }
+
     def deadStore(): Boolean = {
         val err = fanalyze.flatMap(deadStore)
 
