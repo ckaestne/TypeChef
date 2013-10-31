@@ -6,6 +6,7 @@ import java.io.{FileWriter, File}
 import FeatureExprFactory.True
 import java.util.Collections
 import de.fosd.typechef.error.Position
+import de.fosd.typechef.conditional.Opt
 
 object MyUtil {
     implicit def runnable(f: () => Unit): Runnable =
@@ -45,7 +46,7 @@ class ParserMain(p: CParser) {
     }
 
 
-    def parserMain(lexer: () => TokenReader[CToken, CTypeContext], initialContext: CTypeContext, parserOptions: ParserOptions): AST = {
+    def parserMain(lexer: () => TokenReader[CToken, CTypeContext], initialContext: CTypeContext, parserOptions: ParserOptions): TranslationUnit = {
         assert(parserOptions != null)
         //        val logStats = MyUtil.runnable(() => {
         //            if (AbstractToken.profiling) {
@@ -61,7 +62,7 @@ class ParserMain(p: CParser) {
         val in: p.Input = lexer().setContext(initialContext)
 
         val parserStartTime = System.currentTimeMillis
-        val result: p.MultiParseResult[AST] = p.phrase(p.translationUnit)(in, FeatureExprFactory.True)
+        val result: p.MultiParseResult[TranslationUnit] = p.phrase(p.translationUnit)(in, FeatureExprFactory.True)
         //        val result = p.translationUnit(in, FeatureExprFactory.True)
         val endTime = System.currentTimeMillis
 
@@ -97,11 +98,32 @@ class ParserMain(p: CParser) {
         //        println("done.")
 
         val l = result.toList(FeatureExprFactory.True).filter(_._2.isSuccess)
-        if (l.isEmpty || !result.toErrorList.isEmpty) {
-            println(printParseResult(result, FeatureExprFactory.True))
-            renderParseResult(result, True, parserOptions.renderParserError)
-            null
-        } else l.head._2.asInstanceOf[p.Success[AST]].result
+//        if (l.isEmpty || !result.toErrorList.isEmpty) {
+//            println(printParseResult(result, FeatureExprFactory.True))
+//            renderParseResult(result, True, parserOptions.renderParserError)
+//        }
+        if (l.isEmpty) null
+        else mergeResultsIntoSingleAST(l)
+    }
+
+    /**
+     * merges multiple results into a single AST (possibly empty)
+     *
+     * in the merged result, all top-level declarations have presence conditions
+     * restricted to the context where parsing was successful
+     *
+     * ideally, there should not be multiple successful results, because typechef should
+     * have merged them before. here is a very simple merge strategy where the individual
+     * top-level declarations are simply concatenated (with the mutually exclusive presence
+     * conditions)
+     */
+    private def mergeResultsIntoSingleAST(results: List[(FeatureExpr, p.ParseResult[TranslationUnit])]): TranslationUnit = {
+        val defs: Seq[Opt[ExternalDef]] =
+            for (result <- results;
+                 if result._2.isSuccess;
+                 Opt(f, tld) <- result._2.asInstanceOf[p.Success[TranslationUnit]].result.defs)
+            yield Opt[ExternalDef](f and result._1, tld)
+        TranslationUnit(defs.toList)
     }
 
 
