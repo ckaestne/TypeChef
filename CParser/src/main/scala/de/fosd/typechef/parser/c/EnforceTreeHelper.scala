@@ -34,7 +34,7 @@ trait EnforceTreeHelper {
     // the parser reuses parsed elements in different subtrees of the AST
     // this method makes sure we create an AST with unique elements
     def prepareAST[T <: Product](ast: T): T = {
-        assert(ast != null)
+        assert(ast != null, "ast should not be null")
 
         val clone = everywherebu(rule {
             // function to add a break expression to infinite loops: "for (;;) {}" and "for (;;) ;"
@@ -55,7 +55,7 @@ trait EnforceTreeHelper {
     // the function removes dead nodes from the ast
     // see issue: https://github.com/ckaestne/TypeChef/issues/4
     def removeDeadNodes[T <: Product](ast: T, env: ASTEnv): T = {
-        assert(ast != null)
+        assert(ast != null, "ast should not be null")
 
         val removedead = manytd(rule {
             case l: List[Opt[_]] => l.filter({
@@ -74,7 +74,7 @@ trait EnforceTreeHelper {
     // so that succ(e) -> e and pred(e) is e
     // we add a Constant("1") at the break
     def rewriteInfiniteForLoops[T <: Product](ast: T): T = {
-        assert(ast != null)
+        assert(ast != null, "ast should not be null")
 
         val rewrite = everywherebu(rule {
             case f@ForStatement(_, None, _, _) =>
@@ -89,7 +89,7 @@ trait EnforceTreeHelper {
 
     // filter AST nodes that do not have position information
     def checkPositionInformation[T <: Product](ast: T): List[AST] = {
-        assert(ast != null)
+        assert(ast != null, "ast should not be null")
         var nodeswithoutposition: List[AST] = List()
 
         val checkpos = everywherebu(query {
