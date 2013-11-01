@@ -41,6 +41,10 @@ class JSParser extends MultiFeatureParser {
         repSepPlain(p, WSo ~ separator ~ WSo)
     private def repSepPlainWSs[T, U](p: => MultiParser[T], separator: => MultiParser[U]): MultiParser[List[T]] =
         repSepPlain(p, WSs ~ separator ~ WSs)
+    private def rep1SepWSo[T, U](p: => MultiParser[T], separator: => MultiParser[U]) =
+        rep1Sep(p, WSo ~ separator ~ WSo)
+    private def rep1SepPlainWSo[T, U](p: => MultiParser[T], separator: => MultiParser[U]) =
+        repSepPlain1(p, WSo ~ separator ~ WSo)
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////// Grammar (relaxted about white space) ////////////////////////////////////////
@@ -48,22 +52,22 @@ class JSParser extends MultiFeatureParser {
 
 
     def Program: MultiParser[Conditional[JSProgram]] =
-        repOpt(SourceElement) ^^! {JSProgram(_)}
+        repOpt(WSo ~> SourceElement) <~ WSo ^^! {JSProgram(_)}
 
     def SourceElement: MultiParser[JSSourceElement] = FunctionDeclaration | Statement
 
     def FunctionDeclaration: MultiParser[JSFunctionDeclaration] =
-        "function" ~~~ Identifier ~~~ '(' ~~~ FormalParameterList ~~~ ')' ~~~ '{' ~~~ FunctionBody ~~~ '}' ^^ {
+        "function" ~~~ Identifier ~~~? '(' ~~~? FormalParameterList ~~~? ')' ~~~? '{' ~~~? FunctionBody ~~~? '}' ^^ {
             case _ ~ id ~ _ ~ param ~ _ ~ _ ~ body ~ _ => JSFunctionDeclaration(id, param, body)
         }
 
     def FunctionExpression: MultiParser[JSFunctionExpression] =
-        "function" ~~~ opt(Identifier) ~~~ '(' ~~~ FormalParameterList ~~~ ')' ~~~ '{' ~~~ FunctionBody ~~~ '}' ^^ {
+        "function" ~ opt(WSs ~> Identifier) ~~~? '(' ~~~? FormalParameterList ~~~? ')' ~~~? '{' ~~~? FunctionBody ~~~? '}' ^^ {
             case _ ~ id ~ _ ~ param ~ _ ~ _ ~ body ~ _ => JSFunctionExpression(id, param, body)
         }
 
-    def FormalParameterList: MultiParser[Any] = repSepPlain(Identifier, ',')
-    def FunctionBody: MultiParser[JSProgram] = repOpt(SourceElement) ^^ {JSProgram(_)}
+    def FormalParameterList: MultiParser[Any] = repSepPlainWSo(Identifier, ',')
+    def FunctionBody: MultiParser[JSProgram] = repOpt(WSo ~> SourceElement) ^^ {JSProgram(_)}
 
 
     def Statement: MultiParser[JSStatement] =
@@ -85,12 +89,12 @@ class JSParser extends MultiFeatureParser {
 
     def Block = char('{') ~~~?> StatementList <~~~? '}' ^^ {JSBlock(_)}
 
-    def StatementList = repOpt(Statement)
+    def StatementList = repOpt(WSo ~> Statement)
 
     def VariableStatement =
-        "var" ~~~> rep1Sep(VariableDeclaration(false), ',') <~~~? ';' ^^ {JSVariableStatement(_)}
+        "var" ~~~> rep1SepWSo(VariableDeclaration(false), ',') <~~~? ';' ^^ {JSVariableStatement(_)}
 
-    def VariableDeclarationListNoIn = repSepPlain1(VariableDeclaration(true), ',')
+    def VariableDeclarationListNoIn = rep1SepPlainWSo(VariableDeclaration(true), ',')
 
     def VariableDeclaration(noIn: Boolean) =
         Identifier ~ opt(WSs ~> Initialiser(noIn)) ^^ {case n ~ i => JSVariableDeclaration(n, i)}
@@ -108,22 +112,30 @@ class JSParser extends MultiFeatureParser {
     def IfStatement =
         "if" ~~~? '(' ~~~? Expression ~~~? ')' ~~~? Statement ~ opt(WSs ~ "else" ~~~ Statement) ^^ {x => JSOtherStatement()}
 
-    def IterationStatement =
+    def IterationStatement: MultiParser[JSStatement] =
         (("do" ~~~ Statement ~~~ "while" ~~~? '(' ~~~? Expression ~~~? ')' ~~~? ';') |
             ("while" ~~~? '(' ~~~? Expression ~~~? ')' ~~~? Statement) |
-            ("for" ~~~? '(' ~~~? opt(Expression(true)) ~~~? ';' ~~~? opt(Expression) ~~~? ';' ~~~? opt(Expression) ~~~? ')' ~~~? Statement) |
-            ("for" ~~~? '(' ~~~? keyword("var") ~~~ VariableDeclarationListNoIn ~~~? ';' ~~~? opt(Expression) ~~~ ';' ~~~ opt(Expression) ~~~ ')' ~~~ Statement) |
-            ("for" ~~~? '(' ~~~? LeftHandSideExpression ~~~ "in" ~~~ Expression ~~~? ')' ~~~? Statement) |
-            ("for" ~~~? '(' ~~~? "var" ~~~ VariableDeclaration(true) ~~~ "in" ~~~ Expression ~~~? ')' ~~~? Statement)) ^^ {x => JSOtherStatement()}
+            ("for" ~~~? '(' ~~~?
+                (
+                    (varForExpr |
+                        (opt(Expression(true)) ~~~? ';' ~~~? opt(Expression) ~~~? ';' ~~~? opt(Expression))) |
+                        inForIn |
+                        fail("invalid for-loop expression")
+                    ) ~~~? ')' ~~~? Statement)) ^^ {x => JSOtherStatement()}
+
+    private def varForExpr = keyword("var") ~~~
+        ((VariableDeclarationListNoIn ~~~? ';' ~~~? opt(Expression) ~~~ ';' ~~~ opt(Expression)) |
+            (VariableDeclaration(true) ~~~ "in" ~~~ Expression))
+    def inForIn = (LeftHandSideExpression ~~~ "in" ~~~ Expression)
 
     def ContinueStatement =
-        "continue" ~~~ opt(Identifier) ~~~ ';' ^^ {x => JSOtherStatement()}
+        "continue" ~ opt(WSo ~>Identifier) ~~~? ';' ^^ {x => JSOtherStatement()}
 
     def BreakStatement =
-        "break" ~~~ opt(Identifier) ~~~ ';' ^^ {x => JSOtherStatement()}
+        "break" ~ opt(WSo ~>Identifier) ~~~? ';' ^^ {x => JSOtherStatement()}
 
     def ReturnStatement =
-        "return" ~~~ opt(Expression) ~~~? ';' ^^ {x => JSOtherStatement()}
+        "return" ~ opt(WSo ~>Expression) ~~~? ';' ^^ {x => JSOtherStatement()}
 
     def WithStatement =
         "with" ~~~? '(' ~~~? Expression ~~~? ')' ~~~? Statement ^^ {x => JSOtherStatement()}
@@ -135,7 +147,7 @@ class JSParser extends MultiFeatureParser {
         '{' ~~~? CaseClauses ~~~? opt(DefaultClause ~~~? CaseClauses) ~~~? '}'
 
     def CaseClauses =
-        repOpt(CaseClause)
+        repOpt(WSo ~> CaseClause)
 
     def CaseClause =
         "case" ~~~ Expression ~~~? ':' ~~~? StatementList
@@ -150,7 +162,7 @@ class JSParser extends MultiFeatureParser {
         "throw" ~~~ Expression ~~~? ';' ^^ {x => JSOtherStatement()}
 
     def TryStatement =
-        "try" ~~~? Block ~~~? ((Catch ~~~ opt(Finally)) | Finally) ^^ {x => JSOtherStatement()}
+        "try" ~~~? Block ~~~? ((Catch ~ opt(WSo ~>Finally)) | Finally) ^^ {x => JSOtherStatement()}
 
     def Catch =
         "catch" ~~~? '(' ~~~? Identifier ~~~? ')' ~~~? Block
@@ -173,9 +185,9 @@ class JSParser extends MultiFeatureParser {
 
     //    See 11.1.4
     def ArrayLiteral =
-        '[' ~~~ repSepPlain(_Element, ',') ~~~ repPlain(',') ~~~ ']'
+        '[' ~~~? repSepPlainWSo(_Element, ',') ~ repPlain(WSo ~> ',') ~~~? ']'
 
-    def _Element = repPlain(',') ~~~? AssignmentExpression
+    def _Element = repPlain(WSo ~> ',') ~~~? AssignmentExpression
 
 
     def ObjectLiteral =
@@ -197,8 +209,8 @@ class JSParser extends MultiFeatureParser {
     def MemberExpression: MultiParser[JSExpression] =
         (PrimaryExpression |
             FunctionExpression |
-            ("new" ~~~ MemberExpression ~~~? Arguments ^^ {x => JSExpr()})) ~~~?
-            repPlain(('[' ~~~? Expression ~~~? ']') |
+            ("new" ~~~ MemberExpression ~~~? Arguments ^^ {x => JSExpr()})) ~
+            repPlain((WSo ~> '[' ~~~? Expression ~~~? ']') |
                 ("." ~~~? Identifier /*Name*/)) ^^ {case e ~ p => e}
 
 
@@ -207,8 +219,8 @@ class JSParser extends MultiFeatureParser {
     //            (Token.NEW ~~~ NewExpression)
 
     def LeftHandSideExpression: MultiParser[JSExpression] =
-        ((MemberExpression ~~~? opt(Arguments) ^^ {case e ~ Some(a) => JSFunctionCall(e, a); case e ~ None => e}) ~~~?
-            repPlain((Arguments |
+        ((MemberExpression ~ opt(WSo~>Arguments) ^^ {case e ~ Some(a) => JSFunctionCall(e, a); case e ~ None => e}) ~
+            repPlain(WSo ~> (Arguments |
                 ('[' ~~~? Expression ~~~? ']') |
                 ("." ~~~? Identifier /*Name*/))) ^^ {case x ~ e => x}) |
             ("new" ~~~ LeftHandSideExpression ^^ {x => JSExpr()})
@@ -222,7 +234,7 @@ class JSParser extends MultiFeatureParser {
     //            CallExpression
 
     def PostfixExpression: MultiParser[JSExpression] =
-        LeftHandSideExpression ~~~? opt("++" | "--") ^^ {case e ~ p => e}
+        LeftHandSideExpression ~ opt(WSo~>("++" | "--")) ^^ {case e ~ p => e}
 
     def UnaryExpression: MultiParser[JSExpression] =
         ("delete" ~~~ UnaryExpression ^^ {x => JSExpr()}) |
@@ -282,11 +294,11 @@ class JSParser extends MultiFeatureParser {
         }
 
     def ConditionalExpression(noIn: Boolean): MultiParser[JSExpression] =
-        LogicalORExpression(noIn) ~~~? repPlain('?' ~~~? AssignmentExpression ~~~? ':' ~~~? AssignmentExpression(noIn)) ^^ {case e ~ _ => e}
+        LogicalORExpression(noIn) ~ repPlain(WSo ~> '?' ~~~? AssignmentExpression ~~~? ':' ~~~? AssignmentExpression(noIn)) ^^ {case e ~ _ => e}
 
     def AssignmentExpression: MultiParser[JSExpression] = AssignmentExpression(false)
     def AssignmentExpression(noIn: Boolean): MultiParser[JSExpression] =
-        ConditionalExpression(false) ~ opt(WSo ~> AssignmentOp ~~~? AssignmentExpression(noIn)) ^^ {
+        ConditionalExpression(noIn) ~ opt(WSo ~> AssignmentOp ~~~? AssignmentExpression(noIn)) ^^ {
             case e ~ Some(o ~ e2) => JSAssignment(e, charToString(o), e2)
             case e ~ None => e
         } |
@@ -310,19 +322,31 @@ class JSParser extends MultiFeatureParser {
 
     def Expression: MultiParser[JSExpression] = Expression(false)
     def Expression(noIn: Boolean): MultiParser[JSExpression] =
-        repSepPlain1(AssignmentExpression(noIn), ',') ^^ {x => if (x.size == 1) x.head else JSExprList(x)}
+        rep1SepPlainWSo(AssignmentExpression(noIn), ',') ^^ {x => if (x.size == 1) x.head else JSExprList(x)}
 
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////// Lexical grammar (strict about white space) ////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    def WS: MultiParser[Elem] = char(' ') | '\t' | '\n' | '\r'
+    def WS: MultiParser[Any] = char(' ') | '\t' | '\n' | '\r' | BlockComment | LineComment | fail("expected whitespace")
 
     def WSs: MultiParser[Any] = rep1(WS)
 
     def WSo: MultiParser[Any] = repOpt(WS)
 
+
+    def BlockComment: MultiParser[Any] = keyword("/*") ~ BlockCommentBody ^^ {x => JSComment(charToString(x))}
+
+    def BlockCommentBody: MultiParser[Any] = repPlain(BlockCommentChar) ~ BlockCommentEnd
+
+    def BlockCommentChar: MultiParser[Any] = token("any except *", _.getKindChar() != '*')
+
+    def BlockCommentEnd: MultiParser[Any] = keyword("*/") | (char('*') ~ BlockCommentBody)
+
+    def LineComment = keyword("//") ~ repPlain(LineCommentChar) ^^ {x => JSComment(charToString(x))}
+
+    def LineCommentChar: MultiParser[Any] = token("any except newline", _.getKindChar() != '\n')
 
     def Literal: MultiParser[JSLit] = (("null" | "true" | "false") ^^ {JSLit(_)}) |
         NumericLiteral |
@@ -366,12 +390,12 @@ class JSParser extends MultiFeatureParser {
         '\\' ~ (char('\'') | '"' | '\\' | 'b' | 'f' | 'n' | 'r' | 't' | 'v')
 
 
-    def Letter: MultiParser[Elem] = token("letter", (('a' until 'z') ++ ('A' until 'Z') :+ '_') contains _.getKindChar())
-    def Digit: MultiParser[Elem] = token("letter", ('0' until '9') contains _.getKindChar())
-    def HexDigit: MultiParser[Elem] = Digit | token("hex", (('a' until 'f') ++ ('A' until 'F')) contains _.getKindChar())
+    def Letter: MultiParser[Elem] = token("letter", (('a' to 'z') ++ ('A' to 'Z') :+ '_') contains _.getKindChar())
+    def Digit: MultiParser[Elem] = token("letter", ('0' to '9') contains _.getKindChar())
+    def HexDigit: MultiParser[Elem] = Digit | token("hex", (('a' to 'f') ++ ('A' to 'F')) contains _.getKindChar())
 
     def IdentifierStart: MultiParser[Elem] = Letter | '$' | '_'
-    def IdentifierPart: MultiParser[Elem] = Letter | Digit
+    def IdentifierPart: MultiParser[Elem] = IdentifierStart | Digit
     def _Identifier: MultiParser[JSIdentifier] =
         IdentifierStart ~ repPlain(IdentifierPart) ^^ {case first ~ rest => JSIdentifier((first :: rest).mkString)}
 

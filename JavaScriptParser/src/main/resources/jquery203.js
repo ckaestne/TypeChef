@@ -1,26 +1,26 @@
 function foo(){
-__ifdef "X"
+__if "X"
 }
 __endif
-__ifndef "X"
+__if "!X"
 i++; }
 __endif
 
 x++;
-
-/*!
- * jQuery JavaScript Library v2.0.3
- * http://jquery.com/
- *
- * Includes Sizzle.js
- * http://sizzlejs.com/
- *
- * Copyright 2005, 2013 jQuery Foundation, Inc. and other contributors
- * Released under the MIT license
- * http://jquery.org/license
- *
- * Date: 2013-07-03T13:30Z
- */
+//
+///*!
+//* jQuery JavaScript Library v2.0.3
+//* http://jquery.com/
+//*
+//* Includes Sizzle.js
+//* http://sizzlejs.com/
+//*
+//* Copyright 2005, 2013 jQuery Foundation, Inc. and other contributors
+//* Released under the MIT license
+//* http://jquery.org/license
+//*
+//* Date: 2013-07-03T13:30Z
+//*/
 (function( window, undefined ) {
 
 // Can't do this because several apps including ASP.NET trace
@@ -875,15 +875,15 @@ function isArraylike( obj ) {
 // All jQuery objects should point back to these
 rootjQuery = jQuery(document);
 /*!
- * Sizzle CSS Selector Engine v1.9.4-pre
- * http://sizzlejs.com/
- *
- * Copyright 2013 jQuery Foundation, Inc. and other contributors
- * Released under the MIT license
- * http://jquery.org/license
- *
- * Date: 2013-06-03
- */
+* Sizzle CSS Selector Engine v1.9.4-pre
+* http://sizzlejs.com/
+*
+* Copyright 2013 jQuery Foundation, Inc. and other contributors
+* Released under the MIT license
+* http://jquery.org/license
+*
+* Date: 2013-06-03
+*/
 (function( window, undefined ) {
 
 var i,
@@ -1165,11 +1165,11 @@ function Sizzle( selector, context, results, seed ) {
 }
 
 /**
- * Create key-value caches of limited size
- * @returns {Function(string, Object)} Returns the Object data after storing it on itself with
- *	property name the (space-suffixed) string and (if the cache is larger than Expr.cacheLength)
- *	deleting the oldest entry
- */
+* Create key-value caches of limited size
+* @returns {Function(string, Object)} Returns the Object data after storing it on itself with
+*	property name the (space-suffixed) string and (if the cache is larger than Expr.cacheLength)
+*	deleting the oldest entry
+*/
 function createCache() {
 	var keys = [];
 
@@ -1185,18 +1185,18 @@ function createCache() {
 }
 
 /**
- * Mark a function for special use by Sizzle
- * @param {Function} fn The function to mark
- */
+* Mark a function for special use by Sizzle
+* @param {Function} fn The function to mark
+*/
 function markFunction( fn ) {
 	fn[ expando ] = true;
 	return fn;
 }
 
 /**
- * Support testing using an element
- * @param {Function} fn Passed the created div and expects a boolean result
- */
+* Support testing using an element
+* @param {Function} fn Passed the created div and expects a boolean result
+*/
 function assert( fn ) {
 	var div = document.createElement("div");
 
@@ -1215,10 +1215,10 @@ function assert( fn ) {
 }
 
 /**
- * Adds the same handler for all of the specified attrs
- * @param {String} attrs Pipe-separated list of attributes
- * @param {Function} handler The method that will be applied
- */
+* Adds the same handler for all of the specified attrs
+* @param {String} attrs Pipe-separated list of attributes
+* @param {Function} handler The method that will be applied
+*/
 function addHandle( attrs, handler ) {
 	var arr = attrs.split("|"),
 		i = attrs.length;
@@ -1229,11 +1229,11 @@ function addHandle( attrs, handler ) {
 }
 
 /**
- * Checks document order of two siblings
- * @param {Element} a
- * @param {Element} b
- * @returns {Number} Returns less than 0 if a precedes b, greater than 0 if a follows b
- */
+* Checks document order of two siblings
+* @param {Element} a
+* @param {Element} b
+* @returns {Number} Returns less than 0 if a precedes b, greater than 0 if a follows b
+*/
 function siblingCheck( a, b ) {
 	var cur = b && a,
 		diff = cur && a.nodeType === 1 && b.nodeType === 1 &&
@@ -1258,9 +1258,9 @@ function siblingCheck( a, b ) {
 }
 
 /**
- * Returns a function to use in pseudos for input types
- * @param {String} type
- */
+* Returns a function to use in pseudos for input types
+* @param {String} type
+*/
 function createInputPseudo( type ) {
 	return function( elem ) {
 		var name = elem.nodeName.toLowerCase();
@@ -1269,9 +1269,9 @@ function createInputPseudo( type ) {
 }
 
 /**
- * Returns a function to use in pseudos for buttons
- * @param {String} type
- */
+* Returns a function to use in pseudos for buttons
+* @param {String} type
+*/
 function createButtonPseudo( type ) {
 	return function( elem ) {
 		var name = elem.nodeName.toLowerCase();
@@ -1280,9 +1280,9 @@ function createButtonPseudo( type ) {
 }
 
 /**
- * Returns a function to use in pseudos for positionals
- * @param {Function} fn
- */
+* Returns a function to use in pseudos for positionals
+* @param {Function} fn
+*/
 function createPositionalPseudo( fn ) {
 	return markFunction(function( argument ) {
 		argument = +argument;
@@ -1302,9 +1302,9 @@ function createPositionalPseudo( fn ) {
 }
 
 /**
- * Detect xml
- * @param {Element|Object} elem An element or a document
- */
+* Detect xml
+* @param {Element|Object} elem An element or a document
+*/
 isXML = Sizzle.isXML = function( elem ) {
 	// documentElement is verified for cases where it doesn't yet exist
 	// (such as loading iframes in IE - #4833)
@@ -1316,10 +1316,10 @@ isXML = Sizzle.isXML = function( elem ) {
 support = Sizzle.support = {};
 
 /**
- * Sets document-related variables once based on the current document
- * @param {Element|Object} [doc] An element or document object to use to set the document
- * @returns {Object} Returns the current document
- */
+* Sets document-related variables once based on the current document
+* @param {Element|Object} [doc] An element or document object to use to set the document
+* @returns {Object} Returns the current document
+*/
 setDocument = Sizzle.setDocument = function( node ) {
 	var doc = node ? node.ownerDocument || node : preferredDoc,
 		parent = doc.defaultView;
@@ -1726,9 +1726,9 @@ Sizzle.error = function( msg ) {
 };
 
 /**
- * Document sorting and removing duplicates
- * @param {ArrayLike} results
- */
+* Document sorting and removing duplicates
+* @param {ArrayLike} results
+*/
 Sizzle.uniqueSort = function( results ) {
 	var elem,
 		duplicates = [],
@@ -1755,9 +1755,9 @@ Sizzle.uniqueSort = function( results ) {
 };
 
 /**
- * Utility function for retrieving the text value of an array of DOM nodes
- * @param {Array|Element} elem
- */
+* Utility function for retrieving the text value of an array of DOM nodes
+* @param {Array|Element} elem
+*/
 getText = Sizzle.getText = function( elem ) {
 	var node,
 		ret = "",
@@ -2866,27 +2866,27 @@ function createOptions( options ) {
 }
 
 /*
- * Create a callback list using the following parameters:
- *
- *	options: an optional list of space-separated options that will change how
- *			the callback list behaves or a more traditional option object
- *
- * By default a callback list will act like an event callback list and can be
- * "fired" multiple times.
- *
- * Possible options:
- *
- *	once:			will ensure the callback list can only be fired once (like a Deferred)
- *
- *	memory:			will keep track of previous values and will call any callback added
- *					after the list has been fired right away with the latest "memorized"
- *					values (like a Deferred)
- *
- *	unique:			will ensure a callback can only be added once (no duplicate in the list)
- *
- *	stopOnFalse:	interrupt callings when a callback returns false
- *
- */
+* Create a callback list using the following parameters:
+*
+*	options: an optional list of space-separated options that will change how
+*			the callback list behaves or a more traditional option object
+*
+* By default a callback list will act like an event callback list and can be
+* "fired" multiple times.
+*
+* Possible options:
+*
+*	once:			will ensure the callback list can only be fired once (like a Deferred)
+*
+*	memory:			will keep track of previous values and will call any callback added
+*					after the list has been fired right away with the latest "memorized"
+*					values (like a Deferred)
+*
+*	unique:			will ensure a callback can only be added once (no duplicate in the list)
+*
+*	stopOnFalse:	interrupt callings when a callback returns false
+*
+*/
 jQuery.Callbacks = function( options ) {
 
 	// Convert options from String-formatted to Object-formatted if needed
@@ -4327,9 +4327,9 @@ function safeActiveElement() {
 }
 
 /*
- * Helper functions for managing events -- not part of the public interface.
- * Props to Dean Edwards' addEvent library for many of the ideas.
- */
+* Helper functions for managing events -- not part of the public interface.
+* Props to Dean Edwards' addEvent library for many of the ideas.
+*/
 jQuery.event = {
 
 	global: {},
@@ -7465,9 +7465,9 @@ jQuery.each( [ "get", "post" ], function( i, method ) {
 });
 
 /* Handles responses to an ajax request:
- * - finds the right dataType (mediates between content-type and expected dataType)
- * - returns the corresponding response
- */
+* - finds the right dataType (mediates between content-type and expected dataType)
+* - returns the corresponding response
+*/
 function ajaxHandleResponses( s, jqXHR, responses ) {
 
 	var ct, type, finalDataType, firstDataType,
@@ -7522,8 +7522,8 @@ function ajaxHandleResponses( s, jqXHR, responses ) {
 }
 
 /* Chain conversions given the request and the original response
- * Also sets the responseXXX fields on the jqXHR instance
- */
+* Also sets the responseXXX fields on the jqXHR instance
+*/
 function ajaxConvert( s, response, jqXHR, isSuccess ) {
 	var conv2, current, conv, tmp, prev,
 		converters = {},

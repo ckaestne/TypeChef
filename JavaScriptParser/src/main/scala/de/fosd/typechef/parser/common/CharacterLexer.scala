@@ -14,7 +14,7 @@ object CharacterLexer {
 
     def lex(r: Reader): TokenReader[CharacterToken, Null] = {
 
-        var tokens = List[CharacterToken]()
+        var _tokens = List[CharacterToken]()
         var result = List[CharacterToken]()
         var fexprStack = new util.Stack[FeatureExpr]()
         fexprStack.push(FeatureExprFactory.True)
@@ -30,23 +30,29 @@ object CharacterLexer {
                 col = 0
             }
 
-            tokens = new CharacterToken(c, FeatureExprFactory.True, new JPosition("", line, col)) :: tokens
+            _tokens = new CharacterToken(c, FeatureExprFactory.True, new JPosition("", line, col)) :: _tokens
 
             c = r.read()
         }
-        tokens = tokens.reverse
+        val tokens = _tokens.reverse.toArray
 
         var i = 0
         while (i < tokens.size) {
             var skip = false
             if (i<tokens.size-6 && tokens(i).getKind() == '_' && tokens(i + 1).getKind() == '_' && tokens(i + 2).getKind() == 'i' && tokens(i + 3).getKind() == 'f' && tokens(i + 4).getKind() == ' ' && tokens(i + 5).getKind() == '"') {
                 var j = 1
+                var neg = false
                 val featureName = new StringBuffer()
+                if (tokens(i + 5 + j).getKind() == '!') {
+                    j += 1
+                    neg = true
+                }
                 while (tokens(i + 5 + j).getKind() != '"') {
                     featureName.append(tokens(i + 5 + j))
                     j += 1
                 }
                 var expr: FeatureExpr = FeatureExprFactory.createDefinedExternal(featureName.toString)
+                if (neg) expr = expr.not()
                 fexprStack.push(fexprStack.peek() and expr)
                 i += 5 + j + 1
                 skip = true

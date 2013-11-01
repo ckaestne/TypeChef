@@ -68,6 +68,33 @@ class JSParserTest {
     @Test def testExpr8a = assertParseable("( diff % first === 0 && diff / first >= 0 )", p.Expression)
     @Test def testExpr8 = assertParseable("diff === first || ( diff % first === 0 && diff / first >= 0 )", p.Expression)
     @Test def testExpr8b = assertParseable("return diff === first || ( diff % first === 0 && diff / first >= 0 );", p.Statement)
+    @Test def testFun1 = assertParseable("function foo(){}", p.FunctionDeclaration)
+    @Test def testFun2 = assertParseable("function foo(){ i++;  }", p.FunctionDeclaration)
+    @Test def testFunExpr = assertParseable("""jQuery = function( selector, context ) {
+                                              		// The jQuery object is actually just the init constructor 'enhanced'
+                                              		return new jQuery.fn.init( selector, context, rootjQuery );
+                                              	}""", p.Expression)
+    @Test def testStmt9= assertParseable( """if ( rsingleTag.test( match[1] ) && jQuery.isPlainObject( context ) ) {
+      						for ( match in context ) {
+      							// Properties of context are called as methods if possible
+      							if ( jQuery.isFunction( this[ match ] ) ) {
+      								this[ match ]( context[ match ] );
+
+      							// ...and otherwise set as attributes
+      							} else {
+      								this.attr( match, context[ match ] );
+      							}
+      						}
+      					}"""   , p.Statement)
+
+    @Test def testStmt9Sub {
+        assertParseable("( rsingleTag.test( match[1] ) && jQuery.isPlainObject( context ) )", p.Expression)
+        assertNotParseable("match in context ", p.Expression(true))
+        assertParseable("match in context", p.Expression(false))
+        assertParseable("match in context", p.inForIn)
+        assertParseable("for ( match in context ) {}", p.IterationStatement)
+        assertParseable("if ( jQuery.isFunction( this[ match ] ) ){}", p.Statement)
+    }
 
     @Test def testKeyword {
         assertParseable("instanceof", p.InstanceOf)
@@ -103,6 +130,7 @@ class JSParserTest {
         assertNotParseable("1a", p.NumericLiteral)
         assertParseable("0x4A", p.NumericLiteral)
         assertParseable("0X4a", p.NumericLiteral)
+        assertParseable("0X4f", p.NumericLiteral)
     }
 
     @Test def testStringLiteral {
@@ -142,6 +170,7 @@ class JSParserTest {
         assertParseable("1===1 || 2", p.Expression)
 
         assertParseable("1 == 2", p.EqualityExpression(false))
+        assertParseable("ab > cd", p.RelationalExpression(false))
         assertParseable("1 >= 2", p.RelationalExpression(false))
         assertParseable("1 >= 2", p.RelationalExpression(true))
         assertParseable("1 >= 2", p.Expression)
@@ -154,6 +183,10 @@ class JSParserTest {
         assertParseable("typeof selector === \"string\"", p.AssignmentExpression(false))
     }
 
+    @Test def testStatements {
+        assertParseable("x++;", p.Statement)
+    }
+
 
     @Test def testSpacing {
         assertParseable("1 instanceof 2", p.Expression)
@@ -161,4 +194,16 @@ class JSParserTest {
         assertNotParseable("1instanceof2", p.Expression)
         assertParseable("ainstanceof2", p.Expression)
     }
+
+    @Test def testComments {
+        assertParseable("//test", p.LineComment)
+        assertParseable("/* test */", p.BlockComment)
+        assertParseable("/* test * */", p.BlockComment)
+        assertParseable("/* test **/", p.BlockComment)
+        assertParseable("/* /* test **/", p.BlockComment)
+        assertParseable("function foo(){}", p.Program)
+        assertParseable("//test \nfunction foo(){}", p.Program)
+        assertParseable("//test \nfunction foo(){} //blob", p.Program)
+    }
+
 }

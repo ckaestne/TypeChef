@@ -14,7 +14,7 @@ object ParserMain extends App {
 
 
         val parser = new JSParser()
-        parser.phrase(parser.Identifier)(CharacterLexer.lex(r), FeatureExprFactory.True)
+        parser.phrase(parser.Program)(CharacterLexer.lex(r), FeatureExprFactory.True)
     }
 
 
