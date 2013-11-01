@@ -4,6 +4,7 @@ import de.fosd.typechef.error.{Position, WithPosition}
 import de.fosd.typechef.conditional.Opt
 import de.fosd.typechef.parser.AbstractToken
 import de.fosd.typechef.featureexpr.FeatureExpr
+import de.fosd.typechef.parser.common.CharacterToken
 
 abstract class AST extends Product with Cloneable with WithPosition
 

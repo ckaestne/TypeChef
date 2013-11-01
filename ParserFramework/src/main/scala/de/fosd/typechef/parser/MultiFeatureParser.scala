@@ -318,6 +318,8 @@ abstract class MultiFeatureParser(val featureModel: FeatureModel = null, debugOu
         }
     }
 
+    def rep1Plain[T](p: => MultiParser[T]): MultiParser[List[T]] = p ~ repPlain(p) ^^ { case h~r => h::r }
+
 
     /** joins two optList with two special features:
       *

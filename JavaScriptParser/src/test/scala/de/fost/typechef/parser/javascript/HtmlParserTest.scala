@@ -6,6 +6,7 @@ import de.fosd.typechef.parser.TokenReader
 import org.junit.Assert._
 import org.junit.Test
 import de.fosd.typechef.parser.html._
+import de.fosd.typechef.parser.common.{CharacterLexer, CharacterToken}
 
 class HtmlParserTest {
 
@@ -14,7 +15,7 @@ class HtmlParserTest {
     val p = new HTMLSAXParser()
 
     def assertParseable(code: String, mainProduction: (TokenReader[CharacterToken, Null], FeatureExpr) => p.MultiParseResult[Any]) {
-        var tokens=Lexer.lex(new StringReader(code))
+        var tokens=CharacterLexer.lex(new StringReader(code))
 
         println(tokens)
 

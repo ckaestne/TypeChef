@@ -1,9 +1,8 @@
 package de.fosd.typechef.parser.html
 
 import de.fosd.typechef.parser._
-import de.fosd.typechef.conditional.{Opt, Conditional}
-import de.fosd.typechef.parser.javascript.rhino.Token
-import de.fosd.typechef.error.WithPosition
+import de.fosd.typechef.conditional.Opt
+import de.fosd.typechef.parser.common.CharacterToken
 
 //
 ///*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

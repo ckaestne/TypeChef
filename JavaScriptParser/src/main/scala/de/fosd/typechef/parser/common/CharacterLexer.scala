@@ -1,10 +1,8 @@
-package de.fosd.typechef.parser.html
+package de.fosd.typechef.parser.common
 
 import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
-import de.fosd.typechef.error.{NoPosition, Position}
-import de.fosd.typechef.parser.{TokenReader, ProfilingToken, AbstractToken}
-import de.fosd.typechef.parser.javascript.rhino.{Token, Parser, TokenStream}
-import de.fosd.typechef.parser.javascript.{JPosition, JSToken}
+import de.fosd.typechef.error.NoPosition
+import de.fosd.typechef.parser.TokenReader
 import java.util
 import java.io.Reader
 
@@ -12,7 +10,7 @@ import java.io.Reader
  * this "lexer" chunks a file into character tokens. it will later resolve special characters
  * and it recognizes ifdefs
  */
-object Lexer {
+object CharacterLexer {
 
     def lex(r: Reader): TokenReader[CharacterToken, Null] = {
 
@@ -74,23 +72,3 @@ object Lexer {
     }
 }
 
-
-class CharacterToken(
-                        image: Int,
-                        featureExpr: FeatureExpr,
-                        position: Position) extends AbstractToken with ProfilingToken {
-
-
-    def getFeature(): FeatureExpr = featureExpr
-
-    def getText(): String = "" + image.toChar
-
-    def getKind(): Int = image
-    def getKindChar(): Char = image.toChar
-
-    def getPosition(): Position = position
-
-    override def toString = getText() + (if (!getFeature.isTautology()) getFeature else "")
-
-    def and(expr: FeatureExpr): CharacterToken = new CharacterToken(image, featureExpr and expr, position)
-}

@@ -4,7 +4,7 @@ import java.io.FileReader
 import de.fosd.typechef.featureexpr.FeatureExprFactory
 import de.fosd.typechef.conditional.Opt
 import de.fosd.typechef.parser.TokenReader
-import de.fosd.typechef.error.NoPosition
+import de.fosd.typechef.parser.common.CharacterLexer
 
 /**
  * Created with IntelliJ IDEA.
@@ -17,7 +17,7 @@ object Main extends App {
 
     // stage 1: SAX parser
 
-    var tokens = Lexer.lex(new FileReader("JavaScriptParser/src/main/resources/test.html"))
+    var tokens = CharacterLexer.lex(new FileReader("JavaScriptParser/src/main/resources/test.html"))
 
     println(tokens)
 
