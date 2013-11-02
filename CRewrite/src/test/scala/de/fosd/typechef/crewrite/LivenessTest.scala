@@ -2,10 +2,11 @@ package de.fosd.typechef.crewrite
 
 import org.junit.{Ignore, Test}
 import de.fosd.typechef.parser.c._
-import de.fosd.typechef.featureexpr.FeatureExprFactory
+import de.fosd.typechef.featureexpr.{FeatureModel, FeatureExprFactory}
 import org.scalatest.matchers.ShouldMatchers
 import de.fosd.typechef.typesystem.{CDeclUse, CTypeSystemFrontend}
 import de.fosd.typechef.conditional.Opt
+import java.io.{FileNotFoundException, InputStream}
 
 class LivenessTest extends EnforceTreeHelper with TestHelper with ShouldMatchers with IntraCFG with CFGHelper {
 
@@ -739,9 +740,5 @@ void test1(int *code,
       union {
         int i;
       } u;""") should be(Map(Id("u") -> FeatureExprFactory.True))
-    }
-
-    @Test def test_tar() {
-        runFileExample("tar.pi")
     }
 }
