@@ -5,6 +5,7 @@ import org.kiama.attribution.AttributionBase
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.typesystem.{DeclUseMap, UseDeclMap}
 import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureModel, FeatureExpr}
+import de.fosd.typechef.conditional.Opt
 
 // this abstract class provides a standard implementation of
 // the monotone framework, a general framework for dataflow analyses
@@ -221,16 +222,7 @@ sealed abstract class MonotoneFW[T](val env: ASTEnv, val fm: FeatureModel) exten
             case a => {
                 val fl = F(a)
 
-                var res = b
-
-                // propagate flow condition to current result elements and combine them using
-                // combinationOperator
-                for (s <- fl) {
-                    val x = updateFeatureExprOfMonotoneElements(point(s.entry), s.feature)
-                    res = combinationOperator(res, x)
-                }
-
-                res
+                fl.foldLeft[L](b)((r: L, s: Opt[AST]) => combinationOperator(r, updateFeatureExprOfMonotoneElements(point(s.entry), s.feature)))
             }
         }
     }
