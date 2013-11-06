@@ -12,13 +12,13 @@ import org.kiama.attribution.AttributionBase
  * To change this template use File | Settings | File Templates.
  */
 class SimpleLiveness(env: ASTEnv) extends IntraCFG with UsedDefinedDeclaredVariables with AttributionBase {
-    val in: AST => List[Id] =
-    circular (List[Id]()) {
-        case s => uses(s) ++ out(s).diff(defines(s))
+    val in: AST => Set[Id] =
+    circular (Set[Id]()) {
+        case s => (uses(s).toSet ++ out(s).diff(defines(s).toSet))
     }
 
-    val out: AST => List[Id] =
-    circular (List[Id]()) {
-        case s => succ(s, FeatureExprFactory.empty, env).map(_.entry).flatMap(in)
+    val out: AST => Set[Id] =
+    circular (Set[Id]()) {
+        case s => succ(s, FeatureExprFactory.empty, env).map(_.entry).toSet.flatMap(in)
     }
 }
