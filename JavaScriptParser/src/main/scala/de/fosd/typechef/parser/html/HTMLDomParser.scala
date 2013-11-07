@@ -20,7 +20,7 @@ class HTMLDomParser extends MultiFeatureParser {
     def Node: MultiParser[DNode] =
         Tag | EmptyTag | fail("expected well-formed node")
 
-    private def _Tag: MultiParser[(String, String, List[Opt[HAttribute]], List[Opt[DElement]])] = StartTag ~ repOpt(Element) ~ ClosingTag ^^ {case (n, a) ~ e ~ n2 => (n, n2, a, e)}
+    private def _Tag: MultiParser[(String, String, List[Opt[HAttribute]], List[Opt[DElement]])] = StartTag ~! repOpt(Element) ~! ClosingTag ^^ {case (n, a) ~ e ~ n2 => (n, n2, a, e)}
 
     def Tag: MultiParser[DNode] = new MultiParser[DNode] {
         def apply(in: Input, ctx: ParserState): MultiParseResult[DNode] = {
@@ -30,7 +30,7 @@ class HTMLDomParser extends MultiFeatureParser {
                     if (n1==n2)
                         Success(DNode(n1, attr, inner), next)
                     else
-                        Failure("Illformed html "+n1+" - "+n2, next,List())
+                        Error("Illformed html "+n1+" - "+n2, next,List())
                 case (f, r@NoSuccess(_,_,_)) => r
             })
         }
@@ -45,7 +45,7 @@ class HTMLDomParser extends MultiFeatureParser {
     def ClosingTag: MultiParser[String] = token("closingtag", _.element match {
         case HTag(name, true, false, _) => true
         case _ => false
-    }) ^^ {x => x.element.asInstanceOf[HTag].name}
+    }) ^^ {x => x.element.asInstanceOf[HTag].name} | fail("expected closing tag")
 
     def EmptyTag: MultiParser[DNode] = token("emptytag", _.element match {
         case HTag(name, false, true, attributes) => true
