@@ -1,7 +1,7 @@
 package de.fosd.typechef.parser.html
 
 import de.fosd.typechef.parser._
-import de.fosd.typechef.conditional.Opt
+import de.fosd.typechef.conditional.{ConditionalLib, Opt}
 import de.fosd.typechef.parser.common.CharacterToken
 
 //
@@ -31,9 +31,12 @@ class HTMLSAXParser extends MultiFeatureParser {
 
     def HtmlElement: MultiParser[HElement] = HtmlTag | HtmlText
 
-    def HtmlTag: MultiParser[HTag] = '<' ~ opt('/') ~ (WSs ?) ~ Identifier ~ optList(WSs ~> Attributes) ~ (WSs ?) ~ opt('/' <~ (WSs ?)) ~ '>' ^^ {
-        case _ ~ c ~ _ ~ id ~ attr ~ _ ~ c2 ~ _ => HTag(id, c.isDefined, c2.isDefined, attr)
+    def HtmlTag: MultiParser[HTag] = '<' ~ opt('/') ~ (WSs ?) ~ Identifier ~ AttributesSeq ~ opt('/' <~ (WSs ?)) ~ '>' ^^ {
+        case _ ~ c ~ _ ~ id ~ attr ~ c2 ~ _ => HTag(id, c.isDefined, c2.isDefined, attr)
     }
+
+    //avoid replicating entire tags due to whitespace issues, instead replicate only attribute sequences and force join
+    private def AttributesSeq: MultiParser[List[Opt[HAttribute]]] = (optList(WSs ~> Attributes) <~ (WSs ?)).join ^^ { ConditionalLib.items(_).map(e => e._2.map(_.and(e._1))).reduce(_ ++ _) }
 
     def HtmlText: MultiParser[HText] = rep1(token("no < or >", x => !(Set('<', '>') contains x.getKindChar()))) ^^ {HText(_)}
 
