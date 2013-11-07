@@ -397,7 +397,7 @@ class JSParser extends MultiFeatureParser {
     def IdentifierStart: MultiParser[Elem] = Letter | '$' | '_'
     def IdentifierPart: MultiParser[Elem] = IdentifierStart | Digit
     def _Identifier: MultiParser[JSIdentifier] =
-        IdentifierStart ~ repPlain(IdentifierPart) ^^ {case first ~ rest => JSIdentifier((first :: rest).mkString)}
+        IdentifierStart ~ repPlain(IdentifierPart) ^^ {case first ~ rest => JSIdentifier((first :: rest).map(_.getText).mkString)}
 
     def Identifier: MultiParser[JSIdentifier] = new MultiParser[JSIdentifier] {
         name = "identifier"
