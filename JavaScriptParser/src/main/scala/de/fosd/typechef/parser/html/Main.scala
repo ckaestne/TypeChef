@@ -23,24 +23,28 @@ object Main extends App {
 
     val p = new HTMLSAXParser
 
-    val tagSequence = p.HtmlSequence(tokens,FeatureExprFactory.True)
+    val tagSequence = p.phrase(p.HtmlSequence)(tokens,FeatureExprFactory.True)
 
     // stage 2: DOM parser
 
     var domTokens = List[HElementToken]()
     tagSequence match {
-        case p.Success(r, rest) => domTokens = r.map(t=>new HElementToken(t))
+        case p.Success(r, rest) =>
+            domTokens = r.map(t=>new HElementToken(t))
+            if (!rest.atEnd) println("error: SAXParser not at end: "+rest)
         case x => println("parsing problem: "+x)
     }
 
-    println(domTokens)
+    println(domTokens.mkString("\n"))
+
+    println("\n\n")
 
     val p2 = new HTMLDomParser
 
     val tokenStream = new TokenReader[HElementToken, Null](domTokens, 0, null, new HElementToken(Opt(FeatureExprFactory.True,HText(List()))))
 
 
-    val dom = p2.Element(tokenStream,FeatureExprFactory.True)
+    val dom = p2.phrase(p2.Element)(tokenStream,FeatureExprFactory.True)
 
     println(dom)
 
