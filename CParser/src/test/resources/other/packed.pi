@@ -1,0 +1,12 @@
+	struct {
+int version;               /* 0-1 */
+int zip_flags;             /* 2-3 */
+int method;                /* 4-5 */
+int modtime;               /* 6-7 */
+int moddate;               /* 8-9 */
+int crc32 __attribute__ ((__packed__));          /* 10-13 */
+int cmpsize __attribute__ ((__packed__));        /* 14-17 */
+int ucmpsize __attribute__ ((__packed__));       /* 18-21 */
+int filename_len;          /* 22-23 */
+int extra_len;             /* 24-25 */
+} formatted __attribute__ ((__packed__));
