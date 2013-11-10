@@ -710,4 +710,9 @@ class PrettyPrinterTest {
         parseFile("cgram/test87.c")
     }
 
+    @Test def testPacked() {
+        //problem by busybox, reported by Andreas Janker
+        parseFile("other/packed.pi")
+    }
+
 }
