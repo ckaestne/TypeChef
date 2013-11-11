@@ -135,6 +135,7 @@ sealed abstract class MonotoneFW[T](val f: FunctionDef, env: ASTEnv, val fm: Fea
 
                 // outsource to combinator!
                 // fix in_old memo.lookup(s.entry).get()._1
+                // circle
                 for (s <- fl) {
                     // add information about last knowledge gain.
                     // can speed up the computation!
@@ -147,6 +148,7 @@ sealed abstract class MonotoneFW[T](val f: FunctionDef, env: ASTEnv, val fm: Fea
 
                 var inres = oldres
 
+                // point
                 if (out_old.size < oldres.size) {
                     val g = gen(cfgstmt)
                     val k = kill(cfgstmt)
