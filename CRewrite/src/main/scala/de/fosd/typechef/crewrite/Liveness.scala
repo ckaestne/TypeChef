@@ -45,4 +45,6 @@ class Liveness(f: FunctionDef, env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) e
     // out(a) = for s in succ(n) r = r + in(s); r
 
     solve()
+
+    def isForward = false
 }

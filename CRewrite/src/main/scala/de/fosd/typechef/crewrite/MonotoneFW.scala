@@ -3,6 +3,7 @@ package de.fosd.typechef.crewrite
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.typesystem.{DeclUseMap, UseDeclMap}
 import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureModel, FeatureExpr}
+import de.fosd.typechef.conditional.Opt
 
 // this abstract class provides a standard implementation of
 // the monotone framework, a general framework for dataflow analyses
@@ -117,11 +118,14 @@ sealed abstract class MonotoneFW[T](val f: FunctionDef, env: ASTEnv, val fm: Fea
     type PGT = T
     protected def l = Map[T, FeatureExpr]()
 
+    protected def isForward: Boolean
+
     def solve(): Unit = {
         if (f == null) return ()
         
         // initialize solution
-        val flow = getAllSucc(f, FeatureExprFactory.empty, env)
+        val flow = if (isForward) getAllPred(f, FeatureExprFactory.empty, env)
+                   else getAllSucc(f, FeatureExprFactory.empty, env)
         for (cfgstmt <- flow map { _._1 })
             memo.update(cfgstmt, ((true, l), (true, l)))
 
@@ -133,22 +137,26 @@ sealed abstract class MonotoneFW[T](val f: FunctionDef, env: ASTEnv, val fm: Fea
             for ((cfgstmt, fl) <- flow) {
                 val ((_, iold), (_, oold)) = memo.lookup(cfgstmt).get
 
-                var nold = oold
+                var onew = oold
 
                 // outsource to combinator!
                 // fix in_old memo.lookup(s.entry).get()._1
                 // circle
-                for (s <- fl) {
+                for (Opt(feature, entry) <- fl) {
                     // add information about last knowledge gain.
                     // can speed up the computation!
-                    val (update, i) = memo.lookup(s.entry).get._1
-                    if (update) {
-                        val x = updateFeatureExprOfMonotoneElements(i, s.feature)
-                        nold = combinationOperator(nold, x)
+                    entry match {
+                        case _: FunctionDef =>
+                        case _ => {
+                            val (_, i) = memo.lookup(entry).get._1
+                            val x = updateFeatureExprOfMonotoneElements(i, feature)
+                            onew = combinationOperator(onew, x)
+                        }
                     }
+
                 }
 
-                var inew = nold
+                var inew = onew
 
                 // point
                 val g = gen(cfgstmt)
@@ -158,10 +166,11 @@ sealed abstract class MonotoneFW[T](val f: FunctionDef, env: ASTEnv, val fm: Fea
 
                 // use size as indicator for knowledge gain
                 changed |= iold.size < inew.size
-                changed |= oold.size < nold.size
+                changed |= oold.size < onew.size
 
-                memo.update(cfgstmt, ((iold.size < inew.size, inew), (oold.size < nold.size, nold)))
+                memo.update(cfgstmt, ((iold.size < inew.size, inew), (oold.size < onew.size, onew)))
             }
+
         } while (changed)
     }
 
