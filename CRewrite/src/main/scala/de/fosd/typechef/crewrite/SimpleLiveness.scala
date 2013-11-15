@@ -2,7 +2,7 @@ package de.fosd.typechef.crewrite
 
 import de.fosd.typechef.parser.c.{Id, AST, ASTEnv}
 import de.fosd.typechef.featureexpr.FeatureExprFactory
-import org.kiama.attribution.AttributionBase
+import org.kiama.attribution.Attribution._
 
 /**
  * Created with IntelliJ IDEA.
@@ -11,10 +11,10 @@ import org.kiama.attribution.AttributionBase
  * Time: 21:21
  * To change this template use File | Settings | File Templates.
  */
-class SimpleLiveness(env: ASTEnv) extends IntraCFG with UsedDefinedDeclaredVariables with AttributionBase {
+class SimpleLiveness(env: ASTEnv) extends IntraCFG with UsedDefinedDeclaredVariables {
     val in: AST => Set[Id] =
     circular (Set[Id]()) {
-        case s => (uses(s).toSet ++ out(s).diff(defines(s).toSet))
+        case s => uses(s).toSet ++ out(s).diff(defines(s).toSet)
     }
 
     val out: AST => Set[Id] =

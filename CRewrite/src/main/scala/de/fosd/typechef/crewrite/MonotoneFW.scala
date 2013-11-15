@@ -1,6 +1,6 @@
 package de.fosd.typechef.crewrite
 
-import org.kiama.attribution.AttributionBase
+import org.kiama.attribution.AttributionCore
 
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.typesystem.{DeclUseMap, UseDeclMap}
@@ -30,7 +30,7 @@ import de.fosd.typechef.conditional.Opt
 // env: ASTEnv; environment used for navigation in the AST during predecessor and
 //              successor determination
 // fm: FeatureModel; feature model used for filtering out false positives
-sealed abstract class MonotoneFW[T](val env: ASTEnv, val fm: FeatureModel) extends AttributionBase with IntraCFG {
+sealed abstract class MonotoneFW[T](val env: ASTEnv, val fm: FeatureModel) extends AttributionCore with IntraCFG {
 
     // dataflow, such as identifiers (type Id) may have different declarations
     // (alternative types). so we track alternative elements here using two
@@ -87,7 +87,7 @@ sealed abstract class MonotoneFW[T](val env: ASTEnv, val fm: FeatureModel) exten
         var res = l
 
         for ((x, of) <- s)
-            res += ((x, of and f))
+            res = res + ((x, of and f))
         res
     }
 
@@ -213,8 +213,6 @@ sealed abstract class MonotoneFW[T](val env: ASTEnv, val fm: FeatureModel) exten
     protected def point(e: AST): L = f_l(e)
 
     protected def isForward: Boolean
-    private val f_lcache = new IdentityHashMapCache[L]()
-    private val combinatorcache = new IdentityHashMapCache[L]()
 
     protected val combinator: AST => L = {
         circular[AST, L](b) {
@@ -226,8 +224,6 @@ sealed abstract class MonotoneFW[T](val env: ASTEnv, val fm: FeatureModel) exten
             }
         }
     }
-
-    protected def combinator_cached(a: AST) = combinatorcache.lookup(a).getOrElse(combinator(a))
 
     protected val f_l: AST => L = {
         circular[AST, L](b) {
@@ -245,8 +241,6 @@ sealed abstract class MonotoneFW[T](val env: ASTEnv, val fm: FeatureModel) exten
             }
         }
     }
-
-    protected def f_l_cached(a: AST) = f_lcache.lookup(a).getOrElse(f_l(a))
 
     protected def outfunction(a: AST): L
 
@@ -286,7 +280,7 @@ abstract class MonotoneFWId(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) exte
         var res = l
 
         for (r <- in)
-            res += ((r, env.featureExpr(r)))
+            res = res + ((r, env.featureExpr(r)))
 
         res
     }
@@ -319,7 +313,7 @@ abstract class MonotoneFWId(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) exte
 
         for ((x, f) <- s)
             for (n <- getFreshDefinitionFromUsage(x))
-                res += ((n, f))
+                res = res + ((n, f))
         res
     }
 }
@@ -333,7 +327,7 @@ abstract class MonotoneFWIdLab(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm
         var res = l
 
         for (r <- in)
-            res += ((r, env.featureExpr(r._1)))
+            res = res + ((r, env.featureExpr(r._1)))
 
         res
     }
@@ -363,20 +357,20 @@ abstract class MonotoneFWIdLab(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm
     protected def fromCache(i: Id, isKill: Boolean = false): L = {
         var res = l
         if (cachePGT.lookup(i).isEmpty) cachePGT.update(i, ((i, System.identityHashCode(i)), env.featureExpr(i)))
-        res += cachePGT.lookup(i).get
+        res = res + cachePGT.lookup(i).get
 
         if (isKill) {
             if (udm.containsKey(i))
                 for (x <- udm.get(i)) {
                     if (cachePGT.lookup(x).isEmpty)
                         cachePGT.update(x, ((x, System.identityHashCode(x)), env.featureExpr(x)))
-                    res += cachePGT.lookup(x).get
+                    res = res + cachePGT.lookup(x).get
 
                     if (dum.containsKey(x))
                         for (tu <- dum.get(x)) {
                             if (cachePGT.lookup(tu).isEmpty)
                                 cachePGT.update(tu, ((tu, System.identityHashCode(x)), env.featureExpr(tu)))
-                            res += cachePGT.lookup(tu).get
+                            res = res + cachePGT.lookup(tu).get
                         }
 
 //                    if (add2FVs)

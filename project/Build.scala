@@ -156,6 +156,10 @@ object TypeChef extends Build {
 
     import BuildSettings._
 
+    resolvers ++= Seq (
+        Resolver.sonatypeRepo ("snapshots")
+    )
+
     lazy val typechef = Project(
         "TypeChef",
         file("."),
@@ -254,7 +258,7 @@ object TypeChef extends Build {
     def kiamaDependency(scalaVersion: String, testOnly: Boolean = false) = {
         val x = scalaVersion match {
             case "2.9.1" => "com.googlecode.kiama" %% "kiama" % "1.2.0"
-            case _ => "com.googlecode.kiama" %% "kiama" % "1.4.0"
+            case _ => "com.googlecode.kiama" %% "kiama" % "1.5.1"
         }
         if (testOnly) x % "test" else x
     }
