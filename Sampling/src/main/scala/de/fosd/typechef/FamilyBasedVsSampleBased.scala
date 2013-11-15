@@ -722,7 +722,7 @@ object FamilyBasedVsSampleBased extends EnforceTreeHelper with ASTNavigation wit
                         "(" + selectedFeatures.size + ")"
                 )
 
-                val ts = if (taskDesc == "family") {println("in family"); new CTypeSystemFrontend(product, fm)}
+                val ts = if (taskDesc == "family") new CTypeSystemFrontend(product, fm)
                          else new CTypeSystemFrontend(product)
 
                 // typechecking measurement
