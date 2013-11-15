@@ -117,7 +117,9 @@ sealed abstract class MonotoneFW[T](val f: FunctionDef, env: ASTEnv, val fm: Fea
     type PGT = T
     protected def l = Map[T, FeatureExpr]()
 
-    def solve() = {
+    def solve(): Unit = {
+        if (f == null) return ()
+        
         // initialize solution
         val flow = getAllSucc(f, FeatureExprFactory.empty, env)
         for (cfgstmt <- flow map { _._1 })
@@ -129,9 +131,9 @@ sealed abstract class MonotoneFW[T](val f: FunctionDef, env: ASTEnv, val fm: Fea
         do {
             changed = false
             for ((cfgstmt, fl) <- flow) {
-                val ((_, in_old), (_, out_old)) = memo.lookup(cfgstmt).get
+                val ((_, iold), (_, oold)) = memo.lookup(cfgstmt).get
 
-                var oldres = out_old
+                var nold = oold
 
                 // outsource to combinator!
                 // fix in_old memo.lookup(s.entry).get()._1
@@ -142,25 +144,23 @@ sealed abstract class MonotoneFW[T](val f: FunctionDef, env: ASTEnv, val fm: Fea
                     val (update, i) = memo.lookup(s.entry).get._1
                     if (update) {
                         val x = updateFeatureExprOfMonotoneElements(i, s.feature)
-                        oldres = combinationOperator(oldres, x)
+                        nold = combinationOperator(nold, x)
                     }
                 }
 
-                var inres = oldres
+                var inew = nold
 
                 // point
-                if (out_old.size < oldres.size) {
-                    val g = gen(cfgstmt)
-                    val k = kill(cfgstmt)
-                    inres = diff(inres, mapGenKillElements2MonotoneElements(k))
-                    inres = union(inres, mapGenKillElements2MonotoneElements(g))
-                }
+                val g = gen(cfgstmt)
+                val k = kill(cfgstmt)
+                inew = diff(inew, mapGenKillElements2MonotoneElements(k))
+                inew = union(inew, mapGenKillElements2MonotoneElements(g))
 
                 // use size as indicator for knowledge gain
-                changed |= in_old.size < inres.size
-                changed |= out_old.size < oldres.size
+                changed |= iold.size < inew.size
+                changed |= oold.size < nold.size
 
-                memo.update(cfgstmt, ((in_old.size < inres.size, inres), (out_old.size < oldres.size, oldres)))
+                memo.update(cfgstmt, ((iold.size < inew.size, inew), (oold.size < nold.size, nold)))
             }
         } while (changed)
     }
