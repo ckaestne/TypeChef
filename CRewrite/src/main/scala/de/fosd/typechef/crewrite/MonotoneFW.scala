@@ -158,7 +158,7 @@ sealed abstract class MonotoneFW[T](val f: FunctionDef, env: ASTEnv, val fm: Fea
         curl
     }
 
-    type CPR = L
+    type CPR = (Boolean, L)
     type CIR = CPR
     type POI = CPR
     type R = (CIR, POI)
@@ -257,7 +257,7 @@ sealed abstract class MonotoneFW[T](val f: FunctionDef, env: ASTEnv, val fm: Fea
         val flow = if (isForward) getAllPred(f, FeatureExprFactory.empty, env)
         else getAllSucc(f, FeatureExprFactory.empty, env)
         for (cfgstmt <- flow map { _._1 })
-            memo.update(cfgstmt, (l, l))
+            memo.update(cfgstmt, ((true, l), (true, l)))
 
         var changed = false
 
@@ -265,7 +265,7 @@ sealed abstract class MonotoneFW[T](val f: FunctionDef, env: ASTEnv, val fm: Fea
         do {
             changed = false
             for ((cfgstmt, fl) <- flow) {
-                val (cold, fold) = memo.lookup(cfgstmt).get
+                val ((_, cold), (_, fold)) = memo.lookup(cfgstmt).get
 
                 var cnew = cold
 
@@ -274,9 +274,13 @@ sealed abstract class MonotoneFW[T](val f: FunctionDef, env: ASTEnv, val fm: Fea
                     entry match {
                         case _: FunctionDef =>
                         case _ => {
-                            val i = memo.lookup(entry).get._2
-                            val x = updateFeatureExprOfMonotoneElements(i, feature)
-                            cnew = combinationOperator(cnew, x)
+                            val (update, i) = memo.lookup(entry).get._2
+
+                            if (update) {
+                                val x = updateFeatureExprOfMonotoneElements(i, feature)
+                                cnew = combinationOperator(cnew, x)
+                            }
+
                         }
                     }
                 }
@@ -284,16 +288,18 @@ sealed abstract class MonotoneFW[T](val f: FunctionDef, env: ASTEnv, val fm: Fea
                 var fnew = cnew
 
                 // point
-                val g = gen(cfgstmt)
-                val k = kill(cfgstmt)
-                fnew = diff(fnew, mapGenKillElements2MonotoneElements(k))
-                fnew = union(fnew, mapGenKillElements2MonotoneElements(g))
-
                 // use size as indicator for knowledge gain
+                if (fnew.size == 0 || fold.size < fnew.size) {
+                    val g = gen(cfgstmt)
+                    val k = kill(cfgstmt)
+                    fnew = diff(fnew, mapGenKillElements2MonotoneElements(k))
+                    fnew = union(fnew, mapGenKillElements2MonotoneElements(g))
+                }
+
                 changed |= cold.size < cnew.size
                 changed |= fold.size < fnew.size
 
-                memo.update(cfgstmt, (cnew, fnew))
+                memo.update(cfgstmt, ((cold.size < cnew.size, cnew), (fold.size < fnew.size, fnew)))
             }
         } while (changed)
     }
@@ -304,7 +310,7 @@ sealed abstract class MonotoneFW[T](val f: FunctionDef, env: ASTEnv, val fm: Fea
 
         if (r.isDefined) {
             var res = List[(T, FeatureExpr)]()
-            for ((x, fexp) <- f(r.get)) {
+            for ((x, fexp) <- f(r.get)._2) {
                 val orig = getOriginal(x)
                 res = (orig, fexp) :: res
             }
