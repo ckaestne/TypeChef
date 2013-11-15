@@ -124,7 +124,8 @@ sealed abstract class MonotoneFW[T](val f: FunctionDef, env: ASTEnv, val fm: Fea
         if (f == null) return
         
         // initialize solution
-        val flow = getAllSucc(f, FeatureExprFactory.empty, env)
+        val flow = if (isForward) getAllPred(f, FeatureExprFactory.empty, env)
+                   else getAllSucc(f, FeatureExprFactory.empty, env)
         for (cfgstmt <- flow map { _._1 })
             memo.update(cfgstmt, (l, l))
 
@@ -134,40 +135,35 @@ sealed abstract class MonotoneFW[T](val f: FunctionDef, env: ASTEnv, val fm: Fea
         do {
             changed = false
             for ((cfgstmt, fl) <- flow) {
-                val (cold, pold) = memo.lookup(cfgstmt).get
+                val (cold, fold) = memo.lookup(cfgstmt).get
 
-                var pnew = pold
+                var cnew = cold
 
-                // outsource to combinator!
-                // fix in_old memo.lookup(s.entry).get()._1
                 // circle
                 for (Opt(feature, entry) <- fl) {
-                    // add information about last knowledge gain.
-                    // can speed up the computation!
                     entry match {
                         case _: FunctionDef =>
                         case _ => {
-                            val i = memo.lookup(entry).get._1
+                            val i = memo.lookup(entry).get._2
                             val x = updateFeatureExprOfMonotoneElements(i, feature)
-                            pnew = combinationOperator(pnew, x)
+                            cnew = combinationOperator(cnew, x)
                         }
                     }
-
                 }
 
-                var cnew = pnew
+                var fnew = cnew
 
                 // point
                 val g = gen(cfgstmt)
                 val k = kill(cfgstmt)
-                cnew = diff(cnew, mapGenKillElements2MonotoneElements(k))
-                cnew = union(cnew, mapGenKillElements2MonotoneElements(g))
+                fnew = diff(fnew, mapGenKillElements2MonotoneElements(k))
+                fnew = union(fnew, mapGenKillElements2MonotoneElements(g))
 
                 // use size as indicator for knowledge gain
                 changed |= cold.size < cnew.size
-                changed |= pold.size < pnew.size
+                changed |= fold.size < fnew.size
 
-                memo.update(cfgstmt, (cnew, pnew))
+                memo.update(cfgstmt, (cnew, fnew))
             }
 
         } while (changed)
@@ -323,8 +319,8 @@ sealed abstract class MonotoneFW[T](val f: FunctionDef, env: ASTEnv, val fm: Fea
         }
     }
 
-    def in(a: AST) = if (isForward) getValues(a, {_._2} ) else getValues(a, { _._1 } )
-    def out(a: AST) = if (isForward) getValues(a, {_._1} ) else getValues(a, { _._2 } )
+    def in(a: AST) = if (isForward) getValues(a, {_._1} ) else getValues(a, { _._2 } )
+    def out(a: AST) = if (isForward) getValues(a, {_._2} ) else getValues(a, { _._1 } )
 }
 
 // specialization of MonotoneFW for Ids (Var); helps to reduce code cloning, i.e., cloning of t2T, ...
