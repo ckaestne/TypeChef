@@ -121,13 +121,12 @@ sealed abstract class MonotoneFW[T](val f: FunctionDef, env: ASTEnv, val fm: Fea
     protected def isForward: Boolean
 
     def solve(): Unit = {
-        if (f == null) return ()
+        if (f == null) return
         
         // initialize solution
-        val flow = if (isForward) getAllPred(f, FeatureExprFactory.empty, env)
-                   else getAllSucc(f, FeatureExprFactory.empty, env)
+        val flow = getAllSucc(f, FeatureExprFactory.empty, env)
         for (cfgstmt <- flow map { _._1 })
-            memo.update(cfgstmt, ((true, l), (true, l)))
+            memo.update(cfgstmt, (l, l))
 
         var changed = false
 
@@ -135,9 +134,9 @@ sealed abstract class MonotoneFW[T](val f: FunctionDef, env: ASTEnv, val fm: Fea
         do {
             changed = false
             for ((cfgstmt, fl) <- flow) {
-                val ((_, iold), (_, oold)) = memo.lookup(cfgstmt).get
+                val (cold, pold) = memo.lookup(cfgstmt).get
 
-                var onew = oold
+                var pnew = pold
 
                 // outsource to combinator!
                 // fix in_old memo.lookup(s.entry).get()._1
@@ -148,27 +147,27 @@ sealed abstract class MonotoneFW[T](val f: FunctionDef, env: ASTEnv, val fm: Fea
                     entry match {
                         case _: FunctionDef =>
                         case _ => {
-                            val (_, i) = memo.lookup(entry).get._1
+                            val i = memo.lookup(entry).get._1
                             val x = updateFeatureExprOfMonotoneElements(i, feature)
-                            onew = combinationOperator(onew, x)
+                            pnew = combinationOperator(pnew, x)
                         }
                     }
 
                 }
 
-                var inew = onew
+                var cnew = pnew
 
                 // point
                 val g = gen(cfgstmt)
                 val k = kill(cfgstmt)
-                inew = diff(inew, mapGenKillElements2MonotoneElements(k))
-                inew = union(inew, mapGenKillElements2MonotoneElements(g))
+                cnew = diff(cnew, mapGenKillElements2MonotoneElements(k))
+                cnew = union(cnew, mapGenKillElements2MonotoneElements(g))
 
                 // use size as indicator for knowledge gain
-                changed |= iold.size < inew.size
-                changed |= oold.size < onew.size
+                changed |= cold.size < cnew.size
+                changed |= pold.size < pnew.size
 
-                memo.update(cfgstmt, ((iold.size < inew.size, inew), (oold.size < onew.size, onew)))
+                memo.update(cfgstmt, (cnew, pnew))
             }
 
         } while (changed)
@@ -212,10 +211,10 @@ sealed abstract class MonotoneFW[T](val f: FunctionDef, env: ASTEnv, val fm: Fea
         curl
     }
 
-    type IOR = (Boolean, L)
-    type IN = IOR
-    type OUT = IOR
-    type R = (IN, OUT)
+    type CPR = L
+    type CIR = CPR
+    type POI = CPR
+    type R = (CIR, POI)
 
     val memo = new IdentityHashMapCache[R]()
 
@@ -307,14 +306,14 @@ sealed abstract class MonotoneFW[T](val f: FunctionDef, env: ASTEnv, val fm: Fea
 
 
 
-    private def getValues(a: AST, f: R => IOR) = {
+    private def getValues(a: AST, f: R => CPR) = {
         val r = memo.lookup(a)
 
         if (r.isDefined) {
             var res = List[(T, FeatureExpr)]()
-            for ((x, f) <- f(r.get)._2) {
+            for ((x, fexp) <- f(r.get)) {
                 val orig = getOriginal(x)
-                res = (orig, f) :: res
+                res = (orig, fexp) :: res
             }
             // joining values from different paths can lead to duplicates.
             // remove them and filter out values from unsatisfiable paths.
@@ -324,8 +323,8 @@ sealed abstract class MonotoneFW[T](val f: FunctionDef, env: ASTEnv, val fm: Fea
         }
     }
 
-    def in(a: AST) = getValues(a, { _._1 })
-    def out(a: AST) = getValues(a, { _._2 } )
+    def in(a: AST) = if (isForward) getValues(a, {_._2} ) else getValues(a, { _._1 } )
+    def out(a: AST) = if (isForward) getValues(a, {_._1} ) else getValues(a, { _._2 } )
 }
 
 // specialization of MonotoneFW for Ids (Var); helps to reduce code cloning, i.e., cloning of t2T, ...
