@@ -138,6 +138,8 @@ sealed abstract class StdLibFuncReturn(env: ASTEnv, dum: DeclUseMap, udm: UseDec
     protected def combinationOperator(l1: L, l2: L) = union(l1, l2)
 
     protected def isForward = true
+
+    solve()
 }
 
 class StdLibFuncReturn_Null(env: ASTEnv, dum: UseDeclMap, udm: UseDeclMap, fm: FeatureModel, f: FunctionDef) extends StdLibFuncReturn(env, dum, udm, fm, f) {

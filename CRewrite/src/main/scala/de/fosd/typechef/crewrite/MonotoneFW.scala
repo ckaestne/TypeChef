@@ -120,55 +120,6 @@ sealed abstract class MonotoneFW[T](val f: FunctionDef, env: ASTEnv, val fm: Fea
 
     protected def isForward: Boolean
 
-    def solve(): Unit = {
-        if (f == null) return
-        
-        // initialize solution
-        val flow = if (isForward) getAllPred(f, FeatureExprFactory.empty, env)
-                   else getAllSucc(f, FeatureExprFactory.empty, env)
-        for (cfgstmt <- flow map { _._1 })
-            memo.update(cfgstmt, (l, l))
-
-        var changed = false
-
-        // repeat
-        do {
-            changed = false
-            for ((cfgstmt, fl) <- flow) {
-                val (cold, fold) = memo.lookup(cfgstmt).get
-
-                var cnew = cold
-
-                // circle
-                for (Opt(feature, entry) <- fl) {
-                    entry match {
-                        case _: FunctionDef =>
-                        case _ => {
-                            val i = memo.lookup(entry).get._2
-                            val x = updateFeatureExprOfMonotoneElements(i, feature)
-                            cnew = combinationOperator(cnew, x)
-                        }
-                    }
-                }
-
-                var fnew = cnew
-
-                // point
-                val g = gen(cfgstmt)
-                val k = kill(cfgstmt)
-                fnew = diff(fnew, mapGenKillElements2MonotoneElements(k))
-                fnew = union(fnew, mapGenKillElements2MonotoneElements(g))
-
-                // use size as indicator for knowledge gain
-                changed |= cold.size < cnew.size
-                changed |= fold.size < fnew.size
-
-                memo.update(cfgstmt, (cnew, fnew))
-            }
-
-        } while (changed)
-    }
-
     private def diff(l: L, l2: L): L = {
         var curl = l
         for ((e, fexp) <- l2) {
@@ -299,7 +250,53 @@ sealed abstract class MonotoneFW[T](val f: FunctionDef, env: ASTEnv, val fm: Fea
 //            }
 //        }
 //    }
+    def solve(): Unit = {
+        if (f == null) return
 
+        // initialize solution
+        val flow = if (isForward) getAllPred(f, FeatureExprFactory.empty, env)
+        else getAllSucc(f, FeatureExprFactory.empty, env)
+        for (cfgstmt <- flow map { _._1 })
+            memo.update(cfgstmt, (l, l))
+
+        var changed = false
+
+        // repeat
+        do {
+            changed = false
+            for ((cfgstmt, fl) <- flow) {
+                val (cold, fold) = memo.lookup(cfgstmt).get
+
+                var cnew = cold
+
+                // circle
+                for (Opt(feature, entry) <- fl) {
+                    entry match {
+                        case _: FunctionDef =>
+                        case _ => {
+                            val i = memo.lookup(entry).get._2
+                            val x = updateFeatureExprOfMonotoneElements(i, feature)
+                            cnew = combinationOperator(cnew, x)
+                        }
+                    }
+                }
+
+                var fnew = cnew
+
+                // point
+                val g = gen(cfgstmt)
+                val k = kill(cfgstmt)
+                fnew = diff(fnew, mapGenKillElements2MonotoneElements(k))
+                fnew = union(fnew, mapGenKillElements2MonotoneElements(g))
+
+                // use size as indicator for knowledge gain
+                changed |= cold.size < cnew.size
+                changed |= fold.size < fnew.size
+
+                memo.update(cfgstmt, (cnew, fnew))
+            }
+        } while (changed)
+    }
 
 
     private def getValues(a: AST, f: R => CPR) = {
@@ -423,9 +420,6 @@ abstract class MonotoneFWIdLab(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm
                                 cachePGT.update(tu, ((tu, System.identityHashCode(x)), env.featureExpr(tu)))
                             res = res + cachePGT.lookup(tu).get
                         }
-
-//                    if (add2FVs)
-//                        if (! isPartOf(x, f.stmt)) fvs += cachePGT.lookup(x).get
                 }
         }
 
