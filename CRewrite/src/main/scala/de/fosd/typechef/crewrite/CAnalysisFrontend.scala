@@ -70,8 +70,10 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend, fm
         val nss = fa._2.map(_._1).filterNot(x => x.isInstanceOf[FunctionDef]).reverse
         println("analyzing function " + fa._1.getName)
 
+        val start = System.nanoTime()/1000000
         for (s <- nss)
             df.out(s)
+        println("time: " + ((System.nanoTime()/1000000) - start))
 
         List()
     }

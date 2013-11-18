@@ -7,6 +7,11 @@ import org.scalatest.matchers.ShouldMatchers
 import de.fosd.typechef.typesystem.{CDeclUse, CTypeSystemFrontend}
 import de.fosd.typechef.conditional.Opt
 import java.io.{FileNotFoundException, InputStream}
+import scala.Predef._
+import de.fosd.typechef.parser.c.Id
+import de.fosd.typechef.parser.c.FunctionDef
+import de.fosd.typechef.parser.c.TranslationUnit
+import de.fosd.typechef.conditional.Opt
 
 class LivenessTest extends EnforceTreeHelper with TestHelper with ShouldMatchers with IntraCFG with CFGHelper {
 
@@ -26,6 +31,36 @@ class LivenessTest extends EnforceTreeHelper with TestHelper with ShouldMatchers
                     "  in: " + lv.in(s) + "   out: " + lv.out(s))
         }
 
+    }
+
+    val folder = "testfiles/"
+
+    private def runFile(filename: String, fm: FeatureModel = FeatureExprFactory.default.featureModelFactory.empty) = {
+        val inputStream: InputStream = getClass.getResourceAsStream("/" + folder + filename)
+
+        if (inputStream == null)
+            throw new FileNotFoundException("Input file not fould: " + filename)
+
+        val i = parseFile(inputStream, filename, folder)
+        val ast = prepareAST(i)
+        val env = CASTEnv.createASTEnv(ast)
+        val ts = new CTypeSystemFrontend(i) with CDeclUse
+        ts.checkASTSilent
+        val udm = ts.getUseDeclMap
+
+        val family_function_defs = filterAllASTElems[FunctionDef](ast)
+
+        for (f <- family_function_defs) {
+            val ss = getAllSucc(f.stmt.innerStatements.head.entry, FeatureExprFactory.empty, env).map(_._1).filterNot(x => x.isInstanceOf[FunctionDef])
+
+            val lv = new SimpleLiveness(env)
+
+            for (s <- ss) {
+                println(s.getPositionFrom + "--" + s.getPositionTo + "  in: " + lv.in(s) + "   out: " + lv.out(s))
+            }
+        }
+
+        true
     }
 
     private def runDefinesExample(code: String) = {
@@ -740,5 +775,9 @@ void test1(int *code,
       union {
         int i;
       } u;""") should be(Map(Id("u") -> FeatureExprFactory.True))
+    }
+
+    @Test def test_tar() {
+        assert(runFile("tar.c"))
     }
 }

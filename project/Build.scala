@@ -13,6 +13,7 @@ object BuildSettings {
     val buildVersion = "0.3.5"
     val buildScalaVersion = "2.10.1"
 
+
     val testEnvironment = Seq(junit, junitInterface, scalatest, scalacheck)
 
     val buildSettings = Defaults.defaultSettings ++ Seq(
@@ -39,6 +40,10 @@ object BuildSettings {
                 )
                 else Nil
         },
+
+        resolvers ++= Seq (
+            Resolver.sonatypeRepo ("snapshots")
+        ),
 
         crossScalaVersions := Seq("2.9.1", "2.9.2", "2.10.1"),
 
@@ -156,9 +161,6 @@ object TypeChef extends Build {
 
     import BuildSettings._
 
-    resolvers ++= Seq (
-        Resolver.sonatypeRepo ("snapshots")
-    )
 
     lazy val typechef = Project(
         "TypeChef",
@@ -258,7 +260,7 @@ object TypeChef extends Build {
     def kiamaDependency(scalaVersion: String, testOnly: Boolean = false) = {
         val x = scalaVersion match {
             case "2.9.1" => "com.googlecode.kiama" %% "kiama" % "1.2.0"
-            case _ => "com.googlecode.kiama" %% "kiama" % "1.5.1"
+            case _ => "com.googlecode.kiama" %% "kiama" % "1.5.2-SNAPSHOT"
         }
         if (testOnly) x % "test" else x
     }
