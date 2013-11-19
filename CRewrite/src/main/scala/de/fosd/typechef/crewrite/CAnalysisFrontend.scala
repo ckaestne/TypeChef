@@ -72,7 +72,7 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend, fm
     }
 
     private def deadStore(fa: (FunctionDef, List[(AST, List[Opt[AST]])])): List[TypeChefError] = {
-        var res: List[TypeChefError] = List()
+        var err: List[TypeChefError] = List()
 
         val df = new Liveness(fa._1, env, udm, FeatureExprFactory.empty)
 
@@ -80,8 +80,6 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend, fm
 
         for (s <- nss) {
             val k = df.kill(s)
-
-            println(PrettyPrinter.print(s), df.out(s))
             if (k.size > 0) {
                 val out = df.out(s)
 
@@ -96,7 +94,7 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend, fm
                             if (idecls == null)
                                 idecls = List(i)
                             if (idecls.exists(isPartOf(_, fa._1)))
-                                res ::= new TypeChefError(Severity.Warning, fi, "warning: Variable " + i.name + " is a dead store!", i, "")
+                                err ::= new TypeChefError(Severity.Warning, fi, "warning: Variable " + i.name + " is a dead store!", i, "")
                         }
                         case Some((x, z)) => {
                             if (! z.isTautology(fm)) {
@@ -110,7 +108,7 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend, fm
                                     // with isPartOf we reduce the number of false positives, since we only check local variables and function parameters.
                                     // an assignment to a global variable might be used in another function
                                     if (isPartOf(ei, fa._1) && xdecls.exists(_.eq(ei)))
-                                        res ::= new TypeChefError(Severity.Warning, z.not(), "warning: Variable " + i.name + " is a dead store!", i, "")
+                                        err ::= new TypeChefError(Severity.Warning, z.not(), "warning: Variable " + i.name + " is a dead store!", i, "")
                                 }
 
                             }
@@ -120,7 +118,7 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend, fm
             }
         }
 
-        res
+        err
     }
 
     def doubleFree(): Boolean = {
@@ -149,7 +147,7 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend, fm
 
 
     private def doubleFree(fa: (FunctionDef, List[(AST, List[Opt[AST]])]), casestudy: String): List[TypeChefError] = {
-        var res: List[TypeChefError] = List()
+        var err: List[TypeChefError] = List()
 
         val df = new DoubleFree(env, dum, udm, FeatureExprFactory.empty, fa._1, casestudy)
 
@@ -171,13 +169,13 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend, fm
                                 idecls = List(i)
                             for (ei <- idecls)
                                 if (xdecls.exists(_.eq(ei)))
-                                    res ::= new TypeChefError(Severity.Warning, h, "warning: Variable " + x.name + " is freed multiple times!", x, "")
+                                    err ::= new TypeChefError(Severity.Warning, h, "warning: Variable " + x.name + " is freed multiple times!", x, "")
                         }
                     }
                 }
             }
         }
-        res
+        err
     }
 
     def uninitializedMemory(): Boolean = {
@@ -195,7 +193,7 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend, fm
 
 
     private def uninitializedMemory(fa: (FunctionDef, List[(AST, List[Opt[AST]])])): List[TypeChefError] = {
-        var res: List[TypeChefError] = List()
+        var err: List[TypeChefError] = List()
 
         val um = new UninitializedMemory(env, dum, udm, FeatureExprFactory.empty, fa._1)
         val nss = fa._2.map(_._1).filterNot(x => x.isInstanceOf[FunctionDef])
@@ -218,14 +216,14 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend, fm
                                     idecls = List(i)
                                 for (ei <- idecls)
                                     if (xdecls.exists(_.eq(ei)))
-                                        res ::= new TypeChefError(Severity.Warning, h, "warning: Variable " + x.name + " is used uninitialized!", x, "")
+                                        err ::= new TypeChefError(Severity.Warning, h, "warning: Variable " + x.name + " is used uninitialized!", x, "")
                             }
                         }
                     }
             }
         }
 
-        res
+        err
     }
 
     def xfree(): Boolean = {
@@ -243,7 +241,7 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend, fm
 
 
     private def xfree(fa: (FunctionDef, List[(AST, List[Opt[AST]])])): List[TypeChefError] = {
-        var res: List[TypeChefError] = List()
+        var err: List[TypeChefError] = List()
 
         val xf = new XFree(env, dum, udm, FeatureExprFactory.empty, fa._1, "")
         val nss = fa._2.map(_._1).filterNot(x => x.isInstanceOf[FunctionDef])
@@ -264,14 +262,14 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend, fm
                                     idecls = List(i)
                                 for (ei <- idecls)
                                     if (xdecls.exists(_.eq(ei)))
-                                        res ::= new TypeChefError(Severity.Warning, h, "warning: Variable " + x.name + " is freed although not dynamically allocted!", x, "")
+                                        err ::= new TypeChefError(Severity.Warning, h, "warning: Variable " + x.name + " is freed although not dynamically allocted!", x, "")
                             }
                         }
                     }
             }
         }
 
-        res
+        err
     }
 
     def danglingSwitchCode(): Boolean = {
@@ -379,7 +377,6 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend, fm
         }
 
         }
-        errors ++= err
         err
     }
 }
