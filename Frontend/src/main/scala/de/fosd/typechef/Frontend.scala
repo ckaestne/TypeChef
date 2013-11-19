@@ -10,6 +10,7 @@ import de.fosd.typechef.options.{FrontendOptionsWithConfigFiles, FrontendOptions
 import de.fosd.typechef.parser.c.CTypeContext
 import de.fosd.typechef.parser.c.TranslationUnit
 import de.fosd.typechef.featureexpr.FeatureExpr
+import java.util.zip.{GZIPInputStream, GZIPOutputStream}
 
 object Frontend extends EnforceTreeHelper {
 
@@ -224,13 +225,13 @@ object Frontend extends EnforceTreeHelper {
     }
 
     def serializeAST(ast: AST, filename: String) {
-        val fw = new ObjectOutputStream(new FileOutputStream(filename))
+        val fw = new ObjectOutputStream(new GZIPOutputStream(new FileOutputStream(filename)))
         fw.writeObject(ast)
         fw.close()
     }
 
     def loadSerializedAST(filename: String): TranslationUnit = try {
-        val fr = new ObjectInputStream(new FileInputStream(filename)) {
+        val fr = new ObjectInputStream(new GZIPInputStream(new FileInputStream(filename))) {
             override protected def resolveClass(desc: ObjectStreamClass) = { /*println(desc);*/ super.resolveClass(desc) }
         }
         val ast = fr.readObject().asInstanceOf[TranslationUnit]
