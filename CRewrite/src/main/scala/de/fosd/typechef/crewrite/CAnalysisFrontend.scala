@@ -54,7 +54,7 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend, fm
     private lazy val dum = ts.getDeclUseMap
 
     private val fanalyze = fdefs.map {
-        x => (x, getAllSucc(x, FeatureExprFactory.empty, env))
+        x => (x, getAllSucc(x, FeatureExprFactory.empty, env).filterNot { x => x._1.isInstanceOf[FunctionDef] } )
     }
 
     var errors: List[TypeChefError] = List()
@@ -335,7 +335,7 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend, fm
     private def stdLibFuncReturn(fa: (FunctionDef, List[(AST, List[Opt[AST]])])): List[TypeChefError] = {
         var err: List[TypeChefError] = List()
         val cl: List[StdLibFuncReturn] = List(
-            //new StdLibFuncReturn_EOF(env, udm, fm),
+            //new StdLibFuncReturn_EOF(env, dum, udm, fm, fa._1),
 
             new StdLibFuncReturn_Null(env, dum, udm, FeatureExprFactory.empty, fa._1)
         )
@@ -355,27 +355,32 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend, fm
                 // we check whether used variables that hold the value of a stdlib function are killed in s,
                 // if not we report an error
                 val g = cle.getUsedVariables(s)
-                for (((e, _), fi) <- cle.out(s))
-                    g.find(_ == e) match {
+                val in = cle.in(s)
+                for (((e, _), fi) <- in) {
+                    println("s", PrettyPrinter.print(s), "in", in, "g", g, "u", cle.uses(s))
+                    g.find { case ((t, _), _) => t == e } match {
                         case None =>
-                        case Some(x) => {
+                        case Some((k@(x, _), _)) => {
                             if (fi.isSatisfiable(fm)) {
-                            val xdecls = udm.get(x)
-                            var edecls = udm.get(e)
-                            if (edecls == null) edecls = List(e)
+                                var xdecls = udm.get(x)
+                                if (xdecls == null)
+                                    xdecls = List(x)
+                                var edecls = udm.get(e)
+                                if (edecls == null)
+                                    edecls = List(e)
 
-                            for (ee <- edecls) {
-                                val kills = cle.kill(s)
-                                if (xdecls.exists(_.eq(ee)) && !kills.contains(x._1)) {
+                                for (ee <- edecls) {
+                                    val kills = cle.kill(s)
+                                    if (xdecls.exists(_.eq(ee)) && !kills.contains(k)) {
                                         err ::= new TypeChefError(Severity.SecurityWarning, fi, "The value of " +
-                                        PrettyPrinter.print(e) + " is not properly checked for (" + errorvalues + ")!", e)
+                                            PrettyPrinter.print(e) + " is not properly checked for (" + errorvalues + ")!", e)
+                                    }
                                 }
                             }
                         }
                     }
+                }
             }
-        }
-
         }
         err
     }
