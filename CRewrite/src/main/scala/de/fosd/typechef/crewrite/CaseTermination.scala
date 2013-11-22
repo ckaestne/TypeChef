@@ -13,7 +13,7 @@ class CaseTermination(env: ASTEnv, fm: FeatureModel) extends IntraCFG {
         // get all successor elements of the case statement
         // and filter out other case statements, as fall through (case after case)
         // is allowed in this analysis
-        var wlist: List[Opt[AST]] = succ(c, fm, env).filterNot({
+        var wlist: List[Opt[AST]] = succ(c, env).filterNot({
             case Opt(_, _: CaseStatement) => true
             case _ => false
         })
@@ -31,7 +31,7 @@ class CaseTermination(env: ASTEnv, fm: FeatureModel) extends IntraCFG {
                 case Opt(_, _: BreakStatement) =>
                 case Opt(_, _: CaseStatement) => return false
                 case Opt(_, _: DefaultStatement) => return false
-                case Opt(_, s) => wlist ++= succ(s, fm, env).filterNot({
+                case Opt(_, s) => wlist ++= succ(s, env).filterNot({
                     case Opt(_, x) => !isPartOf(x, switch)
                 })
             }

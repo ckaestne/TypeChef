@@ -25,7 +25,7 @@ class InterCFGTest extends InterCFG with TestHelper with CFGHelper {
     val dot = new DotGraph(a)
     dot.writeHeader("test")
 
-    val fsuccs = fdefs.map(getAllSucc(_, FeatureExprFactory.empty, env))
+    val fsuccs = fdefs.map(getAllSucc(_, env))
 
       def lookupFExpr(e: AST): FeatureExpr = e match {
           case o if env.isKnown(o) => env.featureExpr(o)
@@ -39,5 +39,5 @@ class InterCFGTest extends InterCFG with TestHelper with CFGHelper {
     println(a)
   }
     // provide a lookup mechanism for function defs (from the type system or selfimplemented)
-    def getTranslationUnit(): TranslationUnit = null
+    def getTranslationUnit: TranslationUnit = null
 }
