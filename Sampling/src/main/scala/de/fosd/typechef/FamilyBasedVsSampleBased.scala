@@ -595,6 +595,7 @@ object FamilyBasedVsSampleBased extends EnforceTreeHelper with ASTNavigation wit
                                           logMessage: String) {
 
         val (log, fileID, samplingTasks) = initSampling(fm_scanner, fm, ast, opt, logMessage)
+        val samplingTastsWithoutFamily = samplingTasks.filterNot { x => x._1 == "family" }
         println("starting error checking.")
         val sw = new StopWatch()
 
@@ -634,13 +635,13 @@ object FamilyBasedVsSampleBased extends EnforceTreeHelper with ASTNavigation wit
         for (e <- sa.errors) fw.write(e + "\n\n")
 
         var caughterrorsmap = Map[String, Integer]()
-        for ((name, _) <- samplingTasks) caughterrorsmap += ((name, 0))
+        for ((name, _) <- samplingTastsWithoutFamily) caughterrorsmap += ((name, 0))
 
 
         // check for each error whether the tasklist of an sampling approach contains a configuration
         // that fullfills the error condition (using evaluate)
         for (e <- sa.errors) {
-            for ((name, tasklist) <- samplingTasks) {
+            for ((name, tasklist) <- samplingTastsWithoutFamily ) {
                 if (tasklist.exists { x => e.condition.evaluate(x.getTrueSet.map(_.feature)) })
                     caughterrorsmap += ((name, 1 + caughterrorsmap(name)))
             }
