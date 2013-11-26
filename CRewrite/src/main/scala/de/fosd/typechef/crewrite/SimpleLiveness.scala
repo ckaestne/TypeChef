@@ -1,6 +1,6 @@
 package de.fosd.typechef.crewrite
 
-import de.fosd.typechef.parser.c.{Id, AST, ASTEnv}
+import de.fosd.typechef.parser.c.{FunctionDef, Id, AST, ASTEnv}
 import de.fosd.typechef.featureexpr.FeatureExprFactory
 import org.kiama.attribution.Attribution._
 
@@ -14,11 +14,13 @@ import org.kiama.attribution.Attribution._
 class SimpleLiveness(env: ASTEnv) extends IntraCFG with UsedDefinedDeclaredVariables {
     val in: AST => Set[Id] =
     circular (Set[Id]()) {
+        case _: FunctionDef => Set()
         case s => uses(s).toSet ++ out(s).diff(defines(s).toSet)
     }
 
     val out: AST => Set[Id] =
     circular (Set[Id]()) {
+        case _: FunctionDef => Set()
         case s => succ(s, FeatureExprFactory.empty, env).map(_.entry).toSet.flatMap(in)
     }
 }
