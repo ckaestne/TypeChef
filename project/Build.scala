@@ -22,6 +22,10 @@ object BuildSettings {
         scalaVersion := buildScalaVersion,
         shellPrompt := ShellPrompt.buildShellPrompt,
 
+        resolvers ++= Seq (
+            Resolver.sonatypeRepo ("snapshots")
+        ),
+
         testListeners <<= target.map(t => Seq(new eu.henkelmann.sbt.JUnitXmlTestsListener(t.getAbsolutePath))),
 
         javacOptions ++= Seq("-Xlint:unchecked"),

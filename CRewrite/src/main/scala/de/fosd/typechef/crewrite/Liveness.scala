@@ -19,15 +19,15 @@ class Liveness(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) extends MonotoneF
 
     // returns all declared variables with their annotation
     val declaresVar: PartialFunction[(Any), L] = {
-        case a => addAnnotations(declares(a))
+        case a => addAnnotations(declares(a.asInstanceOf[AnyRef]).toList)
     }
 
     def gen(a: AST): L = {
-        addAnnotations(uses(a))
+        addAnnotations(uses(a).toList)
     }
 
     def kill(a: AST): L = {
-        addAnnotations(defines(a))
+        addAnnotations(defines(a).toList)
     }
 
     protected val i = l
