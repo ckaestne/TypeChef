@@ -207,6 +207,8 @@ object FamilyBasedVsSampleBased extends EnforceTreeHelper with ASTNavigation wit
                 opt.getRootFolder + "BusyboxBigConfig.config"
             else if (caseStudy.equals("openssl"))
                 opt.getRootFolder + "OpenSSL.config"
+            else if (caseStudy.equals("sqlite"))
+                opt.getRootFolder + "SQLite.config"
             else
                 throw new Exception("unknown case Study, give linux, busybox, or openssl")
             startTime = System.currentTimeMillis()
@@ -244,6 +246,9 @@ object FamilyBasedVsSampleBased extends EnforceTreeHelper with ASTNavigation wit
             } else if (caseStudy == "openssl") {
                 productsFile = new File(opt.getRootFolder + "TypeChef-OpenSSLAnalysis/openssl-1.0.1c/openssl_pairwise_configs.csv")
                 dimacsFM = new File(opt.getRootFolder + "TypeChef-OpenSSLAnalysis/openssl-1.0.1c/openssl.dimacs")
+            } else if (caseStudy == "sqlite") {
+                productsFile = new File(opt.getRootFolder + "cRefactor-SQLiteEvaluation/sqlite_pairwise_configs.csv")
+                dimacsFM = new File(opt.getRootFolder + "cRefactor-SQLiteEvaluation/sqlite.dimacs")
             } else {
                     throw new Exception("unknown case Study, give linux or busybox")
             }
@@ -545,6 +550,9 @@ object FamilyBasedVsSampleBased extends EnforceTreeHelper with ASTNavigation wit
         } else if (fileAbsPath.contains("openssl-1.0.1c")) {
             thisFilePath = fileAbsPath.substring(fileAbsPath.lastIndexOf("openssl-1.0.1c"))
             caseStudy = "openssl"
+        } else if (fileAbsPath.contains("SQLite")) {
+            thisFilePath = fileAbsPath
+            caseStudy = "sqlite"
         } else {
             thisFilePath = opt.getFile
         }
