@@ -75787,46 +75787,46 @@ int tar_main(int argc __attribute__ ((__unused__)), char **argv)
 	//bb_error_msg("opt:%08x", opt);
 	argv += optind;
 
-//	if (verboseFlag) tar_handle->action_header = header_verbose_list;
-//	if (verboseFlag == 1) tar_handle->action_header = header_list;
-//
-//	if (opt & OPT_EXTRACT)
-//		tar_handle->action_data = data_extract_all;
-//
-//	if (opt & OPT_2STDOUT)
-//		tar_handle->action_data = data_extract_to_stdout;
-//
-//	if (opt & OPT_2COMMAND) {
-//		putenv((char*)"TAR_FILETYPE=f");
-//		signal(13, ((__sighandler_t) 1));
-//		tar_handle->action_data = data_extract_to_command;
-//	}
+	if (verboseFlag) tar_handle->action_header = header_verbose_list;
+	if (verboseFlag == 1) tar_handle->action_header = header_list;
 
-//	if (opt & OPT_KEEP_OLD)
-//		tar_handle->ah_flags &= ~(1 << 2);
-//
-//	if (opt & OPT_NUMERIC_OWNER)
-//		tar_handle->ah_flags |= (1 << 7);
-//
-//	if (opt & OPT_NOPRESERVE_OWNER)
-//		tar_handle->ah_flags |= (1 << 5);
-//
-//	if (opt & OPT_NOPRESERVE_PERM)
-//		tar_handle->ah_flags |= (1 << 6);
-//
-//	if (opt & OPT_OVERWRITE) {
-//		tar_handle->ah_flags &= ~(1 << 2);
-//		tar_handle->ah_flags |= (1 << 8);
-//	}
+	if (opt & OPT_EXTRACT)
+		tar_handle->action_data = data_extract_all;
 
-//	if (opt & OPT_GZIP)
-//		get_header_ptr = get_header_tar_gz;
-//
-//	if (opt & OPT_BZIP2)
-//		get_header_ptr = get_header_tar_bz2;
-//
-//	if (opt & OPT_LZMA)
-//		get_header_ptr = get_header_tar_lzma;
+	if (opt & OPT_2STDOUT)
+		tar_handle->action_data = data_extract_to_stdout;
+
+	if (opt & OPT_2COMMAND) {
+		putenv((char*)"TAR_FILETYPE=f");
+		signal(13, ((__sighandler_t) 1));
+		tar_handle->action_data = data_extract_to_command;
+	}
+
+	if (opt & OPT_KEEP_OLD)
+		tar_handle->ah_flags &= ~(1 << 2);
+
+	if (opt & OPT_NUMERIC_OWNER)
+		tar_handle->ah_flags |= (1 << 7);
+
+	if (opt & OPT_NOPRESERVE_OWNER)
+		tar_handle->ah_flags |= (1 << 5);
+
+	if (opt & OPT_NOPRESERVE_PERM)
+		tar_handle->ah_flags |= (1 << 6);
+
+	if (opt & OPT_OVERWRITE) {
+		tar_handle->ah_flags &= ~(1 << 2);
+		tar_handle->ah_flags |= (1 << 8);
+	}
+
+	if (opt & OPT_GZIP)
+		get_header_ptr = get_header_tar_gz;
+
+	if (opt & OPT_BZIP2)
+		get_header_ptr = get_header_tar_bz2;
+
+	if (opt & OPT_LZMA)
+		get_header_ptr = get_header_tar_lzma;
 
 	if (opt & OPT_COMPRESS)
 		get_header_ptr = 

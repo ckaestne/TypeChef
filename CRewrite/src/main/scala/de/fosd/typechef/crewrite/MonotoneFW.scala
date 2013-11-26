@@ -372,9 +372,6 @@ abstract class MonotoneFWIdLab(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm
                                 cachePGT.update(tu, ((tu, System.identityHashCode(x)), env.featureExpr(tu)))
                             res = res + cachePGT.lookup(tu).get
                         }
-
-//                    if (add2FVs)
-//                        if (! isPartOf(x, f.stmt)) fvs += cachePGT.lookup(x).get
                 }
         }
 

@@ -65,7 +65,7 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend, fm
     }
 
     private def liveness(fa: (FunctionDef, List[(AST, List[Opt[AST]])])): List[Unit] = {
-        val df = new SimpleLiveness(env)
+        val df = new Liveness(env, udm, FeatureExprFactory.empty)
 
         val nss = fa._2.map(_._1).filterNot(x => x.isInstanceOf[FunctionDef])
         println("analyzing function " + fa._1.getName)
