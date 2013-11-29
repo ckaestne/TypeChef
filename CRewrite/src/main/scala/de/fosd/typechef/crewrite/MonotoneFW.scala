@@ -212,8 +212,6 @@ sealed abstract class MonotoneFW[T](val env: ASTEnv, val fm: FeatureModel) exten
     protected def circle(e: AST): L = combinator(e)
     protected def point(e: AST): L = f_l(e)
 
-    protected def isForward: Boolean
-
     protected val combinator: AST => L = {
         circular[AST, L](b) {
             case _: E => i
