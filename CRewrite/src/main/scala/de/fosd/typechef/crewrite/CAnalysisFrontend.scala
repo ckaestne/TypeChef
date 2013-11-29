@@ -321,6 +321,32 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend, fm
         )
     }
 
+    def caseTermination(): Boolean = {
+        val err = fanalyze.flatMap(caseTermination)
+
+        if (err.isEmpty) {
+            println("Case statements with code are properly terminated with break statements!")
+        } else {
+            println(err.map(_.toString + "\n").reduce(_ + _))
+        }
+
+        errors ++= err
+        err.isEmpty
+    }
+
+    private def caseTermination(fa: (FunctionDef, List[(AST, List[Opt[AST]])])): List[TypeChefError] = {
+        val casestmts = filterAllASTElems[CaseStatement](fa._1)
+
+        val ct = new CaseTermination(env, fm)
+
+        casestmts.filterNot(ct.isTerminating).map {
+            x => {
+                new TypeChefError(Severity.Warning, env.featureExpr(x),
+                    "Case statement is not terminated by a break!", x, "")
+            }
+        }
+    }
+
     def stdLibFuncReturn(): Boolean = {
         val err = fanalyze.flatMap(stdLibFuncReturn)
 

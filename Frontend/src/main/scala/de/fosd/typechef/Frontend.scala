@@ -185,6 +185,10 @@ object Frontend extends EnforceTreeHelper {
                         stopWatch.start("uninitializedmemory")
                         sa.uninitializedMemory()
                     }
+                    if (opt.warning_case_termination) {
+                        stopWatch.start("casetermination")
+                        sa.caseTermination()
+                    }
                     if (opt.warning_xfree) {
                         stopWatch.start("xfree")
                         sa.xfree()

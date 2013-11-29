@@ -619,6 +619,8 @@ object FamilyBasedVsSampleBased extends EnforceTreeHelper with ASTNavigation wit
         sa.doubleFree()
         sw.start("uninitializedmemory")
         sa.uninitializedMemory()
+        sw.start("casetermination")
+        sa.caseTermination()
         sw.start("xfree")
         sa.xfree()
         sw.start("danglingswitchcode")

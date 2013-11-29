@@ -31,9 +31,11 @@ class CaseTermination(env: ASTEnv, fm: FeatureModel) extends IntraCFG {
                 case Opt(_, _: BreakStatement) =>
                 case Opt(_, _: CaseStatement) => return false
                 case Opt(_, _: DefaultStatement) => return false
-                case Opt(_, s) => wlist ++= succ(s, fm, env).filterNot({
-                    case Opt(_, x) => !isPartOf(x, switch)
-                })
+                case Opt(_, s) => if (!isPartOf(s, switch)) return false
+                                  else {
+                                    wlist ++= succ(s, fm, env)
+
+                }
             }
         }
 
