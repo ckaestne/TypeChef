@@ -13,7 +13,7 @@ class ReachingDefinitionsTest extends TestHelper with ShouldMatchers with IntraC
         val a = parseFunctionDef(code)
 
         val env = CASTEnv.createASTEnv(a)
-        val ss = getAllPred(a, FeatureExprFactory.empty, env).map(_._1).filterNot(x => x.isInstanceOf[FunctionDef])
+        val ss = getAllPred(a, env).map(_._1).filterNot(x => x.isInstanceOf[FunctionDef])
 
         val ts = new CTypeSystemFrontend(TranslationUnit(List(Opt(FeatureExprFactory.True, a)))) with CDeclUse
         assert(ts.checkASTSilent, "typecheck fails!")

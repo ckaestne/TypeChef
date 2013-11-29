@@ -12,7 +12,7 @@ import de.fosd.typechef.conditional.{One, ConditionalLib, Opt}
 class CFGInNonVoidFunc(env: ASTEnv, fm: FeatureModel, ts: CTypeSystemFrontend) extends IntraCFG {
     def cfgInNonVoidFunc(f: FunctionDef): List[Opt[AST]] = {
         // get all predecessor elements of the function and look for non-return statements
-        val wlist: List[Opt[AST]] = pred(f, FeatureExprFactory.empty, env)
+        val wlist: List[Opt[AST]] = pred(f, env)
         var res: List[Opt[AST]] = List()
 
         val ftypes = ts.asInstanceOf[CTypeSystemFrontend with CTypeCache].lookupFunType(f)
@@ -37,6 +37,6 @@ class CFGInNonVoidFunc(env: ASTEnv, fm: FeatureModel, ts: CTypeSystemFrontend) e
         }
 
         // filter result elements of which the successor is not the function definition itself
-        res.filterNot({ x => succ(x.entry, fm, env).contains(f) })
+        res.filterNot({ x => succ(x.entry, env).contains(f) })
     }
 }

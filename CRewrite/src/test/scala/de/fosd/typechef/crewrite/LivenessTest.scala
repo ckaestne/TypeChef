@@ -13,7 +13,7 @@ class LivenessTest extends EnforceTreeHelper with TestHelper with ShouldMatchers
         val a = prepareAST[FunctionDef](parseFunctionDef(code))
 
         val env = CASTEnv.createASTEnv(a)
-        val ss = getAllSucc(a.stmt.innerStatements.head.entry, FeatureExprFactory.empty, env).map(_._1).filterNot(x => x.isInstanceOf[FunctionDef])
+        val ss = getAllSucc(a.stmt.innerStatements.head.entry, env).map(_._1).filterNot(x => x.isInstanceOf[FunctionDef])
 
         val ts = new CTypeSystemFrontend(TranslationUnit(List(Opt(FeatureExprFactory.True, a)))) with CDeclUse
         assert(ts.checkASTSilent, "typecheck fails!")

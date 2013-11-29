@@ -1,6 +1,6 @@
 package de.fosd.typechef.crewrite
 
-import de.fosd.typechef.featureexpr.{FeatureModel, FeatureExpr}
+import de.fosd.typechef.featureexpr.FeatureExpr
 import de.fosd.typechef.conditional.{Opt, ConditionalMap, Conditional}
 import de.fosd.typechef.parser.c._
 import scala.Some
@@ -19,7 +19,7 @@ trait InterCFG extends IntraCFG {
 
     // provide a lookup mechanism for function defs (from the type system or selfimplemented)
     // return None if function cannot be found
-    def getTranslationUnit(): TranslationUnit
+    def getTranslationUnit: TranslationUnit
 
     private var functionDefs: ConditionalMap[String, Option[ExternalDef]] = new ConditionalMap[String, Option[ExternalDef]]
     private var functionFExpr: Map[ExternalDef, FeatureExpr] = Map()
@@ -59,7 +59,7 @@ trait InterCFG extends IntraCFG {
         res
     }
 
-    override def getExprSucc(exp: Expr, ctx: FeatureExpr, oldres: CFGRes, fm: FeatureModel, env: ASTEnv): CFGRes = {
-        findMethodCalls(exp, env, oldres, ctx, oldres) ++ super.getExprSucc(exp, ctx, oldres, fm, env)
+    override def getExprSucc(exp: Expr, ctx: FeatureExpr, oldres: CFGRes, env: ASTEnv): CFGRes = {
+        findMethodCalls(exp, env, oldres, ctx, oldres) ++ super.getExprSucc(exp, ctx, oldres, env)
     }
 }

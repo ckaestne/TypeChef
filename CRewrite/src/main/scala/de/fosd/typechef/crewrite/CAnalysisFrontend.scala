@@ -21,7 +21,7 @@ sealed abstract class CAnalysisFrontend(tunit: TranslationUnit) extends CFGHelpe
 
 class CInterAnalysisFrontend(tunit: TranslationUnit, fm: FeatureModel = FeatureExprFactory.empty) extends CAnalysisFrontend(tunit) with InterCFG {
 
-    def getTranslationUnit(): TranslationUnit = tunit
+    def getTranslationUnit: TranslationUnit = tunit
 
     def writeCFG(title: String, writer: CFGWriter) {
         val env = CASTEnv.createASTEnv(tunit)
@@ -35,7 +35,7 @@ class CInterAnalysisFrontend(tunit: TranslationUnit, fm: FeatureModel = FeatureE
 
 
         for (f <- fdefs) {
-            writer.writeMethodGraph(getAllSucc(f, FeatureExprFactory.empty, env).map {
+            writer.writeMethodGraph(getAllSucc(f, env).map {
                 x => (x._1, x._2.distinct.filter { y => y.feature.isSatisfiable(fm)}) // filter duplicates and wrong succs
             }, lookupFExpr, f.declarator.getName)
         }
@@ -54,7 +54,7 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend, fm
     private lazy val dum = ts.getDeclUseMap
 
     private val fanalyze = fdefs.map {
-        x => (x, getAllSucc(x, FeatureExprFactory.empty, env).filterNot { x => x._1.isInstanceOf[FunctionDef] } )
+        x => (x, getAllSucc(x, env).filterNot { x => x._1.isInstanceOf[FunctionDef] } )
     }
 
     var errors: List[TypeChefError] = List()
