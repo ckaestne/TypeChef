@@ -22,7 +22,7 @@ import de.fosd.typechef.featureexpr.FeatureModel
 // i  = ∅            // should be {(x,?)|x ∈ FV(S*)}
 // E  = {FunctionDef} // see MonotoneFW
 // F  = flow
-class XFree(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: FeatureModel, f: FunctionDef, casestudy: String) extends MonotoneFWIdLab(env, dum, udm, fm, f) with IntraCFG with CFGHelper with ASTNavigation with UsedDefinedDeclaredVariables {
+class XFree(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: FeatureModel, casestudy: String) extends MonotoneFWIdLab(env, dum, udm, fm) with IntraCFG with CFGHelper with ASTNavigation with UsedDefinedDeclaredVariables {
 
     private val freecalls = {
         if (casestudy == "linux") List("free", "kfree")

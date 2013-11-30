@@ -687,8 +687,8 @@ object FamilyBasedVsSampleBased extends EnforceTreeHelper with ASTNavigation wit
     private def intraDataflowAnalysis(f: FunctionDef, udm: UseDeclMap, env: ASTEnv, fm: FeatureModel) {
         if (f.stmt.innerStatements.isEmpty) return
 
-        val pp = getAllPred(f, env)
-        val li = new Liveness(f, env, udm, FeatureExprFactory.empty)
+        val pp = getAllSucc(f, env)
+        val li = new Liveness(env, udm, FeatureExprFactory.empty)
 
         val nss = pp.map(_._1)
 

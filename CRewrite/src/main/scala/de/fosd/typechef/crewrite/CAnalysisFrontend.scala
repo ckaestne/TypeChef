@@ -59,6 +59,11 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend, fm
 
     var errors: List[TypeChefError] = List()
 
+    def liveness(): Boolean = {
+        fanalyze.map(liveness)
+        true
+    }
+
     def deadStore(): Boolean = {
         val err = fanalyze.flatMap(deadStore)
 
@@ -71,46 +76,49 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend, fm
         err.isEmpty
     }
 
+    private def liveness(fa: (FunctionDef, List[(AST, List[Opt[AST]])])): Unit = {
+        val df = new Liveness(env, udm, FeatureExprFactory.empty)
+
+        val nss = fa._2.map(_._1)
+    }
+
     private def deadStore(fa: (FunctionDef, List[(AST, List[Opt[AST]])])): List[TypeChefError] = {
         var err: List[TypeChefError] = List()
 
-        val df = new Liveness(fa._1, env, udm, FeatureExprFactory.empty)
+        val df = new Liveness(env, udm, FeatureExprFactory.empty)
 
         val nss = fa._2.map(_._1)
 
         for (s <- nss) {
-            val k = df.kill(s)
-            if (k.size > 0) {
+            for ((i, fi) <- df.kill(s)) {
                 val out = df.out(s)
 
-                for ((i, fi) <- k) {
-                    // code such as "int a;" occurs frequently and issues an error
-                    // we filter them out by checking the declaration use map for usages
-                    if (dum.containsKey(i) && dum.get(i).size > 0) {}
-                    else out.find { case (t, _) => t == i } match {
-                        case None => {
+                // code such as "int a;" occurs frequently and issues an error
+                // we filter them out by checking the declaration use map for usages
+                if (dum.containsKey(i) && dum.get(i).size > 0) {}
+                else out.find { case (t, _) => t == i } match {
+                    case None => {
+                        var idecls = udm.get(i)
+                        if (idecls == null)
+                            idecls = List(i)
+                        if (idecls.exists(isPartOf(_, fa._1)))
+                            err ::= new TypeChefError(Severity.Warning, fi, "warning: Variable " + i.name + " is a dead store!", i, "")
+                    }
+                    case Some((x, z)) => {
+                        if (! z.isTautology(fm)) {
+                            var xdecls = udm.get(x)
+                            if (xdecls == null)
+                                xdecls = List(x)
                             var idecls = udm.get(i)
                             if (idecls == null)
                                 idecls = List(i)
-                            if (idecls.exists(isPartOf(_, fa._1)))
-                                err ::= new TypeChefError(Severity.Warning, fi, "warning: Variable " + i.name + " is a dead store!", i, "")
-                        }
-                        case Some((x, z)) => {
-                            if (! z.isTautology(fm)) {
-                                var xdecls = udm.get(x)
-                                if (xdecls == null)
-                                    xdecls = List(x)
-                                var idecls = udm.get(i)
-                                if (idecls == null)
-                                    idecls = List(i)
-                                for (ei <- idecls) {
-                                    // with isPartOf we reduce the number of false positives, since we only check local variables and function parameters.
-                                    // an assignment to a global variable might be used in another function
-                                    if (isPartOf(ei, fa._1) && xdecls.exists(_.eq(ei)))
-                                        err ::= new TypeChefError(Severity.Warning, z.not(), "warning: Variable " + i.name + " is a dead store!", i, "")
-                                }
-
+                            for (ei <- idecls) {
+                                // with isPartOf we reduce the number of false positives, since we only check local variables and function parameters.
+                                // an assignment to a global variable might be used in another function
+                                if (isPartOf(ei, fa._1) && xdecls.exists(_.eq(ei)))
+                                    err ::= new TypeChefError(Severity.Warning, z.not(), "warning: Variable " + i.name + " is a dead store!", i, "")
                             }
+
                         }
                     }
                 }
@@ -148,7 +156,7 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend, fm
     private def doubleFree(fa: (FunctionDef, List[(AST, List[Opt[AST]])]), casestudy: String): List[TypeChefError] = {
         var err: List[TypeChefError] = List()
 
-        val df = new DoubleFree(env, dum, udm, FeatureExprFactory.empty, fa._1, casestudy)
+        val df = new DoubleFree(env, dum, udm, FeatureExprFactory.empty, casestudy)
 
         val nss = fa._2.map(_._1).reverse
 
@@ -196,7 +204,7 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend, fm
     private def uninitializedMemory(fa: (FunctionDef, List[(AST, List[Opt[AST]])])): List[TypeChefError] = {
         var err: List[TypeChefError] = List()
 
-        val um = new UninitializedMemory(env, dum, udm, FeatureExprFactory.empty, fa._1)
+        val um = new UninitializedMemory(env, dum, udm, FeatureExprFactory.empty)
         val nss = fa._2.map(_._1).reverse
 
         for (s <- nss) {
@@ -244,7 +252,7 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend, fm
     private def xfree(fa: (FunctionDef, List[(AST, List[Opt[AST]])])): List[TypeChefError] = {
         var err: List[TypeChefError] = List()
 
-        val xf = new XFree(env, dum, udm, FeatureExprFactory.empty, fa._1, "")
+        val xf = new XFree(env, dum, udm, FeatureExprFactory.empty, "")
         val nss = fa._2.map(_._1).reverse
 
         for (s <- nss) {
@@ -366,7 +374,7 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend, fm
         val cl: List[StdLibFuncReturn] = List(
             //new StdLibFuncReturn_EOF(env, dum, udm, fm, fa._1),
 
-            new StdLibFuncReturn_Null(env, dum, udm, FeatureExprFactory.empty, fa._1)
+            new StdLibFuncReturn_Null(env, dum, udm, FeatureExprFactory.empty)
         )
 
         val nss = fa._2.map(_._1).reverse
