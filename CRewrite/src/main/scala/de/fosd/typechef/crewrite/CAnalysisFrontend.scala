@@ -89,6 +89,8 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend, fm
 
         val nss = fa._2.map(_._1)
 
+        println("analyzing " + fa._1.getName + " with " + nss.size + " cfg stmts and " + fa._2.map(_._2.size).sum)
+
         for (s <- nss) {
             for ((i, fi) <- df.kill(s)) {
                 val out = df.out(s)
