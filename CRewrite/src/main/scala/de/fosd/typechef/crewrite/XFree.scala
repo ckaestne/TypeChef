@@ -167,7 +167,8 @@ class XFree(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: FeatureModel, f: 
     protected def b = l
     protected def combinationOperator(l1: L, l2: L) = union(l1, l2)
 
-    protected def isForward = true
+    protected def infunction(a: AST): L = combinator(a)
+    protected def outfunction(a: AST): L = f_l(a)
 
-    solve()
+    protected def isForward = true
 }

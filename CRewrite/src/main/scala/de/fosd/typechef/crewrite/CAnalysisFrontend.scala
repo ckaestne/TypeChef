@@ -76,13 +76,12 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend, fm
 
         val df = new Liveness(fa._1, env, udm, FeatureExprFactory.empty)
 
-        val nss = fa._2.map(_._1).filterNot(x => x.isInstanceOf[FunctionDef]).reverse
+        val nss = fa._2.map(_._1)
 
         for (s <- nss) {
             val k = df.kill(s)
             if (k.size > 0) {
                 val out = df.out(s)
-
 
                 for ((i, fi) <- k) {
                     // code such as "int a;" occurs frequently and issues an error
@@ -151,7 +150,7 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend, fm
 
         val df = new DoubleFree(env, dum, udm, FeatureExprFactory.empty, fa._1, casestudy)
 
-        val nss = fa._2.map(_._1).filterNot(x => x.isInstanceOf[FunctionDef])
+        val nss = fa._2.map(_._1).reverse
 
         for (s <- nss) {
             val g = df.gen(s)
@@ -198,7 +197,7 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend, fm
         var err: List[TypeChefError] = List()
 
         val um = new UninitializedMemory(env, dum, udm, FeatureExprFactory.empty, fa._1)
-        val nss = fa._2.map(_._1).filterNot(x => x.isInstanceOf[FunctionDef])
+        val nss = fa._2.map(_._1).reverse
 
         for (s <- nss) {
             val g = um.getRelevantIdUsages(s)
@@ -246,7 +245,7 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend, fm
         var err: List[TypeChefError] = List()
 
         val xf = new XFree(env, dum, udm, FeatureExprFactory.empty, fa._1, "")
-        val nss = fa._2.map(_._1).filterNot(x => x.isInstanceOf[FunctionDef])
+        val nss = fa._2.map(_._1).reverse
 
         for (s <- nss) {
             val g = xf.freedVariables(s)
@@ -258,7 +257,9 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend, fm
                         case None =>
                         case Some(x) => {
                             if (h.isSatisfiable(fm)) {
-                                val xdecls = udm.get(x)
+                                var xdecls = udm.get(x)
+                                if (xdecls == null)
+                                    xdecls = List(x)
                                 var idecls = udm.get(i)
                                 if (idecls == null)
                                     idecls = List(i)
@@ -368,7 +369,9 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend, fm
             new StdLibFuncReturn_Null(env, dum, udm, FeatureExprFactory.empty, fa._1)
         )
 
-        for ((s, _) <- fa._2) {
+        val nss = fa._2.map(_._1).reverse
+
+        for (s <- nss) {
             for (cle <- cl) {
                 lazy val errorvalues = cle.errorreturn.map(PrettyPrinter.print).mkString(" 'or' ")
 
@@ -378,30 +381,31 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend, fm
                         PrettyPrinter.print(e) + " is not properly checked for (" + errorvalues + ")!", e)
                 }
 
-
                 // stdlib call is assigned to a variable that we track with our dataflow analysis
                 // we check whether used variables that hold the value of a stdlib function are killed in s,
                 // if not we report an error
                 val g = cle.getUsedVariables(s)
-                val in = cle.in(s)
-                for (((e, _), fi) <- in) {
-                    println("s", PrettyPrinter.print(s), "in", in, "g", g, "u", cle.uses(s))
-                    g.find { case ((t, _), _) => t == e } match {
-                        case None =>
-                        case Some((k@(x, _), _)) => {
-                            if (fi.isSatisfiable(fm)) {
-                                var xdecls = udm.get(x)
-                                if (xdecls == null)
-                                    xdecls = List(x)
-                                var edecls = udm.get(e)
-                                if (edecls == null)
-                                    edecls = List(e)
 
-                                for (ee <- edecls) {
-                                    val kills = cle.kill(s)
-                                    if (xdecls.exists(_.eq(ee)) && !kills.contains(k)) {
-                                        err ::= new TypeChefError(Severity.SecurityWarning, fi, "The value of " +
-                                            PrettyPrinter.print(e) + " is not properly checked for (" + errorvalues + ")!", e)
+                if (g.size > 0) {
+                    val in = cle.in(s)
+                    for (((e, _), fi) <- in) {
+                        g.find { case ((t, _), _) => t == e } match {
+                            case None =>
+                            case Some((k@(x, _), _)) => {
+                                if (fi.isSatisfiable(fm)) {
+                                    var xdecls = udm.get(x)
+                                    if (xdecls == null)
+                                        xdecls = List(x)
+                                    var edecls = udm.get(e)
+                                    if (edecls == null)
+                                        edecls = List(e)
+
+                                    for (ee <- edecls) {
+                                        val kills = cle.kill(s)
+                                        if (xdecls.exists(_.eq(ee)) && !kills.contains(k)) {
+                                            err ::= new TypeChefError(Severity.SecurityWarning, fi, "The value of " +
+                                                PrettyPrinter.print(e) + " is not properly checked for (" + errorvalues + ")!", e)
+                                        }
                                     }
                                 }
                             }

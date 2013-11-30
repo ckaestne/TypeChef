@@ -21,6 +21,10 @@ object BuildSettings {
         scalaVersion := buildScalaVersion,
         shellPrompt := ShellPrompt.buildShellPrompt,
 
+        resolvers ++= Seq (
+            Resolver.sonatypeRepo ("snapshots")
+        ),
+
         testListeners <<= target.map(t => Seq(new eu.henkelmann.sbt.JUnitXmlTestsListener(t.getAbsolutePath))),
 
         javacOptions ++= Seq("-Xlint:unchecked"),
@@ -254,7 +258,7 @@ object TypeChef extends Build {
     def kiamaDependency(scalaVersion: String, testOnly: Boolean = false) = {
         val x = scalaVersion match {
             case "2.9.1" => "com.googlecode.kiama" %% "kiama" % "1.2.0"
-            case _ => "com.googlecode.kiama" %% "kiama" % "1.4.0"
+            case _ => "com.googlecode.kiama" %% "kiama" % "1.5.2-SNAPSHOT"
         }
         if (testOnly) x % "test" else x
     }

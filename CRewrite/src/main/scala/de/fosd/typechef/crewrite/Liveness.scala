@@ -8,7 +8,7 @@ import de.fosd.typechef.typesystem.UseDeclMap
 // liveness computes all variables that are used before their next write
 //
 // instance of the liveness analysis using the monotone framework
-// L  = P(Var*)
+// L  = P(Var*)                                                                N
 // ⊑  = ⊆             // see MonotoneFW
 // ∐  = ⋃            // combinationOperator
 // ⊥  = ∅             // b
@@ -43,8 +43,8 @@ class Liveness(f: FunctionDef, env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) e
     // page 5
     //  in(a) = gen(a) + (out(a) - kill(a))
     // out(a) = for s in succ(n) r = r + in(s); r
-
-    solve()
+    protected def infunction(a: AST): L = f_l(a)
+    protected def outfunction(a: AST): L = combinator(a)
 
     def isForward = false
 }
