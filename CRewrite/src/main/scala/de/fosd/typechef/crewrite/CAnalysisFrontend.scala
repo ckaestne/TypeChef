@@ -76,7 +76,7 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend, fm
 
         val df = new Liveness(fa._1, env, udm, FeatureExprFactory.empty)
 
-        val nss = fa._2.map(_._1).filterNot(x => x.isInstanceOf[FunctionDef]).reverse
+        val nss = fa._2.map(_._1)
 
         println("analyzing " + fa._1.getName + " with " + nss.size + " cfg stmts and " + fa._2.map(_._2.size).sum + " succs")
 
