@@ -66,12 +66,43 @@ void test1(int *code,
     @Test def test_get_header_tar() {
         deadstore(
             """
-            void foo(unsigned len) {
-              char* p;
-              p += len;
+              void* malloc(int i) { return ((void*)0); }
+              void* xmalloc(int i) { return ((void*)0); }
+              void free(void* p) { }
 
-              p[-1] = '\0';
-            }
+              #if definedEx(CONFIG_FEATURE_TAR_SELINUX)
+              static char *get_selinux_sctx_from_pax_hdr(unsigned sz)
+              {
+              	char *buf, *p;
+              	char *result;
+
+              	p = buf = xmalloc(sz + 1);
+              	buf[sz] = '\0';
+
+              	result = ((void *)0);
+              	while (sz != 0) {
+              		char *end, *value;
+              		unsigned len;
+              		len = 2;
+              		p += len;
+              		sz -= len;
+              		if ((int)sz < 0
+              		 || len == 0
+              		 || *end != ' '
+              		) {
+              			break;
+              		}
+              		p[-1] = '\0';
+              		value = end + 1;
+              		if (1 == 0) {
+              			break;
+              		}
+              	}
+
+              	free(buf);
+              	return result;
+              }
+              #endif
             """.stripMargin) should be(false)
     }
 }
