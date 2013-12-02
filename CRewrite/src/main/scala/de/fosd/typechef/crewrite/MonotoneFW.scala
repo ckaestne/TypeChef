@@ -294,10 +294,10 @@ sealed abstract class MonotoneFW[T](val f: FunctionDef, env: ASTEnv, val fm: Fea
                         case _ => {
                             val (update, i) = memo.lookup(entry).get._2
 
-                            if (update) {
+                            //if (update) {
                                 val x = updateFeatureExprOfMonotoneElements(i, feature)
                                 cnew = combinationOperator(cnew, x)
-                            }
+                            //}
                         }
                     }
                 }
@@ -306,7 +306,7 @@ sealed abstract class MonotoneFW[T](val f: FunctionDef, env: ASTEnv, val fm: Fea
 
                 // point
                 // use size as indicator for knowledge gain
-                if (fnew.size == 0 || fold.size < fnew.size) {
+                //if (fnew.size == 0 || fold.size < fnew.size) {
                     countf_linvocations.lookup(cfgstmt) match {
                         case None => countf_linvocations.update(cfgstmt, 1)
                         case Some(x) => countf_linvocations.update(cfgstmt, x+1)
@@ -315,10 +315,10 @@ sealed abstract class MonotoneFW[T](val f: FunctionDef, env: ASTEnv, val fm: Fea
                     val k = kill(cfgstmt)
                     fnew = diff(fnew, mapGenKillElements2MonotoneElements(k))
                     fnew = union(fnew, mapGenKillElements2MonotoneElements(g))
-                }
+                //}
 
-                changed |= cold.size < cnew.size
-                changed |= fold.size < fnew.size
+                changed |= cold != cnew // cold.size < cnew.size
+                changed |= fold != fnew //fold.size < fnew.size
 
                 memo.update(cfgstmt, ((cold.size < cnew.size, cnew), (fold.size < fnew.size, fnew)))
             }
