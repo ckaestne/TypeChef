@@ -78,6 +78,8 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend, fm
 
         val nss = fa._2.map(_._1).filterNot(x => x.isInstanceOf[FunctionDef]).reverse
 
+        println("analyzing " + fa._1.getName + " with " + nss.size + " cfg stmts and " + fa._2.map(_._2.size).sum + " succs")
+
         for (s <- nss) {
             val k = df.kill(s)
             if (k.size > 0) {
@@ -117,6 +119,8 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend, fm
                 }
             }
         }
+
+        df.printStatistics()
 
         err
     }

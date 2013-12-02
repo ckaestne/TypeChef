@@ -250,6 +250,17 @@ sealed abstract class MonotoneFW[T](val f: FunctionDef, env: ASTEnv, val fm: Fea
 //            }
 //        }
 //    }
+
+    private val countcombinatorinvocations = new IdentityHashMapCache[Int]()
+    private val countf_linvocations = new IdentityHashMapCache[Int]()
+
+    def printStatistics() = {
+        println("++++++++++++++++++++++++++++++")
+        println("combinator invocations: " + countcombinatorinvocations.keySet.toArray.toList.map(countcombinatorinvocations.lookup(_).get).sum)
+        println("f_l invocations: " + countf_linvocations.keySet.toArray.toList.map(countf_linvocations.lookup(_).get).sum)
+        println("++++++++++++++++++++++++++++++")
+    }
+
     def solve(): Unit = {
         if (f == null) return
 
@@ -268,6 +279,13 @@ sealed abstract class MonotoneFW[T](val f: FunctionDef, env: ASTEnv, val fm: Fea
                 val ((_, cold), (_, fold)) = memo.lookup(cfgstmt).get
 
                 var cnew = cold
+
+                if (fl.size > 0) {
+                    countcombinatorinvocations.lookup(cfgstmt) match {
+                        case None => countcombinatorinvocations.update(cfgstmt, 1)
+                        case Some(c) => countcombinatorinvocations.update(cfgstmt, c+1)
+                    }
+                }
 
                 // circle
                 for (Opt(feature, entry) <- fl) {
@@ -290,14 +308,18 @@ sealed abstract class MonotoneFW[T](val f: FunctionDef, env: ASTEnv, val fm: Fea
                 // point
                 // use size as indicator for knowledge gain
                 //if (fnew.size == 0 || fold.size < fnew.size) {
+                countf_linvocations.lookup(cfgstmt) match {
+                    case None => countf_linvocations.update(cfgstmt, 1)
+                    case Some(x) => countf_linvocations.update(cfgstmt, x+1)
+                }
                     val g = gen(cfgstmt)
                     val k = kill(cfgstmt)
                     fnew = diff(fnew, mapGenKillElements2MonotoneElements(k))
                     fnew = union(fnew, mapGenKillElements2MonotoneElements(g))
                 //}
 
-                changed |= cold.size < cnew.size
-                changed |= fold.size < fnew.size
+                changed |= cold != cnew
+                changed |= fold != fnew
 
                 memo.update(cfgstmt, ((cold.size < cnew.size, cnew), (fold.size < fnew.size, fnew)))
             }
