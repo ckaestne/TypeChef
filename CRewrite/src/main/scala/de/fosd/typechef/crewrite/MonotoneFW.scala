@@ -211,10 +211,24 @@ sealed abstract class MonotoneFW[T](env: ASTEnv, val fm: FeatureModel) extends A
     protected def circle(e: AST): L = combinator(e)
     protected def point(e: AST): L = f_l(e)
 
+    private val countcombinatorinvocations = new IdentityHashMapCache[Int]()
+    private val countf_linvocations = new IdentityHashMapCache[Int]()
+
+    def printStatistics() = {
+        println("++++++++++++++++++++++++++")
+        println("combinator invocations: " + countcombinatorinvocations.keySet.toArray.toList.map(countcombinatorinvocations.lookup(_).get).sum)
+        println("f_l invocations: " + countf_linvocations.keySet.toArray.toList.map(countf_linvocations.lookup(_).get).sum)
+        println("++++++++++++++++++++++++++")
+    }
+
     protected val combinator: AST => L = {
         circular[AST, L](b) {
             case _: E => i
             case a => {
+                countcombinatorinvocations.lookup(a) match {
+                    case None => countcombinatorinvocations.update(a, 1)
+                    case Some(x) => countcombinatorinvocations.update(a, x+1)
+                }
                 val fl = F(a)
                 fl.foldLeft[L](b)((r: L, s: Opt[AST]) => combinationOperator(r, updateFeatureExpr(point(s.entry), s.feature)))
             }
@@ -225,6 +239,12 @@ sealed abstract class MonotoneFW[T](env: ASTEnv, val fm: FeatureModel) extends A
         circular[AST, L](b) {
             case _: E => i
             case a => {
+
+                countf_linvocations.lookup(a) match {
+                    case None => countf_linvocations.update(a, 1)
+                    case Some(x) => countf_linvocations.update(a, x+1)
+                }
+
                 var res = combinator(a)
                 res = diff(res, map2MonotoneElements(kill(a)))
 
