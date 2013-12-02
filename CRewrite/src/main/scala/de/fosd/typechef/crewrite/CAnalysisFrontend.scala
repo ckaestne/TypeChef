@@ -81,39 +81,35 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend, fm
         println("analyzing " + fa._1.getName + " with " + nss.size + " cfg stmts and " + fa._2.map(_._2.size).sum + " succs")
 
         for (s <- nss) {
-            val k = df.kill(s)
-            if (k.size > 0) {
+            for ((i, fi) <- df.kill(s)) {
                 val out = df.out(s)
 
-
-                for ((i, fi) <- k) {
-                    // code such as "int a;" occurs frequently and issues an error
-                    // we filter them out by checking the declaration use map for usages
-                    if (dum.containsKey(i) && dum.get(i).size > 0) {}
-                    else out.find { case (t, _) => t == i } match {
-                        case None => {
+                // code such as "int a;" occurs frequently and issues an error
+                // we filter them out by checking the declaration use map for usages
+                if (dum.containsKey(i) && dum.get(i).size > 0) {}
+                else out.find { case (t, _) => t == i } match {
+                    case None => {
+                        var idecls = udm.get(i)
+                        if (idecls == null)
+                            idecls = List(i)
+                        if (idecls.exists(isPartOf(_, fa._1)))
+                            err ::= new TypeChefError(Severity.Warning, fi, "warning: Variable " + i.name + " is a dead store!", i, "")
+                    }
+                    case Some((x, z)) => {
+                        if (! z.isTautology(fm)) {
+                            var xdecls = udm.get(x)
+                            if (xdecls == null)
+                                xdecls = List(x)
                             var idecls = udm.get(i)
                             if (idecls == null)
                                 idecls = List(i)
-                            if (idecls.exists(isPartOf(_, fa._1)))
-                                err ::= new TypeChefError(Severity.Warning, fi, "warning: Variable " + i.name + " is a dead store!", i, "")
-                        }
-                        case Some((x, z)) => {
-                            if (! z.isTautology(fm)) {
-                                var xdecls = udm.get(x)
-                                if (xdecls == null)
-                                    xdecls = List(x)
-                                var idecls = udm.get(i)
-                                if (idecls == null)
-                                    idecls = List(i)
-                                for (ei <- idecls) {
-                                    // with isPartOf we reduce the number of false positives, since we only check local variables and function parameters.
-                                    // an assignment to a global variable might be used in another function
-                                    if (isPartOf(ei, fa._1) && xdecls.exists(_.eq(ei)))
-                                        err ::= new TypeChefError(Severity.Warning, z.not(), "warning: Variable " + i.name + " is a dead store!", i, "")
-                                }
-
+                            for (ei <- idecls) {
+                                // with isPartOf we reduce the number of false positives, since we only check local variables and function parameters.
+                                // an assignment to a global variable might be used in another function
+                                if (isPartOf(ei, fa._1) && xdecls.exists(_.eq(ei)))
+                                    err ::= new TypeChefError(Severity.Warning, z.not(), "warning: Variable " + i.name + " is a dead store!", i, "")
                             }
+
                         }
                     }
                 }
