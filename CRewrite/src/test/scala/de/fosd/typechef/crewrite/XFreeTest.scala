@@ -13,7 +13,7 @@ class XFreeTest extends TestHelper with ShouldMatchers with CFGHelper with Enfor
 
     private def getUninitializedVariables(code: String) = {
         val a = parseFunctionDef(code)
-        val xf = new XFree(CASTEnv.createASTEnv(a), null, null, null, a, "")
+        val xf = new XFree(CASTEnv.createASTEnv(a), null, null, null, "")
         xf.gen(a).map {case ((x, _), f) => (x, f)}
     }
 
