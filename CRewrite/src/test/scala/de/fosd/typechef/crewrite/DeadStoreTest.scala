@@ -62,4 +62,16 @@ void test1(int *code,
 }
             """.stripMargin) should be(true)
     }
+
+    @Test def test_get_header_tar() {
+        deadstore(
+            """
+            void foo(unsigned len) {
+              char* p;
+              p += len;
+
+              p[-1] = '\0';
+            }
+            """.stripMargin) should be(false)
+    }
 }
