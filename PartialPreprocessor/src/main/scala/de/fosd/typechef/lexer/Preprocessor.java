@@ -1794,10 +1794,10 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable, VA
             }
             tok = retrieveTokenFromSource();
         }
-        if (is_error)
-            error(pptok, buf.toString());
-        else
-            warning(pptok, buf.toString());
+//        if (is_error)
+//            error(pptok, buf.toString());
+//        else
+//            warning(pptok, buf.toString());
 
         return new SimpleToken(P_LINE, pptok.getLine(), pptok.getColumn(), buf
                 .toString(), null);

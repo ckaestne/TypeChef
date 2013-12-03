@@ -107,7 +107,7 @@ object Frontend extends EnforceTreeHelper {
             ast = loadSerializedAST(opt.getSerializedASTFilename)
             ast = prepareAST[TranslationUnit](ast)
             } catch {
-                case e: Throwable => println(e.getMessage); ast=null
+                case e: Throwable => println(e.toString);e.printStackTrace(); ast=null
             }
             if (ast == null)
                 println("... failed reading AST\n")
@@ -126,6 +126,8 @@ object Frontend extends EnforceTreeHelper {
                 val parserMain = new ParserMain(new CParser(fm))
                 ast = parserMain.parserMain(in, opt).asInstanceOf[TranslationUnit]
                 ast = prepareAST[TranslationUnit](ast)
+
+                println(PrettyPrinter.print(ast))
 
                 if (ast != null && opt.serializeAST) {
                     stopWatch.start("serialize")

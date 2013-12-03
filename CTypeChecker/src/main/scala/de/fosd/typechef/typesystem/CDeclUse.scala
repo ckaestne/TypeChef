@@ -19,7 +19,46 @@ import de.fosd.typechef.lexer.FeatureExprLib
 // for all identifiers that occur in a translation unit
 // to do so typed elements are passed during typechecking to CDeclUse which
 // stores the required information
-trait CDeclUse extends CEnv with CEnvCache {
+trait CDeclUseInterface extends CEnv {
+
+    def clearDeclUseMap() {
+    }
+
+
+    def addDefinition(definition: AST, env: Env, feature: FeatureExpr = FeatureExprFactory.True, isFunctionDeclarator: Boolean = false) {
+
+    }
+
+    def addEnumUse(entry: AST, env: Env, feature: FeatureExpr) {}
+
+    def addTypeUse(entry: AST, env: Env, feature: FeatureExpr) {
+    }
+
+
+    def addUse(entry: AST, feature: FeatureExpr, env: Env) {
+    }
+
+
+    def addOldStyleParameters(oldStyleParameters: List[Opt[OldParameterDeclaration]], declarator: Declarator, expr: FeatureExpr, env: Env) = {}
+
+
+    def addStructUse(entry: AST, featureExpr: FeatureExpr, env: Env, structName: String, isUnion: Boolean) {}
+
+    def addAnonStructUse(id: Id, fields: ConditionalTypeMap) {}
+
+
+    def addStructDeclUse(entry: Id, env: Env, isUnion: Boolean, feature: FeatureExpr) {}
+
+    def addDecl(current: Any, featureExpr: FeatureExpr, env: Env, isDefinition: Boolean = true) {}
+
+
+    def addJumpStatements(compoundStatement: CompoundStatement) {
+    }
+
+
+}
+
+trait CDeclUse extends CDeclUseInterface with CEnv with CEnvCache {
 
     // TODO FeatureModel instead of FeatureExprFactory
     // TODO ASTEnv Caching
@@ -58,7 +97,7 @@ trait CDeclUse extends CEnv with CEnvCache {
         }
     }
 
-    def clearDeclUseMap() {
+    override def clearDeclUseMap() {
         declUseMap.clear()
         useDeclMap.clear()
     }
@@ -77,7 +116,7 @@ trait CDeclUse extends CEnv with CEnvCache {
     //   - function: function declarations (forward declarations) and function definitions are handled
     //               if a function declaration exists, we add it as def and the function definition as its use
     //               if no function declaration exists, we add the function definition as def
-    def addDefinition(definition: AST, env: Env, feature: FeatureExpr = FeatureExprFactory.True, isFunctionDeclarator: Boolean = false) {
+    override def addDefinition(definition: AST, env: Env, feature: FeatureExpr = FeatureExprFactory.True, isFunctionDeclarator: Boolean = false) {
         definition match {
             case id: Id =>
                 if (isFunctionDeclarator) addFunctionDeclaration(env, id, feature)
@@ -133,7 +172,7 @@ trait CDeclUse extends CEnv with CEnvCache {
         }
     }
 
-    def addEnumUse(entry: AST, env: Env, feature: FeatureExpr) {
+    override  def addEnumUse(entry: AST, env: Env, feature: FeatureExpr) {
         entry match {
             case i@Id(name) =>
                 if (env.enumEnv.containsKey(name)) {
@@ -148,7 +187,7 @@ trait CDeclUse extends CEnv with CEnvCache {
         }
     }
 
-    def addTypeUse(entry: AST, env: Env, feature: FeatureExpr) {
+    override def addTypeUse(entry: AST, env: Env, feature: FeatureExpr) {
         def addOne(one: One[AST], use: Id, env: Env) {
             one match {
                 case One(InitDeclaratorI(declarator, _, _)) => addToDeclUseMap(declarator.getId, use)
@@ -229,7 +268,7 @@ trait CDeclUse extends CEnv with CEnvCache {
     }
 
 
-    def addUse(entry: AST, feature: FeatureExpr, env: Env) {
+    override def addUse(entry: AST, feature: FeatureExpr, env: Env) {
         def addUseOne(one: One[AST], use: Id, env: Env) {
             one match {
                 case One(InitDeclaratorI(declarator, _, _)) => addToDeclUseMap(declarator.getId, use)
@@ -358,7 +397,7 @@ trait CDeclUse extends CEnv with CEnvCache {
     }
 
 
-    def addOldStyleParameters(oldStyleParameters: List[Opt[OldParameterDeclaration]], declarator: Declarator, expr: FeatureExpr, env: Env) = {
+    override def addOldStyleParameters(oldStyleParameters: List[Opt[OldParameterDeclaration]], declarator: Declarator, expr: FeatureExpr, env: Env) = {
 
         def addDeclIdList(d: DeclIdentifierList, oldStyleId: Id, expr: FeatureExpr) {
             for (Opt(idFeature, id) <- d.idList)
@@ -391,7 +430,7 @@ trait CDeclUse extends CEnv with CEnvCache {
         }
     }
 
-    def addStructUse(entry: AST, featureExpr: FeatureExpr, env: Env, structName: String, isUnion: Boolean) {
+    override def addStructUse(entry: AST, featureExpr: FeatureExpr, env: Env, structName: String, isUnion: Boolean) {
         entry match {
             case i@Id(name) => {
                 if (env.structEnv.someDefinition(structName, isUnion)) {
@@ -430,7 +469,7 @@ trait CDeclUse extends CEnv with CEnvCache {
         }
     }
 
-    def addAnonStructUse(id: Id, fields: ConditionalTypeMap) {
+    override def addAnonStructUse(id: Id, fields: ConditionalTypeMap) {
         fields.getAstOrElse(id.name, null) match {
             case c@Choice(_, _, _) => addStructUseChoice(c, id)
             case One(AtomicNamedDeclarator(_, key, _)) => addToDeclUseMap(key, id)
@@ -459,7 +498,7 @@ trait CDeclUse extends CEnv with CEnvCache {
         }
     }
 
-    def addStructDeclUse(entry: Id, env: Env, isUnion: Boolean, feature: FeatureExpr) {
+    override def addStructDeclUse(entry: Id, env: Env, isUnion: Boolean, feature: FeatureExpr) {
         def addOne(one: One[AST], use: Id) = {
             one match {
                 case One(id: Id) => addToDeclUseMap(id, use)
@@ -489,7 +528,7 @@ trait CDeclUse extends CEnv with CEnvCache {
         }
     }
 
-    def addDecl(current: Any, featureExpr: FeatureExpr, env: Env, isDefinition: Boolean = true) {
+    override def addDecl(current: Any, featureExpr: FeatureExpr, env: Env, isDefinition: Boolean = true) {
         current match {
             // TODO andreas: the following three lines are obsolete; see case _ => at the end
             case StructDeclaration(specifiers, structDecls) =>
@@ -732,7 +771,7 @@ trait CDeclUse extends CEnv with CEnvCache {
         }
     }
 
-    def addJumpStatements(compoundStatement: CompoundStatement) {
+    override def addJumpStatements(compoundStatement: CompoundStatement) {
         addGotoStatements(compoundStatement)
     }
 

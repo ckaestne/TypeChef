@@ -54,7 +54,7 @@ import de.fosd.typechef.error._
  *
  * handling of typedef synonyms
  */
-trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface with CDeclUse {
+trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface with CDeclUseInterface {
 
     def getExprType(expr: Expr, featureExpr: FeatureExpr, env: Env): Conditional[CType]
 

@@ -48,7 +48,7 @@ class CInterAnalysisFrontend(tunit: TranslationUnit, fm: FeatureModel = FeatureE
 }
 
 // TODO: refactoring different dataflow analyses into a composite will reduce code: handling of invalid paths, error printing ...
-class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend, fm: FeatureModel = FeatureExprFactory.empty) extends CAnalysisFrontend(tunit) with IntraCFG {
+class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend with CDeclUse, fm: FeatureModel = FeatureExprFactory.empty) extends CAnalysisFrontend(tunit) with IntraCFG {
 
     private lazy val udm = ts.getUseDeclMap
     private lazy val dum = ts.getDeclUseMap
