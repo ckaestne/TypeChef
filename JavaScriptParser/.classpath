@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src/main/scala"/>
+	<classpathentry kind="src" path="src/test/scala"/>
+	<classpathentry kind="src" path="src/main/resources"/>
+	<classpathentry kind="con" path="org.scala-ide.sdt.launching.SCALA_CONTAINER"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/ConditionalLib"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/ErrorLib"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/ParserFramework"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/FeatureExprLib"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
+	<classpathentry kind="lib" path="/Work/To-do/JSVarex Project/Eclipse for Scala/workspace/TypeChef/lib/rhino-1.7R4.jar"/>
+	<classpathentry kind="output" path="target/scala-2.10/classes"/>
+</classpath>
