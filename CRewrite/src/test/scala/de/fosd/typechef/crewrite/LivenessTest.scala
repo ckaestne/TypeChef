@@ -531,7 +531,7 @@ void test1(int *code,
     }
 
     // !!! does not terminate !!!
-    @Test def test_longsatformulas() {
+    @Ignore def test_longsatformulas() {
         runExample(
             """
               void foo() {
@@ -558,7 +558,7 @@ void test1(int *code,
             """.stripMargin)
     }
 
-    @Test def test_longsatformulas2() {
+    @Ignore def test_longsatformulas2() {
         runExample(
             """
               void foo() {
@@ -598,7 +598,7 @@ void test1(int *code,
             """.stripMargin)
     }
 
-    @Test def test_longsatformulas3() {
+    @Ignore def test_longsatformulas3() {
         runExample(
             """
               void foo() {
