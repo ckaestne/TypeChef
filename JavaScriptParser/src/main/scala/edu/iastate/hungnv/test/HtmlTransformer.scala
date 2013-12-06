@@ -15,7 +15,11 @@ import edu.iastate.hungnv.test.Util._
  */
 object HtmlTransformer {
   
+  type ElementList = List[Opt[HElement]]
+  
   def transform(r: Reader): Unit = {
+    
+    
 	/*
      * Step 1: SAX tokens
      */
@@ -36,7 +40,7 @@ object HtmlTransformer {
 
 //    log(saxResult.toString)
     
-    def printResult(f: FeatureExpr, x: p.MultiParseResult[List[Opt[HElement]]]) :Unit= x match {
+    def printResult(f: FeatureExpr, x: p.MultiParseResult[ElementList]) :Unit= x match {
       case p.Success(y,_) => println(f+": \n"+y.size)//y.take(4))
       case p.Failure(y,_,_) => println("failed["+y.size+"]") //+y.take(4))
       case p.SplittedParseResult(fx, x, y) =>
@@ -49,10 +53,29 @@ object HtmlTransformer {
       case e: Throwable => log("Error: " + e.getClass().toString()); e.printStackTrace()
     }
     
-    java.lang.System.exit(0)
     
-    var success = saxResult.asInstanceOf[p.Success[List[de.fosd.typechef.conditional.Opt[de.fosd.typechef.parser.html.HElement]]]]
-    var saxSequence = success.result
+    // Take the longest SplittedParser Result
+    def getLongestSuccessResult(f: FeatureExpr, x: p.MultiParseResult[List[Opt[HElement]]]): Option[p.Success[ElementList]] = x match {
+      case e:p.Success[ElementList] => Some(e)
+      case p.Failure(y,_,_) => None
+      case p.SplittedParseResult(fx, x, y) => {
+        var firstSuccessResult = getLongestSuccessResult(f and fx, x)
+        var secondSuccessResult = getLongestSuccessResult(f andNot fx, y)
+        if (!firstSuccessResult.isDefined) return secondSuccessResult
+        if (!secondSuccessResult.isDefined) return firstSuccessResult
+        if (firstSuccessResult.get.result.size > secondSuccessResult.get.result.size)
+          firstSuccessResult
+        else
+          secondSuccessResult
+      }
+    }
+    
+    var success = getLongestSuccessResult(FeatureExprFactory.True, saxResult)
+    
+    //java.lang.System.exit(0)
+    
+    //var success = saxResult.asInstanceOf[p.Success[List[de.fosd.typechef.conditional.Opt[de.fosd.typechef.parser.html.HElement]]]]
+    var saxSequence = success.get.result
       
     println("2. SAX sequence:")
     println(prettyPrintSaxSequence(saxSequence))
