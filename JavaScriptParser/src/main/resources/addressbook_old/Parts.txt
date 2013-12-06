@@ -1,0 +1,7 @@
+DOCTYPE1: Part1
+DOCTYPE2:
+	<!DOCTYPE><html>...</head>	Part2
+	<body>...</body> Part3
+	<!--...--><script>...</script>	Part4
+
+

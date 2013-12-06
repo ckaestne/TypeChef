@@ -1,0 +1,549 @@
+<form accept-charset="utf-8" method="get" name="searchform" onsubmit="return false">
+		<input type="text" value="[Symbolic:$searchstring]" name="searchstring" title="
+#if ($has_mb_strtoupper)
+[Symbolic:mb_strtoupper(mb_substr($msg, 0,1))][Symbolic:mb_substr($msg, 1)]
+#else
+[Symbolic:ucfirst($msg)]
+#endif
+" size="45" tabindex="0" 
+
+#if ($use_ajax)
+		
+		       onkeyup="filterResults(this)"/>
+
+#else
+
+#endif
+	</form>
+
+#endif
+<script type="text/javascript">
+	document.searchform.searchstring.focus();
+</script>
+</div><br />
+<hr />
+<label style='width:24em;'><strong>
+#if (isset($messages[$value][$lang]))
+[Symbolic:$messages[$value][$lang]]
+#else
+NUMBER_OF_RESULTS
+#endif
+: <span id='search_count'>[Symbolic:$resultsnumber]</span></strong></label>
+#if (isset($table_groups) and $table_groups != "" and !$is_fix_group)
+
+<form id="right" method="get">
+	<select name="group" onchange="this.parentNode.submit()">
+		
+#if ($group_name != "")
+<option>
+#if (isset($iplist) && hasRoleFromIP($iplist))
+
+#if (isset($group))
+[Symbolic:$group]
+#else
+
+#endif
+
+#else
+
+#if (isset($userlist))
+
+#if ($user->getGroup() != "")
+[Symbolic:$user->getGroup()]
+#else
+
+#if (isset($group))
+[Symbolic:$group]
+#else
+
+#endif
+
+#endif
+
+#else
+
+#if (isset($group))
+[Symbolic:$group]
+#else
+
+#endif
+
+#endif
+
+#endif
+</option>\n
+#else
+
+#endif
+		<option value="">[
+#if (isset($messages[$value][$lang]))
+[Symbolic:$messages[$value][$lang]]
+#else
+ALL
+#endif
+]</option>
+		<option value="[none]">[
+#if (isset($messages[$value][$lang]))
+[Symbolic:$messages[$value][$lang]]
+#else
+NONE
+#endif
+]</option>
+		[RepeatBegin]
+<option>[Symbolic:$myrow["group_name"]]</option>\n
+[RepeatEnd]	</select>
+</form>
+
+#else
+
+#endif
+<br /><br class="clear" />
+
+<form accept-charset="utf-8" name="MainForm" method="post" action="group
+#if (!$is_fix_group and $group_name)
+
+#if (!isset($page_ext))
+.php
+#else
+.php
+#endif
+?group=
+#if (isset($group))
+[Symbolic:$group]
+#else
+
+#endif
+
+#else
+
+#if (!isset($page_ext))
+.php
+#else
+.php
+#endif
+
+#endif
+">
+	<input type="hidden" name="group" value="
+#if (isset($iplist) && hasRoleFromIP($iplist))
+
+#else
+
+#if (isset($userlist))
+
+#if ($user->getGroup() != "")
+[Symbolic:$user->getGroup()]
+#else
+
+#endif
+
+#else
+
+#endif
+
+#endif
+" />
+	<table id="maintable" class="sortcompletecallback-applyZebra">
+		<tr>
+
+#if (! $is_mobile)
+[RepeatBegin]
+
+#if (!in_array($col, array("home", "work", "mobile", "select", "edit", "details")))
+<th class='sortable'>
+#if ($has_mb_strtoupper)
+[Symbolic:mb_strtoupper(mb_substr($msg, 0,1))][Symbolic:mb_substr($msg, 1)]
+#else
+[Symbolic:ucfirst($msg)]
+#endif
+</th>
+#else
+
+#if (in_array($col, array("home", "work", "mobile")))
+<th>
+#if ($has_mb_strtoupper)
+[Symbolic:mb_strtoupper(mb_substr($msg, 0,1))][Symbolic:mb_substr($msg, 1)]
+#else
+[Symbolic:ucfirst($msg)]
+#endif
+</th>
+#else
+<th></th>
+#if ($col == "edit" && !$read_only)
+<th></th>
+#else
+
+#endif
+
+#if ($col == "details")
+<th></th><th></th>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+[RepeatEnd]      
+	</tr>
+
+#else
+
+#endif
+[RepeatBegin]
+<tr class='
+#if (($alternate++ % 2))
+odd
+#else
+
+#endif
+' name='entry'>[RepeatBegin]
+
+#if (case $row == "select")
+<td class='center'><input type='checkbox' id='[Symbolic:$id]' name='selected[]' value='[Symbolic:$id]' title='Select ([Symbolic:$firstname] [Symbolic:$lastname])' alt='Select ([Symbolic:$firstname] [Symbolic:$lastname])' accept='[Symbolic:$myrow['email']]
+#if ($myrow['email']  != ""
+		                           && $myrow['email2'] != "")
+
+#if (getPref('mailer') == 'colon')
+,
+#else
+%3B
+#endif
+
+#else
+
+#endif
+[Symbolic:$myrow['email2']]' /></td>
+#else
+
+#if (case $row == "first_last")
+<td>[Symbolic:$firstname] [Symbolic:$lastname]</td>
+#else
+
+#if (case $row == "last_first")
+<td>[Symbolic:$lastname] [Symbolic:$firstname]</td>
+#else
+
+#if (case $row == "email")
+<td><a href='
+#if (isset($webmailer) && isset($mailers[$webmailer]))
+
+#if (isset($webmailer) && isset($mailers[$webmailer]))
+[Symbolic:$mailers[$webmailer]]
+#else
+[Symbolic:$mailers[getPref('mailer')]]
+#endif
+
+#else
+mailto:
+#endif
+[Symbolic:${$row}]'>[Symbolic:${$row}]</a></td>
+#else
+
+#if (case $row == "email2")
+<td><a href='
+#if (isset($webmailer) && isset($mailers[$webmailer]))
+
+#if (isset($webmailer) && isset($mailers[$webmailer]))
+[Symbolic:$mailers[$webmailer]]
+#else
+[Symbolic:$mailers[getPref('mailer')]]
+#endif
+
+#else
+mailto:
+#endif
+[Symbolic:${$row}]'>[Symbolic:${$row}]</a></td>
+#else
+
+#if (case $row == "all_phones")
+<td>[Symbolic:implode("<br>", $phones)]</td>
+#else
+
+#if (case $row == "address")
+<td>[Symbolic:str_replace("\n", ", ", $address)]</td>
+#else
+
+#if (case $row == "edit")
+<td class='center'><a href='view[Symbolic:${page_ext_qry}]id=[Symbolic:$id]'><img src='[Symbolic:${url_images}]icons/status_online.png' title='
+#if ($has_mb_strtoupper)
+[Symbolic:mb_strtoupper(mb_substr($msg, 0,1))][Symbolic:mb_substr($msg, 1)]
+#else
+[Symbolic:ucfirst($msg)]
+#endif
+' alt='
+#if ($has_mb_strtoupper)
+[Symbolic:mb_strtoupper(mb_substr($msg, 0,1))][Symbolic:mb_substr($msg, 1)]
+#else
+[Symbolic:ucfirst($msg)]
+#endif
+' /></a></td>
+#if (! $read_only)
+<td class='center'><a href='edit[Symbolic:${page_ext_qry}]id=[Symbolic:$id]'><img src='[Symbolic:${url_images}]icons/pencil.png' title='
+#if ($has_mb_strtoupper)
+[Symbolic:mb_strtoupper(mb_substr($msg, 0,1))][Symbolic:mb_substr($msg, 1)]
+#else
+[Symbolic:ucfirst($msg)]
+#endif
+' alt='
+#if ($has_mb_strtoupper)
+[Symbolic:mb_strtoupper(mb_substr($msg, 0,1))][Symbolic:mb_substr($msg, 1)]
+#else
+[Symbolic:ucfirst($msg)]
+#endif
+'/></a></td>
+#else
+
+#endif
+
+#else
+
+#if (case $row == "details")
+<td class='center'><a href='vcard[Symbolic:${page_ext_qry}]id=[Symbolic:$id]'><img src='[Symbolic:${url_images}]icons/vcard.png' title='vCard' alt='vCard'/></a></td>
+#if ($map_guess)
+
+#if ($myrow["address"] != "")
+<td class='center'><a href='http://maps.google.com/maps?q=[Symbolic:trim(str_replace("\r\n", ", ", trim($myrow["address"])))]&amp;t=h' target='_blank'>
+                                <img src='[Symbolic:${url_images}]icons/car.png' title='Google Maps' alt='vCard'/></a></td>
+#else
+<td/>
+#endif
+
+#else
+
+#endif
+
+#if ($homepage != "")
+<td class='center'><a href='
+#if (strcasecmp(substr($homepage, 0, strlen("http")),"http")== 0)
+[Symbolic:$homepage]
+#else
+http://[Symbolic:$homepage]
+#endif
+'><img src='[Symbolic:${url_images}]icons/house.png' title='
+#if (strcasecmp(substr($homepage, 0, strlen("http")),"http")== 0)
+[Symbolic:$homepage]
+#else
+http://[Symbolic:$homepage]
+#endif
+' alt='
+#if (strcasecmp(substr($homepage, 0, strlen("http")),"http")== 0)
+[Symbolic:$homepage]
+#else
+http://[Symbolic:$homepage]
+#endif
+'/></a></td>
+#else
+
+#if ($homepage_guess && ($homepage = guessHomepage($email, $email2)) != "")
+<td class='center'><a href='http://
+#if ([Unresolved Constraint])
+
+#else
+
+#if (strlen($homepage) > 0)
+
+#if (strlen($homepage) == 0)
+
+#else
+www.[Symbolic:$homepage]
+#endif
+
+#else
+
+#if (strlen($homepage) == 0)
+
+#else
+www.[Symbolic:$homepage]
+#endif
+
+#endif
+
+#endif
+'><img src='[Symbolic:${url_images}]icons/house.png' title='
+#if ($has_mb_strtoupper)
+[Symbolic:mb_strtoupper(mb_substr($msg, 0,1))][Symbolic:mb_substr($msg, 1)]
+#else
+[Symbolic:ucfirst($msg)]
+#endif
+ (
+#if ([Unresolved Constraint])
+
+#else
+
+#if (strlen($homepage) > 0)
+
+#if (strlen($homepage) == 0)
+
+#else
+www.[Symbolic:$homepage]
+#endif
+
+#else
+
+#if (strlen($homepage) == 0)
+
+#else
+www.[Symbolic:$homepage]
+#endif
+
+#endif
+
+#endif
+)' alt='
+#if ($has_mb_strtoupper)
+[Symbolic:mb_strtoupper(mb_substr($msg, 0,1))][Symbolic:mb_substr($msg, 1)]
+#else
+[Symbolic:ucfirst($msg)]
+#endif
+ (
+#if ([Unresolved Constraint])
+
+#else
+
+#if (strlen($homepage) > 0)
+
+#if (strlen($homepage) == 0)
+
+#else
+www.[Symbolic:$homepage]
+#endif
+
+#else
+
+#if (strlen($homepage) == 0)
+
+#else
+www.[Symbolic:$homepage]
+#endif
+
+#endif
+
+#endif
+)'/></a></td>
+#else
+<td/>
+#endif
+
+#endif
+
+#else
+<td>[Symbolic:${$row}]</td>
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+[RepeatEnd]</tr>\n
+[RepeatEnd]</table>&nbsp;<input type='checkbox' id='MassCB' onclick=\"MassSelection()\" /> <em><strong>
+#if ($has_mb_strtoupper)
+[Symbolic:mb_strtoupper(mb_substr($msg, 0,1))][Symbolic:mb_substr($msg, 1)]
+#else
+[Symbolic:ucfirst($msg)]
+#endif
+</strong></em><br><br>
+#if ($use_doodle)
+<div class='left'><input type='button' value=\"
+#if ($has_mb_strtoupper)
+[Symbolic:mb_strtoupper(mb_substr($msg, 0,1))][Symbolic:mb_substr($msg, 1)]
+#else
+[Symbolic:ucfirst($msg)]
+#endif
+\"   onclick=\"Doodle()\" /></div>
+#else
+
+#endif
+<div class='left'><input type='button' value=\"
+#if ($has_mb_strtoupper)
+[Symbolic:mb_strtoupper(mb_substr($msg, 0,1))][Symbolic:mb_substr($msg, 1)]
+#else
+[Symbolic:ucfirst($msg)]
+#endif
+\" onclick=\"MailSelection()\" /></div><div class='left'><input type='button' value=\"
+#if ($has_mb_strtoupper)
+[Symbolic:mb_strtoupper(mb_substr($msg, 0,1))][Symbolic:mb_substr($msg, 1)]
+#else
+[Symbolic:ucfirst($msg)]
+#endif
+\"     onclick=\"DeleteSel()\" /></div>
+#if (isset($table_groups) and $table_groups != "" and !$is_fix_group)
+
+#if ($group_name != "" and $group_name != "[none]")
+<div class='left'><input type='submit' name='remove' value='
+#if ($has_mb_strtoupper)
+[Symbolic:mb_strtoupper(mb_substr($msg, 0,1))][Symbolic:mb_substr($msg, 1)]
+#else
+[Symbolic:ucfirst($msg)]
+#endif
+ \"
+#if (isset($iplist) && hasRoleFromIP($iplist))
+
+#if (isset($group))
+[Symbolic:$group]
+#else
+
+#endif
+
+#else
+
+#if (isset($userlist))
+
+#if ($user->getGroup() != "")
+[Symbolic:$user->getGroup()]
+#else
+
+#if (isset($group))
+[Symbolic:$group]
+#else
+
+#endif
+
+#endif
+
+#else
+
+#if (isset($group))
+[Symbolic:$group]
+#else
+
+#endif
+
+#endif
+
+#endif
+\"'/></div>
+#else
+<div></div>
+#endif
+<div class='right'><input type='submit' name='add' value='
+#if ($has_mb_strtoupper)
+[Symbolic:mb_strtoupper(mb_substr($msg, 0,1))][Symbolic:mb_substr($msg, 1)]
+#else
+[Symbolic:ucfirst($msg)]
+#endif
+'/>-<select name='to_group'>[RepeatBegin]
+<option>[Symbolic:$myrow["group_name"]]</option>\n
+[RepeatEnd]</select></div><br/>
+#else
+
+#endif
+</form>
+#if ($group_name != "" and $group_myrow['group_footer'] != "")
+<hr />[Symbolic:$group_myrow['group_footer']]<hr />
+#else
+
+#endif

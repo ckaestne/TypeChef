@@ -1,0 +1,186 @@
+<script type="text/javascript">
+<!--
+
+//
+// Select All/None items
+//
+function MassSelection() {
+  
+  select_count = document.getElementsByName("selected[]").length;
+  all_checked  = document.getElementById("MassCB").checked;
+  
+	for (i = 0; i < select_count; i++) {
+	  // select only visible items
+	  if( document.getElementsByName("selected[]")[i].parentNode.parentNode.style.display != "none") {
+		  document.getElementsByName("selected[]")[i].checked = all_checked;
+		}
+	}
+}
+
+//
+// Send Mail to selected persons
+//
+function MailSelection() {
+	var addresses = "";
+	var dst_count = 0;
+
+  select_count = document.getElementsByName("selected[]").length;
+	for (i = 0; i < select_count; i++) {
+		selected_i = document.getElementsByName("selected[]")[i];
+		if( selected_i.checked == true) {
+			if( selected_i.accept != "" && selected_i.accept != null) {
+				if(dst_count > 0) {
+					addresses = addresses + "
+#if (getPref('mailer') == 'colon')
+,
+#else
+%3B
+#endif
+";
+				}
+				addresses = addresses + selected_i.accept;
+				dst_count++;
+			}
+		}
+	}
+
+	if(dst_count == 0)
+		alert("No address selected.");
+	else
+		location.href = "
+#if (isset($webmailer) && isset($mailers[$webmailer]))
+
+#if (isset($webmailer) && isset($mailers[$webmailer]))
+[Symbolic:$mailers[$webmailer]]
+#else
+[Symbolic:$mailers[getPref('mailer')]]
+#endif
+
+#else
+mailto:
+#endif
+"+addresses;
+}
+
+function Doodle() {
+	
+	var participants = "";
+	var dst_count = 0;
+
+  select_count = document.getElementsByName("selected[]").length;
+	for (i = 0; i < select_count; i++) {
+		selected_i = document.getElementsByName("selected[]")[i];
+		if( selected_i.checked == true) {
+			participants += selected_i.id+";";
+			dst_count++;
+		}
+	}
+	alert(participants);
+	if(dst_count == 0)
+		alert("No paticipants selected.");
+	else
+	  location.href = "./doodle.php?part="+participants;
+}
+
+function DeleteSel() {
+	
+	var participants = "";
+	var dst_count = 0;
+
+  select_count = document.getElementsByName("selected[]").length;
+	for (i = 0; i < select_count; i++) {
+		selected_i = document.getElementsByName("selected[]")[i];
+		if( selected_i.checked == true) {
+			participants += selected_i.id+";";
+			dst_count++;
+		}
+	}
+
+	if(dst_count == 0)
+		alert("No paticipants selected.");
+	else
+		if(confirm('Delete '+dst_count+' addresses?')) {
+	    location.href = "./delete.php?part="+participants;
+	  }
+}
+
+function applyZebra() {
+	
+  	// loop over all lines
+  	var maintable = document.getElementById("maintable")
+  	var tbody     = maintable.getElementsByTagName("tbody");
+  	var entries   = tbody[0].children;
+  	var zebraCnt  = 0;
+
+	  // Skip header(0) + selection row(length-1)
+  	for(i = 1; i < entries.length; i++) {
+  		if(entries[i].style.display != "none") {
+      	if((zebraCnt % 2) == 0) {
+      	  entries[i].className = "";
+      	} else {
+      	  entries[i].className = "odd";
+      	}
+     	  zebraCnt++;
+  		}
+    }
+}
+
+//
+// Filter the items in the fields
+//
+function filterResults(field) {
+
+  	var query = field.value;
+  	 	
+  	// split lowercase on white spaces
+  	var words = query.toLowerCase().split(" ");
+
+  	// loop over all lines
+  	var maintable = document.getElementById("maintable")
+  	var tbody     = maintable.getElementsByTagName("tbody");
+  	var entries   = tbody[0].children;
+  	var foundCnt  = 0;
+	
+	  // Skip header(0) + selection row(length-1)
+  	for(i = 1; i < entries.length; i++) {
+  		
+  		// Name + Firstname + Phonenumber + Mailaddress
+  		var content = entries[i].childNodes[0].childNodes[0].accept
+  		            + " " + entries[i].childNodes[1].innerHTML
+  		            + " " + entries[i].childNodes[2].innerHTML;
+  		            
+      // Don't be case sensitive
+  		content = content.toLowerCase();
+
+      // check if all words are present  		            
+      var foundAll = true;
+  		for(j = 0; j < words.length; j++) {
+  			foundAll = foundAll && (content.search(words[j]) != -1);
+  		}
+  		
+  		// Keep selected entries
+      foundAll = foundAll || entries[i].childNodes[0].childNodes[0].checked;
+  		
+      // ^Hide entry
+      if(foundAll) {
+      	entries[i].style.display = "";
+     	  foundCnt++;  			
+      } else {
+      	entries[i].style.display = "none";
+      }
+  	}  	
+  	document.getElementById("search_count").innerHTML = foundCnt;
+  	
+  	applyZebra();
+}
+
+
+#if ($use_ajax)
+filterResults(document.getElementsByName("searchstring")[0]);
+
+#else
+
+#endif
+
+//-->
+</script>

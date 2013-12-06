@@ -1,0 +1,475 @@
+#if (isset($userlist) && !(isset($iplist) && hasRoleFromIP($iplist)))
+<form name="logout" method="post" class=header>
+
+<input type="hidden" name="logout" value="yes" />
+
+
+#if (isset($username))
+<b>(
+#if (isset($iplist) && hasRoleFromIP($iplist))
+
+#else
+
+#if (isset($userlist))
+[Symbolic:$user->getName()]
+#else
+
+#endif
+
+#endif
+)</b> 
+#else
+
+#endif
+<a href="#" onClick="document.logout.submit();">
+#if ($has_mb_strtoupper)
+[Symbolic:mb_strtoupper(mb_substr($msg, 0,1))][Symbolic:mb_substr($msg, 1)]
+#else
+[Symbolic:ucfirst($msg)]
+#endif
+</a>
+
+</form>
+
+
+#else
+<b>([Symbolic:$_SERVER['REMOTE_ADDR']])</b>
+#endif
+			</div>
+
+			<div id="header">
+				<h1><a href=".">Address Book</a></h1>
+
+				<a href="."><img src="
+#if (!isset($url_images))
+
+#else
+
+#endif
+title.png" title="Addressbook" alt="Addressbook" id="logo" /></a>
+
+			</div>
+
+			<div id="nav">
+
+      			<!--
+
+* http://www.dynamicdrive.com/dynamicindex1/ddlevelsmenu/index.htm
+
+* http://www.dynamicdrive.com/dynamicindex1/popupmenu.htm
+
+* http://www.alistapart.com/articles/horizdropdowns/
+
+-->
+
+<ul>
+
+<li>
+
+	<a href="./
+#if ($group == "" || $group == "[none]" || $is_fix_group)
+
+#else
+?group=
+#if (isset($iplist) && hasRoleFromIP($iplist))
+
+#else
+
+#if (isset($userlist))
+
+#if ($user->getGroup() != "")
+[Symbolic:$user->getGroup()]
+#else
+
+#endif
+
+#else
+
+#endif
+
+#endif
+
+#endif
+">
+#if (isset($messages[$value][$lang]))
+[Symbolic:$messages[$value][$lang]]
+#else
+HOME
+#endif
+</a>
+
+</li>
+
+
+#if (! $read_only)
+<li class="all">
+
+	<a href="edit
+#if (!$is_fix_group and $group_name)
+
+#if (!isset($page_ext))
+.php
+#else
+.php
+#endif
+?group=
+#if (isset($group))
+[Symbolic:$group]
+#else
+
+#endif
+
+#else
+
+#if (!isset($page_ext))
+.php
+#else
+.php
+#endif
+
+#endif
+">
+#if (isset($messages[$value][$lang]))
+[Symbolic:$messages[$value][$lang]]
+#else
+ADD_NEW
+#endif
+</a>
+
+</li>
+
+
+#else
+
+#endif
+
+#if (!$read_only && $public_group_edit && $table_groups != "" && !$is_fix_group)
+	<li class="admin">
+
+		<a href="group
+#if (!$is_fix_group and $group_name)
+
+#if (!isset($page_ext))
+.php
+#else
+.php
+#endif
+?group=
+#if (isset($group))
+[Symbolic:$group]
+#else
+
+#endif
+
+#else
+
+#if (!isset($page_ext))
+.php
+#else
+.php
+#endif
+
+#endif
+">
+#if (isset($messages[$value][$lang]))
+[Symbolic:$messages[$value][$lang]]
+#else
+GROUPS
+#endif
+</a>
+
+	</li>
+
+
+#else
+
+#endif
+	<li class="all">
+
+		<a href="birthdays
+#if (!$is_fix_group and $group_name)
+
+#if (!isset($page_ext))
+.php
+#else
+.php
+#endif
+?group=
+#if (isset($group))
+[Symbolic:$group]
+#else
+
+#endif
+
+#else
+
+#if (!isset($page_ext))
+.php
+#else
+.php
+#endif
+
+#endif
+">
+#if (isset($messages[$value][$lang]))
+[Symbolic:$messages[$value][$lang]]
+#else
+NEXT_BIRTHDAYS
+#endif
+</a>
+
+	</li>
+
+	<li class="export">
+
+    	<a href="view
+#if (!isset($page_ext))
+.php
+#else
+.php
+#endif
+
+#if (!$is_fix_group and $group_name)
+?group=
+#if (isset($group))
+[Symbolic:$group]
+#else
+
+#endif
+&amp;
+#else
+?
+#endif
+all&amp;print">
+#if (isset($messages[$value][$lang]))
+[Symbolic:$messages[$value][$lang]]
+#else
+PRINT_ALL
+#endif
+</a>
+
+  </li>
+
+	<li class="export">
+
+      <a href="view
+#if (!isset($page_ext))
+.php
+#else
+.php
+#endif
+
+#if (!$is_fix_group and $group_name)
+?group=
+#if (isset($group))
+[Symbolic:$group]
+#else
+
+#endif
+&amp;
+#else
+?
+#endif
+all&amp;print&amp;phones">
+#if (isset($messages[$value][$lang]))
+[Symbolic:$messages[$value][$lang]]
+#else
+PRINT_PHONES
+#endif
+</a>
+
+  </li>
+
+
+#if (isset($google_maps_keys))
+	<li class="export">
+
+    	<a href="map
+#if (!isset($page_ext))
+.php
+#else
+.php
+#endif
+
+#if (!$is_fix_group and $group_name)
+?group=
+#if (isset($group))
+[Symbolic:$group]
+#else
+
+#endif
+&amp;
+#else
+?
+#endif
+">
+#if (isset($messages[$value][$lang]))
+[Symbolic:$messages[$value][$lang]]
+#else
+MAP
+#endif
+</a>
+
+  </li>
+
+
+#else
+
+#endif
+	<li class="export">
+
+    	<a href="export
+#if (!$is_fix_group and $group_name)
+
+#if (!isset($page_ext))
+.php
+#else
+.php
+#endif
+?group=
+#if (isset($group))
+[Symbolic:$group]
+#else
+
+#endif
+
+#else
+
+#if (!isset($page_ext))
+.php
+#else
+.php
+#endif
+
+#endif
+">
+#if (isset($messages[$value][$lang]))
+[Symbolic:$messages[$value][$lang]]
+#else
+EXPORT
+#endif
+</a>
+
+  </li> 
+
+
+#if (!$read_only)
+	<li class="export">
+
+    	<a href="import
+#if (!$is_fix_group and $group_name)
+
+#if (!isset($page_ext))
+.php
+#else
+.php
+#endif
+?group=
+#if (isset($group))
+[Symbolic:$group]
+#else
+
+#endif
+
+#else
+
+#if (!isset($page_ext))
+.php
+#else
+.php
+#endif
+
+#endif
+">
+#if (isset($messages[$value][$lang]))
+[Symbolic:$messages[$value][$lang]]
+#else
+IMPORT
+#endif
+</a>
+
+  </li> 
+
+
+#else
+
+#endif
+</ul>
+
+			</div>
+
+			<div id="content">
+
+
+
+
+#if ($group_name != "")
+[Symbolic:$group_myrow['group_header']]
+#else
+
+#endif
+
+<br /><br />
+<div id="search-az">
+
+#if (! $use_ajax)
+	<form accept-charset="utf-8" method="get" name="searchform">
+		<input type="text" value="[Symbolic:$searchstring]" name="searchstring" title="
+#if ($has_mb_strtoupper)
+[Symbolic:mb_strtoupper(mb_substr($msg, 0,1))][Symbolic:mb_substr($msg, 1)]
+#else
+[Symbolic:ucfirst($msg)]
+#endif
+" size="45" tabindex="0"/>
+		<input name="submitsearch" type="submit" value="[Symbolic:ucfirst(msg('SEARCH'))]" />    
+	</form>
+<div id='a-z'><a href='index[Symbolic:${page_ext_qry}]alphabet=a'>A</a> | <a href='index[Symbolic:${page_ext_qry}]alphabet=b'>B</a> | <a href='index[Symbolic:${page_ext_qry}]alphabet=c'>C</a> | <a href='index[Symbolic:${page_ext_qry}]alphabet=d'>D</a> | <a href='index[Symbolic:${page_ext_qry}]alphabet=e'>E</a> | <a href='index[Symbolic:${page_ext_qry}]alphabet=f'>F</a> | <a href='index[Symbolic:${page_ext_qry}]alphabet=g'>G</a> | <a href='index[Symbolic:${page_ext_qry}]alphabet=h'>H</a> | <a href='index[Symbolic:${page_ext_qry}]alphabet=i'>I</a> | <a href='index[Symbolic:${page_ext_qry}]alphabet=j'>J</a> | <a href='index[Symbolic:${page_ext_qry}]alphabet=k'>K</a> | <a href='index[Symbolic:${page_ext_qry}]alphabet=l'>L</a> | <a href='index[Symbolic:${page_ext_qry}]alphabet=m'>M</a> | <a href='index[Symbolic:${page_ext_qry}]alphabet=n'>N</a> | <a href='index[Symbolic:${page_ext_qry}]alphabet=o'>O</a> | <a href='index[Symbolic:${page_ext_qry}]alphabet=p'>P</a> | <a href='index[Symbolic:${page_ext_qry}]alphabet=q'>Q</a> | <a href='index[Symbolic:${page_ext_qry}]alphabet=r'>R</a> | <a href='index[Symbolic:${page_ext_qry}]alphabet=s'>S</a> | <a href='index[Symbolic:${page_ext_qry}]alphabet=t'>T</a> | <a href='index[Symbolic:${page_ext_qry}]alphabet=u'>U</a> | <a href='index[Symbolic:${page_ext_qry}]alphabet=v'>V</a> | <a href='index[Symbolic:${page_ext_qry}]alphabet=w'>W</a> | <a href='index[Symbolic:${page_ext_qry}]alphabet=x'>X</a> | <a href='index[Symbolic:${page_ext_qry}]alphabet=y'>Y</a> | <a href='index[Symbolic:${page_ext_qry}]alphabet=z'>Z</a> | <a href='index
+#if (!$is_fix_group and $group_name)
+
+#if (!isset($page_ext))
+.php
+#else
+.php
+#endif
+?group=
+#if (isset($group))
+[Symbolic:$group]
+#else
+
+#endif
+
+#else
+
+#if (!isset($page_ext))
+.php
+#else
+.php
+#endif
+
+#endif
+'>
+#if ($has_mb_strtoupper)
+[Symbolic:mb_strtoupper(mb_substr($msg, 0,1))][Symbolic:mb_substr($msg, 1)]
+#else
+[Symbolic:ucfirst($msg)]
+#endif
+</a></div>
+#else
+
+
+#if ($_SERVER['SERVER_NAME'] == "php-addressbook.sourceforge.net")
+<table border=0>
+<tr>
+	<td>
+		Advertisment: Just try for 2$ per month:<br>
+		<img src="icons/cross.png">
+		  <a href="http://swiss-addressbook.com">www.swiss-addressbook.com</a>
+		<img src="icons/cross.png"><br>
+		  <b><i>"PHP-Addressbook as a Service"</i></b>
+		</td></tr>
+</table>
+<br>
+
+#else
+
+#endif

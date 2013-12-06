@@ -1,0 +1,49 @@
+<title>
+#if ($has_mb_strtoupper)
+[Symbolic:mb_strtoupper(mb_substr($msg, 0,1))][Symbolic:mb_substr($msg, 1)]
+#else
+[Symbolic:ucfirst($msg)]
+#endif
+
+#if ($group_name != "")
+ (
+#if (isset($iplist) && hasRoleFromIP($iplist))
+
+#if (isset($group))
+[Symbolic:$group]
+#else
+
+#endif
+
+#else
+
+#if (isset($userlist))
+
+#if ($user->getGroup() != "")
+[Symbolic:$user->getGroup()]
+#else
+
+#if (isset($group))
+[Symbolic:$group]
+#else
+
+#endif
+
+#endif
+
+#else
+
+#if (isset($group))
+[Symbolic:$group]
+#else
+
+#endif
+
+#endif
+
+#endif
+)
+#else
+
+#endif
+</title>
