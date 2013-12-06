@@ -14,6 +14,8 @@ class HTMLDomParser extends MultiFeatureParser {
     type TypeContext = Null
 
 
+    def Document = repOpt(Element)
+    
     def Element: MultiParser[DElement] =
         Text | Node
 

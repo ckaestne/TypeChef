@@ -474,6 +474,8 @@ abstract class MultiFeatureParser(val featureModel: FeatureModel = null, debugOu
                 //                    println("after join\n" + debug_printResult(res, 0))
             }
             //return all sealed lists
+            if (res.isInstanceOf[SplittedParseResult[_]])
+              println("split")
             res.map(_.resultList.reverse)
         }
 

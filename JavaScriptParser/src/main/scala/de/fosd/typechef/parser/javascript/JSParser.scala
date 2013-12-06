@@ -110,7 +110,9 @@ class JSParser extends MultiFeatureParser {
         Expression <~~~? ';' ^^ {JSExprStatement(_)}
 
     def IfStatement =
-        "if" ~~~? '(' ~~~? Expression ~~~? ')' ~~~? Statement ~ opt(WSs ~ "else" ~~~ Statement) ^^ {x => JSOtherStatement()}
+        "if" ~~~?> ('(' ~~~?> Expression <~~~? ')') ~~~? Statement ~ opt(WSs ~> "else" ~~~> Statement) ^^ {
+      case e ~ s1 ~ s2 => JSIfStatement(e, s1, s2)
+    }
 
     def IterationStatement: MultiParser[JSStatement] =
         (("do" ~~~ Statement ~~~ "while" ~~~? '(' ~~~? Expression ~~~? ')' ~~~? ';') |

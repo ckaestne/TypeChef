@@ -14,7 +14,9 @@ case class HTag(name: String, closingTag: Boolean, selfClosing: Boolean, attribu
 
 case class HAttribute(name: String, value: Option[String]) extends AST
 
-case class HText(value: List[Opt[CharacterToken]]) extends HElement
+case class HText(value: List[Opt[CharacterToken]]) extends HElement {
+  override def toString = "HText("+ value.map(_.entry.getText).mkString("") +")"
+}
 
 
 case class HElementToken(v: Opt[HElement]) extends AbstractToken {

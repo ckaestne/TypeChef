@@ -57,3 +57,5 @@ case class JSExprList(exprs: List[JSExpression]) extends JSExpression
 case class JSIdentifier(name: String) extends JSExpression
 
 case class JSComment(n: String) extends AST
+
+case class JSIfStatement(e: JSExpression, s1: JSStatement, s2: Option[JSStatement]) extends JSStatement
