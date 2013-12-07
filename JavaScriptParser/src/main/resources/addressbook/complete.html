@@ -1,7 +1,7 @@
 
 #if ([Unresolved Constraint])
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" 
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"
 #if (is_right_to_left($lang))
 dir='rtl'
 #else
@@ -1053,7 +1053,7 @@ odd
 ' name='entry'>[RepeatBegin]
 
 #if (case $row == "select")
-<td class='center'><input type='checkbox' id='[Symbolic:$id]' name='selected[]' value='[Symbolic:$id]' title='Select ([Symbolic:$firstname] [Symbolic:$lastname])' alt='Select ([Symbolic:$firstname] [Symbolic:$lastname])' accept='[Symbolic:$myrow['email']]
+<td class='center'><input type='checkbox' id='[Symbolic:$id]' name='selected[]' value='[Symbolic:$id]' title='Select ([Symbolic:$firstname] [Symbolic:$lastname])' alt='Select ([Symbolic:$firstname] [Symbolic:$lastname])' accept='[Symbolic:$myrow["email"]]
 #if ($myrow['email']  != ""
 		                           && $myrow['email2'] != "")
 
@@ -1319,13 +1319,13 @@ www.[Symbolic:$homepage]
 #else
 
 #endif
-<div class='left'><input type='button' value=\"
+<div class='left'><input type='button' value="
 #if ($has_mb_strtoupper)
 [Symbolic:mb_strtoupper(mb_substr($msg, 0,1))][Symbolic:mb_substr($msg, 1)]
 #else
 [Symbolic:ucfirst($msg)]
 #endif
-\" onclick=\"MailSelection()\" /></div><div class='left'><input type='button' value=\"
+" onclick=\"MailSelection()\" /></div><div class='left'><input type='button' value=\"
 #if ($has_mb_strtoupper)
 [Symbolic:mb_strtoupper(mb_substr($msg, 0,1))][Symbolic:mb_substr($msg, 1)]
 #else
@@ -1705,7 +1705,7 @@ For more details see: http://www.frequency-decoder.com/2006/09/16/unobtrusive-ta
 
 #else
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" 
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"
 #if (is_right_to_left($lang))
 dir='rtl'
 #else
