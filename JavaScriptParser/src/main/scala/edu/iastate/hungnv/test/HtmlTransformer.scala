@@ -36,13 +36,13 @@ object HtmlTransformer {
          * Step 2: SAX sequence
          */
         val p = new HTMLSAXParser
-        var saxResult = p.HtmlSequence(tokenReader, FeatureExprFactory.True)
+        var saxResult =p.phrase(p.HtmlSequence)(tokenReader, FeatureExprFactory.True)
 
         //    log(saxResult.toString)
 
         def printResult(f: FeatureExpr, x: p.MultiParseResult[ElementList]): Unit = x match {
-            case p.Success(y, _) => println(f + ": \n" + y.size) //y.take(4))
-            case p.Failure(y, _, _) => println("failed[" + y.size + "]") //+y.take(4))
+            case p.Success(y, _) => println("succeeded["+f + "] \n" + y.size) //y.take(4))
+            case e@p.Failure(y, r, _) => println("failed[" + f + "] \n"+e+"\n  @"+r.rest.first.getPosition())
             case p.SplittedParseResult(fx, x, y) =>
                 printResult(f and fx, x)
                 printResult(f andNot fx, y)
