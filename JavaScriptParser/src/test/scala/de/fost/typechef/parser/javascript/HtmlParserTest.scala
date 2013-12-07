@@ -38,6 +38,7 @@ class HtmlParserTest {
         assertParseable("<foo/>",p.HtmlTag)
         assertParseable("<foo x='3'>",p.HtmlTag)
         assertParseable("<foo>a b<bar></bar>xx</foo>",p.rep1(p.HtmlElement))
+      assertParseable("<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\" lang=\"en\"  >",p.HtmlTag)
 //        assertParseable("<foo>__if \"X\"<bar></bar>__endif</foo>",p.HtmlTag)
 //        assertParseable("<__if \"X\" foo __endif bar>",p.HtmlTag)
     }
