@@ -1315,7 +1315,7 @@ www.[Symbolic:$homepage]
 #else
 [Symbolic:ucfirst($msg)]
 #endif
-"   onclick=\"Doodle()\" /></div>
+"   onclick="Doodle()" /></div>
 #else
 
 #endif
@@ -1325,13 +1325,13 @@ www.[Symbolic:$homepage]
 #else
 [Symbolic:ucfirst($msg)]
 #endif
-" onclick=\"MailSelection()\" /></div><div class='left'><input type='button' value="
+" onclick="MailSelection()" /></div><div class='left'><input type='button' value="
 #if ($has_mb_strtoupper)
 [Symbolic:mb_strtoupper(mb_substr($msg, 0,1))][Symbolic:mb_substr($msg, 1)]
 #else
 [Symbolic:ucfirst($msg)]
 #endif
-"     onclick=\"DeleteSel()\" /></div>
+"     onclick="DeleteSel()" /></div>
 #if (isset($table_groups) and $table_groups != "" and !$is_fix_group)
 
 #if ($group_name != "" and $group_name != "[none]")
@@ -1707,7 +1707,7 @@ For more details see: http://www.frequency-decoder.com/2006/09/16/unobtrusive-ta
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"
 #if (is_right_to_left($lang))
-dir='rtl'
+ dir='rtl'
 #else
 
 #endif
