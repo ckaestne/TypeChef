@@ -93,7 +93,7 @@ class HTMLSAXParser extends MultiFeatureParser {
   def AttrValue: MultiParser[String] =
     (('"' ~> repPlain(token("any char except \"", _.getKindChar() != '"')) <~ '"') |
       ('\'' ~> repPlain(token("any char except '", _.getKindChar() != '\'')) <~ '\'') |
-      (repPlain(token("any char except space", _.getKindChar() != ' ')) <~ lookahead(' '))) ^^ { _.map(_.getText()).mkString }
+      (repPlain(token("any word character", isWordChar(_))))) ^^ { _.map(_.getText()).mkString }
 
 }
 
