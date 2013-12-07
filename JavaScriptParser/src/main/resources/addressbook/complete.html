@@ -864,7 +864,7 @@ IMPORT
 		       onkeyup="filterResults(this)"/>
 
 #else
-
+                 />
 #endif
 	</form>
 
@@ -1066,7 +1066,7 @@ odd
 #else
 
 #endif
-[Symbolic:$myrow['email2']]' /></td>
+[Symbolic:$myrow[email2]]' /></td>
 #else
 
 #if (case $row == "first_last")
@@ -1301,7 +1301,7 @@ www.[Symbolic:$homepage]
 #endif
 
 [RepeatEnd]</tr>\n
-[RepeatEnd]</table>&nbsp;<input type='checkbox' id='MassCB' onclick=\"MassSelection()\" /> <em><strong>
+[RepeatEnd]</table>&nbsp;<input type='checkbox' id='MassCB' onclick="MassSelection()" /> <em><strong>
 #if ($has_mb_strtoupper)
 [Symbolic:mb_strtoupper(mb_substr($msg, 0,1))][Symbolic:mb_substr($msg, 1)]
 #else
