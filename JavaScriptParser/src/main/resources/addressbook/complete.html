@@ -1309,13 +1309,13 @@ www.[Symbolic:$homepage]
 #endif
 </strong></em><br><br>
 #if ($use_doodle)
-<div class='left'><input type='button' value=\"
+<div class='left'><input type='button' value="
 #if ($has_mb_strtoupper)
 [Symbolic:mb_strtoupper(mb_substr($msg, 0,1))][Symbolic:mb_substr($msg, 1)]
 #else
 [Symbolic:ucfirst($msg)]
 #endif
-\"   onclick=\"Doodle()\" /></div>
+"   onclick=\"Doodle()\" /></div>
 #else
 
 #endif
@@ -1325,13 +1325,13 @@ www.[Symbolic:$homepage]
 #else
 [Symbolic:ucfirst($msg)]
 #endif
-" onclick=\"MailSelection()\" /></div><div class='left'><input type='button' value=\"
+" onclick=\"MailSelection()\" /></div><div class='left'><input type='button' value="
 #if ($has_mb_strtoupper)
 [Symbolic:mb_strtoupper(mb_substr($msg, 0,1))][Symbolic:mb_substr($msg, 1)]
 #else
 [Symbolic:ucfirst($msg)]
 #endif
-\"     onclick=\"DeleteSel()\" /></div>
+"     onclick=\"DeleteSel()\" /></div>
 #if (isset($table_groups) and $table_groups != "" and !$is_fix_group)
 
 #if ($group_name != "" and $group_name != "[none]")
