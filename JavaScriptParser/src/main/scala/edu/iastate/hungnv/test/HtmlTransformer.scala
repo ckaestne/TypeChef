@@ -16,6 +16,7 @@ import edu.iastate.hungnv.test.Util._
 object HtmlTransformer {
 
     type ElementList = List[Opt[HElement]]
+    type DomType = List[Opt[DElement]]
 
     def transform(r: Reader): Unit = {
 
@@ -36,13 +37,13 @@ object HtmlTransformer {
          * Step 2: SAX sequence
          */
         val p = new HTMLSAXParser
-        var saxResult =p.phrase(p.HtmlSequence)(tokenReader, FeatureExprFactory.True)
+        var saxResult = p.phrase(p.HtmlSequence)(tokenReader, FeatureExprFactory.True)
 
         //    log(saxResult.toString)
 
-        def printResult(f: FeatureExpr, x: p.MultiParseResult[ElementList]): Unit = x match {
-            case p.Success(y, _) => println("succeeded["+f + "] \n" + y.size) //y.take(4))
-            case e@p.Failure(y, r, _) => println("failed[" + f + "] \n"+e+"\n  @"+r.rest.first.getPosition())
+        def printResult[T](f: FeatureExpr, x: p.MultiParseResult[List[T]]): Unit = x match {
+            case p.Success(y, _) => println("succeeded[" + f + "] \n" + y.size) //y.take(4))
+            case e@p.Failure(y, r, _) => println("failed[" + f + "] \n" + e + "\n  @" + r.first.getPosition())
             case p.SplittedParseResult(fx, x, y) =>
                 printResult(f and fx, x)
                 printResult(f andNot fx, y)
@@ -78,36 +79,43 @@ object HtmlTransformer {
         var saxSequence = success.get.result
 
         println("2. SAX sequence:")
-        println(prettyPrintSaxSequence(saxSequence))
+        //        println(prettyPrintSaxSequence(saxSequence))
         println()
 
         /*
          * Step 3: DOM tokens
          */
-        var domTokens = List[HElementToken]()
-        //    saxResult match {
-        //        case p.Success(r, rest) => domTokens = r.map(t=>new HElementToken(t))
-        //        case x => println("parsing problem: "+x)
-        //    }
-        //
+        val eoftoken = new HElementToken(Opt(FeatureExprFactory.True, HText(List())))
+        var domTokens : List[HElementToken]=saxSequence.map(t=>new HElementToken(t))
+        val tokenStream = new TokenReader[HElementToken, Null](domTokens, 0, null, eoftoken)
+
         println("3. DOM tokens:")
-        println(prettyPrintDomTokens(domTokens))
+//        println(prettyPrintDomTokens(domTokens))
         println()
 
         /*
          * Step 4: DOM tree
          */
         val p2 = new HTMLDomParser
-        val tokenStream = new TokenReader[HElementToken, Null](domTokens, 0, null, new HElementToken(Opt(FeatureExprFactory.True, HText(List()))))
-        val dom = p2.Element(tokenStream, FeatureExprFactory.True)
+        val dom :p2.MultiParseResult[DomType] = p2.phrase(p2.Document)(tokenStream, FeatureExprFactory.True)
 
-        log("Parse result: " + standardize(dom.toString), true)
+        log("Parse result: ");
+        def printResult2[T](f: FeatureExpr, x: p2.MultiParseResult[List[T]]): Unit = x match {
+            case p2.Success(y, _) => println("succeeded[" + f + "] \n  " + y.size) //y.take(4))
+            case e@p2.NoSuccess(y, r, _) => println("failed[" + f + "] \n  " + y + "\n  @" + r.first.getPosition+": "+r.first)
+            case p2.SplittedParseResult(fx, x, y) =>
+                printResult2(f and fx, x)
+                printResult2(f andNot fx, y)
+        }
+        printResult2(FeatureExprFactory.True,dom)
 
         dom match {
             case x: p2.Success[_] => {log("Good")}
             case p2.Error(_, next, _) => {log(next.first.getPosition.toString)}
             case _ => {}
         }
+
+        System.exit(0)
 
         if (!dom.isInstanceOf[p.Success[DNode]])
             return;
