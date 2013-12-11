@@ -25,6 +25,7 @@ package de.fosd.typechef.lexer;
 
 import de.fosd.typechef.LexerToken;
 import de.fosd.typechef.VALexer;
+import de.fosd.typechef.featureexpr.FeatureExpr;
 import de.fosd.typechef.featureexpr.FeatureModel;
 import de.fosd.typechef.lexer.macrotable.MacroFilter;
 import de.fosd.typechef.lexer.options.ILexerOptions;
@@ -163,7 +164,8 @@ public class Main {
         for (Feature f : options.getFeatures())
             pp.addFeature(f);
 
-        pp.setListener(new PreprocessorListener(pp));
+        PreprocessorListener listener=new PreprocessorListener(pp);
+        pp.setListener(listener);
         pp.addMacro("__TYPECHEF__", FeatureExprLib.True());
 
         PrintWriter output = null;
@@ -253,6 +255,13 @@ public class Main {
             if (output != null && !options.isLexPrintToStdout())
                 output.close();
         }
+
+        // if there was a lexer error in some configurations, restrict all tokens with that condition
+        FeatureExpr invalidConfigurations= listener.getInvalidConfigurations();
+        if (!invalidConfigurations.isContradiction())
+            for (LexerToken tok: resultTokenList)
+                tok.setFeature(tok.getFeature().andNot(invalidConfigurations));
+
         return resultTokenList;
     }
 

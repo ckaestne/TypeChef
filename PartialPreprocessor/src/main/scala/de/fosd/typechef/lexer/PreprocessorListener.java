@@ -25,6 +25,7 @@ package de.fosd.typechef.lexer;
 
 import de.fosd.typechef.VALexer;
 import de.fosd.typechef.featureexpr.FeatureExpr;
+import de.fosd.typechef.featureexpr.FeatureExprFactory;
 
 import java.util.logging.Level;
 
@@ -40,6 +41,8 @@ public class PreprocessorListener {
     private int errors;
     private int warnings;
     private VALexer pp;
+
+    private FeatureExpr invalidConfigurations = FeatureExprFactory.False();
 
     public PreprocessorListener(VALexer pp) {
         clear();
@@ -91,10 +94,16 @@ public class PreprocessorListener {
         print(source.getName() + ":" + line + ":" + column + ": error: " + msg
                 + "; condition: " + featureExpr, Level.SEVERE);
         pp.debugPreprocessorDone();
-        throw new LexerException(msg);
+
+        invalidConfigurations = invalidConfigurations.or(featureExpr);
+        if (invalidConfigurations.isTautology(pp.getFeatureModel()))
+            throw new LexerException("Lexer exception in all configurations. Quitting.");
     }
 
     public void handleSourceChange(Source source, String event) {
     }
+
+
+    public FeatureExpr getInvalidConfigurations() { return invalidConfigurations; }
 
 }
