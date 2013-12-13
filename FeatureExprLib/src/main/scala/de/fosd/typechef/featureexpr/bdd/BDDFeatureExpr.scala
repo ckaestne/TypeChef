@@ -131,8 +131,15 @@ class BDDFeatureExpr(private[featureexpr] val bdd: BDD) extends FeatureExpr {
 
     import CastHelper._
 
-    def or(that: FeatureExpr): FeatureExpr = FExprBuilder.or(this, asBDDFeatureExpr(that))
-    def and(that: FeatureExpr): FeatureExpr = FExprBuilder.and(this, asBDDFeatureExpr(that))
+    def or(that: FeatureExpr): FeatureExpr = {
+        if (that == FeatureExprFactory.True) FeatureExprFactory.True
+        else FExprBuilder.or(this, asBDDFeatureExpr(that))
+    }
+    def and(that: FeatureExpr): FeatureExpr = {
+        if (that == FeatureExprFactory.True) this
+        else if (that == FeatureExprFactory.False) FeatureExprFactory.False
+        else FExprBuilder.and(this, asBDDFeatureExpr(that))
+    }
     def not(): FeatureExpr = FExprBuilder.not(this)
 
     /**

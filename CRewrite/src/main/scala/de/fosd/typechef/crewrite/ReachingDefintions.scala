@@ -85,18 +85,18 @@ class ReachingDefintions(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: Feat
             if (udm.containsKey(d)) {
                 for (de <- udm.get(d)) {
                     // ... add it to the result set, ... defs(y)
-                    res += ((cachePGT.lookup(de).get, env.featureExpr(d)))
+                    res = res + ((cachePGT.lookup(de).get, env.featureExpr(d)))
 
                     // ... and traverse all usages of the declaration and add it to the result set.
                     for (u <- dum.get(de)) {
                         // ensure that we don't add the definition itself "\ {d}"
                         if (cachePGT.lookup(u).isDefined && !d.eq(u))
-                            res += ((cachePGT.lookup(u).get, env.featureExpr(d)))
+                            res = res + ((cachePGT.lookup(u).get, env.featureExpr(d)))
                     }
                 }
             } else {
                 // in case we already found a declaration
-                res += ((cachePGT.lookup(d).get, env.featureExpr(d)))
+                res = res + ((cachePGT.lookup(d).get, env.featureExpr(d)))
             }
         }
         res
@@ -111,8 +111,7 @@ class ReachingDefintions(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: Feat
 
     //  in(a) = for p in pred(a) r = r + out(p)
     // out(a) = gen(a) + (in(a) - kill(a))
-    protected def infunction(a: AST): L = combinator(a)
-    protected def outfunction(a: AST): L = f_l(a)
-
     protected def isForward = true
+
+    solve()
 }

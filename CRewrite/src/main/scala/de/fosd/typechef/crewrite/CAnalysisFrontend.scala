@@ -54,7 +54,7 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend, fm
     private lazy val dum = ts.getDeclUseMap
 
     private val fanalyze = fdefs.map {
-        x => (x, getAllSucc(x, FeatureExprFactory.empty, env))
+        x => (x, getAllSucc(x, FeatureExprFactory.empty, env).filterNot { x => x._1.isInstanceOf[FunctionDef] } )
     }
 
     var errors: List[TypeChefError] = List()
@@ -72,55 +72,53 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend, fm
     }
 
     private def deadStore(fa: (FunctionDef, List[(AST, List[Opt[AST]])])): List[TypeChefError] = {
-        var res: List[TypeChefError] = List()
+        var err: List[TypeChefError] = List()
 
-        val df = new Liveness(env, udm, FeatureExprFactory.empty)
+        val df = new Liveness(fa._1, env, udm, FeatureExprFactory.empty)
 
-        val nss = fa._2.map(_._1).filterNot(x => x.isInstanceOf[FunctionDef]).reverse
+        val nss = fa._2.map(_._1)
+
+        println("analyzing " + fa._1.getName + " with " + nss.size + " cfg stmts and " + fa._2.map(_._2.size).sum + " succs")
 
         for (s <- nss) {
-            val k = df.kill(s)
-
-            println(PrettyPrinter.print(s), df.out(s))
-            if (k.size > 0) {
+            for ((i, fi) <- df.kill(s)) {
                 val out = df.out(s)
 
-
-                for ((i, fi) <- k) {
-                    // code such as "int a;" occurs frequently and issues an error
-                    // we filter them out by checking the declaration use map for usages
-                    if (dum.containsKey(i) && dum.get(i).size > 0) {}
-                    else out.find { case (t, _) => t == i } match {
-                        case None => {
+                // code such as "int a;" occurs frequently and issues an error
+                // we filter them out by checking the declaration use map for usages
+                if (dum.containsKey(i) && dum.get(i).size > 0) {}
+                else out.find { case (t, _) => t == i } match {
+                    case None => {
+                        var idecls = udm.get(i)
+                        if (idecls == null)
+                            idecls = List(i)
+                        if (idecls.exists(isPartOf(_, fa._1)))
+                            err ::= new TypeChefError(Severity.Warning, fi, "warning: Variable " + i.name + " is a dead store!", i, "")
+                    }
+                    case Some((x, z)) => {
+                        if (! z.isTautology(fm)) {
+                            var xdecls = udm.get(x)
+                            if (xdecls == null)
+                                xdecls = List(x)
                             var idecls = udm.get(i)
                             if (idecls == null)
                                 idecls = List(i)
-                            if (idecls.exists(isPartOf(_, fa._1)))
-                                res ::= new TypeChefError(Severity.Warning, fi, "warning: Variable " + i.name + " is a dead store!", i, "")
-                        }
-                        case Some((x, z)) => {
-                            if (! z.isTautology(fm)) {
-                                var xdecls = udm.get(x)
-                                if (xdecls == null)
-                                    xdecls = List(x)
-                                var idecls = udm.get(i)
-                                if (idecls == null)
-                                    idecls = List(i)
-                                for (ei <- idecls) {
-                                    // with isPartOf we reduce the number of false positives, since we only check local variables and function parameters.
-                                    // an assignment to a global variable might be used in another function
-                                    if (isPartOf(ei, fa._1) && xdecls.exists(_.eq(ei)))
-                                        res ::= new TypeChefError(Severity.Warning, z.not(), "warning: Variable " + i.name + " is a dead store!", i, "")
-                                }
-
+                            for (ei <- idecls) {
+                                // with isPartOf we reduce the number of false positives, since we only check local variables and function parameters.
+                                // an assignment to a global variable might be used in another function
+                                if (isPartOf(ei, fa._1) && xdecls.exists(_.eq(ei)))
+                                    err ::= new TypeChefError(Severity.Warning, z.not(), "warning: Variable " + i.name + " is a dead store!", i, "")
                             }
+
                         }
                     }
                 }
             }
         }
 
-        res
+        df.printStatistics()
+
+        err
     }
 
     def doubleFree(): Boolean = {
@@ -149,7 +147,7 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend, fm
 
 
     private def doubleFree(fa: (FunctionDef, List[(AST, List[Opt[AST]])]), casestudy: String): List[TypeChefError] = {
-        var res: List[TypeChefError] = List()
+        var err: List[TypeChefError] = List()
 
         val df = new DoubleFree(env, dum, udm, FeatureExprFactory.empty, fa._1, casestudy)
 
@@ -165,19 +163,21 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend, fm
                     case None =>
                     case Some(((x, _), _)) => {
                         if (h.isSatisfiable(fm)) {
-                            val xdecls = udm.get(x)
+                            var xdecls = udm.get(x)
+                            if (xdecls == null)
+                                xdecls = List(x)
                             var idecls = udm.get(i)
                             if (idecls == null)
                                 idecls = List(i)
                             for (ei <- idecls)
                                 if (xdecls.exists(_.eq(ei)))
-                                    res ::= new TypeChefError(Severity.Warning, h, "warning: Variable " + x.name + " is freed multiple times!", x, "")
+                                    err ::= new TypeChefError(Severity.Warning, h, "warning: Variable " + x.name + " is freed multiple times!", x, "")
                         }
                     }
                 }
             }
         }
-        res
+        err
     }
 
     def uninitializedMemory(): Boolean = {
@@ -195,7 +195,7 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend, fm
 
 
     private def uninitializedMemory(fa: (FunctionDef, List[(AST, List[Opt[AST]])])): List[TypeChefError] = {
-        var res: List[TypeChefError] = List()
+        var err: List[TypeChefError] = List()
 
         val um = new UninitializedMemory(env, dum, udm, FeatureExprFactory.empty, fa._1)
         val nss = fa._2.map(_._1).filterNot(x => x.isInstanceOf[FunctionDef])
@@ -218,14 +218,14 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend, fm
                                     idecls = List(i)
                                 for (ei <- idecls)
                                     if (xdecls.exists(_.eq(ei)))
-                                        res ::= new TypeChefError(Severity.Warning, h, "warning: Variable " + x.name + " is used uninitialized!", x, "")
+                                        err ::= new TypeChefError(Severity.Warning, h, "warning: Variable " + x.name + " is used uninitialized!", x, "")
                             }
                         }
                     }
             }
         }
 
-        res
+        err
     }
 
     def xfree(): Boolean = {
@@ -243,7 +243,7 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend, fm
 
 
     private def xfree(fa: (FunctionDef, List[(AST, List[Opt[AST]])])): List[TypeChefError] = {
-        var res: List[TypeChefError] = List()
+        var err: List[TypeChefError] = List()
 
         val xf = new XFree(env, dum, udm, FeatureExprFactory.empty, fa._1, "")
         val nss = fa._2.map(_._1).filterNot(x => x.isInstanceOf[FunctionDef])
@@ -264,14 +264,14 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend, fm
                                     idecls = List(i)
                                 for (ei <- idecls)
                                     if (xdecls.exists(_.eq(ei)))
-                                        res ::= new TypeChefError(Severity.Warning, h, "warning: Variable " + x.name + " is freed although not dynamically allocted!", x, "")
+                                        err ::= new TypeChefError(Severity.Warning, h, "warning: Variable " + x.name + " is freed although not dynamically allocted!", x, "")
                             }
                         }
                     }
             }
         }
 
-        res
+        err
     }
 
     def danglingSwitchCode(): Boolean = {
@@ -321,6 +321,32 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend, fm
         )
     }
 
+    def caseTermination(): Boolean = {
+        val err = fanalyze.flatMap(caseTermination)
+
+        if (err.isEmpty) {
+            println("Case statements with code are properly terminated with break statements!")
+        } else {
+            println(err.map(_.toString + "\n").reduce(_ + _))
+        }
+
+        errors ++= err
+        err.isEmpty
+    }
+
+    private def caseTermination(fa: (FunctionDef, List[(AST, List[Opt[AST]])])): List[TypeChefError] = {
+        val casestmts = filterAllASTElems[CaseStatement](fa._1)
+
+        val ct = new CaseTermination(env, fm)
+
+        casestmts.filterNot(ct.isTerminating).map {
+            x => {
+                new TypeChefError(Severity.Warning, env.featureExpr(x),
+                    "Case statement is not terminated by a break!", x, "")
+            }
+        }
+    }
+
     def stdLibFuncReturn(): Boolean = {
         val err = fanalyze.flatMap(stdLibFuncReturn)
 
@@ -337,7 +363,7 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend, fm
     private def stdLibFuncReturn(fa: (FunctionDef, List[(AST, List[Opt[AST]])])): List[TypeChefError] = {
         var err: List[TypeChefError] = List()
         val cl: List[StdLibFuncReturn] = List(
-            //new StdLibFuncReturn_EOF(env, udm, fm),
+            //new StdLibFuncReturn_EOF(env, dum, udm, fm, fa._1),
 
             new StdLibFuncReturn_Null(env, dum, udm, FeatureExprFactory.empty, fa._1)
         )
@@ -357,29 +383,33 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend, fm
                 // we check whether used variables that hold the value of a stdlib function are killed in s,
                 // if not we report an error
                 val g = cle.getUsedVariables(s)
-                for (((e, _), fi) <- cle.out(s))
-                    g.find(_ == e) match {
+                val in = cle.in(s)
+                for (((e, _), fi) <- in) {
+                    println("s", PrettyPrinter.print(s), "in", in, "g", g, "u", cle.uses(s))
+                    g.find { case ((t, _), _) => t == e } match {
                         case None =>
-                        case Some(x) => {
+                        case Some((k@(x, _), _)) => {
                             if (fi.isSatisfiable(fm)) {
-                            val xdecls = udm.get(x)
-                            var edecls = udm.get(e)
-                            if (edecls == null) edecls = List(e)
+                                var xdecls = udm.get(x)
+                                if (xdecls == null)
+                                    xdecls = List(x)
+                                var edecls = udm.get(e)
+                                if (edecls == null)
+                                    edecls = List(e)
 
-                            for (ee <- edecls) {
-                                val kills = cle.kill(s)
-                                if (xdecls.exists(_.eq(ee)) && !kills.contains(x._1)) {
+                                for (ee <- edecls) {
+                                    val kills = cle.kill(s)
+                                    if (xdecls.exists(_.eq(ee)) && !kills.contains(k)) {
                                         err ::= new TypeChefError(Severity.SecurityWarning, fi, "The value of " +
-                                        PrettyPrinter.print(e) + " is not properly checked for (" + errorvalues + ")!", e)
+                                            PrettyPrinter.print(e) + " is not properly checked for (" + errorvalues + ")!", e)
+                                    }
                                 }
                             }
                         }
                     }
+                }
             }
         }
-
-        }
-        errors ++= err
         err
     }
 }

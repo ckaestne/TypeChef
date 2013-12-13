@@ -63,16 +63,11 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
         }
     }
     private val predCCFGCache = new CFGCache()
-    private val succCCFGCache = new CFGCache()
+    protected val succCCFGCache = new CFGCache()
 
     // result type of pred/succ determination
     // List[(computed annotation, given annotation, CFGStmt node)]
     type CFGRes = List[(FeatureExpr, FeatureExpr, CFGStmt)]
-
-    // result of pred/succ computation
-    // classic control flow computation returns List[CFGStmt]
-    // the Opt stores the condition under which the CFGStmt element is the predecessor/successor of the input element
-    type CFG = List[Opt[CFGStmt]]
 
     // during traversal of AST elements, we sometimes dig into elements, and don't want to get out again
     // we use the barrier list to add elements we do not want to get out again;
