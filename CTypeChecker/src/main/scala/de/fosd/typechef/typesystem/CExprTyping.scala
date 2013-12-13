@@ -9,7 +9,7 @@ import de.fosd.typechef.error._
 /**
  * typing C expressions
  */
-trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInterface with CDeclUse {
+trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInterface with CDeclUseInterface {
 
 
     /**

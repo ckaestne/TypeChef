@@ -471,6 +471,11 @@ public class XtcPreprocessor implements VALexer {
         }
 
         @Override
+        public void setFeature(FeatureExpr fexpr) {
+            this.fexpr=fexpr;
+        }
+
+        @Override
         public String toString() {
             return getText();
         }
@@ -487,5 +492,10 @@ public class XtcPreprocessor implements VALexer {
         }
 
 
+    }
+
+    @Override
+    public FeatureModel getFeatureModel() {
+        return featureModel;
     }
 }

@@ -320,8 +320,8 @@ object PrettyPrinter {
             case Enumerator(id, None) => id
             case StructOrUnionSpecifier(isUnion, id, enumerators) => (if (isUnion) "union" else "struct") ~~ opt(id) ~~ (if (enumerators.isDefined) block(sep(enumerators.get, _ * _)) else Empty)
             case StructDeclaration(qualifierList, declaratorList) => spaceSep(qualifierList) ~~ commaSep(declaratorList) ~ ";"
-            case StructDeclarator(decl, initializer, _) => decl ~ optExt(initializer, ":" ~~ _)
-            case StructInitializer(expr, _) => ":" ~~ expr
+            case StructDeclarator(decl, initializer, attr) => decl ~ optExt(initializer, ":" ~~ _) ~~ spaceSep(attr)
+            case StructInitializer(expr, attr) => ":" ~~ expr ~~ spaceSep(attr)
             case AsmExpr(isVolatile, expr) => "asm" ~~ (if (isVolatile) "volatile " else "") ~ "{" ~ expr ~ "}" ~ ";"
             case FunctionDef(specifiers, declarator, oldStyleParameters, stmt) =>
                 spaceSep(specifiers) ~~ declarator ~~ spaceSep(oldStyleParameters) ~~ stmt
