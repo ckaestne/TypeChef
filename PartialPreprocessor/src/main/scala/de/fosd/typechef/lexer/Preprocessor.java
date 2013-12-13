@@ -219,6 +219,11 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable, VA
         sourceManager.reinit();
     }
 
+    @Override
+    public FeatureModel getFeatureModel() {
+        return featureModel;
+    }
+
     /**
      * Returns the PreprocessorListener which handles events for this
      * Preprocessor.
