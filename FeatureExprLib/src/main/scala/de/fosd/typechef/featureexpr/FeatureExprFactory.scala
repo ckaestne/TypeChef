@@ -14,7 +14,7 @@ import sat.SATFeatureExprFactory
  */
 object FeatureExprFactory {
 
-    var default: AbstractFeatureExprFactory = if (System.getProperty("FEATUREEXPR") == "BDD") bdd else bdd
+    var default: AbstractFeatureExprFactory = if (System.getProperty("FEATUREEXPR") == "BDD") bdd else sat
     def dflt = default
 
     def setDefault(newFactory: AbstractFeatureExprFactory) {
