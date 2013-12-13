@@ -149,7 +149,7 @@ object Frontend extends EnforceTreeHelper {
                 /** I did some experiments with the TypeChef FeatureModel of Linux, in case I need the routines again, they are saved here. */
                 //Debug_FeatureModelExperiments.experiment(fm_ts)
 
-                if (opt.typecheck || opt.writeInterface) {
+                if (opt.typecheck || opt.writeInterface || opt.typechecksa) {
                     //ProductGeneration.typecheckProducts(fm,fm_ts,ast,opt,
                     //logMessage=("Time for lexing(ms): " + (t2-t1) + "\nTime for parsing(ms): " + (t3-t2) + "\n"))
                     //ProductGeneration.estimateNumberOfVariants(ast, fm_ts)
