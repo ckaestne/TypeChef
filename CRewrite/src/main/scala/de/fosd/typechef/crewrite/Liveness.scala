@@ -19,7 +19,7 @@ class Liveness(f: FunctionDef, env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) e
 
     // returns all declared variables with their annotation
     val declaresVar: PartialFunction[(Any), L] = {
-        case a => addAnnotations(declares(a))
+        case a => addAnnotations(declares(a.asInstanceOf[AnyRef]))
     }
 
     def gen(a: AST): L = {

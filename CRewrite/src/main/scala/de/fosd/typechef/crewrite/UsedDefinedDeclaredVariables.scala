@@ -9,8 +9,6 @@ import de.fosd.typechef.conditional._
 // used for Liveness and ReachingDefinitions
 trait UsedDefinedDeclaredVariables {
 
-    protected implicit def any2AnyRef(e: Any) = e.asInstanceOf[AnyRef]
-
     // returns all declared Ids independent of their annotation
     val declares: AnyRef => List[Id] =
         attr {
@@ -18,7 +16,7 @@ trait UsedDefinedDeclaredVariables {
             case Declaration(_, init) => init.flatMap(declares)
             case InitDeclaratorI(declarator, _, _) => declares(declarator)
             case AtomicNamedDeclarator(_, id, _) => List(id)
-            case Opt(_, entry) => declares(entry)
+            case Opt(_, entry) => declares(entry.asInstanceOf[AnyRef])
             case _ => List()
         }
 
@@ -35,7 +33,7 @@ trait UsedDefinedDeclaredVariables {
             case ExprStatement(expr) => defines(expr)
             case PostfixExpr(i@Id(_), SimplePostfixSuffix(_)) => List(i) // a++; or a--;
             case UnaryExpr(kind, i: Id) => if (kind == "++" || kind == "--") List(i) else List() // ++a; or --a;
-            case Opt(_, entry) => defines(entry)
+            case Opt(_, entry) => defines(entry.asInstanceOf[AnyRef])
             case PointerDerefExpr(i: Id) => List(i)
             case _ => List()
         }
@@ -68,7 +66,7 @@ trait UsedDefinedDeclaredVariables {
             case ConditionalExpr(condition, _, _) => uses(condition)
             case ExprStatement(expr) => uses(expr)
             case AssignExpr(target, op, source) => uses(source) ++ (if (op == "=") List() else uses(target))
-            case Opt(_, entry) => uses(entry)
+            case Opt(_, entry) => uses(entry.asInstanceOf[AnyRef])
             case _ => List()
         }
 }
