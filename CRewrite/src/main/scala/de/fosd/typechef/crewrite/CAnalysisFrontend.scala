@@ -116,8 +116,6 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend, fm
             }
         }
 
-        df.printStatistics()
-
         err
     }
 

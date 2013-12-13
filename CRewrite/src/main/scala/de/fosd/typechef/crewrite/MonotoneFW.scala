@@ -216,51 +216,10 @@ sealed abstract class MonotoneFW[T](val f: FunctionDef, env: ASTEnv, val fm: Fea
     //      in          |      (combinator)  ∧       (f_l)
     //    x++;          | flow (pred)        | flowR (succ)
     //      out         ∨      (f_l)         |       (combinator)
-//    protected def circle(e: AST): L = combinator(e)
-//    protected def point(e: AST): L = f_l(e)
 
-//    protected val combinator: AST => L = {
-//        circular[AST, L](Some("combinator"))(b) {
-//            case _: E => i
-//            case a => {
-//                val fl = F(a)
-//
-//                var res = b
-//
-//                // propagate flow condition to current result elements and combine them using
-//                // combinationOperator
-//
-//
-//                res
-//            }
-//        }
-//    }
-
-//    protected val f_l: AST => L = {
-//        circular[AST, L](Some("f_l"))(b) {
-//            case _: E => i
-//            case a => {
-//
-//
-//                var res = combinator(a)
-//                res = diff(res, mapGenKillElements2MonotoneElements(k))
-//
-//                res = union(res, mapGenKillElements2MonotoneElements(g))
-//                res
-//            }
-//        }
-//    }
-
-    private val countcombinatorinvocations = new IdentityHashMapCache[Int]()
-    private val countf_linvocations = new IdentityHashMapCache[Int]()
-
-    def printStatistics() = {
-        println("++++++++++++++++++++++++++++++")
-        println("combinator invocations: " + countcombinatorinvocations.keySet.toArray.toList.map(countcombinatorinvocations.lookup(_).get).sum)
-        println("f_l invocations: " + countf_linvocations.keySet.toArray.toList.map(countf_linvocations.lookup(_).get).sum)
-        println("++++++++++++++++++++++++++++++")
-    }
-
+    // we implement our own fixpoint computation which computes for each cfgstmt the desired dataflow property upfront
+    // this does not allow to selectively compute dataflow properties for a single cfgstmt.
+    // TODO should be fixed with an improved version using kiama's attribute grammars.
     def solve(): Unit = {
         if (f == null) return
 
@@ -279,13 +238,6 @@ sealed abstract class MonotoneFW[T](val f: FunctionDef, env: ASTEnv, val fm: Fea
                 val ((_, cold), (_, fold)) = memo.lookup(cfgstmt).get
 
                 var cnew = cold
-
-                if (fl.size > 0) {
-                    countcombinatorinvocations.lookup(cfgstmt) match {
-                        case None => countcombinatorinvocations.update(cfgstmt, 1)
-                        case Some(c) => countcombinatorinvocations.update(cfgstmt, c+1)
-                    }
-                }
 
                 // circle
                 for (Opt(feature, entry) <- fl) {
@@ -310,10 +262,7 @@ sealed abstract class MonotoneFW[T](val f: FunctionDef, env: ASTEnv, val fm: Fea
                 // empty; to ensure that the transfer function is called
                 // at least once for cfgstmt we add fnew.size == 0
                 if (fnew.size == 0 || fold.size < fnew.size) {
-                    countf_linvocations.lookup(cfgstmt) match {
-                        case None => countf_linvocations.update(cfgstmt, 1)
-                        case Some(x) => countf_linvocations.update(cfgstmt, x+1)
-                    }
+
                     val g = gen(cfgstmt)
                     val k = kill(cfgstmt)
                     fnew = diff(fnew, mapGenKillElements2MonotoneElements(k))
