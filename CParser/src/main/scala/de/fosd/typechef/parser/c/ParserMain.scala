@@ -98,10 +98,10 @@ class ParserMain(p: CParser) {
         //        println("done.")
 
         val l = result.toList(FeatureExprFactory.True).filter(_._2.isSuccess)
-//        if (l.isEmpty || !result.toErrorList.isEmpty) {
-//            println(printParseResult(result, FeatureExprFactory.True))
-//            renderParseResult(result, True, parserOptions.renderParserError)
-//        }
+        if (l.isEmpty || !result.toErrorList.isEmpty) {
+            println(printParseResult(result, FeatureExprFactory.True))
+            renderParseResult(result, True, parserOptions.renderParserError)
+        }
         if (l.isEmpty) null
         else mergeResultsIntoSingleAST(l)
     }
