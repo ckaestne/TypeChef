@@ -84,10 +84,7 @@ and several helper libraries.
 Installation and Usage
 ----------------------
 
-For simple experimentation, try our [online version](http://www.mathematik.uni-marburg.de/~kaestner/TypeChef/online/).
-
-Alternatively, you can download a .jar file including
-all necessary libraries [TypeChef.jar](http://ckaestne.github.com/TypeChef/deploy/TypeChef-0.3.4.jar). Run as usual
+You can download a .jar file including all necessary libraries [TypeChef.jar](http://ckaestne.github.com/TypeChef/deploy/TypeChef-0.3.4.jar). Run as usual
 
     java -jar TypeChef.jar ...
 
@@ -97,6 +94,9 @@ With [sbt](http://code.google.com/p/simple-build-tool/) you can include TypeChef
 ```scala
 libraryDependencies += "de.fosd.typechef" %% "frontend" % "0.3.4"
 ```
+
+There is an Eclipse plugin [Colligens](https://sites.google.com/a/ic.ufal.br/colligens/) available, developed and maintained at Universidade Federal de Alagoas and Universidade Federal de Campina Grande. The plugin is also integrated in [FeatureIDE](http://fosd.net/fide).
+
 
 To build TypeChef from source, we use 
 [sbt](http://code.google.com/p/simple-build-tool/). 
