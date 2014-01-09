@@ -81,7 +81,8 @@ class HTMLSAXParser extends MultiFeatureParser {
 
   def WSs: MultiParser[Any] = rep1(WS)
 
-  def Identifier: MultiParser[String] = Char ~ repPlain(Char) ^^ { case f ~ r => (f :: r).map(_.getText()).mkString }
+  //def Identifier: MultiParser[String] = Char ~ repPlain(Char) ^^ { case f ~ r => (f :: r).map(_.getText()).mkString }
+  def Identifier: MultiParser[DString] = Char ~ repPlain(Char) ^^ { case f ~ r => new DString((f :: r).map(_.getText()).mkString)}
 
   def Char = token("word", isWordChar(_))
 

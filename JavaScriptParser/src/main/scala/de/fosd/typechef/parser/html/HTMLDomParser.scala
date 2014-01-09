@@ -2,6 +2,7 @@ package de.fosd.typechef.parser.html
 
 import de.fosd.typechef.parser._
 import de.fosd.typechef.conditional.Opt
+import de.fosd.typechef.parser.common.JPosition
 
 //
 ///*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -41,12 +42,12 @@ class HTMLDomParser extends MultiFeatureParser {
                                 closingResults.mapfr(ctx, (ctx, closingResult) =>
                                     closingResult match {
                                         case Success(closingR, closingRest) =>
-                                            if (startR._1 == closingR)
-                                                Success(DNode(startR._1, startR._2, midR), closingRest)
+                                            if (startR.name == closingR.name)
+                                                Success(DNode(startR.name, startR.attributes, midR, startR, closingR), closingRest)
                                             else
-                                                Error("Mismatching closing tag for <" + startR._1 + "> (found </" + closingR + ">)", in, List())
+                                                Error("Mismatching closing tag for <" + startR.name.name + "> (found </" + closingR.name.name + "> at " + closingRest.pos + ")", in, List())
                                         case n@NoSuccess(msg, restCl, _) =>
-                                            Error("No matching closing tag for <" + startR._1 + ">", in, List(n))
+                                            Error("No matching closing tag for <" + startR.name.name + ">", in, List(n))
                                     }
                                 )
                             case e: NoSuccess => e
@@ -58,20 +59,28 @@ class HTMLDomParser extends MultiFeatureParser {
     }
 }
 
-
-def StartTag: MultiParser[(String, List[Opt[HAttribute]] )] = token ("starttag", _.element match {
+def StartTag: MultiParser[HTag] = token ("starttag", _.element match {
 case HTag (name, false, false, attributes) => true
 case _ => false
 }) ^^ {
 x => val htag = x.element.asInstanceOf[HTag];
-(htag.name, htag.attributes)
+htag
 }
 
-def ClosingTag: MultiParser[String] = token ("closingtag", _.element match {
+//def StartTag: MultiParser[(DString, List[Opt[HAttribute]])] = token ("starttag", _.element match {
+//case HTag (name, false, false, attributes) => true
+//case _ => false
+//}) ^^ {
+//x => val htag = x.element.asInstanceOf[HTag];
+//(htag.name, htag.attributes)
+//}
+//
+
+def ClosingTag: MultiParser[HTag] = token ("closingtag", _.element match {
 case HTag (name, true, false, _) => true
 case _ => false
 }) ^^ {
-x => x.element.asInstanceOf[HTag].name
+x => x.element.asInstanceOf[HTag]
 } | fail ("expected closing tag")
 
 def EmptyTag: MultiParser[DNode] = token ("emptytag", _.element match {
@@ -79,7 +88,7 @@ case HTag (name, false, true, attributes) => true
 case _ => false
 }) ^^ {
 x => val htag = x.element.asInstanceOf[HTag];
-DNode (htag.name, htag.attributes, List () )
+DNode (htag.name, htag.attributes, List (), htag, htag)
 }
 
 def Text: MultiParser[DText] = token ("text", _.element match {

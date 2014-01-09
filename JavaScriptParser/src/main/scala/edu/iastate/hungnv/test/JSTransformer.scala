@@ -20,7 +20,7 @@ object JSTransformer {
 	}
 	
 	def transform(tokens: List[CharacterToken]): String = {
-		val tokenReader = new TokenReader[CharacterToken, Null](tokens, 0, null, new CharacterToken(-1, FeatureExprFactory.True, NoPosition))
+		val tokenReader = new TokenReader[CharacterToken, Null](tokens, 0, null, new CharacterToken(-1, FeatureExprFactory.True, new JPosition("", -1, -1)))
 		transform(tokenReader)
 	}
 	

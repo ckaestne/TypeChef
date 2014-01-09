@@ -3,9 +3,11 @@ package edu.iastate.hungnv.test
 import de.fosd.typechef.conditional._
 import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
 import java.io.{FileWriter, StringWriter, Writer}
-import de.fosd.typechef.parser.html._
+import de.fosd.typechef.parser.javascript._
+import de.fosd.typechef.parser.common.CharacterToken
+import edu.iastate.hungnv.test.Util._
 
-object PrettyPrinter {
+object JSPrinter {
   
     //pretty printer combinators, stolen from http://www.scala-blogs.org/2009/04/combinators-for-pretty-printers-part-1.html
     sealed abstract class Doc {
@@ -44,7 +46,7 @@ object PrettyPrinter {
         case Text(s) => s
         case Cons(l, r) => layout(l) + layout(r)
         case Nest(n, Empty) => layout(Empty)
-        case Nest(n, Line) => "\n" + ("|  " * n)
+        case Nest(n, Line) => "\n" + ("   " * n)
         case Nest(n, Text(s)) => layout(Text(s))
         case Nest(n, Cons(l, r)) => layout(Cons(Nest(n, l), Nest(n, r)))
         case Nest(i, Nest(j, x)) => layout(Nest(i + j, x))
@@ -104,6 +106,7 @@ object PrettyPrinter {
 
         case Choice(f, a: Conditional[_], b: Conditional[_]) =>
             if (newLineForIfdefs) {
+              /*
                 line ~
                     "#if" ~~ f.toTextExpr *
                     ppConditional(a, f :: list_feature_expr) *
@@ -111,6 +114,22 @@ object PrettyPrinter {
                     ppConditional(b, f.not :: list_feature_expr) *
                     "#endif" ~
                         line
+               */        
+              
+	              /*
+	               * Convert #ifdefs to regular ifs
+	               */
+//	              line ~ 
+//	              "if (pseudo_condition) {" ~>
+//	              	ppConditional(a, f :: list_feature_expr) *
+//	              "}" *
+//	              "else {" ~>
+//	              	ppConditional(b, f.not :: list_feature_expr) *
+//	              "}" ~ 
+//	              line
+            	
+            		ppConditional(a, f :: list_feature_expr) 
+	              	
             } else {
                 "#if" ~~ f.toTextExpr *
                     ppConditional(a, f :: list_feature_expr) *
@@ -125,11 +144,19 @@ object PrettyPrinter {
             list_feature_expr.foldLeft(FeatureExprFactory.True)(_ and _).implies(e.feature).isTautology())
             prettyPrint(e.entry, list_feature_expr)
         else if (newLineForIfdefs) {
+          /*
             line ~
                 "#if" ~~ e.feature.toTextExpr *
                 prettyPrint(e.entry, e.feature :: list_feature_expr) *
                 "#endif" ~
                     line
+           */
+          
+          /*
+           * Convert #ifdefs to regular ifs
+           */
+          prettyPrint(e.entry, e.feature :: list_feature_expr)
+          
         } else {
             "#if" ~~ e.feature.toTextExpr *
                 prettyPrint(e.entry, e.feature :: list_feature_expr) *
@@ -199,13 +226,23 @@ object PrettyPrinter {
         def optCondExt(o: Option[Conditional[AST]], ext: (Doc) => Doc): Doc = if (o.isDefined) ext(o.get) else Empty
 
         ast match {
-          case DNode(name, attributes, children) => 
-            		"Node <" ~ name ~ ">" ~> 
-        		  		(("Attributes" ~> 
-        		  			sep(attributes, _ * _)) *
-        		  		sep(children, _ * _))
-          case DText(_) => "Text"
-          case HAttribute(name, value) => name ~ "=" ~ (if (value.isDefined) value.get else Empty)
+          case JSProgram(sourceElements) => sep(sourceElements, _ * _)
+          case JSFunctionDeclaration(name, param, funBody) => "function " ~ name ~ "(params)" ~ " {" ~> funBody * "}"
+          case JSIdentifier(name) => name
+          case JSExprStatement(expr) => expr ~ ";"
+          case JSOtherStatement() => "JSOtherStatement" ~ ";"
+          case JSAssignment(e1, op, e2) => e1 ~~ op ~~ e2
+          case JSFunctionCall(target, arguments) => target //~ "(args)"
+          case JSVariableStatement(s) => "var " ~ sep(s, _ ~ _)
+          case JSVariableDeclaration(name, init) => name ~ " = " ~ opt(init)
+          case JSIfStatement(e, s1, s2) => "if (" ~ e ~ ")" ~> s1 ~ optExt(s2, line ~ "else" ~> _)
+          case JSBinaryOp(e1, op, e2) => e1 ~~ op ~~ e2
+          case JSLit(n) => n
+          case JSBlock(sourceElements) => "{" ~> sep(sourceElements, _ * _) * "}"
+          case JSForStatement(statement) => "for (;;) " ~> statement
+          case JSExpr() => "JSExpr"
+          case JSUnaryExpr(e, op) => op ~ e
+          case _ => "AST:" + ast.getClass()
           /*
             case TranslationUnit(ext) => sep(ext, _ * _)
             case Id(name) => name
@@ -368,4 +405,5 @@ object PrettyPrinter {
             case e => assert(assertion = false, message = "match not exhaustive: " + e); ""
         }
     }
+    
 }

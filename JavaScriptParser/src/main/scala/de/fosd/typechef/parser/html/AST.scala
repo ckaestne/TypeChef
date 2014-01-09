@@ -5,14 +5,15 @@ import de.fosd.typechef.conditional.Opt
 import de.fosd.typechef.parser.AbstractToken
 import de.fosd.typechef.featureexpr.FeatureExpr
 import de.fosd.typechef.parser.common.CharacterToken
+import de.fosd.typechef.parser.common.JPosition
 
 abstract class AST extends Product with Cloneable with WithPosition
 
 abstract class HElement extends AST
 
-case class HTag(name: String, closingTag: Boolean, selfClosing: Boolean, attributes: List[Opt[HAttribute]]) extends HElement
+case class HTag(name: DString, closingTag: Boolean, selfClosing: Boolean, attributes: List[Opt[HAttribute]]) extends HElement
 
-case class HAttribute(name: String, value: Option[String]) extends AST
+case class HAttribute(name: DString, value: Option[String]) extends AST
 
 case class HText(value: List[Opt[CharacterToken]]) extends HElement {
   override def toString = "HText("+ value.map(_.entry.getText).mkString("") +")"
@@ -28,6 +29,9 @@ case class HElementToken(v: Opt[HElement]) extends AbstractToken {
 
 abstract class DElement extends AST
 
-case class DNode(name: String, attributes: List[Opt[HAttribute]], children: List[Opt[DElement]]) extends DElement
+case class DNode(name: DString, attributes: List[Opt[HAttribute]], children: List[Opt[DElement]], openTag: HTag, closingTag: HTag) extends DElement
 
 case class DText(value: List[Opt[CharacterToken]]) extends DElement
+
+case class DString(name: String) extends AST
+

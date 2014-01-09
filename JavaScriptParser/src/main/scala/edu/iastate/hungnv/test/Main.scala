@@ -11,6 +11,8 @@ import de.fosd.typechef.parser.common.CharacterLexer
 import de.fosd.typechef.error.NoPosition
 import java.util
 
+import edu.iastate.hungnv.test.Util._
+
 /**
  * @author HUNG
  */
@@ -64,7 +66,7 @@ object Main extends App {
   //val testFile = "src/main/resources/test-addressbook-ex2.html"
   //val testFile = "src/main/resources/test-addressbook-ex3.html" // Handle ;
   
-  val testFile = "src/main/resources/addressbook/complete.html"
+//  val testFile = "src/main/resources/addressbook/complete.html"
   //val testFile = "src/main/resources/addressbook/Part1.html"
   //val testFile = "src/main/resources/addressbook/Part2.html"
   //val testFile = "src/main/resources/addressbook_old/Part2-1.html" // 8 minutes
@@ -80,7 +82,33 @@ object Main extends App {
 //  val testFile = "src/main/resources/addressbook/css.html"
 //  val testFile = "src/main/resources/addressbook/test.html"
   
+//  val testFile = "src/main/resources/addressbook/index.php.txt"
+//  val testFile = "src/main/resources/test-SplittedParseResult.html"
+    
+//  val testFile = "src/main/resources/xml/test.xml"
+  val testFile = "src/main/resources/addressbook/data_model.xml"
+      
   val reader = new FileReader(testFile)
-  HtmlTransformer.transform(reader)
+  val domResult = HtmlParser.parse(reader)
+  
+  
+
+	def printDomResult(f: FeatureExpr, x: DElement) {
+	  var doc = HtmlPrinter.prettyPrint(x)
+	  var layout = HtmlPrinter.layout(doc)
+	  log("HtmlPrinter: (" + f + ")")
+	  log(layout, true)
+	  log()
+	}
+	
+	for (ele <- domResult) {
+	  ele match {
+	    case Opt(f, x) => {printDomResult(f, x)}
+	  }
+	}
+        
+ 
+  
+  //JumpOpeningClosingTags.run(domResult)
 
 }

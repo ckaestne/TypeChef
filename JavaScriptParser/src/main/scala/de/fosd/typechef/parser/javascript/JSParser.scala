@@ -77,6 +77,7 @@ class JSParser extends MultiFeatureParser {
             ExpressionStatement |
             IfStatement |
             IterationStatement |
+            ForStatement
             ContinueStatement |
             BreakStatement |
             ReturnStatement |
@@ -116,14 +117,16 @@ class JSParser extends MultiFeatureParser {
 
     def IterationStatement: MultiParser[JSStatement] =
         (("do" ~~~ Statement ~~~ "while" ~~~? '(' ~~~? Expression ~~~? ')' ~~~? ';') |
-            ("while" ~~~? '(' ~~~? Expression ~~~? ')' ~~~? Statement) |
-            ("for" ~~~? '(' ~~~?
+            ("while" ~~~? '(' ~~~? Expression ~~~? ')' ~~~? Statement)) ^^ {x => JSOtherStatement()}
+    
+    def ForStatement: MultiParser[JSForStatement] = 
+      ("for" ~~~?> '(' ~~~?>
                 (
                     (varForExpr |
                         (opt(Expression(true)) ~~~? ';' ~~~? opt(Expression) ~~~? ';' ~~~? opt(Expression))) |
                         inForIn |
                         fail("invalid for-loop expression")
-                    ) ~~~? ')' ~~~? Statement)) ^^ {x => JSOtherStatement()}
+                    ) ~~~?> ')' ~~~?> Statement) ^^ {statement => JSForStatement(statement)}
 
     private def varForExpr = keyword("var") ~~~
         ((VariableDeclarationListNoIn ~~~? ';' ~~~? opt(Expression) ~~~ ';' ~~~ opt(Expression)) |
@@ -178,8 +181,8 @@ class JSParser extends MultiFeatureParser {
 
     def PrimaryExpression: MultiParser[JSExpression] =
         keyword("this") ^^ {x => JSThis()} |
-            Identifier |
-            Literal |
+            Identifier ^^ {x => x} |
+            Literal ^^ {x => x} |
             ArrayLiteral ^^ {x => JSExpr()} |
             ObjectLiteral ^^ {x => JSExpr()} |
             ('(' ~~~?> Expression <~~~? ')')
@@ -235,8 +238,8 @@ class JSParser extends MultiFeatureParser {
     //        NewExpression |
     //            CallExpression
 
-    def PostfixExpression: MultiParser[JSExpression] =
-        LeftHandSideExpression ~ opt(WSo~>("++" | "--")) ^^ {case e ~ p => e}
+    def PostfixExpression: MultiParser[JSPostfixExpr] =
+        LeftHandSideExpression ~ opt(WSo~>("++" | "--")) ^^ {case e ~ p => JSPostfixExpr(e, p.getOrElse(""))}
 
     def UnaryExpression: MultiParser[JSExpression] =
         ("delete" ~~~ UnaryExpression ^^ {x => JSExpr()}) |
@@ -245,7 +248,7 @@ class JSParser extends MultiFeatureParser {
             ("++" ~~~? UnaryExpression ^^ {x => JSExpr()}) |
             ("--" ~~~? UnaryExpression ^^ {x => JSExpr()}) |
             ('+' ~~~? UnaryExpression ^^ {x => JSExpr()}) |
-            ('-' ~~~? UnaryExpression ^^ {x => JSExpr()}) |
+            ('-' ~~~?> UnaryExpression ^^ {x => JSUnaryExpr(x, "-")}) |
             ('~' ~~~? UnaryExpression ^^ {x => JSExpr()}) |
             ('!' ~~~? UnaryExpression ^^ {x => JSExpr()}) |
             PostfixExpression

@@ -1,0 +1,1833 @@
+
+#if ([Unresolved Constraint])
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" 
+#if (is_right_to_left($lang))
+dir='rtl'
+#else
+
+#endif
+>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta name="Description" content="PHP-Addressbook" />
+	<meta name="Keywords" content="" />
+
+	<style type="text/css">
+		
+    body {background-image:url('./skins/header-
+#if (isset($domain) && isset($domain[$domain_id]))
+[SYM]
+#else
+
+#if (!isset($skin_color))
+blue
+#else
+
+#endif
+
+#endif
+.jpg');background-repeat:repeat-x;background-position:top left;}
+    table#maintable th {text-align:center;border:1px solid #ccc;font-size:12px;background:
+#if (case $skin_color == "blue")
+#739fce
+#else
+
+#if (case $skin_color == "brown")
+#c59469
+#else
+
+#if (case $skin_color == "green")
+#66a749
+#else
+
+#if (case $skin_color == "grey")
+#777777
+#else
+
+#if (case $skin_color == "pink")
+#a84989
+#else
+
+#if (case $skin_color == "purple")
+#5349a9
+#else
+
+#if (case $skin_color == "red")
+#b63a3a
+#else
+
+#if (case $skin_color == "turquoise")
+#48a89d
+#else
+
+#if (case $skin_color == "yellow")
+#b4b43a
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+;color:#fff;}
+    table#birthdays th {color:#fff;background:
+#if (case $skin_color == "blue")
+#739fce
+#else
+
+#if (case $skin_color == "brown")
+#c59469
+#else
+
+#if (case $skin_color == "green")
+#66a749
+#else
+
+#if (case $skin_color == "grey")
+#777777
+#else
+
+#if (case $skin_color == "pink")
+#a84989
+#else
+
+#if (case $skin_color == "purple")
+#5349a9
+#else
+
+#if (case $skin_color == "red")
+#b63a3a
+#else
+
+#if (case $skin_color == "turquoise")
+#48a89d
+#else
+
+#if (case $skin_color == "yellow")
+#b4b43a
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+;margin:25px;border:1px solid #ccc;}
+		table#maintable th a {color:#fff;}
+body,#footer,ul {margin:0;padding:0;}
+body,p,td,h1,h2,a,a:hover {font-family:Arial,Helvetica,sans-serif;font-size:12px}
+h1 {font-size:18px}
+h2 {font-size:14px}
+a {color:#036}
+a:hover {color:#06C;text-decoration:none}
+img {border:0;}
+textarea {font-family:Arial,Helvetica,sans-serif;font-size:10pt}
+
+#container {margin:0 auto;width:780px;border:0}
+#top{color:#fff;margin:5px 0 0;height:20px;text-align:right;}
+#header {height:80px;}
+#header h1 {display:none;}
+
+#nav {margin:0 0 20px;height:25px;width:770px;float:left;border:0;display:inline;}
+#nav ul li a {color:#fff;padding:0 4px;}
+#nav ul li img {display:none;}
+
+#content {margin:20px 0 0;width:780px;}
+#footer {margin:45px 0 0;padding:20px 0;clear:both;}
+
+ul {list-style:none;}
+ul li {display:inline;}
+#footer ul li {display:block;}
+
+label {margin-right:0.5em;width:10em;float:left;text-align:left;display:block;}
+
+#search-az {text-align:center;padding:2px;}
+#a-z a {font-size:75%;} 
+
+.odd {background:#e5e5e5;}
+.even {background:#f3f3f3;}
+
+#right,.right {float:right;}
+#left,.left {float:left;}
+.clear {clear:both;}
+
+.msgbox {padding:16px;border:1px solid #ccc;background:#fff4b4;width:60%;font-weight:700;}
+.msgbox i {font-weight:400;}
+
+table {width:100%;border:1px solid #ccc;border-collapse:collapse;}
+table tr td {border:1px solid #ccc;padding:2px 1px}
+table img,.center {text-align:center;}
+table th {text-align:left;font-size:14px;padding:8px 4px;}
+
+table#birthdays {border:0;}
+.tablespace td {border:0;}
+
+/* View.php */
+table#view,table#view td {border:1px solid #000;border-collapse:collapse;}
+table#view td {padding:5px;}
+
+/* Edit.php */
+#content input[type=text],#content textarea {width:220px; margin-bottom:3px;}
+#content input[type=text] {height:1,1em}
+#content textarea {height:8em}
+input.byear{width:4em !important;}
+
+/* Source Forge */
+#download {margin:0;width:180px;background:#63A624;color:#fff;border:1px solid #000;text-align:center;}
+#download a,#top a {color:#fff;}
+
+/* Login */
+#content input[name=user],input[name=pass] {width:150px; margin-bottom:3px;}	</style>
+	<!--[if !IE]>-->
+	<link media="only screen and (max-device-width: 480px)" rel="stylesheet" type="text/css" href="iphone.css"/>
+	<!--<![endif]-->
+	<meta name="viewport" content="width=320; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;" />
+
+
+	<link rel="icon" type="image/png" href="
+#if (!isset($url_images))
+
+#else
+
+#endif
+icons/font.png" />
+	
+#if (is_right_to_left($lang))
+	<style type="text/css">
+		<!--
+		/* CSS for right to left */
+		label {margin-left:0.5em;float:right;text-align:right;}
+		#content,#right,.right {float:left;}
+		#nav,#left,.left {float:right;}
+		-->
+	</style>
+	
+#else
+
+#endif
+<title>
+#if ($has_mb_strtoupper)
+[SYM][SYM]
+#else
+[SYM]
+#endif
+
+#if ($group_name != "")
+ (
+#if (isset($iplist) && hasRoleFromIP($iplist))
+
+#if (isset($group))
+[SYM]
+#else
+
+#endif
+
+#else
+
+#if (isset($userlist))
+
+#if ($user->getGroup() != "")
+[SYM]
+#else
+
+#if (isset($group))
+[SYM]
+#else
+
+#endif
+
+#endif
+
+#else
+
+#if (isset($group))
+[SYM]
+#else
+
+#endif
+
+#endif
+
+#endif
+)
+#else
+
+#endif
+</title>
+	</head>
+	<body>
+		<div id="container">
+			<div id="top">
+<!--
+
+#if (count($default_languages) > 0)
+
+#if (!isset($_GET["more_langs"]) || $_GET["more_langs"] == "")
+[<a title="other languages" href="?more_langs=yes">+</a>] | 
+#else
+
+#endif
+
+#else
+
+#endif
+[RepeatBegin]
+
+#if ($supp_lang != $lang)
+
+#if ($lang_cnt++ > 0)
+ | 
+#else
+
+#endif
+<a href='?lang=[SYM]'><img title='
+#if ($has_mb_strtoupper)
+[SYM][SYM]
+#else
+[SYM]
+#endif
+' alt='
+#if ($has_mb_strtoupper)
+[SYM][SYM]
+#else
+[SYM]
+#endif
+' src='[SYM]icons/
+#if (isset($use_flag[$language]))
+[SYM]
+#else
+[SYM]
+#endif
+.gif'/></a>
+#else
+
+#endif
+
+[RepeatEnd]
+#if (! ((!isset($_GET["more_langs"]) || $_GET["more_langs"] == "") && count($default_languages) > 0))
+ | [<a title='default languages' href='?more_langs='> - </a>]
+#else
+
+#endif
+ | 
+
+<a href="preferences
+#if (!isset($page_ext))
+.php
+#else
+.php
+#endif
+
+#if (!$is_fix_group and $group_name)
+?group=
+#if (isset($group))
+[SYM]
+#else
+
+#endif
+&amp;
+#else
+?
+#endif
+from=[SYM]">
+#if ($has_mb_strtoupper)
+[SYM][SYM]
+#else
+[SYM]
+#endif
+</a>
+-->
+
+#if (isset($userlist) && !(isset($iplist) && hasRoleFromIP($iplist)))
+<form name="logout" method="post" class=header>
+<input type="hidden" name="logout" value="yes" />
+
+#if (isset($username))
+<b>(
+#if (isset($iplist) && hasRoleFromIP($iplist))
+
+#else
+
+#if (isset($userlist))
+[SYM]
+#else
+
+#endif
+
+#endif
+)</b> 
+#else
+
+#endif
+<a href="#" onClick="document.logout.submit();">
+#if ($has_mb_strtoupper)
+[SYM][SYM]
+#else
+[SYM]
+#endif
+</a>
+</form>
+
+#else
+<b>([SYM])</b>
+#endif
+			</div>
+			<div id="header">
+				<h1><a href=".">Address Book</a></h1>
+				<a href="."><img src="
+#if (!isset($url_images))
+
+#else
+
+#endif
+title.png" title="Addressbook" alt="Addressbook" id="logo" /></a>
+			</div>
+			<div id="nav">
+      			<!--
+* http://www.dynamicdrive.com/dynamicindex1/ddlevelsmenu/index.htm
+* http://www.dynamicdrive.com/dynamicindex1/popupmenu.htm
+* http://www.alistapart.com/articles/horizdropdowns/
+-->
+<ul>
+<li>
+	<a href="./
+#if ($group == "" || $group == "[none]" || $is_fix_group)
+
+#else
+?group=
+#if (isset($iplist) && hasRoleFromIP($iplist))
+
+#else
+
+#if (isset($userlist))
+
+#if ($user->getGroup() != "")
+[SYM]
+#else
+
+#endif
+
+#else
+
+#endif
+
+#endif
+
+#endif
+">
+#if (isset($messages[$value][$lang]))
+[SYM]
+#else
+HOME
+#endif
+</a>
+</li>
+
+#if (! $read_only)
+<li class="all">
+	<a href="edit
+#if (!$is_fix_group and $group_name)
+
+#if (!isset($page_ext))
+.php
+#else
+.php
+#endif
+?group=
+#if (isset($group))
+[SYM]
+#else
+
+#endif
+
+#else
+
+#if (!isset($page_ext))
+.php
+#else
+.php
+#endif
+
+#endif
+">
+#if (isset($messages[$value][$lang]))
+[SYM]
+#else
+ADD_NEW
+#endif
+</a>
+</li>
+
+#else
+
+#endif
+
+#if (!$read_only && $public_group_edit && $table_groups != "" && !$is_fix_group)
+	<li class="admin">
+		<a href="group
+#if (!$is_fix_group and $group_name)
+
+#if (!isset($page_ext))
+.php
+#else
+.php
+#endif
+?group=
+#if (isset($group))
+[SYM]
+#else
+
+#endif
+
+#else
+
+#if (!isset($page_ext))
+.php
+#else
+.php
+#endif
+
+#endif
+">
+#if (isset($messages[$value][$lang]))
+[SYM]
+#else
+GROUPS
+#endif
+</a>
+	</li>
+
+#else
+
+#endif
+	<li class="all">
+		<a href="birthdays
+#if (!$is_fix_group and $group_name)
+
+#if (!isset($page_ext))
+.php
+#else
+.php
+#endif
+?group=
+#if (isset($group))
+[SYM]
+#else
+
+#endif
+
+#else
+
+#if (!isset($page_ext))
+.php
+#else
+.php
+#endif
+
+#endif
+">
+#if (isset($messages[$value][$lang]))
+[SYM]
+#else
+NEXT_BIRTHDAYS
+#endif
+</a>
+	</li>
+	<li class="export">
+    	<a href="view
+#if (!isset($page_ext))
+.php
+#else
+.php
+#endif
+
+#if (!$is_fix_group and $group_name)
+?group=
+#if (isset($group))
+[SYM]
+#else
+
+#endif
+&amp;
+#else
+?
+#endif
+all&amp;print">
+#if (isset($messages[$value][$lang]))
+[SYM]
+#else
+PRINT_ALL
+#endif
+</a>
+  </li>
+	<li class="export">
+      <a href="view
+#if (!isset($page_ext))
+.php
+#else
+.php
+#endif
+
+#if (!$is_fix_group and $group_name)
+?group=
+#if (isset($group))
+[SYM]
+#else
+
+#endif
+&amp;
+#else
+?
+#endif
+all&amp;print&amp;phones">
+#if (isset($messages[$value][$lang]))
+[SYM]
+#else
+PRINT_PHONES
+#endif
+</a>
+  </li>
+
+#if (isset($google_maps_keys))
+	<li class="export">
+    	<a href="map
+#if (!isset($page_ext))
+.php
+#else
+.php
+#endif
+
+#if (!$is_fix_group and $group_name)
+?group=
+#if (isset($group))
+[SYM]
+#else
+
+#endif
+&amp;
+#else
+?
+#endif
+">
+#if (isset($messages[$value][$lang]))
+[SYM]
+#else
+MAP
+#endif
+</a>
+  </li>
+
+#else
+
+#endif
+	<li class="export">
+    	<a href="export
+#if (!$is_fix_group and $group_name)
+
+#if (!isset($page_ext))
+.php
+#else
+.php
+#endif
+?group=
+#if (isset($group))
+[SYM]
+#else
+
+#endif
+
+#else
+
+#if (!isset($page_ext))
+.php
+#else
+.php
+#endif
+
+#endif
+">
+#if (isset($messages[$value][$lang]))
+[SYM]
+#else
+EXPORT
+#endif
+</a>
+  </li> 
+
+#if (!$read_only)
+	<li class="export">
+    	<a href="import
+#if (!$is_fix_group and $group_name)
+
+#if (!isset($page_ext))
+.php
+#else
+.php
+#endif
+?group=
+#if (isset($group))
+[SYM]
+#else
+
+#endif
+
+#else
+
+#if (!isset($page_ext))
+.php
+#else
+.php
+#endif
+
+#endif
+">
+#if (isset($messages[$value][$lang]))
+[SYM]
+#else
+IMPORT
+#endif
+</a>
+  </li> 
+
+#else
+
+#endif
+</ul>
+			</div>
+			<div id="content">
+
+
+#if ($group_name != "")
+[SYM]
+#else
+
+#endif
+
+<br /><br />
+<div id="search-az">
+
+#if (! $use_ajax)
+	<form accept-charset="utf-8" method="get" name="searchform">
+		<input type="text" value="[SYM]" name="searchstring" title="
+#if ($has_mb_strtoupper)
+[SYM][SYM]
+#else
+[SYM]
+#endif
+" size="45" tabindex="0"/>
+		<input name="submitsearch" type="submit" value="[SYM]" />    
+	</form>
+<div id='a-z'><a href='index[SYM]alphabet=a'>A</a> | <a href='index[SYM]alphabet=b'>B</a> | <a href='index[SYM]alphabet=c'>C</a> | <a href='index[SYM]alphabet=d'>D</a> | <a href='index[SYM]alphabet=e'>E</a> | <a href='index[SYM]alphabet=f'>F</a> | <a href='index[SYM]alphabet=g'>G</a> | <a href='index[SYM]alphabet=h'>H</a> | <a href='index[SYM]alphabet=i'>I</a> | <a href='index[SYM]alphabet=j'>J</a> | <a href='index[SYM]alphabet=k'>K</a> | <a href='index[SYM]alphabet=l'>L</a> | <a href='index[SYM]alphabet=m'>M</a> | <a href='index[SYM]alphabet=n'>N</a> | <a href='index[SYM]alphabet=o'>O</a> | <a href='index[SYM]alphabet=p'>P</a> | <a href='index[SYM]alphabet=q'>Q</a> | <a href='index[SYM]alphabet=r'>R</a> | <a href='index[SYM]alphabet=s'>S</a> | <a href='index[SYM]alphabet=t'>T</a> | <a href='index[SYM]alphabet=u'>U</a> | <a href='index[SYM]alphabet=v'>V</a> | <a href='index[SYM]alphabet=w'>W</a> | <a href='index[SYM]alphabet=x'>X</a> | <a href='index[SYM]alphabet=y'>Y</a> | <a href='index[SYM]alphabet=z'>Z</a> | <a href='index
+#if (!$is_fix_group and $group_name)
+
+#if (!isset($page_ext))
+.php
+#else
+.php
+#endif
+?group=
+#if (isset($group))
+[SYM]
+#else
+
+#endif
+
+#else
+
+#if (!isset($page_ext))
+.php
+#else
+.php
+#endif
+
+#endif
+'>
+#if ($has_mb_strtoupper)
+[SYM][SYM]
+#else
+[SYM]
+#endif
+</a></div>
+#else
+
+
+#if ($_SERVER['SERVER_NAME'] == "php-addressbook.sourceforge.net")
+<table border=0>
+<tr>
+	<td>
+		Advertisment: Just try for 2$ per month:<br>
+		<img src="icons/cross.png">
+		  <a href="http://swiss-addressbook.com">www.swiss-addressbook.com</a>
+		<img src="icons/cross.png"><br>
+		  <b><i>"PHP-Addressbook as a Service"</i></b>
+		</td></tr>
+</table>
+<br>
+
+#else
+
+#endif
+
+	<form accept-charset="utf-8" method="get" name="searchform" onsubmit="return false">
+		<input type="text" value="[SYM]" name="searchstring" title="
+#if ($has_mb_strtoupper)
+[SYM][SYM]
+#else
+[SYM]
+#endif
+" size="45" tabindex="0" 
+
+#if ($use_ajax)
+		
+		       onkeyup="filterResults(this)"/>
+
+#else
+
+#endif
+	</form>
+
+#endif
+<script type="text/javascript">
+	document.searchform.searchstring.focus();
+</script>
+</div><br />
+<hr />
+<label style='width:24em;'><strong>
+#if (isset($messages[$value][$lang]))
+[SYM]
+#else
+NUMBER_OF_RESULTS
+#endif
+: <span id='search_count'>[SYM]</span></strong></label>
+#if (isset($table_groups) and $table_groups != "" and !$is_fix_group)
+
+<form id="right" method="get">
+	<select name="group" onchange="this.parentNode.submit()">
+		
+#if ($group_name != "")
+<option>
+#if (isset($iplist) && hasRoleFromIP($iplist))
+
+#if (isset($group))
+[SYM]
+#else
+
+#endif
+
+#else
+
+#if (isset($userlist))
+
+#if ($user->getGroup() != "")
+[SYM]
+#else
+
+#if (isset($group))
+[SYM]
+#else
+
+#endif
+
+#endif
+
+#else
+
+#if (isset($group))
+[SYM]
+#else
+
+#endif
+
+#endif
+
+#endif
+</option>
+ 
+#else
+
+#endif
+		<option value="">[
+#if (isset($messages[$value][$lang]))
+[SYM]
+#else
+ALL
+#endif
+]</option>
+		<option value="[none]">[
+#if (isset($messages[$value][$lang]))
+[SYM]
+#else
+NONE
+#endif
+]</option>
+		[RepeatBegin]
+<option>[SYM]</option>
+ 
+[RepeatEnd]	</select>
+</form>
+
+#else
+
+#endif
+<br /><br class="clear" />
+
+<form accept-charset="utf-8" name="MainForm" method="post" action="group
+#if (!$is_fix_group and $group_name)
+
+#if (!isset($page_ext))
+.php
+#else
+.php
+#endif
+?group=
+#if (isset($group))
+[SYM]
+#else
+
+#endif
+
+#else
+
+#if (!isset($page_ext))
+.php
+#else
+.php
+#endif
+
+#endif
+">
+	<input type="hidden" name="group" value="
+#if (isset($iplist) && hasRoleFromIP($iplist))
+
+#else
+
+#if (isset($userlist))
+
+#if ($user->getGroup() != "")
+[SYM]
+#else
+
+#endif
+
+#else
+
+#endif
+
+#endif
+" />
+	<table id="maintable" class="sortcompletecallback-applyZebra">
+		<tr>
+
+#if (! $is_mobile)
+[RepeatBegin]
+
+#if (!in_array($col, array("home", "work", "mobile", "select", "edit", "details")))
+<th class='sortable'>
+#if ($has_mb_strtoupper)
+[SYM][SYM]
+#else
+[SYM]
+#endif
+</th>
+#else
+
+#if (in_array($col, array("home", "work", "mobile")))
+<th>
+#if ($has_mb_strtoupper)
+[SYM][SYM]
+#else
+[SYM]
+#endif
+</th>
+#else
+<th></th>
+#if ($col == "edit" && !$read_only)
+<th></th>
+#else
+
+#endif
+
+#if ($col == "details")
+<th></th><th></th>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+[RepeatEnd]      
+	</tr>
+
+#else
+
+#endif
+[RepeatBegin]
+<tr class='
+#if (($alternate++ % 2))
+odd
+#else
+
+#endif
+' name='entry'>[RepeatBegin]
+
+#if (case $row == "select")
+<td class='center'><input type='checkbox' id='[SYM]' name='selected[]' value='[SYM]' title='Select ([SYM] [SYM])' alt='Select ([SYM] [SYM])' accept='[SYM]
+#if ($myrow['email']  != ""
+		                           && $myrow['email2'] != "")
+
+#if (getPref('mailer') == 'colon')
+,
+#else
+%3B
+#endif
+
+#else
+
+#endif
+[SYM]' /></td>
+#else
+
+#if (case $row == "first_last")
+<td>[SYM] [SYM]</td>
+#else
+
+#if (case $row == "last_first")
+<td>[SYM] [SYM]</td>
+#else
+
+#if (case $row == "email")
+<td><a href='
+#if (isset($webmailer) && isset($mailers[$webmailer]))
+
+#if (isset($webmailer) && isset($mailers[$webmailer]))
+[SYM]
+#else
+[SYM]
+#endif
+
+#else
+mailto:
+#endif
+[SYM]'>[SYM]</a></td>
+#else
+
+#if (case $row == "email2")
+<td><a href='
+#if (isset($webmailer) && isset($mailers[$webmailer]))
+
+#if (isset($webmailer) && isset($mailers[$webmailer]))
+[SYM]
+#else
+[SYM]
+#endif
+
+#else
+mailto:
+#endif
+[SYM]'>[SYM]</a></td>
+#else
+
+#if (case $row == "all_phones")
+<td>[SYM]</td>
+#else
+
+#if (case $row == "address")
+<td>[SYM]</td>
+#else
+
+#if (case $row == "edit")
+<td class='center'><a href='view[SYM]id=[SYM]'><img src='[SYM]icons/status_online.png' title='
+#if ($has_mb_strtoupper)
+[SYM][SYM]
+#else
+[SYM]
+#endif
+' alt='
+#if ($has_mb_strtoupper)
+[SYM][SYM]
+#else
+[SYM]
+#endif
+' /></a></td>
+#if (! $read_only)
+<td class='center'><a href='edit[SYM]id=[SYM]'><img src='[SYM]icons/pencil.png' title='
+#if ($has_mb_strtoupper)
+[SYM][SYM]
+#else
+[SYM]
+#endif
+' alt='
+#if ($has_mb_strtoupper)
+[SYM][SYM]
+#else
+[SYM]
+#endif
+'/></a></td>
+#else
+
+#endif
+
+#else
+
+#if (case $row == "details")
+<td class='center'><a href='vcard[SYM]id=[SYM]'><img src='[SYM]icons/vcard.png' title='vCard' alt='vCard'/></a></td>
+#if ($map_guess)
+
+#if ($myrow["address"] != "")
+<td class='center'><a href='http://maps.google.com/maps?q=[SYM]&amp;t=h' target='_blank'>
+                                <img src='[SYM]icons/car.png' title='Google Maps' alt='vCard'/></a></td>
+#else
+<td/>
+#endif
+
+#else
+
+#endif
+
+#if ($homepage != "")
+<td class='center'><a href='
+#if (strcasecmp(substr($homepage, 0, strlen("http")),"http")== 0)
+[SYM]
+#else
+http://[SYM]
+#endif
+'><img src='[SYM]icons/house.png' title='
+#if (strcasecmp(substr($homepage, 0, strlen("http")),"http")== 0)
+[SYM]
+#else
+http://[SYM]
+#endif
+' alt='
+#if (strcasecmp(substr($homepage, 0, strlen("http")),"http")== 0)
+[SYM]
+#else
+http://[SYM]
+#endif
+'/></a></td>
+#else
+
+#if ($homepage_guess && ($homepage = guessHomepage($email, $email2)) != "")
+<td class='center'><a href='http://
+#if ([Unresolved Constraint])
+
+#else
+
+#if (strlen($homepage) > 0)
+
+#if (strlen($homepage) == 0)
+
+#else
+www.[SYM]
+#endif
+
+#else
+
+#if (strlen($homepage) == 0)
+
+#else
+www.[SYM]
+#endif
+
+#endif
+
+#endif
+'><img src='[SYM]icons/house.png' title='
+#if ($has_mb_strtoupper)
+[SYM][SYM]
+#else
+[SYM]
+#endif
+ (
+#if ([Unresolved Constraint])
+
+#else
+
+#if (strlen($homepage) > 0)
+
+#if (strlen($homepage) == 0)
+
+#else
+www.[SYM]
+#endif
+
+#else
+
+#if (strlen($homepage) == 0)
+
+#else
+www.[SYM]
+#endif
+
+#endif
+
+#endif
+)' alt='
+#if ($has_mb_strtoupper)
+[SYM][SYM]
+#else
+[SYM]
+#endif
+ (
+#if ([Unresolved Constraint])
+
+#else
+
+#if (strlen($homepage) > 0)
+
+#if (strlen($homepage) == 0)
+
+#else
+www.[SYM]
+#endif
+
+#else
+
+#if (strlen($homepage) == 0)
+
+#else
+www.[SYM]
+#endif
+
+#endif
+
+#endif
+)'/></a></td>
+#else
+<td/>
+#endif
+
+#endif
+
+#else
+<td>[SYM]</td>
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+[RepeatEnd]</tr>
+ 
+[RepeatEnd]</table>&nbsp;<input type='checkbox' id='MassCB' onclick=" MassSelection()"  /> <em><strong>
+#if ($has_mb_strtoupper)
+[SYM][SYM]
+#else
+[SYM]
+#endif
+</strong></em><br><br>
+#if ($use_doodle)
+<div class='left'><input type='button' value=" 
+#if ($has_mb_strtoupper)
+[SYM][SYM]
+#else
+[SYM]
+#endif
+"    onclick=" Doodle()"  /></div>
+#else
+
+#endif
+<div class='left'><input type='button' value=" 
+#if ($has_mb_strtoupper)
+[SYM][SYM]
+#else
+[SYM]
+#endif
+"  onclick=" MailSelection()"  /></div><div class='left'><input type='button' value=" 
+#if ($has_mb_strtoupper)
+[SYM][SYM]
+#else
+[SYM]
+#endif
+"      onclick=" DeleteSel()"  /></div>
+#if (isset($table_groups) and $table_groups != "" and !$is_fix_group)
+
+#if ($group_name != "" and $group_name != "[none]")
+<div class='left'><input type='submit' name='remove' value='
+#if ($has_mb_strtoupper)
+[SYM][SYM]
+#else
+[SYM]
+#endif
+ " 
+#if (isset($iplist) && hasRoleFromIP($iplist))
+
+#if (isset($group))
+[SYM]
+#else
+
+#endif
+
+#else
+
+#if (isset($userlist))
+
+#if ($user->getGroup() != "")
+[SYM]
+#else
+
+#if (isset($group))
+[SYM]
+#else
+
+#endif
+
+#endif
+
+#else
+
+#if (isset($group))
+[SYM]
+#else
+
+#endif
+
+#endif
+
+#endif
+" '/></div>
+#else
+<div></div>
+#endif
+<div class='right'><input type='submit' name='add' value='
+#if ($has_mb_strtoupper)
+[SYM][SYM]
+#else
+[SYM]
+#endif
+'/>-<select name='to_group'>[RepeatBegin]
+<option>[SYM]</option>
+ 
+[RepeatEnd]</select></div><br/>
+#else
+
+#endif
+</form>
+#if ($group_name != "" and $group_myrow['group_footer'] != "")
+<hr />[SYM]<hr />
+#else
+
+#endif
+<script type="text/javascript">
+<!--
+
+//
+// Select All/None items
+//
+function MassSelection() {
+  
+  select_count = document.getElementsByName("selected[]").length;
+  all_checked  = document.getElementById("MassCB").checked;
+  
+	for (i = 0; i < select_count; i++) {
+	  // select only visible items
+	  if( document.getElementsByName("selected[]")[i].parentNode.parentNode.style.display != "none") {
+		  document.getElementsByName("selected[]")[i].checked = all_checked;
+		}
+	}
+}
+
+//
+// Send Mail to selected persons
+//
+function MailSelection() {
+	var addresses = "";
+	var dst_count = 0;
+
+  select_count = document.getElementsByName("selected[]").length;
+	for (i = 0; i < select_count; i++) {
+		selected_i = document.getElementsByName("selected[]")[i];
+		if( selected_i.checked == true) {
+			if( selected_i.accept != "" && selected_i.accept != null) {
+				if(dst_count > 0) {
+					addresses = addresses + "
+#if (getPref('mailer') == 'colon')
+,
+#else
+%3B
+#endif
+";
+				}
+				addresses = addresses + selected_i.accept;
+				dst_count++;
+			}
+		}
+	}
+
+	if(dst_count == 0)
+		alert("No address selected.");
+	else
+		location.href = "
+#if (isset($webmailer) && isset($mailers[$webmailer]))
+
+#if (isset($webmailer) && isset($mailers[$webmailer]))
+[SYM]
+#else
+[SYM]
+#endif
+
+#else
+mailto:
+#endif
+"+addresses;
+}
+
+function Doodle() {
+	
+	var participants = "";
+	var dst_count = 0;
+
+  select_count = document.getElementsByName("selected[]").length;
+	for (i = 0; i < select_count; i++) {
+		selected_i = document.getElementsByName("selected[]")[i];
+		if( selected_i.checked == true) {
+			participants += selected_i.id+";";
+			dst_count++;
+		}
+	}
+	alert(participants);
+	if(dst_count == 0)
+		alert("No paticipants selected.");
+	else
+	  location.href = "./doodle.php?part="+participants;
+}
+
+function DeleteSel() {
+	
+	var participants = "";
+	var dst_count = 0;
+
+  select_count = document.getElementsByName("selected[]").length;
+	for (i = 0; i < select_count; i++) {
+		selected_i = document.getElementsByName("selected[]")[i];
+		if( selected_i.checked == true) {
+			participants += selected_i.id+";";
+			dst_count++;
+		}
+	}
+
+	if(dst_count == 0)
+		alert("No paticipants selected.");
+	else
+		if(confirm('Delete '+dst_count+' addresses?')) {
+	    location.href = "./delete.php?part="+participants;
+	  }
+}
+
+function applyZebra() {
+	
+  	// loop over all lines
+  	var maintable = document.getElementById("maintable")
+  	var tbody     = maintable.getElementsByTagName("tbody");
+  	var entries   = tbody[0].children;
+  	var zebraCnt  = 0;
+
+	  // Skip header(0) + selection row(length-1)
+  	for(i = 1; i < entries.length; i++) {
+  		if(entries[i].style.display != "none") {
+      	if((zebraCnt % 2) == 0) {
+      	  entries[i].className = "";
+      	} else {
+      	  entries[i].className = "odd";
+      	}
+     	  zebraCnt++;
+  		}
+    }
+}
+
+//
+// Filter the items in the fields
+//
+function filterResults(field) {
+
+  	var query = field.value;
+  	 	
+  	// split lowercase on white spaces
+  	var words = query.toLowerCase().split(" ");
+
+  	// loop over all lines
+  	var maintable = document.getElementById("maintable")
+  	var tbody     = maintable.getElementsByTagName("tbody");
+  	var entries   = tbody[0].children;
+  	var foundCnt  = 0;
+	
+	  // Skip header(0) + selection row(length-1)
+  	for(i = 1; i < entries.length; i++) {
+  		
+  		// Name + Firstname + Phonenumber + Mailaddress
+  		var content = entries[i].childNodes[0].childNodes[0].accept
+  		            + " " + entries[i].childNodes[1].innerHTML
+  		            + " " + entries[i].childNodes[2].innerHTML;
+  		            
+      // Don't be case sensitive
+  		content = content.toLowerCase();
+
+      // check if all words are present  		            
+      var foundAll = true;
+  		for(j = 0; j < words.length; j++) {
+  			foundAll = foundAll && (content.search(words[j]) != -1);
+  		}
+  		
+  		// Keep selected entries
+      foundAll = foundAll || entries[i].childNodes[0].childNodes[0].checked;
+  		
+      // ^Hide entry
+      if(foundAll) {
+      	entries[i].style.display = "";
+     	  foundCnt++;  			
+      } else {
+      	entries[i].style.display = "none";
+      }
+  	}  	
+  	document.getElementById("search_count").innerHTML = foundCnt;
+  	
+  	applyZebra();
+}
+
+
+#if ($use_ajax)
+filterResults(document.getElementsByName("searchstring")[0]);
+
+#else
+
+#endif
+
+//-->
+</script>
+
+
+#if ($_SERVER['SERVER_NAME'] == "php-addressbook.sourceforge.net")
+<center>
+<a href="http://sourceforge.net/projects/php-addressbook">
+  <img src="http://sflogo.sourceforge.net/sflogo.php?group_id=157964&amp;type=13" width="120" height="30" alt="Get PHP Address Book at SourceForge.net. Fast, secure and Free Open Source software downloads" />
+</a>
+<script type="text/javascript" src="http://www.ohloh.net/projects/25477/widgets/project_partner_badge">
+// ohloh.net "Project Value" integration
+</script>
+</center>
+<script type="text/javascript">
+	// Google-Analytics integration
+	var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+	document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+	var pageTracker = _gat._getTracker("UA-6220233-1");
+	pageTracker._trackPageview();
+</script>        
+</html> 
+
+#else
+	</div>
+	<div id="footer">
+
+#endif
+
+
+#if ($_SERVER['SERVER_NAME'] == "php-addressbook.sourceforge.net")
+	<div class="right">
+		<div id="download">
+			<a href="../download"><b>Download</b></a> v6.2.12 - r[SYM]		</div><br class="clear" />
+	</div>
+
+#else
+
+#endif
+			<ul>
+				<li><a href="http://sourceforge.net/projects/php-addressbook/">php-addressbook</a> <a href="notes.htm">v6.2.12 - r[SYM]</a></li>
+			</ul>
+	</div>
+</div>
+	</body>
+
+<!-- 
+Copyright Notice:
+This script was written by Rob Minto, and is free to use and distribute under GPL. 
+Any improvements, please email rob(at)widgetmonkey.com. 
+Keep software free. 
+And please leave this copyright notice. Thanks.
+
+Major update 2007-2009 by Olivier Chatelain, feel free to use and distribute under GPL. 
+Any improvements, please email chatelao(at)users.sourceforge.net. 
+
+Updated 2009 - Complete theme redesign by Leighton West. Any theme problems,
+please email retrorobot(at)users.sourceforge.net.
+
+Major contribution Mark James ("famfamfam"-icons, cc-by-2.5)
+For more details see: http://www.famfamfam.com/lab/icons/silk/
+
+Major contribution "frequency decoder" ("Unobtrusive Table Sort Script", cc-by-sa-2.5)
+For more details see: http://www.frequency-decoder.com/2006/09/16/unobtrusive-table-sort-script-revisited/
+-->
+<script type="text/javascript" src="jstablesort/tablesort.min.js"></script>
+
+#else
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" 
+#if (is_right_to_left($lang))
+dir='rtl'
+#else
+
+#endif
+>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta name="Description" content="PHP-Addressbook" />
+	<meta name="Keywords" content="" />
+
+	<style type="text/css">
+		
+    body {background-image:url('./skins/header-
+#if (!isset($skin_color))
+blue
+#else
+
+#endif
+.jpg');background-repeat:repeat-x;background-position:top left;}
+    table#maintable th {text-align:center;border:1px solid #ccc;font-size:12px;background:
+#if (case $skin_color == "blue")
+#739fce
+#else
+
+#if (case $skin_color == "brown")
+#c59469
+#else
+
+#if (case $skin_color == "green")
+#66a749
+#else
+
+#if (case $skin_color == "grey")
+#777777
+#else
+
+#if (case $skin_color == "pink")
+#a84989
+#else
+
+#if (case $skin_color == "purple")
+#5349a9
+#else
+
+#if (case $skin_color == "red")
+#b63a3a
+#else
+
+#if (case $skin_color == "turquoise")
+#48a89d
+#else
+
+#if (case $skin_color == "yellow")
+#b4b43a
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+;color:#fff;}
+    table#birthdays th {color:#fff;background:
+#if (case $skin_color == "blue")
+#739fce
+#else
+
+#if (case $skin_color == "brown")
+#c59469
+#else
+
+#if (case $skin_color == "green")
+#66a749
+#else
+
+#if (case $skin_color == "grey")
+#777777
+#else
+
+#if (case $skin_color == "pink")
+#a84989
+#else
+
+#if (case $skin_color == "purple")
+#5349a9
+#else
+
+#if (case $skin_color == "red")
+#b63a3a
+#else
+
+#if (case $skin_color == "turquoise")
+#48a89d
+#else
+
+#if (case $skin_color == "yellow")
+#b4b43a
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+;margin:25px;border:1px solid #ccc;}
+		table#maintable th a {color:#fff;}
+body,#footer,ul {margin:0;padding:0;}
+body,p,td,h1,h2,a,a:hover {font-family:Arial,Helvetica,sans-serif;font-size:12px}
+h1 {font-size:18px}
+h2 {font-size:14px}
+a {color:#036}
+a:hover {color:#06C;text-decoration:none}
+img {border:0;}
+textarea {font-family:Arial,Helvetica,sans-serif;font-size:10pt}
+
+#container {margin:0 auto;width:780px;border:0}
+#top{color:#fff;margin:5px 0 0;height:20px;text-align:right;}
+#header {height:80px;}
+#header h1 {display:none;}
+
+#nav {margin:0 0 20px;height:25px;width:770px;float:left;border:0;display:inline;}
+#nav ul li a {color:#fff;padding:0 4px;}
+#nav ul li img {display:none;}
+
+#content {margin:20px 0 0;width:780px;}
+#footer {margin:45px 0 0;padding:20px 0;clear:both;}
+
+ul {list-style:none;}
+ul li {display:inline;}
+#footer ul li {display:block;}
+
+label {margin-right:0.5em;width:10em;float:left;text-align:left;display:block;}
+
+#search-az {text-align:center;padding:2px;}
+#a-z a {font-size:75%;} 
+
+.odd {background:#e5e5e5;}
+.even {background:#f3f3f3;}
+
+#right,.right {float:right;}
+#left,.left {float:left;}
+.clear {clear:both;}
+
+.msgbox {padding:16px;border:1px solid #ccc;background:#fff4b4;width:60%;font-weight:700;}
+.msgbox i {font-weight:400;}
+
+table {width:100%;border:1px solid #ccc;border-collapse:collapse;}
+table tr td {border:1px solid #ccc;padding:2px 1px}
+table img,.center {text-align:center;}
+table th {text-align:left;font-size:14px;padding:8px 4px;}
+
+table#birthdays {border:0;}
+.tablespace td {border:0;}
+
+/* View.php */
+table#view,table#view td {border:1px solid #000;border-collapse:collapse;}
+table#view td {padding:5px;}
+
+/* Edit.php */
+#content input[type=text],#content textarea {width:220px; margin-bottom:3px;}
+#content input[type=text] {height:1,1em}
+#content textarea {height:8em}
+input.byear{width:4em !important;}
+
+/* Source Forge */
+#download {margin:0;width:180px;background:#63A624;color:#fff;border:1px solid #000;text-align:center;}
+#download a,#top a {color:#fff;}
+
+/* Login */
+#content input[name=user],input[name=pass] {width:150px; margin-bottom:3px;}	</style>
+	<!--[if !IE]>-->
+	<link media="only screen and (max-device-width: 480px)" rel="stylesheet" type="text/css" href="iphone.css"/>
+	<!--<![endif]-->
+	<meta name="viewport" content="width=320; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;" />
+
+
+	<link rel="icon" type="image/png" href="
+#if (!isset($url_images))
+
+#else
+
+#endif
+icons/font.png" />
+	
+#if (is_right_to_left($lang))
+	<style type="text/css">
+		<!--
+		/* CSS for right to left */
+		label {margin-left:0.5em;float:right;text-align:right;}
+		#content,#right,.right {float:left;}
+		#nav,#left,.left {float:right;}
+		-->
+	</style>
+	
+#else
+
+#endif
+<title>
+#if ($has_mb_strtoupper)
+[SYM][SYM]
+#else
+[SYM]
+#endif
+</title>[SYM]
+#endif

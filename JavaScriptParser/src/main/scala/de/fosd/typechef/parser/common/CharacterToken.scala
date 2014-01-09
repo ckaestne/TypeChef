@@ -8,7 +8,7 @@ import de.fosd.typechef.parser.{ProfilingToken, AbstractToken}
 class CharacterToken(
                         image: Int,
                         featureExpr: FeatureExpr,
-                        position: Position) extends AbstractToken with ProfilingToken {
+                        position: JPosition) extends AbstractToken with ProfilingToken {
 
 
     def getFeature(): FeatureExpr = featureExpr
@@ -18,7 +18,7 @@ class CharacterToken(
     def getKind(): Int = image
     def getKindChar(): Char = image.toChar
 
-    def getPosition(): Position = position
+    def getPosition(): JPosition = position
 
     override def toString = getText() + (if (!getFeature.isTautology()) getFeature else "")
 

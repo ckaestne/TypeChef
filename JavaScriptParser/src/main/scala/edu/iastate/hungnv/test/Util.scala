@@ -13,7 +13,7 @@ object Util {
   }
   
   def standardize(s: String): String = {
-    s.replace("\t", "\\t").replace("\n", "\\n")
+    s.replace("\t", "\\t").replace("\n", "\\n").replace("\r", "\\r")
   }
   
   def padding(depth: Int, s: String = "|  "): String = {
