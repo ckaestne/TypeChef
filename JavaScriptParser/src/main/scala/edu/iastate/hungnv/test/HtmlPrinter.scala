@@ -425,7 +425,7 @@ object HtmlPrinter {
 //    var doc = JSPrinter.ppConditional(domResult, List(FeatureExprFactory.True))
 //    var layout = JSPrinter.layout(doc)
     
-    var layout = JSPrinter2.printCond(domResult, List(FeatureExprFactory.True), 0)
+    var layout = JSPrinter2.print(domResult, List(FeatureExprFactory.True), 0)
     
     //log("JsPrinter:")
     //log(layout, true)

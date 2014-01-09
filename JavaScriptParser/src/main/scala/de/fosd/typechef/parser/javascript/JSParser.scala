@@ -46,8 +46,8 @@ class JSParser extends MultiFeatureParser {
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-    def Program: MultiParser[Conditional[JSProgram]] =
-        repOpt(WSo ~> SourceElement) <~ WSo ^^! {JSProgram(_)}
+    def Program: MultiParser[JSProgram] =
+        FunctionBody <~ WSo
 
     def SourceElement: MultiParser[JSSourceElement] = FunctionDeclaration | Statement
 

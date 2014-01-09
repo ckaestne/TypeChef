@@ -18,17 +18,17 @@ object JSParser {
 	type ElementList = List[Opt[HElement]]
     type DomType = List[Opt[DElement]]
 	
-	def parse(r: Reader): Conditional[JSProgram] = {
+	def parse(r: Reader): JSProgram = {
 		val tokenReader = CharacterLexer.lex(r)
 		parse(tokenReader)
 	}
 	
-	def parse(tokens: List[CharacterToken]): Conditional[JSProgram] = {
+	def parse(tokens: List[CharacterToken]): JSProgram = {
 		val tokenReader = new TokenReader[CharacterToken, Null](tokens, 0, null, new CharacterToken(-1, FeatureExprFactory.True, new JPosition("", -1, -1)))
 		parse(tokenReader)
 	}
 	
-	def parse(tokenReader: TokenReader[CharacterToken, Null]): Conditional[JSProgram] = {
+	def parse(tokenReader: TokenReader[CharacterToken, Null]): JSProgram = {
 		/*
 		 * Step 1: Get tokens
 		 */
@@ -47,7 +47,7 @@ object JSParser {
 
         log(result.toString)
         
-        def printResult[T](f: FeatureExpr, x: parser.MultiParseResult[Conditional[JSProgram]]): Unit = x match {
+        def printResult[T](f: FeatureExpr, x: parser.MultiParseResult[JSProgram]): Unit = x match {
             case parser.Success(y, _) => println("succeeded[" + f + "] \n" + y) //y.take(4))
             case e@parser.Failure(y, r, _) => println("failed[" + f + "] \n" + e + "\n  @" + r.first.getPosition())
             case parser.SplittedParseResult(fx, x, y) =>

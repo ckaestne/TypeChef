@@ -24,7 +24,7 @@ object HtmlParser {
          */
 //        val tokenReader = CharacterLexer.lex(r)
         val tokenReader = CharacterLexer.lexForXml(r)
-        val tokens = tokenReader.tokens.slice(0, tokenReader.tokens.size)
+        val tokens = tokenReader.tokens//.slice(0, tokenReader.tokens.size)
 
         log("1. SAX tokens:")
         log(prettyPrintSaxTokens(tokens, 50))
