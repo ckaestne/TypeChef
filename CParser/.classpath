@@ -9,6 +9,8 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/ParserFramework"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/PartialPreprocessor"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/org.sat4j.core"/>
+	<classpathentry kind="lib" path="/Work/To-do/JSVarex Project/Eclipse for Scala/workspace/TypeChef/lib/org.sat4j.core.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/ConditionalLib"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/ErrorLib"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

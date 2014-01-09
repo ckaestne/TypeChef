@@ -57,3 +57,13 @@ case class JSExprList(exprs: List[JSExpression]) extends JSExpression
 case class JSIdentifier(name: String) extends JSExpression
 
 case class JSComment(n: String) extends AST
+
+case class JSIfStatement(e: JSExpression, s1: JSStatement, s2: Option[JSStatement]) extends JSStatement
+
+case class JSForStatement(statement: JSStatement) extends JSStatement
+
+case class JSUnaryExpr(e: JSExpression, op: String) extends JSExpression
+
+case class JSPostfixExpr(e: JSExpression, op: String) extends JSExpression
+
+case class JSFieldAccess(e: JSExpression, field: String) extends JSExpression

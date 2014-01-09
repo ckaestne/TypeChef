@@ -1,0 +1,1833 @@
+
+#if ([Unresolved Constraint])
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"  (Location: include/format.inc.php @ Line 1) 
+#if (is_right_to_left($lang))
+dir='rtl' (Location: include/format.inc.php @ Line 2) 
+#else
+
+#endif
+>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta name="Description" content="PHP-Addressbook" />
+	<meta name="Keywords" content="" />
+
+	 (Location: include/format.inc.php @ Line 2) <s (Location: include/format.inc.php @ Line 8) tyle type="text/css">
+ (Location: include/format.inc.php @ Line 8) 		
+    body {background-image:url('./skins/header- (Location: include/format.inc.php @ Line 40) 
+#if (isset($domain) && isset($domain[$domain_id]))
+[SYM]
+#else
+
+#if (!isset($skin_color))
+blue (Location: include/dbconnect.php @ Line 110) 
+#else
+
+#endif
+
+#endif
+.jpg');background-repeat:repeat-x;background-position:top left;}
+    table#maintable th {text-align:center;border:1px solid #ccc;font-size:12px;background: (Location: include/format.inc.php @ Line 41) 
+#if (case $skin_color == "blue")
+#739fce (Location: include/format.inc.php @ Line 13) 
+#else
+
+#if (case $skin_color == "brown")
+#c59469 (Location: include/format.inc.php @ Line 16) 
+#else
+
+#if (case $skin_color == "green")
+#66a749 (Location: include/format.inc.php @ Line 19) 
+#else
+
+#if (case $skin_color == "grey")
+#777777 (Location: include/format.inc.php @ Line 22) 
+#else
+
+#if (case $skin_color == "pink")
+#a84989 (Location: include/format.inc.php @ Line 25) 
+#else
+
+#if (case $skin_color == "purple")
+#5349a9 (Location: include/format.inc.php @ Line 28) 
+#else
+
+#if (case $skin_color == "red")
+#b63a3a (Location: include/format.inc.php @ Line 31) 
+#else
+
+#if (case $skin_color == "turquoise")
+#48a89d (Location: include/format.inc.php @ Line 34) 
+#else
+
+#if (case $skin_color == "yellow")
+#b4b43a (Location: include/format.inc.php @ Line 37) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+;color:#fff;}
+    table#birthdays th {color:#fff;background: (Location: include/format.inc.php @ Line 42) 
+#if (case $skin_color == "blue")
+#739fce (Location: include/format.inc.php @ Line 13) 
+#else
+
+#if (case $skin_color == "brown")
+#c59469 (Location: include/format.inc.php @ Line 16) 
+#else
+
+#if (case $skin_color == "green")
+#66a749 (Location: include/format.inc.php @ Line 19) 
+#else
+
+#if (case $skin_color == "grey")
+#777777 (Location: include/format.inc.php @ Line 22) 
+#else
+
+#if (case $skin_color == "pink")
+#a84989 (Location: include/format.inc.php @ Line 25) 
+#else
+
+#if (case $skin_color == "purple")
+#5349a9 (Location: include/format.inc.php @ Line 28) 
+#else
+
+#if (case $skin_color == "red")
+#b63a3a (Location: include/format.inc.php @ Line 31) 
+#else
+
+#if (case $skin_color == "turquoise")
+#48a89d (Location: include/format.inc.php @ Line 34) 
+#else
+
+#if (case $skin_color == "yellow")
+#b4b43a (Location: include/format.inc.php @ Line 37) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+;margin:25px;border:1px solid #ccc;}
+		 (Location: include/format.inc.php @ Line 43) table#maintable th a {color:#fff;}
+body,#footer,ul {margin:0;padding:0;}
+body,p,td,h1,h2,a,a:hover {font-family:Arial,Helvetica,sans-serif;font-size:12px}
+h1 {font-size:18px}
+h2 {font-size:14px}
+a {color:#036}
+a:hover {color:#06C;text-decoration:none}
+img {border:0;}
+textarea {font-family:Arial,Helvetica,sans-serif;font-size:10pt}
+
+#container {margin:0 auto;width:780px;border:0}
+#top{color:#fff;margin:5px 0 0;height:20px;text-align:right;}
+#header {height:80px;}
+#header h1 {display:none;}
+
+#nav {margin:0 0 20px;height:25px;width:770px;float:left;border:0;display:inline;}
+#nav ul li a {color:#fff;padding:0 4px;}
+#nav ul li img {display:none;}
+
+#content {margin:20px 0 0;width:780px;}
+#footer {margin:45px 0 0;padding:20px 0;clear:both;}
+
+ul {list-style:none;}
+ul li {display:inline;}
+#footer ul li {display:block;}
+
+label {margin-right:0.5em;width:10em;float:left;text-align:left;display:block;}
+
+#search-az {text-align:center;padding:2px;}
+#a-z a {font-size:75%;} 
+
+.odd {background:#e5e5e5;}
+.even {background:#f3f3f3;}
+
+#right,.right {float:right;}
+#left,.left {float:left;}
+.clear {clear:both;}
+
+.msgbox {padding:16px;border:1px solid #ccc;background:#fff4b4;width:60%;font-weight:700;}
+.msgbox i {font-weight:400;}
+
+table {width:100%;border:1px solid #ccc;border-collapse:collapse;}
+table tr td {border:1px solid #ccc;padding:2px 1px}
+table img,.center {text-align:center;}
+table th {text-align:left;font-size:14px;padding:8px 4px;}
+
+table#birthdays {border:0;}
+.tablespace td {border:0;}
+
+/* View.php */
+table#view,table#view td {border:1px solid #000;border-collapse:collapse;}
+table#view td {padding:5px;}
+
+/* Edit.php */
+#content input[type=text],#content textarea {width:220px; margin-bottom:3px;}
+#content input[type=text] {height:1,1em}
+#content textarea {height:8em}
+input.byear{width:4em !important;}
+
+/* Source Forge */
+#download {margin:0;width:180px;background:#63A624;color:#fff;border:1px solid #000;text-align:center;}
+#download a,#top a {color:#fff;}
+
+/* Login */
+#content input[name=user],input[name=pass] {width:150px; margin-bottom:3px;} (Location: style.css @ Line 1) 	</style>
+	<!--[if !IE]>-->
+	<link media="only screen and (max-device-width: 480px)" rel="stylesheet" type="text/css" href="iphone.css"/>
+	<!--<![endif]-->
+	<meta name="viewport" content="width=320; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;" />
+
+
+	<link rel="icon" type="image/png" href=" (Location: include/format.inc.php @ Line 45) 
+#if (!isset($url_images))
+ (Location: include/dbconnect.php @ Line 138) 
+#else
+ (Location: config/config.php @ Line 129) 
+#endif
+icons/font.png" />
+	 (Location: include/format.inc.php @ Line 52) 
+#if (is_right_to_left($lang))
+	 (Location: include/format.inc.php @ Line 54) <s (Location: include/format.inc.php @ Line 54) tyle type="text/css">
+		<!--
+		/* CSS for right to left */
+		label {margin-left:0.5em;float:right;text-align:right;}
+		#content,#right,.right {float:left;}
+		#nav,#left,.left {float:right;}
+		-->
+	</style>
+	 (Location: include/format.inc.php @ Line 54) 
+#else
+
+#endif
+<title> (Location: index.php @ Line 5) 
+#if ($has_mb_strtoupper)
+[SYM][SYM]
+#else
+[SYM]
+#endif
+
+#if ($group_name != "")
+ ( (Location: index.php @ Line 5) 
+#if (isset($iplist) && hasRoleFromIP($iplist))
+
+#if (isset($group))
+[SYM]
+#else
+Unresolved Location
+#endif
+
+#else
+
+#if (isset($userlist))
+
+#if ($user->getGroup() != "")
+[SYM]
+#else
+
+#if (isset($group))
+[SYM]
+#else
+Unresolved Location
+#endif
+
+#endif
+
+#else
+
+#if (isset($group))
+[SYM]
+#else
+Unresolved Location
+#endif
+
+#endif
+
+#endif
+) (Location: index.php @ Line 5) 
+#else
+ (Location: index.php @ Line 5) 
+#endif
+</title>
+ (Location: index.php @ Line 5) 	</head>
+	<body>
+		<div id="container">
+			<div id="top">
+<!--
+ (Location: include/header.inc.php @ Line 4) 
+#if (count($default_languages) > 0)
+
+#if (!isset($_GET["more_langs"]) || $_GET["more_langs"] == "")
+[<a title="other languages" href="?more_langs=yes">+</a>] |  (Location: include/header.inc.php @ Line 20) 
+#else
+
+#endif
+
+#else
+
+#endif
+[RepeatBegin]
+
+#if ($supp_lang != $lang)
+
+#if ($lang_cnt++ > 0)
+ |  (Location: include/header.inc.php @ Line 31) 
+#else
+
+#endif
+<a href='?lang= (Location: include/header.inc.php @ Line 32) [SYM]'><img title=' (Location: include/header.inc.php @ Line 32) 
+#if ($has_mb_strtoupper)
+[SYM][SYM]
+#else
+[SYM]
+#endif
+' alt=' (Location: include/header.inc.php @ Line 32) 
+#if ($has_mb_strtoupper)
+[SYM][SYM]
+#else
+[SYM]
+#endif
+' src=' (Location: include/header.inc.php @ Line 32) [SYM]icons/ (Location: include/header.inc.php @ Line 32) 
+#if (isset($use_flag[$language]))
+[SYM]
+#else
+[SYM]
+#endif
+.gif'/></a> (Location: include/header.inc.php @ Line 32) 
+#else
+
+#endif
+
+[RepeatEnd]
+#if (! ((!isset($_GET["more_langs"]) || $_GET["more_langs"] == "") && count($default_languages) > 0))
+ | [<a title='default languages' href='?more_langs='> - </a>] (Location: include/header.inc.php @ Line 37) 
+#else
+
+#endif
+ | 
+
+<a href="preferences (Location: include/header.inc.php @ Line 39) 
+#if (!isset($page_ext))
+.php (Location: include/dbconnect.php @ Line 161) 
+#else
+.php (Location: config/config.php @ Line 132) 
+#endif
+
+#if (!$is_fix_group and $group_name)
+?group= (Location: include/dbconnect.php @ Line 183) 
+#if (isset($group))
+[SYM]
+#else
+Unresolved Location
+#endif
+&amp; (Location: include/dbconnect.php @ Line 183) 
+#else
+? (Location: include/dbconnect.php @ Line 162) 
+#endif
+from= (Location: include/header.inc.php @ Line 41) [SYM]"> (Location: include/header.inc.php @ Line 41) 
+#if ($has_mb_strtoupper)
+[SYM][SYM]
+#else
+[SYM]
+#endif
+</a>
+-->
+ (Location: include/header.inc.php @ Line 41) 
+#if (isset($userlist) && !(isset($iplist) && hasRoleFromIP($iplist)))
+<form name="logout" method="post" class=header>
+<input type="hidden" name="logout" value="yes" />
+ (Location: include/header.inc.php @ Line 44) 
+#if (isset($username))
+<b>( (Location: include/header.inc.php @ Line 46) 
+#if (isset($iplist) && hasRoleFromIP($iplist))
+
+#else
+
+#if (isset($userlist))
+[SYM]
+#else
+
+#endif
+
+#endif
+)</b>  (Location: include/header.inc.php @ Line 46) 
+#else
+
+#endif
+<a href="#" onClick="document.logout.submit();"> (Location: include/header.inc.php @ Line 47) 
+#if ($has_mb_strtoupper)
+[SYM][SYM]
+#else
+[SYM]
+#endif
+</a>
+</form>
+ (Location: include/header.inc.php @ Line 47) 
+#else
+<b>( (Location: include/header.inc.php @ Line 50) [SYM])</b> (Location: include/header.inc.php @ Line 50) 
+#endif
+			</div>
+			<div id="header">
+				<h1><a href=".">Address Book</a></h1>
+				<a href="."><img src=" (Location: include/header.inc.php @ Line 52) 
+#if (!isset($url_images))
+ (Location: include/dbconnect.php @ Line 138) 
+#else
+ (Location: config/config.php @ Line 129) 
+#endif
+title.png" title="Addressbook" alt="Addressbook" id="logo" /></a>
+			</div>
+			<div id="nav">
+      			 (Location: include/header.inc.php @ Line 55) <!--
+* http://www.dynamicdrive.com/dynamicindex1/ddlevelsmenu/index.htm
+* http://www.dynamicdrive.com/dynamicindex1/popupmenu.htm
+* http://www.alistapart.com/articles/horizdropdowns/
+-->
+<ul>
+<li>
+	<a href="./ (Location: include/nav.inc.php @ Line 1) 
+#if ($group == "" || $group == "[none]" || $is_fix_group)
+ (Location: include/nav.inc.php @ Line 8) 
+#else
+?group= (Location: include/nav.inc.php @ Line 8) 
+#if (isset($iplist) && hasRoleFromIP($iplist))
+
+#else
+
+#if (isset($userlist))
+
+#if ($user->getGroup() != "")
+[SYM]
+#else
+
+#endif
+
+#else
+
+#endif
+
+#endif
+
+#endif
+"> (Location: include/nav.inc.php @ Line 8) 
+#if (isset($messages[$value][$lang]))
+[SYM]
+#else
+HOME (Location: include/nav.inc.php @ Line 8) 
+#endif
+</a>
+</li>
+ (Location: include/nav.inc.php @ Line 8) 
+#if (! $read_only)
+<li class="all">
+	<a href="edit (Location: include/nav.inc.php @ Line 11) 
+#if (!$is_fix_group and $group_name)
+
+#if (!isset($page_ext))
+.php (Location: include/dbconnect.php @ Line 161) 
+#else
+.php (Location: config/config.php @ Line 132) 
+#endif
+?group= (Location: include/dbconnect.php @ Line 184) 
+#if (isset($group))
+[SYM]
+#else
+Unresolved Location
+#endif
+
+#else
+
+#if (!isset($page_ext))
+.php (Location: include/dbconnect.php @ Line 161) 
+#else
+.php (Location: config/config.php @ Line 132) 
+#endif
+
+#endif
+"> (Location: include/nav.inc.php @ Line 12) 
+#if (isset($messages[$value][$lang]))
+[SYM]
+#else
+ADD_NEW (Location: include/nav.inc.php @ Line 12) 
+#endif
+</a>
+</li>
+ (Location: include/nav.inc.php @ Line 12) 
+#else
+
+#endif
+
+#if (!$read_only && $public_group_edit && $table_groups != "" && !$is_fix_group)
+	<li class="admin">
+		<a href="group (Location: include/nav.inc.php @ Line 18) 
+#if (!$is_fix_group and $group_name)
+
+#if (!isset($page_ext))
+.php (Location: include/dbconnect.php @ Line 161) 
+#else
+.php (Location: config/config.php @ Line 132) 
+#endif
+?group= (Location: include/dbconnect.php @ Line 184) 
+#if (isset($group))
+[SYM]
+#else
+Unresolved Location
+#endif
+
+#else
+
+#if (!isset($page_ext))
+.php (Location: include/dbconnect.php @ Line 161) 
+#else
+.php (Location: config/config.php @ Line 132) 
+#endif
+
+#endif
+"> (Location: include/nav.inc.php @ Line 19) 
+#if (isset($messages[$value][$lang]))
+[SYM]
+#else
+GROUPS (Location: include/nav.inc.php @ Line 19) 
+#endif
+</a>
+	</li>
+ (Location: include/nav.inc.php @ Line 19) 
+#else
+
+#endif
+	<li class="all">
+		<a href="birthdays (Location: include/nav.inc.php @ Line 22) 
+#if (!$is_fix_group and $group_name)
+
+#if (!isset($page_ext))
+.php (Location: include/dbconnect.php @ Line 161) 
+#else
+.php (Location: config/config.php @ Line 132) 
+#endif
+?group= (Location: include/dbconnect.php @ Line 184) 
+#if (isset($group))
+[SYM]
+#else
+Unresolved Location
+#endif
+
+#else
+
+#if (!isset($page_ext))
+.php (Location: include/dbconnect.php @ Line 161) 
+#else
+.php (Location: config/config.php @ Line 132) 
+#endif
+
+#endif
+"> (Location: include/nav.inc.php @ Line 23) 
+#if (isset($messages[$value][$lang]))
+[SYM]
+#else
+NEXT_BIRTHDAYS (Location: include/nav.inc.php @ Line 23) 
+#endif
+</a>
+	</li>
+	<li class="export">
+    	<a href="view (Location: include/nav.inc.php @ Line 23) 
+#if (!isset($page_ext))
+.php (Location: include/dbconnect.php @ Line 161) 
+#else
+.php (Location: config/config.php @ Line 132) 
+#endif
+
+#if (!$is_fix_group and $group_name)
+?group= (Location: include/dbconnect.php @ Line 183) 
+#if (isset($group))
+[SYM]
+#else
+Unresolved Location
+#endif
+&amp; (Location: include/dbconnect.php @ Line 183) 
+#else
+? (Location: include/dbconnect.php @ Line 162) 
+#endif
+all&amp;print"> (Location: include/nav.inc.php @ Line 26) 
+#if (isset($messages[$value][$lang]))
+[SYM]
+#else
+PRINT_ALL (Location: include/nav.inc.php @ Line 26) 
+#endif
+</a>
+  </li>
+	<li class="export">
+      <a href="view (Location: include/nav.inc.php @ Line 26) 
+#if (!isset($page_ext))
+.php (Location: include/dbconnect.php @ Line 161) 
+#else
+.php (Location: config/config.php @ Line 132) 
+#endif
+
+#if (!$is_fix_group and $group_name)
+?group= (Location: include/dbconnect.php @ Line 183) 
+#if (isset($group))
+[SYM]
+#else
+Unresolved Location
+#endif
+&amp; (Location: include/dbconnect.php @ Line 183) 
+#else
+? (Location: include/dbconnect.php @ Line 162) 
+#endif
+all&amp;print&amp;phones"> (Location: include/nav.inc.php @ Line 29) 
+#if (isset($messages[$value][$lang]))
+[SYM]
+#else
+PRINT_PHONES (Location: include/nav.inc.php @ Line 29) 
+#endif
+</a>
+  </li>
+ (Location: include/nav.inc.php @ Line 29) 
+#if (isset($google_maps_keys))
+	<li class="export">
+    	<a href="map (Location: include/nav.inc.php @ Line 34) 
+#if (!isset($page_ext))
+.php (Location: include/dbconnect.php @ Line 161) 
+#else
+.php (Location: config/config.php @ Line 132) 
+#endif
+
+#if (!$is_fix_group and $group_name)
+?group= (Location: include/dbconnect.php @ Line 183) 
+#if (isset($group))
+[SYM]
+#else
+Unresolved Location
+#endif
+&amp; (Location: include/dbconnect.php @ Line 183) 
+#else
+? (Location: include/dbconnect.php @ Line 162) 
+#endif
+"> (Location: include/nav.inc.php @ Line 35) 
+#if (isset($messages[$value][$lang]))
+[SYM]
+#else
+MAP (Location: include/nav.inc.php @ Line 35) 
+#endif
+</a>
+  </li>
+ (Location: include/nav.inc.php @ Line 35) 
+#else
+
+#endif
+	<li class="export">
+    	<a href="export (Location: include/nav.inc.php @ Line 40) 
+#if (!$is_fix_group and $group_name)
+
+#if (!isset($page_ext))
+.php (Location: include/dbconnect.php @ Line 161) 
+#else
+.php (Location: config/config.php @ Line 132) 
+#endif
+?group= (Location: include/dbconnect.php @ Line 184) 
+#if (isset($group))
+[SYM]
+#else
+Unresolved Location
+#endif
+
+#else
+
+#if (!isset($page_ext))
+.php (Location: include/dbconnect.php @ Line 161) 
+#else
+.php (Location: config/config.php @ Line 132) 
+#endif
+
+#endif
+"> (Location: include/nav.inc.php @ Line 41) 
+#if (isset($messages[$value][$lang]))
+[SYM]
+#else
+EXPORT (Location: include/nav.inc.php @ Line 41) 
+#endif
+</a>
+  </li> 
+ (Location: include/nav.inc.php @ Line 41) 
+#if (!$read_only)
+	<li class="export">
+    	<a href="import (Location: include/nav.inc.php @ Line 44) 
+#if (!$is_fix_group and $group_name)
+
+#if (!isset($page_ext))
+.php (Location: include/dbconnect.php @ Line 161) 
+#else
+.php (Location: config/config.php @ Line 132) 
+#endif
+?group= (Location: include/dbconnect.php @ Line 184) 
+#if (isset($group))
+[SYM]
+#else
+Unresolved Location
+#endif
+
+#else
+
+#if (!isset($page_ext))
+.php (Location: include/dbconnect.php @ Line 161) 
+#else
+.php (Location: config/config.php @ Line 132) 
+#endif
+
+#endif
+"> (Location: include/nav.inc.php @ Line 45) 
+#if (isset($messages[$value][$lang]))
+[SYM]
+#else
+IMPORT (Location: include/nav.inc.php @ Line 45) 
+#endif
+</a>
+  </li> 
+ (Location: include/nav.inc.php @ Line 45) 
+#else
+
+#endif
+</ul>
+ (Location: include/nav.inc.php @ Line 48) 			</div>
+			<div id="content">
+
+ (Location: include/header.inc.php @ Line 59) 
+#if ($group_name != "")
+[SYM]
+#else
+
+#endif
+
+<br /><br />
+<div id="search-az">
+ (Location: index.php @ Line 7) 
+#if (! $use_ajax)
+	<form accept-charset="utf-8" method="get" name="searchform">
+		<input type="text" value=" (Location: index.php @ Line 11) [SYM]" name="searchstring" title=" (Location: index.php @ Line 12) 
+#if ($has_mb_strtoupper)
+[SYM][SYM]
+#else
+[SYM]
+#endif
+" size="45" tabindex="0"/>
+		<input name="submitsearch" type="submit" value=" (Location: index.php @ Line 12) [SYM]" />    
+	</form>
+ (Location: index.php @ Line 13) <div id='a-z'><a href=' (Location: index.php @ Line 17) index (Location: index.php @ Line 16) [SYM]alphabet (Location: index.php @ Line 16) =a'>A</a> | <a href=' (Location: index.php @ Line 17) index (Location: index.php @ Line 16) [SYM]alphabet (Location: index.php @ Line 16) =b'>B</a> | <a href=' (Location: index.php @ Line 17) index (Location: index.php @ Line 16) [SYM]alphabet (Location: index.php @ Line 16) =c'>C</a> | <a href=' (Location: index.php @ Line 17) index (Location: index.php @ Line 16) [SYM]alphabet (Location: index.php @ Line 16) =d'>D</a> | <a href=' (Location: index.php @ Line 17) index (Location: index.php @ Line 16) [SYM]alphabet (Location: index.php @ Line 16) =e'>E</a> | <a href=' (Location: index.php @ Line 17) index (Location: index.php @ Line 16) [SYM]alphabet (Location: index.php @ Line 16) =f'>F</a> | <a href=' (Location: index.php @ Line 17) index (Location: index.php @ Line 16) [SYM]alphabet (Location: index.php @ Line 16) =g'>G</a> | <a href=' (Location: index.php @ Line 17) index (Location: index.php @ Line 16) [SYM]alphabet (Location: index.php @ Line 16) =h'>H</a> | <a href=' (Location: index.php @ Line 17) index (Location: index.php @ Line 16) [SYM]alphabet (Location: index.php @ Line 16) =i'>I</a> | <a href=' (Location: index.php @ Line 17) index (Location: index.php @ Line 16) [SYM]alphabet (Location: index.php @ Line 16) =j'>J</a> | <a href=' (Location: index.php @ Line 17) index (Location: index.php @ Line 16) [SYM]alphabet (Location: index.php @ Line 16) =k'>K</a> | <a href=' (Location: index.php @ Line 17) index (Location: index.php @ Line 16) [SYM]alphabet (Location: index.php @ Line 16) =l'>L</a> | <a href=' (Location: index.php @ Line 17) index (Location: index.php @ Line 16) [SYM]alphabet (Location: index.php @ Line 16) =m'>M</a> | <a href=' (Location: index.php @ Line 17) index (Location: index.php @ Line 16) [SYM]alphabet (Location: index.php @ Line 16) =n'>N</a> | <a href=' (Location: index.php @ Line 17) index (Location: index.php @ Line 16) [SYM]alphabet (Location: index.php @ Line 16) =o'>O</a> | <a href=' (Location: index.php @ Line 17) index (Location: index.php @ Line 16) [SYM]alphabet (Location: index.php @ Line 16) =p'>P</a> | <a href=' (Location: index.php @ Line 17) index (Location: index.php @ Line 16) [SYM]alphabet (Location: index.php @ Line 16) =q'>Q</a> | <a href=' (Location: index.php @ Line 17) index (Location: index.php @ Line 16) [SYM]alphabet (Location: index.php @ Line 16) =r'>R</a> | <a href=' (Location: index.php @ Line 17) index (Location: index.php @ Line 16) [SYM]alphabet (Location: index.php @ Line 16) =s'>S</a> | <a href=' (Location: index.php @ Line 17) index (Location: index.php @ Line 16) [SYM]alphabet (Location: index.php @ Line 16) =t'>T</a> | <a href=' (Location: index.php @ Line 17) index (Location: index.php @ Line 16) [SYM]alphabet (Location: index.php @ Line 16) =u'>U</a> | <a href=' (Location: index.php @ Line 17) index (Location: index.php @ Line 16) [SYM]alphabet (Location: index.php @ Line 16) =v'>V</a> | <a href=' (Location: index.php @ Line 17) index (Location: index.php @ Line 16) [SYM]alphabet (Location: index.php @ Line 16) =w'>W</a> | <a href=' (Location: index.php @ Line 17) index (Location: index.php @ Line 16) [SYM]alphabet (Location: index.php @ Line 16) =x'>X</a> | <a href=' (Location: index.php @ Line 17) index (Location: index.php @ Line 16) [SYM]alphabet (Location: index.php @ Line 16) =y'>Y</a> | <a href=' (Location: index.php @ Line 17) index (Location: index.php @ Line 16) [SYM]alphabet (Location: index.php @ Line 16) =z'>Z</a> | <a href='index (Location: index.php @ Line 17) 
+#if (!$is_fix_group and $group_name)
+
+#if (!isset($page_ext))
+.php (Location: include/dbconnect.php @ Line 161) 
+#else
+.php (Location: config/config.php @ Line 132) 
+#endif
+?group= (Location: include/dbconnect.php @ Line 184) 
+#if (isset($group))
+[SYM]
+#else
+Unresolved Location
+#endif
+
+#else
+
+#if (!isset($page_ext))
+.php (Location: include/dbconnect.php @ Line 161) 
+#else
+.php (Location: config/config.php @ Line 132) 
+#endif
+
+#endif
+'> (Location: index.php @ Line 17) 
+#if ($has_mb_strtoupper)
+[SYM][SYM]
+#else
+[SYM]
+#endif
+</a></div> (Location: index.php @ Line 17) 
+#else
+
+ (Location: index.php @ Line 20) 
+#if ($_SERVER['SERVER_NAME'] == "php-addressbook.sourceforge.net")
+<table border=0>
+<tr>
+	<td>
+		Advertisment: Just try for 2$ per month:<br>
+		<img src="icons/cross.png">
+		  <a href="http://swiss-addressbook.com">www.swiss-addressbook.com</a>
+		<img src="icons/cross.png"><br>
+		  <b><i>"PHP-Addressbook as a Service"</i></b>
+		</td></tr>
+</table>
+<br>
+ (Location: index.php @ Line 22) 
+#else
+
+#endif
+
+	<form accept-charset="utf-8" method="get" name="searchform" onsubmit="return false">
+		<input type="text" value=" (Location: index.php @ Line 34) [SYM]" name="searchstring" title=" (Location: index.php @ Line 36) 
+#if ($has_mb_strtoupper)
+[SYM][SYM]
+#else
+[SYM]
+#endif
+" size="45" tabindex="0" 
+ (Location: index.php @ Line 36) 
+#if ($use_ajax)
+		
+		       onkeyup="filterResults(this)"/>
+ (Location: index.php @ Line 37) 
+#else
+
+#endif
+	</form>
+ (Location: index.php @ Line 40) 
+#endif
+<s (Location: index.php @ Line 42) cript type="text/javascript">
+	document.searchform.searchstring.focus();
+</script>
+</div><br />
+<hr />
+ (Location: index.php @ Line 42) <label style='width:24em;'><strong> (Location: index.php @ Line 56) 
+#if (isset($messages[$value][$lang]))
+[SYM]
+#else
+NUMBER_OF_RESULTS (Location: index.php @ Line 56) 
+#endif
+: <span id='search_count'> (Location: index.php @ Line 56) [SYM]</span></strong></label> (Location: index.php @ Line 56) 
+#if (isset($table_groups) and $table_groups != "" and !$is_fix_group)
+
+<form id="right" method="get">
+	 (Location: index.php @ Line 59) <s (Location: index.php @ Line 61) elect name="group" onchange="this.parentNode.submit()">
+		 (Location: index.php @ Line 61) 
+#if ($group_name != "")
+<option> (Location: index.php @ Line 64) 
+#if (isset($iplist) && hasRoleFromIP($iplist))
+
+#if (isset($group))
+[SYM]
+#else
+Unresolved Location
+#endif
+
+#else
+
+#if (isset($userlist))
+
+#if ($user->getGroup() != "")
+[SYM]
+#else
+
+#if (isset($group))
+[SYM]
+#else
+Unresolved Location
+#endif
+
+#endif
+
+#else
+
+#if (isset($group))
+[SYM]
+#else
+Unresolved Location
+#endif
+
+#endif
+
+#endif
+</option>
+  (Location: index.php @ Line 64) 
+#else
+
+#endif
+		<option value="">[ (Location: index.php @ Line 67) 
+#if (isset($messages[$value][$lang]))
+[SYM]
+#else
+ALL (Location: index.php @ Line 67) 
+#endif
+]</option>
+		<option value="[none]">[ (Location: index.php @ Line 67) 
+#if (isset($messages[$value][$lang]))
+[SYM]
+#else
+NONE (Location: index.php @ Line 68) 
+#endif
+]</option>
+		 (Location: index.php @ Line 68) [RepeatBegin]
+<option> (Location: index.php @ Line 76) [SYM]</option>
+  (Location: index.php @ Line 76) 
+[RepeatEnd]	</select>
+</form>
+ (Location: index.php @ Line 79) 
+#else
+
+#endif
+<br /><br class="clear" />
+
+<form accept-charset="utf-8" name="MainForm" method="post" action="group (Location: index.php @ Line 82) 
+#if (!$is_fix_group and $group_name)
+
+#if (!isset($page_ext))
+.php (Location: include/dbconnect.php @ Line 161) 
+#else
+.php (Location: config/config.php @ Line 132) 
+#endif
+?group= (Location: include/dbconnect.php @ Line 184) 
+#if (isset($group))
+[SYM]
+#else
+Unresolved Location
+#endif
+
+#else
+
+#if (!isset($page_ext))
+.php (Location: include/dbconnect.php @ Line 161) 
+#else
+.php (Location: config/config.php @ Line 132) 
+#endif
+
+#endif
+">
+	<input type="hidden" name="group" value=" (Location: index.php @ Line 84) 
+#if (isset($iplist) && hasRoleFromIP($iplist))
+
+#else
+
+#if (isset($userlist))
+
+#if ($user->getGroup() != "")
+[SYM]
+#else
+
+#endif
+
+#else
+
+#endif
+
+#endif
+" />
+	<table id="maintable" class="sortcompletecallback-applyZebra">
+		<tr>
+ (Location: index.php @ Line 85) 
+#if (! $is_mobile)
+[RepeatBegin]
+
+#if (!in_array($col, array("home", "work", "mobile", "select", "edit", "details")))
+<th class='sortable'> (Location: index.php @ Line 95) 
+#if ($has_mb_strtoupper)
+[SYM][SYM]
+#else
+[SYM]
+#endif
+</th> (Location: index.php @ Line 95) 
+#else
+
+#if (in_array($col, array("home", "work", "mobile")))
+<th> (Location: index.php @ Line 97) 
+#if ($has_mb_strtoupper)
+[SYM][SYM]
+#else
+[SYM]
+#endif
+</th> (Location: index.php @ Line 97) 
+#else
+<th></th> (Location: index.php @ Line 99) 
+#if ($col == "edit" && !$read_only)
+<th></th> (Location: index.php @ Line 101) 
+#else
+
+#endif
+
+#if ($col == "details")
+<th></th> (Location: index.php @ Line 104) <th></th> (Location: index.php @ Line 105) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+[RepeatEnd]      
+	</tr>
+ (Location: index.php @ Line 109) 
+#else
+
+#endif
+[RepeatBegin]
+<tr class=' (Location: index.php @ Line 209) 
+#if (($alternate++ % 2))
+odd (Location: index.php @ Line 208) 
+#else
+ (Location: index.php @ Line 208) 
+#endif
+' name='entry'> (Location: index.php @ Line 209) [RepeatBegin]
+
+#if (case $row == "select")
+<td class='center'><input type='checkbox' id=' (Location: index.php @ Line 149) [SYM]' name='selected[]' value=' (Location: index.php @ Line 149) [SYM]' title='Select ( (Location: index.php @ Line 149) [SYM]  (Location: index.php @ Line 149) [SYM])' alt='Select ( (Location: index.php @ Line 149) [SYM]  (Location: index.php @ Line 149) [SYM])' accept=' (Location: index.php @ Line 149) [SYM]
+#if ($myrow['email']  != ""
+		                           && $myrow['email2'] != "")
+
+#if (getPref('mailer') == 'colon')
+, (Location: include/mailer.inc.php @ Line 28) 
+#else
+%3B (Location: include/mailer.inc.php @ Line 31) 
+#endif
+
+#else
+ (Location: index.php @ Line 130) 
+#endif
+[SYM]' /></td> (Location: index.php @ Line 149) 
+#else
+
+#if (case $row == "first_last")
+<td> (Location: index.php @ Line 152) [SYM]  (Location: index.php @ Line 152) [SYM]</td> (Location: index.php @ Line 152) 
+#else
+
+#if (case $row == "last_first")
+<td> (Location: index.php @ Line 155) [SYM]  (Location: index.php @ Line 155) [SYM]</td> (Location: index.php @ Line 155) 
+#else
+
+#if (case $row == "email")
+<td><a href=' (Location: index.php @ Line 159) 
+#if (isset($webmailer) && isset($mailers[$webmailer]))
+
+#if (isset($webmailer) && isset($mailers[$webmailer]))
+[SYM]
+#else
+[SYM]
+#endif
+
+#else
+mailto: (Location: include/mailer.inc.php @ Line 19) 
+#endif
+[SYM]'> (Location: index.php @ Line 159) [SYM]</a></td> (Location: index.php @ Line 159) 
+#else
+
+#if (case $row == "email2")
+<td><a href=' (Location: index.php @ Line 159) 
+#if (isset($webmailer) && isset($mailers[$webmailer]))
+
+#if (isset($webmailer) && isset($mailers[$webmailer]))
+[SYM]
+#else
+[SYM]
+#endif
+
+#else
+mailto: (Location: include/mailer.inc.php @ Line 19) 
+#endif
+[SYM]'> (Location: index.php @ Line 159) [SYM]</a></td> (Location: index.php @ Line 159) 
+#else
+
+#if (case $row == "all_phones")
+<td> (Location: index.php @ Line 163) [SYM]</td> (Location: index.php @ Line 163) 
+#else
+
+#if (case $row == "address")
+<td> (Location: index.php @ Line 166) [SYM]</td> (Location: index.php @ Line 166) 
+#else
+
+#if (case $row == "edit")
+<td class='center'><a href='view (Location: index.php @ Line 169) [SYM]id= (Location: index.php @ Line 169) [SYM]'><img src=' (Location: index.php @ Line 169) [SYM]icons/status_online.png' title=' (Location: index.php @ Line 169) 
+#if ($has_mb_strtoupper)
+[SYM][SYM]
+#else
+[SYM]
+#endif
+' alt=' (Location: index.php @ Line 169) 
+#if ($has_mb_strtoupper)
+[SYM][SYM]
+#else
+[SYM]
+#endif
+' /></a></td> (Location: index.php @ Line 169) 
+#if (! $read_only)
+<td class='center'><a href='edit (Location: index.php @ Line 171) [SYM]id= (Location: index.php @ Line 171) [SYM]'><img src=' (Location: index.php @ Line 171) [SYM]icons/pencil.png' title=' (Location: index.php @ Line 171) 
+#if ($has_mb_strtoupper)
+[SYM][SYM]
+#else
+[SYM]
+#endif
+' alt=' (Location: index.php @ Line 171) 
+#if ($has_mb_strtoupper)
+[SYM][SYM]
+#else
+[SYM]
+#endif
+'/></a></td> (Location: index.php @ Line 171) 
+#else
+
+#endif
+
+#else
+
+#if (case $row == "details")
+<td class='center'><a href='vcard (Location: index.php @ Line 175) [SYM]id= (Location: index.php @ Line 175) [SYM]'><img src=' (Location: index.php @ Line 175) [SYM]icons/vcard.png' title='vCard' alt='vCard'/></a></td> (Location: index.php @ Line 175) 
+#if ($map_guess)
+
+#if ($myrow["address"] != "")
+<td class='center'><a href='http://maps.google.com/maps?q= (Location: index.php @ Line 185) [SYM]&amp;t=h' target='_blank'>
+                                <img src=' (Location: index.php @ Line 185) [SYM]icons/car.png' title='Google Maps' alt='vCard'/></a></td> (Location: index.php @ Line 186) 
+#else
+<td/> (Location: index.php @ Line 187) 
+#endif
+
+#else
+
+#endif
+
+#if ($homepage != "")
+<td class='center'><a href=' (Location: index.php @ Line 194) 
+#if (strcasecmp(substr($homepage, 0, strlen("http")),"http")== 0)
+[SYM]
+#else
+http:// (Location: index.php @ Line 193) [SYM]
+#endif
+'><img src=' (Location: index.php @ Line 194) [SYM]icons/house.png' title=' (Location: index.php @ Line 194) 
+#if (strcasecmp(substr($homepage, 0, strlen("http")),"http")== 0)
+[SYM]
+#else
+http:// (Location: index.php @ Line 193) [SYM]
+#endif
+' alt=' (Location: index.php @ Line 194) 
+#if (strcasecmp(substr($homepage, 0, strlen("http")),"http")== 0)
+[SYM]
+#else
+http:// (Location: index.php @ Line 193) [SYM]
+#endif
+'/></a></td> (Location: index.php @ Line 194) 
+#else
+
+#if ($homepage_guess && ($homepage = guessHomepage($email, $email2)) != "")
+<td class='center'><a href='http:// (Location: index.php @ Line 196) 
+#if ([Unresolved Constraint])
+ (Location: include/guess.inc.php @ Line 79) 
+#else
+
+#if (strlen($homepage) > 0)
+
+#if (strlen($homepage) == 0)
+ (Location: include/guess.inc.php @ Line 54) 
+#else
+www. (Location: include/guess.inc.php @ Line 56) [SYM]
+#endif
+
+#else
+
+#if (strlen($homepage) == 0)
+ (Location: include/guess.inc.php @ Line 54) 
+#else
+www. (Location: include/guess.inc.php @ Line 56) [SYM]
+#endif
+
+#endif
+
+#endif
+'><img src=' (Location: index.php @ Line 196) [SYM]icons/house.png' title=' (Location: index.php @ Line 196) 
+#if ($has_mb_strtoupper)
+[SYM][SYM]
+#else
+[SYM]
+#endif
+ ( (Location: index.php @ Line 196) 
+#if ([Unresolved Constraint])
+ (Location: include/guess.inc.php @ Line 79) 
+#else
+
+#if (strlen($homepage) > 0)
+
+#if (strlen($homepage) == 0)
+ (Location: include/guess.inc.php @ Line 54) 
+#else
+www. (Location: include/guess.inc.php @ Line 56) [SYM]
+#endif
+
+#else
+
+#if (strlen($homepage) == 0)
+ (Location: include/guess.inc.php @ Line 54) 
+#else
+www. (Location: include/guess.inc.php @ Line 56) [SYM]
+#endif
+
+#endif
+
+#endif
+)' alt=' (Location: index.php @ Line 196) 
+#if ($has_mb_strtoupper)
+[SYM][SYM]
+#else
+[SYM]
+#endif
+ ( (Location: index.php @ Line 196) 
+#if ([Unresolved Constraint])
+ (Location: include/guess.inc.php @ Line 79) 
+#else
+
+#if (strlen($homepage) > 0)
+
+#if (strlen($homepage) == 0)
+ (Location: include/guess.inc.php @ Line 54) 
+#else
+www. (Location: include/guess.inc.php @ Line 56) [SYM]
+#endif
+
+#else
+
+#if (strlen($homepage) == 0)
+ (Location: include/guess.inc.php @ Line 54) 
+#else
+www. (Location: include/guess.inc.php @ Line 56) [SYM]
+#endif
+
+#endif
+
+#endif
+)'/></a></td> (Location: index.php @ Line 196) 
+#else
+<td/> (Location: index.php @ Line 198) 
+#endif
+
+#endif
+
+#else
+<td> (Location: index.php @ Line 202) [SYM]</td> (Location: index.php @ Line 202) 
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+[RepeatEnd]</tr>
+  (Location: index.php @ Line 225) 
+[RepeatEnd]</table> (Location: index.php @ Line 228) &nbsp;<input type='checkbox' id='MassCB' onclick=" MassSelection()"  /> <em><strong> (Location: index.php @ Line 229) 
+#if ($has_mb_strtoupper)
+[SYM][SYM]
+#else
+[SYM]
+#endif
+</strong></em><br><br> (Location: index.php @ Line 229) 
+#if ($use_doodle)
+<div class='left'><input type='button' value="  (Location: index.php @ Line 231) 
+#if ($has_mb_strtoupper)
+[SYM][SYM]
+#else
+[SYM]
+#endif
+"    onclick=" Doodle()"  /></div> (Location: index.php @ Line 231) 
+#else
+
+#endif
+<div class='left'><input type='button' value="  (Location: index.php @ Line 233) 
+#if ($has_mb_strtoupper)
+[SYM][SYM]
+#else
+[SYM]
+#endif
+"  onclick=" MailSelection()"  /></div> (Location: index.php @ Line 233) <div class='left'><input type='button' value="  (Location: index.php @ Line 234) 
+#if ($has_mb_strtoupper)
+[SYM][SYM]
+#else
+[SYM]
+#endif
+"      onclick=" DeleteSel()"  /></div> (Location: index.php @ Line 234) 
+#if (isset($table_groups) and $table_groups != "" and !$is_fix_group)
+
+#if ($group_name != "" and $group_name != "[none]")
+<div class='left'><input type='submit' name='remove' value=' (Location: index.php @ Line 242) 
+#if ($has_mb_strtoupper)
+[SYM][SYM]
+#else
+[SYM]
+#endif
+ "  (Location: index.php @ Line 242) 
+#if (isset($iplist) && hasRoleFromIP($iplist))
+
+#if (isset($group))
+[SYM]
+#else
+Unresolved Location
+#endif
+
+#else
+
+#if (isset($userlist))
+
+#if ($user->getGroup() != "")
+[SYM]
+#else
+
+#if (isset($group))
+[SYM]
+#else
+Unresolved Location
+#endif
+
+#endif
+
+#else
+
+#if (isset($group))
+[SYM]
+#else
+Unresolved Location
+#endif
+
+#endif
+
+#endif
+" '/></div> (Location: index.php @ Line 242) 
+#else
+<div></div> (Location: index.php @ Line 244) 
+#endif
+<div class='right'><input type='submit' name='add' value=' (Location: index.php @ Line 247) 
+#if ($has_mb_strtoupper)
+[SYM][SYM]
+#else
+[SYM]
+#endif
+'/>- (Location: index.php @ Line 247) <select name='to_group'> (Location: index.php @ Line 248) [RepeatBegin]
+<option> (Location: index.php @ Line 256) [SYM]</option>
+  (Location: index.php @ Line 256) 
+[RepeatEnd]</select> (Location: index.php @ Line 258) </div><br/> (Location: index.php @ Line 260) 
+#else
+
+#endif
+</form> (Location: index.php @ Line 262) 
+#if ($group_name != "" and $group_myrow['group_footer'] != "")
+<hr /> (Location: index.php @ Line 267) [SYM]<hr /> (Location: index.php @ Line 269) 
+#else
+
+#endif
+<s (Location: index.php @ Line 272) cript type="text/javascript">
+<!--
+
+//
+// Select All/None items
+//
+function MassSelection() {
+  
+  select_count = document.getElementsByName("selected[]").length;
+  all_checked  = document.getElementById("MassCB").checked;
+  
+	for (i = 0; i < select_count; i++) {
+	  // select only visible items
+	  if( document.getElementsByName("selected[]")[i].parentNode.parentNode.style.display != "none") {
+		  document.getElementsByName("selected[]")[i].checked = all_checked;
+		}
+	}
+}
+
+//
+// Send Mail to selected persons
+//
+function MailSelection() {
+	var addresses = "";
+	var dst_count = 0;
+
+  select_count = document.getElementsByName("selected[]").length;
+	for (i = 0; i < select_count; i++) {
+		selected_i = document.getElementsByName("selected[]")[i];
+		if( selected_i.checked == true) {
+			if( selected_i.accept != "" && selected_i.accept != null) {
+				if(dst_count > 0) {
+					addresses = addresses + " (Location: index.php @ Line 272) 
+#if (getPref('mailer') == 'colon')
+, (Location: include/mailer.inc.php @ Line 28) 
+#else
+%3B (Location: include/mailer.inc.php @ Line 31) 
+#endif
+";
+				}
+				addresses = addresses + selected_i.accept;
+				dst_count++;
+			}
+		}
+	}
+
+	if(dst_count == 0)
+		alert("No address selected.");
+	else
+		location.href = " (Location: index.php @ Line 304) 
+#if (isset($webmailer) && isset($mailers[$webmailer]))
+
+#if (isset($webmailer) && isset($mailers[$webmailer]))
+[SYM]
+#else
+[SYM]
+#endif
+
+#else
+mailto: (Location: include/mailer.inc.php @ Line 19) 
+#endif
+"+addresses;
+}
+
+function Doodle() {
+	
+	var participants = "";
+	var dst_count = 0;
+
+  select_count = document.getElementsByName("selected[]").length;
+	for (i = 0; i < select_count; i++) {
+		selected_i = document.getElementsByName("selected[]")[i];
+		if( selected_i.checked == true) {
+			participants += selected_i.id+";";
+			dst_count++;
+		}
+	}
+	alert(participants);
+	if(dst_count == 0)
+		alert("No paticipants selected.");
+	else
+	  location.href = "./doodle.php?part="+participants;
+}
+
+function DeleteSel() {
+	
+	var participants = "";
+	var dst_count = 0;
+
+  select_count = document.getElementsByName("selected[]").length;
+	for (i = 0; i < select_count; i++) {
+		selected_i = document.getElementsByName("selected[]")[i];
+		if( selected_i.checked == true) {
+			participants += selected_i.id+";";
+			dst_count++;
+		}
+	}
+
+	if(dst_count == 0)
+		alert("No paticipants selected.");
+	else
+		if(confirm('Delete '+dst_count+' addresses?')) {
+	    location.href = "./delete.php?part="+participants;
+	  }
+}
+
+function applyZebra() {
+	
+  	// loop over all lines
+  	var maintable = document.getElementById("maintable")
+  	var tbody     = maintable.getElementsByTagName("tbody");
+  	var entries   = tbody[0].children;
+  	var zebraCnt  = 0;
+
+	  // Skip header(0) + selection row(length-1)
+  	for(i = 1; i < entries.length; i++) {
+  		if(entries[i].style.display != "none") {
+      	if((zebraCnt % 2) == 0) {
+      	  entries[i].className = "";
+      	} else {
+      	  entries[i].className = "odd";
+      	}
+     	  zebraCnt++;
+  		}
+    }
+}
+
+//
+// Filter the items in the fields
+//
+function filterResults(field) {
+
+  	var query = field.value;
+  	 	
+  	// split lowercase on white spaces
+  	var words = query.toLowerCase().split(" ");
+
+  	// loop over all lines
+  	var maintable = document.getElementById("maintable")
+  	var tbody     = maintable.getElementsByTagName("tbody");
+  	var entries   = tbody[0].children;
+  	var foundCnt  = 0;
+	
+	  // Skip header(0) + selection row(length-1)
+  	for(i = 1; i < entries.length; i++) {
+  		
+  		// Name + Firstname + Phonenumber + Mailaddress
+  		var content = entries[i].childNodes[0].childNodes[0].accept
+  		            + " " + entries[i].childNodes[1].innerHTML
+  		            + " " + entries[i].childNodes[2].innerHTML;
+  		            
+      // Don't be case sensitive
+  		content = content.toLowerCase();
+
+      // check if all words are present  		            
+      var foundAll = true;
+  		for(j = 0; j < words.length; j++) {
+  			foundAll = foundAll && (content.search(words[j]) != -1);
+  		}
+  		
+  		// Keep selected entries
+      foundAll = foundAll || entries[i].childNodes[0].childNodes[0].checked;
+  		
+      // ^Hide entry
+      if(foundAll) {
+      	entries[i].style.display = "";
+     	  foundCnt++;  			
+      } else {
+      	entries[i].style.display = "none";
+      }
+  	}  	
+  	document.getElementById("search_count").innerHTML = foundCnt;
+  	
+  	applyZebra();
+}
+
+ (Location: index.php @ Line 315) 
+#if ($use_ajax)
+filterResults(document.getElementsByName("searchstring")[0]);
+ (Location: index.php @ Line 431) 
+#else
+
+#endif
+
+//-->
+</script>
+ (Location: index.php @ Line 433) 
+ (Location: include/footer.inc.php @ Line 1) 
+#if ($_SERVER['SERVER_NAME'] == "php-addressbook.sourceforge.net")
+<center>
+<a href="http://sourceforge.net/projects/php-addressbook">
+  <img src="http://sflogo.sourceforge.net/sflogo.php?group_id=157964&amp;type=13" width="120" height="30" alt="Get PHP Address Book at SourceForge.net. Fast, secure and Free Open Source software downloads" />
+</a>
+ (Location: include/footer.inc.php @ Line 6) <s (Location: include/footer.inc.php @ Line 10) cript type="text/javascript" src="http://www.ohloh.net/projects/25477/widgets/project_partner_badge">
+// ohloh.net "Project Value" integration
+</script>
+</center>
+ (Location: include/footer.inc.php @ Line 10) <s (Location: include/footer.inc.php @ Line 14) cript type="text/javascript">
+	// Google-Analytics integration
+	var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+	document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+ (Location: include/footer.inc.php @ Line 14) <s (Location: include/footer.inc.php @ Line 19) cript type="text/javascript">
+	var pageTracker = _gat._getTracker("UA-6220233-1");
+	pageTracker._trackPageview();
+</script>        
+</html> 
+ (Location: include/footer.inc.php @ Line 19) 
+#else
+	</div>
+	<div id="footer">
+ (Location: include/footer.inc.php @ Line 25) 
+#endif
+
+ (Location: include/footer.inc.php @ Line 28) 
+#if ($_SERVER['SERVER_NAME'] == "php-addressbook.sourceforge.net")
+	<div class="right">
+		<div id="download">
+			<a href="../download"><b>Download</b></a>  (Location: include/footer.inc.php @ Line 34) v (Location: include/footer.inc.php @ Line 36) 6.2.12 (Location: include/dbconnect.php @ Line 349)  - r (Location: include/dbconnect.php @ Line 349) [SYM]		</div><br class="clear" />
+	</div>
+ (Location: include/footer.inc.php @ Line 37) 
+#else
+
+#endif
+			<ul>
+				<li><a href="http://sourceforge.net/projects/php-addressbook/">php-addressbook</a> <a href="notes.htm">v (Location: include/footer.inc.php @ Line 40) 6.2.12 (Location: include/dbconnect.php @ Line 349)  - r (Location: include/dbconnect.php @ Line 349) [SYM]</a></li>
+			</ul>
+	</div>
+</div>
+	</body>
+
+<!-- 
+Copyright Notice:
+This script was written by Rob Minto, and is free to use and distribute under GPL. 
+Any improvements, please email rob(at)widgetmonkey.com. 
+Keep software free. 
+And please leave this copyright notice. Thanks.
+
+Major update 2007-2009 by Olivier Chatelain, feel free to use and distribute under GPL. 
+Any improvements, please email chatelao(at)users.sourceforge.net. 
+
+Updated 2009 - Complete theme redesign by Leighton West. Any theme problems,
+please email retrorobot(at)users.sourceforge.net.
+
+Major contribution Mark James ("famfamfam"-icons, cc-by-2.5)
+For more details see: http://www.famfamfam.com/lab/icons/silk/
+
+Major contribution "frequency decoder" ("Unobtrusive Table Sort Script", cc-by-sa-2.5)
+For more details see: http://www.frequency-decoder.com/2006/09/16/unobtrusive-table-sort-script-revisited/
+-->
+ (Location: include/footer.inc.php @ Line 41) <s (Location: index.php @ Line 437) cript type="text/javascript" src="jstablesort/tablesort.min.js"></script>
+ (Location: index.php @ Line 437) 
+#else
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"  (Location: include/format.inc.php @ Line 1) 
+#if (is_right_to_left($lang))
+dir='rtl' (Location: include/format.inc.php @ Line 2) 
+#else
+
+#endif
+>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta name="Description" content="PHP-Addressbook" />
+	<meta name="Keywords" content="" />
+
+	 (Location: include/format.inc.php @ Line 2) <s (Location: include/format.inc.php @ Line 8) tyle type="text/css">
+ (Location: include/format.inc.php @ Line 8) 		
+    body {background-image:url('./skins/header- (Location: include/format.inc.php @ Line 40) 
+#if (!isset($skin_color))
+blue (Location: include/dbconnect.php @ Line 110) 
+#else
+
+#endif
+.jpg');background-repeat:repeat-x;background-position:top left;}
+    table#maintable th {text-align:center;border:1px solid #ccc;font-size:12px;background: (Location: include/format.inc.php @ Line 41) 
+#if (case $skin_color == "blue")
+#739fce (Location: include/format.inc.php @ Line 13) 
+#else
+
+#if (case $skin_color == "brown")
+#c59469 (Location: include/format.inc.php @ Line 16) 
+#else
+
+#if (case $skin_color == "green")
+#66a749 (Location: include/format.inc.php @ Line 19) 
+#else
+
+#if (case $skin_color == "grey")
+#777777 (Location: include/format.inc.php @ Line 22) 
+#else
+
+#if (case $skin_color == "pink")
+#a84989 (Location: include/format.inc.php @ Line 25) 
+#else
+
+#if (case $skin_color == "purple")
+#5349a9 (Location: include/format.inc.php @ Line 28) 
+#else
+
+#if (case $skin_color == "red")
+#b63a3a (Location: include/format.inc.php @ Line 31) 
+#else
+
+#if (case $skin_color == "turquoise")
+#48a89d (Location: include/format.inc.php @ Line 34) 
+#else
+
+#if (case $skin_color == "yellow")
+#b4b43a (Location: include/format.inc.php @ Line 37) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+;color:#fff;}
+    table#birthdays th {color:#fff;background: (Location: include/format.inc.php @ Line 42) 
+#if (case $skin_color == "blue")
+#739fce (Location: include/format.inc.php @ Line 13) 
+#else
+
+#if (case $skin_color == "brown")
+#c59469 (Location: include/format.inc.php @ Line 16) 
+#else
+
+#if (case $skin_color == "green")
+#66a749 (Location: include/format.inc.php @ Line 19) 
+#else
+
+#if (case $skin_color == "grey")
+#777777 (Location: include/format.inc.php @ Line 22) 
+#else
+
+#if (case $skin_color == "pink")
+#a84989 (Location: include/format.inc.php @ Line 25) 
+#else
+
+#if (case $skin_color == "purple")
+#5349a9 (Location: include/format.inc.php @ Line 28) 
+#else
+
+#if (case $skin_color == "red")
+#b63a3a (Location: include/format.inc.php @ Line 31) 
+#else
+
+#if (case $skin_color == "turquoise")
+#48a89d (Location: include/format.inc.php @ Line 34) 
+#else
+
+#if (case $skin_color == "yellow")
+#b4b43a (Location: include/format.inc.php @ Line 37) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+;margin:25px;border:1px solid #ccc;}
+		 (Location: include/format.inc.php @ Line 43) table#maintable th a {color:#fff;}
+body,#footer,ul {margin:0;padding:0;}
+body,p,td,h1,h2,a,a:hover {font-family:Arial,Helvetica,sans-serif;font-size:12px}
+h1 {font-size:18px}
+h2 {font-size:14px}
+a {color:#036}
+a:hover {color:#06C;text-decoration:none}
+img {border:0;}
+textarea {font-family:Arial,Helvetica,sans-serif;font-size:10pt}
+
+#container {margin:0 auto;width:780px;border:0}
+#top{color:#fff;margin:5px 0 0;height:20px;text-align:right;}
+#header {height:80px;}
+#header h1 {display:none;}
+
+#nav {margin:0 0 20px;height:25px;width:770px;float:left;border:0;display:inline;}
+#nav ul li a {color:#fff;padding:0 4px;}
+#nav ul li img {display:none;}
+
+#content {margin:20px 0 0;width:780px;}
+#footer {margin:45px 0 0;padding:20px 0;clear:both;}
+
+ul {list-style:none;}
+ul li {display:inline;}
+#footer ul li {display:block;}
+
+label {margin-right:0.5em;width:10em;float:left;text-align:left;display:block;}
+
+#search-az {text-align:center;padding:2px;}
+#a-z a {font-size:75%;} 
+
+.odd {background:#e5e5e5;}
+.even {background:#f3f3f3;}
+
+#right,.right {float:right;}
+#left,.left {float:left;}
+.clear {clear:both;}
+
+.msgbox {padding:16px;border:1px solid #ccc;background:#fff4b4;width:60%;font-weight:700;}
+.msgbox i {font-weight:400;}
+
+table {width:100%;border:1px solid #ccc;border-collapse:collapse;}
+table tr td {border:1px solid #ccc;padding:2px 1px}
+table img,.center {text-align:center;}
+table th {text-align:left;font-size:14px;padding:8px 4px;}
+
+table#birthdays {border:0;}
+.tablespace td {border:0;}
+
+/* View.php */
+table#view,table#view td {border:1px solid #000;border-collapse:collapse;}
+table#view td {padding:5px;}
+
+/* Edit.php */
+#content input[type=text],#content textarea {width:220px; margin-bottom:3px;}
+#content input[type=text] {height:1,1em}
+#content textarea {height:8em}
+input.byear{width:4em !important;}
+
+/* Source Forge */
+#download {margin:0;width:180px;background:#63A624;color:#fff;border:1px solid #000;text-align:center;}
+#download a,#top a {color:#fff;}
+
+/* Login */
+#content input[name=user],input[name=pass] {width:150px; margin-bottom:3px;} (Location: style.css @ Line 1) 	</style>
+	<!--[if !IE]>-->
+	<link media="only screen and (max-device-width: 480px)" rel="stylesheet" type="text/css" href="iphone.css"/>
+	<!--<![endif]-->
+	<meta name="viewport" content="width=320; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;" />
+
+
+	<link rel="icon" type="image/png" href=" (Location: include/format.inc.php @ Line 45) 
+#if (!isset($url_images))
+ (Location: include/dbconnect.php @ Line 138) 
+#else
+ (Location: config/config.php @ Line 129) 
+#endif
+icons/font.png" />
+	 (Location: include/format.inc.php @ Line 52) 
+#if (is_right_to_left($lang))
+	 (Location: include/format.inc.php @ Line 54) <s (Location: include/format.inc.php @ Line 54) tyle type="text/css">
+		<!--
+		/* CSS for right to left */
+		label {margin-left:0.5em;float:right;text-align:right;}
+		#content,#right,.right {float:left;}
+		#nav,#left,.left {float:right;}
+		-->
+	</style>
+	 (Location: include/format.inc.php @ Line 54) 
+#else
+
+#endif
+<title> (Location: include/dbconnect.php @ Line 203) 
+#if ($has_mb_strtoupper)
+[SYM][SYM]
+#else
+[SYM]
+#endif
+</title> (Location: include/dbconnect.php @ Line 203) [SYM]
+#endif

@@ -1,0 +1,804 @@
+
+#if ([Unresolved Constraint])
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" 
+#if (is_right_to_left($lang))
+dir='rtl'
+#else
+
+#endif
+>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta name="Description" content="PHP-Addressbook" />
+	<meta name="Keywords" content="" />
+
+	<style type="text/css">
+		
+    body {background-image:url('./skins/header-
+#if (isset($domain) && isset($domain[$domain_id]))
+[Symbolic:$domain[$domain_id]['skin']]
+#else
+
+#if (!isset($skin_color))
+blue
+#else
+
+#endif
+
+#endif
+.jpg');background-repeat:repeat-x;background-position:top left;}
+    table#maintable th {text-align:center;border:1px solid #ccc;font-size:12px;background:
+#if (case $skin_color == "blue")
+#739fce
+#else
+
+#if (case $skin_color == "brown")
+#c59469
+#else
+
+#if (case $skin_color == "green")
+#66a749
+#else
+
+#if (case $skin_color == "grey")
+#777777
+#else
+
+#if (case $skin_color == "pink")
+#a84989
+#else
+
+#if (case $skin_color == "purple")
+#5349a9
+#else
+
+#if (case $skin_color == "red")
+#b63a3a
+#else
+
+#if (case $skin_color == "turquoise")
+#48a89d
+#else
+
+#if (case $skin_color == "yellow")
+#b4b43a
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+;color:#fff;}
+    table#birthdays th {color:#fff;background:
+#if (case $skin_color == "blue")
+#739fce
+#else
+
+#if (case $skin_color == "brown")
+#c59469
+#else
+
+#if (case $skin_color == "green")
+#66a749
+#else
+
+#if (case $skin_color == "grey")
+#777777
+#else
+
+#if (case $skin_color == "pink")
+#a84989
+#else
+
+#if (case $skin_color == "purple")
+#5349a9
+#else
+
+#if (case $skin_color == "red")
+#b63a3a
+#else
+
+#if (case $skin_color == "turquoise")
+#48a89d
+#else
+
+#if (case $skin_color == "yellow")
+#b4b43a
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+;margin:25px;border:1px solid #ccc;}
+		table#maintable th a {color:#fff;}
+body,#footer,ul {margin:0;padding:0;}
+body,p,td,h1,h2,a,a:hover {font-family:Arial,Helvetica,sans-serif;font-size:12px}
+h1 {font-size:18px}
+h2 {font-size:14px}
+a {color:#036}
+a:hover {color:#06C;text-decoration:none}
+img {border:0;}
+textarea {font-family:Arial,Helvetica,sans-serif;font-size:10pt}
+
+#container {margin:0 auto;width:780px;border:0}
+#top{color:#fff;margin:5px 0 0;height:20px;text-align:right;}
+#header {height:80px;}
+#header h1 {display:none;}
+
+#nav {margin:0 0 20px;height:25px;width:770px;float:left;border:0;display:inline;}
+#nav ul li a {color:#fff;padding:0 4px;}
+#nav ul li img {display:none;}
+
+#content {margin:20px 0 0;width:780px;}
+#footer {margin:45px 0 0;padding:20px 0;clear:both;}
+
+ul {list-style:none;}
+ul li {display:inline;}
+#footer ul li {display:block;}
+
+label {margin-right:0.5em;width:10em;float:left;text-align:left;display:block;}
+
+#search-az {text-align:center;padding:2px;}
+#a-z a {font-size:75%;} 
+
+.odd {background:#e5e5e5;}
+.even {background:#f3f3f3;}
+
+#right,.right {float:right;}
+#left,.left {float:left;}
+.clear {clear:both;}
+
+.msgbox {padding:16px;border:1px solid #ccc;background:#fff4b4;width:60%;font-weight:700;}
+.msgbox i {font-weight:400;}
+
+table {width:100%;border:1px solid #ccc;border-collapse:collapse;}
+table tr td {border:1px solid #ccc;padding:2px 1px}
+table img,.center {text-align:center;}
+table th {text-align:left;font-size:14px;padding:8px 4px;}
+
+table#birthdays {border:0;}
+.tablespace td {border:0;}
+
+/* View.php */
+table#view,table#view td {border:1px solid #000;border-collapse:collapse;}
+table#view td {padding:5px;}
+
+/* Edit.php */
+#content input[type=text],#content textarea {width:220px; margin-bottom:3px;}
+#content input[type=text] {height:1,1em}
+#content textarea {height:8em}
+input.byear{width:4em !important;}
+
+/* Source Forge */
+#download {margin:0;width:180px;background:#63A624;color:#fff;border:1px solid #000;text-align:center;}
+#download a,#top a {color:#fff;}
+
+/* Login */
+#content input[name=user],input[name=pass] {width:150px; margin-bottom:3px;}	</style>
+	<!--[if !IE]>-->
+	<link media="only screen and (max-device-width: 480px)" rel="stylesheet" type="text/css" href="iphone.css"/>
+	<!--<![endif]-->
+	<meta name="viewport" content="width=320; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;" />
+
+
+	<link rel="icon" type="image/png" href="
+#if (!isset($url_images))
+
+#else
+
+#endif
+icons/font.png" />
+	
+#if (is_right_to_left($lang))
+	<style type="text/css">
+		<!--
+		/* CSS for right to left */
+		label {margin-left:0.5em;float:right;text-align:right;}
+		#content,#right,.right {float:left;}
+		#nav,#left,.left {float:right;}
+		-->
+	</style>
+	
+#else
+
+#endif
+<title>
+#if ($has_mb_strtoupper)
+[Symbolic:mb_strtoupper(mb_substr($msg, 0,1))][Symbolic:mb_substr($msg, 1)]
+#else
+[Symbolic:ucfirst($msg)]
+#endif
+
+#if ($group_name != "")
+ (
+#if (isset($iplist) && hasRoleFromIP($iplist))
+
+#if (isset($group))
+[Symbolic:$group]
+#else
+
+#endif
+
+#else
+
+#if (isset($userlist))
+
+#if ($user->getGroup() != "")
+[Symbolic:$user->getGroup()]
+#else
+
+#if (isset($group))
+[Symbolic:$group]
+#else
+
+#endif
+
+#endif
+
+#else
+
+#if (isset($group))
+[Symbolic:$group]
+#else
+
+#endif
+
+#endif
+
+#endif
+)
+#else
+
+#endif
+</title>
+	</head>
+
+	<body>
+
+		<div id="container">
+
+			<div id="top">
+
+<!--
+
+
+#if (count($default_languages) > 0)
+
+#if (!isset($_GET["more_langs"]) || $_GET["more_langs"] == "")
+[<a title="other languages" href="?more_langs=yes">+</a>] | 
+#else
+
+#endif
+
+#else
+
+#endif
+[RepeatBegin]
+
+#if ($supp_lang != $lang)
+
+#if ($lang_cnt++ > 0)
+ | 
+#else
+
+#endif
+<a href='?lang=[Symbolic:$supp_lang]'><img title='
+#if ($has_mb_strtoupper)
+[Symbolic:mb_strtoupper(mb_substr($msg, 0,1))][Symbolic:mb_substr($msg, 1)]
+#else
+[Symbolic:ucfirst($msg)]
+#endif
+' alt='
+#if ($has_mb_strtoupper)
+[Symbolic:mb_strtoupper(mb_substr($msg, 0,1))][Symbolic:mb_substr($msg, 1)]
+#else
+[Symbolic:ucfirst($msg)]
+#endif
+' src='[Symbolic:${url_images}]icons/
+#if (isset($use_flag[$language]))
+[Symbolic:$use_flag[$language]]
+#else
+[Symbolic:$language]
+#endif
+.gif'/></a>
+#else
+
+#endif
+
+[RepeatEnd]
+#if (! ((!isset($_GET["more_langs"]) || $_GET["more_langs"] == "") && count($default_languages) > 0))
+ | [<a title='default languages' href='?more_langs='> - </a>]
+#else
+
+#endif
+ | 
+
+
+
+<a href="preferences
+#if (!isset($page_ext))
+.php
+#else
+.php
+#endif
+
+#if (!$is_fix_group and $group_name)
+?group=
+#if (isset($group))
+[Symbolic:$group]
+#else
+
+#endif
+&amp;
+#else
+?
+#endif
+from=[Symbolic:$_SERVER['REQUEST_URI']]">
+#if ($has_mb_strtoupper)
+[Symbolic:mb_strtoupper(mb_substr($msg, 0,1))][Symbolic:mb_substr($msg, 1)]
+#else
+[Symbolic:ucfirst($msg)]
+#endif
+</a>
+
+-->
+
+
+#if (isset($userlist) && !(isset($iplist) && hasRoleFromIP($iplist)))
+<form name="logout" method="post" class=header>
+
+<input type="hidden" name="logout" value="yes" />
+
+
+#if (isset($username))
+<b>(
+#if (isset($iplist) && hasRoleFromIP($iplist))
+
+#else
+
+#if (isset($userlist))
+[Symbolic:$user->getName()]
+#else
+
+#endif
+
+#endif
+)</b> 
+#else
+
+#endif
+<a href="#" onClick="document.logout.submit();">
+#if ($has_mb_strtoupper)
+[Symbolic:mb_strtoupper(mb_substr($msg, 0,1))][Symbolic:mb_substr($msg, 1)]
+#else
+[Symbolic:ucfirst($msg)]
+#endif
+</a>
+
+</form>
+
+
+#else
+<b>([Symbolic:$_SERVER['REMOTE_ADDR']])</b>
+#endif
+			</div>
+
+			<div id="header">
+				<h1><a href=".">Address Book</a></h1>
+
+				<a href="."><img src="
+#if (!isset($url_images))
+
+#else
+
+#endif
+title.png" title="Addressbook" alt="Addressbook" id="logo" /></a>
+
+			</div>
+
+			<div id="nav">
+
+      			<!--
+
+* http://www.dynamicdrive.com/dynamicindex1/ddlevelsmenu/index.htm
+
+* http://www.dynamicdrive.com/dynamicindex1/popupmenu.htm
+
+* http://www.alistapart.com/articles/horizdropdowns/
+
+-->
+
+<ul>
+
+<li>
+
+
+</li>
+
+
+#if (! $read_only)
+<li class="all">
+
+	<a href="edit
+#if (!$is_fix_group and $group_name)
+
+#if (!isset($page_ext))
+.php
+#else
+.php
+#endif
+?group=
+#if (isset($group))
+[Symbolic:$group]
+#else
+
+#endif
+
+#else
+
+#if (!isset($page_ext))
+.php
+#else
+.php
+#endif
+
+#endif
+">
+#if (isset($messages[$value][$lang]))
+[Symbolic:$messages[$value][$lang]]
+#else
+ADD_NEW
+#endif
+</a>
+
+</li>
+
+
+#else
+
+#endif
+
+#if (!$read_only && $public_group_edit && $table_groups != "" && !$is_fix_group)
+	<li class="admin">
+
+		<a href="group
+#if (!$is_fix_group and $group_name)
+
+#if (!isset($page_ext))
+.php
+#else
+.php
+#endif
+?group=
+#if (isset($group))
+[Symbolic:$group]
+#else
+
+#endif
+
+#else
+
+#if (!isset($page_ext))
+.php
+#else
+.php
+#endif
+
+#endif
+">
+#if (isset($messages[$value][$lang]))
+[Symbolic:$messages[$value][$lang]]
+#else
+GROUPS
+#endif
+</a>
+
+	</li>
+
+
+#else
+
+#endif
+	<li class="all">
+
+		<a href="birthdays
+#if (!$is_fix_group and $group_name)
+
+#if (!isset($page_ext))
+.php
+#else
+.php
+#endif
+?group=
+#if (isset($group))
+[Symbolic:$group]
+#else
+
+#endif
+
+#else
+
+#if (!isset($page_ext))
+.php
+#else
+.php
+#endif
+
+#endif
+">
+#if (isset($messages[$value][$lang]))
+[Symbolic:$messages[$value][$lang]]
+#else
+NEXT_BIRTHDAYS
+#endif
+</a>
+
+	</li>
+
+	<li class="export">
+
+    	<a href="view
+#if (!isset($page_ext))
+.php
+#else
+.php
+#endif
+
+#if (!$is_fix_group and $group_name)
+?group=
+#if (isset($group))
+[Symbolic:$group]
+#else
+
+#endif
+&amp;
+#else
+?
+#endif
+all&amp;print">
+#if (isset($messages[$value][$lang]))
+[Symbolic:$messages[$value][$lang]]
+#else
+PRINT_ALL
+#endif
+</a>
+
+  </li>
+
+	<li class="export">
+
+      <a href="view
+#if (!isset($page_ext))
+.php
+#else
+.php
+#endif
+
+#if (!$is_fix_group and $group_name)
+?group=
+#if (isset($group))
+[Symbolic:$group]
+#else
+
+#endif
+&amp;
+#else
+?
+#endif
+all&amp;print&amp;phones">
+#if (isset($messages[$value][$lang]))
+[Symbolic:$messages[$value][$lang]]
+#else
+PRINT_PHONES
+#endif
+</a>
+
+  </li>
+
+
+#if (isset($google_maps_keys))
+	<li class="export">
+
+    	<a href="map
+#if (!isset($page_ext))
+.php
+#else
+.php
+#endif
+
+#if (!$is_fix_group and $group_name)
+?group=
+#if (isset($group))
+[Symbolic:$group]
+#else
+
+#endif
+&amp;
+#else
+?
+#endif
+">
+#if (isset($messages[$value][$lang]))
+[Symbolic:$messages[$value][$lang]]
+#else
+MAP
+#endif
+</a>
+
+  </li>
+
+
+#else
+
+#endif
+	<li class="export">
+
+    	<a href="export
+#if (!$is_fix_group and $group_name)
+
+#if (!isset($page_ext))
+.php
+#else
+.php
+#endif
+?group=
+#if (isset($group))
+[Symbolic:$group]
+#else
+
+#endif
+
+#else
+
+#if (!isset($page_ext))
+.php
+#else
+.php
+#endif
+
+#endif
+">
+#if (isset($messages[$value][$lang]))
+[Symbolic:$messages[$value][$lang]]
+#else
+EXPORT
+#endif
+</a>
+
+  </li> 
+
+
+#if (!$read_only)
+	<li class="export">
+
+    	<a href="import
+#if (!$is_fix_group and $group_name)
+
+#if (!isset($page_ext))
+.php
+#else
+.php
+#endif
+?group=
+#if (isset($group))
+[Symbolic:$group]
+#else
+
+#endif
+
+#else
+
+#if (!isset($page_ext))
+.php
+#else
+.php
+#endif
+
+#endif
+">
+#if (isset($messages[$value][$lang]))
+[Symbolic:$messages[$value][$lang]]
+#else
+IMPORT
+#endif
+</a>
+
+  </li> 
+
+
+#else
+
+#endif
+</ul>
+
+			</div>
+
+			<div id="content">
+
+
+
+
+#if ($group_name != "")
+[Symbolic:$group_myrow['group_header']]
+#else
+
+#endif
+
+<br /><br />
+<div id="search-az">
+
+#if (! $use_ajax)
+	<form accept-charset="utf-8" method="get" name="searchform">
+		<input type="text" value="[Symbolic:$searchstring]" name="searchstring" title="
+#if ($has_mb_strtoupper)
+[Symbolic:mb_strtoupper(mb_substr($msg, 0,1))][Symbolic:mb_substr($msg, 1)]
+#else
+[Symbolic:ucfirst($msg)]
+#endif
+" size="45" tabindex="0"/>
+		<input name="submitsearch" type="submit" value="[Symbolic:ucfirst(msg('SEARCH'))]" />    
+	</form>
+	
+	
+<div id='a-z'><a href='index[Symbolic:${page_ext_qry}]alphabet=a'>A</a> | <a href='index[Symbolic:${page_ext_qry}]alphabet=b'>B</a> | <a href='index[Symbolic:${page_ext_qry}]alphabet=c'>C</a> | <a href='index[Symbolic:${page_ext_qry}]alphabet=d'>D</a> | <a href='index[Symbolic:${page_ext_qry}]alphabet=e'>E</a> | <a href='index[Symbolic:${page_ext_qry}]alphabet=f'>F</a> | <a href='index[Symbolic:${page_ext_qry}]alphabet=g'>G</a> | <a href='index[Symbolic:${page_ext_qry}]alphabet=h'>H</a> | <a href='index[Symbolic:${page_ext_qry}]alphabet=i'>I</a> | <a href='index[Symbolic:${page_ext_qry}]alphabet=j'>J</a> | <a href='index[Symbolic:${page_ext_qry}]alphabet=k'>K</a> | <a href='index[Symbolic:${page_ext_qry}]alphabet=l'>L</a> | <a href='index[Symbolic:${page_ext_qry}]alphabet=m'>M</a> | <a href='index[Symbolic:${page_ext_qry}]alphabet=n'>N</a> | <a href='index[Symbolic:${page_ext_qry}]alphabet=o'>O</a> | <a href='index[Symbolic:${page_ext_qry}]alphabet=p'>P</a> | <a href='index[Symbolic:${page_ext_qry}]alphabet=q'>Q</a> | <a href='index[Symbolic:${page_ext_qry}]alphabet=r'>R</a> | <a href='index[Symbolic:${page_ext_qry}]alphabet=s'>S</a> | <a href='index[Symbolic:${page_ext_qry}]alphabet=t'>T</a> | <a href='index[Symbolic:${page_ext_qry}]alphabet=u'>U</a> | <a href='index[Symbolic:${page_ext_qry}]alphabet=v'>V</a> | <a href='index[Symbolic:${page_ext_qry}]alphabet=w'>W</a> | <a href='index[Symbolic:${page_ext_qry}]alphabet=x'>X</a> | <a href='index[Symbolic:${page_ext_qry}]alphabet=y'>Y</a> | <a href='index[Symbolic:${page_ext_qry}]alphabet=z'>Z</a> | <a href='index
+#if (!$is_fix_group and $group_name)
+
+#if (!isset($page_ext))
+.php
+#else
+.php
+#endif
+?group=
+#if (isset($group))
+[Symbolic:$group]
+#else
+
+#endif
+
+#else
+
+#if (!isset($page_ext))
+.php
+#else
+.php
+#endif
+
+#endif
+'>
+#if ($has_mb_strtoupper)
+[Symbolic:mb_strtoupper(mb_substr($msg, 0,1))][Symbolic:mb_substr($msg, 1)]
+#else
+[Symbolic:ucfirst($msg)]
+#endif
+</a></div>
+#else
+
+#endif
