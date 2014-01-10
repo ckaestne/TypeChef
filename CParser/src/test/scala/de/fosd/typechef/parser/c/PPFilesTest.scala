@@ -5,6 +5,8 @@ import de.fosd.typechef.featureexpr._
 import org.kiama.rewriting.Rewriter._
 import org.junit.{Assert, Ignore, Test}
 import java.util.Collections
+import de.fosd.typechef.conditional.{Choice, Opt}
+import de.fosd.typechef.featureexpr.FeatureExprFactory.True
 
 class PPFilesTest {
     def parseFile(fileName: String) {
@@ -16,6 +18,7 @@ class PPFilesTest {
         def printResult(result:p.MultiParseResult[Any], fexpr:FeatureExpr): Unit =
         (result: @unchecked) match {
             case p.Success(ast, unparsed) => {
+                assertNoDeadNodes(ast)
                 val emptyLocation = checkPositionInformation(ast.asInstanceOf[Product])
                 assertTrue(fexpr+": found nodes with empty location information", emptyLocation.isEmpty)
                 assertTrue(fexpr+": parser did not reach end of token stream: " + unparsed, unparsed.atEnd)
@@ -42,6 +45,19 @@ class PPFilesTest {
         nodeswithoutposition
     }
 
+    def assertNoDeadNodes(ast: Any, ctx: FeatureExpr=True) {
+        assert(ast != null, "ast should not be null")
+        assert(ctx.isSatisfiable(), "ast node with unsatisfiable presence condition found: "+ast)
+
+        ast match {
+            case Opt(f, x) => assertNoDeadNodes(x, ctx and f)
+            case Choice(f, a, b)=> assertNoDeadNodes(a, ctx and f); assertNoDeadNodes(b, ctx andNot f)
+            case l:List[Any] => l.map(assertNoDeadNodes(_, ctx))
+            case l:Option[Any] => l.map(assertNoDeadNodes(_, ctx))
+            case p:Product => p.productIterator.map(assertNoDeadNodes(_, ctx))
+            case _ =>
+        }
+    }
     //
 
     @Test
@@ -72,6 +88,11 @@ class PPFilesTest {
     @Test
     def testUCLibC() {
         parseFile("other/_ppfs_setargs.i")
+    }
+
+    @Test
+    def testDeadNodes() {
+        parseFile("other/deadnodes.c")
     }
 
 }

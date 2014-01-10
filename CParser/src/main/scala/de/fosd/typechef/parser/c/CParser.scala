@@ -71,7 +71,7 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = false) e
                     }
                 c
             }
-        }))
+        })).named("declaration")
 
     //gnu
     def typelessDeclaration: MultiParser[TypelessDeclaration] =
