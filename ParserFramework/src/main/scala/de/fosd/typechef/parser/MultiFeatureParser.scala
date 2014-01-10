@@ -434,7 +434,6 @@ abstract class MultiFeatureParser(val featureModel: FeatureModel = null, debugOu
                         case (x, _) => x
                     })
 
-                val res0 = res;
                 res = res.seqAllSuccessful(ctx,
                     (ctx, lastSuccess) =>
                     //only extend the firstmost unsealed result
@@ -448,32 +447,49 @@ abstract class MultiFeatureParser(val featureModel: FeatureModel = null, debugOu
                                 case None =>
                                     //default case, use normal mechanism
                                     // extend unsealed lists with the next result (if there is no next result, seal the list)
-                                    val newResult = lastSuccess.seq2(ctx, opt(p))
-                                    newResult map {
-                                        case Sealable(_, resultList) ~ Some(t) => {
-                                            if (debugOutput && productionName == "externalDef")
-                                                println("next externalDef @ " + lastSuccess.next.first.getPosition) //+"   "+t+"/"+f)
-                                            Sealable(false, Opt(True, t) :: resultList) //opt true, because it will be qualified anywhen when joining
-                                        }
-                                        case Sealable(_, resultList) ~ None => Sealable(true, resultList)
-                                    }
+                                    mySeq(lastSuccess, ctx, opt(p))
                             }
                         })
                 //aggressive joins
                 val res2 = join(ctx, res)
-
-                //                if (!check(res2)){
-                //                    println(res0)
-                //                    res=join(ctx,res);
-                //                    assert(false)
-                //                }
                 res = res2
-                //                if (productionName == "externalDef")
-                //                    println("after join\n" + debug_printResult(res, 0))
             }
             //return all sealed lists
             res.map(_.resultList.reverse)
         }
+
+
+        /**
+         * replementing MultiParseResult.seq2 as separate function to be able to control concatenation behavior
+         *
+         * previous implementations created dead AST nodes when p has split in subsequent steps after
+         * creating option entries with StrategyA in previous steps
+         *
+         * pruneAndConcatSealable also handles special concatenate operation, that seals the list if there
+         * are no subsequent entries
+         *
+         * prune removes all dead nodes after a split
+         */
+        private def mySeq[U](lastResult: MultiParseResult[Sealable], ctx: FeatureExpr, p: (Input, FeatureExpr) => MultiParseResult[Option[T]]): MultiParseResult[Sealable] = lastResult match {
+            case Success(sealable, in) => pruneAndConcatSealable(ctx, sealable, p(in, ctx), false)
+            case n: NoSuccess => n
+            case SplittedParseResult(f, a, b) => SplittedParseResult(f, mySeq(a, ctx and f, p), mySeq(b, ctx andNot f, p))
+        }
+
+        private def pruneAndConcatSealable[U](ctx: FeatureExpr, sealable: Sealable, newResult: MultiParseResult[Option[T]], shouldPrune: Boolean): MultiParseResult[Sealable] = newResult match {
+            case Success(Some(res), in) =>
+                if (debugOutput && productionName == "externalDef")
+                    println("next externalDef @ " + in.first.getPosition)
+                Success(Sealable(false, Opt(True, res) :: prune(sealable.resultList, shouldPrune, ctx)), in)
+            case Success(None, in) => Success(Sealable(true, prune(sealable.resultList, shouldPrune, ctx)), in)
+            case n: NoSuccess => n
+            case SplittedParseResult(f, a, b) => SplittedParseResult(f,
+                pruneAndConcatSealable(ctx and f, sealable, a, true),
+                pruneAndConcatSealable(ctx andNot f, sealable, b, true)
+            )
+        }
+        private def prune(s: List[Opt[T]], shouldPrune: Boolean, ctx: FeatureExpr): List[Opt[T]] =
+            if (shouldPrune) s.filter(_.feature.and(ctx).isSatisfiable) else s
 
         private def check(r: MultiParseResult[Sealable]) = r match {
             case Success(seal, next) =>
