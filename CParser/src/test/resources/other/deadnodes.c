@@ -1,3 +1,5 @@
+// reported by Florian Garbe
+
 #if definedEx(A)
 #if definedEx(B)
 struct testAB;
