@@ -35,7 +35,7 @@ class CInterAnalysisFrontend(tunit: TranslationUnit, fm: FeatureModel = FeatureE
 
 
         for (f <- fdefs) {
-            writer.writeMethodGraph(getAllSucc(f, FeatureExprFactory.empty, env).map {
+            writer.writeMethodGraph(getAllSucc(f, env).map {
                 x => (x._1, x._2.distinct.filter { y => y.feature.isSatisfiable(fm)}) // filter duplicates and wrong succs
             }, lookupFExpr, f.declarator.getName)
         }
@@ -54,7 +54,7 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
     private lazy val dum = ts.getDeclUseMap
 
     private val fanalyze = fdefs.map {
-        x => (x, getAllSucc(x, FeatureExprFactory.empty, env).filterNot { x => x._1.isInstanceOf[FunctionDef] } )
+        x => (x, getAllSucc(x, env).filterNot { x => x._1.isInstanceOf[FunctionDef] } )
     }
 
     var errors: List[TypeChefError] = List()
@@ -288,7 +288,7 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
 
     private def danglingSwitchCode(f: FunctionDef): List[TypeChefError] = {
         val ss = filterAllASTElems[SwitchStatement](f)
-        val ds = new DanglingSwitchCode(env, FeatureExprFactory.empty)
+        val ds = new DanglingSwitchCode(env)
 
         ss.flatMap(s => {
             ds.danglingSwitchCode(s).map(e => {
@@ -312,7 +312,7 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
     }
 
     private def cfgInNonVoidFunc(fa: (FunctionDef, List[(AST, List[Opt[AST]])])): List[TypeChefError] = {
-        val cf = new CFGInNonVoidFunc(env, fm, ts)
+        val cf = new CFGInNonVoidFunc(env, ts)
 
         cf.cfgInNonVoidFunc(fa._1).map(
             e => new TypeChefError(Severity.Warning, e.feature, "Control flow of non-void function ends here!", e.entry, "")
@@ -335,7 +335,7 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
     private def caseTermination(fa: (FunctionDef, List[(AST, List[Opt[AST]])])): List[TypeChefError] = {
         val casestmts = filterAllASTElems[CaseStatement](fa._1)
 
-        val ct = new CaseTermination(env, fm)
+        val ct = new CaseTermination(env)
 
         casestmts.filterNot(ct.isTerminating).map {
             x => {

@@ -29,8 +29,8 @@ class IntraCFGFileTests extends TestHelper with EnforceTreeHelper with IntraCFG 
     }
 
     private def intraCfgFunctionDef(f: FunctionDef, env: ASTEnv) = {
-        val s = getAllSucc(f, FeatureExprFactory.empty, env)
-        val p = getAllPred(f, FeatureExprFactory.empty, env)
+        val s = getAllSucc(f, env)
+        val p = getAllPred(f, env)
         val errors = CheckCFG.compareSuccWithPred(s, p, env)
 
         if (errors.size > 0)

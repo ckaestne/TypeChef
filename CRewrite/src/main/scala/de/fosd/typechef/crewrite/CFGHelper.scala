@@ -7,7 +7,7 @@ import de.fosd.typechef.conditional.Opt
 trait CFGHelper extends IntraCFG {
 
     // determine recursively all succs check
-    def getAllSucc(i: AST, fm: FeatureModel, env: ASTEnv) = {
+    def getAllSucc(i: AST, env: ASTEnv) = {
         var r = List[(AST, CFG)]()
         var s = List(i)
         var d = List[AST]()
@@ -18,7 +18,7 @@ trait CFGHelper extends IntraCFG {
             s = s.drop(1)
 
             if (d.filter(_.eq(c)).isEmpty) {
-                r = (c, succ(c, fm, env)) :: r
+                r = (c, succ(c, env)) :: r
                 s = s ++ r.head._2.map(x => x.entry)
                 d = d ++ List(c)
             }
@@ -27,7 +27,7 @@ trait CFGHelper extends IntraCFG {
     }
 
     // determine recursively all pred
-    def getAllPred(i: AST, fm: FeatureModel, env: ASTEnv) = {
+    def getAllPred(i: AST, env: ASTEnv) = {
         var r = List[(AST, CFG)]()
         var s = List(i)
         var d = List[AST]()
@@ -38,7 +38,7 @@ trait CFGHelper extends IntraCFG {
             s = s.drop(1)
 
             if (d.filter(_.eq(c)).isEmpty) {
-                r = (c, pred(c, fm, env)) :: r
+                r = (c, pred(c, env)) :: r
                 s = s ++ r.head._2.map(x => x.entry)
                 d = d ++ List(c)
             }
