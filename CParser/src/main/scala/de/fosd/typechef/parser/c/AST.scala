@@ -2,7 +2,6 @@ package de.fosd.typechef.parser.c
 
 import de.fosd.typechef.conditional._
 import de.fosd.typechef.error.{WithPosition, Position}
-import org.kiama.attribution.Attributable
 
 /**
  * AST for C
