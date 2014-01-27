@@ -1,19 +1,18 @@
 package de.fosd.typechef.crewrite
 
 import de.fosd.typechef.parser.c.{CASTEnv, ASTEnv, FunctionDef, AST}
-import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureModel}
 
 object CheckCFG extends IntraCFG with CFGHelper {
 
-    def checkCfG(tunit: AST, fm: FeatureModel = FeatureExprFactory.default.featureModelFactory.empty) {
+    def checkCfG(tunit: AST) {
         val fdefs = filterAllASTElems[FunctionDef](tunit)
-        fdefs.map(intraCfGFunctionDef(_, fm))
+        fdefs.map(intraCfGFunctionDef)
     }
 
-    private def intraCfGFunctionDef(f: FunctionDef, fm: FeatureModel) = {
+    private def intraCfGFunctionDef(f: FunctionDef) = {
         val env = CASTEnv.createASTEnv(f)
-        val s = getAllSucc(f, fm, env)
-        val p = getAllPred(f, fm, env)
+        val s = getAllSucc(f, env)
+        val p = getAllPred(f, env)
 
         val errors = compareSuccWithPred(s, p, env)
         CFGErrorOutput.printCFGErrors(s, p, errors, env)

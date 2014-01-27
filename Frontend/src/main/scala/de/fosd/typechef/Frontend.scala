@@ -10,6 +10,7 @@ import de.fosd.typechef.options.{FrontendOptionsWithConfigFiles, FrontendOptions
 import de.fosd.typechef.parser.c.CTypeContext
 import de.fosd.typechef.parser.c.TranslationUnit
 import de.fosd.typechef.featureexpr.FeatureExpr
+import java.util.zip.{GZIPInputStream, GZIPOutputStream}
 
 object Frontend extends EnforceTreeHelper {
 
@@ -146,7 +147,7 @@ object Frontend extends EnforceTreeHelper {
                 /** I did some experiments with the TypeChef FeatureModel of Linux, in case I need the routines again, they are saved here. */
                 //Debug_FeatureModelExperiments.experiment(fm_ts)
 
-                if (opt.typecheck || opt.writeInterface) {
+                if (opt.typecheck || opt.writeInterface || opt.typechecksa) {
                     //ProductGeneration.typecheckProducts(fm,fm_ts,ast,opt,
                     //logMessage=("Time for lexing(ms): " + (t2-t1) + "\nTime for parsing(ms): " + (t3-t2) + "\n"))
                     //ProductGeneration.estimateNumberOfVariants(ast, fm_ts)
@@ -183,6 +184,10 @@ object Frontend extends EnforceTreeHelper {
                     if (opt.warning_uninitialized_memory) {
                         stopWatch.start("uninitializedmemory")
                         sa.uninitializedMemory()
+                    }
+                    if (opt.warning_case_termination) {
+                        stopWatch.start("casetermination")
+                        sa.caseTermination()
                     }
                     if (opt.warning_xfree) {
                         stopWatch.start("xfree")
@@ -224,13 +229,13 @@ object Frontend extends EnforceTreeHelper {
     }
 
     def serializeAST(ast: AST, filename: String) {
-        val fw = new ObjectOutputStream(new FileOutputStream(filename))
+        val fw = new ObjectOutputStream(new GZIPOutputStream(new FileOutputStream(filename)))
         fw.writeObject(ast)
         fw.close()
     }
 
     def loadSerializedAST(filename: String): TranslationUnit = try {
-        val fr = new ObjectInputStream(new FileInputStream(filename)) {
+        val fr = new ObjectInputStream(new GZIPInputStream(new FileInputStream(filename))) {
             override protected def resolveClass(desc: ObjectStreamClass) = { /*println(desc);*/ super.resolveClass(desc) }
         }
         val ast = fr.readObject().asInstanceOf[TranslationUnit]

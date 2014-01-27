@@ -140,6 +140,7 @@ class DoubleFree(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: FeatureModel
     protected def b = l
     protected def combinationOperator(l1: L, l2: L) = union(l1, l2)
 
-    protected def incached(a: AST): L = combinatorcached(a)
-    protected def outcached(a: AST): L = f_lcached(a)
+    protected def isForward = true
+
+    solve()
 }

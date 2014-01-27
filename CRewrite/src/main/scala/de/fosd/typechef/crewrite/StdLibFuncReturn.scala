@@ -71,9 +71,9 @@ sealed abstract class StdLibFuncReturn(env: ASTEnv, dum: DeclUseMap, udm: UseDec
         var res = l
 
         val checkvar = manytd(query {
-            case NAryExpr(i@Id(_), others) => {
-                val existingerrchecks = errorreturn.flatMap(subtermIsPartOfTerm(_, others))
-                val fexp = existingerrchecks.foldRight(FeatureExprFactory.False)((x, y) => env.featureExpr(x) or y)
+            case NAryExpr(i: Id, others) => {
+                val existingerrchecks = errorreturn.flatMap { st => subtermIsPartOfTerm(st, others) }
+                val fexp = existingerrchecks.foldRight(FeatureExprFactory.False){ (x, y) => env.featureExpr(x) or y }
 
                 if (env.featureExpr(i).equivalentTo(fexp, fm))
                     res ++= fromCache(i, true)
@@ -137,8 +137,7 @@ sealed abstract class StdLibFuncReturn(env: ASTEnv, dum: DeclUseMap, udm: UseDec
     protected def b = l
     protected def combinationOperator(l1: L, l2: L) = union(l1, l2)
 
-    protected def incached(a: AST): L = combinatorcached(a)
-    protected def outcached(a: AST): L = f_lcached(a)
+    protected def isForward = true
 }
 
 class StdLibFuncReturn_Null(env: ASTEnv, dum: UseDeclMap, udm: UseDeclMap, fm: FeatureModel, f: FunctionDef) extends StdLibFuncReturn(env, dum, udm, fm, f) {
@@ -177,11 +176,13 @@ class StdLibFuncReturn_Null(env: ASTEnv, dum: UseDeclMap, udm: UseDeclMap, fm: F
         "wmemchr"
     )
 
-    val errorreturn = List(
+    val errorreturn: List[AST] = List(
         Constant("0"),
         // ((void*)0)
         CastExpr(TypeName(List(Opt(FeatureExprFactory.True, VoidSpecifier())),
             Some(AtomicAbstractDeclarator(List(Opt(FeatureExprFactory.True, Pointer(List()))),List()))),Constant("0")))
+
+    solve()
 }
 
 class StdLibFuncReturn_EOF(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: FeatureModel, f: FunctionDef) extends StdLibFuncReturn(env, dum, udm, fm, f) {
@@ -224,5 +225,7 @@ class StdLibFuncReturn_EOF(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: Fe
     )
 
     val errorreturn = List(Constant("-1")) // EOF, EOF (negative)
+
+    solve()
 }
 

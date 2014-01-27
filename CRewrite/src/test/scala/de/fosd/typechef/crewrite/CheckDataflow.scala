@@ -19,8 +19,8 @@ object CheckDataflow extends IntraCFG with CFGHelper {
 
         val env = CASTEnv.createASTEnv(f)
 
-        val ss = getAllSucc(f.stmt.innerStatements.head.entry, FeatureExprFactory.empty, env)
-        val lv = new Liveness(env, udm, fm)
+        val ss = getAllSucc(f.stmt.innerStatements.head.entry, env)
+        val lv = new Liveness(f, env, udm, fm)
 
         val nss = ss.map(_._1).filterNot(x => x.isInstanceOf[FunctionDef])
         for (s <- nss) lv.in(s)

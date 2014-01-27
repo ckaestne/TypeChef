@@ -37,7 +37,7 @@ class ReachingDefintions(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: Feat
     // set of free variables in f
     // {(x,?) x ∈ FV(S*)}
     // stored with identityHashCode instead of ?
-    private var fvs = Set[PGT]()
+    private var fvs = List[PGT]()
 
     // initialize caches with elements that are returned by gen/kill
     private def init(f: FunctionDef) = {
@@ -50,7 +50,7 @@ class ReachingDefintions(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: Feat
                 for (x <- udm.get(i)) {
                     cachePGT.update(x, (x, System.identityHashCode(x)))
                     if (! isPartOf(x, f.stmt))
-                        fvs += cachePGT.lookup(x).get
+                        fvs ::= cachePGT.lookup(x).get
                     getFreshDefinitionFromUsage(cachePGT.lookup(x).get)
                 }
         }
@@ -85,18 +85,18 @@ class ReachingDefintions(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: Feat
             if (udm.containsKey(d)) {
                 for (de <- udm.get(d)) {
                     // ... add it to the result set, ... defs(y)
-                    res += ((cachePGT.lookup(de).get, env.featureExpr(d)))
+                    res = res + ((cachePGT.lookup(de).get, env.featureExpr(d)))
 
                     // ... and traverse all usages of the declaration and add it to the result set.
                     for (u <- dum.get(de)) {
                         // ensure that we don't add the definition itself "\ {d}"
                         if (cachePGT.lookup(u).isDefined && !d.eq(u))
-                            res += ((cachePGT.lookup(u).get, env.featureExpr(d)))
+                            res = res + ((cachePGT.lookup(u).get, env.featureExpr(d)))
                     }
                 }
             } else {
                 // in case we already found a declaration
-                res += ((cachePGT.lookup(d).get, env.featureExpr(d)))
+                res = res + ((cachePGT.lookup(d).get, env.featureExpr(d)))
             }
         }
         res
@@ -111,6 +111,7 @@ class ReachingDefintions(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: Feat
 
     //  in(a) = for p in pred(a) r = r + out(p)
     // out(a) = gen(a) + (in(a) - kill(a))
-    protected def incached(a: AST): L = combinatorcached(a)
-    protected def outcached(a: AST): L = f_lcached(a)
+    protected def isForward = true
+
+    solve()
 }

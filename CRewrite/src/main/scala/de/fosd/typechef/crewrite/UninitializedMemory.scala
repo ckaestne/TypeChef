@@ -26,33 +26,27 @@ import de.fosd.typechef.featureexpr.FeatureModel
 // i  = ∅             // empty is ok
 // E  = {FunctionDef} // see MonotoneFW
 // F  = flow
-class UninitializedMemory(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: FeatureModel, f: FunctionDef) extends MonotoneFWIdLab(env, dum, udm, fm, f) with IntraCFG with CFGHelper with ASTNavigation {
-
-    // get all function-call arguments
-    def getFunctionCallArguments(a: AST): L = {
-        var res = l
-
-        for (c <- getRelevantFunctionCallArguments(a))
-            res ++= fromCache(c)
-        res
-    }
+class UninitializedMemory(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: FeatureModel, f: FunctionDef) extends MonotoneFWIdLab(env, dum, udm, fm, f) with IntraCFG with CFGHelper with ASTNavigation with UsedDefinedDeclaredVariables {
 
     // returns all arguments (no references!) for a given AST (CFGStmt)
-    private def getRelevantFunctionCallArguments(a: AST): List[Id] = {
-        var resid = List[Id]()
-        val fcs = filterAllASTElems[PostfixExpr](a)
+    def getRelevantIdUsages(a: AST): L = {
+        var resid = uses(a)
+        var res = l
+        val funccalls = filterAllASTElems[PostfixExpr](a)
 
-        // get all ids except function names (should be extended to other ids, such as typedefs, too)
-        val functionCallArguments = manybu(query {
-            case i: Id => resid ::= i
-            case PointerCreationExpr(i: Id) => resid = resid.filterNot(_.eq(i))
-            // remove function-call identifiers, that have been previously added by bottom-up traversal
+        val filterids = manybu(query {
+            // omit ids passed as a pointer to a function call
+            case i: Id => if (findPriorASTElem[PointerCreationExpr](i, env).isDefined) resid = resid.filterNot(_.eq(i))
+            // omit function-call identifiers
             case PostfixExpr(i: Id, _: FunctionCall) => resid = resid.filterNot(_.eq(i))
         })
 
-        fcs.map(functionCallArguments)
+        funccalls.map(filterids)
 
-        resid
+        for (c <- resid)
+            res ++= fromCache(c)
+
+        res
     }
 
     // get all uninitialized variables
@@ -75,7 +69,12 @@ class UninitializedMemory(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: Fea
             case AssignExpr(i: Id, "=", _) => res ++= fromCache(i, true)
         })
 
+        val pointerids = manytd(query {
+            case i: Id => if (findPriorASTElem[PointerCreationExpr](i, env).isDefined) res ++= fromCache(i, true)
+        })
+
         assignments(a)
+        pointerids(a)
 
         res
     }
@@ -86,6 +85,7 @@ class UninitializedMemory(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: Fea
     protected def b = l
     protected def combinationOperator(l1: L, l2: L) = union(l1, l2)
 
-    protected def incached(a: AST): L = combinatorcached(a)
-    protected def outcached(a: AST): L = f_lcached(a)
+    protected def isForward = true
+
+    solve()
 }

@@ -21,14 +21,12 @@ class UninitializedMemoryTest extends TestHelper with ShouldMatchers with CFGHel
 
     private def getGeneratedVariables(code: String) = {
         val a = parseFunctionDef(code)
-        val um = new UninitializedMemory(CASTEnv.createASTEnv(a), null, null, null, a)
+        val ts = new CTypeSystemFrontend(TranslationUnit(List(Opt(FeatureExprFactory.True, a)))) with CDeclUse
+        assert(ts.checkASTSilent, "typecheck fails!")
+        val dum = ts.getDeclUseMap
+        val udm = ts.getUseDeclMap
+        val um = new UninitializedMemory(CASTEnv.createASTEnv(a), dum, udm, FeatureExprFactory.empty, a)
         um.gen(a).map {case ((x, _), f) => (x, f)}
-    }
-
-    private def getFunctionCallArguments(code: String) = {
-        val a = parseFunctionDef(code)
-        val um = new UninitializedMemory(CASTEnv.createASTEnv(a), null, null, null, a)
-        um.getFunctionCallArguments(a).map {case ((x, _), f) => (x, f)}
     }
 
     def uninitializedMemory(code: String): Boolean = {
@@ -57,18 +55,13 @@ class UninitializedMemoryTest extends TestHelper with ShouldMatchers with CFGHel
         getGeneratedVariables("void foo(){ int a, b = 1; }") should be(Map(Id("a") -> FeatureExprFactory.True))
         getGeneratedVariables("void foo(){ int a = 1, b; }") should be(Map(Id("b") -> FeatureExprFactory.True))
         getGeneratedVariables("void foo(){ int *a; }") should be(Map(Id("a") -> FeatureExprFactory.True))
-        getGeneratedVariables("void foo(){ a = 2; }") should be(Map())
+        getGeneratedVariables("void foo(int a){ a = 2; }") should be(Map())
         getGeneratedVariables("void foo(){ int a[5]; }") should be(Map(Id("a") -> FeatureExprFactory.True))
         getGeneratedVariables("""void foo(){
               #ifdef A
               int a;
               #endif
               }""".stripMargin) should be(Map(Id("a") -> fa))
-    }
-
-    @Test def test_functioncall_arguments() {
-        getFunctionCallArguments("void foo(){ foo(a,b); }") should be(Map(Id("a") -> FeatureExprFactory.True, Id("b") -> FeatureExprFactory.True))
-        getFunctionCallArguments("void foo(){ foo(a,bar(c)); }") should be(Map(Id("a") -> FeatureExprFactory.True, Id("c") -> FeatureExprFactory.True))
     }
 
     @Test def test_uninitialized_memory_simple() {
