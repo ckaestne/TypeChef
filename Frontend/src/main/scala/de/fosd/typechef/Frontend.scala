@@ -167,8 +167,8 @@ object Frontend {
                     if (opt.writeDebugInterface)
                         ts.debugInterface(interface, new File(opt.getDebugInterfaceFilename))
                 }
-                if (opt.dumpcfg) {
-                    stopWatch.start("dumpCFG")
+                if (opt.writeControlFlowGraph || opt.writeCallGraph) {
+                    stopWatch.start("writeCFG")
 
                     val cf = new CInterAnalysisFrontend(ast, fm_ts)
                     val writer = new CFGCSVWriter(new FileWriter(new File(opt.getCCFGFilename)))
