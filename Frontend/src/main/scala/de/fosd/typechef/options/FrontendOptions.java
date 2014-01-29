@@ -16,8 +16,6 @@ import java.util.List;
 public class FrontendOptions extends CAnalysisOptions implements ParserOptions {
     public boolean parse = true,
             typecheck = false,
-            ifdeftoif = false,
-            decluse = false,
             writeInterface = false,
             dumpcfg = false,
             serializeAST = false,
