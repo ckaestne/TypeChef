@@ -31,10 +31,7 @@ trait CFGWriter {
         }
     }
 
-    //list of pairs from ASTNode to a list of conditional successors (multiple possible)
-    type SuccessorRelationship= List[(AST, List[Opt[AST]])]
 
-    
     def writeMethodGraph(m: SuccessorRelationship, lookupFExpr: AST => FeatureExpr, containerName: String) {
         // iterate ast elements and its successors and add nodes in for each ast element
         for ((astnode, astSuccessors) <- m) {

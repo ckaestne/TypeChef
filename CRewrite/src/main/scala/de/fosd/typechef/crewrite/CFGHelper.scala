@@ -7,9 +7,10 @@ import de.fosd.typechef.crewrite.asthelper.ASTEnv
 
 trait CFGHelper extends IntraCFG {
 
+
     // determine recursively all succs check
-    def getAllSucc(i: AST, env: ASTEnv) = {
-        var r = List[(AST, CFG)]()
+    def getAllSucc(i: AST, env: ASTEnv): SuccessorRelationship = {
+        var r = List[(AST, SuccessorList)]()
         var s = List(i)
         var d = List[AST]()
         var c: AST = null
@@ -28,8 +29,8 @@ trait CFGHelper extends IntraCFG {
     }
 
     // determine recursively all pred
-    def getAllPred(i: AST, env: ASTEnv) = {
-        var r = List[(AST, CFG)]()
+    def getAllPred(i: AST, env: ASTEnv): SuccessorRelationship = {
+        var r = List[(AST, SuccessorList)]()
         var s = List(i)
         var d = List[AST]()
         var c: AST = null

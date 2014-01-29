@@ -77,7 +77,7 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
 
     // determines predecessor of a given element
     // results are cached for secondary evaluation
-    def pred(source: Product, env: ASTEnv): CFG = {
+    def pred(source: Product, env: ASTEnv): SuccessorList = {
         predCCFGCache.lookup(source) match {
             case Some(v) => v
             case None => {
@@ -329,7 +329,7 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
         }
     }
 
-    def succ(source: AST, env: ASTEnv): CFG = {
+    def succ(source: AST, env: ASTEnv): SuccessorList = {
         succCCFGCache.lookup(source) match {
             case Some(v) => v
             case None => {
