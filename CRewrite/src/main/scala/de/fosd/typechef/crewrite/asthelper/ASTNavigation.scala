@@ -1,8 +1,9 @@
-package de.fosd.typechef.parser.c
+package de.fosd.typechef.crewrite.asthelper
 
 import de.fosd.typechef.conditional._
 import de.fosd.typechef.featureexpr.FeatureExpr
 import scala.annotation.tailrec
+import de.fosd.typechef.parser.c.AST
 
 // simplified navigation support
 // reimplements basic navigation between AST nodes not affected by Opt and Choice nodes

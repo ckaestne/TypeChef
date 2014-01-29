@@ -3,6 +3,7 @@ package de.fosd.typechef.crewrite
 import de.fosd.typechef.featureexpr._
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.typesystem.UseDeclMap
+import de.fosd.typechef.crewrite.asthelper.ASTEnv
 
 // liveness analysis based on monotone framework
 // liveness computes all variables that are used before their next write

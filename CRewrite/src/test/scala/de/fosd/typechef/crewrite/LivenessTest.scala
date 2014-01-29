@@ -6,11 +6,12 @@ import de.fosd.typechef.featureexpr.FeatureExprFactory
 import org.scalatest.matchers.ShouldMatchers
 import de.fosd.typechef.typesystem.{CDeclUse, CTypeSystemFrontend}
 import de.fosd.typechef.conditional.Opt
+import de.fosd.typechef.crewrite.asthelper.{CASTEnv, EnforceTreeHelper}
 
-class LivenessTest extends EnforceTreeHelper with TestHelper with ShouldMatchers with IntraCFG with CFGHelper {
+class LivenessTest extends TestHelper with ShouldMatchers with IntraCFG with CFGHelper {
 
     private def runExample(code: String) {
-        val a = prepareAST[FunctionDef](parseFunctionDef(code))
+        val a = EnforceTreeHelper.prepareAST[FunctionDef](parseFunctionDef(code))
 
         val env = CASTEnv.createASTEnv(a)
         val ss = getAllSucc(a.stmt.innerStatements.head.entry, env).map(_._1).filterNot(_.isInstanceOf[FunctionDef])

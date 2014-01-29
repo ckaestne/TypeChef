@@ -19,6 +19,7 @@ import de.fosd.typechef.lexer.FeatureExprLib
 import de.fosd.typechef.typesystem.CTypeSystemFrontend
 
 import org.kiama.rewriting.Rewriter._
+import de.fosd.typechef.crewrite.asthelper.{ConditionalNavigation, ASTNavigation}
 
 
 /**

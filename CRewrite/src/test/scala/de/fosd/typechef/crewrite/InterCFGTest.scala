@@ -6,6 +6,7 @@ import java.io.{StringWriter, FileNotFoundException, InputStream}
 import de.fosd.typechef.featureexpr.{FeatureExpr, FeatureExprFactory}
 import de.fosd.typechef.parser.c.TranslationUnit
 import de.fosd.typechef.parser.c.FunctionDef
+import de.fosd.typechef.crewrite.asthelper.CASTEnv
 
 class InterCFGTest extends InterCFG with TestHelper with CFGHelper {
 

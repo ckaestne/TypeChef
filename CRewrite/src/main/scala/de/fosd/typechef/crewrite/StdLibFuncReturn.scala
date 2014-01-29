@@ -6,6 +6,7 @@ import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureModel}
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.typesystem._
 import de.fosd.typechef.conditional.Opt
+import de.fosd.typechef.crewrite.asthelper.ASTEnv
 
 // https://www.securecoding.cert.org/confluence/display/seccode/ERR33-C.+Detect+and+handle+standard+library+errors
 // ERR33-C

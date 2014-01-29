@@ -4,6 +4,7 @@ import de.fosd.typechef.featureexpr.FeatureExpr
 import de.fosd.typechef.conditional.{Opt, ConditionalMap, Conditional}
 import de.fosd.typechef.parser.c._
 import scala.Some
+import de.fosd.typechef.crewrite.asthelper.ASTEnv
 
 // interprocedural control flow graph (cfg) implementation based on the
 // intraprocedural cfg implementation (see IntraCFG.scala)

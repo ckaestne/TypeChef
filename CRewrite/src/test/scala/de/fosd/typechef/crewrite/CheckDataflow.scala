@@ -4,6 +4,7 @@ import de.fosd.typechef.parser.c._
 import de.fosd.typechef.typesystem.UseDeclMap
 import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureModel}
 import de.fosd.typechef.typesystem.{CDeclUse, CTypeSystemFrontend}
+import de.fosd.typechef.crewrite.asthelper.CASTEnv
 
 object CheckDataflow extends IntraCFG with CFGHelper {
 

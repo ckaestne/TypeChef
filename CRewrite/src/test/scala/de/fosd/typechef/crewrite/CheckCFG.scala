@@ -1,6 +1,7 @@
 package de.fosd.typechef.crewrite
 
-import de.fosd.typechef.parser.c.{CASTEnv, ASTEnv, FunctionDef, AST}
+import de.fosd.typechef.parser.c.{FunctionDef, AST}
+import de.fosd.typechef.crewrite.asthelper.{CASTEnv, ASTEnv}
 
 object CheckCFG extends IntraCFG with CFGHelper {
 

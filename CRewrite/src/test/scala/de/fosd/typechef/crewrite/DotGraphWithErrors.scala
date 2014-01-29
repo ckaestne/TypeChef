@@ -1,8 +1,9 @@
 package de.fosd.typechef.crewrite
 
-import de.fosd.typechef.parser.c.{ASTEnv, PrettyPrinter, AST}
+import de.fosd.typechef.parser.c.{PrettyPrinter, AST}
 import de.fosd.typechef.conditional.Opt
 import java.io.Writer
+import de.fosd.typechef.crewrite.asthelper.ASTEnv
 
 class DotGraphWithErrors(fwriter: Writer) extends DotGraph(fwriter) {
 

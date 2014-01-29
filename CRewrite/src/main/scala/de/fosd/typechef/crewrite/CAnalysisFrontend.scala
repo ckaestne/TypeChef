@@ -11,6 +11,7 @@ import scala.Some
 import de.fosd.typechef.parser.c.FunctionDef
 import de.fosd.typechef.parser.c.TranslationUnit
 import de.fosd.typechef.conditional.Opt
+import de.fosd.typechef.crewrite.asthelper.CASTEnv
 
 
 sealed abstract class CAnalysisFrontend(tunit: TranslationUnit) extends CFGHelper {

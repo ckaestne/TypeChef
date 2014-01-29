@@ -1,4 +1,4 @@
-package de.fosd.typechef.parser.c
+package de.fosd.typechef.crewrite.asthelper
 
 import de.fosd.typechef.conditional.{Choice, Opt}
 import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}

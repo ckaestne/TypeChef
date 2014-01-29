@@ -5,6 +5,7 @@ import org.kiama.rewriting.Rewriter._
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.typesystem.{DeclUseMap, UseDeclMap}
 import de.fosd.typechef.featureexpr.FeatureModel
+import de.fosd.typechef.crewrite.asthelper.{ASTEnv, ASTNavigation}
 
 // implements a simple analysis of uninitialized memory
 // https://www.securecoding.cert.org/confluence/display/seccode/EXP33-C.+Do+not+reference+uninitialized+memory

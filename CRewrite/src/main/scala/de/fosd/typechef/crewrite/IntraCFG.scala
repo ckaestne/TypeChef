@@ -4,6 +4,7 @@ package de.fosd.typechef.crewrite
 import de.fosd.typechef.conditional._
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.featureexpr.{FeatureModel, FeatureExprFactory, FeatureExpr}
+import de.fosd.typechef.crewrite.asthelper.{ASTEnv, ConditionalNavigation, ASTNavigation}
 
 // implements intraprocedural conditional control flow (cfg) on top of
 // the typechef infrastructure

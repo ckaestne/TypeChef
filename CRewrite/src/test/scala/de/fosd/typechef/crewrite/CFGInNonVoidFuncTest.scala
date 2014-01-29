@@ -5,11 +5,12 @@ import org.scalatest.matchers.ShouldMatchers
 import de.fosd.typechef.parser.c._
 import scala.Predef._
 import de.fosd.typechef.typesystem.{CTypeCache, CDeclUse, CTypeSystemFrontend}
+import de.fosd.typechef.crewrite.asthelper.EnforceTreeHelper
 
-class CFGInNonVoidFuncTest extends TestHelper with ShouldMatchers with CFGHelper with EnforceTreeHelper {
+class CFGInNonVoidFuncTest extends TestHelper with ShouldMatchers with CFGHelper {
 
     def cfgInNonVoidFunc(code: String): Boolean = {
-        val tunit = prepareAST[TranslationUnit](parseTranslationUnit(code))
+        val tunit = EnforceTreeHelper.prepareAST[TranslationUnit](parseTranslationUnit(code))
         val ts = new CTypeSystemFrontend(tunit) with CTypeCache with CDeclUse
         assert(ts.checkASTSilent, "typecheck fails!")
         val cf = new CIntraAnalysisFrontend(tunit, ts)

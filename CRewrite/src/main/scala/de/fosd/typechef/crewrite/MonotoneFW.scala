@@ -4,6 +4,7 @@ import de.fosd.typechef.parser.c._
 import de.fosd.typechef.typesystem.{DeclUseMap, UseDeclMap}
 import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureModel, FeatureExpr}
 import de.fosd.typechef.conditional.Opt
+import de.fosd.typechef.crewrite.asthelper.ASTEnv
 
 // this abstract class provides a standard implementation of
 // the monotone framework, a general framework for dataflow analyses

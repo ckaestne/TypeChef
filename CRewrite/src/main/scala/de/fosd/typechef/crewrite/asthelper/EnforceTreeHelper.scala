@@ -1,8 +1,15 @@
-package de.fosd.typechef.parser.c
+package de.fosd.typechef.crewrite.asthelper
 
 import org.kiama.rewriting.Rewriter._
 import de.fosd.typechef.conditional.{Opt, One}
 import de.fosd.typechef.error.WithPosition
+import de.fosd.typechef.parser.c._
+import de.fosd.typechef.parser.c.CompoundStatement
+import de.fosd.typechef.parser.c.Constant
+import de.fosd.typechef.conditional.Opt
+import de.fosd.typechef.conditional.One
+import de.fosd.typechef.parser.c.ForStatement
+import scala.Some
 
 
 /**
@@ -12,7 +19,7 @@ import de.fosd.typechef.error.WithPosition
  * we use the product interface of the elements here works both for
  * case classes Opt and AST elements, which derive product directly
  */
-trait EnforceTreeHelper {
+object EnforceTreeHelper {
 
     /**
      * unfortunately cloning loses position information, so we have to reassign it
