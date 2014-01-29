@@ -7,6 +7,9 @@ import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureModel}
 import de.fosd.typechef.crewrite.asthelper.{CASTEnv, ASTEnv, EnforceTreeHelper, ConditionalNavigation}
 
 
+/**
+ * tests lots of .c files by comparing the forward and backward CFGs within a method
+ */
 class IntraCFGFileTests extends TestHelper with IntraCFG with ConditionalNavigation with CFGHelper {
     val folder = "testfiles/"
 
@@ -14,8 +17,6 @@ class IntraCFGFileTests extends TestHelper with IntraCFG with ConditionalNavigat
      * returns true if check passed successfully
      */
     private def checkCFG(filename: String, fm: FeatureModel = FeatureExprFactory.default.featureModelFactory.empty):Boolean = {
-        var errorOccured = false
-
         println("check cfg for file (" + filename + ")")
         val inputStream: InputStream = getClass.getResourceAsStream("/" + folder + filename)
 
@@ -27,12 +28,13 @@ class IntraCFGFileTests extends TestHelper with IntraCFG with ConditionalNavigat
         val family_env = CASTEnv.createASTEnv(family_ast)
 
         val family_function_defs = filterAllASTElems[FunctionDef](family_ast)
-        errorOccured |= family_function_defs.map(intraCfgFunctionDef(_, family_env)).exists(_ == true)
+
+        val errorOccured = family_function_defs.exists(!isForwardAndBackwardGraphEquivalent(_, family_env))
 
         !errorOccured
     }
 
-    private def intraCfgFunctionDef(f: FunctionDef, env: ASTEnv) = {
+    private def isForwardAndBackwardGraphEquivalent(f: FunctionDef, env: ASTEnv) = {
         val s = getAllSucc(f, env)
         val p = getAllPred(f, env)
         val errors = CheckCFG.compareSuccWithPred(s, p, env)
@@ -40,7 +42,7 @@ class IntraCFGFileTests extends TestHelper with IntraCFG with ConditionalNavigat
         if (errors.size > 0)
             CFGErrorOutput.printCFGErrors(s, p, errors, env)
 
-        errors.size > 0
+        errors.size == 0
     }
 
     // gcc testsuite
