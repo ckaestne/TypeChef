@@ -17,7 +17,7 @@ import de.fosd.typechef.crewrite.asthelper.CASTEnv
 sealed abstract class CAnalysisFrontend(tunit: TranslationUnit) extends CFGHelper {
 
     protected val env = CASTEnv.createASTEnv(tunit)
-    protected val fdefs = filterAllASTElems[FunctionDef](tunit)
+    protected val functionDefs = filterAllASTElems[FunctionDef](tunit)
 }
 
 class CInterAnalysisFrontend(tunit: TranslationUnit, fm: FeatureModel = FeatureExprFactory.empty) extends CAnalysisFrontend(tunit) with InterCFG {
@@ -35,7 +35,7 @@ class CInterAnalysisFrontend(tunit: TranslationUnit, fm: FeatureModel = FeatureE
         }
 
 
-        for (f <- fdefs) {
+        for (f <- functionDefs) {
             writer.writeMethodGraph(getAllSucc(f, env).map {
                 x => (x._1, x._2.distinct.filter { y => y.feature.isSatisfiable(fm)}) // filter duplicates and wrong succs
             }, lookupFExpr, f.declarator.getName)
@@ -54,7 +54,7 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
     private lazy val udm = ts.getUseDeclMap
     private lazy val dum = ts.getDeclUseMap
 
-    private val fanalyze = fdefs.map {
+    private val fanalyze = functionDefs.map {
         x => (x, getAllSucc(x, env).filterNot { x => x._1.isInstanceOf[FunctionDef] } )
     }
 
