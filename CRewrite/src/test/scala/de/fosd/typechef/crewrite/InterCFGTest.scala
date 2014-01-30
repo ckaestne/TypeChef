@@ -16,7 +16,7 @@ class InterCFGTest extends TestHelper  {
 
     @Test def test_two_functions() {
         val folder = "testfiles/"
-        val filename = "intercfgtest01.c"
+        val filename = "callgraph/intercfgtest01.c"
         val is: InputStream = getClass.getResourceAsStream("/" + folder + filename)
         if (is == null)
             throw new FileNotFoundException("Input file not fould!")
