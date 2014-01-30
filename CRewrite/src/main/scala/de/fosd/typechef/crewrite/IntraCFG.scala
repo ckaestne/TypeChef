@@ -51,18 +51,28 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
     private implicit def condition2AST(c: Conditional[AST]) = childAST(c)
 
     class CFGCache {
-        private val cache = new java.util.IdentityHashMap[Product, List[Opt[CFGStmt]]]()
+        private val cache = new java.util.IdentityHashMap[Product, NextNodeList]()
 
-        def update(k: Product, v: List[Opt[CFGStmt]]) {
-            cache.put(k, v)
-        }
+        //        def update(k: Product, v: NextNodeList) {
+        //            cache.put(k, v)
+        //        }
+        //
+        //        def lookup(k: Product): Option[NextNodeList] = {
+        //            val v = cache.get(k)
+        //            if (v != null) Some(v)
+        //            else None
+        //        }
 
-        def lookup(k: Product): Option[List[Opt[CFGStmt]]] = {
-            val v = cache.get(k)
-            if (v != null) Some(v)
-            else None
+        def getOrElseUpdate(k: Product, update: => NextNodeList): NextNodeList = {
+            var v = cache.get(k)
+            if (v != null) {
+                v = update
+                cache.put(k, v)
+            }
+            v
         }
     }
+
     private val predCCFGCache = new CFGCache()
     protected val succCCFGCache = new CFGCache()
 
@@ -77,85 +87,84 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
 
     // determines predecessor of a given element
     // results are cached for secondary evaluation
-    def pred(source: Product, env: ASTEnv): NextNodeList = {
-        predCCFGCache.lookup(source) match {
-            case Some(v) => v
-            case None => {
-                var oldres: CFGRes = List()
-                val ctx = env.featureExpr(source)
+    def pred(source: Product, env: ASTEnv): NextNodeList =
+        predCCFGCache.getOrElseUpdate(source, computePred(source, env))
 
-                if (ctx isContradiction) return List()
+    private def computePred(source: Product, env: ASTEnv): NextNodeList = {
+        var oldres: CFGRes = List()
+        val ctx = env.featureExpr(source)
 
-                var newres: CFGRes = predHelper(source, ctx, oldres, env)
-                var changed = true
+        if (ctx isContradiction) return List()
 
-                while (changed) {
-                    changed = false
-                    oldres = newres
-                    newres = List()
+        var newres: CFGRes = predHelper(source, ctx, oldres, env)
+        var changed = true
 
-                    for (oldelem@(_, _, ocfg) <- oldres) {
-                        var add2newres: CFGRes = List()
-                        ocfg match {
+        while (changed) {
+            changed = false
+            oldres = newres
+            newres = List()
 
-                            case _: ReturnStatement if !source.isInstanceOf[FunctionDef] => add2newres = List()
-                            case ReturnStatement(Some(CompoundStatementExpr(_))) => add2newres = List()
+            for (oldelem@(_, _, ocfg) <- oldres) {
+                var add2newres: CFGRes = List()
+                ocfg match {
 
-                            // a break statement shall appear only in or as a switch body or loop body
-                            // a break statement terminates execution of the smallest enclosing switch or
-                            // iteration statement (see standard [2])
-                            // so as soon as we hit a break statement and the break statement belongs to the same loop as we do
-                            // the break statement is not a valid predecessor
-                            case b: BreakStatement => {
-                                val b2b = findPriorASTElem2BreakStatement(b, env)
+                    case _: ReturnStatement if !source.isInstanceOf[FunctionDef] => add2newres = List()
+                    case ReturnStatement(Some(CompoundStatementExpr(_))) => add2newres = List()
 
-                                assert(b2b.isDefined, "missing loop to break statement!")
-                                if (isPartOf(source, b2b.get)) add2newres = List()
-                                else add2newres = List((env.featureExpr(b), env.featureExpr(b), b))
-                            }
-                            // a continue statement shall appear only in a loop body
-                            // a continue statement causes a jump to the loop-continuation portion
-                            // of the smallest enclosing iteration statement
-                            case c: ContinueStatement => {
-                                val a2c = findPriorASTElem2ContinueStatement(source, env)
-                                val b2c = findPriorASTElem2ContinueStatement(c, env)
+                    // a break statement shall appear only in or as a switch body or loop body
+                    // a break statement terminates execution of the smallest enclosing switch or
+                    // iteration statement (see standard [2])
+                    // so as soon as we hit a break statement and the break statement belongs to the same loop as we do
+                    // the break statement is not a valid predecessor
+                    case b: BreakStatement => {
+                        val b2b = findPriorASTElem2BreakStatement(b, env)
 
-                                if (a2c.isDefined && b2c.isDefined && a2c.get.eq(b2c.get)) {
-                                    a2c.get match {
-                                        case WhileStatement(expr, _) if isPartOf(source, expr) => add2newres = List((env.featureExpr(c), env.featureExpr(c), c))
-                                        case DoStatement(expr, _) if isPartOf(source, expr) => add2newres = List((env.featureExpr(c), env.featureExpr(c), c))
-                                        case ForStatement(_, Some(expr2), None, _) if isPartOf(source, expr2) => add2newres = List((env.featureExpr(c), env.featureExpr(c), c))
-                                        case ForStatement(_, _, Some(expr3), _) if isPartOf(source, expr3) => add2newres = List((env.featureExpr(c), env.featureExpr(c), c))
-                                        case _ => add2newres = List()
-                                    }
-                                } else add2newres = List()
-                            }
-
-                            // goto statements
-                            // in general only label statements can be the source of goto statements
-                            // and only the ones that have the same name
-                            case s@GotoStatement(Id(name)) => {
-                                if (source.isInstanceOf[LabelStatement]) {
-                                    val lname = source.asInstanceOf[LabelStatement].id.name
-                                    if (name == lname) add2newres = List((env.featureExpr(s), env.featureExpr(s), s))
-                                }
-                            }
-
-                            case _ => add2newres = List(oldelem)
-                        }
-
-                        // add only elements that are not in newres so far
-                        for (addnew <- add2newres)
-                            if (!newres.exists(_._3.eq(addnew._3))) newres ::= addnew
+                        assert(b2b.isDefined, "missing loop to break statement!")
+                        if (isPartOf(source, b2b.get)) add2newres = List()
+                        else add2newres = List((env.featureExpr(b), env.featureExpr(b), b))
                     }
+                    // a continue statement shall appear only in a loop body
+                    // a continue statement causes a jump to the loop-continuation portion
+                    // of the smallest enclosing iteration statement
+                    case c: ContinueStatement => {
+                        val a2c = findPriorASTElem2ContinueStatement(source, env)
+                        val b2c = findPriorASTElem2ContinueStatement(c, env)
+
+                        if (a2c.isDefined && b2c.isDefined && a2c.get.eq(b2c.get)) {
+                            a2c.get match {
+                                case WhileStatement(expr, _) if isPartOf(source, expr) => add2newres = List((env.featureExpr(c), env.featureExpr(c), c))
+                                case DoStatement(expr, _) if isPartOf(source, expr) => add2newres = List((env.featureExpr(c), env.featureExpr(c), c))
+                                case ForStatement(_, Some(expr2), None, _) if isPartOf(source, expr2) => add2newres = List((env.featureExpr(c), env.featureExpr(c), c))
+                                case ForStatement(_, _, Some(expr3), _) if isPartOf(source, expr3) => add2newres = List((env.featureExpr(c), env.featureExpr(c), c))
+                                case _ => add2newres = List()
+                            }
+                        } else add2newres = List()
+                    }
+
+                    // goto statements
+                    // in general only label statements can be the source of goto statements
+                    // and only the ones that have the same name
+                    case s@GotoStatement(Id(name)) => {
+                        if (source.isInstanceOf[LabelStatement]) {
+                            val lname = source.asInstanceOf[LabelStatement].id.name
+                            if (name == lname) add2newres = List((env.featureExpr(s), env.featureExpr(s), s))
+                        }
+                    }
+
+                    case _ => add2newres = List(oldelem)
                 }
 
-                val res = newres.map(x => Opt(x._1, x._3))
-                predCCFGCache.update(source, res)
-                res
+                // add only elements that are not in newres so far
+                for (addnew <- add2newres)
+                    if (!newres.exists(_._3.eq(addnew._3))) newres ::= addnew
             }
         }
+
+        val res: NextNodeList = newres.map(x => Opt(x._1, x._3))
+        res
     }
+
+
 
     // determine context of new element based on the current result
     // the context is the not of all elements (or-d) together combined with the context of the source elemente
@@ -329,10 +338,8 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
         }
     }
 
-    def succ(source: AST, env: ASTEnv): NextNodeList = {
-        succCCFGCache.lookup(source) match {
-            case Some(v) => v
-            case None => {
+    def succ(source: AST, env: ASTEnv): NextNodeList =
+        succCCFGCache.getOrElseUpdate(source, {
                 var newres: CFGRes = List()
                 val ctx = env.featureExpr(source)
 
@@ -341,11 +348,8 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
                 newres = succHelper(source, ctx, newres, env)
 
                 val res = newres.map(x => Opt(x._1, x._3))
-                succCCFGCache.update(source, res)
                 res
-            }
-        }
-    }
+            })
 
     // checks whether a given AST element is a succ instruction or not
     private def isCFGInstructionSucc(elem: AST): Boolean = {
@@ -422,7 +426,7 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
 
             // loop statements
             case ForStatement(None, Some(expr2), None, One(EmptyStatement())) => getExprSucc(expr2, ctx, oldres, env)
-            case ForStatement(None, Some(expr2), None, One(CompoundStatement(List()))) => getExprSucc(expr2, ctx, oldres,  env)
+            case ForStatement(None, Some(expr2), None, One(CompoundStatement(List()))) => getExprSucc(expr2, ctx, oldres, env)
             case ForStatement(expr1, expr2, expr3, s) => {
                 if (expr1.isDefined) getExprSucc(expr1.get, ctx, oldres, env)
                 else if (expr2.isDefined) getExprSucc(expr2.get, ctx, oldres, env)
@@ -1185,7 +1189,7 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
                 x => {
                     val ctxx = env.featureExpr(x)
                     val newres = if (isCFGInstructionSucc(x)) {
-                        List((getNewResCtx(curres, ctx, ctxx), ctxx, x.asInstanceOf[CFGStmt])) : CFGRes
+                        List((getNewResCtx(curres, ctx, ctxx), ctxx, x.asInstanceOf[CFGStmt])): CFGRes
                     } else {
                         if (barrierExists(x)) {
                             succHelper(x, ctx, curres, env)
