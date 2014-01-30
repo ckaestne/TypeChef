@@ -22,7 +22,7 @@ trait InterCFG extends IntraCFG {
     // return None if function cannot be found
     def getTranslationUnit(): TranslationUnit
 
-    private var functionDefs: ConditionalMap[String, Option[ExternalDef]] = new ConditionalMap[String, Option[ExternalDef]]
+    private var functionDefMap: ConditionalMap[String, Option[ExternalDef]] = new ConditionalMap[String, Option[ExternalDef]]
     private var functionFExpr: Map[ExternalDef, FeatureExpr] = Map()
 
     if (getTranslationUnit != null)
@@ -30,10 +30,10 @@ trait InterCFG extends IntraCFG {
             functionFExpr = functionFExpr + (externalDef -> f)
             externalDef match {
                 case FunctionDef(_, decl, _, _) =>
-                    functionDefs = functionDefs +(decl.getName, f, Some(externalDef))
+                    functionDefMap = functionDefMap +(decl.getName, f, Some(externalDef))
                 case Declaration(_, initDecls) =>
                     for (Opt(fi, initDecl) <- initDecls) {
-                        functionDefs = functionDefs +(initDecl.getName, f and fi, Some(externalDef))
+                        functionDefMap = functionDefMap +(initDecl.getName, f and fi, Some(externalDef))
                     }
                 case _ =>
             }
@@ -42,7 +42,7 @@ trait InterCFG extends IntraCFG {
 
     def externalDefFExprs = functionFExpr
     def lookupFunctionDef(name: String): Conditional[Option[ExternalDef]] = {
-        functionDefs.getOrElse(name, None)
+        functionDefMap.getOrElse(name, None)
     }
 
     override private[crewrite] def findMethodCalls(t: AST, env: ASTEnv, oldres: CFGRes, ctx: FeatureExpr, _res: CFGRes): CFGRes = {

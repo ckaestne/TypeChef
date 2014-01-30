@@ -11,13 +11,14 @@ import scala.Some
 import de.fosd.typechef.parser.c.FunctionDef
 import de.fosd.typechef.parser.c.TranslationUnit
 import de.fosd.typechef.conditional.Opt
-import de.fosd.typechef.crewrite.asthelper.CASTEnv
+import de.fosd.typechef.crewrite.asthelper.{ASTEnv, CASTEnv}
 
 
 sealed abstract class CAnalysisFrontend(tunit: TranslationUnit) extends CFGHelper {
 
-    protected val env = CASTEnv.createASTEnv(tunit)
-    protected val functionDefs = filterAllASTElems[FunctionDef](tunit)
+    protected val env: ASTEnv = CASTEnv.createASTEnv(tunit)
+    val funDefs: List[FunctionDef] = filterAllASTElems[FunctionDef](tunit)
+
 }
 
 class CInterAnalysisFrontend(tunit: TranslationUnit, fm: FeatureModel = FeatureExprFactory.empty) extends CAnalysisFrontend(tunit) with InterCFG {
@@ -35,7 +36,7 @@ class CInterAnalysisFrontend(tunit: TranslationUnit, fm: FeatureModel = FeatureE
         }
 
 
-        for (fun <- functionDefs) {
+        for (fun <- funDefs) {
             val functionName = fun.declarator.getName
             val cfg = getAllSucc(fun, env)
             val cleanedCfg = cfg.map {
@@ -57,7 +58,7 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
     private lazy val udm = ts.getUseDeclMap
     private lazy val dum = ts.getDeclUseMap
 
-    private val fanalyze = functionDefs.map {
+    private val fanalyze = funDefs.map {
         x => (x, getAllSucc(x, env).filterNot {x => x._1.isInstanceOf[FunctionDef]})
     }
 
