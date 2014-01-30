@@ -10,7 +10,7 @@ trait CFGHelper extends IntraCFG {
 
     // determine recursively all succs check
     def getAllSucc(i: AST, env: ASTEnv): SuccessorRelationship = {
-        var r = List[(AST, SuccessorList)]()
+        var r = List[(AST, NextNodeList)]()
         var s = List(i)
         var d = List[AST]()
         var c: AST = null
@@ -30,7 +30,7 @@ trait CFGHelper extends IntraCFG {
 
     // determine recursively all pred
     def getAllPred(i: AST, env: ASTEnv): SuccessorRelationship = {
-        var r = List[(AST, SuccessorList)]()
+        var r = List[(AST, NextNodeList)]()
         var s = List(i)
         var d = List[AST]()
         var c: AST = null
