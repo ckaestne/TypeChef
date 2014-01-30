@@ -65,7 +65,7 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
 
         def getOrElseUpdate(k: Product, update: => NextNodeList): NextNodeList = {
             var v = cache.get(k)
-            if (v != null) {
+            if (v == null) {
                 v = update
                 cache.put(k, v)
             }
