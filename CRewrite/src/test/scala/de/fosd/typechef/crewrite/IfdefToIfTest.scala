@@ -4,6 +4,7 @@ import org.junit.{Ignore, Test}
 import org.kiama.rewriting.Rewriter._
 import de.fosd.typechef.featureexpr.sat._
 import de.fosd.typechef.parser.c._
+import de.fosd.typechef.crewrite.asthelper.{CASTEnv, ConditionalNavigation, ASTNavigation}
 import CASTEnv._
 import de.fosd.typechef.typesystem._
 import java.io._
@@ -15,6 +16,7 @@ import io.Source
 import de.fosd.typechef.conditional.{Choice, One, Opt}
 import de.fosd.typechef.featureexpr.{FeatureExprParser, FeatureExprFactory}
 import de.fosd.typechef.lexer.FeatureExprLib
+import de.fosd.typechef.crewrite.asthelper.{ConditionalNavigation, ASTNavigation}
 
 @Ignore
 class IfdefToIfTest extends ConditionalNavigation with ASTNavigation with CDeclUse with CTypeSystem with TestHelper {

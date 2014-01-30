@@ -11,8 +11,9 @@ import de.fosd.typechef.parser.c.CTypeContext
 import de.fosd.typechef.parser.c.TranslationUnit
 import de.fosd.typechef.featureexpr.FeatureExpr
 import java.util.zip.{GZIPInputStream, GZIPOutputStream}
+import de.fosd.typechef.crewrite.asthelper.EnforceTreeHelper
 
-object Frontend extends EnforceTreeHelper {
+object Frontend {
 
 
     def main(args: Array[String]) {
@@ -105,7 +106,7 @@ object Frontend extends EnforceTreeHelper {
             println("loading AST.")
             try {
             ast = loadSerializedAST(opt.getSerializedASTFilename)
-            ast = prepareAST[TranslationUnit](ast)
+            ast = EnforceTreeHelper.prepareAST[TranslationUnit](ast)
             } catch {
                 case e: Throwable => println(e.toString);e.printStackTrace(); ast=null
             }
@@ -125,7 +126,7 @@ object Frontend extends EnforceTreeHelper {
                 //no parsing and serialization if read serialized ast
                 val parserMain = new ParserMain(new CParser(fm))
                 ast = parserMain.parserMain(in, opt).asInstanceOf[TranslationUnit]
-                ast = prepareAST[TranslationUnit](ast)
+                ast = EnforceTreeHelper.prepareAST[TranslationUnit](ast)
 
                 if (ast != null && opt.serializeAST) {
                     stopWatch.start("serialize")
@@ -166,8 +167,8 @@ object Frontend extends EnforceTreeHelper {
                     if (opt.writeDebugInterface)
                         ts.debugInterface(interface, new File(opt.getDebugInterfaceFilename))
                 }
-                if (opt.dumpcfg) {
-                    stopWatch.start("dumpCFG")
+                if (opt.writeControlFlowGraph || opt.writeCallGraph) {
+                    stopWatch.start("writeCFG")
 
                     val cf = new CInterAnalysisFrontend(ast, fm_ts)
                     val writer = new CFGCSVWriter(new FileWriter(new File(opt.getCCFGFilename)))

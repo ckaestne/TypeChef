@@ -2,6 +2,7 @@ package de.fosd.typechef.crewrite
 
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.conditional.Opt
+import de.fosd.typechef.crewrite.asthelper.ASTEnv
 
 // implements a simple analysis that checks whether a case statement associated with a statement
 // terminates under all conditions with a break statement

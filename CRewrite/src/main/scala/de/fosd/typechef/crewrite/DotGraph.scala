@@ -31,16 +31,17 @@ trait CFGWriter {
         }
     }
 
-    def writeMethodGraph(m: List[(AST, List[Opt[AST]])], lookupFExpr: AST => FeatureExpr, containerName: String) {
+
+    def writeMethodGraph(m: SuccessorRelationship, lookupFExpr: AST => FeatureExpr, containerName: String) {
         // iterate ast elements and its successors and add nodes in for each ast element
-        for ((o, csuccs) <- m) {
-            writeNodeOnce(o, ()=>lookupFExpr(o), containerName)
+        for ((astnode, astSuccessors) <- m) {
+            writeNodeOnce(astnode, ()=>lookupFExpr(astnode), containerName)
 
             // iterate successors and add edges
-            for (Opt(f, succ) <- csuccs) {
-                writeNodeOnce(succ, ()=>lookupFExpr(o), containerName)
+            for (Opt(f, succ) <- astSuccessors) {
+                writeNodeOnce(succ, ()=>lookupFExpr(astnode), containerName)
 
-                writeEdge(o, succ, f)
+                writeEdge(astnode, succ, f)
             }
         }
     }

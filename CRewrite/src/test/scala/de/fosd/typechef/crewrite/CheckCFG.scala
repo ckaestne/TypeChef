@@ -1,8 +1,12 @@
 package de.fosd.typechef.crewrite
 
-import de.fosd.typechef.parser.c.{CASTEnv, ASTEnv, FunctionDef, AST}
+import de.fosd.typechef.parser.c.{FunctionDef, AST}
+import de.fosd.typechef.crewrite.asthelper.{CASTEnv, ASTEnv}
 
-object CheckCFG extends IntraCFG with CFGHelper {
+/**
+ * helper object for test cases
+ */
+private[crewrite] object CheckCFG extends IntraCFG with CFGHelper {
 
     def checkCfG(tunit: AST) {
         val fdefs = filterAllASTElems[FunctionDef](tunit)
@@ -21,7 +25,7 @@ object CheckCFG extends IntraCFG with CFGHelper {
     }
 
     // given an ast element x and its successors lx: x should be in pred(lx)
-    def compareSuccWithPred(lsuccs: List[(AST, CFG)], lpreds: List[(AST, CFG)], env: ASTEnv): List[CFGError] = {
+    def compareSuccWithPred(lsuccs: List[(AST, NextNodeList)], lpreds: List[(AST, NextNodeList)], env: ASTEnv): List[CFGError] = {
         var errors: List[CFGError] = List()
 
         // check that number of nodes match

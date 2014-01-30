@@ -4,6 +4,7 @@ import de.fosd.typechef.parser.c._
 import de.fosd.typechef.typesystem.{DeclUseMap, UseDeclMap}
 import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureModel, FeatureExpr}
 import de.fosd.typechef.conditional.Opt
+import de.fosd.typechef.crewrite.asthelper.ASTEnv
 
 // this abstract class provides a standard implementation of
 // the monotone framework, a general framework for dataflow analyses
@@ -174,9 +175,9 @@ sealed abstract class MonotoneFW[T](val f: FunctionDef, env: ASTEnv, val fm: Fea
     //  flowR => successor (backward analysis);
     //           result elements flow from successor to predecessor
     // we don't reverse the order here but keep the names for flow and flowR consistent with the book
-    protected def F(e: AST): CFG
-    protected def flow(e: AST): CFG = pred(e, env)
-    protected def flowR(e: AST): CFG = succ(e, env)
+    protected def F(e: AST): NextNodeList
+    protected def flow(e: AST): NextNodeList = pred(e, env)
+    protected def flowR(e: AST): NextNodeList = succ(e, env)
 
     // we compute the flow on the fly and FunctionDef represents our only element in E (extremal labels),
     // i.e., FunctionDef is the "last" and the "first" element (label) in flow resp. flowR (see F definition)

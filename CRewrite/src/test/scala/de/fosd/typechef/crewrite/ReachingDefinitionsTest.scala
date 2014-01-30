@@ -6,6 +6,7 @@ import de.fosd.typechef.featureexpr.FeatureExprFactory
 import org.scalatest.matchers.ShouldMatchers
 import de.fosd.typechef.typesystem.{CDeclUse, CTypeSystemFrontend}
 import de.fosd.typechef.conditional.Opt
+import de.fosd.typechef.crewrite.asthelper.CASTEnv
 
 class ReachingDefinitionsTest extends TestHelper with ShouldMatchers with IntraCFG with CFGHelper {
 
