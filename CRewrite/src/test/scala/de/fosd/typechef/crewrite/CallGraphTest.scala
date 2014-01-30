@@ -46,7 +46,7 @@ class CallGraphTest extends TestHelper {
         result
     }
 
-    private def compareCallGraphs(filenameStem: String) {
+    private def compareCallGraphs(filenameStem: String, expectError:Boolean=false) {
         val expected = loadCallGraphReference(filenameStem + ".cg")
         val found = getCallGraph(filenameStem + ".c")
 
@@ -58,7 +58,7 @@ class CallGraphTest extends TestHelper {
                     foundEdge = true
             }
             if (!foundEdge) {
-                println("Expected Edge %s -> %s not found")
+                println("Expected Edge %s -> %s not found".format(expectedFrom,expectedTo))
                 foundError = true
             }
         }
@@ -70,19 +70,20 @@ class CallGraphTest extends TestHelper {
                     foundEdge = true
             }
             if (!foundEdge) {
-                println("Unexpected Edge %s -> %s in call graph")
+                println("Unexpected Edge %s -> %s in call graph".format(foundFrom,foundTo))
                 foundError = true
             }
         }
 
-        assert(!foundError, "Error in call graph comparison")
+        assert(expectError==foundError, "Error in call graph comparison")
     }
 
     private def keysToString(callgraph: CallGraph)(a: (ExternalDef, ExternalDef)): (String, String) =
         (callgraph.printName(a._1), callgraph.printName(a._2))
 
 
-    @Test
-    def compareintercfgtest01() { compareCallGraphs("intercfgtest01")}
+    @Test def compareintercfgtest01() { compareCallGraphs("callgraph/intercfgtest01") }
+    @Test def compareintercfgtest02() { compareCallGraphs("callgraph/intercfgtest02",true) }
+    @Test def compareintercfgtest03() { compareCallGraphs("callgraph/intercfgtest03",true) }
 
 }
