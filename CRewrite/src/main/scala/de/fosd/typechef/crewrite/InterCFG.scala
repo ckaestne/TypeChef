@@ -4,18 +4,22 @@ import de.fosd.typechef.featureexpr.FeatureExpr
 import de.fosd.typechef.conditional.{Opt, ConditionalMap, Conditional}
 import de.fosd.typechef.parser.c._
 import scala.Some
-import de.fosd.typechef.crewrite.asthelper.ASTEnv
+import de.fosd.typechef.crewrite.asthelper.{CASTEnv, ASTEnv}
 
-// interprocedural control flow graph (cfg) implementation based on the
-// intraprocedural cfg implementation (see IntraCFG.scala)
-// To do so, we resolve function calls and add edges to function definitions
-// to our resulting list.
-//
-// ChK: search for function calls. we will never be able to be precise here, but we can detect
-// standard function calls "a(...)" at least. The type system will also detect types of parameters
-// and pointers, but that should not be necessary (with pointers we won't get the precise target
-// anyway without expensive dataflow analysis and parameters do not matter since C has no overloading)
-
+/**
+ * interprocedural control flow graph (cfg) implementation based on the
+ * intraprocedural cfg implementation (see IntraCFG.scala)
+ * To do so, we resolve function calls and add edges to function definitions
+ * to our resulting list.
+ *
+ * In addition, we build a call graph which is a smaller abstraction and contains
+ * only edges between functions (multiple edges can be unified)
+ *
+ * ChK: search for function calls. we will never be able to be precise here, but we can detect
+ * standard function calls "a(...)" at least. The type system will also detect types of parameters
+ * and pointers, but that should not be necessary (with pointers we won't get the precise target
+ * anyway without expensive dataflow analysis and parameters do not matter since C has no overloading)
+ */
 trait InterCFG extends IntraCFG {
 
     // provide a lookup mechanism for function defs (from the type system or selfimplemented)
@@ -25,19 +29,22 @@ trait InterCFG extends IntraCFG {
     private var functionDefMap: ConditionalMap[String, Option[ExternalDef]] = new ConditionalMap[String, Option[ExternalDef]]
     private var functionFExpr: Map[ExternalDef, FeatureExpr] = Map()
 
-    if (getTranslationUnit != null)
-        for (Opt(f, externalDef) <- getTranslationUnit().defs) {
-            functionFExpr = functionFExpr + (externalDef -> f)
-            externalDef match {
-                case FunctionDef(_, decl, _, _) =>
-                    functionDefMap = functionDefMap +(decl.getName, f, Some(externalDef))
-                case Declaration(_, initDecls) =>
-                    for (Opt(fi, initDecl) <- initDecls) {
-                        functionDefMap = functionDefMap +(initDecl.getName, f and fi, Some(externalDef))
-                    }
-                case _ =>
-            }
+    val callGraph = new CallGraph()
+
+    assert(getTranslationUnit != null)
+    for (Opt(f, externalDef) <- getTranslationUnit().defs) {
+        functionFExpr = functionFExpr + (externalDef -> f)
+        externalDef match {
+            case FunctionDef(_, decl, _, _) =>
+                functionDefMap = functionDefMap +(decl.getName, f, Some(externalDef))
+            case Declaration(_, initDecls) =>
+                for (Opt(fi, initDecl) <- initDecls) {
+                    functionDefMap = functionDefMap +(initDecl.getName, f and fi, Some(externalDef))
+                }
+            case _ =>
         }
+        callGraph.addNode(externalDef, f)
+    }
 
 
     def externalDefFExprs = functionFExpr
@@ -53,7 +60,10 @@ trait InterCFG extends IntraCFG {
             val newresctx = getNewResCtx(oldres, ctx, fexpr)
             val targetFun = lookupFunctionDef(funName)
             targetFun.mapf(fexpr, {
-                case (f, Some(target)) => res = (newresctx and f, f, target) :: res
+                case (f, Some(target)) =>
+                    val thisFun = findPriorASTElem[ExternalDef](t, env)
+                    thisFun.map(callGraph.addEdge(_, target, newresctx and f))
+                    res = (newresctx and f, f, target) :: res
                 case _ =>
             })
         }
@@ -64,3 +74,23 @@ trait InterCFG extends IntraCFG {
         findMethodCalls(exp, env, oldres, ctx, oldres) ++ super.getExprSucc(exp, ctx, oldres, env)
     }
 }
+
+class InterCFGProducer(translationUnit: TranslationUnit) extends InterCFG with CFGHelper {
+    override def getTranslationUnit(): TranslationUnit = translationUnit
+
+    /**
+     * get a full CFG for the the translation unit
+     * creates a call graph as a side effect
+     */
+    def getInterCFG(): List[SuccessorRelationship] = {
+        val env = CASTEnv.createASTEnv(translationUnit)
+        val fdefs = filterAllASTElems[FunctionDef](translationUnit)
+        fdefs.map(getAllSucc(_, env))
+    }
+
+    /**
+     * return the call graph after computing the full interCFG
+     */
+    def generateCallGraph(): CallGraph = { getInterCFG(); callGraph }
+}
+

@@ -8,7 +8,11 @@ import de.fosd.typechef.parser.c.TranslationUnit
 import de.fosd.typechef.parser.c.FunctionDef
 import de.fosd.typechef.crewrite.asthelper.CASTEnv
 
-class InterCFGTest extends InterCFG with TestHelper with CFGHelper {
+/**
+ * just some starter code for experimentation, not a real test yet
+ */
+class InterCFGTest extends TestHelper  {
+
 
     @Test def test_two_functions() {
         val folder = "testfiles/"
@@ -20,13 +24,15 @@ class InterCFGTest extends InterCFG with TestHelper with CFGHelper {
         val ast = parseFile(is, folder, filename)
         val env = CASTEnv.createASTEnv(ast)
 
-        val fdefs = filterAllASTElems[FunctionDef](ast)
+        val interCFG = new InterCFGProducer(ast)
+
+        val fdefs = interCFG.filterAllASTElems[FunctionDef](ast)
 
         val a = new StringWriter()
         val dot = new DotGraph(a)
         dot.writeHeader("test")
 
-        val fsuccs = fdefs.map(getAllSucc(_, env))
+        val fsuccs = fdefs.map(interCFG.getAllSucc(_, env))
 
         def lookupFExpr(e: AST): FeatureExpr = e match {
             case o if env.isKnown(o) => env.featureExpr(o)
@@ -38,7 +44,6 @@ class InterCFGTest extends InterCFG with TestHelper with CFGHelper {
         dot.writeFooter()
         dot.close()
         println(a)
+//        println(interCFG.callGraph.toString())
     }
-    // provide a lookup mechanism for function defs (from the type system or selfimplemented)
-    def getTranslationUnit(): TranslationUnit = null
 }
