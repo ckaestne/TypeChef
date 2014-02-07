@@ -958,6 +958,8 @@ abstract class MultiFeatureParser(val featureModel: FeatureModel = null, debugOu
 
         def mapfr[U](feature: FeatureExpr, f: (FeatureExpr, ParseResult[T]) => MultiParseResult[U]): MultiParseResult[U]
 
+        def mapr[U](f: ParseResult[T] => MultiParseResult[U]): MultiParseResult[U] = mapfr(FeatureExprFactory.True, (ctx, r) => f(r))
+
         /**
          * joins as far as possible. joins all successful ones but maintains partially successful results.
          * keeping partially unsucessful results is necessary to consider multiple branches for an alternative on ASTs
