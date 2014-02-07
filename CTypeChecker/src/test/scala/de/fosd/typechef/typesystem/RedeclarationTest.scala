@@ -128,6 +128,21 @@ class RedeclarationTest extends FunSuite with ShouldMatchers with TestHelper {
             check("int foo() {}" +
                 "double foo();")
         }
+
+        //failing case: change argument to const.
+        // GCC does not complain about this
+        expect(true) {
+            check("int foo(int x);" +
+                "int foo(const int x) {}")
+        }
+
+        //failing case: not sure what the problem is here. It seems it has something to do with the second line
+        //(if second line is removed, no type error is detected)
+        expect(true) {
+            check("extern double fabs(double __x) __attribute__ ((__nothrow__)) __attribute__ ((__const__));" +
+                "extern __typeof (fabs) fabs __asm__ (\"\" \"__GI_fabs\") __attribute__ ((visibility (\"hidden\"),));" +
+                "double fabs(double x){ }")
+        }
     }
     test("variable scopes") {
         expect(true) {
@@ -228,4 +243,5 @@ class RedeclarationTest extends FunSuite with ShouldMatchers with TestHelper {
                 "int foo(int a){}")
         }
     }
+
 }
