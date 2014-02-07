@@ -16,6 +16,7 @@ trait ParserOptions {
     def printParserStatistics: Boolean
 
     //callback function to render parser errors, for example to an XML file
+    //returns an object (always null) instead of Unit just for better compatibility to Java code
     def renderParserError: (FeatureExpr, String, Position) => Object = null
 }
 
