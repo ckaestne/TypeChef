@@ -104,10 +104,10 @@ class ParserMain(p: CParser) {
      */
     private def mergeResultsIntoSingleAST(ctx: FeatureExpr, result: p.MultiParseResult[TranslationUnit]): TranslationUnit = {
 
-        def collectTopLevelDeclarations(ctx: FeatureExpr, result: p.MultiParseResult[TranslationUnit]):List[Opt[ExternalDef]] = {
+        def collectTopLevelDeclarations(ctx: FeatureExpr, result: p.MultiParseResult[TranslationUnit]): List[Opt[ExternalDef]] = {
             result match {
-                case p.Success(r:TranslationUnit, in) => r.defs.map(_.and(ctx))
-                case p.NoSuccess(_,_,_) => List()
+                case p.Success(r: TranslationUnit, in) => r.defs.map(_.and(ctx))
+                case p.NoSuccess(_, _, _) => List()
                 case p.SplittedParseResult(f, left, right) =>
                     collectTopLevelDeclarations(ctx and f, left) ++
                         collectTopLevelDeclarations(ctx andNot f, right)
@@ -119,14 +119,12 @@ class ParserMain(p: CParser) {
     }
 
 
-
-
     def renderParseResult[T](result: p.MultiParseResult[T], feature: FeatureExpr, renderError: (FeatureExpr, String, Position) => Object): Unit =
         if (renderError != null)
-            result.mapf(feature, {
-                case (f, p.Success(ast, unparsed)) =>
-                case (f, p.NoSuccess(msg, unparsed, inner)) =>
-                    renderError(f, msg + " (" + inner + ")", unparsed.pos)
+            result.mapfr(feature, {
+                case (f, x@p.Success(ast, unparsed)) => x
+                case (f, x@p.NoSuccess(msg, unparsed, inner)) =>
+                    renderError(f, msg + " (" + inner + ")", unparsed.pos); x
             })
 
     def printParseResult(result: p.MultiParseResult[Any], feature: FeatureExpr): String = {
