@@ -36,12 +36,12 @@ object ParserMain {
 
 class ParserMain(p: CParser) {
 
-    def parserMain(filePath: String, systemIncludePath: java.util.List[String], parserOptions: ParserOptions = DefaultParserOptions): AST = {
+    def parserMain(filePath: String, systemIncludePath: java.util.List[String], parserOptions: ParserOptions = DefaultParserOptions): TranslationUnit = {
         val lexer = (() => CLexer.lexFile(filePath, systemIncludePath, p.featureModel))
         parserMain(lexer, new CTypeContext(), parserOptions)
     }
 
-    def parserMain(tokenstream: TokenReader[CToken, CTypeContext], parserOptions: ParserOptions): AST = {
+    def parserMain(tokenstream: TokenReader[CToken, CTypeContext], parserOptions: ParserOptions): TranslationUnit = {
         parserMain((() => tokenstream), new CTypeContext(), parserOptions)
     }
 
