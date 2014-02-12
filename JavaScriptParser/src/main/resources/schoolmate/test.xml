@@ -1,0 +1,1406 @@
+<html>
+ <head>
+ <title>SchoolMate - 
+#if ($_POST["infoupdate"] == 1)
+[SYM]
+#else
+[SYM]
+#endif
+</title>
+ <style type=" text/css" >
+
+ /* BODY */
+ body
+ {
+  background-color: #336699;
+ }
+
+ /* LINKS */
+  A.footer
+  {
+    font-family: arial;
+    font-size: 10pt;
+    font-weight: normal;
+    color: silver;
+    text-decoration: underline;
+  }
+
+  A.footer:hover
+  {
+    font-family: arial;
+    font-size: 10pt;
+    font-weight: normal;
+    color: black;
+	text-decoration: underline;
+  }
+
+  A.menu
+  {
+	font-family: arial;
+	font-size: 12pt;
+	font-weight: bold;
+	color: #e6ca3d;
+	text-decoration: none;
+  }
+
+  A.menu:hover
+  {
+	font-family: arial;
+    font-size: 12pt;
+    font-wight: bold;
+	color: #FFFFBB;
+    text-decoration: none;
+  }
+
+  A.pagenum
+  {
+   font-family: arial;
+   font-size: 10pt;
+   font-weight: normal;
+   color: #808080;
+   text-decoration: none;
+  }
+
+  A.pagenum:hover
+  {
+   font-family: arial;
+   font-size: 10pt;
+   font-weight: normal;
+   color: #ACACAC;
+   text-decoration: none;
+  }
+
+  A.selectedpagenum
+  {
+   font-family: arial;
+   font-size: 10pt;
+   font-weight: normal;
+   color: #000000;
+   text-decoration: underline;
+  }
+
+  A.selectedpagenum:hover
+  {
+   font-family: arial;
+   font-size: 10pt;
+   font-weight: normal;
+   color: #ACACAC;
+   text-decoration: underline;
+  }
+
+  A.items
+  {
+   font-family: arial;
+   font-size: 10pt;
+   font-weight: normal;
+   color: #000000;
+   text-decoration: underline;
+  }
+
+  A.items:hover
+  {
+   font-family: arial;
+   font-size: 10pt;
+   font-weight: normal;
+   color: #5F5F5F;
+   text-decoration: underline;
+  }
+
+  /* TABLES */
+  table
+  {
+	background-color: #FFFFFF;
+  }
+
+  table.y
+  {
+	background-color: #FFFFBB;
+  }
+
+  table.dynamiclist
+  {
+   border-color: #585858;
+   border-width: .075EM;
+   border-style: solid;
+   padding-right: 1px;
+   padding-bottom: 1px;
+   padding-left: 0px;
+   padding-top: 0px;
+  }
+
+  td.b
+  {
+   background-color: #336699;
+  }
+
+  td.bv
+  {
+   background-color: #336699;
+   background-repeat: repeat-y;
+  }
+
+  td.w
+  {
+   background-color: #FFFFFF;
+  }
+
+  td.announcement
+  {
+   text-align: justify;
+   padding-left: 20px;
+   padding-right: 20px;
+  }
+
+  .odd
+  {
+   background-color: #ACACAC;
+   text-align: center;
+  }
+
+  .even
+  {
+   background-color: #E0E0E0;
+   text-align: center;
+  }
+
+  .header
+  {
+   background-color: #FFFFBB;
+  }
+
+ /* HEADERS */
+  h1
+  {
+   	font-family: times;
+    font-size: 22pt;
+    font-weight: bold;
+    color: #000000;
+    text-decoration: none;
+    text-align: center;
+  }
+
+  h2.message
+  {
+	font-family: times;
+    font-size: 16pt;
+    font-weight: bold;
+    text-decoration: none;
+    text-align: center;
+  }
+
+ /* CUSTOM CLASSES */
+  .messagebox
+  {
+	background-color: #FFFFBB;
+	border-style: solid;
+	border-width: .075EM;
+	border-color: #e6ca3d;
+	padding: 10px 10px 10px 10px;
+	min-width: 150px;
+	min-height: 150px;
+	width: 300;
+	height: 200;
+	font-family: arial;
+	font-size: 10pt;
+	text-align: left;
+	overflow: none;
+  }
+
+  .messageboxcenter
+  {
+	background-color: #FFFFBB;
+	border-style: solid;
+	border-width: .075EM;
+	border-color: #e6ca3d;
+	padding: 10px 10px 10px 10px;
+	min-width: 150px;
+	min-height: 50px;
+	width: 300;
+	height: 200;
+	font-family: arial;
+	text-align: center;
+	vertical-align: middle;
+	overflow: auto;
+  }
+
+  .footer
+  {
+    font-family: arial;
+    font-size: 10pt;
+    font-weight: normal;
+    color: silver;
+  }
+
+  .yellowtext
+  {
+	font-family: times;
+	font-size: 25pt;
+	font-weight: normal;
+	color: #e6ca3d;
+	text-decoration: none;
+  }
+
+
+</style>
+</head>
+ 
+#if (case $page == 0)
+
+ <body onLoad='document.login.username.focus();'>
+ <table cellpadding=0 cellspacing=0 border=0 width='100%' height='80'>
+ <tr>
+ <td class='b' width='300'>
+  <img src='./images/title.gif' height='75' width='300' />
+ </td>
+ <td class='b'>
+  <table cellpadding=0 cellspacing=0 border=0 width='80%'>
+  <tr>
+  <td class='b'>
+   <div class='yellowtext' align='center'>
+#if ($_POST["infoupdate"] == 1)
+[SYM]
+#else
+[SYM]
+#endif
+</div>
+  </td>
+  </tr>
+  </table>
+ </td>
+</tr>
+</table>
+
+ <table width='100%' height='88%' border=0 cellspacing=0 cellpadding=0 align='center'>
+ <tr>
+  <td class='b' width='130' height=10><empty /></td>
+  <td class='b' width=10 background='./images/topleft.gif'><empty /></td>
+  <td class='b' height=10 background='./images/top.gif'><empty /></td>
+  <td class='b' width=10 background='./images/topright.gif'><empty /></td>
+ </tr>
+
+
+  <tr>
+  <td class='b' width=130 valign='top'>
+   <br />
+  </td>
+  <td class='bv' width=10 background='./images/left.gif'>&nbsp;</td>
+  <td class='w' valign='top'>
+   <table border=0 cellspacing=0 cellpadding=25 width='100%' height='100%'>
+	<tr>
+	 <td valign='top'>
+	  <br />
+	  <table width='150' border=0 align='center' cellspacing=0 cellpadding=5>
+	  <tr>
+
+	   <td width='50%' align='left' valign='top'>
+		<div class='messagebox'>
+		  [SYM]
+		</div>
+	   </td>
+
+	 <td width='50%' align='right' valign='top'>
+		<div class='messagebox'>
+		 <br />
+		 <form action='./index.php' method='post' name='login'>
+#if ($loginerror == 1)
+<font color='red'><center>Invalid username or password!</center></font>
+#else
+
+#endif
+ <table width='100%' height='85%' border=0 cellspacing=0 cellpadding=0 align='center' class='y'>
+		  <tr>
+		   <td align='right' height=50 valign='middle'><b>Username:&nbsp;</b></td>
+		   <td><input type=text name='username' maxlength=15 width=18 /></td>
+		  </tr>
+		  <tr>
+		   <td align='right' height=45 valign='middle'><b>Password:&nbsp;</b></td>
+		   <td><input type=password name='password' maxlength=15 width=18 /></td>
+		  </tr>
+		  <tr>
+		   <td>&nbsp;</td>
+		   <td align='center' height=45><input type=submit value='Login' onClick='document.login.login.value=1;' /></td>
+
+		  </tr>
+		 </table>
+	   <input type='hidden' name='page' value='
+#if ($_POST["logout"] == 1)
+0
+#else
+
+#if ($page == null)
+0
+#else
+[SYM]
+#endif
+
+#endif
+' />
+	   <input type='hidden' name='login' />
+	  </form>
+	 </div>
+	</td>
+
+   </tr>
+   <tr>
+
+   <td width='50%' align='right' valign='top'>
+	<div class='messageboxcenter'>
+	 <table border=0 cellpadding=0 cellspacing=0 class='y'>
+	 <tr>
+	  <td align='center' valign='middle'>
+		<br />
+		<img src='./images/school.jpg' style='padding-left: 30px; padding-top: 20px;' width='233' height='111' align='center' valign='middle' />
+	  </td>
+	 </tr>
+	 </table>
+	</div>
+   </td>
+
+	<td width='50%' align='left' valign='top'>
+	 <div class='messageboxcenter'>
+	  <h2 class='message'>Today's Message</h2> <br />
+	   [SYM]
+	 </div>
+	</td>
+
+   </tr>
+  </table>
+ </td>
+
+  </tr>
+ </table>
+</td>
+#else
+
+#if (case $page == 1)
+<script language='JavaScript'>
+  function logoutAdmin()
+  {
+	document.admin.logout.value=1;
+	document.admin.submit();
+  }
+
+  function classes()
+  {
+	document.admin.page2.value=0;
+	document.admin.submit();
+  }
+
+  function schoolInfo()
+  {
+	document.admin.page2.value=1;
+	document.admin.submit();
+  }
+
+  function students()
+  {
+	document.admin.page2.value=2;
+	document.admin.submit();
+  }
+
+  function teachers()
+  {
+	document.admin.page2.value=3;
+	document.admin.submit();
+  }
+
+  function announcements()
+  {
+	document.admin.page2.value=4;
+	document.admin.submit();
+  }
+
+  function semesters()
+  {
+	document.admin.page2.value=5;
+	document.admin.submit();
+  }
+
+  function terms()
+  {
+	document.admin.page2.value=6;
+	document.admin.submit();
+  }
+
+  function users()
+  {
+	document.admin.page2.value=10;
+	document.admin.submit();
+  }
+
+  function parents()
+  {
+	document.admin.page2.value=22;
+	document.admin.submit();
+  }
+
+  function register()
+  {
+	document.admin.page2.value=26;
+	document.admin.submit();
+  }
+
+  function attendance()
+  {
+	document.admin.page2.value=30;
+	document.admin.submit();
+  }
+ </script>
+
+ <body><table cellpadding=0 cellspacing=0 border=0 width='100%' height='80'>
+ <tr>
+ <td class='b' width='300'>
+  <img src='./images/title.gif' height='75' width='300' />
+ </td>
+ <td class='b'>
+  <table cellpadding=0 cellspacing=0 border=0 width='80%'>
+  <tr>
+  <td class='b'>
+   <div class='yellowtext' align='center'>
+#if ($_POST["infoupdate"] == 1)
+[SYM]
+#else
+[SYM]
+#endif
+</div>
+  </td>
+  </tr>
+  </table>
+ </td>
+</tr>
+</table>
+
+ <table width='100%' height='88%' border=0 cellspacing=0 cellpadding=0 align='center'>
+ <tr>
+  <td class='b' width='130' height=10><empty /></td>
+  <td class='b' width=10 background='./images/topleft.gif'><empty /></td>
+  <td class='b' height=10 background='./images/top.gif'><empty /></td>
+  <td class='b' width=10 background='./images/topright.gif'><empty /></td>
+ </tr>
+
+
+ <tr>
+  <td class='b' width=130 valign='top'>
+   <br />
+   <form name='admin' action='./index.php' method='POST'>
+
+   <a class='menu' href='javascript: schoolInfo();' onMouseover=" window.status='Manage School Information'; return true;"  onMouseout=" window.status=''; return true;" >School</a>
+   <br /><br />
+   <a class='menu' href='javascript: terms();' onMouseover=" window.status='Manage Terms'; return true;"  onMouseout=" window.status=''; return true;" >Terms</a>
+   <br /><br />
+   <a class='menu' href='javascript: semesters();' onMouseover=" window.status='Manage Semesters'; return true;"  onMouseout=" window.status=''; return true;" >Semesters</a>
+   <br /><br />
+   <a class='menu' href='javascript: classes();' onMouseover=" window.status='Manage Classes'; return true;"  onMouseout=" window.status=''; return true;" >Classes</a>
+   <br /><br />
+   <a class='menu' href='javascript: users();' onMouseover=" window.status='Manage Users'; return true;"  onMouseout=" window.status=''; return true;" >Users</a>
+   <br /><br />
+   <a class='menu' href='javascript: teachers();' onMouseover=" window.status='Manage Teachers'; return true;"  onMouseout=" window.status=''; return true;" >Teachers</a>
+   <br /><br />
+   <a class='menu' href='javascript: students();' onMouseover=" window.status='Manage Students'; return true;"  onMouseout=" window.status=''; return true;" >Students</a>
+   <br /><br />
+   <a class='menu' href='javascript: register();' onMouseover=" window.status='Register Students for Classes'; return true;"  onMouseout=" window.status=''; return true;" >Registration</a>
+   <br /><br />
+   <a class='menu' href='javascript: attendance();' onMouseover=" window.status='Keep Attendance'; return true;"  onMouseout=" window.status=''; return true;" >Attendance</a>
+   <br /><br />
+   <a class='menu' href='javascript: parents();' onMouseover=" window.status='Manage Parents'; return true;"  onMouseout=" window.status=''; return true;" >Parents</a>
+   <br /><br />
+   <a class='menu' href='javascript: announcements();' onMouseover=" window.status='Manage Announcements'; return true;"  onMouseout=" window.status=''; return true;" >Announcements</a>
+   <br /><br />
+   <a class='menu' href='javascript: logoutAdmin();' onMouseover=" window.status='Log Out';return true;"  onMouseout=" window.status='';return true;" >Log Out</a>
+
+   <input type='hidden' name='page2' value='[SYM]' />
+   <input type='hidden' name='logout' />
+   <input type='hidden' name='page' value='
+#if ($_POST["logout"] == 1)
+0
+#else
+
+#if ($page == null)
+0
+#else
+[SYM]
+#endif
+
+#endif
+' />
+ </form>
+  </td>
+  <td class='b' width=10 background='./images/left.gif'><div style='letter-spacing: 1pt;'>&nbsp;</div></td>
+  <td class='w' valign='top'>
+   <table border=0 cellspacing=0 cellpadding=10 width='100%' height='100%'>
+	<tr>
+	 <td valign='top'>
+#if (case $page2 == 7)
+<h1>Add New Semester</h1>
+
+  <form name='addsemester' action='./index.php' method='POST'>
+  <br /><br /><br />
+  <table cellspacing='0' cellpadding='5' class='dynamiclist' align='center' width='600'>
+   <tr class='header'>
+	<th>Semester Name</th>
+	<th>Term</th>
+	<th>Start Date</th>
+	<th>Midterm Date</th>
+	<th>End Date</th>
+	<th>Half</th>
+   </tr>
+   <tr class='even'>
+    <td><input type='text' name='title' maxlength='15' /></td>
+	<td><select name='term'>[RepeatBegin]
+<option value='[SYM]'>[SYM]</option>
+ 
+[RepeatEnd]</select>
+	</td>
+	<td><input type='text' name='startdate' maxlength='10' size='10' /></td>
+	<td><input type='text' name='middate' maxlength='10' size='10' /></td>
+	<td><input type='text' name='enddate' maxlength='10' size='10' /></td>
+	<td>
+	 <select name='half'>
+	  <option value='1'>First</option>
+	  <option value='2'>Second</option>
+	 </select>
+	</td>
+   </tr>
+   </table>
+
+   <br />
+
+   <table cellpadding='0' border='0' align='center' width='600'>
+   <tr>
+   <td><input type='button' value='Add Semester' onClick='document.addsemester.addsemester.value=1;document.addsemester.page2.value=5;document.addsemester.submit();' /> <input type='button' value='Cancel' onClick='document.addsemester.page2.value=5;document.addsemester.submit();' /></td>
+   </tr>
+   </table>
+
+  <input type='hidden' name='addsemester' value='' />
+  <input type='hidden' name='page2' value='[SYM]' />
+  <input type='hidden' name='logout' />
+  <input type='hidden' name='page' value='
+#if ($_POST["logout"] == 1)
+0
+#else
+
+#if ($page == null)
+0
+#else
+[SYM]
+#endif
+
+#endif
+' />
+
+ </form>
+
+ <table width='520' border=0 cellspacing=0 cellpadding=0 height=1>
+  <tr>
+   <td valign='top'>
+	&nbsp;
+   </td>
+  </tr>
+ </table>
+ 
+#else
+
+#if (case $page2 == 8)
+<h1>Add New Term</h1>
+
+  <form name='addterm' action='./index.php' method='POST'>
+  <br /><br /><br />
+  <table cellspacing='0' cellpadding='5' class='dynamiclist' align='center' width='600'>
+   <tr class='header'>
+	<th>Term Name</th>
+	<th>Start Date</th>
+	<th>End Date</th>
+   </tr>
+   <tr class='even'>
+	<td><input type='text' name='title' maxlength='15' /></td>
+	<td><input type='text' name='startdate' maxlength='10' size='10' /></td>
+	<td><input type='text' name='enddate' maxlength='10' size='10' /></td>
+   </tr>
+   </table>
+
+   <br />
+
+   <table cellpadding='0' border='0' align='center' width='600'>
+   <tr>
+   <td><input type='button' value='Add Term' onClick='document.addterm.addterm.value=1;document.addterm.page2.value=6;document.addterm.submit();' /> <input type='button' value='Cancel' onClick='document.addterm.page2.value=6;document.addterm.submit();' /></td>
+   </tr>
+   </table>
+
+  <input type='hidden' name='addterm' value='' />
+  <input type='hidden' name='page2' value='[SYM]' />
+  <input type='hidden' name='logout' />
+  <input type='hidden' name='page' value='
+#if ($_POST["logout"] == 1)
+0
+#else
+
+#if ($page == null)
+0
+#else
+[SYM]
+#endif
+
+#endif
+' />
+
+ </form>
+
+ <table width='520' border=0 cellspacing=0 cellpadding=0 height=1>
+  <tr>
+   <td valign='top'>
+	&nbsp;
+   </td>
+  </tr>
+ </table>
+ 
+#else
+
+#if (case $page2 == 9)
+
+#else
+
+#if (case $page2 == 14)
+<script language='JavaScript'>
+ <!--
+ function validate()
+ {
+  if(document.adduser.password.value == document.adduser.password2.value && document.adduser.password.value != '')
+  {
+   document.adduser.submit();
+  }
+  else
+  {
+   alert('Passwords do not match!');
+   document.adduser.password.value = '';
+   document.adduser.password2.value = '';
+   document.adduser.password.select();
+  }
+ }
+ -->
+ </script>
+
+ <h1>Add New User</h1>
+
+  <form name='adduser' action='./index.php' method='POST'>
+  <br /><br /><br />
+  <table cellspacing='0' cellpadding='5' class='dynamiclist' align='center' width='450'>
+   <tr class='header'>
+	<th>Username</th>
+	<th>Password</th>
+	<th>Confirm Password</th>
+	<th>Type</th>
+   </tr>
+   <tr class='even'>
+	<td><input type='text' name='username' maxlength='15' size='15' /></td>
+	<td><input type='password' name='password' maxlength='15' size='15' /></td>
+	<td><input type='password' name='password2' maxlength='15' size='15' /></td>
+	<td>
+	 <select name='type'>
+	  <option value='Admin'>Admin</option>
+	  <option value='Teacher'>Teacher</option>
+      <option value='Substitute'>Substitute</option>
+	  <option value='Student'>Student</option>
+	  <option value='Parent'>Parent</option>
+	 </select>
+	</td>
+   </tr>
+   </table>
+
+   <br />
+
+   <table cellpadding='0' border='0' align='center' width='450'>
+   <tr>
+   <td><input type='button' value='Add User' onClick='document.adduser.adduser.value=1;document.adduser.page2.value=10;validate();' /> <input type='button' value='Cancel' onClick='document.adduser.page2.value=10;document.adduser.submit();' /></td>
+   </tr>
+   </table>
+
+  <input type='hidden' name='adduser' value='' />
+  <input type='hidden' name='page2' value='[SYM]' />
+  <input type='hidden' name='logout' />
+  <input type='hidden' name='page' value='
+#if ($_POST["logout"] == 1)
+0
+#else
+
+#if ($page == null)
+0
+#else
+[SYM]
+#endif
+
+#endif
+' />
+
+ </form>
+
+ <table width='520' border=0 cellspacing=0 cellpadding=0 height=1>
+  <tr>
+   <td valign='top'>
+	&nbsp;
+   </td>
+  </tr>
+ </table>
+ 
+#else
+
+#if (case $page2 == 18)
+<h1>Add New Announcement</h1>
+
+  <form name='addannouncement' action='./index.php' method='POST'>
+  <br /><br /><br />
+  <table cellspacing='0' cellpadding='5' class='dynamiclist' align='center' width='600'>
+   <tr class='header'>
+	<th>Title</th>
+	<th>Message</th>
+   </tr>
+   <tr class='even' valign='top'>
+	<td><input type='text' name='title' maxlength='15' size='15' /></td>
+	<td><textarea name='message' rows=5 cols=30></textarea></td>
+
+   </tr>
+   </table>
+
+   <br />
+
+   <table cellpadding='0' border='0' align='center' width='600'>
+   <tr>
+   <td><input type='button' value='Add announcement' onClick='document.addannouncement.addannouncement.value=1;document.addannouncement.page2.value=4;document.addannouncement.submit();' /> <input type='button' value='Cancel' onClick='document.addannouncement.page2.value=4;document.addannouncement.submit();' /></td>
+   </tr>
+   </table>
+
+  <input type='hidden' name='addannouncement' value='' />
+  <input type='hidden' name='page2' value='[SYM]' />
+  <input type='hidden' name='date' />
+  <input type='hidden' name='logout' />
+  <input type='hidden' name='page' value='
+#if ($_POST["logout"] == 1)
+0
+#else
+
+#if ($page == null)
+0
+#else
+[SYM]
+#endif
+
+#endif
+' />
+
+ </form>
+
+ <table width='520' border=0 cellspacing=0 cellpadding=0 height=1>
+  <tr>
+   <td valign='top'>
+	&nbsp;
+   </td>
+  </tr>
+ </table>
+ 
+#else
+
+#if (case $page2 == 31)
+<h1>Add New Attendance Record</h1>
+
+  <form name='addattendance' action='./index.php' method='POST'>
+  <br /><br /><br />
+  <table cellspacing='0' cellpadding='5' class='dynamiclist' align='center' width='300'>
+   <tr class='header'>
+	<th>Date</th>
+	<th>Type</th>
+   </tr>
+   <tr class='even' valign='top'>
+	<td><input type='text' name='attdate' maxlength='10' size='15' /></td>
+	<td>
+	 <select name='type'>
+	  <option value='tardy'>Tardy</option>
+	  <option value='absent'>Absent</option>
+	 </select>
+	</td>
+   </tr>
+   </table>
+
+   <br />
+
+   <table cellpadding='0' border='0' align='center' width='300'>
+   <tr>
+   <td><input type='button' value='Add Attendance' onClick='document.addattendance.addattendance.value=1;document.addattendance.page2.value=30;document.addattendance.submit();' /> <input type='button' value='Cancel' onClick='document.addattendance.page2.value=30;document.addattendance.submit();' /></td>
+   </tr>
+   </table>
+
+  <input type='hidden' name='addattendance' value='' />
+  <input type='hidden' name='semester' value='[SYM]' />
+  <input type='hidden' name='student' value='[SYM]' />
+  <input type='hidden' name='page2' value='[SYM]' />
+  <input type='hidden' name='date' />
+  <input type='hidden' name='logout' />
+  <input type='hidden' name='page' value='
+#if ($_POST["logout"] == 1)
+0
+#else
+
+#if ($page == null)
+0
+#else
+[SYM]
+#endif
+
+#endif
+' />
+
+ </form>
+
+ <table width='520' border=0 cellspacing=0 cellpadding=0 height=1>
+  <tr>
+   <td valign='top'>
+	&nbsp;
+   </td>
+  </tr>
+ </table>
+ 
+#else
+AdminMain.php: Invalid Page
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+ 	 </td>
+	</tr>
+   </table>
+
+  </td>
+#else
+
+#if (case $page == 2)
+<script language='JavaScript'>
+
+  function classes()
+  {
+	document.teacher.page2.value=0;
+	document.teacher.submit();
+  }
+
+  function settings()
+  {
+	document.teacher.page2.value=1;
+	document.teacher.submit();
+  }
+
+  function assignments()
+  {
+	document.teacher.page2.value=2;
+	document.teacher.submit();
+  }
+
+  function grades()
+  {
+   document.teacher.page2.value=3;
+   document.teacher.submit();
+  }
+
+  function announcements()
+  {
+	document.teacher.page2.value=9;
+	document.teacher.submit();
+  }
+
+  function students()
+  {
+	document.teacher.page2.value=8;
+	document.teacher.submit();
+  }
+
+  function logoutteacher()
+  {
+	document.teacher.logout.value=1;
+	document.teacher.submit();
+  }
+ </script>
+
+ <body><table cellpadding=0 cellspacing=0 border=0 width='100%' height='80'>
+ <tr>
+ <td class='b' width='300'>
+  <img src='./images/title.gif' height='75' width='300' />
+ </td>
+ <td class='b'>
+  <table cellpadding=0 cellspacing=0 border=0 width='80%'>
+  <tr>
+  <td class='b'>
+   <div class='yellowtext' align='center'>
+#if ($_POST["infoupdate"] == 1)
+[SYM]
+#else
+[SYM]
+#endif
+</div>
+  </td>
+  </tr>
+  </table>
+ </td>
+</tr>
+</table>
+
+ <table width='100%' height='88%' border=0 cellspacing=0 cellpadding=0 align='center'>
+ <tr>
+  <td class='b' width='130' height=10><empty /></td>
+  <td class='b' width=10 background='./images/topleft.gif'><empty /></td>
+  <td class='b' height=10 background='./images/top.gif'><empty /></td>
+  <td class='b' width=10 background='./images/topright.gif'><empty /></td>
+ </tr>
+
+
+ <tr>
+  <td class='b' width=130 valign='top'>
+   <br />
+   <form name='teacher' action='./index.php' method='POST'>
+
+   <a class='menu' href='javascript: classes();' onMouseover=" window.status='View Classes'; return true;"  onMouseout=" window.status=''; return true;" >Classes</a>
+   <br /><br />
+#if ($_POST['selectclass'] != "" && $page2 != 0)
+
+	 <a class='menu' href='javascript: settings();' onMouseover=" window.status='Manage Class Settings'; return true;"  onMouseout=" window.status=''; return true;" >Settings</a>
+	 <br /><br />
+	 <a class='menu' href='javascript: assignments();' onMouseover=" window.status='Manage Assignments'; return true;"  onMouseout=" window.status=''; return true;" >Assignments</a>
+	 <br /><br />
+	 <a class='menu' href='javascript: grades();' onMouseover=" window.status='Manage Grades'; return true;"  onMouseout=" window.status=''; return true;" >Grades</a>
+	 <br /><br />
+	 <a class='menu' href='javascript: students();' onMouseover=" window.status='View Student Information'; return true;"  onMouseout=" window.status=''; return true;" >Students</a>
+	 <br /><br />
+	 <a class='menu' href='javascript: announcements();' onMouseover=" window.status='View Announcements'; return true;"  onMouseout=" window.status=''; return true;" >Announcements</a>
+	 <br /><br />
+#else
+
+#endif
+   <a class='menu' href='javascript: logoutteacher();' onMouseover=" window.status='Log Out';return true;"  onMouseout=" window.status='';return true;" >Log Out</a>
+
+   <input type='hidden' name='page2' value='[SYM]' />
+   <input type='hidden' name='logout' />
+   <input type='hidden' name='page' value='
+#if ($_POST["logout"] == 1)
+0
+#else
+
+#if ($page == null)
+0
+#else
+[SYM]
+#endif
+
+#endif
+' />
+   <input type='hidden' name='selectclass' value='[SYM]' />
+ </form>
+  </td>
+  <td class='b' width='10' background='./images/left.gif'><div style='letter-spacing: 1pt;'>&nbsp;</div></td>
+  <td class='w' valign='top'>
+   <table border=0 cellspacing=0 cellpadding=10 width='100%' height='100%'>
+	<tr>
+	 <td valign='top'>
+#if (case $page2 == 4)
+<h1>Add New Assignment</h1>
+
+  <form name='addassignment' action='./index.php' method='POST'>
+  <br /><br /><br />
+  <table cellspacing='0' cellpadding='5' class='dynamiclist' align='center' width='700'>
+   <tr class='header'>
+	<th>Title</th>
+	<th>Assigned Task</th>
+	<th>Total Points</th>
+	<th>Date Assigned</th>
+	<th>Date Due</th>
+   </tr>
+   <tr class='even' valign='top'>
+	<td><input type='text' name='title' maxlength='15' size='15' /></td>
+	<td><textarea name='task'></textarea></td>
+	<td><input type='text' name='total' maxlength='6' size='15' /></td>
+	<td><input type='text' name='assigneddate' maxlength='10' size='15' /></td>
+	<td><input type='text' name='duedate' maxlength='10' size='15' /></td>
+   </tr>
+   </table>
+
+   <br />
+
+   <table cellpadding='0' border='0' align='center' width='700'>
+   <tr>
+   <td><input type='button' value='Add Assignment' onClick='document.addassignment.addassignment.value=1;document.addassignment.page2.value=2;document.addassignment.submit();' /> <input type='button' value='Cancel' onClick='document.addassignment.page2.value=2;document.addassignment.submit();' /></td>
+   </tr>
+   </table>
+
+  <input type='hidden' name='addassignment' value='' />
+  <input type='hidden' name='page2' value='[SYM]' />
+  <input type='hidden' name='logout' />
+  <input type='hidden' name='selectclass' value='[SYM]' />
+  <input type='hidden' name='page' value='
+#if ($_POST["logout"] == 1)
+0
+#else
+
+#if ($page == null)
+0
+#else
+[SYM]
+#endif
+
+#endif
+' />
+
+ </form>
+
+ <table width='520' border=0 cellspacing=0 cellpadding=0 height=1>
+  <tr>
+   <td valign='top'>
+	&nbsp;
+   </td>
+  </tr>
+ </table>
+ 
+#else
+
+#if (case $page2 == 6)
+
+#else
+teacherMain.php: Invalid Page
+#endif
+
+#endif
+ 	 </td>
+	</tr>
+   </table>
+
+  </td>
+#else
+
+#if (case $page == 3)
+<body><table><tr>
+#else
+
+#if (case $page == 4)
+<script language='JavaScript'>
+
+  function classes()
+  {
+	document.student.page2.value=0;
+	document.student.submit();
+  }
+
+  function settings()
+  {
+	document.student.page2.value=1;
+	document.student.submit();
+  }
+
+  function assignments()
+  {
+	document.student.page2.value=2;
+	document.student.submit();
+  }
+
+  function grades()
+  {
+   document.student.page2.value=3;
+   document.student.submit();
+  }
+
+  function announcements()
+  {
+	document.student.page2.value=4;
+	document.student.submit();
+  }
+
+  function logoutstudent()
+  {
+	document.student.logout.value=1;
+	document.student.submit();
+  }
+ </script>
+
+ <body><table cellpadding=0 cellspacing=0 border=0 width='100%' height='80'>
+ <tr>
+ <td class='b' width='300'>
+  <img src='./images/title.gif' height='75' width='300' />
+ </td>
+ <td class='b'>
+  <table cellpadding=0 cellspacing=0 border=0 width='80%'>
+  <tr>
+  <td class='b'>
+   <div class='yellowtext' align='center'>
+#if ($_POST["infoupdate"] == 1)
+[SYM]
+#else
+[SYM]
+#endif
+</div>
+  </td>
+  </tr>
+  </table>
+ </td>
+</tr>
+</table>
+
+ <table width='100%' height='88%' border=0 cellspacing=0 cellpadding=0 align='center'>
+ <tr>
+  <td class='b' width='130' height=10><empty /></td>
+  <td class='b' width=10 background='./images/topleft.gif'><empty /></td>
+  <td class='b' height=10 background='./images/top.gif'><empty /></td>
+  <td class='b' width=10 background='./images/topright.gif'><empty /></td>
+ </tr>
+
+
+ <tr>
+  <td class='b' width=130 valign='top'>
+   <br />
+   <form name='student' action='./index.php' method='POST'>
+
+   <a class='menu' href='javascript: classes();' onMouseover=" window.status='View Classes'; return true;"  onMouseout=" window.status=''; return true;" >Classes</a>
+   <br /><br />
+#if ($_POST['selectclass'] != "" && $page2 != 0)
+
+	 <a class='menu' href='javascript: settings();' onMouseover=" window.status='View Class Settings'; return true;"  onMouseout=" window.status=''; return true;" >Settings</a>
+	 <br /><br />
+	 <a class='menu' href='javascript: assignments();' onMouseover=" window.status='View Assignments'; return true;"  onMouseout=" window.status=''; return true;" >Assignments</a>
+	 <br /><br />
+	 <a class='menu' href='javascript: grades();' onMouseover=" window.status='View Grades'; return true;"  onMouseout=" window.status=''; return true;" >Grades</a>
+	 <br /><br />
+	 <a class='menu' href='javascript: announcements();' onMouseover=" window.status='View Announcements'; return true;"  onMouseout=" window.status=''; return true;" >Announcements</a>
+	 <br /><br />
+#else
+
+#endif
+   <a class='menu' href='javascript: logoutstudent();' onMouseover=" window.status='Log Out';return true;"  onMouseout=" window.status='';return true;" >Log Out</a>
+
+   <input type='hidden' name='page2' value='[SYM]' />
+   <input type='hidden' name='logout' />
+   <input type='hidden' name='page' value='
+#if ($_POST["logout"] == 1)
+0
+#else
+
+#if ($page == null)
+0
+#else
+[SYM]
+#endif
+
+#endif
+' />
+   <input type='hidden' name='selectclass' value='[SYM]' />
+ </form>
+  </td>
+  <td class='b' width='10' background='./images/left.gif'><div style='letter-spacing: 1pt;'>&nbsp;</div></td>
+  <td class='w' valign='top'>
+   <table border=0 cellspacing=0 cellpadding=10 width='100%' height='100%'>
+	<tr>
+	 <td valign='top'>
+#if (case $page2 == 4)
+
+#else
+StudentMain.php: Invalid Page
+#endif
+      </td>
+	</tr>
+   </table>
+
+  </td>
+#else
+
+#if (case $page == 5)
+<script language='JavaScript'>
+
+  function students()
+  {
+	document.student.page2.value=0;
+	document.student.submit();
+  }
+
+  function settings()
+  {
+	document.student.page2.value=1;
+	document.student.submit();
+  }
+
+  function assignments()
+  {
+	document.student.page2.value=2;
+	document.student.submit();
+  }
+
+  function grades()
+  {
+   document.student.page2.value=3;
+   document.student.submit();
+  }
+
+  function announcements()
+  {
+	document.student.page2.value=4;
+	document.student.submit();
+  }
+
+  function classes()
+  {
+	document.student.page2.value=5;
+	document.student.submit();
+  }
+
+  function logoutstudent()
+  {
+	document.student.logout.value=1;
+	document.student.submit();
+  }
+ </script>
+
+ <body><table cellpadding=0 cellspacing=0 border=0 width='100%' height='80'>
+ <tr>
+ <td class='b' width='300'>
+  <img src='./images/title.gif' height='75' width='300' />
+ </td>
+ <td class='b'>
+  <table cellpadding=0 cellspacing=0 border=0 width='80%'>
+  <tr>
+  <td class='b'>
+   <div class='yellowtext' align='center'>
+#if ($_POST["infoupdate"] == 1)
+[SYM]
+#else
+[SYM]
+#endif
+</div>
+  </td>
+  </tr>
+  </table>
+ </td>
+</tr>
+</table>
+
+ <table width='100%' height='88%' border=0 cellspacing=0 cellpadding=0 align='center'>
+ <tr>
+  <td class='b' width='130' height=10><empty /></td>
+  <td class='b' width=10 background='./images/topleft.gif'><empty /></td>
+  <td class='b' height=10 background='./images/top.gif'><empty /></td>
+  <td class='b' width=10 background='./images/topright.gif'><empty /></td>
+ </tr>
+
+
+ <tr>
+  <td class='b' width=130 valign='top'>
+   <br />
+   <form name='student' action='./index.php' method='POST'>
+
+   <a class='menu' href='javascript: students();' onMouseover=" window.status='View Students'; return true;"  onMouseout=" window.status=''; return true;" >Students</a>
+   <br /><br />
+#if ($_POST['student'] != "" && $page2 != 0)
+
+#if ($_POST['selectclass'] != "" && $page2 != 5)
+
+	 <a class='menu' href='javascript: classes();' onMouseover=" window.status='View Classes'; return true;"  onMouseout=" window.status=''; return true;" >Classes</a>
+	 <br /><br />
+	 <a class='menu' href='javascript: settings();' onMouseover=" window.status='View Class Settings'; return true;"  onMouseout=" window.status=''; return true;" >Settings</a>
+	 <br /><br />
+	 <a class='menu' href='javascript: assignments();' onMouseover=" window.status='View Assignments'; return true;"  onMouseout=" window.status=''; return true;" >Assignments</a>
+	 <br /><br />
+	 <a class='menu' href='javascript: grades();' onMouseover=" window.status='View Grades'; return true;"  onMouseout=" window.status=''; return true;" >Grades</a>
+	 <br /><br />
+	 <a class='menu' href='javascript: announcements();' onMouseover=" window.status='View Announcements'; return true;"  onMouseout=" window.status=''; return true;" >Announcements</a>
+	 <br /><br />
+#else
+
+	 <a class='menu' href='javascript: classes();' onMouseover=" window.status='View Classes'; return true;"  onMouseout=" window.status=''; return true;" >Classes</a>
+	 <br /><br />
+	 
+#endif
+
+#else
+
+#endif
+   <a class='menu' href='javascript: logoutstudent();' onMouseover=" window.status='Log Out';return true;"  onMouseout=" window.status='';return true;" >Log Out</a>
+
+   <input type='hidden' name='page2' value='[SYM]' />
+   <input type='hidden' name='logout' />
+   <input type='hidden' name='page' value='
+#if ($_POST["logout"] == 1)
+0
+#else
+
+#if ($page == null)
+0
+#else
+[SYM]
+#endif
+
+#endif
+' />
+   <input type='hidden' name='selectclass' value='[SYM]' />
+   <input type='hidden' name='student' value='[SYM]' />
+ </form>
+  </td>
+  <td class='b' width='10' background='./images/left.gif'><div style='letter-spacing: 1pt;'>&nbsp;</div></td>
+  <td class='w' valign='top'>
+   <table border=0 cellspacing=0 cellpadding=10 width='100%' height='100%'>
+	<tr>
+	 <td valign='top'>
+#if (case $page2 == 1)
+
+#else
+
+#if (case $page2 == 2)
+
+#else
+
+#if (case $page2 == 3)
+
+#else
+
+#if (case $page2 == 4)
+
+#else
+ParentMain.php: Invalid Page
+#endif
+
+#endif
+
+#endif
+
+#endif
+      </td>
+	</tr>
+   </table>
+
+  </td>
+#else
+<body><table><tr>
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+   <td class='bv' width=10 background='./images/right.gif'>&nbsp;&nbsp;<font></font></td>
+ </tr>
+ <tr>
+  <td class='b' width=130 height='10'><empty /></td>
+  <td class='b' width=10  height='10' background='./images/bottomleft.gif'><empty /></td>
+  <td class='b' height='10' background='./images/bottom.gif'><empty /></td>
+  <td class='b' width=10  height='10' background='./images/bottomright.gif'><empty /></td>
+ </tr>
+ <tr>
+  <td colspan=4 bgColor='#336699' height='20'>
+   <center>
+    <span class='footer'>Powered By - </span><a target='_BLANK' href='http://www.primateapplications.com' class='footer'>SchoolMate</a>
+   </center>
+  </td>
+ </tr>
+ </table>
+ </body>
+ </html>

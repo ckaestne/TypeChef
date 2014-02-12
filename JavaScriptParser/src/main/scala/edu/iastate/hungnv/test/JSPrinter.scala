@@ -4,8 +4,11 @@ import de.fosd.typechef.conditional._
 import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
 import java.io.{FileWriter, StringWriter, Writer}
 import de.fosd.typechef.parser.javascript._
-import de.fosd.typechef.parser.common.CharacterToken
+import de.fosd.typechef.parser.common.{JPosition, CharacterToken}
+import de.fosd.typechef.error.{NoPosition, Position}
 import edu.iastate.hungnv.test.Util._
+
+
 
 object JSPrinter {
   
@@ -24,30 +27,40 @@ object JSPrinter {
 
     case object Line extends Doc
 
-    case class Text(s: String) extends Doc
+    /**
+     * all text content comes from a position.
+     *
+     * the position refers to the beginning of the source of the text in the original, from there
+     * we can navigate subsequent characters in the original document. if there
+     * are two text fragments from different sources, they should be modeled with different Text elements
+     * connected by Cons.
+     */
+    case class Text(s: String, position: Position) extends Doc
 
     case class Cons(left: Doc, right: Doc) extends Doc
 
     case class Nest(n: Int, d: Doc) extends Doc
 
-    implicit def string(s: String): Doc = Text(s)
+    implicit def string(s: String): Doc = noPosition(s)
+    def noPosition(s:String) = Text(s, NoPosition)
 
     val line = Line
-    val space = Text(" ")
+    val space = noPosition(" ")
     var newLineForIfdefs = true
 
     def nest(n: Int, d: Doc) = Nest(n, d)
 
-    def block(d: Doc): Doc = "{" ~> d * "}"
+    //note that generated parenthesis will not have position information
+    def block(d: Doc): Doc = noPosition("{") ~> d * noPosition("}")
 
     def layout(d: Doc): String = d match {
         case Empty => ""
         case Line => "\n"
-        case Text(s) => s
+        case Text(s, _) => s
         case Cons(l, r) => layout(l) + layout(r)
         case Nest(n, Empty) => layout(Empty)
         case Nest(n, Line) => "\n" + ("   " * n)
-        case Nest(n, Text(s)) => layout(Text(s))
+        case Nest(n, t@Text(s,_)) => layout(t)
         case Nest(n, Cons(l, r)) => layout(Cons(Nest(n, l), Nest(n, r)))
         case Nest(i, Nest(j, x)) => layout(Nest(i + j, x))
     }
@@ -60,13 +73,17 @@ object JSPrinter {
     def layoutW(d: Doc, p: Writer): Unit = d match {
         case Empty => p.write("")
         case Line => p.write("\n")
-        case Text(s) => p.write(s)
+        case Text(s, position) => {
+          p.write(s)
+          if (position != NoPosition && Main.printPositionInfoForJS)
+        	  p.write(" @" + position.toString + " ")
+        }
         case Cons(l, r) =>
             layoutW(l, p)
             layoutW(r, p)
         case Nest(n, Empty) => layoutW(Empty, p)
-        case Nest(n, Line) => p.write("\n" + (" " * n))
-        case Nest(n, Text(s)) => layoutW(Text(s), p)
+        case Nest(n, Line) => p.write("\n" + ("   " * n))
+        case Nest(n, t@Text(s, _)) => layoutW(t, p)
         case Nest(n, Cons(l, r)) => layoutW(Cons(Nest(n, l), Nest(n, r)), p)
         case Nest(i, Nest(j, x)) => layoutW(Nest(i + j, x), p)
         case _ =>
@@ -90,18 +107,18 @@ object JSPrinter {
         case Choice(f, a: AST, b: AST) =>
             if (newLineForIfdefs) {
                 line ~
-                    "#if" ~~ f.toTextExpr *
+                    noPosition("#if") ~~ noPosition(f.toTextExpr) *
                     prettyPrint(a, f :: list_feature_expr) *
-                    "#else" *
+                    noPosition("#else") *
                     prettyPrint(b, f.not :: list_feature_expr) *
-                    "#endif" ~
+                    noPosition("#endif") ~
                         line
             } else {
-                "#if" ~~ f.toTextExpr *
+                noPosition("#if") ~~ noPosition(f.toTextExpr) *
                     prettyPrint(a, f :: list_feature_expr) *
-                    "#else" *
+                    noPosition("#else") *
                     prettyPrint(b, f.not :: list_feature_expr) *
-                    "#endif"
+                    noPosition("#endif")
             }
 
         case Choice(f, a: Conditional[_], b: Conditional[_]) =>
@@ -119,23 +136,19 @@ object JSPrinter {
 	              /*
 	               * Convert #ifdefs to regular ifs
 	               */
-//	              line ~ 
-//	              "if (pseudo_condition) {" ~>
-//	              	ppConditional(a, f :: list_feature_expr) *
-//	              "}" *
-//	              "else {" ~>
-//	              	ppConditional(b, f.not :: list_feature_expr) *
-//	              "}" ~ 
-//	              line
-            	
-            		ppConditional(a, f :: list_feature_expr) 
+	              "if (php_cond(\"" ~ f.toString.replace("\"", "'") ~ "\")) {" ~>
+	              	ppConditional(a, f :: list_feature_expr) *
+	              "}" *
+	              "else {" ~>
+	              	ppConditional(b, f.not :: list_feature_expr) *
+	              "}" 
 	              	
             } else {
-                "#if" ~~ f.toTextExpr *
+                noPosition("#if") ~~ noPosition(f.toTextExpr) *
                     ppConditional(a, f :: list_feature_expr) *
-                    "#else" *
+                    noPosition("#else") *
                     ppConditional(b, f.not :: list_feature_expr) *
-                    "#endif"
+                        noPosition("#endif")
             }
     }
 
@@ -155,12 +168,14 @@ object JSPrinter {
           /*
            * Convert #ifdefs to regular ifs
            */
-          prettyPrint(e.entry, e.feature :: list_feature_expr)
+          "if (php_cond(\"" ~ e.feature.toString.replace("\"", "'") ~ "\")) {" ~>
+          		prettyPrint(e.entry, e.feature :: list_feature_expr) *
+          "}"
           
         } else {
-            "#if" ~~ e.feature.toTextExpr *
+            noPosition("#if") ~~ noPosition(e.feature.toTextExpr) *
                 prettyPrint(e.entry, e.feature :: list_feature_expr) *
-                "#endif"
+                noPosition("#endif")
         }
 
     }
@@ -169,7 +184,7 @@ object JSPrinter {
         implicit def pretty(a: AST): Doc = prettyPrint(a, list_feature_expr)
         implicit def prettyOpt(a: Opt[AST]): Doc = optConditional(a, list_feature_expr)
         implicit def prettyCond(a: Conditional[_]): Doc = ppConditional(a, list_feature_expr)
-        implicit def prettyOptStr(a: Opt[String]): Doc = string(a.entry)
+//        implicit def prettyOptStr(a: Opt[String]): Doc = string(a.entry)
 
         // this method separates Opt elements of an input list variability-aware
         // problem is that when having for instance a function with one mandatory and one optional
@@ -182,7 +197,7 @@ object JSPrinter {
         // the standard sep function prints out the comma between both parameters without an
         // annotation. Further processing of the output will lead to an error.
         // This function prints out separated lists with annotated commas solving that problem.
-        def sepVaware(l: List[Opt[AST]], selem: String, breakselem: Doc = space) = {
+        def sepVaware(l: List[Opt[AST]], selem: Doc, breakselem: Doc = space) = {
             var res: Doc = if (l.isEmpty) Empty else l.head
             var combCtx: FeatureExpr = if (l.isEmpty) FeatureExprFactory.True else l.head.feature
 
@@ -199,7 +214,7 @@ object JSPrinter {
 
                 // separation element is sometimes present
                 else {
-                    res = res * "#if" ~~ selemfexp.toTextExpr * selem * "#endif" * prettyOpt(celem)
+                    res = res * noPosition("#if") ~~ noPosition(selemfexp.toTextExpr) * selem * noPosition("#endif") * prettyOpt(celem)
                 }
 
                 // add current feature expression as it might influence the addition of selem for
@@ -215,35 +230,41 @@ object JSPrinter {
             val r: Doc = if (l.isEmpty) Empty else l.head
             l.drop(1).foldLeft(r)((a, b) => s(a, prettyOpt(b)))
         }
-        def seps(l: List[Opt[String]], s: (Doc, Doc) => Doc) = {
-            val r: Doc = if (l.isEmpty) Empty else l.head
-            l.drop(1).foldLeft(r)(s(_, _))
-        }
-        def commaSep(l: List[Opt[AST]]) = sep(l, _ ~ "," ~~ _)
+//        def seps(l: List[Opt[String]], s: (Doc, Doc) => Doc) = {
+//            val r: Doc = if (l.isEmpty) Empty else l.head
+//            l.drop(1).foldLeft(r)(s(_, _))
+//        }
+//        def commaSep(l: List[Opt[AST]]) = sep(l, _ ~ "," ~~ _)
         def spaceSep(l: List[Opt[AST]]) = sep(l, _ ~~ _)
+        def listSep(l: List[AST], s: (Doc, Doc) => Doc) = sep(l.map(x => Opt(FeatureExprFactory.True, x)), s)
         def opt(o: Option[AST]): Doc = if (o.isDefined) o.get else Empty
         def optExt(o: Option[AST], ext: (Doc) => Doc): Doc = if (o.isDefined) ext(o.get) else Empty
         def optCondExt(o: Option[Conditional[AST]], ext: (Doc) => Doc): Doc = if (o.isDefined) ext(o.get) else Empty
 
         ast match {
           case JSProgram(sourceElements) => sep(sourceElements, _ * _)
-          case JSFunctionDeclaration(name, param, funBody) => "function " ~ name ~ "(params)" ~ " {" ~> funBody * "}"
-          case JSIdentifier(name) => name
+          case JSFunctionDeclaration(name, param, funBody) => name ~ " = function " ~ name ~ "(params)" ~ " {" ~> funBody * "}"
+          case j@JSIdentifier(name) => Text(name, j.getPositionFrom)
           case JSExprStatement(expr) => expr ~ ";"
-          case JSOtherStatement() => "JSOtherStatement" ~ ";"
           case JSAssignment(e1, op, e2) => e1 ~~ op ~~ e2
-          case JSFunctionCall(target, arguments) => target //~ "(args)"
-          case JSVariableStatement(s) => "var " ~ sep(s, _ ~ _)
-          case JSVariableDeclaration(name, init) => name ~ " = " ~ opt(init)
+          case JSFieldAccess(e, field) => e ~ "." ~ field
+          case JSFunctionCall(target, arguments) => target ~ "(" ~ listSep(arguments, _ ~ ", " ~ _) ~ ")"
+          case j@JSLit(n) => Text(n, j.getPositionFrom)
+          case JSForStatement(statement) => "for (;;) " ~> statement
+          case JSBlock(sourceElements) => "{" ~> sep(sourceElements, _ * _) * "}"
           case JSIfStatement(e, s1, s2) => "if (" ~ e ~ ")" ~> s1 ~ optExt(s2, line ~ "else" ~> _)
           case JSBinaryOp(e1, op, e2) => e1 ~~ op ~~ e2
-          case JSLit(n) => n
-          case JSBlock(sourceElements) => "{" ~> sep(sourceElements, _ * _) * "}"
-          case JSForStatement(statement) => "for (;;) " ~> statement
-          case JSExpr() => "JSExpr"
+          case JSArrayAccess(e, index) => e ~ "[" ~ index ~ "]"
+          case JSVariableStatement(s) => "var " ~ sep(s, _ ~ ", " ~ _) ~ ";"
+          case JSVariableDeclaration(name, init) => name ~ optExt(init, " = " ~ _)
+          case JSPostfixExpr(e, op) => e ~ op
           case JSUnaryExpr(e, op) => op ~ e
-          case _ => "AST:" + ast.getClass()
-          /*
+          case JSEmptyStatement() => Empty
+          case j@JSThis() => Text("this", j.getPositionFrom)
+          case JSReturnStatement(e) => "return " ~ opt(e) ~ ";"
+          case _ => "AST:" ~ ast.getClass().toString()
+          
+            /*
             case TranslationUnit(ext) => sep(ext, _ * _)
             case Id(name) => name
             case Constant(v) => v
@@ -402,7 +423,7 @@ object JSPrinter {
             case CompoundStatementExpr(compoundStatement: CompoundStatement) => "(" ~ compoundStatement ~ ")"
             case Pragma(command: StringLit) => "_Pragma(" ~ command ~ ")"
             */
-            case e => assert(assertion = false, message = "match not exhaustive: " + e); ""
+            //case e => assert(assertion = false, message = "match not exhaustive: " + e); ""
         }
     }
     

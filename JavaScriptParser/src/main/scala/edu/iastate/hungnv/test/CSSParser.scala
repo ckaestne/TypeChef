@@ -7,34 +7,34 @@ import de.fosd.typechef.featureexpr._
 import de.fosd.typechef.parser._
 import de.fosd.typechef.parser.common._
 import de.fosd.typechef.parser.html._
-import de.fosd.typechef.parser.javascript._
+import edu.iastate.hungnv.parser.css._
 import edu.iastate.hungnv.test.Util._
 
 /**
  * @author HUNG
  */
-object JSParser {
+object CSSParser {
   
 	type ElementList = List[Opt[HElement]]
     type DomType = List[Opt[DElement]]
 	
-	def parse(r: Reader): JSProgram = {
+	def parse(r: Reader): CStyleSheet = {
 		val tokenReader = CharacterLexer.lex(r)
 		parse(tokenReader)
 	}
 	
-	def parse(tokens: List[CharacterToken]): JSProgram = {
+	def parse(tokens: List[CharacterToken]): CStyleSheet = {
 		val tokenReader = new TokenReader[CharacterToken, Null](tokens, 0, null, new CharacterToken(-1, FeatureExprFactory.True, new JPosition("", -1, -1)))
 		parse(tokenReader)
 	}
 	
-	def parse(tokenReader: TokenReader[CharacterToken, Null]): JSProgram = {
+	def parse(tokenReader: TokenReader[CharacterToken, Null]): CStyleSheet = {
 		/*
 		 * Step 1: Get tokens
 		 */
 		val tokens = tokenReader.tokens.slice(0, tokenReader.tokens.size)
-        log("1. JS tokens:")
-        log(prettyPrintJsTokens(tokens, 50))
+        log("1. CSS tokens:")
+        log(prettyPrintCSSTokens(tokens, 50))
         log()
 
 //        java.lang.System.exit(0)
@@ -42,13 +42,13 @@ object JSParser {
         /*
          * Step 2: Parsing result
          */
-        val parser = new JSParser()
-        val result = parser.phrase(parser.Program)(tokenReader, FeatureExprFactory.True)
+          val parser = new CSSParser()
+          val parseResult = parser.phrase(parser.StyleSheet)(tokenReader, FeatureExprFactory.True)
 
-        log("2. JS parsed result:")
-        log(result.toString)
+        log("2. CSS parsed result:")
+        log(parseResult.toString)
         
-        def printResult[T](f: FeatureExpr, x: parser.MultiParseResult[JSProgram]): Unit = x match {
+        def printResult[T](f: FeatureExpr, x: parser.MultiParseResult[CStyleSheet]): Unit = x match {
             case parser.Success(y, _) => println("succeeded[" + f + "] \n" + y) //y.take(4))
             case e@parser.Failure(y, r, _) => println("failed[" + f + "] \n" + e + "\n  @" + r.first.getPosition())
             case parser.SplittedParseResult(fx, x, y) =>
@@ -56,18 +56,18 @@ object JSParser {
                 printResult(f andNot fx, y)
         }
         try {
-            printResult(FeatureExprFactory.True, result)
+            printResult(FeatureExprFactory.True, parseResult)
         } catch {
             case e: Throwable => log("Error: " + e.getClass().toString()); e.printStackTrace()
         }
         
         
         // Take the longest SplittedParser Result
-        def getLongestSuccessResult(f: FeatureExpr, x: parser.MultiParseResult[JSProgram]): Option[parser.Success[JSProgram]] = x match {
-            case e: parser.Success[JSProgram] => Some(e)
+        def getLongestSuccessResult(f: FeatureExpr, x: parser.MultiParseResult[CStyleSheet]): Option[parser.Success[CStyleSheet]] = x match {
+            case e: parser.Success[CStyleSheet] => Some(e)
             case parser.Failure(y, _, _) => None
             case parser.SplittedParseResult(fx, x, y) => {
-            	Some(y.asInstanceOf[parser.Success[JSProgram]]);
+            	Some(y.asInstanceOf[parser.Success[CStyleSheet]]);
             	
 //                var firstSuccessResult = getLongestSuccessResult(f and fx, x)
 //                var secondSuccessResult = getLongestSuccessResult(f andNot fx, y)
@@ -80,39 +80,16 @@ object JSParser {
             }
         }
 
-        var success = getLongestSuccessResult(FeatureExprFactory.True, result)
+        var success = getLongestSuccessResult(FeatureExprFactory.True, parseResult)
         
+        var result = success.get.result
         
-        var jsResult = success.get.result
-        
-        /*
-        var jsResult = 
-        result match {
-            case parser.Success(r, next) => {r;}
-            case parser.Error(_, next, _) => {log(next.first.getPosition.toString); null}
-            case _ => {null}
-        }
-        */
-
-        if (jsResult == null) {
-        	log("jsRresult is null" + result)
+        if (result == null) {
+        	log("parseRresult is null" + parseResult)
         	System.exit(0)
         }
         
-//        java.lang.System.exit(0)
-        
-        /*
-        val jsTree = result match {
-		  case parser.Success(r, rest) => printJS(r, FeatureExprFactory.True, 0)
-		}
-        log(jsTree)
-        
-        result match {
-		  case parser.Success(r, rest) => "\n" + transformJS(r, FeatureExprFactory.True, 0)
-		}
-        */
-
-        jsResult
+        result
   }
   
 	/*
@@ -120,9 +97,9 @@ object JSParser {
      */
 
     /*
-     * JS tokens
+     * CSS tokens
      */
-    def prettyPrintJsTokens(r: List[CharacterToken], tokensToPrint: Int): String = {
+    def prettyPrintCSSTokens(r: List[CharacterToken], tokensToPrint: Int): String = {
         val out = new StringBuilder
 
         var currFeat: FeatureExpr = FeatureExprFactory.True

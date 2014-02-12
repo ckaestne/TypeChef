@@ -18,9 +18,9 @@ class JPosition(file: String, line: Int, col: Int) extends Position {
 	 * Line starts from 1.
 	 */
     def positionToLine(file: String, offset: Int): Int = {
-        val absFile = "/Work/To-do/Data/Web Projects/Server Code/addressbookv6.2.12/" + file
+        val absFile = edu.iastate.hungnv.test.Main.projectAbsolutePath + file
         
-        if (!new java.io.File(absFile).exists())
+        if (!new java.io.File(absFile).isFile())
           return -1;
         
 		var lines = new java.util.ArrayList[Integer]();

@@ -5,6 +5,7 @@ import de.fosd.typechef.featureexpr.{ FeatureExprFactory, FeatureExpr }
 import java.io.{ FileWriter, StringWriter, Writer }
 import de.fosd.typechef.parser.html._
 import de.fosd.typechef.parser.common.CharacterToken
+import de.fosd.typechef.parser.common.JPosition
 import edu.iastate.hungnv.test.Util._
 
 object HtmlPrinter {
@@ -205,20 +206,18 @@ object HtmlPrinter {
       case DNode(name, attributes, children, openTag, closingTag) => {
         var script: String = ""
         if (name.name.equals("script")) {
-          val out = new StringBuilder
+          var jsSource = List[Opt[CharacterToken]]()
+
           for (child <- children) {
             val text = child.entry.asInstanceOf[DText].value
-
-            out ++= prettyPrintJS(text)
-
-            //        		  	  for (optToken <- text) {
-            //        		  		  out ++= optToken.entry.getText
-            //        		  	  }
+            jsSource = jsSource ::: text 
           }
-          script = out.toString
+          jsSource = jsSource ::: List(Opt(FeatureExprFactory.True, new CharacterToken(';', FeatureExprFactory.True, new de.fosd.typechef.parser.common.JPosition("", -1, -1)))) // Adhoc fix: Add semi-colon right before the ending </script> tag to force joins (fixed a bug with function filterResults when running AddressBook-6.2.12)
+          
+          script = prettyPrintJS(jsSource)
         }
 
-        "<" ~ name.name ~ (if (attributes.isEmpty) Empty else " " ~ sep(attributes, _ ~~ _)) ~ ">" ~
+        "<" ~ name.name ~ (if (attributes.isEmpty) Empty else " " ~ sep(attributes, _ ~~ _)) ~ (if (list_feature_expr.size == 2) (" cond=\"" ~ list_feature_expr.toString.replace("\"", "'")) ~ "\"" else Empty) ~ ">" ~
           (if (name.name.equals("script"))
             script
           else if (children.isEmpty)
@@ -254,184 +253,50 @@ object HtmlPrinter {
         "Text"
       }
 
-      case HAttribute(name, value) => name.name ~ "=" ~ (if (value.isDefined) ("\"" ~ value.get ~ "\"") else Empty)
-      /*
-            case TranslationUnit(ext) => sep(ext, _ * _)
-            case Id(name) => name
-            case Constant(v) => v
-            case StringLit(v) => seps(v, _ ~~ _)
-            case SimplePostfixSuffix(t) => t
-            case PointerPostfixSuffix(kind, id) => kind ~ id
-            case FunctionCall(params) => "(" ~ params ~ ")"
-            case ArrayAccess(e) => "[" ~ e ~ "]"
-            case PostfixExpr(p, s) => p ~ s
-            case UnaryExpr(p, s) => p ~ s
-            case SizeOfExprT(typeName) => "sizeof(" ~ typeName ~ ")"
-            case SizeOfExprU(e) => "sizeof(" ~ e ~ ")"
-            case CastExpr(typeName, expr) => "((" ~ typeName ~ ")" ~~ expr ~ ")"
+      case HAttribute(name, value) => name.name ~ "=" ~
+          (if (value.isDefined) 
+        	  ("\"" ~
+        	      (if (name.name.startsWith("on"))
+        	    	  "javascript: " ~ prettyPrintJS(stringToListOfOptToken(value.get + ";", new JPosition(name.getPositionTo.getFile, name.getPositionTo.getLine, name.getPositionTo.getColumn)))
+//        	    	  "javascript: " ~ value.get ~ ";"
+        	      else
+        	    	  value.get) ~ 
+        	  "\"") 
+          else Empty)
 
-            case PointerDerefExpr(castExpr) => "(*" ~ castExpr ~ ")"
-            case PointerCreationExpr(castExpr) => "(&" ~ castExpr ~ ")"
-
-            case UnaryOpExpr(kind, castExpr) => "(" ~ kind ~~ castExpr ~ ")"
-            case NAryExpr(e, others) => "(" ~ e ~~ sep(others, _ ~~ _) ~ ")"
-            case NArySubExpr(op: String, e: Expr) => op ~~ e
-            case ConditionalExpr(condition: Expr, thenExpr, elseExpr: Expr) => "(" ~ condition ~~ "?" ~~ opt(thenExpr) ~~ ":" ~~ elseExpr ~ ")"
-            case AssignExpr(target: Expr, operation: String, source: Expr) => "(" ~ target ~~ operation ~~ source ~ ")"
-            case ExprList(exprs) => sep(exprs, _ ~~ "," ~~ _)
-
-            case CompoundStatement(innerStatements) =>
-                block(sep(innerStatements, _ * _))
-            case EmptyStatement() => ";"
-            case ExprStatement(expr: Expr) => expr ~ ";"
-            case WhileStatement(expr: Expr, s) => "while (" ~ expr ~ ")" ~~ s
-            case DoStatement(expr: Expr, s) => "do" ~~ s ~~ "while (" ~ expr ~ ")" ~ ";"
-            case ForStatement(expr1, expr2, expr3, s) =>
-                "for (" ~ opt(expr1) ~ ";" ~~ opt(expr2) ~ ";" ~~ opt(expr3) ~ ")" ~~ s
-            case GotoStatement(target) => "goto" ~~ target ~ ";"
-            case ContinueStatement() => "continue;"
-            case BreakStatement() => "break;"
-            case ReturnStatement(None) => "return;"
-            case ReturnStatement(Some(e)) => "return" ~~ e ~ ";"
-            case LabelStatement(id: Id, _) => id ~ ":"
-            case CaseStatement(c: Expr) => "case" ~~ c ~ ":"
-            case DefaultStatement() => "default:"
-            case IfStatement(condition, thenBranch, elifs, elseBranch) =>
-                "if (" ~ condition ~ ")" ~~ thenBranch ~~ sep(elifs, _ * _) ~~ optCondExt(elseBranch, line ~ "else" ~~ _)
-            case ElifStatement(condition, thenBranch) => line ~ "else if (" ~ condition ~ ")" ~~ thenBranch
-            case SwitchStatement(expr, s) => "switch (" ~ expr ~ ")" ~~ s
-            case DeclarationStatement(decl: Declaration) => decl
-            case NestedFunctionDef(isAuto, specifiers, declarator, parameters, stmt) =>
-                (if (isAuto) "auto" ~~ Empty else Empty) ~ sep(specifiers, _ ~~ _) ~~ declarator ~~ sep(parameters, _ ~~ _) ~~ stmt
-            case LocalLabelDeclaration(ids) => "__label__" ~~ sep(ids, _ ~ "," ~~ _) ~ ";"
-            case OtherPrimitiveTypeSpecifier(typeName: String) => typeName
-            case VoidSpecifier() => "void"
-            case ShortSpecifier() => "short"
-            case IntSpecifier() => "int"
-            case FloatSpecifier() => "float"
-            case LongSpecifier() => "long"
-            case CharSpecifier() => "char"
-            case DoubleSpecifier() => "double"
-
-            case TypedefSpecifier() => "typedef"
-            case TypeDefTypeSpecifier(name: Id) => name
-            case SignedSpecifier() => "signed"
-            case UnsignedSpecifier() => "unsigned"
-
-            case InlineSpecifier() => "inline"
-            case AutoSpecifier() => "auto"
-            case RegisterSpecifier() => "register"
-            case VolatileSpecifier() => "volatile"
-            case ExternSpecifier() => "extern"
-            case ConstSpecifier() => "const"
-            case RestrictSpecifier() => "__restrict"
-            case StaticSpecifier() => "static"
-
-            case AtomicAttribute(n: String) => n
-            case AttributeSequence(attributes) => sep(attributes, _ ~~ _)
-            case CompoundAttribute(inner) => "(" ~ sep(inner, _ ~ "," ~~ _) ~ ")"
-
-            case Declaration(declSpecs, init) =>
-                sep(declSpecs, _ ~~ _) ~~ sepVaware(init, ",") ~ ";"
-
-            case InitDeclaratorI(declarator, lst, Some(i)) =>
-                if (!lst.isEmpty) {
-                    declarator ~~ sep(lst, _ ~~ _) ~~ "=" ~~ i
-                } else {
-                    declarator ~~ "=" ~~ i
-                }
-            case InitDeclaratorI(declarator, lst, None) =>
-                if (!lst.isEmpty) {
-                    declarator ~~ sep(lst, _ ~~ _)
-                } else {
-                    declarator
-                }
-            case InitDeclaratorE(declarator, _, e: Expr) => declarator ~ ":" ~~ e
-
-            case AtomicNamedDeclarator(pointers, id, extensions) =>
-                sep(pointers, _ ~ _) ~ id ~ sep(extensions, _ ~ _)
-
-            case NestedNamedDeclarator(pointers, nestedDecl, extensions) =>
-                sep(pointers, _ ~ _) ~ "(" ~ nestedDecl ~ ")" ~ sep(extensions, _ ~ _)
-            case AtomicAbstractDeclarator(pointers, extensions) =>
-                sep(pointers, _ ~ _) ~ sep(extensions, _ ~ _)
-            case NestedAbstractDeclarator(pointers, nestedDecl, extensions) =>
-                sep(pointers, _ ~ _) ~ "(" ~ nestedDecl ~ ")" ~ sep(extensions, _ ~ _)
-
-            case DeclIdentifierList(idList) => "(" ~ commaSep(idList) ~ ")"
-            case DeclParameterDeclList(parameterDecls) => "(" ~ sepVaware(parameterDecls, ",") ~ ")"
-            case DeclArrayAccess(expr) => "[" ~ opt(expr) ~ "]"
-            case Initializer(initializerElementLabel, expr: Expr) => opt(initializerElementLabel) ~~ expr
-            case Pointer(specifier) =>
-                if (specifier.isEmpty) {
-                    "*" ~ spaceSep(specifier)
-                } else {
-                    "*" ~ spaceSep(specifier) ~ " "
-                }
-            case PlainParameterDeclaration(specifiers) => spaceSep(specifiers)
-            case ParameterDeclarationD(specifiers, decl) => spaceSep(specifiers) ~~ decl
-            case ParameterDeclarationAD(specifiers, decl) => spaceSep(specifiers) ~~ decl
-            case VarArgs() => "..."
-            case EnumSpecifier(id, Some(enums)) => "enum" ~~ opt(id) ~~ block(sepVaware(enums, ",", line))
-            case EnumSpecifier(Some(id), None) => "enum" ~~ id
-            case Enumerator(id, Some(init)) => id ~~ "=" ~~ init
-            case Enumerator(id, None) => id
-            case StructOrUnionSpecifier(isUnion, id, enumerators) => (if (isUnion) "union" else "struct") ~~ opt(id) ~~ (if (enumerators.isDefined) block(sep(enumerators.get, _ * _)) else Empty)
-            case StructDeclaration(qualifierList, declaratorList) => spaceSep(qualifierList) ~~ commaSep(declaratorList) ~ ";"
-            case StructDeclarator(decl, initializer, _) => decl ~ optExt(initializer, ":" ~~ _)
-            case StructInitializer(expr, _) => ":" ~~ expr
-            case AsmExpr(isVolatile, expr) => "asm" ~~ (if (isVolatile) "volatile " else "") ~ "{" ~ expr ~ "}" ~ ";"
-            case FunctionDef(specifiers, declarator, oldStyleParameters, stmt) =>
-                spaceSep(specifiers) ~~ declarator ~~ spaceSep(oldStyleParameters) ~~ stmt
-            case EmptyExternalDef() => ";"
-            case TypelessDeclaration(declList) => commaSep(declList) ~ ";"
-            case TypeName(specifiers, decl) => spaceSep(specifiers) ~~ opt(decl)
-
-            case GnuAttributeSpecifier(attributeList) => "__attribute__((" ~ commaSep(attributeList) ~ "))"
-            case AsmAttributeSpecifier(stringConst) => "__asm__( " ~ stringConst ~ ")"
-            case LcurlyInitializer(inits) => "{" ~ commaSep(inits) ~ "}"
-            case AlignOfExprT(typeName: TypeName) => "__alignof__(" ~ typeName ~ ")"
-            case AlignOfExprU(expr: Expr) => "__alignof__" ~~ expr
-            case GnuAsmExpr(isVolatile: Boolean, isAuto, expr: StringLit, stuff: Any) =>
-                var ret = "asm" ~~ (if (isVolatile) "volatile " else "")
-                /*if(stuff.isInstanceOf[Some[AST]] || stuff.asInstanceOf[Some[AST]].isEmpty)
-                  ret = ret ~ "(" ~ expr ~~ ":" ~~ "" ~~ ")" //TODO: this is not correct: the "" should be replaced with the contents of stuff
-                else*/
-                ret = ret ~ "(" ~ expr ~ ")"
-                ret
-            case RangeExpr(from: Expr, to: Expr) => from ~~ "..." ~~ to
-            case TypeOfSpecifierT(typeName: TypeName) => "typeof(" ~ typeName ~ ")"
-            case TypeOfSpecifierU(e: Expr) => "typeof(" ~ e ~ ")"
-            case InitializerArrayDesignator(expr: Expr) => "[" ~ expr ~ "]"
-            case InitializerDesignatorD(id: Id) => "." ~ id
-            case InitializerDesignatorC(id: Id) => id ~ ":"
-            case InitializerAssigment(desgs) => spaceSep(desgs) ~~ "="
-            case BuiltinOffsetof(typeName: TypeName, offsetofMemberDesignator) => "__builtin_offsetof(" ~ typeName ~ "," ~~ spaceSep(offsetofMemberDesignator) ~ ")"
-            case OffsetofMemberDesignatorID(id: Id) => "." ~ id
-            case OffsetofMemberDesignatorExpr(expr: Expr) => "[" ~ expr ~ "]"
-            case BuiltinTypesCompatible(typeName1: TypeName, typeName2: TypeName) => "__builtin_types_compatible_p(" ~ typeName1 ~ "," ~~ typeName2 ~ ")"
-            case BuiltinVaArgs(expr: Expr, typeName: TypeName) => "__builtin_va_arg(" ~ expr ~ "," ~~ typeName ~ ")"
-            case CompoundStatementExpr(compoundStatement: CompoundStatement) => "(" ~ compoundStatement ~ ")"
-            case Pragma(command: StringLit) => "_Pragma(" ~ command ~ ")"
-            */
       case e => assert(assertion = false, message = "match not exhaustive: " + e); ""
     }
   }
+  
+  def stringToListOfOptToken(str: String, pos: JPosition): List[Opt[CharacterToken]] = {
+    var list = List[Opt[CharacterToken]]()
+    for (c <- str) {
+      list = Opt(FeatureExprFactory.True, new CharacterToken(c, FeatureExprFactory.True, pos)) :: list
+    }
+    list.reverse
+  }
 
   def prettyPrintJS(tokens: List[Opt[CharacterToken]]): String = {
+//    val str = new StringBuilder
+//    for (optToken <- tokens) {
+//    	str ++= optToken.entry.getText
+//    }
+
+    
     var newTokens: List[CharacterToken] = tokens.map(optToken => optToken.entry)
     val domResult = JSParser.parse(newTokens)
 
-//    var doc = JSPrinter.ppConditional(domResult, List(FeatureExprFactory.True))
-//    var layout = JSPrinter.layout(doc)
+    var doc = JSPrinter.prettyPrint(domResult, List(FeatureExprFactory.True))
+    val layout = new java.io.StringWriter()
+    JSPrinter.layoutW(doc, layout)
     
-    var layout = JSPrinter2.print(domResult, List(FeatureExprFactory.True), 0)
+//    var layout = JSPrinter2.print(domResult, List(FeatureExprFactory.True), 0)
     
     //log("JsPrinter:")
     //log(layout, true)
     //log()
 
-    layout
+    layout.toString()
   }
 
 }

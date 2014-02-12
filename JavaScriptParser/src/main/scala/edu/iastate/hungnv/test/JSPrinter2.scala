@@ -141,6 +141,14 @@ object JSPrinter2 {
       case JSPostfixExpr(e, op) => {
         str ++= print(e, list_feature_expr, 0) + op
       }
+      
+      case JSFieldAccess(e, f) => {
+        str ++= print(e, list_feature_expr, 0) + "." + print(f, list_feature_expr, 0)
+      }
+      
+      case JSArrayAccess(e, i) => {
+        str ++= print(e, list_feature_expr, 0) + "[" + print(i, list_feature_expr, 0) + "]"
+      }
             
       case _ => {
         str ++= "AST:" + ast.getClass()

@@ -1,0 +1,2125 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<Output>
+<Select>
+<True>
+<Concat>
+<Literal File="include/format.inc.php" Position="0" StringValue="&lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.0 Transitional//EN&quot; &quot;http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd&quot;&gt;&#10;&lt;html xmlns=&quot;http://www.w3.org/1999/xhtml&quot; xml:lang=&quot;en&quot; lang=&quot;en&quot; "/>
+<Select File="include/format.inc.php" Position="198" StringValue="is_right_to_left($lang)">
+<True>
+<Literal File="include/format.inc.php" Position="229" StringValue="dir='rtl'"/>
+</True>
+</Select>
+<Literal File="include/format.inc.php" Position="243" StringValue="&gt;&#10;&lt;head&gt;&#10;&#9;&lt;meta http-equiv=&quot;Content-Type&quot; content=&quot;text/html; charset=UTF-8&quot; /&gt;&#10;&#9;&lt;meta name=&quot;Description&quot; content=&quot;PHP-Addressbook&quot; /&gt;&#10;&#9;&lt;meta name=&quot;Keywords&quot; content=&quot;&quot; /&gt;&#10;&#10;&#9;"/>
+<Literal File="include/format.inc.php" Position="417" StringValue="&lt;s"/>
+<Literal File="include/format.inc.php" Position="419" StringValue="tyle type=&quot;text/css&quot;&gt;&#10;"/>
+<Literal File="include/format.inc.php" Position="1036" StringValue="&#9;&#9;&#10;    body {background-image:url('./skins/header-"/>
+<Select File="include/dbconnect.php" Position="6001" StringValue="isset($domain) &amp;&amp; isset($domain[$domain_id])">
+<True>
+<Symbolic File="include/dbconnect.php" Position="6066" StringValue="$domain[$domain_id]['skin']"/>
+</True>
+<False>
+<Select File="include/dbconnect.php" Position="2978" StringValue="!isset($skin_color)">
+<True>
+<Literal File="include/dbconnect.php" Position="3014" StringValue="blue"/>
+</True>
+</Select>
+</False>
+</Select>
+<Literal File="include/format.inc.php" Position="1112" StringValue=".jpg');background-repeat:repeat-x;background-position:top left;}&#10;    table#maintable th {text-align:center;border:1px solid #ccc;font-size:12px;background:"/>
+<Select File="include/format.inc.php" Position="502" StringValue="case $skin_color == &quot;blue&quot;">
+<True>
+<Literal File="include/format.inc.php" Position="537" StringValue="#739fce"/>
+</True>
+<False>
+<Select File="include/format.inc.php" Position="560" StringValue="case $skin_color == &quot;brown&quot;">
+<True>
+<Literal File="include/format.inc.php" Position="596" StringValue="#c59469"/>
+</True>
+<False>
+<Select File="include/format.inc.php" Position="619" StringValue="case $skin_color == &quot;green&quot;">
+<True>
+<Literal File="include/format.inc.php" Position="655" StringValue="#66a749"/>
+</True>
+<False>
+<Select File="include/format.inc.php" Position="678" StringValue="case $skin_color == &quot;grey&quot;">
+<True>
+<Literal File="include/format.inc.php" Position="713" StringValue="#777777"/>
+</True>
+<False>
+<Select File="include/format.inc.php" Position="736" StringValue="case $skin_color == &quot;pink&quot;">
+<True>
+<Literal File="include/format.inc.php" Position="771" StringValue="#a84989"/>
+</True>
+<False>
+<Select File="include/format.inc.php" Position="794" StringValue="case $skin_color == &quot;purple&quot;">
+<True>
+<Literal File="include/format.inc.php" Position="831" StringValue="#5349a9"/>
+</True>
+<False>
+<Select File="include/format.inc.php" Position="854" StringValue="case $skin_color == &quot;red&quot;">
+<True>
+<Literal File="include/format.inc.php" Position="888" StringValue="#b63a3a"/>
+</True>
+<False>
+<Select File="include/format.inc.php" Position="911" StringValue="case $skin_color == &quot;turquoise&quot;">
+<True>
+<Literal File="include/format.inc.php" Position="951" StringValue="#48a89d"/>
+</True>
+<False>
+<Select File="include/format.inc.php" Position="974" StringValue="case $skin_color == &quot;yellow&quot;">
+<True>
+<Literal File="include/format.inc.php" Position="1011" StringValue="#b4b43a"/>
+</True>
+</Select>
+</False>
+</Select>
+</False>
+</Select>
+</False>
+</Select>
+</False>
+</Select>
+</False>
+</Select>
+</False>
+</Select>
+</False>
+</Select>
+</False>
+</Select>
+<Literal File="include/format.inc.php" Position="1296" StringValue=";color:#fff;}&#10;    table#birthdays th {color:#fff;background:"/>
+<Select File="include/format.inc.php" Position="502" StringValue="case $skin_color == &quot;blue&quot;">
+<True>
+<Literal File="include/format.inc.php" Position="537" StringValue="#739fce"/>
+</True>
+<False>
+<Select File="include/format.inc.php" Position="560" StringValue="case $skin_color == &quot;brown&quot;">
+<True>
+<Literal File="include/format.inc.php" Position="596" StringValue="#c59469"/>
+</True>
+<False>
+<Select File="include/format.inc.php" Position="619" StringValue="case $skin_color == &quot;green&quot;">
+<True>
+<Literal File="include/format.inc.php" Position="655" StringValue="#66a749"/>
+</True>
+<False>
+<Select File="include/format.inc.php" Position="678" StringValue="case $skin_color == &quot;grey&quot;">
+<True>
+<Literal File="include/format.inc.php" Position="713" StringValue="#777777"/>
+</True>
+<False>
+<Select File="include/format.inc.php" Position="736" StringValue="case $skin_color == &quot;pink&quot;">
+<True>
+<Literal File="include/format.inc.php" Position="771" StringValue="#a84989"/>
+</True>
+<False>
+<Select File="include/format.inc.php" Position="794" StringValue="case $skin_color == &quot;purple&quot;">
+<True>
+<Literal File="include/format.inc.php" Position="831" StringValue="#5349a9"/>
+</True>
+<False>
+<Select File="include/format.inc.php" Position="854" StringValue="case $skin_color == &quot;red&quot;">
+<True>
+<Literal File="include/format.inc.php" Position="888" StringValue="#b63a3a"/>
+</True>
+<False>
+<Select File="include/format.inc.php" Position="911" StringValue="case $skin_color == &quot;turquoise&quot;">
+<True>
+<Literal File="include/format.inc.php" Position="951" StringValue="#48a89d"/>
+</True>
+<False>
+<Select File="include/format.inc.php" Position="974" StringValue="case $skin_color == &quot;yellow&quot;">
+<True>
+<Literal File="include/format.inc.php" Position="1011" StringValue="#b4b43a"/>
+</True>
+</Select>
+</False>
+</Select>
+</False>
+</Select>
+</False>
+</Select>
+</False>
+</Select>
+</False>
+</Select>
+</False>
+</Select>
+</False>
+</Select>
+</False>
+</Select>
+<Literal File="include/format.inc.php" Position="1385" StringValue=";margin:25px;border:1px solid #ccc;}&#10;&#9;&#9;"/>
+<Literal File="style.css" Position="0" StringValue="table#maintable th a {color:#fff;}&#10;body,#footer,ul {margin:0;padding:0;}&#10;body,p,td,h1,h2,a,a:hover {font-family:Arial,Helvetica,sans-serif;font-size:12px}&#10;h1 {font-size:18px}&#10;h2 {font-size:14px}&#10;a {color:#036}&#10;a:hover {color:#06C;text-decoration:none}&#10;img {border:0;}&#10;textarea {font-family:Arial,Helvetica,sans-serif;font-size:10pt}&#10;&#10;#container {margin:0 auto;width:780px;border:0}&#10;#top{color:#fff;margin:5px 0 0;height:20px;text-align:right;}&#10;#header {height:80px;}&#10;#header h1 {display:none;}&#10;&#10;#nav {margin:0 0 20px;height:25px;width:770px;float:left;border:0;display:inline;}&#10;#nav ul li a {color:#fff;padding:0 4px;}&#10;#nav ul li img {display:none;}&#10;&#10;#content {margin:20px 0 0;width:780px;}&#10;#footer {margin:45px 0 0;padding:20px 0;clear:both;}&#10;&#10;ul {list-style:none;}&#10;ul li {display:inline;}&#10;#footer ul li {display:block;}&#10;&#10;label {margin-right:0.5em;width:10em;float:left;text-align:left;display:block;}&#10;&#10;#search-az {text-align:center;padding:2px;}&#10;#a-z a {font-size:75%;} &#10;&#10;.odd {background:#e5e5e5;}&#10;.even {background:#f3f3f3;}&#10;&#10;#right,.right {float:right;}&#10;#left,.left {float:left;}&#10;.clear {clear:both;}&#10;&#10;.msgbox {padding:16px;border:1px solid #ccc;background:#fff4b4;width:60%;font-weight:700;}&#10;.msgbox i {font-weight:400;}&#10;&#10;table {width:100%;border:1px solid #ccc;border-collapse:collapse;}&#10;table tr td {border:1px solid #ccc;padding:2px 1px}&#10;table img,.center {text-align:center;}&#10;table th {text-align:left;font-size:14px;padding:8px 4px;}&#10;&#10;table#birthdays {border:0;}&#10;.tablespace td {border:0;}&#10;&#10;/* View.php */&#10;table#view,table#view td {border:1px solid #000;border-collapse:collapse;}&#10;table#view td {padding:5px;}&#10;&#10;/* Edit.php */&#10;#content input[type=text],#content textarea {width:220px; margin-bottom:3px;}&#10;#content input[type=text] {height:1,1em}&#10;#content textarea {height:8em}&#10;input.byear{width:4em !important;}&#10;&#10;/* Source Forge */&#10;#download {margin:0;width:180px;background:#63A624;color:#fff;border:1px solid #000;text-align:center;}&#10;#download a,#top a {color:#fff;}&#10;&#10;/* Login */&#10;#content input[name=user],input[name=pass] {width:150px; margin-bottom:3px;}"/>
+<Literal File="include/format.inc.php" Position="1454" StringValue="&#9;&lt;/style&gt;&#10;&#9;&lt;!--[if !IE]&gt;--&gt;&#10;&#9;&lt;link media=&quot;only screen and (max-device-width: 480px)&quot; rel=&quot;stylesheet&quot; type=&quot;text/css&quot; href=&quot;iphone.css&quot;/&gt;&#10;&#9;&lt;!--&lt;![endif]--&gt;&#10;&#9;&lt;meta name=&quot;viewport&quot; content=&quot;width=320; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;&quot; /&gt;&#10;&#10;&#10;&#9;&lt;link rel=&quot;icon&quot; type=&quot;image/png&quot; href=&quot;"/>
+<Select File="include/dbconnect.php" Position="3827" StringValue="!isset($url_images)">
+<True>
+<Literal File="include/dbconnect.php" Position="3863" StringValue=""/>
+</True>
+<False>
+<Literal File="config/config.php" Position="3787" StringValue=""/>
+</False>
+</Select>
+<Literal File="include/format.inc.php" Position="1781" StringValue="icons/font.png&quot; /&gt;&#10;&#9;"/>
+<Select File="include/format.inc.php" Position="1810" StringValue="is_right_to_left($lang)">
+<True>
+<Concat>
+<Literal File="include/format.inc.php" Position="1840" StringValue="&#9;"/>
+<Literal File="include/format.inc.php" Position="1841" StringValue="&lt;s"/>
+<Literal File="include/format.inc.php" Position="1843" StringValue="tyle type=&quot;text/css&quot;&gt;&#10;&#9;&#9;&lt;!--&#10;&#9;&#9;/* CSS for right to left */&#10;&#9;&#9;label {margin-left:0.5em;float:right;text-align:right;}&#10;&#9;&#9;#content,#right,.right {float:left;}&#10;&#9;&#9;#nav,#left,.left {float:right;}&#10;&#9;&#9;--&gt;&#10;&#9;&lt;/style&gt;&#10;&#9;"/>
+</Concat>
+</True>
+</Select>
+<Literal File="index.php" Position="82" StringValue="&lt;title&gt;"/>
+<Select File="include/translations.inc.php" Position="2914" StringValue="$has_mb_strtoupper">
+<True>
+<Concat>
+<Symbolic File="include/translations.inc.php" Position="2948" StringValue="mb_strtoupper(mb_substr($msg, 0,1))"/>
+<Symbolic File="include/translations.inc.php" Position="2984" StringValue="mb_substr($msg, 1)"/>
+</Concat>
+</True>
+<False>
+<Symbolic File="include/translations.inc.php" Position="3057" StringValue="ucfirst($msg)"/>
+</False>
+</Select>
+<Select File="index.php" Position="124" StringValue="$group_name != &quot;&quot;">
+<True>
+<Concat>
+<Literal File="index.php" Position="145" StringValue=" ("/>
+<Select File="include/dbconnect.php" Position="5173" StringValue="isset($iplist) &amp;&amp; hasRoleFromIP($iplist)">
+<True>
+<Select File="include/dbconnect.php" Position="4684" StringValue="isset($group)">
+<True>
+<Symbolic File="include/dbconnect.php" Position="4720" StringValue="$group"/>
+</True>
+<False>
+<Literal File="" Position="-1" StringValue=""/>
+</False>
+</Select>
+</True>
+<False>
+<Select File="include/dbconnect.php" Position="5315" StringValue="isset($userlist)">
+<True>
+<Select File="include/dbconnect.php" Position="5855" StringValue="$user-&gt;getGroup() != &quot;&quot;">
+<True>
+<Symbolic File="include/dbconnect.php" Position="5967" StringValue="$user-&gt;getGroup()"/>
+</True>
+<False>
+<Select File="include/dbconnect.php" Position="4684" StringValue="isset($group)">
+<True>
+<Symbolic File="include/dbconnect.php" Position="4720" StringValue="$group"/>
+</True>
+<False>
+<Literal File="" Position="-1" StringValue=""/>
+</False>
+</Select>
+</False>
+</Select>
+</True>
+<False>
+<Select File="include/dbconnect.php" Position="4684" StringValue="isset($group)">
+<True>
+<Symbolic File="include/dbconnect.php" Position="4720" StringValue="$group"/>
+</True>
+<False>
+<Literal File="" Position="-1" StringValue=""/>
+</False>
+</Select>
+</False>
+</Select>
+</False>
+</Select>
+<Literal File="index.php" Position="158" StringValue=")"/>
+</Concat>
+</True>
+<False>
+<Literal File="index.php" Position="162" StringValue=""/>
+</False>
+</Select>
+<Literal File="index.php" Position="168" StringValue="&lt;/title&gt;&#10;"/>
+<Literal File="include/header.inc.php" Position="62" StringValue="&#9;&lt;/head&gt;&#13;&#10;&#9;&lt;body&gt;&#13;&#10;&#9;&#9;&lt;div id=&quot;container&quot;&gt;&#13;&#10;&#9;&#9;&#9;&lt;div id=&quot;top&quot;&gt;&#13;&#10;&lt;!--&#13;&#10;"/>
+<Select File="include/header.inc.php" Position="317" StringValue="count($default_languages) &gt; 0">
+<True>
+<Select File="include/header.inc.php" Position="357" StringValue="!isset($_GET[&quot;more_langs&quot;]) || $_GET[&quot;more_langs&quot;] == &quot;&quot;">
+<True>
+<Literal File="include/header.inc.php" Position="461" StringValue="[&lt;a title=&quot;other languages&quot; href=&quot;?more_langs=yes&quot;&gt;+&lt;/a&gt;] | "/>
+</True>
+</Select>
+</True>
+</Select>
+<Repeat File="include/header.inc.php" Position="672" StringValue="$loop_langs">
+<Select File="include/header.inc.php" Position="707" StringValue="$supp_lang != $lang">
+<True>
+<Concat>
+<Select File="include/header.inc.php" Position="738" StringValue="$lang_cnt++ &gt; 0">
+<True>
+<Literal File="include/header.inc.php" Position="765" StringValue=" | "/>
+</True>
+</Select>
+<Literal File="include/header.inc.php" Position="784" StringValue="&lt;a href='?lang="/>
+<Symbolic File="include/header.inc.php" Position="799" StringValue="$supp_lang"/>
+<Literal File="include/header.inc.php" Position="809" StringValue="'&gt;&lt;img title='"/>
+<Select File="include/translations.inc.php" Position="2914" StringValue="$has_mb_strtoupper">
+<True>
+<Concat>
+<Symbolic File="include/translations.inc.php" Position="2948" StringValue="mb_strtoupper(mb_substr($msg, 0,1))"/>
+<Symbolic File="include/translations.inc.php" Position="2984" StringValue="mb_substr($msg, 1)"/>
+</Concat>
+</True>
+<False>
+<Symbolic File="include/translations.inc.php" Position="3057" StringValue="ucfirst($msg)"/>
+</False>
+</Select>
+<Literal File="include/header.inc.php" Position="845" StringValue="' alt='"/>
+<Select File="include/translations.inc.php" Position="2914" StringValue="$has_mb_strtoupper">
+<True>
+<Concat>
+<Symbolic File="include/translations.inc.php" Position="2948" StringValue="mb_strtoupper(mb_substr($msg, 0,1))"/>
+<Symbolic File="include/translations.inc.php" Position="2984" StringValue="mb_substr($msg, 1)"/>
+</Concat>
+</True>
+<False>
+<Symbolic File="include/translations.inc.php" Position="3057" StringValue="ucfirst($msg)"/>
+</False>
+</Select>
+<Literal File="include/header.inc.php" Position="874" StringValue="' src='"/>
+<Symbolic File="include/header.inc.php" Position="881" StringValue="${url_images}"/>
+<Literal File="include/header.inc.php" Position="894" StringValue="icons/"/>
+<Select File="include/translations.inc.php" Position="2049" StringValue="isset($use_flag[$language])">
+<True>
+<Symbolic File="include/translations.inc.php" Position="2089" StringValue="$use_flag[$language]"/>
+</True>
+<False>
+<Symbolic File="include/translations.inc.php" Position="2129" StringValue="$language">
+<Symbolic File="include/header.inc.php" Position="911" StringValue="$supp_lang"/>
+</Symbolic>
+</False>
+</Select>
+<Literal File="include/header.inc.php" Position="924" StringValue=".gif'/&gt;&lt;/a&gt;"/>
+</Concat>
+</True>
+</Select>
+</Repeat>
+<Select File="include/header.inc.php" Position="964" StringValue="! ((!isset($_GET[&quot;more_langs&quot;]) || $_GET[&quot;more_langs&quot;] == &quot;&quot;) &amp;&amp; count($default_languages) &gt; 0)">
+<True>
+<Literal File="include/header.inc.php" Position="1071" StringValue=" | [&lt;a title='default languages' href='?more_langs='&gt; - &lt;/a&gt;]"/>
+</True>
+</Select>
+<Literal File="include/header.inc.php" Position="1146" StringValue=" | &#13;&#10;&#13;&#10;&lt;a href=&quot;preferences"/>
+<Select File="include/dbconnect.php" Position="4480" StringValue="!isset($page_ext)">
+<True>
+<Literal File="include/dbconnect.php" Position="4515" StringValue=".php"/>
+</True>
+<False>
+<Literal File="config/config.php" Position="3854" StringValue=".php"/>
+</False>
+</Select>
+<Select File="include/dbconnect.php" Position="4906" StringValue="!$is_fix_group and $group_name">
+<True>
+<Concat>
+<Literal File="include/dbconnect.php" Position="4970" StringValue="?group="/>
+<Select File="include/dbconnect.php" Position="4684" StringValue="isset($group)">
+<True>
+<Symbolic File="include/dbconnect.php" Position="4720" StringValue="$group"/>
+</True>
+<False>
+<Literal File="" Position="-1" StringValue=""/>
+</False>
+</Select>
+<Literal File="include/dbconnect.php" Position="4988" StringValue="&amp;amp;"/>
+</Concat>
+</True>
+<False>
+<Literal File="include/dbconnect.php" Position="4550" StringValue="?"/>
+</False>
+</Select>
+<Literal File="include/header.inc.php" Position="1201" StringValue="from="/>
+<Symbolic File="include/header.inc.php" Position="1227" StringValue="$_SERVER['REQUEST_URI']"/>
+<Literal File="include/header.inc.php" Position="1255" StringValue="&quot;&gt;"/>
+<Select File="include/translations.inc.php" Position="2914" StringValue="$has_mb_strtoupper">
+<True>
+<Concat>
+<Symbolic File="include/translations.inc.php" Position="2948" StringValue="mb_strtoupper(mb_substr($msg, 0,1))"/>
+<Symbolic File="include/translations.inc.php" Position="2984" StringValue="mb_substr($msg, 1)"/>
+</Concat>
+</True>
+<False>
+<Symbolic File="include/translations.inc.php" Position="3057" StringValue="ucfirst($msg)"/>
+</False>
+</Select>
+<Literal File="include/header.inc.php" Position="1293" StringValue="&lt;/a&gt;&#13;&#10;--&gt;&#13;&#10;"/>
+<Select File="include/header.inc.php" Position="1313" StringValue="isset($userlist) &amp;&amp; !(isset($iplist) &amp;&amp; hasRoleFromIP($iplist))">
+<True>
+<Concat>
+<Literal File="include/header.inc.php" Position="1384" StringValue="&lt;form name=&quot;logout&quot; method=&quot;post&quot; class=header&gt;&#13;&#10;&lt;input type=&quot;hidden&quot; name=&quot;logout&quot; value=&quot;yes&quot; /&gt;&#13;&#10;"/>
+<Select File="include/header.inc.php" Position="1493" StringValue="isset($username)">
+<True>
+<Concat>
+<Literal File="include/header.inc.php" Position="1517" StringValue="&lt;b&gt;("/>
+<Select File="include/dbconnect.php" Position="5173" StringValue="isset($iplist) &amp;&amp; hasRoleFromIP($iplist)">
+<False>
+<Select File="include/dbconnect.php" Position="5315" StringValue="isset($userlist)">
+<True>
+<Symbolic File="include/dbconnect.php" Position="5678" StringValue="$user-&gt;getName()"/>
+</True>
+</Select>
+</False>
+</Select>
+<Literal File="include/header.inc.php" Position="1534" StringValue=")&lt;/b&gt; "/>
+</Concat>
+</True>
+</Select>
+<Literal File="include/header.inc.php" Position="1547" StringValue="&lt;a href=&quot;#&quot; onClick=&quot;document.logout.submit();&quot;&gt;"/>
+<Select File="include/translations.inc.php" Position="2914" StringValue="$has_mb_strtoupper">
+<True>
+<Concat>
+<Symbolic File="include/translations.inc.php" Position="2948" StringValue="mb_strtoupper(mb_substr($msg, 0,1))"/>
+<Symbolic File="include/translations.inc.php" Position="2984" StringValue="mb_substr($msg, 1)"/>
+</Concat>
+</True>
+<False>
+<Symbolic File="include/translations.inc.php" Position="3057" StringValue="ucfirst($msg)"/>
+</False>
+</Select>
+<Literal File="include/header.inc.php" Position="1626" StringValue="&lt;/a&gt;&#13;&#10;&lt;/form&gt;&#13;&#10;"/>
+</Concat>
+</True>
+<False>
+<Concat>
+<Literal File="include/header.inc.php" Position="1672" StringValue="&lt;b&gt;("/>
+<Symbolic File="include/header.inc.php" Position="1678" StringValue="$_SERVER['REMOTE_ADDR']"/>
+<Literal File="include/header.inc.php" Position="1703" StringValue=")&lt;/b&gt;"/>
+</Concat>
+</False>
+</Select>
+<Literal File="include/header.inc.php" Position="1727" StringValue="&#9;&#9;&#9;&lt;/div&gt;&#13;&#10;&#9;&#9;&#9;&lt;div id=&quot;header&quot;&gt;&#10;&#9;&#9;&#9;&#9;&lt;h1&gt;&lt;a href=&quot;.&quot;&gt;Address Book&lt;/a&gt;&lt;/h1&gt;&#13;&#10;&#9;&#9;&#9;&#9;&lt;a href=&quot;.&quot;&gt;&lt;img src=&quot;"/>
+<Select File="include/dbconnect.php" Position="3827" StringValue="!isset($url_images)">
+<True>
+<Literal File="include/dbconnect.php" Position="3863" StringValue=""/>
+</True>
+<False>
+<Literal File="config/config.php" Position="3787" StringValue=""/>
+</False>
+</Select>
+<Literal File="include/header.inc.php" Position="1854" StringValue="title.png&quot; title=&quot;Addressbook&quot; alt=&quot;Addressbook&quot; id=&quot;logo&quot; /&gt;&lt;/a&gt;&#13;&#10;&#9;&#9;&#9;&lt;/div&gt;&#13;&#10;&#9;&#9;&#9;&lt;div id=&quot;nav&quot;&gt;&#13;&#10;      &#9;&#9;&#9;"/>
+<Literal File="include/nav.inc.php" Position="0" StringValue="&lt;!--&#13;&#10;* http://www.dynamicdrive.com/dynamicindex1/ddlevelsmenu/index.htm&#13;&#10;* http://www.dynamicdrive.com/dynamicindex1/popupmenu.htm&#13;&#10;* http://www.alistapart.com/articles/horizdropdowns/&#13;&#10;--&gt;&#13;&#10;&lt;ul&gt;&#13;&#10;&lt;li&gt;&#13;&#10;&#9;&lt;a href=&quot;./"/>
+<Select File="include/nav.inc.php" Position="228" StringValue="$group == &quot;&quot; || $group == &quot;[none]&quot; || $is_fix_group">
+<True>
+<Literal File="include/nav.inc.php" Position="283" StringValue=""/>
+</True>
+<False>
+<Concat>
+<Literal File="include/nav.inc.php" Position="288" StringValue="?group="/>
+<Select File="include/dbconnect.php" Position="5173" StringValue="isset($iplist) &amp;&amp; hasRoleFromIP($iplist)">
+<False>
+<Select File="include/dbconnect.php" Position="5315" StringValue="isset($userlist)">
+<True>
+<Select File="include/dbconnect.php" Position="5855" StringValue="$user-&gt;getGroup() != &quot;&quot;">
+<True>
+<Symbolic File="include/dbconnect.php" Position="5928" StringValue="$user-&gt;getGroup()"/>
+</True>
+</Select>
+</True>
+</Select>
+</False>
+</Select>
+</Concat>
+</False>
+</Select>
+<Literal File="include/nav.inc.php" Position="308" StringValue="&quot;&gt;"/>
+<Select File="include/translations.inc.php" Position="2488" StringValue="isset($messages[$value][$lang])">
+<True>
+<Symbolic File="include/translations.inc.php" Position="2534" StringValue="$messages[$value][$lang]"/>
+</True>
+<False>
+<Literal File="include/nav.inc.php" Position="326" StringValue="HOME"/>
+</False>
+</Select>
+<Literal File="include/nav.inc.php" Position="336" StringValue="&lt;/a&gt;&#13;&#10;&lt;/li&gt;&#13;&#10;"/>
+<Select File="include/nav.inc.php" Position="358" StringValue="! $read_only">
+<True>
+<Concat>
+<Literal File="include/nav.inc.php" Position="378" StringValue="&lt;li class=&quot;all&quot;&gt;&#13;&#10;&#9;&lt;a href=&quot;edit"/>
+<Select File="include/dbconnect.php" Position="4906" StringValue="!$is_fix_group and $group_name">
+<True>
+<Concat>
+<Select File="include/dbconnect.php" Position="4480" StringValue="!isset($page_ext)">
+<True>
+<Literal File="include/dbconnect.php" Position="4515" StringValue=".php"/>
+</True>
+<False>
+<Literal File="config/config.php" Position="3854" StringValue=".php"/>
+</False>
+</Select>
+<Literal File="include/dbconnect.php" Position="5025" StringValue="?group="/>
+<Select File="include/dbconnect.php" Position="4684" StringValue="isset($group)">
+<True>
+<Symbolic File="include/dbconnect.php" Position="4720" StringValue="$group"/>
+</True>
+<False>
+<Literal File="" Position="-1" StringValue=""/>
+</False>
+</Select>
+</Concat>
+</True>
+<False>
+<Select File="include/dbconnect.php" Position="4480" StringValue="!isset($page_ext)">
+<True>
+<Literal File="include/dbconnect.php" Position="4515" StringValue=".php"/>
+</True>
+<False>
+<Literal File="config/config.php" Position="3854" StringValue=".php"/>
+</False>
+</Select>
+</False>
+</Select>
+<Literal File="include/nav.inc.php" Position="434" StringValue="&quot;&gt;"/>
+<Select File="include/translations.inc.php" Position="2488" StringValue="isset($messages[$value][$lang])">
+<True>
+<Symbolic File="include/translations.inc.php" Position="2534" StringValue="$messages[$value][$lang]"/>
+</True>
+<False>
+<Literal File="include/nav.inc.php" Position="452" StringValue="ADD_NEW"/>
+</False>
+</Select>
+<Literal File="include/nav.inc.php" Position="465" StringValue="&lt;/a&gt;&#13;&#10;&lt;/li&gt;&#13;&#10;"/>
+</Concat>
+</True>
+</Select>
+<Select File="include/nav.inc.php" Position="493" StringValue="!$read_only &amp;&amp; $public_group_edit &amp;&amp; $table_groups != &quot;&quot; &amp;&amp; !$is_fix_group">
+<True>
+<Concat>
+<Literal File="include/nav.inc.php" Position="576" StringValue="&#9;&lt;li class=&quot;admin&quot;&gt;&#13;&#10;&#9;&#9;&lt;a href=&quot;group"/>
+<Select File="include/dbconnect.php" Position="4906" StringValue="!$is_fix_group and $group_name">
+<True>
+<Concat>
+<Select File="include/dbconnect.php" Position="4480" StringValue="!isset($page_ext)">
+<True>
+<Literal File="include/dbconnect.php" Position="4515" StringValue=".php"/>
+</True>
+<False>
+<Literal File="config/config.php" Position="3854" StringValue=".php"/>
+</False>
+</Select>
+<Literal File="include/dbconnect.php" Position="5025" StringValue="?group="/>
+<Select File="include/dbconnect.php" Position="4684" StringValue="isset($group)">
+<True>
+<Symbolic File="include/dbconnect.php" Position="4720" StringValue="$group"/>
+</True>
+<False>
+<Literal File="" Position="-1" StringValue=""/>
+</False>
+</Select>
+</Concat>
+</True>
+<False>
+<Select File="include/dbconnect.php" Position="4480" StringValue="!isset($page_ext)">
+<True>
+<Literal File="include/dbconnect.php" Position="4515" StringValue=".php"/>
+</True>
+<False>
+<Literal File="config/config.php" Position="3854" StringValue=".php"/>
+</False>
+</Select>
+</False>
+</Select>
+<Literal File="include/nav.inc.php" Position="637" StringValue="&quot;&gt;"/>
+<Select File="include/translations.inc.php" Position="2488" StringValue="isset($messages[$value][$lang])">
+<True>
+<Symbolic File="include/translations.inc.php" Position="2534" StringValue="$messages[$value][$lang]"/>
+</True>
+<False>
+<Literal File="include/nav.inc.php" Position="655" StringValue="GROUPS"/>
+</False>
+</Select>
+<Literal File="include/nav.inc.php" Position="667" StringValue="&lt;/a&gt;&#13;&#10;&#9;&lt;/li&gt;&#13;&#10;"/>
+</Concat>
+</True>
+</Select>
+<Literal File="include/nav.inc.php" Position="693" StringValue="&#9;&lt;li class=&quot;all&quot;&gt;&#13;&#10;&#9;&#9;&lt;a href=&quot;birthdays"/>
+<Select File="include/dbconnect.php" Position="4906" StringValue="!$is_fix_group and $group_name">
+<True>
+<Concat>
+<Select File="include/dbconnect.php" Position="4480" StringValue="!isset($page_ext)">
+<True>
+<Literal File="include/dbconnect.php" Position="4515" StringValue=".php"/>
+</True>
+<False>
+<Literal File="config/config.php" Position="3854" StringValue=".php"/>
+</False>
+</Select>
+<Literal File="include/dbconnect.php" Position="5025" StringValue="?group="/>
+<Select File="include/dbconnect.php" Position="4684" StringValue="isset($group)">
+<True>
+<Symbolic File="include/dbconnect.php" Position="4720" StringValue="$group"/>
+</True>
+<False>
+<Literal File="" Position="-1" StringValue=""/>
+</False>
+</Select>
+</Concat>
+</True>
+<False>
+<Select File="include/dbconnect.php" Position="4480" StringValue="!isset($page_ext)">
+<True>
+<Literal File="include/dbconnect.php" Position="4515" StringValue=".php"/>
+</True>
+<False>
+<Literal File="config/config.php" Position="3854" StringValue=".php"/>
+</False>
+</Select>
+</False>
+</Select>
+<Literal File="include/nav.inc.php" Position="756" StringValue="&quot;&gt;"/>
+<Select File="include/translations.inc.php" Position="2488" StringValue="isset($messages[$value][$lang])">
+<True>
+<Symbolic File="include/translations.inc.php" Position="2534" StringValue="$messages[$value][$lang]"/>
+</True>
+<False>
+<Literal File="include/nav.inc.php" Position="774" StringValue="NEXT_BIRTHDAYS"/>
+</False>
+</Select>
+<Literal File="include/nav.inc.php" Position="794" StringValue="&lt;/a&gt;&#13;&#10;&#9;&lt;/li&gt;&#13;&#10;&#9;&lt;li class=&quot;export&quot;&gt;&#13;&#10;    &#9;&lt;a href=&quot;view"/>
+<Select File="include/dbconnect.php" Position="4480" StringValue="!isset($page_ext)">
+<True>
+<Literal File="include/dbconnect.php" Position="4515" StringValue=".php"/>
+</True>
+<False>
+<Literal File="config/config.php" Position="3854" StringValue=".php"/>
+</False>
+</Select>
+<Select File="include/dbconnect.php" Position="4906" StringValue="!$is_fix_group and $group_name">
+<True>
+<Concat>
+<Literal File="include/dbconnect.php" Position="4970" StringValue="?group="/>
+<Select File="include/dbconnect.php" Position="4684" StringValue="isset($group)">
+<True>
+<Symbolic File="include/dbconnect.php" Position="4720" StringValue="$group"/>
+</True>
+<False>
+<Literal File="" Position="-1" StringValue=""/>
+</False>
+</Select>
+<Literal File="include/dbconnect.php" Position="4988" StringValue="&amp;amp;"/>
+</Concat>
+</True>
+<False>
+<Literal File="include/dbconnect.php" Position="4550" StringValue="?"/>
+</False>
+</Select>
+<Literal File="include/nav.inc.php" Position="876" StringValue="all&amp;amp;print&quot;&gt;"/>
+<Select File="include/translations.inc.php" Position="2488" StringValue="isset($messages[$value][$lang])">
+<True>
+<Symbolic File="include/translations.inc.php" Position="2534" StringValue="$messages[$value][$lang]"/>
+</True>
+<False>
+<Literal File="include/nav.inc.php" Position="907" StringValue="PRINT_ALL"/>
+</False>
+</Select>
+<Literal File="include/nav.inc.php" Position="922" StringValue="&lt;/a&gt;&#13;&#10;  &lt;/li&gt;&#13;&#10;&#9;&lt;li class=&quot;export&quot;&gt;&#13;&#10;      &lt;a href=&quot;view"/>
+<Select File="include/dbconnect.php" Position="4480" StringValue="!isset($page_ext)">
+<True>
+<Literal File="include/dbconnect.php" Position="4515" StringValue=".php"/>
+</True>
+<False>
+<Literal File="config/config.php" Position="3854" StringValue=".php"/>
+</False>
+</Select>
+<Select File="include/dbconnect.php" Position="4906" StringValue="!$is_fix_group and $group_name">
+<True>
+<Concat>
+<Literal File="include/dbconnect.php" Position="4970" StringValue="?group="/>
+<Select File="include/dbconnect.php" Position="4684" StringValue="isset($group)">
+<True>
+<Symbolic File="include/dbconnect.php" Position="4720" StringValue="$group"/>
+</True>
+<False>
+<Literal File="" Position="-1" StringValue=""/>
+</False>
+</Select>
+<Literal File="include/dbconnect.php" Position="4988" StringValue="&amp;amp;"/>
+</Concat>
+</True>
+<False>
+<Literal File="include/dbconnect.php" Position="4550" StringValue="?"/>
+</False>
+</Select>
+<Literal File="include/nav.inc.php" Position="1006" StringValue="all&amp;amp;print&amp;amp;phones&quot;&gt;"/>
+<Select File="include/translations.inc.php" Position="2488" StringValue="isset($messages[$value][$lang])">
+<True>
+<Symbolic File="include/translations.inc.php" Position="2534" StringValue="$messages[$value][$lang]"/>
+</True>
+<False>
+<Literal File="include/nav.inc.php" Position="1048" StringValue="PRINT_PHONES"/>
+</False>
+</Select>
+<Literal File="include/nav.inc.php" Position="1066" StringValue="&lt;/a&gt;&#13;&#10;  &lt;/li&gt;&#13;&#10;"/>
+<Select File="include/nav.inc.php" Position="1091" StringValue="isset($google_maps_keys)">
+<True>
+<Concat>
+<Literal File="include/nav.inc.php" Position="1125" StringValue="&#9;&lt;li class=&quot;export&quot;&gt;&#13;&#10;    &#9;&lt;a href=&quot;map"/>
+<Select File="include/dbconnect.php" Position="4480" StringValue="!isset($page_ext)">
+<True>
+<Literal File="include/dbconnect.php" Position="4515" StringValue=".php"/>
+</True>
+<False>
+<Literal File="config/config.php" Position="3854" StringValue=".php"/>
+</False>
+</Select>
+<Select File="include/dbconnect.php" Position="4906" StringValue="!$is_fix_group and $group_name">
+<True>
+<Concat>
+<Literal File="include/dbconnect.php" Position="4970" StringValue="?group="/>
+<Select File="include/dbconnect.php" Position="4684" StringValue="isset($group)">
+<True>
+<Symbolic File="include/dbconnect.php" Position="4720" StringValue="$group"/>
+</True>
+<False>
+<Literal File="" Position="-1" StringValue=""/>
+</False>
+</Select>
+<Literal File="include/dbconnect.php" Position="4988" StringValue="&amp;amp;"/>
+</Concat>
+</True>
+<False>
+<Literal File="include/dbconnect.php" Position="4550" StringValue="?"/>
+</False>
+</Select>
+<Literal File="include/nav.inc.php" Position="1192" StringValue="&quot;&gt;"/>
+<Select File="include/translations.inc.php" Position="2488" StringValue="isset($messages[$value][$lang])">
+<True>
+<Symbolic File="include/translations.inc.php" Position="2534" StringValue="$messages[$value][$lang]"/>
+</True>
+<False>
+<Literal File="include/nav.inc.php" Position="1210" StringValue="MAP"/>
+</False>
+</Select>
+<Literal File="include/nav.inc.php" Position="1219" StringValue="&lt;/a&gt;&#13;&#10;  &lt;/li&gt;&#13;&#10;"/>
+</Concat>
+</True>
+</Select>
+<Literal File="include/nav.inc.php" Position="1251" StringValue="&#9;&lt;li class=&quot;export&quot;&gt;&#13;&#10;    &#9;&lt;a href=&quot;export"/>
+<Select File="include/dbconnect.php" Position="4906" StringValue="!$is_fix_group and $group_name">
+<True>
+<Concat>
+<Select File="include/dbconnect.php" Position="4480" StringValue="!isset($page_ext)">
+<True>
+<Literal File="include/dbconnect.php" Position="4515" StringValue=".php"/>
+</True>
+<False>
+<Literal File="config/config.php" Position="3854" StringValue=".php"/>
+</False>
+</Select>
+<Literal File="include/dbconnect.php" Position="5025" StringValue="?group="/>
+<Select File="include/dbconnect.php" Position="4684" StringValue="isset($group)">
+<True>
+<Symbolic File="include/dbconnect.php" Position="4720" StringValue="$group"/>
+</True>
+<False>
+<Literal File="" Position="-1" StringValue=""/>
+</False>
+</Select>
+</Concat>
+</True>
+<False>
+<Select File="include/dbconnect.php" Position="4480" StringValue="!isset($page_ext)">
+<True>
+<Literal File="include/dbconnect.php" Position="4515" StringValue=".php"/>
+</True>
+<False>
+<Literal File="config/config.php" Position="3854" StringValue=".php"/>
+</False>
+</Select>
+</False>
+</Select>
+<Literal File="include/nav.inc.php" Position="1317" StringValue="&quot;&gt;"/>
+<Select File="include/translations.inc.php" Position="2488" StringValue="isset($messages[$value][$lang])">
+<True>
+<Symbolic File="include/translations.inc.php" Position="2534" StringValue="$messages[$value][$lang]"/>
+</True>
+<False>
+<Literal File="include/nav.inc.php" Position="1335" StringValue="EXPORT"/>
+</False>
+</Select>
+<Literal File="include/nav.inc.php" Position="1347" StringValue="&lt;/a&gt;&#13;&#10;  &lt;/li&gt; &#13;&#10;"/>
+<Select File="include/nav.inc.php" Position="1372" StringValue="!$read_only">
+<True>
+<Concat>
+<Literal File="include/nav.inc.php" Position="1391" StringValue="&#9;&lt;li class=&quot;export&quot;&gt;&#13;&#10;    &#9;&lt;a href=&quot;import"/>
+<Select File="include/dbconnect.php" Position="4906" StringValue="!$is_fix_group and $group_name">
+<True>
+<Concat>
+<Select File="include/dbconnect.php" Position="4480" StringValue="!isset($page_ext)">
+<True>
+<Literal File="include/dbconnect.php" Position="4515" StringValue=".php"/>
+</True>
+<False>
+<Literal File="config/config.php" Position="3854" StringValue=".php"/>
+</False>
+</Select>
+<Literal File="include/dbconnect.php" Position="5025" StringValue="?group="/>
+<Select File="include/dbconnect.php" Position="4684" StringValue="isset($group)">
+<True>
+<Symbolic File="include/dbconnect.php" Position="4720" StringValue="$group"/>
+</True>
+<False>
+<Literal File="" Position="-1" StringValue=""/>
+</False>
+</Select>
+</Concat>
+</True>
+<False>
+<Select File="include/dbconnect.php" Position="4480" StringValue="!isset($page_ext)">
+<True>
+<Literal File="include/dbconnect.php" Position="4515" StringValue=".php"/>
+</True>
+<False>
+<Literal File="config/config.php" Position="3854" StringValue=".php"/>
+</False>
+</Select>
+</False>
+</Select>
+<Literal File="include/nav.inc.php" Position="1457" StringValue="&quot;&gt;"/>
+<Select File="include/translations.inc.php" Position="2488" StringValue="isset($messages[$value][$lang])">
+<True>
+<Symbolic File="include/translations.inc.php" Position="2534" StringValue="$messages[$value][$lang]"/>
+</True>
+<False>
+<Literal File="include/nav.inc.php" Position="1475" StringValue="IMPORT"/>
+</False>
+</Select>
+<Literal File="include/nav.inc.php" Position="1487" StringValue="&lt;/a&gt;&#13;&#10;  &lt;/li&gt; &#13;&#10;"/>
+</Concat>
+</True>
+</Select>
+<Literal File="include/nav.inc.php" Position="1515" StringValue="&lt;/ul&gt;&#13;&#10;"/>
+<Literal File="include/header.inc.php" Position="2002" StringValue="&#9;&#9;&#9;&lt;/div&gt;&#13;&#10;&#9;&#9;&#9;&lt;div id=&quot;content&quot;&gt;&#13;&#10;&#13;&#10;"/>
+<Select File="include/header.inc.php" Position="2050" StringValue="$group_name != &quot;&quot;">
+<True>
+<Symbolic File="include/header.inc.php" Position="2231" StringValue="$group_myrow['group_header']"/>
+</True>
+</Select>
+<Literal File="index.php" Position="222" StringValue="&#10;&lt;br /&gt;&lt;br /&gt;&#10;&lt;div id=&quot;search-az&quot;&gt;&#10;"/>
+<Select File="index.php" Position="266" StringValue="! $use_ajax">
+<True>
+<Concat>
+<Literal File="index.php" Position="285" StringValue="&#9;&lt;form accept-charset=&quot;utf-8&quot; method=&quot;get&quot; name=&quot;searchform&quot;&gt;&#10;&#9;&#9;&lt;input type=&quot;text&quot; value=&quot;"/>
+<Symbolic File="index.php" Position="386" StringValue="$searchstring"/>
+<Literal File="index.php" Position="403" StringValue="&quot; name=&quot;searchstring&quot; title=&quot;"/>
+<Select File="include/translations.inc.php" Position="2914" StringValue="$has_mb_strtoupper">
+<True>
+<Concat>
+<Symbolic File="include/translations.inc.php" Position="2948" StringValue="mb_strtoupper(mb_substr($msg, 0,1))"/>
+<Symbolic File="include/translations.inc.php" Position="2984" StringValue="mb_substr($msg, 1)"/>
+</Concat>
+</True>
+<False>
+<Symbolic File="include/translations.inc.php" Position="3057" StringValue="ucfirst($msg)"/>
+</False>
+</Select>
+<Literal File="index.php" Position="476" StringValue="&quot; size=&quot;45&quot; tabindex=&quot;0&quot;/&gt;&#10;&#9;&#9;&lt;input name=&quot;submitsearch&quot; type=&quot;submit&quot; value=&quot;"/>
+<Symbolic File="index.php" Position="564" StringValue="ucfirst(msg('SEARCH'))"/>
+<Literal File="index.php" Position="589" StringValue="&quot; /&gt;    &#10;&#9;&lt;/form&gt;&#10;"/>
+<Literal File="index.php" Position="659" StringValue="&lt;div id='a-z'&gt;&lt;a href='"/>
+<Literal File="index.php" Position="622" StringValue="index"/>
+<Symbolic File="index.php" Position="627" StringValue="${page_ext_qry}"/>
+<Literal File="index.php" Position="642" StringValue="alphabet"/>
+<Literal File="index.php" Position="687" StringValue="=a'&gt;A&lt;/a&gt; | &lt;a href='"/>
+<Literal File="index.php" Position="622" StringValue="index"/>
+<Symbolic File="index.php" Position="627" StringValue="${page_ext_qry}"/>
+<Literal File="index.php" Position="642" StringValue="alphabet"/>
+<Literal File="index.php" Position="713" StringValue="=b'&gt;B&lt;/a&gt; | &lt;a href='"/>
+<Literal File="index.php" Position="622" StringValue="index"/>
+<Symbolic File="index.php" Position="627" StringValue="${page_ext_qry}"/>
+<Literal File="index.php" Position="642" StringValue="alphabet"/>
+<Literal File="index.php" Position="739" StringValue="=c'&gt;C&lt;/a&gt; | &lt;a href='"/>
+<Literal File="index.php" Position="622" StringValue="index"/>
+<Symbolic File="index.php" Position="627" StringValue="${page_ext_qry}"/>
+<Literal File="index.php" Position="642" StringValue="alphabet"/>
+<Literal File="index.php" Position="765" StringValue="=d'&gt;D&lt;/a&gt; | &lt;a href='"/>
+<Literal File="index.php" Position="622" StringValue="index"/>
+<Symbolic File="index.php" Position="627" StringValue="${page_ext_qry}"/>
+<Literal File="index.php" Position="642" StringValue="alphabet"/>
+<Literal File="index.php" Position="791" StringValue="=e'&gt;E&lt;/a&gt; | &lt;a href='"/>
+<Literal File="index.php" Position="622" StringValue="index"/>
+<Symbolic File="index.php" Position="627" StringValue="${page_ext_qry}"/>
+<Literal File="index.php" Position="642" StringValue="alphabet"/>
+<Literal File="index.php" Position="817" StringValue="=f'&gt;F&lt;/a&gt; | &lt;a href='"/>
+<Literal File="index.php" Position="622" StringValue="index"/>
+<Symbolic File="index.php" Position="627" StringValue="${page_ext_qry}"/>
+<Literal File="index.php" Position="642" StringValue="alphabet"/>
+<Literal File="index.php" Position="843" StringValue="=g'&gt;G&lt;/a&gt; | &lt;a href='"/>
+<Literal File="index.php" Position="622" StringValue="index"/>
+<Symbolic File="index.php" Position="627" StringValue="${page_ext_qry}"/>
+<Literal File="index.php" Position="642" StringValue="alphabet"/>
+<Literal File="index.php" Position="869" StringValue="=h'&gt;H&lt;/a&gt; | &lt;a href='"/>
+<Literal File="index.php" Position="622" StringValue="index"/>
+<Symbolic File="index.php" Position="627" StringValue="${page_ext_qry}"/>
+<Literal File="index.php" Position="642" StringValue="alphabet"/>
+<Literal File="index.php" Position="895" StringValue="=i'&gt;I&lt;/a&gt; | &lt;a href='"/>
+<Literal File="index.php" Position="622" StringValue="index"/>
+<Symbolic File="index.php" Position="627" StringValue="${page_ext_qry}"/>
+<Literal File="index.php" Position="642" StringValue="alphabet"/>
+<Literal File="index.php" Position="921" StringValue="=j'&gt;J&lt;/a&gt; | &lt;a href='"/>
+<Literal File="index.php" Position="622" StringValue="index"/>
+<Symbolic File="index.php" Position="627" StringValue="${page_ext_qry}"/>
+<Literal File="index.php" Position="642" StringValue="alphabet"/>
+<Literal File="index.php" Position="947" StringValue="=k'&gt;K&lt;/a&gt; | &lt;a href='"/>
+<Literal File="index.php" Position="622" StringValue="index"/>
+<Symbolic File="index.php" Position="627" StringValue="${page_ext_qry}"/>
+<Literal File="index.php" Position="642" StringValue="alphabet"/>
+<Literal File="index.php" Position="973" StringValue="=l'&gt;L&lt;/a&gt; | &lt;a href='"/>
+<Literal File="index.php" Position="622" StringValue="index"/>
+<Symbolic File="index.php" Position="627" StringValue="${page_ext_qry}"/>
+<Literal File="index.php" Position="642" StringValue="alphabet"/>
+<Literal File="index.php" Position="999" StringValue="=m'&gt;M&lt;/a&gt; | &lt;a href='"/>
+<Literal File="index.php" Position="622" StringValue="index"/>
+<Symbolic File="index.php" Position="627" StringValue="${page_ext_qry}"/>
+<Literal File="index.php" Position="642" StringValue="alphabet"/>
+<Literal File="index.php" Position="1025" StringValue="=n'&gt;N&lt;/a&gt; | &lt;a href='"/>
+<Literal File="index.php" Position="622" StringValue="index"/>
+<Symbolic File="index.php" Position="627" StringValue="${page_ext_qry}"/>
+<Literal File="index.php" Position="642" StringValue="alphabet"/>
+<Literal File="index.php" Position="1051" StringValue="=o'&gt;O&lt;/a&gt; | &lt;a href='"/>
+<Literal File="index.php" Position="622" StringValue="index"/>
+<Symbolic File="index.php" Position="627" StringValue="${page_ext_qry}"/>
+<Literal File="index.php" Position="642" StringValue="alphabet"/>
+<Literal File="index.php" Position="1077" StringValue="=p'&gt;P&lt;/a&gt; | &lt;a href='"/>
+<Literal File="index.php" Position="622" StringValue="index"/>
+<Symbolic File="index.php" Position="627" StringValue="${page_ext_qry}"/>
+<Literal File="index.php" Position="642" StringValue="alphabet"/>
+<Literal File="index.php" Position="1103" StringValue="=q'&gt;Q&lt;/a&gt; | &lt;a href='"/>
+<Literal File="index.php" Position="622" StringValue="index"/>
+<Symbolic File="index.php" Position="627" StringValue="${page_ext_qry}"/>
+<Literal File="index.php" Position="642" StringValue="alphabet"/>
+<Literal File="index.php" Position="1129" StringValue="=r'&gt;R&lt;/a&gt; | &lt;a href='"/>
+<Literal File="index.php" Position="622" StringValue="index"/>
+<Symbolic File="index.php" Position="627" StringValue="${page_ext_qry}"/>
+<Literal File="index.php" Position="642" StringValue="alphabet"/>
+<Literal File="index.php" Position="1155" StringValue="=s'&gt;S&lt;/a&gt; | &lt;a href='"/>
+<Literal File="index.php" Position="622" StringValue="index"/>
+<Symbolic File="index.php" Position="627" StringValue="${page_ext_qry}"/>
+<Literal File="index.php" Position="642" StringValue="alphabet"/>
+<Literal File="index.php" Position="1181" StringValue="=t'&gt;T&lt;/a&gt; | &lt;a href='"/>
+<Literal File="index.php" Position="622" StringValue="index"/>
+<Symbolic File="index.php" Position="627" StringValue="${page_ext_qry}"/>
+<Literal File="index.php" Position="642" StringValue="alphabet"/>
+<Literal File="index.php" Position="1207" StringValue="=u'&gt;U&lt;/a&gt; | &lt;a href='"/>
+<Literal File="index.php" Position="622" StringValue="index"/>
+<Symbolic File="index.php" Position="627" StringValue="${page_ext_qry}"/>
+<Literal File="index.php" Position="642" StringValue="alphabet"/>
+<Literal File="index.php" Position="1233" StringValue="=v'&gt;V&lt;/a&gt; | &lt;a href='"/>
+<Literal File="index.php" Position="622" StringValue="index"/>
+<Symbolic File="index.php" Position="627" StringValue="${page_ext_qry}"/>
+<Literal File="index.php" Position="642" StringValue="alphabet"/>
+<Literal File="index.php" Position="1259" StringValue="=w'&gt;W&lt;/a&gt; | &lt;a href='"/>
+<Literal File="index.php" Position="622" StringValue="index"/>
+<Symbolic File="index.php" Position="627" StringValue="${page_ext_qry}"/>
+<Literal File="index.php" Position="642" StringValue="alphabet"/>
+<Literal File="index.php" Position="1285" StringValue="=x'&gt;X&lt;/a&gt; | &lt;a href='"/>
+<Literal File="index.php" Position="622" StringValue="index"/>
+<Symbolic File="index.php" Position="627" StringValue="${page_ext_qry}"/>
+<Literal File="index.php" Position="642" StringValue="alphabet"/>
+<Literal File="index.php" Position="1311" StringValue="=y'&gt;Y&lt;/a&gt; | &lt;a href='"/>
+<Literal File="index.php" Position="622" StringValue="index"/>
+<Symbolic File="index.php" Position="627" StringValue="${page_ext_qry}"/>
+<Literal File="index.php" Position="642" StringValue="alphabet"/>
+<Literal File="index.php" Position="1337" StringValue="=z'&gt;Z&lt;/a&gt; | &lt;a href='index"/>
+<Select File="include/dbconnect.php" Position="4906" StringValue="!$is_fix_group and $group_name">
+<True>
+<Concat>
+<Select File="include/dbconnect.php" Position="4480" StringValue="!isset($page_ext)">
+<True>
+<Literal File="include/dbconnect.php" Position="4515" StringValue=".php"/>
+</True>
+<False>
+<Literal File="config/config.php" Position="3854" StringValue=".php"/>
+</False>
+</Select>
+<Literal File="include/dbconnect.php" Position="5025" StringValue="?group="/>
+<Select File="include/dbconnect.php" Position="4684" StringValue="isset($group)">
+<True>
+<Symbolic File="include/dbconnect.php" Position="4720" StringValue="$group"/>
+</True>
+<False>
+<Literal File="" Position="-1" StringValue=""/>
+</False>
+</Select>
+</Concat>
+</True>
+<False>
+<Select File="include/dbconnect.php" Position="4480" StringValue="!isset($page_ext)">
+<True>
+<Literal File="include/dbconnect.php" Position="4515" StringValue=".php"/>
+</True>
+<False>
+<Literal File="config/config.php" Position="3854" StringValue=".php"/>
+</False>
+</Select>
+</False>
+</Select>
+<Literal File="index.php" Position="1372" StringValue="'&gt;"/>
+<Select File="include/translations.inc.php" Position="2914" StringValue="$has_mb_strtoupper">
+<True>
+<Concat>
+<Symbolic File="include/translations.inc.php" Position="2948" StringValue="mb_strtoupper(mb_substr($msg, 0,1))"/>
+<Symbolic File="include/translations.inc.php" Position="2984" StringValue="mb_substr($msg, 1)"/>
+</Concat>
+</True>
+<False>
+<Symbolic File="include/translations.inc.php" Position="3057" StringValue="ucfirst($msg)"/>
+</False>
+</Select>
+<Literal File="index.php" Position="1391" StringValue="&lt;/a&gt;&lt;/div&gt;"/>
+</Concat>
+</True>
+<False>
+<Concat>
+<Literal File="index.php" Position="1418" StringValue="&#10;"/>
+<Select File="index.php" Position="1428" StringValue="$_SERVER['SERVER_NAME'] == &quot;php-addressbook.sourceforge.net&quot;">
+<True>
+<Literal File="index.php" Position="1495" StringValue="&lt;table border=0&gt;&#10;&lt;tr&gt;&#10;&#9;&lt;td&gt;&#10;&#9;&#9;Advertisment: Just try for 2$ per month:&lt;br /&gt;&#10;&#9;&#9;&lt;img src=&quot;icons/cross.png&quot;&gt;&#10;&#9;&#9;  &lt;a href=&quot;http://swiss-addressbook.com&quot;&gt;www.swiss-addressbook.com&lt;/a&gt;&#10;&#9;&#9;&lt;img src=&quot;icons/cross.png&quot;&gt;&lt;br /&gt;&#10;&#9;&#9;  &lt;b&gt;&lt;i&gt;&quot;PHP-Addressbook as a Service&quot;&lt;/i&gt;&lt;/b&gt;&#10;&#9;&#9;&lt;/td&gt;&lt;/tr&gt;&#10;&lt;/table&gt;&#10;&lt;br /&gt;&#10;"/>
+</True>
+</Select>
+<Literal File="index.php" Position="1794" StringValue="&#10;&#9;&lt;form accept-charset=&quot;utf-8&quot; method=&quot;get&quot; name=&quot;searchform&quot; onsubmit=&quot;return false&quot;&gt;&#10;&#9;&#9;&lt;input type=&quot;text&quot; value=&quot;"/>
+<Symbolic File="index.php" Position="1920" StringValue="$searchstring"/>
+<Literal File="index.php" Position="1937" StringValue="&quot; name=&quot;searchstring&quot; title=&quot;"/>
+<Select File="include/translations.inc.php" Position="2914" StringValue="$has_mb_strtoupper">
+<True>
+<Concat>
+<Symbolic File="include/translations.inc.php" Position="2948" StringValue="mb_strtoupper(mb_substr($msg, 0,1))"/>
+<Symbolic File="include/translations.inc.php" Position="2984" StringValue="mb_substr($msg, 1)"/>
+</Concat>
+</True>
+<False>
+<Symbolic File="include/translations.inc.php" Position="3057" StringValue="ucfirst($msg)"/>
+</False>
+</Select>
+<Literal File="index.php" Position="2010" StringValue="&quot; size=&quot;45&quot; tabindex=&quot;0&quot; &#10;"/>
+<Select File="index.php" Position="2045" StringValue="$use_ajax">
+<True>
+<Literal File="index.php" Position="2060" StringValue="&#9;&#9;&#10;&#9;&#9;       onkeyup=&quot;filterResults(this)&quot;/&gt;&#10;"/>
+</True>
+</Select>
+<Literal File="index.php" Position="2115" StringValue="&#9;&lt;/form&gt;&#10;"/>
+</Concat>
+</False>
+</Select>
+<Literal File="index.php" Position="2135" StringValue="&lt;s"/>
+<Literal File="index.php" Position="2137" StringValue="cript type=&quot;text/javascript&quot;&gt;&#10;&#9;document.searchform.searchstring.focus();&#10;&lt;/script&gt;&#10;&lt;/div&gt;&lt;br /&gt;&#10;&lt;hr /&gt;&#10;"/>
+<Literal File="index.php" Position="2478" StringValue="&lt;label style='width:24em;'&gt;&lt;strong&gt;"/>
+<Select File="include/translations.inc.php" Position="2488" StringValue="isset($messages[$value][$lang])">
+<True>
+<Symbolic File="include/translations.inc.php" Position="2534" StringValue="$messages[$value][$lang]"/>
+</True>
+<False>
+<Literal File="index.php" Position="2520" StringValue="NUMBER_OF_RESULTS"/>
+</False>
+</Select>
+<Literal File="index.php" Position="2541" StringValue=": &lt;span id='search_count'&gt;"/>
+<Symbolic File="index.php" Position="2567" StringValue="$resultsnumber">
+<Symbolic File="index.php" Position="2359" StringValue="mysql_numrows($result)"/>
+</Symbolic>
+<Literal File="index.php" Position="2581" StringValue="&lt;/span&gt;&lt;/strong&gt;&lt;/label&gt;"/>
+<Select File="index.php" Position="2612" StringValue="isset($table_groups) and $table_groups != &quot;&quot; and !$is_fix_group">
+<True>
+<Concat>
+<Literal File="index.php" Position="2682" StringValue="&#10;&lt;form id=&quot;right&quot; method=&quot;get&quot;&gt;&#10;&#9;"/>
+<Literal File="index.php" Position="2715" StringValue="&lt;s"/>
+<Literal File="index.php" Position="2717" StringValue="elect name=&quot;group&quot; onchange=&quot;this.parentNode.submit()&quot;&gt;&#10;&#9;&#9;"/>
+<Select File="index.php" Position="2787" StringValue="$group_name != &quot;&quot;">
+<True>
+<Concat>
+<Literal File="index.php" Position="2818" StringValue="&lt;option&gt;"/>
+<Select File="include/dbconnect.php" Position="5173" StringValue="isset($iplist) &amp;&amp; hasRoleFromIP($iplist)">
+<True>
+<Select File="include/dbconnect.php" Position="4684" StringValue="isset($group)">
+<True>
+<Symbolic File="include/dbconnect.php" Position="4720" StringValue="$group"/>
+</True>
+<False>
+<Literal File="" Position="-1" StringValue=""/>
+</False>
+</Select>
+</True>
+<False>
+<Select File="include/dbconnect.php" Position="5315" StringValue="isset($userlist)">
+<True>
+<Select File="include/dbconnect.php" Position="5855" StringValue="$user-&gt;getGroup() != &quot;&quot;">
+<True>
+<Symbolic File="include/dbconnect.php" Position="5967" StringValue="$user-&gt;getGroup()"/>
+</True>
+<False>
+<Select File="include/dbconnect.php" Position="4684" StringValue="isset($group)">
+<True>
+<Symbolic File="include/dbconnect.php" Position="4720" StringValue="$group"/>
+</True>
+<False>
+<Literal File="" Position="-1" StringValue=""/>
+</False>
+</Select>
+</False>
+</Select>
+</True>
+<False>
+<Select File="include/dbconnect.php" Position="4684" StringValue="isset($group)">
+<True>
+<Symbolic File="include/dbconnect.php" Position="4720" StringValue="$group"/>
+</True>
+<False>
+<Literal File="" Position="-1" StringValue=""/>
+</False>
+</Select>
+</False>
+</Select>
+</False>
+</Select>
+<Literal File="index.php" Position="2837" StringValue="&lt;/option&gt;&#10; "/>
+</Concat>
+</True>
+</Select>
+<Literal File="index.php" Position="2861" StringValue="&#9;&#9;&lt;option value=&quot;&quot;&gt;["/>
+<Select File="include/translations.inc.php" Position="2488" StringValue="isset($messages[$value][$lang])">
+<True>
+<Symbolic File="include/translations.inc.php" Position="2534" StringValue="$messages[$value][$lang]"/>
+</True>
+<False>
+<Literal File="index.php" Position="2897" StringValue="ALL"/>
+</False>
+</Select>
+<Literal File="index.php" Position="2906" StringValue="]&lt;/option&gt;&#10;&#9;&#9;&lt;option value=&quot;[none]&quot;&gt;["/>
+<Select File="include/translations.inc.php" Position="2488" StringValue="isset($messages[$value][$lang])">
+<True>
+<Symbolic File="include/translations.inc.php" Position="2534" StringValue="$messages[$value][$lang]"/>
+</True>
+<False>
+<Literal File="index.php" Position="2959" StringValue="NONE"/>
+</False>
+</Select>
+<Literal File="index.php" Position="2969" StringValue="]&lt;/option&gt;&#10;&#9;&#9;"/>
+<Repeat File="index.php" Position="3182" StringValue="$myrow = mysql_fetch_array($result_groups)">
+<Concat>
+<Literal File="index.php" Position="3240" StringValue="&lt;option&gt;"/>
+<Symbolic File="index.php" Position="3250" StringValue="$myrow[&quot;group_name&quot;]"/>
+<Literal File="index.php" Position="3272" StringValue="&lt;/option&gt;&#10; "/>
+</Concat>
+</Repeat>
+<Literal File="index.php" Position="3296" StringValue="&#9;&lt;/select&gt;&#10;&lt;/form&gt;&#10;"/>
+</Concat>
+</True>
+</Select>
+<Literal File="index.php" Position="3326" StringValue="&lt;br /&gt;&lt;br class=&quot;clear&quot; /&gt;&#10;&#10;&lt;form accept-charset=&quot;utf-8&quot; name=&quot;MainForm&quot; method=&quot;post&quot; action=&quot;group"/>
+<Select File="include/dbconnect.php" Position="4906" StringValue="!$is_fix_group and $group_name">
+<True>
+<Concat>
+<Select File="include/dbconnect.php" Position="4480" StringValue="!isset($page_ext)">
+<True>
+<Literal File="include/dbconnect.php" Position="4515" StringValue=".php"/>
+</True>
+<False>
+<Literal File="config/config.php" Position="3854" StringValue=".php"/>
+</False>
+</Select>
+<Literal File="include/dbconnect.php" Position="5025" StringValue="?group="/>
+<Select File="include/dbconnect.php" Position="4684" StringValue="isset($group)">
+<True>
+<Symbolic File="include/dbconnect.php" Position="4720" StringValue="$group"/>
+</True>
+<False>
+<Literal File="" Position="-1" StringValue=""/>
+</False>
+</Select>
+</Concat>
+</True>
+<False>
+<Select File="include/dbconnect.php" Position="4480" StringValue="!isset($page_ext)">
+<True>
+<Literal File="include/dbconnect.php" Position="4515" StringValue=".php"/>
+</True>
+<False>
+<Literal File="config/config.php" Position="3854" StringValue=".php"/>
+</False>
+</Select>
+</False>
+</Select>
+<Literal File="index.php" Position="3450" StringValue="&quot;&gt;&#10;&#9;&lt;input type=&quot;hidden&quot; name=&quot;group&quot; value=&quot;"/>
+<Select File="include/dbconnect.php" Position="5173" StringValue="isset($iplist) &amp;&amp; hasRoleFromIP($iplist)">
+<False>
+<Select File="include/dbconnect.php" Position="5315" StringValue="isset($userlist)">
+<True>
+<Select File="include/dbconnect.php" Position="5855" StringValue="$user-&gt;getGroup() != &quot;&quot;">
+<True>
+<Symbolic File="include/dbconnect.php" Position="5928" StringValue="$user-&gt;getGroup()"/>
+</True>
+</Select>
+</True>
+</Select>
+</False>
+</Select>
+<Literal File="index.php" Position="3516" StringValue="&quot; /&gt;&#10;&#9;&lt;table id=&quot;maintable&quot; class=&quot;sortcompletecallback-applyZebra&quot;&gt;&#10;&#9;&#9;&lt;tr&gt;&#10;"/>
+<Select File="index.php" Position="3633" StringValue="! $is_mobile">
+<True>
+<Concat>
+<Repeat File="index.php" Position="3661" StringValue="$disp_cols">
+<Select File="index.php" Position="3697" StringValue="!in_array($col, array(&quot;home&quot;, &quot;work&quot;, &quot;mobile&quot;, &quot;select&quot;, &quot;edit&quot;, &quot;details&quot;))">
+<True>
+<Concat>
+<Literal File="index.php" Position="3791" StringValue="&lt;th class='sortable'&gt;"/>
+<Select File="include/translations.inc.php" Position="2914" StringValue="$has_mb_strtoupper">
+<True>
+<Concat>
+<Symbolic File="include/translations.inc.php" Position="2948" StringValue="mb_strtoupper(mb_substr($msg, 0,1))"/>
+<Symbolic File="include/translations.inc.php" Position="2984" StringValue="mb_substr($msg, 1)"/>
+</Concat>
+</True>
+<False>
+<Symbolic File="include/translations.inc.php" Position="3057" StringValue="ucfirst($msg)"/>
+</False>
+</Select>
+<Literal File="index.php" Position="3840" StringValue="&lt;/th&gt;"/>
+</Concat>
+</True>
+<False>
+<Select File="index.php" Position="3862" StringValue="in_array($col, array(&quot;home&quot;, &quot;work&quot;, &quot;mobile&quot;))">
+<True>
+<Concat>
+<Literal File="index.php" Position="3926" StringValue="&lt;th&gt;"/>
+<Select File="include/translations.inc.php" Position="2914" StringValue="$has_mb_strtoupper">
+<True>
+<Concat>
+<Symbolic File="include/translations.inc.php" Position="2948" StringValue="mb_strtoupper(mb_substr($msg, 0,1))"/>
+<Symbolic File="include/translations.inc.php" Position="2984" StringValue="mb_substr($msg, 1)"/>
+</Concat>
+</True>
+<False>
+<Symbolic File="include/translations.inc.php" Position="3057" StringValue="ucfirst($msg)"/>
+</False>
+</Select>
+<Literal File="index.php" Position="3967" StringValue="&lt;/th&gt;"/>
+</Concat>
+</True>
+<False>
+<Concat>
+<Literal File="index.php" Position="4003" StringValue="&lt;th&gt;&lt;/th&gt;"/>
+<Select File="index.php" Position="4024" StringValue="$col == &quot;edit&quot; &amp;&amp; !$read_only">
+<True>
+<Literal File="index.php" Position="4091" StringValue="&lt;th&gt;&lt;/th&gt;"/>
+</True>
+</Select>
+<Select File="index.php" Position="4122" StringValue="$col == &quot;details&quot;">
+<True>
+<Concat>
+<Literal File="index.php" Position="4161" StringValue="&lt;th&gt;&lt;/th&gt;"/>
+<Literal File="index.php" Position="4191" StringValue="&lt;th&gt;&lt;/th&gt;"/>
+</Concat>
+</True>
+</Select>
+</Concat>
+</False>
+</Select>
+</False>
+</Select>
+</Repeat>
+<Literal File="index.php" Position="4228" StringValue="      &#10;&#9;&lt;/tr&gt;&#10;"/>
+</Concat>
+</True>
+</Select>
+<Repeat File="index.php" Position="7857" StringValue="$addr = $addresses-&gt;nextAddress()">
+<Concat>
+<Literal File="index.php" Position="7947" StringValue="&lt;tr class='"/>
+<Select File="index.php" Position="7906" StringValue="($alternate++ % 2)">
+<True>
+<Literal File="index.php" Position="7928" StringValue="odd"/>
+</True>
+<False>
+<Literal File="index.php" Position="7936" StringValue=""/>
+</False>
+</Select>
+<Literal File="index.php" Position="7968" StringValue="' name='entry'&gt;"/>
+<Repeat File="index.php" Position="8218" StringValue="$disp_cols">
+<Select File="index.php" Position="5113" StringValue="case $row == &quot;select&quot;">
+<True>
+<Concat>
+<Literal File="index.php" Position="5142" StringValue="&lt;td class='center'&gt;&lt;input type='checkbox' id='"/>
+<Symbolic File="index.php" Position="5188" StringValue="$id"/>
+<Literal File="index.php" Position="5191" StringValue="' name='selected[]' value='"/>
+<Symbolic File="index.php" Position="5218" StringValue="$id"/>
+<Literal File="index.php" Position="5221" StringValue="' title='Select ("/>
+<Symbolic File="index.php" Position="5238" StringValue="$firstname"/>
+<Literal File="index.php" Position="5248" StringValue=" "/>
+<Symbolic File="index.php" Position="5249" StringValue="$lastname"/>
+<Literal File="index.php" Position="5258" StringValue=")' alt='Select ("/>
+<Symbolic File="index.php" Position="5274" StringValue="$firstname"/>
+<Literal File="index.php" Position="5284" StringValue=" "/>
+<Symbolic File="index.php" Position="5285" StringValue="$lastname"/>
+<Literal File="index.php" Position="5294" StringValue=")' accept='"/>
+<Symbolic File="index.php" Position="4604" StringValue="$myrow['email']"/>
+<Select File="index.php" Position="4624" StringValue="$myrow['email']  != &quot;&quot;&#10;&#9;&#9;                           &amp;&amp; $myrow['email2'] != &quot;&quot;">
+<True>
+<Select File="include/mailer.inc.php" Position="733" StringValue="getPref('mailer') == 'colon'">
+<True>
+<Literal File="include/mailer.inc.php" Position="776" StringValue=","/>
+</True>
+<False>
+<Literal File="include/mailer.inc.php" Position="821" StringValue="%3B"/>
+</False>
+</Select>
+</True>
+<False>
+<Literal File="index.php" Position="4724" StringValue=""/>
+</False>
+</Select>
+<Symbolic File="index.php" Position="4727" StringValue="$myrow['email2']"/>
+<Literal File="index.php" Position="5312" StringValue="' /&gt;&lt;/td&gt;"/>
+</Concat>
+</True>
+<False>
+<Select File="index.php" Position="5345" StringValue="case $row == &quot;first_last&quot;">
+<True>
+<Concat>
+<Literal File="index.php" Position="5378" StringValue="&lt;td&gt;"/>
+<Symbolic File="index.php" Position="5382" StringValue="$firstname"/>
+<Literal File="index.php" Position="5392" StringValue=" "/>
+<Symbolic File="index.php" Position="5393" StringValue="$lastname"/>
+<Literal File="index.php" Position="5402" StringValue="&lt;/td&gt;"/>
+</Concat>
+</True>
+<False>
+<Select File="index.php" Position="5431" StringValue="case $row == &quot;last_first&quot;">
+<True>
+<Concat>
+<Literal File="index.php" Position="5464" StringValue="&lt;td&gt;"/>
+<Symbolic File="index.php" Position="5468" StringValue="$lastname"/>
+<Literal File="index.php" Position="5477" StringValue=" "/>
+<Symbolic File="index.php" Position="5478" StringValue="$firstname"/>
+<Literal File="index.php" Position="5488" StringValue="&lt;/td&gt;"/>
+</Concat>
+</True>
+<False>
+<Select File="index.php" Position="5517" StringValue="case $row == &quot;email&quot;">
+<True>
+<Concat>
+<Literal File="index.php" Position="5566" StringValue="&lt;td&gt;&lt;a href='"/>
+<Select File="include/mailer.inc.php" Position="548" StringValue="isset($webmailer) &amp;&amp; isset($mailers[$webmailer])">
+<True>
+<Select File="include/mailer.inc.php" Position="548" StringValue="isset($webmailer) &amp;&amp; isset($mailers[$webmailer])">
+<True>
+<Symbolic File="include/mailer.inc.php" Position="610" StringValue="$mailers[$webmailer]"/>
+</True>
+<False>
+<Symbolic File="include/mailer.inc.php" Position="508" StringValue="$mailers[getPref('mailer')]"/>
+</False>
+</Select>
+</True>
+<False>
+<Literal File="include/mailer.inc.php" Position="654" StringValue="mailto:"/>
+</False>
+</Select>
+<Symbolic File="index.php" Position="5594" StringValue="${$row}"/>
+<Literal File="index.php" Position="5601" StringValue="'&gt;"/>
+<Symbolic File="index.php" Position="5603" StringValue="${$row}"/>
+<Literal File="index.php" Position="5610" StringValue="&lt;/a&gt;&lt;/td&gt;"/>
+</Concat>
+</True>
+<False>
+<Select File="index.php" Position="5537" StringValue="case $row == &quot;email2&quot;">
+<True>
+<Concat>
+<Literal File="index.php" Position="5566" StringValue="&lt;td&gt;&lt;a href='"/>
+<Select File="include/mailer.inc.php" Position="548" StringValue="isset($webmailer) &amp;&amp; isset($mailers[$webmailer])">
+<True>
+<Select File="include/mailer.inc.php" Position="548" StringValue="isset($webmailer) &amp;&amp; isset($mailers[$webmailer])">
+<True>
+<Symbolic File="include/mailer.inc.php" Position="610" StringValue="$mailers[$webmailer]"/>
+</True>
+<False>
+<Symbolic File="include/mailer.inc.php" Position="508" StringValue="$mailers[getPref('mailer')]"/>
+</False>
+</Select>
+</True>
+<False>
+<Literal File="include/mailer.inc.php" Position="654" StringValue="mailto:"/>
+</False>
+</Select>
+<Symbolic File="index.php" Position="5594" StringValue="${$row}"/>
+<Literal File="index.php" Position="5601" StringValue="'&gt;"/>
+<Symbolic File="index.php" Position="5603" StringValue="${$row}"/>
+<Literal File="index.php" Position="5610" StringValue="&lt;/a&gt;&lt;/td&gt;"/>
+</Concat>
+</True>
+<False>
+<Select File="index.php" Position="5643" StringValue="case $row == &quot;all_phones&quot;">
+<True>
+<Concat>
+<Literal File="index.php" Position="5713" StringValue="&lt;td&gt;"/>
+<Symbolic File="index.php" Position="5719" StringValue="implode(&quot;&lt;br /&gt;&quot;, $phones)"/>
+<Literal File="index.php" Position="5745" StringValue="&lt;/td&gt;"/>
+</Concat>
+</True>
+<False>
+<Select File="index.php" Position="5774" StringValue="case $row == &quot;address&quot;">
+<True>
+<Concat>
+<Literal File="index.php" Position="5802" StringValue="&lt;td&gt;"/>
+<Symbolic File="index.php" Position="5808" StringValue="str_replace(&quot;\n&quot;, &quot;, &quot;, $address)"/>
+<Literal File="index.php" Position="5843" StringValue="&lt;/td&gt;"/>
+</Concat>
+</True>
+<False>
+<Select File="index.php" Position="5870" StringValue="case $row == &quot;edit&quot;">
+<True>
+<Concat>
+<Literal File="index.php" Position="5897" StringValue="&lt;td class='center'&gt;&lt;a href='view"/>
+<Symbolic File="index.php" Position="5929" StringValue="${page_ext_qry}"/>
+<Literal File="index.php" Position="5944" StringValue="id="/>
+<Symbolic File="index.php" Position="5947" StringValue="$id"/>
+<Literal File="index.php" Position="5950" StringValue="'&gt;&lt;img src='"/>
+<Symbolic File="index.php" Position="5962" StringValue="${url_images}"/>
+<Literal File="index.php" Position="5975" StringValue="icons/status_online.png' title='"/>
+<Select File="include/translations.inc.php" Position="2914" StringValue="$has_mb_strtoupper">
+<True>
+<Concat>
+<Symbolic File="include/translations.inc.php" Position="2948" StringValue="mb_strtoupper(mb_substr($msg, 0,1))"/>
+<Symbolic File="include/translations.inc.php" Position="2984" StringValue="mb_substr($msg, 1)"/>
+</Concat>
+</True>
+<False>
+<Symbolic File="include/translations.inc.php" Position="3057" StringValue="ucfirst($msg)"/>
+</False>
+</Select>
+<Literal File="index.php" Position="6028" StringValue="' alt='"/>
+<Select File="include/translations.inc.php" Position="2914" StringValue="$has_mb_strtoupper">
+<True>
+<Concat>
+<Symbolic File="include/translations.inc.php" Position="2948" StringValue="mb_strtoupper(mb_substr($msg, 0,1))"/>
+<Symbolic File="include/translations.inc.php" Position="2984" StringValue="mb_substr($msg, 1)"/>
+</Concat>
+</True>
+<False>
+<Symbolic File="include/translations.inc.php" Position="3057" StringValue="ucfirst($msg)"/>
+</False>
+</Select>
+<Literal File="index.php" Position="6056" StringValue="' /&gt;&lt;/a&gt;&lt;/td&gt;"/>
+<Select File="index.php" Position="6083" StringValue="! $read_only">
+<True>
+<Concat>
+<Literal File="index.php" Position="6115" StringValue="&lt;td class='center'&gt;&lt;a href='edit"/>
+<Symbolic File="index.php" Position="6147" StringValue="${page_ext_qry}"/>
+<Literal File="index.php" Position="6162" StringValue="id="/>
+<Symbolic File="index.php" Position="6165" StringValue="$id"/>
+<Literal File="index.php" Position="6168" StringValue="'&gt;&lt;img src='"/>
+<Symbolic File="index.php" Position="6180" StringValue="${url_images}"/>
+<Literal File="index.php" Position="6193" StringValue="icons/pencil.png' title='"/>
+<Select File="include/translations.inc.php" Position="2914" StringValue="$has_mb_strtoupper">
+<True>
+<Concat>
+<Symbolic File="include/translations.inc.php" Position="2948" StringValue="mb_strtoupper(mb_substr($msg, 0,1))"/>
+<Symbolic File="include/translations.inc.php" Position="2984" StringValue="mb_substr($msg, 1)"/>
+</Concat>
+</True>
+<False>
+<Symbolic File="include/translations.inc.php" Position="3057" StringValue="ucfirst($msg)"/>
+</False>
+</Select>
+<Literal File="index.php" Position="6236" StringValue="' alt='"/>
+<Select File="include/translations.inc.php" Position="2914" StringValue="$has_mb_strtoupper">
+<True>
+<Concat>
+<Symbolic File="include/translations.inc.php" Position="2948" StringValue="mb_strtoupper(mb_substr($msg, 0,1))"/>
+<Symbolic File="include/translations.inc.php" Position="2984" StringValue="mb_substr($msg, 1)"/>
+</Concat>
+</True>
+<False>
+<Symbolic File="include/translations.inc.php" Position="3057" StringValue="ucfirst($msg)"/>
+</False>
+</Select>
+<Literal File="index.php" Position="6261" StringValue="'/&gt;&lt;/a&gt;&lt;/td&gt;"/>
+</Concat>
+</True>
+</Select>
+</Concat>
+</True>
+<False>
+<Select File="index.php" Position="6305" StringValue="case $row == &quot;details&quot;">
+<True>
+<Concat>
+<Literal File="index.php" Position="6335" StringValue="&lt;td class='center'&gt;&lt;a href='vcard"/>
+<Symbolic File="index.php" Position="6368" StringValue="${page_ext_qry}"/>
+<Literal File="index.php" Position="6383" StringValue="id="/>
+<Symbolic File="index.php" Position="6386" StringValue="$id"/>
+<Literal File="index.php" Position="6389" StringValue="'&gt;&lt;img src='"/>
+<Symbolic File="index.php" Position="6401" StringValue="${url_images}"/>
+<Literal File="index.php" Position="6414" StringValue="icons/vcard.png' title='vCard' alt='vCard'/&gt;&lt;/a&gt;&lt;/td&gt;"/>
+<Select File="index.php" Position="6633" StringValue="$map_guess">
+<True>
+<Select File="index.php" Position="6660" StringValue="$myrow[&quot;address&quot;] != &quot;&quot;">
+<True>
+<Concat>
+<Literal File="index.php" Position="6701" StringValue="&lt;td class='center'&gt;&lt;a href='http://maps.google.com/maps?q="/>
+<Symbolic File="index.php" Position="6771" StringValue="trim(str_replace(&quot;\r\n&quot;, &quot;, &quot;, trim($myrow[&quot;address&quot;])))"/>
+<Literal File="index.php" Position="6830" StringValue="&amp;amp;t=h' target='_blank'&gt;&#10;                                &lt;img src='"/>
+<Symbolic File="index.php" Position="6899" StringValue="${url_images}"/>
+<Literal File="index.php" Position="6912" StringValue="icons/car.png' title='Google Maps' alt='vCard'/&gt;&lt;/a&gt;&lt;/td&gt;"/>
+</Concat>
+</True>
+<False>
+<Literal File="index.php" Position="6993" StringValue="&lt;td/&gt;"/>
+</False>
+</Select>
+</True>
+</Select>
+<Select File="index.php" Position="7031" StringValue="$homepage != &quot;&quot;">
+<True>
+<Concat>
+<Literal File="index.php" Position="7234" StringValue="&lt;td class='center'&gt;&lt;a href='"/>
+<Select File="index.php" Position="7074" StringValue="strcasecmp(substr($homepage, 0, strlen(&quot;http&quot;)),&quot;http&quot;)== 0">
+<True>
+<Symbolic File="index.php" Position="7159" StringValue="$homepage"/>
+</True>
+<False>
+<Concat>
+<Literal File="index.php" Position="7195" StringValue="http://"/>
+<Symbolic File="index.php" Position="7204" StringValue="$homepage"/>
+</Concat>
+</False>
+</Select>
+<Literal File="index.php" Position="7271" StringValue="'&gt;&lt;img src='"/>
+<Symbolic File="index.php" Position="7283" StringValue="${url_images}"/>
+<Literal File="index.php" Position="7296" StringValue="icons/house.png' title='"/>
+<Select File="index.php" Position="7074" StringValue="strcasecmp(substr($homepage, 0, strlen(&quot;http&quot;)),&quot;http&quot;)== 0">
+<True>
+<Symbolic File="index.php" Position="7159" StringValue="$homepage"/>
+</True>
+<False>
+<Concat>
+<Literal File="index.php" Position="7195" StringValue="http://"/>
+<Symbolic File="index.php" Position="7204" StringValue="$homepage"/>
+</Concat>
+</False>
+</Select>
+<Literal File="index.php" Position="7329" StringValue="' alt='"/>
+<Select File="index.php" Position="7074" StringValue="strcasecmp(substr($homepage, 0, strlen(&quot;http&quot;)),&quot;http&quot;)== 0">
+<True>
+<Symbolic File="index.php" Position="7159" StringValue="$homepage"/>
+</True>
+<False>
+<Concat>
+<Literal File="index.php" Position="7195" StringValue="http://"/>
+<Symbolic File="index.php" Position="7204" StringValue="$homepage"/>
+</Concat>
+</False>
+</Select>
+<Literal File="index.php" Position="7345" StringValue="'/&gt;&lt;/a&gt;&lt;/td&gt;"/>
+</Concat>
+</True>
+<False>
+<Select File="index.php" Position="7377" StringValue="$homepage_guess &amp;&amp; ($homepage = guessHomepage($email, $email2)) != &quot;&quot;">
+<True>
+<Concat>
+<Literal File="index.php" Position="7468" StringValue="&lt;td class='center'&gt;&lt;a href='http://"/>
+<Select>
+<True>
+<Literal File="include/guess.inc.php" Position="1934" StringValue=""/>
+</True>
+<False>
+<Select File="include/guess.inc.php" Position="1866" StringValue="strlen($homepage) &gt; 0">
+<True>
+<Select File="include/guess.inc.php" Position="1534" StringValue="strlen($homepage) == 0">
+<True>
+<Literal File="include/guess.inc.php" Position="1573" StringValue=""/>
+</True>
+<False>
+<Concat>
+<Literal File="include/guess.inc.php" Position="1598" StringValue="www."/>
+<Symbolic File="include/guess.inc.php" Position="1602" StringValue="$homepage">
+<Symbolic File="include/guess.inc.php" Position="1257" StringValue="substr($email, strpos($email, '@')+1)"/>
+</Symbolic>
+</Concat>
+</False>
+</Select>
+</True>
+<False>
+<Select File="include/guess.inc.php" Position="1534" StringValue="strlen($homepage) == 0">
+<True>
+<Literal File="include/guess.inc.php" Position="1573" StringValue=""/>
+</True>
+<False>
+<Concat>
+<Literal File="include/guess.inc.php" Position="1598" StringValue="www."/>
+<Symbolic File="include/guess.inc.php" Position="1602" StringValue="$homepage">
+<Symbolic File="include/guess.inc.php" Position="1257" StringValue="substr($email, strpos($email, '@')+1)"/>
+</Symbolic>
+</Concat>
+</False>
+</Select>
+</False>
+</Select>
+</False>
+</Select>
+<Literal File="index.php" Position="7512" StringValue="'&gt;&lt;img src='"/>
+<Symbolic File="index.php" Position="7524" StringValue="${url_images}"/>
+<Literal File="index.php" Position="7537" StringValue="icons/house.png' title='"/>
+<Select File="include/translations.inc.php" Position="2914" StringValue="$has_mb_strtoupper">
+<True>
+<Concat>
+<Symbolic File="include/translations.inc.php" Position="2948" StringValue="mb_strtoupper(mb_substr($msg, 0,1))"/>
+<Symbolic File="include/translations.inc.php" Position="2984" StringValue="mb_substr($msg, 1)"/>
+</Concat>
+</True>
+<False>
+<Symbolic File="include/translations.inc.php" Position="3057" StringValue="ucfirst($msg)"/>
+</False>
+</Select>
+<Literal File="index.php" Position="7591" StringValue=" ("/>
+<Select>
+<True>
+<Literal File="include/guess.inc.php" Position="1934" StringValue=""/>
+</True>
+<False>
+<Select File="include/guess.inc.php" Position="1866" StringValue="strlen($homepage) &gt; 0">
+<True>
+<Select File="include/guess.inc.php" Position="1534" StringValue="strlen($homepage) == 0">
+<True>
+<Literal File="include/guess.inc.php" Position="1573" StringValue=""/>
+</True>
+<False>
+<Concat>
+<Literal File="include/guess.inc.php" Position="1598" StringValue="www."/>
+<Symbolic File="include/guess.inc.php" Position="1602" StringValue="$homepage">
+<Symbolic File="include/guess.inc.php" Position="1257" StringValue="substr($email, strpos($email, '@')+1)"/>
+</Symbolic>
+</Concat>
+</False>
+</Select>
+</True>
+<False>
+<Select File="include/guess.inc.php" Position="1534" StringValue="strlen($homepage) == 0">
+<True>
+<Literal File="include/guess.inc.php" Position="1573" StringValue=""/>
+</True>
+<False>
+<Concat>
+<Literal File="include/guess.inc.php" Position="1598" StringValue="www."/>
+<Symbolic File="include/guess.inc.php" Position="1602" StringValue="$homepage">
+<Symbolic File="include/guess.inc.php" Position="1257" StringValue="substr($email, strpos($email, '@')+1)"/>
+</Symbolic>
+</Concat>
+</False>
+</Select>
+</False>
+</Select>
+</False>
+</Select>
+<Literal File="index.php" Position="7602" StringValue=")' alt='"/>
+<Select File="include/translations.inc.php" Position="2914" StringValue="$has_mb_strtoupper">
+<True>
+<Concat>
+<Symbolic File="include/translations.inc.php" Position="2948" StringValue="mb_strtoupper(mb_substr($msg, 0,1))"/>
+<Symbolic File="include/translations.inc.php" Position="2984" StringValue="mb_substr($msg, 1)"/>
+</Concat>
+</True>
+<False>
+<Symbolic File="include/translations.inc.php" Position="3057" StringValue="ucfirst($msg)"/>
+</False>
+</Select>
+<Literal File="index.php" Position="7640" StringValue=" ("/>
+<Select>
+<True>
+<Literal File="include/guess.inc.php" Position="1934" StringValue=""/>
+</True>
+<False>
+<Select File="include/guess.inc.php" Position="1866" StringValue="strlen($homepage) &gt; 0">
+<True>
+<Select File="include/guess.inc.php" Position="1534" StringValue="strlen($homepage) == 0">
+<True>
+<Literal File="include/guess.inc.php" Position="1573" StringValue=""/>
+</True>
+<False>
+<Concat>
+<Literal File="include/guess.inc.php" Position="1598" StringValue="www."/>
+<Symbolic File="include/guess.inc.php" Position="1602" StringValue="$homepage">
+<Symbolic File="include/guess.inc.php" Position="1257" StringValue="substr($email, strpos($email, '@')+1)"/>
+</Symbolic>
+</Concat>
+</False>
+</Select>
+</True>
+<False>
+<Select File="include/guess.inc.php" Position="1534" StringValue="strlen($homepage) == 0">
+<True>
+<Literal File="include/guess.inc.php" Position="1573" StringValue=""/>
+</True>
+<False>
+<Concat>
+<Literal File="include/guess.inc.php" Position="1598" StringValue="www."/>
+<Symbolic File="include/guess.inc.php" Position="1602" StringValue="$homepage">
+<Symbolic File="include/guess.inc.php" Position="1257" StringValue="substr($email, strpos($email, '@')+1)"/>
+</Symbolic>
+</Concat>
+</False>
+</Select>
+</False>
+</Select>
+</False>
+</Select>
+<Literal File="index.php" Position="7651" StringValue=")'/&gt;&lt;/a&gt;&lt;/td&gt;"/>
+</Concat>
+</True>
+<False>
+<Literal File="index.php" Position="7699" StringValue="&lt;td/&gt;"/>
+</False>
+</Select>
+</False>
+</Select>
+</Concat>
+</True>
+<False>
+<Concat>
+<Literal File="index.php" Position="7821" StringValue="&lt;td&gt;"/>
+<Symbolic File="index.php" Position="7825" StringValue="${$row}"/>
+<Literal File="index.php" Position="7832" StringValue="&lt;/td&gt;"/>
+</Concat>
+</False>
+</Select>
+</False>
+</Select>
+</False>
+</Select>
+</False>
+</Select>
+</False>
+</Select>
+</False>
+</Select>
+</False>
+</Select>
+</False>
+</Select>
+</False>
+</Select>
+</Repeat>
+<Literal File="index.php" Position="8285" StringValue="&lt;/tr&gt;&#10; "/>
+</Concat>
+</Repeat>
+<Literal File="index.php" Position="8308" StringValue="&lt;/table&gt;"/>
+<Literal File="index.php" Position="8326" StringValue="&amp;nbsp;&lt;input type='checkbox' id='MassCB' onclick=&quot; MassSelection()&quot;  /&gt; &lt;em&gt;&lt;strong&gt;"/>
+<Select File="include/translations.inc.php" Position="2914" StringValue="$has_mb_strtoupper">
+<True>
+<Concat>
+<Symbolic File="include/translations.inc.php" Position="2948" StringValue="mb_strtoupper(mb_substr($msg, 0,1))"/>
+<Symbolic File="include/translations.inc.php" Position="2984" StringValue="mb_substr($msg, 1)"/>
+</Concat>
+</True>
+<False>
+<Symbolic File="include/translations.inc.php" Position="3057" StringValue="ucfirst($msg)"/>
+</False>
+</Select>
+<Literal File="index.php" Position="8434" StringValue="&lt;/strong&gt;&lt;/em&gt;&lt;br /&gt;&lt;br /&gt;"/>
+<Select File="index.php" Position="8463" StringValue="$use_doodle">
+<True>
+<Concat>
+<Literal File="index.php" Position="8488" StringValue="&lt;div class='left'&gt;&lt;input type='button' value=&quot; "/>
+<Select File="include/translations.inc.php" Position="2914" StringValue="$has_mb_strtoupper">
+<True>
+<Concat>
+<Symbolic File="include/translations.inc.php" Position="2948" StringValue="mb_strtoupper(mb_substr($msg, 0,1))"/>
+<Symbolic File="include/translations.inc.php" Position="2984" StringValue="mb_substr($msg, 1)"/>
+</Concat>
+</True>
+<False>
+<Symbolic File="include/translations.inc.php" Position="3057" StringValue="ucfirst($msg)"/>
+</False>
+</Select>
+<Literal File="index.php" Position="8555" StringValue="&quot;    onclick=&quot; Doodle()&quot;  /&gt;&lt;/div&gt;"/>
+</Concat>
+</True>
+</Select>
+<Literal File="index.php" Position="8604" StringValue="&lt;div class='left'&gt;&lt;input type='button' value=&quot; "/>
+<Select File="include/translations.inc.php" Position="2914" StringValue="$has_mb_strtoupper">
+<True>
+<Concat>
+<Symbolic File="include/translations.inc.php" Position="2948" StringValue="mb_strtoupper(mb_substr($msg, 0,1))"/>
+<Symbolic File="include/translations.inc.php" Position="2984" StringValue="mb_substr($msg, 1)"/>
+</Concat>
+</True>
+<False>
+<Symbolic File="include/translations.inc.php" Position="3057" StringValue="ucfirst($msg)"/>
+</False>
+</Select>
+<Literal File="index.php" Position="8675" StringValue="&quot;  onclick=&quot; MailSelection()&quot;  /&gt;&lt;/div&gt;"/>
+<Literal File="index.php" Position="8725" StringValue="&lt;div class='left'&gt;&lt;input type='button' value=&quot; "/>
+<Select File="include/translations.inc.php" Position="2914" StringValue="$has_mb_strtoupper">
+<True>
+<Concat>
+<Symbolic File="include/translations.inc.php" Position="2948" StringValue="mb_strtoupper(mb_substr($msg, 0,1))"/>
+<Symbolic File="include/translations.inc.php" Position="2984" StringValue="mb_substr($msg, 1)"/>
+</Concat>
+</True>
+<False>
+<Symbolic File="include/translations.inc.php" Position="3057" StringValue="ucfirst($msg)"/>
+</False>
+</Select>
+<Literal File="index.php" Position="8792" StringValue="&quot;      onclick=&quot; DeleteSel()&quot;  /&gt;&lt;/div&gt;"/>
+<Select File="index.php" Position="8839" StringValue="isset($table_groups) and $table_groups != &quot;&quot; and !$is_fix_group">
+<True>
+<Concat>
+<Select File="index.php" Position="8942" StringValue="$group_name != &quot;&quot; and $group_name != &quot;[none]&quot;">
+<True>
+<Concat>
+<Literal File="index.php" Position="9010" StringValue="&lt;div class='left'&gt;&lt;input type='submit' name='remove' value='"/>
+<Select File="include/translations.inc.php" Position="2914" StringValue="$has_mb_strtoupper">
+<True>
+<Concat>
+<Symbolic File="include/translations.inc.php" Position="2948" StringValue="mb_strtoupper(mb_substr($msg, 0,1))"/>
+<Symbolic File="include/translations.inc.php" Position="2984" StringValue="mb_substr($msg, 1)"/>
+</Concat>
+</True>
+<False>
+<Symbolic File="include/translations.inc.php" Position="3057" StringValue="ucfirst($msg)"/>
+</False>
+</Select>
+<Literal File="index.php" Position="9095" StringValue=" &quot; "/>
+<Select File="include/dbconnect.php" Position="5173" StringValue="isset($iplist) &amp;&amp; hasRoleFromIP($iplist)">
+<True>
+<Select File="include/dbconnect.php" Position="4684" StringValue="isset($group)">
+<True>
+<Symbolic File="include/dbconnect.php" Position="4720" StringValue="$group"/>
+</True>
+<False>
+<Literal File="" Position="-1" StringValue=""/>
+</False>
+</Select>
+</True>
+<False>
+<Select File="include/dbconnect.php" Position="5315" StringValue="isset($userlist)">
+<True>
+<Select File="include/dbconnect.php" Position="5855" StringValue="$user-&gt;getGroup() != &quot;&quot;">
+<True>
+<Symbolic File="include/dbconnect.php" Position="5967" StringValue="$user-&gt;getGroup()"/>
+</True>
+<False>
+<Select File="include/dbconnect.php" Position="4684" StringValue="isset($group)">
+<True>
+<Symbolic File="include/dbconnect.php" Position="4720" StringValue="$group"/>
+</True>
+<False>
+<Literal File="" Position="-1" StringValue=""/>
+</False>
+</Select>
+</False>
+</Select>
+</True>
+<False>
+<Select File="include/dbconnect.php" Position="4684" StringValue="isset($group)">
+<True>
+<Symbolic File="include/dbconnect.php" Position="4720" StringValue="$group"/>
+</True>
+<False>
+<Literal File="" Position="-1" StringValue=""/>
+</False>
+</Select>
+</False>
+</Select>
+</False>
+</Select>
+<Literal File="index.php" Position="9109" StringValue="&quot; '/&gt;&lt;/div&gt;"/>
+</Concat>
+</True>
+<False>
+<Literal File="index.php" Position="9148" StringValue="&lt;div&gt;&lt;/div&gt;"/>
+</False>
+</Select>
+<Literal File="index.php" Position="9199" StringValue="&lt;div class='right'&gt;&lt;input type='submit' name='add' value='"/>
+<Select File="include/translations.inc.php" Position="2914" StringValue="$has_mb_strtoupper">
+<True>
+<Concat>
+<Symbolic File="include/translations.inc.php" Position="2948" StringValue="mb_strtoupper(mb_substr($msg, 0,1))"/>
+<Symbolic File="include/translations.inc.php" Position="2984" StringValue="mb_substr($msg, 1)"/>
+</Concat>
+</True>
+<False>
+<Symbolic File="include/translations.inc.php" Position="3057" StringValue="ucfirst($msg)"/>
+</False>
+</Select>
+<Literal File="index.php" Position="9277" StringValue="'/&gt;-"/>
+<Literal File="index.php" Position="9294" StringValue="&lt;select name='to_group'&gt;"/>
+<Repeat File="index.php" Position="9490" StringValue="$myrow = mysql_fetch_array($result)">
+<Concat>
+<Literal File="index.php" Position="9540" StringValue="&lt;option&gt;"/>
+<Symbolic File="index.php" Position="9550" StringValue="$myrow[&quot;group_name&quot;]"/>
+<Literal File="index.php" Position="9572" StringValue="&lt;/option&gt;&#10; "/>
+</Concat>
+</Repeat>
+<Literal File="index.php" Position="9605" StringValue="&lt;/select&gt;"/>
+<Literal File="index.php" Position="9627" StringValue="&lt;/div&gt;&lt;br/&gt;"/>
+</Concat>
+</True>
+</Select>
+<Literal File="index.php" Position="9651" StringValue="&lt;/form&gt;"/>
+<Select File="index.php" Position="9695" StringValue="$group_name != &quot;&quot; and $group_myrow['group_footer'] != &quot;&quot;">
+<True>
+<Concat>
+<Literal File="index.php" Position="9783" StringValue="&lt;hr /&gt;"/>
+<Symbolic File="index.php" Position="9809" StringValue="$group_myrow['group_footer']"/>
+<Literal File="index.php" Position="9857" StringValue="&lt;hr /&gt;"/>
+</Concat>
+</True>
+</Select>
+<Literal File="index.php" Position="9879" StringValue="&lt;s"/>
+<Literal File="index.php" Position="9881" StringValue="cript type=&quot;text/javascript&quot;&gt;&#10;&lt;!--&#10;&#10;//&#10;// Select All/None items&#10;//&#10;function MassSelection() {&#10;  &#10;  select_count = document.getElementsByName(&quot;selected[]&quot;).length;&#10;  all_checked  = document.getElementById(&quot;MassCB&quot;).checked;&#10;  &#10;&#9;for (i = 0; i &lt; select_count; i++) {&#10;&#9;  // select only visible items&#10;&#9;  if( document.getElementsByName(&quot;selected[]&quot;)[i].parentNode.parentNode.style.display != &quot;none&quot;) {&#10;&#9;&#9;  document.getElementsByName(&quot;selected[]&quot;)[i].checked = all_checked;&#10;&#9;&#9;}&#10;&#9;}&#10;}&#10;&#10;//&#10;// Send Mail to selected persons&#10;//&#10;function MailSelection() {&#10;&#9;var addresses = &quot;&quot;;&#10;&#9;var dst_count = 0;&#10;&#10;  select_count = document.getElementsByName(&quot;selected[]&quot;).length;&#10;&#9;for (i = 0; i &lt; select_count; i++) {&#10;&#9;&#9;selected_i = document.getElementsByName(&quot;selected[]&quot;)[i];&#10;&#9;&#9;if( selected_i.checked == true) {&#10;&#9;&#9;&#9;if( selected_i.accept != &quot;&quot; &amp;&amp; selected_i.accept != null) {&#10;&#9;&#9;&#9;&#9;if(dst_count &gt; 0) {&#10;&#9;&#9;&#9;&#9;&#9;addresses = addresses + &quot;"/>
+<Select File="include/mailer.inc.php" Position="733" StringValue="getPref('mailer') == 'colon'">
+<True>
+<Literal File="include/mailer.inc.php" Position="776" StringValue=","/>
+</True>
+<False>
+<Literal File="include/mailer.inc.php" Position="821" StringValue="%3B"/>
+</False>
+</Select>
+<Literal File="index.php" Position="10814" StringValue="&quot;;&#10;&#9;&#9;&#9;&#9;}&#10;&#9;&#9;&#9;&#9;addresses = addresses + selected_i.accept;&#10;&#9;&#9;&#9;&#9;dst_count++;&#10;&#9;&#9;&#9;}&#10;&#9;&#9;}&#10;&#9;}&#10;&#10;&#9;if(dst_count == 0)&#10;&#9;&#9;alert(&quot;No address selected.&quot;);&#10;&#9;else&#10;&#9;&#9;location.href = &quot;"/>
+<Select File="include/mailer.inc.php" Position="548" StringValue="isset($webmailer) &amp;&amp; isset($mailers[$webmailer])">
+<True>
+<Select File="include/mailer.inc.php" Position="548" StringValue="isset($webmailer) &amp;&amp; isset($mailers[$webmailer])">
+<True>
+<Symbolic File="include/mailer.inc.php" Position="610" StringValue="$mailers[$webmailer]"/>
+</True>
+<False>
+<Symbolic File="include/mailer.inc.php" Position="508" StringValue="$mailers[getPref('mailer')]"/>
+</False>
+</Select>
+</True>
+<False>
+<Literal File="include/mailer.inc.php" Position="654" StringValue="mailto:"/>
+</False>
+</Select>
+<Literal File="index.php" Position="11004" StringValue="&quot;+addresses;&#10;}&#10;&#10;function Doodle() {&#10;&#9;&#10;&#9;var participants = &quot;&quot;;&#10;&#9;var dst_count = 0;&#10;&#10;  select_count = document.getElementsByName(&quot;selected[]&quot;).length;&#10;&#9;for (i = 0; i &lt; select_count; i++) {&#10;&#9;&#9;selected_i = document.getElementsByName(&quot;selected[]&quot;)[i];&#10;&#9;&#9;if( selected_i.checked == true) {&#10;&#9;&#9;&#9;participants += selected_i.id+&quot;;&quot;;&#10;&#9;&#9;&#9;dst_count++;&#10;&#9;&#9;}&#10;&#9;}&#10;&#9;alert(participants);&#10;&#9;if(dst_count == 0)&#10;&#9;&#9;alert(&quot;No paticipants selected.&quot;);&#10;&#9;else&#10;&#9;  location.href = &quot;./doodle.php?part=&quot;+participants;&#10;}&#10;&#10;function DeleteSel() {&#10;&#9;&#10;&#9;var participants = &quot;&quot;;&#10;&#9;var dst_count = 0;&#10;&#10;  select_count = document.getElementsByName(&quot;selected[]&quot;).length;&#10;&#9;for (i = 0; i &lt; select_count; i++) {&#10;&#9;&#9;selected_i = document.getElementsByName(&quot;selected[]&quot;)[i];&#10;&#9;&#9;if( selected_i.checked == true) {&#10;&#9;&#9;&#9;participants += selected_i.id+&quot;;&quot;;&#10;&#9;&#9;&#9;dst_count++;&#10;&#9;&#9;}&#10;&#9;}&#10;&#10;&#9;if(dst_count == 0)&#10;&#9;&#9;alert(&quot;No paticipants selected.&quot;);&#10;&#9;else&#10;&#9;&#9;if(confirm('Delete '+dst_count+' addresses?')) {&#10;&#9;    location.href = &quot;./delete.php?part=&quot;+participants;&#10;&#9;  }&#10;}&#10;&#10;function applyZebra() {&#10;&#9;&#10;  &#9;// loop over all lines&#10;  &#9;var maintable = document.getElementById(&quot;maintable&quot;)&#10;  &#9;var tbody     = maintable.getElementsByTagName(&quot;tbody&quot;);&#10;  &#9;var entries   = tbody[0].children;&#10;  &#9;var zebraCnt  = 0;&#10;&#10;&#9;  // Skip header(0) + selection row(length-1)&#10;  &#9;for(i = 1; i &lt; entries.length; i++) {&#10;  &#9;&#9;if(entries[i].style.display != &quot;none&quot;) {&#10;      &#9;if((zebraCnt % 2) == 0) {&#10;      &#9;  entries[i].className = &quot;&quot;;&#10;      &#9;} else {&#10;      &#9;  entries[i].className = &quot;odd&quot;;&#10;      &#9;}&#10;     &#9;  zebraCnt++;&#10;  &#9;&#9;}&#10;    }&#10;}&#10;&#10;//&#10;// Filter the items in the fields&#10;//&#10;function filterResults(field) {&#10;&#10;  &#9;var query = field.value;&#10;  &#9; &#9;&#10;  &#9;// split lowercase on white spaces&#10;  &#9;var words = query.toLowerCase().split(&quot; &quot;);&#10;&#10;  &#9;// loop over all lines&#10;  &#9;var maintable = document.getElementById(&quot;maintable&quot;)&#10;  &#9;var tbody     = maintable.getElementsByTagName(&quot;tbody&quot;);&#10;  &#9;var entries   = tbody[0].children;&#10;  &#9;var foundCnt  = 0;&#10;&#9;&#10;&#9;  // Skip header(0) + selection row(length-1)&#10;  &#9;for(i = 1; i &lt; entries.length; i++) {&#10;  &#9;&#9;&#10;  &#9;&#9;// Name + Firstname + Phonenumber + Mailaddress&#10;  &#9;&#9;var content = entries[i].childNodes[0].childNodes[0].accept&#10;  &#9;&#9;            + &quot; &quot; + entries[i].childNodes[1].innerHTML&#10;  &#9;&#9;            + &quot; &quot; + entries[i].childNodes[2].innerHTML;&#10;  &#9;&#9;            &#10;      // Don't be case sensitive&#10;  &#9;&#9;content = content.toLowerCase();&#10;&#10;      // check if all words are present  &#9;&#9;            &#10;      var foundAll = true;&#10;  &#9;&#9;for(j = 0; j &lt; words.length; j++) {&#10;  &#9;&#9;&#9;foundAll = foundAll &amp;&amp; (content.search(words[j]) != -1);&#10;  &#9;&#9;}&#10;  &#9;&#9;&#10;  &#9;&#9;// Keep selected entries&#10;      foundAll = foundAll || entries[i].childNodes[0].childNodes[0].checked;&#10;  &#9;&#9;&#10;      // ^Hide entry&#10;      if(foundAll) {&#10;      &#9;entries[i].style.display = &quot;&quot;;&#10;     &#9;  foundCnt++;  &#9;&#9;&#9;&#10;      } else {&#10;      &#9;entries[i].style.display = &quot;none&quot;;&#10;      }&#10;  &#9;}  &#9;&#10;  &#9;document.getElementById(&quot;search_count&quot;).innerHTML = foundCnt;&#10;  &#9;&#10;  &#9;applyZebra();&#10;}&#10;&#10;"/>
+<Select File="index.php" Position="13926" StringValue="$use_ajax">
+<True>
+<Literal File="index.php" Position="13942" StringValue="filterResults(document.getElementsByName(&quot;searchstring&quot;)[0]);&#10;"/>
+</True>
+</Select>
+<Literal File="index.php" Position="14015" StringValue="&#10;//--&gt;&#10;&lt;/script&gt;&#10;"/>
+<Literal File="include/footer.inc.php" Position="0" StringValue="&#13;&#10;"/>
+<Select File="include/footer.inc.php" Position="105" StringValue="$_SERVER['SERVER_NAME'] == &quot;php-addressbook.sourceforge.net&quot;">
+<True>
+<Concat>
+<Literal File="include/footer.inc.php" Position="173" StringValue="&lt;center&gt;&#13;&#10;&lt;a href=&quot;http://sourceforge.net/projects/php-addressbook&quot;&gt;&#13;&#10;  &lt;img src=&quot;http://sflogo.sourceforge.net/sflogo.php?group_id=157964&amp;amp;type=13&quot; width=&quot;120&quot; height=&quot;30&quot; alt=&quot;Get PHP Address Book at SourceForge.net. Fast, secure and Free Open Source software downloads&quot; /&gt;&#13;&#10;&lt;/a&gt;&#13;&#10;"/>
+<Literal File="include/footer.inc.php" Position="459" StringValue="&lt;s"/>
+<Literal File="include/footer.inc.php" Position="461" StringValue="cript type=&quot;text/javascript&quot; src=&quot;http://www.ohloh.net/projects/25477/widgets/project_partner_badge&quot;&gt;&#13;&#10;// ohloh.net &quot;Project Value&quot; integration&#13;&#10;&lt;/script&gt;&#13;&#10;&lt;/center&gt;&#13;&#10;"/>
+<Literal File="include/footer.inc.php" Position="628" StringValue="&lt;s"/>
+<Literal File="include/footer.inc.php" Position="630" StringValue="cript type=&quot;text/javascript&quot;&gt;&#13;&#10;&#9;// Google-Analytics integration&#13;&#10;&#9;var gaJsHost = ((&quot;https:&quot; == document.location.protocol) ? &quot;https://ssl.&quot; : &quot;http://www.&quot;);&#13;&#10;&#9;document.write(unescape(&quot;%3Cscript src='&quot; + gaJsHost + &quot;google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E&quot;));&#13;&#10;&lt;/script&gt;&#13;&#10;"/>
+<Literal File="include/footer.inc.php" Position="929" StringValue="&lt;s"/>
+<Literal File="include/footer.inc.php" Position="931" StringValue="cript type=&quot;text/javascript&quot;&gt;&#13;&#10;&#9;var pageTracker = _gat._getTracker(&quot;UA-6220233-1&quot;);&#13;&#10;&#9;pageTracker._trackPageview();&#13;&#10;&lt;/script&gt;        &#13;&#10;&lt;/html&gt; &#13;&#10;"/>
+</Concat>
+</True>
+<False>
+<Literal File="include/footer.inc.php" Position="1095" StringValue="&#9;&lt;/div&gt;&#13;&#10;&#9;&lt;div id=&quot;footer&quot;&gt;&#13;&#10;"/>
+</False>
+</Select>
+<Literal File="include/footer.inc.php" Position="1136" StringValue="&#13;&#10;"/>
+<Select File="include/footer.inc.php" Position="1242" StringValue="$_SERVER['SERVER_NAME'] == &quot;php-addressbook.sourceforge.net&quot;">
+<True>
+<Concat>
+<Literal File="include/footer.inc.php" Position="1310" StringValue="&#9;&lt;div class=&quot;right&quot;&gt;&#13;&#10;&#9;&#9;&lt;div id=&quot;download&quot;&gt;&#13;&#10;&#9;&#9;&#9;&lt;a href=&quot;../download&quot;&gt;&lt;b&gt;Download&lt;/b&gt;&lt;/a&gt; "/>
+<Literal File="include/footer.inc.php" Position="1412" StringValue="v"/>
+<Literal File="include/dbconnect.php" Position="9985" StringValue="6.2.12"/>
+<Literal File="include/dbconnect.php" Position="9994" StringValue=" - r"/>
+<Symbolic File="include/dbconnect.php" Position="10000" StringValue="$revision">
+<Symbolic File="include/dbconnect.php" Position="9891" StringValue="str_replace('$', '', str_replace(' ', '', str_replace('Rev: ', '', $revision)))"/>
+</Symbolic>
+<Literal File="include/footer.inc.php" Position="1428" StringValue="&#9;&#9;&lt;/div&gt;&lt;br class=&quot;clear&quot; /&gt;&#13;&#10;&#9;&lt;/div&gt;&#13;&#10;"/>
+</Concat>
+</True>
+</Select>
+<Literal File="include/footer.inc.php" Position="1479" StringValue="&#9;&#9;&#9;&lt;ul&gt;&#13;&#10;&#9;&#9;&#9;&#9;&lt;li&gt;&lt;a href=&quot;http://sourceforge.net/projects/php-addressbook/&quot;&gt;php-addressbook&lt;/a&gt; &lt;a href=&quot;notes.htm&quot;&gt;v"/>
+<Literal File="include/dbconnect.php" Position="9985" StringValue="6.2.12"/>
+<Literal File="include/dbconnect.php" Position="9994" StringValue=" - r"/>
+<Symbolic File="include/dbconnect.php" Position="10000" StringValue="$revision">
+<Symbolic File="include/dbconnect.php" Position="9891" StringValue="str_replace('$', '', str_replace(' ', '', str_replace('Rev: ', '', $revision)))"/>
+</Symbolic>
+<Literal File="include/footer.inc.php" Position="1619" StringValue="&lt;/a&gt;&lt;/li&gt;&#13;&#10;&#9;&#9;&#9;&lt;/ul&gt;&#13;&#10;&#9;&lt;/div&gt;&#13;&#10;&lt;/div&gt;&#13;&#10;&#9;&lt;/body&gt;&#13;&#10;&#13;&#10;&lt;!-- &#13;&#10;Copyright Notice:&#13;&#10;This script was written by Rob Minto, and is free to use and distribute under GPL. &#13;&#10;Any improvements, please email rob(at)widgetmonkey.com. &#13;&#10;Keep software free. &#13;&#10;And please leave this copyright notice. Thanks.&#13;&#10;&#13;&#10;Major update 2007-2009 by Olivier Chatelain, feel free to use and distribute under GPL. &#13;&#10;Any improvements, please email chatelao(at)users.sourceforge.net. &#13;&#10;&#13;&#10;Updated 2009 - Complete theme redesign by Leighton West. Any theme problems,&#13;&#10;please email retrorobot(at)users.sourceforge.net.&#13;&#10;&#13;&#10;Major contribution Mark James (&quot;famfamfam&quot;-icons, cc-by-2.5)&#13;&#10;For more details see: http://www.famfamfam.com/lab/icons/silk/&#13;&#10;&#13;&#10;Major contribution &quot;frequency decoder&quot; (&quot;Unobtrusive Table Sort Script&quot;, cc-by-sa-2.5)&#13;&#10;For more details see: http://www.frequency-decoder.com/2006/09/16/unobtrusive-table-sort-script-revisited/&#13;&#10;--&gt;&#13;&#10;"/>
+<Literal File="index.php" Position="14076" StringValue="&lt;s"/>
+<Literal File="index.php" Position="14078" StringValue="cript type=&quot;text/javascript&quot; src=&quot;jstablesort/tablesort.min.js&quot;&gt;&lt;/script&gt;&#10;"/>
+</Concat>
+</True>
+<False>
+<Concat>
+<Literal File="include/format.inc.php" Position="0" StringValue="&lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.0 Transitional//EN&quot; &quot;http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd&quot;&gt;&#10;&lt;html xmlns=&quot;http://www.w3.org/1999/xhtml&quot; xml:lang=&quot;en&quot; lang=&quot;en&quot; "/>
+<Select File="include/format.inc.php" Position="198" StringValue="is_right_to_left($lang)">
+<True>
+<Literal File="include/format.inc.php" Position="229" StringValue="dir='rtl'"/>
+</True>
+</Select>
+<Literal File="include/format.inc.php" Position="243" StringValue="&gt;&#10;&lt;head&gt;&#10;&#9;&lt;meta http-equiv=&quot;Content-Type&quot; content=&quot;text/html; charset=UTF-8&quot; /&gt;&#10;&#9;&lt;meta name=&quot;Description&quot; content=&quot;PHP-Addressbook&quot; /&gt;&#10;&#9;&lt;meta name=&quot;Keywords&quot; content=&quot;&quot; /&gt;&#10;&#10;&#9;"/>
+<Literal File="include/format.inc.php" Position="417" StringValue="&lt;s"/>
+<Literal File="include/format.inc.php" Position="419" StringValue="tyle type=&quot;text/css&quot;&gt;&#10;"/>
+<Literal File="include/format.inc.php" Position="1036" StringValue="&#9;&#9;&#10;    body {background-image:url('./skins/header-"/>
+<Select File="include/dbconnect.php" Position="2978" StringValue="!isset($skin_color)">
+<True>
+<Literal File="include/dbconnect.php" Position="3014" StringValue="blue"/>
+</True>
+</Select>
+<Literal File="include/format.inc.php" Position="1112" StringValue=".jpg');background-repeat:repeat-x;background-position:top left;}&#10;    table#maintable th {text-align:center;border:1px solid #ccc;font-size:12px;background:"/>
+<Select File="include/format.inc.php" Position="502" StringValue="case $skin_color == &quot;blue&quot;">
+<True>
+<Literal File="include/format.inc.php" Position="537" StringValue="#739fce"/>
+</True>
+<False>
+<Select File="include/format.inc.php" Position="560" StringValue="case $skin_color == &quot;brown&quot;">
+<True>
+<Literal File="include/format.inc.php" Position="596" StringValue="#c59469"/>
+</True>
+<False>
+<Select File="include/format.inc.php" Position="619" StringValue="case $skin_color == &quot;green&quot;">
+<True>
+<Literal File="include/format.inc.php" Position="655" StringValue="#66a749"/>
+</True>
+<False>
+<Select File="include/format.inc.php" Position="678" StringValue="case $skin_color == &quot;grey&quot;">
+<True>
+<Literal File="include/format.inc.php" Position="713" StringValue="#777777"/>
+</True>
+<False>
+<Select File="include/format.inc.php" Position="736" StringValue="case $skin_color == &quot;pink&quot;">
+<True>
+<Literal File="include/format.inc.php" Position="771" StringValue="#a84989"/>
+</True>
+<False>
+<Select File="include/format.inc.php" Position="794" StringValue="case $skin_color == &quot;purple&quot;">
+<True>
+<Literal File="include/format.inc.php" Position="831" StringValue="#5349a9"/>
+</True>
+<False>
+<Select File="include/format.inc.php" Position="854" StringValue="case $skin_color == &quot;red&quot;">
+<True>
+<Literal File="include/format.inc.php" Position="888" StringValue="#b63a3a"/>
+</True>
+<False>
+<Select File="include/format.inc.php" Position="911" StringValue="case $skin_color == &quot;turquoise&quot;">
+<True>
+<Literal File="include/format.inc.php" Position="951" StringValue="#48a89d"/>
+</True>
+<False>
+<Select File="include/format.inc.php" Position="974" StringValue="case $skin_color == &quot;yellow&quot;">
+<True>
+<Literal File="include/format.inc.php" Position="1011" StringValue="#b4b43a"/>
+</True>
+</Select>
+</False>
+</Select>
+</False>
+</Select>
+</False>
+</Select>
+</False>
+</Select>
+</False>
+</Select>
+</False>
+</Select>
+</False>
+</Select>
+</False>
+</Select>
+<Literal File="include/format.inc.php" Position="1296" StringValue=";color:#fff;}&#10;    table#birthdays th {color:#fff;background:"/>
+<Select File="include/format.inc.php" Position="502" StringValue="case $skin_color == &quot;blue&quot;">
+<True>
+<Literal File="include/format.inc.php" Position="537" StringValue="#739fce"/>
+</True>
+<False>
+<Select File="include/format.inc.php" Position="560" StringValue="case $skin_color == &quot;brown&quot;">
+<True>
+<Literal File="include/format.inc.php" Position="596" StringValue="#c59469"/>
+</True>
+<False>
+<Select File="include/format.inc.php" Position="619" StringValue="case $skin_color == &quot;green&quot;">
+<True>
+<Literal File="include/format.inc.php" Position="655" StringValue="#66a749"/>
+</True>
+<False>
+<Select File="include/format.inc.php" Position="678" StringValue="case $skin_color == &quot;grey&quot;">
+<True>
+<Literal File="include/format.inc.php" Position="713" StringValue="#777777"/>
+</True>
+<False>
+<Select File="include/format.inc.php" Position="736" StringValue="case $skin_color == &quot;pink&quot;">
+<True>
+<Literal File="include/format.inc.php" Position="771" StringValue="#a84989"/>
+</True>
+<False>
+<Select File="include/format.inc.php" Position="794" StringValue="case $skin_color == &quot;purple&quot;">
+<True>
+<Literal File="include/format.inc.php" Position="831" StringValue="#5349a9"/>
+</True>
+<False>
+<Select File="include/format.inc.php" Position="854" StringValue="case $skin_color == &quot;red&quot;">
+<True>
+<Literal File="include/format.inc.php" Position="888" StringValue="#b63a3a"/>
+</True>
+<False>
+<Select File="include/format.inc.php" Position="911" StringValue="case $skin_color == &quot;turquoise&quot;">
+<True>
+<Literal File="include/format.inc.php" Position="951" StringValue="#48a89d"/>
+</True>
+<False>
+<Select File="include/format.inc.php" Position="974" StringValue="case $skin_color == &quot;yellow&quot;">
+<True>
+<Literal File="include/format.inc.php" Position="1011" StringValue="#b4b43a"/>
+</True>
+</Select>
+</False>
+</Select>
+</False>
+</Select>
+</False>
+</Select>
+</False>
+</Select>
+</False>
+</Select>
+</False>
+</Select>
+</False>
+</Select>
+</False>
+</Select>
+<Literal File="include/format.inc.php" Position="1385" StringValue=";margin:25px;border:1px solid #ccc;}&#10;&#9;&#9;"/>
+<Literal File="style.css" Position="0" StringValue="table#maintable th a {color:#fff;}&#10;body,#footer,ul {margin:0;padding:0;}&#10;body,p,td,h1,h2,a,a:hover {font-family:Arial,Helvetica,sans-serif;font-size:12px}&#10;h1 {font-size:18px}&#10;h2 {font-size:14px}&#10;a {color:#036}&#10;a:hover {color:#06C;text-decoration:none}&#10;img {border:0;}&#10;textarea {font-family:Arial,Helvetica,sans-serif;font-size:10pt}&#10;&#10;#container {margin:0 auto;width:780px;border:0}&#10;#top{color:#fff;margin:5px 0 0;height:20px;text-align:right;}&#10;#header {height:80px;}&#10;#header h1 {display:none;}&#10;&#10;#nav {margin:0 0 20px;height:25px;width:770px;float:left;border:0;display:inline;}&#10;#nav ul li a {color:#fff;padding:0 4px;}&#10;#nav ul li img {display:none;}&#10;&#10;#content {margin:20px 0 0;width:780px;}&#10;#footer {margin:45px 0 0;padding:20px 0;clear:both;}&#10;&#10;ul {list-style:none;}&#10;ul li {display:inline;}&#10;#footer ul li {display:block;}&#10;&#10;label {margin-right:0.5em;width:10em;float:left;text-align:left;display:block;}&#10;&#10;#search-az {text-align:center;padding:2px;}&#10;#a-z a {font-size:75%;} &#10;&#10;.odd {background:#e5e5e5;}&#10;.even {background:#f3f3f3;}&#10;&#10;#right,.right {float:right;}&#10;#left,.left {float:left;}&#10;.clear {clear:both;}&#10;&#10;.msgbox {padding:16px;border:1px solid #ccc;background:#fff4b4;width:60%;font-weight:700;}&#10;.msgbox i {font-weight:400;}&#10;&#10;table {width:100%;border:1px solid #ccc;border-collapse:collapse;}&#10;table tr td {border:1px solid #ccc;padding:2px 1px}&#10;table img,.center {text-align:center;}&#10;table th {text-align:left;font-size:14px;padding:8px 4px;}&#10;&#10;table#birthdays {border:0;}&#10;.tablespace td {border:0;}&#10;&#10;/* View.php */&#10;table#view,table#view td {border:1px solid #000;border-collapse:collapse;}&#10;table#view td {padding:5px;}&#10;&#10;/* Edit.php */&#10;#content input[type=text],#content textarea {width:220px; margin-bottom:3px;}&#10;#content input[type=text] {height:1,1em}&#10;#content textarea {height:8em}&#10;input.byear{width:4em !important;}&#10;&#10;/* Source Forge */&#10;#download {margin:0;width:180px;background:#63A624;color:#fff;border:1px solid #000;text-align:center;}&#10;#download a,#top a {color:#fff;}&#10;&#10;/* Login */&#10;#content input[name=user],input[name=pass] {width:150px; margin-bottom:3px;}"/>
+<Literal File="include/format.inc.php" Position="1454" StringValue="&#9;&lt;/style&gt;&#10;&#9;&lt;!--[if !IE]&gt;--&gt;&#10;&#9;&lt;link media=&quot;only screen and (max-device-width: 480px)&quot; rel=&quot;stylesheet&quot; type=&quot;text/css&quot; href=&quot;iphone.css&quot;/&gt;&#10;&#9;&lt;!--&lt;![endif]--&gt;&#10;&#9;&lt;meta name=&quot;viewport&quot; content=&quot;width=320; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;&quot; /&gt;&#10;&#10;&#10;&#9;&lt;link rel=&quot;icon&quot; type=&quot;image/png&quot; href=&quot;"/>
+<Select File="include/dbconnect.php" Position="3827" StringValue="!isset($url_images)">
+<True>
+<Literal File="include/dbconnect.php" Position="3863" StringValue=""/>
+</True>
+<False>
+<Literal File="config/config.php" Position="3787" StringValue=""/>
+</False>
+</Select>
+<Literal File="include/format.inc.php" Position="1781" StringValue="icons/font.png&quot; /&gt;&#10;&#9;"/>
+<Select File="include/format.inc.php" Position="1810" StringValue="is_right_to_left($lang)">
+<True>
+<Concat>
+<Literal File="include/format.inc.php" Position="1840" StringValue="&#9;"/>
+<Literal File="include/format.inc.php" Position="1841" StringValue="&lt;s"/>
+<Literal File="include/format.inc.php" Position="1843" StringValue="tyle type=&quot;text/css&quot;&gt;&#10;&#9;&#9;&lt;!--&#10;&#9;&#9;/* CSS for right to left */&#10;&#9;&#9;label {margin-left:0.5em;float:right;text-align:right;}&#10;&#9;&#9;#content,#right,.right {float:left;}&#10;&#9;&#9;#nav,#left,.left {float:right;}&#10;&#9;&#9;--&gt;&#10;&#9;&lt;/style&gt;&#10;&#9;"/>
+</Concat>
+</True>
+</Select>
+<Literal File="include/dbconnect.php" Position="5503" StringValue="&lt;title&gt;"/>
+<Select File="include/translations.inc.php" Position="2914" StringValue="$has_mb_strtoupper">
+<True>
+<Concat>
+<Symbolic File="include/translations.inc.php" Position="2948" StringValue="mb_strtoupper(mb_substr($msg, 0,1))"/>
+<Symbolic File="include/translations.inc.php" Position="2984" StringValue="mb_substr($msg, 1)"/>
+</Concat>
+</True>
+<False>
+<Symbolic File="include/translations.inc.php" Position="3057" StringValue="ucfirst($msg)"/>
+</False>
+</Select>
+<Literal File="include/dbconnect.php" Position="5536" StringValue="&lt;/title&gt;"/>
+<Symbolic File="include/translations.inc.php" Position="3563" StringValue="$text">
+<Symbolic File="include/dbconnect.php" Position="5571" StringValue="file_get_contents(&quot;include/login.inc.html&quot;)"/>
+</Symbolic>
+</Concat>
+</False>
+</Select>
+</Output>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<Output>
+<Select File="include/format.inc.php" Position="560" StringValue="Foo">
+<True>
+<Concat>
+<Literal File="include/format.inc.php" Position="0" StringValue="&lt;!DOCTYPE "/>
+<Literal File="include/format.inc.php" Position="229" StringValue="html&gt;"/>
+</Concat>
+</True>
+<False>
+<Concat>
+<Literal File="include/format.inc.php" Position="243" StringValue="&lt;html attrA="/>
+<Literal File="include/format.inc.php" Position="417" StringValue="&quot;A&quot;>"/>
+<Literal File="include/format.inc.php" Position="419" StringValue="&lt;div&gt;abc&lt;/div&gt;"/>
+<Literal File="include/format.inc.php" Position="1036" StringValue="&lt;/html&gt;"/>
+</Concat>
+</False>
+</Select>
+</Output>

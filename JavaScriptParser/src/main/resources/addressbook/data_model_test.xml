@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<Output>
+<Concat>
+<Literal File="index.php" Position="9881" StringValue="&lt;script&gt;"/>
+<Literal File="index.php" Position="11004" StringValue="function Doodle(){} "/>
+<Select File="index.php" Position="-1" StringValue="$use_ajax">
+<True>
+<Literal File="index.php" Position="-1" StringValue="filterResults();"/>
+</True>
+</Select>
+<Literal File="index.php" Position="-1" StringValue=";&lt;/script&gt;&#10;"/>
+</Concat>
+</Output>

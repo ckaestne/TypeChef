@@ -63,11 +63,11 @@ class HTMLSAXParser extends MultiFeatureParser {
   //def HtmlText: MultiParser[HText] = rep1(token("no < or >", x => !(Set('<', '>') contains x.getKindChar()))) ^^ {HText(_)}
   def HtmlText: MultiParser[HText] = rep1(CharInText) ^^ { HText(_) }
 
-  def CharInText: MultiParser[CharacterToken] = (token("any char except <", x => x.getKindChar() != '<'))
-  //    												| ('<' <~ lookahead(token("not word char", x => x.getKindChar() != '/' && x.getKindChar() != '!' && !isWordChar(x))))
-  //    												| ('<' <~ lookahead('/' ~ token("not word char", !isWordChar(_))))
-  //    												| ('<' <~ lookahead('!' ~ token("any char except -", x => x.getKindChar() != '-')))
-  //    												| ('<' <~ lookahead('!' ~ '-' ~ token("any char except -", x => x.getKindChar() != '-'))))
+  def CharInText: MultiParser[CharacterToken] = (token("any char except <", x => x.getKindChar() != '<')
+      												| ('<' <~ lookahead(token("not word char", x => x.getKindChar() != '/' && x.getKindChar() != '!' && !isWordChar(x))))
+      												| ('<' <~ lookahead('/' ~ token("not word char", !isWordChar(_))))
+      												| ('<' <~ lookahead('!' ~ token("any char except -", x => x.getKindChar() != '-')))
+      												| ('<' <~ lookahead('!' ~ '-' ~ token("any char except -", x => x.getKindChar() != '-'))))
 
   def HtmlComment: MultiParser[HText] = '<' ~> '!' ~> '-' ~> '-' ~> repOpt(CharInComment) <~ '-' <~ '-' <~ '>' ^^ {
     HText(_)

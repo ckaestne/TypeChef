@@ -1,0 +1,1484 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" dir="rtl" xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+ Text
+ <head>
+  Text
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  </meta>
+  Text
+  <meta name="Description" content="PHP-Addressbook">
+  </meta>
+  Text
+  <meta name="Keywords" content="">
+  </meta>
+  Text
+  <style type="text/css">
+   Text
+  </style>
+  Text
+  Text
+  Text
+  <link media="only screen and (max-device-width: 480px)" rel="stylesheet" type="text/css" href="iphone.css">
+  </link>
+  Text
+  Text
+  Text
+  <meta name="viewport" content="width=320; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  </meta>
+  Text
+  <link rel="icon" type="image/png" href="icons/font.png">
+  </link>
+  Text
+  <style type="text/css" cond="List((def([Unresolved Constraint])&def(is_right_to_left($lang))), True)">
+   Text
+   Text
+   Text
+  </style>
+  Text
+  <title>
+   Text
+   Text
+  </title>
+  Text
+ </head>
+ Text
+ <body cond="List((def([Unresolved Constraint])&def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+  Text
+  <div id="container" cond="List((def([Unresolved Constraint])&def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+   Text
+   <div id="top" cond="List((def([Unresolved Constraint])&def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+    Text
+    Text
+    Text
+    <form name="logout" method="post" class="header">
+     Text
+     <input type="hidden" name="logout" value="yes">
+     </input>
+     Text
+     <b>
+      Text
+     </b>
+     Text
+     <a href="#" onClick="javascript: document.logout.submit();
+">
+      Text
+      Text
+     </a>
+     Text
+    </form>
+    <b>
+     Text
+    </b>
+    Text
+    Text
+   </div>
+   Text
+   <div id="header" cond="List((def([Unresolved Constraint])&def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+    Text
+    <h1 cond="List((def([Unresolved Constraint])&def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+     <a href="." cond="List((def([Unresolved Constraint])&def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+      Text
+     </a>
+    </h1>
+    Text
+    <a href="." cond="List((def([Unresolved Constraint])&def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+     <img src="title.png" title="Addressbook" alt="Addressbook" id="logo" cond="List((def([Unresolved Constraint])&def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+     </img>
+    </a>
+    Text
+   </div>
+   Text
+   <div id="nav" cond="List((def([Unresolved Constraint])&def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+    Text
+    Text
+    Text
+    <ul cond="List((def([Unresolved Constraint])&def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+     Text
+     <li cond="List((def([Unresolved Constraint])&def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+      Text
+      <a href="./?group=" href="./" href="./?group=SYM" cond="List((def([Unresolved Constraint])&def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+       Text
+       Text
+      </a>
+      Text
+     </li>
+     Text
+     Text
+     Text
+     <li class="all">
+      Text
+      <a href="edit.php?group=" href="edit.php" href="edit.php?group=SYM">
+       Text
+       Text
+      </a>
+      Text
+     </li>
+     Text
+     Text
+     <li class="admin">
+      Text
+      <a href="group.php?group=" href="group.php" href="group.php?group=SYM">
+       Text
+       Text
+      </a>
+      Text
+     </li>
+     Text
+     <li class="all" cond="List((def([Unresolved Constraint])&def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+      Text
+      <a href="birthdays.php?group=" href="birthdays.php" href="birthdays.php?group=SYM" cond="List((def([Unresolved Constraint])&def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+       Text
+       Text
+      </a>
+      Text
+     </li>
+     Text
+     <li class="export" cond="List((def([Unresolved Constraint])&def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+      Text
+      <a href="view.php?group=&amp;all&amp;print" href="view.php?all&amp;print" href="view.php?group=SYM&amp;all&amp;print" cond="List((def([Unresolved Constraint])&def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+       Text
+       Text
+      </a>
+      Text
+     </li>
+     Text
+     <li class="export" cond="List((def([Unresolved Constraint])&def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+      Text
+      <a href="view.php?group=&amp;all&amp;print&amp;phones" href="view.php?all&amp;print&amp;phones" href="view.php?group=SYM&amp;all&amp;print&amp;phones" cond="List((def([Unresolved Constraint])&def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+       Text
+       Text
+      </a>
+      Text
+     </li>
+     Text
+     Text
+     <li class="export">
+      Text
+      <a href="map.php?group=&amp;" href="map.php?" href="map.php?group=SYM&amp;">
+       Text
+       Text
+      </a>
+      Text
+     </li>
+     Text
+     <li class="export" cond="List((def([Unresolved Constraint])&def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+      Text
+      <a href="export.php?group=" href="export.php" href="export.php?group=SYM" cond="List((def([Unresolved Constraint])&def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+       Text
+       Text
+      </a>
+      Text
+     </li>
+     Text
+     <li class="export">
+      Text
+      <a href="import.php?group=" href="import.php" href="import.php?group=SYM">
+       Text
+       Text
+      </a>
+      Text
+     </li>
+     Text
+    </ul>
+    Text
+   </div>
+   Text
+   <div id="content" cond="List((def([Unresolved Constraint])&def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+    Text
+    <br cond="List((def([Unresolved Constraint])&def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+    </br>
+    <br cond="List((def([Unresolved Constraint])&def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+    </br>
+    Text
+    <div id="search-az" cond="List((def([Unresolved Constraint])&def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+     Text
+     Text
+     <form accept-charset="utf-8" method="get" name="searchform">
+      Text
+      <input type="text" value="SYM" name="searchstring" title="SYMSYM" title="SYM" size="45" tabindex="0">
+      </input>
+      Text
+      <input name="submitsearch" type="submit" value="SYM">
+      </input>
+      Text
+     </form>
+     Text
+     Text
+     <table border="0">
+      Text
+      <tr>
+       Text
+       <td>
+        Text
+        <br>
+        </br>
+        Text
+        <img src="icons/cross.png">
+        </img>
+        Text
+        <a href="http://swiss-addressbook.com">
+         Text
+        </a>
+        Text
+        <img src="icons/cross.png">
+        </img>
+        <br>
+        </br>
+        Text
+        <b>
+         <i>
+          Text
+         </i>
+        </b>
+        Text
+       </td>
+      </tr>
+      Text
+     </table>
+     <div id="a-z">
+      <a href="indexSYMalphabet=a">
+       Text
+      </a>
+      Text
+      <a href="indexSYMalphabet=b">
+       Text
+      </a>
+      Text
+      <a href="indexSYMalphabet=c">
+       Text
+      </a>
+      Text
+      <a href="indexSYMalphabet=d">
+       Text
+      </a>
+      Text
+      <a href="indexSYMalphabet=e">
+       Text
+      </a>
+      Text
+      <a href="indexSYMalphabet=f">
+       Text
+      </a>
+      Text
+      <a href="indexSYMalphabet=g">
+       Text
+      </a>
+      Text
+      <a href="indexSYMalphabet=h">
+       Text
+      </a>
+      Text
+      <a href="indexSYMalphabet=i">
+       Text
+      </a>
+      Text
+      <a href="indexSYMalphabet=j">
+       Text
+      </a>
+      Text
+      <a href="indexSYMalphabet=k">
+       Text
+      </a>
+      Text
+      <a href="indexSYMalphabet=l">
+       Text
+      </a>
+      Text
+      <a href="indexSYMalphabet=m">
+       Text
+      </a>
+      Text
+      <a href="indexSYMalphabet=n">
+       Text
+      </a>
+      Text
+      <a href="indexSYMalphabet=o">
+       Text
+      </a>
+      Text
+      <a href="indexSYMalphabet=p">
+       Text
+      </a>
+      Text
+      <a href="indexSYMalphabet=q">
+       Text
+      </a>
+      Text
+      <a href="indexSYMalphabet=r">
+       Text
+      </a>
+      Text
+      <a href="indexSYMalphabet=s">
+       Text
+      </a>
+      Text
+      <a href="indexSYMalphabet=t">
+       Text
+      </a>
+      Text
+      <a href="indexSYMalphabet=u">
+       Text
+      </a>
+      Text
+      <a href="indexSYMalphabet=v">
+       Text
+      </a>
+      Text
+      <a href="indexSYMalphabet=w">
+       Text
+      </a>
+      Text
+      <a href="indexSYMalphabet=x">
+       Text
+      </a>
+      Text
+      <a href="indexSYMalphabet=y">
+       Text
+      </a>
+      Text
+      <a href="indexSYMalphabet=z">
+       Text
+      </a>
+      Text
+      <a href="index.php?group=" href="index.php" href="index.php?group=SYM">
+       Text
+       Text
+      </a>
+     </div>
+     Text
+     <br>
+     </br>
+     Text
+     <form accept-charset="utf-8" method="get" name="searchform" onsubmit="javascript: return false;">
+      Text
+      <input type="text" value="SYM" name="searchstring" title="SYMSYM" title="SYM" size="45" tabindex="0" onkeyup="javascript: filterResults(this);">
+      </input>
+      <input type="text" value="SYM" name="searchstring" title="SYMSYM" title="SYM" size="45" tabindex="0">
+      </input>
+      Text
+      Text
+     </form>
+     Text
+     <script type="text/javascript" cond="List((def([Unresolved Constraint])&def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">if (php_cond("def([Unresolved Constraint])")) {
+   document.searchform.searchstring.focus();
+}
+
+     </script>
+     Text
+    </div>
+    <br cond="List((def([Unresolved Constraint])&def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+    </br>
+    Text
+    <hr cond="List((def([Unresolved Constraint])&def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+    </hr>
+    Text
+    <label style="width:24em;" cond="List((def([Unresolved Constraint])&def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+     <strong cond="List((def([Unresolved Constraint])&def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+      Text
+      Text
+      <span id="search_count" cond="List((def([Unresolved Constraint])&def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+       Text
+      </span>
+     </strong>
+    </label>
+    Text
+    <form id="right" method="get">
+     Text
+     <select name="group" onchange="javascript: this.parentNode.submit();">
+      Text
+      Text
+      <option>
+       Text
+       Text
+       Text
+       Text
+      </option>
+      Text
+      <option value="">
+       Text
+      </option>
+      Text
+      <option value="[none]">
+       Text
+      </option>
+      Text
+      <option>
+       Text
+      </option>
+      Text
+     </select>
+     Text
+    </form>
+    Text
+    <br cond="List((def([Unresolved Constraint])&def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+    </br>
+    <br class="clear" cond="List((def([Unresolved Constraint])&def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+    </br>
+    Text
+    <form accept-charset="utf-8" name="MainForm" method="post" action="group.php?group=SYM" action="group.php" action="group.php?group=" cond="List((def([Unresolved Constraint])&def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+     Text
+     <input type="hidden" name="group" value="SYM" value="" cond="List((def([Unresolved Constraint])&def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+     </input>
+     Text
+     <table id="maintable" class="sortcompletecallback-applyZebra" cond="List((def([Unresolved Constraint])&def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+      Text
+      <tr>
+       Text
+       <th class="sortable">
+        Text
+        Text
+       </th>
+       <th>
+       </th>
+       <th>
+        Text
+        Text
+       </th>
+       <th>
+       </th>
+       <th>
+       </th>
+       <th>
+       </th>
+       Text
+      </tr>
+      <tr>
+       Text
+      </tr>
+      Text
+      Text
+      <tr class="" class="odd" name="entry" cond="List((def([Unresolved Constraint])&def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+       <td class="center">
+        <input type="checkbox" id="SYM" name="selected[]" value="SYM" title="Select (SYM SYM)" alt="Select (SYM SYM)" accept="SYM,SYM" accept="SYM%3BSYM" accept="SYMSYM">
+        </input>
+       </td>
+       <td class="center">
+        <a href="viewSYMid=SYM">
+         <img src="SYMicons/status_online.png" title="SYMSYM" title="SYM" alt="SYMSYM" alt="SYM">
+         </img>
+        </a>
+       </td>
+       <td class="center">
+        <a href="vcardSYMid=SYM">
+         <img src="SYMicons/vcard.png" title="vCard" alt="vCard">
+         </img>
+         <img src="SYMicons/vcard.png" title="vCard" alt="vCard">
+         </img>
+        </a>
+       </td>
+       <td class="center">
+        <a href="editSYMid=SYM">
+         <img src="SYMicons/pencil.png" title="SYMSYM" title="SYM" alt="SYMSYM" alt="SYM">
+         </img>
+        </a>
+       </td>
+       <td class="center">
+        <a href="vcardSYMid=SYM">
+         <img src="SYMicons/vcard.png" title="vCard" alt="vCard">
+         </img>
+        </a>
+       </td>
+       <td class="center">
+        <a href="http://maps.google.com/maps?q=SYM&amp;t=h" target="_blank">
+         Text
+         <img src="SYMicons/car.png" title="Google Maps" alt="vCard">
+         </img>
+        </a>
+       </td>
+       <td>
+       </td>
+       <td class="center">
+        <a href="http://SYM" href="SYM">
+         <img src="SYMicons/house.png" title="SYM" title="http://SYM" alt="SYM" alt="http://SYM">
+         </img>
+        </a>
+       </td>
+       <td>
+       </td>
+       <td>
+        Text
+        Text
+        Text
+        Text
+        <a href="mailto:SYM" href="SYMSYM">
+         Text
+        </a>
+        <a href="mailto:SYM" href="SYMSYM">
+         Text
+        </a>
+        Text
+       </td>
+       <td class="center">
+        <a href="http://">
+         <img src="SYMicons/house.png" title="SYMSYM ()" title="SYM ()" alt="SYMSYM ()" alt="SYM ()">
+         </img>
+        </a>
+       </td>
+      </tr>
+      Text
+     </table>
+     Text
+     <input type="checkbox" id="MassCB" onclick="javascript: MassSelection();" cond="List((def([Unresolved Constraint])&def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+     </input>
+     Text
+     <em cond="List((def([Unresolved Constraint])&def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+      <strong cond="List((def([Unresolved Constraint])&def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+       Text
+       Text
+      </strong>
+     </em>
+     <br cond="List((def([Unresolved Constraint])&def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+     </br>
+     <br cond="List((def([Unresolved Constraint])&def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+     </br>
+     <div class="left">
+      <input type="button" value=" SYMSYM" value=" SYM" onclick="javascript: Doodle();">
+      </input>
+     </div>
+     <div class="left" cond="List((def([Unresolved Constraint])&def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+      <input type="button" value=" SYMSYM" value=" SYM" onclick="javascript: MailSelection();" cond="List((def([Unresolved Constraint])&def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+      </input>
+     </div>
+     <div class="left" cond="List((def([Unresolved Constraint])&def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+      <input type="button" value=" SYMSYM" value=" SYM" onclick="javascript: DeleteSel();" cond="List((def([Unresolved Constraint])&def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+      </input>
+     </div>
+     <div class="left">
+      <input type="submit" name="remove" value="SYMSYM " SYM" " value="SYM " SYM" " value="SYMSYM " " " value="SYM " " ">
+      </input>
+     </div>
+     <div>
+     </div>
+     <div class="right">
+      <input type="submit" name="add" value="SYMSYM" value="SYM">
+      </input>
+      Text
+      <select name="to_group">
+       <option>
+        Text
+       </option>
+       Text
+      </select>
+     </div>
+     <br>
+     </br>
+    </form>
+    <hr>
+    </hr>
+    Text
+    <hr>
+    </hr>
+    <script type="text/javascript" cond="List((def([Unresolved Constraint])&def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">if (php_cond("def([Unresolved Constraint])")) {
+   MassSelection = function MassSelection(params) {
+      select_count = document.getElementsByName("selected[]").length;
+      all_checked = document.getElementById("MassCB").checked;
+      for (;;) 
+         {
+            if (document.getElementsByName("selected[]")[i].parentNode.parentNode.style.display != "none")
+               {
+                  document.getElementsByName("selected[]")[i].checked = all_checked;
+               }
+         }
+   }
+}
+if (php_cond("def([Unresolved Constraint])")) {
+   MailSelection = function MailSelection(params) {
+      var addresses = "";
+      var dst_count = 0;
+      select_count = document.getElementsByName("selected[]").length;
+      for (;;) 
+         {
+            selected_i = document.getElementsByName("selected[]")[i];
+            if (selected_i.checked == true)
+               {
+                  if (selected_i.accept != "" && selected_i.accept != null)
+                     {
+                        if (dst_count > 0)
+                           {
+                              if (php_cond("(def([Unresolved Constraint])&def(getPref('mailer') == 'colon'))")) {
+                                 addresses = addresses + ",";
+                              }
+                              if (php_cond("(!def([Unresolved Constraint])|!def(getPref('mailer') == 'colon'))")) {
+                                 addresses = addresses + "%3B";
+                              }
+                           }
+                        addresses = addresses + selected_i.accept;
+                        dst_count++;
+                     }
+               }
+         }
+      if (php_cond("(def([Unresolved Constraint])&def(isset($webmailer) && isset($mailers[$webmailer])))")) {
+         if (dst_count == 0)
+            alert("No address selected.");
+         else
+            location.href = "SYM" + addresses;
+      }
+      if (php_cond("(!def([Unresolved Constraint])|!def(isset($webmailer) && isset($mailers[$webmailer])))")) {
+         if (dst_count == 0)
+            alert("No address selected.");
+         else
+            location.href = "mailto:" + addresses;
+      }
+   }
+}
+if (php_cond("def([Unresolved Constraint])")) {
+   Doodle = function Doodle(params) {
+      var participants = "";
+      var dst_count = 0;
+      select_count = document.getElementsByName("selected[]").length;
+      for (;;) 
+         {
+            selected_i = document.getElementsByName("selected[]")[i];
+            if (selected_i.checked == true)
+               {
+                  participants += selected_i.id + ";";
+                  dst_count++;
+               }
+         }
+      alert(participants);
+      if (dst_count == 0)
+         alert("No paticipants selected.");
+      else
+         location.href = "./doodle.php?part=" + participants;
+   }
+}
+if (php_cond("def([Unresolved Constraint])")) {
+   DeleteSel = function DeleteSel(params) {
+      var participants = "";
+      var dst_count = 0;
+      select_count = document.getElementsByName("selected[]").length;
+      for (;;) 
+         {
+            selected_i = document.getElementsByName("selected[]")[i];
+            if (selected_i.checked == true)
+               {
+                  participants += selected_i.id + ";";
+                  dst_count++;
+               }
+         }
+      if (dst_count == 0)
+         alert("No paticipants selected.");
+      else
+         if (confirm('Delete ' + dst_count + ' addresses?'))
+            {
+               location.href = "./delete.php?part=" + participants;
+            }
+   }
+}
+if (php_cond("def([Unresolved Constraint])")) {
+   applyZebra = function applyZebra(params) {
+      var maintable = document.getElementById("maintable");
+      var tbody = maintable.getElementsByTagName("tbody");
+      var entries = tbody[0].children;
+      var zebraCnt = 0;
+      for (;;) 
+         {
+            if (entries[i].style.display != "none")
+               {
+                  if (zebraCnt % 2 == 0)
+                     {
+                        entries[i].className = "";
+                     }
+                  else
+                     {
+                        entries[i].className = "odd";
+                     }
+                  zebraCnt++;
+               }
+         }
+   }
+}
+if (php_cond("def([Unresolved Constraint])")) {
+   filterResults = function filterResults(params) {
+      var query = field.value;
+      var words = query.toLowerCase().split(" ");
+      var maintable = document.getElementById("maintable");
+      var tbody = maintable.getElementsByTagName("tbody");
+      var entries = tbody[0].children;
+      var foundCnt = 0;
+      for (;;) 
+         {
+            var content = entries[i].childNodes[0].childNodes[0].accept + " " + entries[i].childNodes[1].innerHTML + " " + entries[i].childNodes[2].innerHTML;
+            content = content.toLowerCase();
+            var foundAll = true;
+            for (;;) 
+               {
+                  foundAll = foundAll && content.search(words[j]) != -1;
+               }
+            foundAll = foundAll || entries[i].childNodes[0].childNodes[0].checked;
+            if (foundAll)
+               {
+                  entries[i].style.display = "";
+                  foundCnt++;
+               }
+            else
+               {
+                  entries[i].style.display = "none";
+               }
+         }
+      document.getElementById("search_count").innerHTML = foundCnt;
+      applyZebra();
+   }
+}
+if (php_cond("(def([Unresolved Constraint])&def($use_ajax))")) {
+   filterResults(document.getElementsByName("searchstring")[0]);
+}
+
+    </script>
+    Text
+    <center cond="List((def([Unresolved Constraint])&def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+     Text
+     <a href="http://sourceforge.net/projects/php-addressbook" cond="List((def([Unresolved Constraint])&def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+      Text
+      <img src="http://sflogo.sourceforge.net/sflogo.php?group_id=157964&amp;type=13" width="120" height="30" alt="Get PHP Address Book at SourceForge.net. Fast, secure and Free Open Source software downloads" cond="List((def([Unresolved Constraint])&def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+      </img>
+      Text
+     </a>
+     Text
+     <script type="text/javascript" src="http://www.ohloh.net/projects/25477/widgets/project_partner_badge" cond="List((def([Unresolved Constraint])&def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+     </script>
+     Text
+    </center>
+    Text
+    <script type="text/javascript" cond="List((def([Unresolved Constraint])&def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">if (php_cond("(def([Unresolved Constraint])&def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net'))")) {
+   var gaJsHost = "https:" == document.location.protocol;
+}
+if (php_cond("(def([Unresolved Constraint])&def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net'))")) {
+   document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+}
+
+    </script>
+    Text
+    <script type="text/javascript" cond="List((def([Unresolved Constraint])&def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">if (php_cond("(def([Unresolved Constraint])&def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net'))")) {
+   var pageTracker = _gat._getTracker("UA-6220233-1");
+}
+if (php_cond("(def([Unresolved Constraint])&def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net'))")) {
+   pageTracker._trackPageview();
+}
+
+    </script>
+    Text
+   </div>
+  </div>
+ </body>
+ <body cond="List((!def([Unresolved Constraint])|!def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+  Text
+  <div id="container" cond="List((!def([Unresolved Constraint])|!def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+   Text
+   <div id="top" cond="List((!def([Unresolved Constraint])|!def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+    Text
+    Text
+    Text
+    <form name="logout" method="post" class="header">
+     Text
+     <input type="hidden" name="logout" value="yes">
+     </input>
+     Text
+     <b>
+      Text
+     </b>
+     Text
+     <a href="#" onClick="javascript: document.logout.submit();
+">
+      Text
+      Text
+     </a>
+     Text
+    </form>
+    <b>
+     Text
+    </b>
+    Text
+    Text
+   </div>
+   Text
+   <div id="header" cond="List((!def([Unresolved Constraint])|!def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+    Text
+    <h1 cond="List((!def([Unresolved Constraint])|!def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+     <a href="." cond="List((!def([Unresolved Constraint])|!def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+      Text
+     </a>
+    </h1>
+    Text
+    <a href="." cond="List((!def([Unresolved Constraint])|!def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+     <img src="title.png" title="Addressbook" alt="Addressbook" id="logo" cond="List((!def([Unresolved Constraint])|!def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+     </img>
+    </a>
+    Text
+   </div>
+   Text
+   <div id="nav" cond="List((!def([Unresolved Constraint])|!def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+    Text
+    Text
+    Text
+    <ul cond="List((!def([Unresolved Constraint])|!def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+     Text
+     <li cond="List((!def([Unresolved Constraint])|!def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+      Text
+      <a href="./?group=" href="./" href="./?group=SYM" cond="List((!def([Unresolved Constraint])|!def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+       Text
+       Text
+      </a>
+      Text
+     </li>
+     Text
+     Text
+     Text
+     <li class="all">
+      Text
+      <a href="edit.php?group=" href="edit.php" href="edit.php?group=SYM">
+       Text
+       Text
+      </a>
+      Text
+     </li>
+     Text
+     Text
+     <li class="admin">
+      Text
+      <a href="group.php?group=" href="group.php" href="group.php?group=SYM">
+       Text
+       Text
+      </a>
+      Text
+     </li>
+     Text
+     <li class="all" cond="List((!def([Unresolved Constraint])|!def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+      Text
+      <a href="birthdays.php?group=" href="birthdays.php" href="birthdays.php?group=SYM" cond="List((!def([Unresolved Constraint])|!def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+       Text
+       Text
+      </a>
+      Text
+     </li>
+     Text
+     <li class="export" cond="List((!def([Unresolved Constraint])|!def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+      Text
+      <a href="view.php?group=&amp;all&amp;print" href="view.php?all&amp;print" href="view.php?group=SYM&amp;all&amp;print" cond="List((!def([Unresolved Constraint])|!def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+       Text
+       Text
+      </a>
+      Text
+     </li>
+     Text
+     <li class="export" cond="List((!def([Unresolved Constraint])|!def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+      Text
+      <a href="view.php?group=&amp;all&amp;print&amp;phones" href="view.php?all&amp;print&amp;phones" href="view.php?group=SYM&amp;all&amp;print&amp;phones" cond="List((!def([Unresolved Constraint])|!def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+       Text
+       Text
+      </a>
+      Text
+     </li>
+     Text
+     Text
+     <li class="export">
+      Text
+      <a href="map.php?group=&amp;" href="map.php?" href="map.php?group=SYM&amp;">
+       Text
+       Text
+      </a>
+      Text
+     </li>
+     Text
+     <li class="export" cond="List((!def([Unresolved Constraint])|!def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+      Text
+      <a href="export.php?group=" href="export.php" href="export.php?group=SYM" cond="List((!def([Unresolved Constraint])|!def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+       Text
+       Text
+      </a>
+      Text
+     </li>
+     Text
+     <li class="export">
+      Text
+      <a href="import.php?group=" href="import.php" href="import.php?group=SYM">
+       Text
+       Text
+      </a>
+      Text
+     </li>
+     Text
+    </ul>
+    Text
+   </div>
+   Text
+   <div id="content" cond="List((!def([Unresolved Constraint])|!def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+    Text
+    <br cond="List((!def([Unresolved Constraint])|!def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+    </br>
+    <br cond="List((!def([Unresolved Constraint])|!def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+    </br>
+    Text
+    <div id="search-az" cond="List((!def([Unresolved Constraint])|!def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+     Text
+     Text
+     <form accept-charset="utf-8" method="get" name="searchform">
+      Text
+      <input type="text" value="SYM" name="searchstring" title="SYMSYM" title="SYM" size="45" tabindex="0">
+      </input>
+      Text
+      <input name="submitsearch" type="submit" value="SYM">
+      </input>
+      Text
+     </form>
+     Text
+     Text
+     <table border="0">
+      Text
+      <tr>
+       Text
+       <td>
+        Text
+        <br>
+        </br>
+        Text
+        <img src="icons/cross.png">
+        </img>
+        Text
+        <a href="http://swiss-addressbook.com">
+         Text
+        </a>
+        Text
+        <img src="icons/cross.png">
+        </img>
+        <br>
+        </br>
+        Text
+        <b>
+         <i>
+          Text
+         </i>
+        </b>
+        Text
+       </td>
+      </tr>
+      Text
+     </table>
+     <div id="a-z">
+      <a href="indexSYMalphabet=a">
+       Text
+      </a>
+      Text
+      <a href="indexSYMalphabet=b">
+       Text
+      </a>
+      Text
+      <a href="indexSYMalphabet=c">
+       Text
+      </a>
+      Text
+      <a href="indexSYMalphabet=d">
+       Text
+      </a>
+      Text
+      <a href="indexSYMalphabet=e">
+       Text
+      </a>
+      Text
+      <a href="indexSYMalphabet=f">
+       Text
+      </a>
+      Text
+      <a href="indexSYMalphabet=g">
+       Text
+      </a>
+      Text
+      <a href="indexSYMalphabet=h">
+       Text
+      </a>
+      Text
+      <a href="indexSYMalphabet=i">
+       Text
+      </a>
+      Text
+      <a href="indexSYMalphabet=j">
+       Text
+      </a>
+      Text
+      <a href="indexSYMalphabet=k">
+       Text
+      </a>
+      Text
+      <a href="indexSYMalphabet=l">
+       Text
+      </a>
+      Text
+      <a href="indexSYMalphabet=m">
+       Text
+      </a>
+      Text
+      <a href="indexSYMalphabet=n">
+       Text
+      </a>
+      Text
+      <a href="indexSYMalphabet=o">
+       Text
+      </a>
+      Text
+      <a href="indexSYMalphabet=p">
+       Text
+      </a>
+      Text
+      <a href="indexSYMalphabet=q">
+       Text
+      </a>
+      Text
+      <a href="indexSYMalphabet=r">
+       Text
+      </a>
+      Text
+      <a href="indexSYMalphabet=s">
+       Text
+      </a>
+      Text
+      <a href="indexSYMalphabet=t">
+       Text
+      </a>
+      Text
+      <a href="indexSYMalphabet=u">
+       Text
+      </a>
+      Text
+      <a href="indexSYMalphabet=v">
+       Text
+      </a>
+      Text
+      <a href="indexSYMalphabet=w">
+       Text
+      </a>
+      Text
+      <a href="indexSYMalphabet=x">
+       Text
+      </a>
+      Text
+      <a href="indexSYMalphabet=y">
+       Text
+      </a>
+      Text
+      <a href="indexSYMalphabet=z">
+       Text
+      </a>
+      Text
+      <a href="index.php?group=" href="index.php" href="index.php?group=SYM">
+       Text
+       Text
+      </a>
+     </div>
+     Text
+     <br>
+     </br>
+     Text
+     <form accept-charset="utf-8" method="get" name="searchform" onsubmit="javascript: return false;">
+      Text
+      <input type="text" value="SYM" name="searchstring" title="SYMSYM" title="SYM" size="45" tabindex="0" onkeyup="javascript: filterResults(this);">
+      </input>
+      <input type="text" value="SYM" name="searchstring" title="SYMSYM" title="SYM" size="45" tabindex="0">
+      </input>
+      Text
+      Text
+     </form>
+     Text
+     <script type="text/javascript" cond="List((!def([Unresolved Constraint])|!def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">if (php_cond("def([Unresolved Constraint])")) {
+   document.searchform.searchstring.focus();
+}
+
+     </script>
+     Text
+    </div>
+    <br cond="List((!def([Unresolved Constraint])|!def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+    </br>
+    Text
+    <hr cond="List((!def([Unresolved Constraint])|!def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+    </hr>
+    Text
+    <label style="width:24em;" cond="List((!def([Unresolved Constraint])|!def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+     <strong cond="List((!def([Unresolved Constraint])|!def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+      Text
+      Text
+      <span id="search_count" cond="List((!def([Unresolved Constraint])|!def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+       Text
+      </span>
+     </strong>
+    </label>
+    Text
+    <form id="right" method="get">
+     Text
+     <select name="group" onchange="javascript: this.parentNode.submit();">
+      Text
+      Text
+      <option>
+       Text
+       Text
+       Text
+       Text
+      </option>
+      Text
+      <option value="">
+       Text
+      </option>
+      Text
+      <option value="[none]">
+       Text
+      </option>
+      Text
+      <option>
+       Text
+      </option>
+      Text
+     </select>
+     Text
+    </form>
+    Text
+    <br cond="List((!def([Unresolved Constraint])|!def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+    </br>
+    <br class="clear" cond="List((!def([Unresolved Constraint])|!def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+    </br>
+    Text
+    <form accept-charset="utf-8" name="MainForm" method="post" action="group.php?group=SYM" action="group.php" action="group.php?group=" cond="List((!def([Unresolved Constraint])|!def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+     Text
+     <input type="hidden" name="group" value="SYM" value="" cond="List((!def([Unresolved Constraint])|!def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+     </input>
+     Text
+     <table id="maintable" class="sortcompletecallback-applyZebra" cond="List((!def([Unresolved Constraint])|!def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+      Text
+      <tr>
+       Text
+       <th class="sortable">
+        Text
+        Text
+       </th>
+       <th>
+       </th>
+       <th>
+        Text
+        Text
+       </th>
+       <th>
+       </th>
+       <th>
+       </th>
+       <th>
+       </th>
+       Text
+      </tr>
+      <tr>
+       Text
+      </tr>
+      Text
+      Text
+      <tr class="" class="odd" name="entry" cond="List((!def([Unresolved Constraint])|!def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+       <td class="center">
+        <input type="checkbox" id="SYM" name="selected[]" value="SYM" title="Select (SYM SYM)" alt="Select (SYM SYM)" accept="SYM,SYM" accept="SYM%3BSYM" accept="SYMSYM">
+        </input>
+       </td>
+       <td class="center">
+        <a href="viewSYMid=SYM">
+         <img src="SYMicons/status_online.png" title="SYMSYM" title="SYM" alt="SYMSYM" alt="SYM">
+         </img>
+        </a>
+       </td>
+       <td class="center">
+        <a href="vcardSYMid=SYM">
+         <img src="SYMicons/vcard.png" title="vCard" alt="vCard">
+         </img>
+         <img src="SYMicons/vcard.png" title="vCard" alt="vCard">
+         </img>
+        </a>
+       </td>
+       <td class="center">
+        <a href="editSYMid=SYM">
+         <img src="SYMicons/pencil.png" title="SYMSYM" title="SYM" alt="SYMSYM" alt="SYM">
+         </img>
+        </a>
+       </td>
+       <td class="center">
+        <a href="vcardSYMid=SYM">
+         <img src="SYMicons/vcard.png" title="vCard" alt="vCard">
+         </img>
+        </a>
+       </td>
+       <td class="center">
+        <a href="http://maps.google.com/maps?q=SYM&amp;t=h" target="_blank">
+         Text
+         <img src="SYMicons/car.png" title="Google Maps" alt="vCard">
+         </img>
+        </a>
+       </td>
+       <td>
+       </td>
+       <td class="center">
+        <a href="http://SYM" href="SYM">
+         <img src="SYMicons/house.png" title="SYM" title="http://SYM" alt="SYM" alt="http://SYM">
+         </img>
+        </a>
+       </td>
+       <td>
+       </td>
+       <td>
+        Text
+        Text
+        Text
+        Text
+        <a href="mailto:SYM" href="SYMSYM">
+         Text
+        </a>
+        <a href="mailto:SYM" href="SYMSYM">
+         Text
+        </a>
+        Text
+       </td>
+       <td class="center">
+        <a href="http://">
+         <img src="SYMicons/house.png" title="SYMSYM ()" title="SYM ()" alt="SYMSYM ()" alt="SYM ()">
+         </img>
+        </a>
+       </td>
+      </tr>
+      Text
+     </table>
+     Text
+     <input type="checkbox" id="MassCB" onclick="javascript: MassSelection();" cond="List((!def([Unresolved Constraint])|!def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+     </input>
+     Text
+     <em cond="List((!def([Unresolved Constraint])|!def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+      <strong cond="List((!def([Unresolved Constraint])|!def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+       Text
+       Text
+      </strong>
+     </em>
+     <br cond="List((!def([Unresolved Constraint])|!def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+     </br>
+     <br cond="List((!def([Unresolved Constraint])|!def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+     </br>
+     <div class="left">
+      <input type="button" value=" SYMSYM" value=" SYM" onclick="javascript: Doodle();">
+      </input>
+     </div>
+     <div class="left" cond="List((!def([Unresolved Constraint])|!def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+      <input type="button" value=" SYMSYM" value=" SYM" onclick="javascript: MailSelection();" cond="List((!def([Unresolved Constraint])|!def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+      </input>
+     </div>
+     <div class="left" cond="List((!def([Unresolved Constraint])|!def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+      <input type="button" value=" SYMSYM" value=" SYM" onclick="javascript: DeleteSel();" cond="List((!def([Unresolved Constraint])|!def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+      </input>
+     </div>
+     <div class="left">
+      <input type="submit" name="remove" value="SYMSYM " SYM" " value="SYM " SYM" " value="SYMSYM " " " value="SYM " " ">
+      </input>
+     </div>
+     <div>
+     </div>
+     <div class="right">
+      <input type="submit" name="add" value="SYMSYM" value="SYM">
+      </input>
+      Text
+      <select name="to_group">
+       <option>
+        Text
+       </option>
+       Text
+      </select>
+     </div>
+     <br>
+     </br>
+    </form>
+    <hr>
+    </hr>
+    Text
+    <hr>
+    </hr>
+    <script type="text/javascript" cond="List((!def([Unresolved Constraint])|!def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">if (php_cond("def([Unresolved Constraint])")) {
+   MassSelection = function MassSelection(params) {
+      select_count = document.getElementsByName("selected[]").length;
+      all_checked = document.getElementById("MassCB").checked;
+      for (;;) 
+         {
+            if (document.getElementsByName("selected[]")[i].parentNode.parentNode.style.display != "none")
+               {
+                  document.getElementsByName("selected[]")[i].checked = all_checked;
+               }
+         }
+   }
+}
+if (php_cond("def([Unresolved Constraint])")) {
+   MailSelection = function MailSelection(params) {
+      var addresses = "";
+      var dst_count = 0;
+      select_count = document.getElementsByName("selected[]").length;
+      for (;;) 
+         {
+            selected_i = document.getElementsByName("selected[]")[i];
+            if (selected_i.checked == true)
+               {
+                  if (selected_i.accept != "" && selected_i.accept != null)
+                     {
+                        if (dst_count > 0)
+                           {
+                              if (php_cond("(def([Unresolved Constraint])&def(getPref('mailer') == 'colon'))")) {
+                                 addresses = addresses + ",";
+                              }
+                              if (php_cond("(!def([Unresolved Constraint])|!def(getPref('mailer') == 'colon'))")) {
+                                 addresses = addresses + "%3B";
+                              }
+                           }
+                        addresses = addresses + selected_i.accept;
+                        dst_count++;
+                     }
+               }
+         }
+      if (php_cond("(def([Unresolved Constraint])&def(isset($webmailer) && isset($mailers[$webmailer])))")) {
+         if (dst_count == 0)
+            alert("No address selected.");
+         else
+            location.href = "SYM" + addresses;
+      }
+      if (php_cond("(!def([Unresolved Constraint])|!def(isset($webmailer) && isset($mailers[$webmailer])))")) {
+         if (dst_count == 0)
+            alert("No address selected.");
+         else
+            location.href = "mailto:" + addresses;
+      }
+   }
+}
+if (php_cond("def([Unresolved Constraint])")) {
+   Doodle = function Doodle(params) {
+      var participants = "";
+      var dst_count = 0;
+      select_count = document.getElementsByName("selected[]").length;
+      for (;;) 
+         {
+            selected_i = document.getElementsByName("selected[]")[i];
+            if (selected_i.checked == true)
+               {
+                  participants += selected_i.id + ";";
+                  dst_count++;
+               }
+         }
+      alert(participants);
+      if (dst_count == 0)
+         alert("No paticipants selected.");
+      else
+         location.href = "./doodle.php?part=" + participants;
+   }
+}
+if (php_cond("def([Unresolved Constraint])")) {
+   DeleteSel = function DeleteSel(params) {
+      var participants = "";
+      var dst_count = 0;
+      select_count = document.getElementsByName("selected[]").length;
+      for (;;) 
+         {
+            selected_i = document.getElementsByName("selected[]")[i];
+            if (selected_i.checked == true)
+               {
+                  participants += selected_i.id + ";";
+                  dst_count++;
+               }
+         }
+      if (dst_count == 0)
+         alert("No paticipants selected.");
+      else
+         if (confirm('Delete ' + dst_count + ' addresses?'))
+            {
+               location.href = "./delete.php?part=" + participants;
+            }
+   }
+}
+if (php_cond("def([Unresolved Constraint])")) {
+   applyZebra = function applyZebra(params) {
+      var maintable = document.getElementById("maintable");
+      var tbody = maintable.getElementsByTagName("tbody");
+      var entries = tbody[0].children;
+      var zebraCnt = 0;
+      for (;;) 
+         {
+            if (entries[i].style.display != "none")
+               {
+                  if (zebraCnt % 2 == 0)
+                     {
+                        entries[i].className = "";
+                     }
+                  else
+                     {
+                        entries[i].className = "odd";
+                     }
+                  zebraCnt++;
+               }
+         }
+   }
+}
+if (php_cond("def([Unresolved Constraint])")) {
+   filterResults = function filterResults(params) {
+      var query = field.value;
+      var words = query.toLowerCase().split(" ");
+      var maintable = document.getElementById("maintable");
+      var tbody = maintable.getElementsByTagName("tbody");
+      var entries = tbody[0].children;
+      var foundCnt = 0;
+      for (;;) 
+         {
+            var content = entries[i].childNodes[0].childNodes[0].accept + " " + entries[i].childNodes[1].innerHTML + " " + entries[i].childNodes[2].innerHTML;
+            content = content.toLowerCase();
+            var foundAll = true;
+            for (;;) 
+               {
+                  foundAll = foundAll && content.search(words[j]) != -1;
+               }
+            foundAll = foundAll || entries[i].childNodes[0].childNodes[0].checked;
+            if (foundAll)
+               {
+                  entries[i].style.display = "";
+                  foundCnt++;
+               }
+            else
+               {
+                  entries[i].style.display = "none";
+               }
+         }
+      document.getElementById("search_count").innerHTML = foundCnt;
+      applyZebra();
+   }
+}
+if (php_cond("(def([Unresolved Constraint])&def($use_ajax))")) {
+   filterResults(document.getElementsByName("searchstring")[0]);
+}
+
+    </script>
+    Text
+   </div>
+   Text
+  </div>
+ </body>
+ Text
+ Text
+ <div class="right" cond="List((def([Unresolved Constraint])&def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+  Text
+  <div id="download" cond="List((def([Unresolved Constraint])&def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+   Text
+   <a href="../download" cond="List((def([Unresolved Constraint])&def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+    <b cond="List((def([Unresolved Constraint])&def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+     Text
+    </b>
+   </a>
+   Text
+  </div>
+  <br class="clear" cond="List((def([Unresolved Constraint])&def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+  </br>
+  Text
+ </div>
+ Text
+ <ul>
+  Text
+  <li>
+   <a href="http://sourceforge.net/projects/php-addressbook/">
+    Text
+   </a>
+   Text
+   <a href="notes.htm">
+    Text
+   </a>
+  </li>
+  Text
+ </ul>
+ Text
+</html>TextTextText<script type="text/javascript" src="jstablesort/tablesort.min.js">
+</script>Text

@@ -66,6 +66,14 @@ class JSParser extends MultiFeatureParser {
 
 
     def Statement: MultiParser[JSStatement] =
+	    ContinueStatement |
+	        BreakStatement |
+	        ReturnStatement |
+	        WithStatement |
+	        LabelledStatement |
+	        SwitchStatement |
+	        ThrowStatement |
+	        TryStatement |
         Block |
             VariableStatement |
             EmptyStatement |
@@ -73,14 +81,6 @@ class JSParser extends MultiFeatureParser {
             IfStatement |
             IterationStatement |
             ForStatement
-    ContinueStatement |
-        BreakStatement |
-        ReturnStatement |
-        WithStatement |
-        LabelledStatement |
-        SwitchStatement |
-        ThrowStatement |
-        TryStatement |
         DebuggerStatement | fail("expected statement")
 
     def Block = char('{') ~~~?> StatementList <~~~? '}' ^^ {JSBlock(_)}
@@ -135,7 +135,7 @@ class JSParser extends MultiFeatureParser {
         "break" ~ opt(WSo ~> Identifier) ~~~? ';' ^^ {x => JSOtherStatement()}
 
     def ReturnStatement =
-        "return" ~ opt(WSo ~> Expression) ~~~? ';' ^^ {x => JSOtherStatement()}
+        "return" ~> opt(WSo ~> Expression) <~~~? ';' ^^ {x => JSReturnStatement(x)}
 
     def WithStatement =
         "with" ~~~? '(' ~~~? Expression ~~~? ')' ~~~? Statement ^^ {x => JSOtherStatement()}

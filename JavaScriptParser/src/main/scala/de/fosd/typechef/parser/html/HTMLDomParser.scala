@@ -45,8 +45,21 @@ class HTMLDomParser extends MultiFeatureParser {
                                             if (startR.name == closingR.name)
                                                 Success(DNode(startR.name, startR.attributes, midR, startR, closingR), closingRest)
                                             else
+                                              
+                                              // BEGIN OF QUICK FIX
+//                                            	if (startR.name.equals("img")) // Handled specifically for img, ...
+//                                            	  Success(DNode(startR.name, startR.attributes, null, startR, null), startRest)
+//                                            	  else
+                                            // END OF QUICK FIX
+                                              
                                                 Error("Mismatching closing tag for <" + startR.name.name + "> (found </" + closingR.name.name + "> at " + closingRest.pos + ")", in, List())
                                         case n@NoSuccess(msg, restCl, _) =>
+                                            // BEGIN OF QUICK FIX
+//                                            if (startR.name.equals("img")) // Handled specifically for img, ...
+//                                            	  Success(DNode(startR.name, startR.attributes, null, startR, null), startRest)
+//                                            else
+                                            // END OF QUICK FIX   
+                                               
                                             Error("No matching closing tag for <" + startR.name.name + ">", in, List(n))
                                     }
                                 )

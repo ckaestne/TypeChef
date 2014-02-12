@@ -69,3 +69,5 @@ case class JSPostfixExpr(e: JSExpression, op: String) extends JSExpression
 case class JSFieldAccess(e: JSExpression, field: JSIdentifier) extends JSExpression
 
 case class JSArrayAccess(e: JSExpression, index: JSExpression) extends JSExpression
+
+case class JSReturnStatement(e: Option[JSExpression]) extends JSStatement

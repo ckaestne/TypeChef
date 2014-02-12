@@ -18,7 +18,8 @@ object ParserMain extends App {
     }
 
 
-    val result = parse(new FileReader("JavaScriptParser/src/main/resources/jquery203.js"))
+    //val result = parse(new FileReader("JavaScriptParser/src/main/resources/jquery203.js"))
+    val result = parse(new FileReader("src/main/resources/test.js"))
 
     println(result)
     //    parser.phrase()
