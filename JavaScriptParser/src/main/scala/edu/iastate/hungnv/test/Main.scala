@@ -77,10 +77,10 @@ object Main extends App {
   
 //  val testFile = "src/main/resources/test.xml"
     
-//  val testFile = "src/main/resources/addressbook/data_model.xml"
+  val testFile = "src/main/resources/addressbook/data_model.xml"
 //  val testFile = "src/main/resources/schoolmate/data_model.xml"
 //  val testFile = "src/main/resources/upb/index_php_data_model.xml"
-  val testFile = "src/main/resources/upb/admin_forums_php_data_model.xml"
+//  val testFile = "src/main/resources/upb/admin_forums_php_data_model.xml"
     
 
   val reader = new FileReader(testFile)
@@ -110,6 +110,6 @@ object Main extends App {
 
 //  JumpOpeningClosingTags.run(domResult)
   
-//  JumpCSSClasses.run(domResult)
+  JumpCSSClasses.run(domResult)
 
 }

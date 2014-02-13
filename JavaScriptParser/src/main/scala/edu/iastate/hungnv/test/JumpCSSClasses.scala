@@ -47,7 +47,7 @@ object JumpCSSClasses {
 	def detectCSSClasses(styleSheet: CStyleSheet): Unit = {
 		for (r <- styleSheet.ruleSets) {
 		  for (s <- r.entry.selectors) {
-		    log(s.name + " @ " + s.getFile + " " + s.getPositionFrom + " " + s.getPositionTo)
+		    log(s + " @ " + s.getFile + " " + s.getPositionFrom + " " + s.getPositionTo)
 		  }
 		}
 	}

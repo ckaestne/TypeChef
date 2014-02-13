@@ -14,13 +14,14 @@ object CSSMain extends App {
 
     var tokens = CharacterLexer.lex(new FileReader("src/main/resources/test.css"))
 
-    println(tokens)
+    println(tokens.tokens)
     
 
     val p = new CSSParser
 
     val parseResult = p.phrase(p.StyleSheet)(tokens, FeatureExprFactory.True)
     
+    println(parseResult)
 
     var result = List[Opt[String]]()
     parseResult match {

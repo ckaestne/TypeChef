@@ -63,25 +63,75 @@ class CSSParser extends MultiFeatureParser {
    * CSS Grammar
    * http://www.w3.org/TR/CSS21/grammar.html#grammar
    */
-  def StyleSheet: MultiParser[CStyleSheet] = repOpt(WSo ~> RuleSet) <~ WSo ^^ { CStyleSheet(_) }
+  def StyleSheet: MultiParser[CStyleSheet] = 
+  							opt(CHARSET_SYM ~ STRING ~ ';') ~>
+  							repPlain(S | CDO | CDC) ~>
+  							repOpt(RuleSet <~ repPlain(CDO ~ Sa | CDC ~ Sa)) ^^ { CStyleSheet(_) } // FIXME
 
-//  def RuleSet: MultiParser[CRuleSet] = repSepPlainWSo(Selector, ',') ~~~? '{' ~~~? Declarations ~~~? '}' ^^ { case s ~ _ ~ d ~ _ => new CRuleSet(s, d.toString) }
-  def RuleSet: MultiParser[CRuleSet] = repSepPlain(Selector, WS | ',') ~~~? '{' ~~~? Declarations ~~~? '}' ^^ { case s ~ _ ~ d ~ _ => new CRuleSet(s, d.toString) }
+  def RuleSet: MultiParser[CRuleSet] = 
+		  					repSepPlain1(Selector, ',' ~ Sa) <~
+		  					//'{' <~ Sa <~ repSepPlain(';' ~ Sa, Declaration) <~ '}' <~ Sa ^^ { case s => new CRuleSet(s, "") }
+		  					'{' <~ Declaration <~ '}' <~ Sa ^^ { case s => new CRuleSet(s, "") } // FIXME
   
-  def Selector: MultiParser[CSelector] = SimpleSelector | OtherSelector
+  def Selector: MultiParser[CSelector] = 
+		  					SimpleSelector <~
+		  					opt((Combinator ~ Selector) | (Sp ~ opt(opt(Combinator) ~ Selector)))
+		  					
+  def Combinator: MultiParser[Any] = 
+    						('+' ~ Sa) |
+    						('>' ~ Sa)
   
-  def SimpleSelector: MultiParser[CSelector] = (('.' ~> Identifier) | ('#' ~> Identifier)) ^^ { x => new CSelector(x) }
+  def SimpleSelector: MultiParser[CSelector] = 
+    						(ElementName <~ repPlain(HASH | Clazz | Attrib | Pseudo)) ^^ {x => new CSimpleSelector(x, "")} |
+    						rep1Plain(HASH | Clazz | Attrib | Pseudo) ^^ { x => x.head }
   
-  def OtherSelector: MultiParser[CSelector] = rep1(token("OtherSelector", x => (('a' to 'z') ++ ('A' to 'Z') ++ ('0' to '9') :+ '_' :+ '-' :+ ':' :+ '#' :+ '[' :+ ']' :+ '=' :+ '.') contains x.getKind())) ^^ { _ => new CSelector(new DString("OtherSelector")) }
+  def ElementName: MultiParser[DString] =
+		  					IDENT | ('*' ^^ {x => new DString(x.getText) })
+		  					
+  def Clazz: MultiParser[CSelector] =
+    						'.' ~> IDENT ^^ {x => new CSimpleSelector(x, ".")}
+    						
+  def Attrib: MultiParser[CSelector] =
+    						'[' ~ Sa ~ IDENT ~ Sa ~ opt(("=" | INCLUDES | DASHMATCH) ~ Sa ~ (IDENT | STRING) ~ Sa) ~ ']' ^^ {_ => new COtherSelector(new DString(""))}
+    						
+  def Pseudo: MultiParser[CSelector] =
+    						':' ~ (IDENT | (FUNCTION ~ Sa ~ opt(IDENT ~ Sa) ~ ')')) ^^ {_ => new COtherSelector(new DString(""))}
+		  					
+  def Declaration: MultiParser[Any] = rep1Plain(token("any char except }", x => x.getKindChar() != '}')) // FIXME
   
-  def Declarations: MultiParser[Any] = repOpt(token("any char except }", x => x.getKindChar() != '}'))
+  /*
+   * CSS Lexer
+   */
+  def CDO = "<!--"
     
+  def CDC = "-->"
+    
+  def CHARSET_SYM = "@charset "
+    
+  def STRING = ("\"" ~ negate('\"') ~ "\"") | ("\'" ~ negate('\'') ~ "\'") // FIXME
   
+  def IDENT: MultiParser[DString] = Char ~ repPlain(Char) ^^ { case f ~ r => new DString((f :: r).map(_.getText()).mkString) } // FIXME
   
-  def Identifier: MultiParser[DString] = Char ~ repPlain(Char) ^^ { case f ~ r => new DString((f :: r).map(_.getText()).mkString) }
-
+  def HASH: MultiParser[CSelector] = '#' ~> IDENT ^^ {x => new CSimpleSelector(x, "#") } // FIXME
+  
+  def INCLUDES = "~="
+    
+  def DASHMATCH = "|="
+    
+  def FUNCTION = IDENT ~ "("
+    
+  def S = WS
+  
+  def Sa = repPlain(WS)
+  
+  def Sp = rep1Plain(WS)
+  
   def Char = token("word", isWordChar(_))
 
   def isWordChar(x: Elem): Boolean = (('a' to 'z') ++ ('A' to 'Z') ++ ('0' to '9') :+ '_' :+ '-' :+ ':') contains x.getKind()
-
+  
+  /*
+   * Hung's utility methods
+   */
+  def negate(c: Char): MultiParser[Any] = token("any char except " + c, x => x.getKindChar() != c)
 }

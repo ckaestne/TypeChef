@@ -181,7 +181,7 @@ object CharacterLexer {
           val str = (x \ "@StringValue")
 //          println("Literal: " + str.text)
           visitString(str.text, (x \ "@File").text, (x \ "@Position").text.toInt, fexprCombinedStack, fexprStack, tokens)
-          // TODO: Add location in XML file
+          // TODO: Set location in XML file
           //visitString(str.text, (x \ "@File").text, x., fexprCombinedStack, fexprStack, tokens)
         }
         else {

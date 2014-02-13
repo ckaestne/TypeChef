@@ -17,7 +17,11 @@ case class CStyleSheet(ruleSets: List[Opt[CRuleSet]]) extends AST
 
 case class CRuleSet(selectors: List[CSelector], declarations: String) extends AST
 
-case class CSelector(name: DString) extends AST
+abstract class CSelector() extends AST
+
+case class CSimpleSelector(name: DString, kind: String) extends CSelector // kind: "#", ".", or ""
+
+case class COtherSelector(name: DString) extends CSelector
 
 case class DString(name: String) extends AST
 

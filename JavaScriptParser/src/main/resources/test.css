@@ -1,18 +1,4 @@
 
-#if (abc)
-    .body d {background-image:url('./skins/header-
-#if (isset($domain) && isset($domain[$domain_id]))
-[Symbolic:$domain[$domain_id]['skin']]
-#else
-
-#if (!isset($skin_color))
-blue
-#else
-
-#endif
-
-#endif
-.jpg');background-repeat:repeat-x;background-position:top left;}
-#else
-	.body { x  }
+#if (X)
+ c {x}
 #endif
