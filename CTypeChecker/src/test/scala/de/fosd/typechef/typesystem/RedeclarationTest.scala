@@ -198,19 +198,19 @@ class RedeclarationTest extends FunSuite with ShouldMatchers with TestHelper {
         }
     }
 
-    // currently not checked
-    //  test("struct redeclaration") {
-    //        expect(true) {
-    //            check("struct a {int x;};struct a;")
-    //        }
-    //        expect(true) {
-    //            check("struct a;struct a {int x;};")
-    //        }
-    //        expect(false) {
-    //            check("struct a {int x;};struct a {int x;};")
-    //        }
-    //
-    //    }
+    //currently not checked
+    ignore("struct redeclaration") {
+        expect(true) {
+            check("struct a {int x;};struct a;")
+        }
+        expect(true) {
+            check("struct a;struct a {int x;};")
+        }
+        expect(false) {
+            check("struct a {int x;};struct a {int x;};")
+        }
+
+    }
 
     test("function declaration redeclaration - reparsing?") {
         expect(true) {
