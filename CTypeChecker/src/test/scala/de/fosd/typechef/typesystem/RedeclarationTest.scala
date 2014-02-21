@@ -143,6 +143,12 @@ class RedeclarationTest extends FunSuite with ShouldMatchers with TestHelper {
                 "extern __typeof (fabs) fabs __asm__ (\"\" \"__GI_fabs\") __attribute__ ((visibility (\"hidden\"),));" +
                 "double fabs(double x){ }")
         }
+
+        //      the following is technically refused by gcc, but should also never occur in practice
+        //        expect(false) {
+        //            check("int foo(struct {int x;} x);" +
+        //                "int foo(struct {const int x;} x) {}")
+        //        }
     }
     test("variable scopes") {
         expect(true) {
