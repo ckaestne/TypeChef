@@ -2,7 +2,7 @@ package de.fosd.typechef.crewrite
 
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.typesystem.{DeclUseMap, UseDeclMap}
-import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureModel, FeatureExpr}
+import de.fosd.typechef.featureexpr.{FeatureModel, FeatureExpr}
 import de.fosd.typechef.conditional.Opt
 import de.fosd.typechef.crewrite.asthelper.ASTEnv
 
@@ -222,11 +222,11 @@ sealed abstract class MonotoneFW[T](val f: FunctionDef, env: ASTEnv, val fm: Fea
     // this does not allow to selectively compute dataflow properties for a single cfgstmt.
     // TODO should be fixed with an improved version using kiama's attribute grammars.
     def solve(): Unit = {
-        if (f == null) return
+        assert(f != null)
 
         // initialize solution
         val flow = if (isForward) getAllPred(f, env)
-        else getAllSucc(f, env)
+                   else getAllSucc(f, env)
         for (cfgstmt <- flow map { _._1 })
             memo.update(cfgstmt, ((true, l), (true, l)))
 
