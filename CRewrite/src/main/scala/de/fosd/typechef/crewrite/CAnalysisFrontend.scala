@@ -102,7 +102,7 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
                             err ::= new TypeChefError(Severity.Warning, fi, "warning: Variable " + i.name +
                                 " is a dead store!", i, "")
                     case Some((x, z)) =>
-                        if (!z.isTautology(fm)) {
+                        if (z.isSatisfiable(fm)) {
                             val xdecls = getDecls(x)
                             val idecls = getDecls(i)
                             for (ei <- idecls) {
