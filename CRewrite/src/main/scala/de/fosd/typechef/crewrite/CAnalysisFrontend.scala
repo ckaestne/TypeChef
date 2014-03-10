@@ -149,7 +149,7 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
     private def doubleFree(fa: (FunctionDef, List[(AST, List[Opt[AST]])]), caseStudy: String): List[TypeChefError] = {
         var err: List[TypeChefError] = List()
         val df = new DoubleFree(env, dum, udm, FeatureExprFactory.empty, fa._1, caseStudy)
-        val nss = fa._2.map(_._1).filterNot(x => x.isInstanceOf[FunctionDef])
+        val nss = fa._2.map(_._1)
 
         for (s <- nss) {
             val g = df.gen(s)
@@ -191,7 +191,7 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
     private def uninitializedMemory(fa: (FunctionDef, List[(AST, List[Opt[AST]])])): List[TypeChefError] = {
         var err: List[TypeChefError] = List()
         val um = new UninitializedMemory(env, dum, udm, FeatureExprFactory.empty, fa._1)
-        val nss = fa._2.map(_._1).filterNot(x => x.isInstanceOf[FunctionDef])
+        val nss = fa._2.map(_._1)
 
         for (s <- nss) {
             val g = um.getRelevantIdUsages(s)
@@ -233,9 +233,8 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
 
     private def xfree(fa: (FunctionDef, List[(AST, List[Opt[AST]])])): List[TypeChefError] = {
         var err: List[TypeChefError] = List()
-
         val xf = new XFree(env, dum, udm, FeatureExprFactory.empty, fa._1, "")
-        val nss = fa._2.map(_._1).filterNot(x => x.isInstanceOf[FunctionDef])
+        val nss = fa._2.map(_._1)
 
         for (s <- nss) {
             val g = xf.freedVariables(s)
@@ -351,15 +350,16 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
         val cl: List[StdLibFuncReturn] = List(
             new StdLibFuncReturn_Null(env, dum, udm, FeatureExprFactory.empty, fa._1)
         )
+        val nss = fa._2.map(_._1)
 
-        for ((s, _) <- fa._2) {
+        for (s <- nss) {
             for (cle <- cl) {
-                lazy val errorvalues = cle.errorreturn.map(PrettyPrinter.print).mkString(" 'or' ")
+                lazy val errorValues = cle.errorreturn.map(PrettyPrinter.print).mkString(" 'or' ")
 
                 // check CFG element directly; without dataflow analysis
                 for (e <- cle.checkForPotentialCalls(s)) {
                     err ::= new TypeChefError(Severity.SecurityWarning, env.featureExpr(e), "Return value of " +
-                        PrettyPrinter.print(e) + " is not properly checked for (" + errorvalues + ")!", e)
+                        PrettyPrinter.print(e) + " is not properly checked for (" + errorValues + ")!", e)
                 }
 
                 // stdlib call is assigned to a variable that we track with our dataflow analysis
@@ -379,7 +379,7 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
                                     val kills = cle.kill(s)
                                     if (xDecls.exists(_.eq(iEntry)) && !kills.contains(k)) {
                                         err ::= new TypeChefError(Severity.SecurityWarning, errCondition, "The value of " +
-                                            PrettyPrinter.print(i) + " is not properly checked for (" + errorvalues + ")!", i)
+                                            PrettyPrinter.print(i) + " is not properly checked for (" + errorValues + ")!", i)
                                     }
                                 }
                             }
