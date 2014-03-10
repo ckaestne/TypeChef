@@ -63,11 +63,6 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
         else udm.get(key).filter { d => env.featureExpr(d) and env.featureExpr(key) isSatisfiable fm }
     }
 
-    private def getUses(key: Id): List[Id] = {
-        if (! dum.containsKey(key)) List(key)
-        else dum.get(key).filter { u => env.featureExpr(u) and env.featureExpr(key) isSatisfiable fm }
-    }
-
     private val fanalyze = funDefs.map {
         x => (x, getAllSucc(x, env).filterNot {x => x._1.isInstanceOf[FunctionDef]})
     }
@@ -103,15 +98,14 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
                 // we filter them out by checking the declaration use map for usages
                 if (dum.containsKey(i) && dum.get(i).size > 0) {}
                 else out.find {case (t, _) => t == i} match {
-                    case None => {
-                        var idecls = getDecls(i)
+                    case None =>
+                        val idecls = getDecls(i)
                         if (idecls.exists(isPartOf(_, fa._1)))
                             err ::= new TypeChefError(Severity.Warning, fi, "warning: Variable " + i.name + " is a dead store!", i, "")
-                    }
-                    case Some((x, z)) => {
+                    case Some((x, z)) =>
                         if (!z.isTautology(fm)) {
-                            var xdecls = getDecls(x)
-                            var idecls = getDecls(i)
+                            val xdecls = getDecls(x)
+                            val idecls = getDecls(i)
                             for (ei <- idecls) {
                                 // with isPartOf we reduce the number of false positives, since we only check local variables and function parameters.
                                 // an assignment to a global variable might be used in another function
@@ -120,7 +114,6 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
                             }
 
                         }
-                    }
                 }
             }
         }
@@ -132,11 +125,10 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
         val casestudy = {
             tunit.getFile match {
                 case None => ""
-                case Some(x) => {
+                case Some(x) =>
                     if (x.contains("linux")) "linux"
                     else if (x.contains("openssl")) "openssl"
                     else ""
-                }
             }
         }
 
@@ -168,15 +160,14 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
                 for (((i, _), h) <- in)
                     g.find {case ((t, _), _) => t == i} match {
                         case None =>
-                        case Some(((x, _), _)) => {
+                        case Some(((x, _), _)) =>
                             if (h.isSatisfiable(fm)) {
-                                var xdecls = getDecls(x)
-                                var idecls = getDecls(i)
+                                val xdecls = getDecls(x)
+                                val idecls = getDecls(i)
                                 for (ei <- idecls)
                                     if (xdecls.exists(_.eq(ei)))
                                         err ::= new TypeChefError(Severity.Warning, h, "warning: Variable " + x.name + " is freed multiple times!", x, "")
                             }
-                        }
                     }
             }
         }
@@ -211,15 +202,14 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
                 for (((i, _), h) <- in)
                     g.find {case ((t, _), _) => t == i} match {
                         case None =>
-                        case Some(((x, _), _)) => {
+                        case Some(((x, _), _)) =>
                             if (h.isSatisfiable(fm)) {
-                                var xdecls = getDecls(x)
-                                var idecls = getDecls(i)
+                                val xdecls = getDecls(x)
+                                val idecls = getDecls(i)
                                 for (ei <- idecls)
                                     if (xdecls.exists(_.eq(ei)))
                                         err ::= new TypeChefError(Severity.Warning, h, "warning: Variable " + x.name + " is used uninitialized!", x, "")
                             }
-                        }
                     }
             }
         }
@@ -255,15 +245,14 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
                 for (((i, _), h) <- in)
                     g.find(_ == i) match {
                         case None =>
-                        case Some(x) => {
+                        case Some(x) =>
                             if (h.isSatisfiable(fm)) {
                                 val xdecls = getDecls(x)
-                                var idecls = getDecls(i)
+                                val idecls = getDecls(i)
                                 for (ei <- idecls)
                                     if (xdecls.exists(_.eq(ei)))
                                         err ::= new TypeChefError(Severity.Warning, h, "warning: Variable " + x.name + " is freed although not dynamically allocted!", x, "")
                             }
-                        }
                     }
             }
         }
@@ -360,8 +349,6 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
     private def stdLibFuncReturn(fa: (FunctionDef, List[(AST, List[Opt[AST]])])): List[TypeChefError] = {
         var err: List[TypeChefError] = List()
         val cl: List[StdLibFuncReturn] = List(
-            //new StdLibFuncReturn_EOF(env, dum, udm, fm, fa._1),
-
             new StdLibFuncReturn_Null(env, dum, udm, FeatureExprFactory.empty, fa._1)
         )
 
@@ -385,10 +372,10 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
                     println("s", PrettyPrinter.print(s), "in", in, "g", g, "u", cle.uses(s))
                     g.find {case ((t, _), _) => t == e} match {
                         case None =>
-                        case Some((k@(x, _), _)) => {
+                        case Some((k@(x, _), _)) =>
                             if (fi.isSatisfiable(fm)) {
-                                var xdecls = getDecls(x)
-                                var edecls = getDecls(e)
+                                val xdecls = getDecls(x)
+                                val edecls = getDecls(e)
 
                                 for (ee <- edecls) {
                                     val kills = cle.kill(s)
@@ -398,7 +385,6 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
                                     }
                                 }
                             }
-                        }
                     }
                 }
             }
