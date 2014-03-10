@@ -14,15 +14,15 @@ trait CFGHelper extends IntraCFG {
         var workingList = List(i)
         var finishedNodes = List[AST]()
 
-        while (!workingList.isEmpty) {
-            val node = workingList.head
+        while (workingList.nonEmpty) {
+            val curNode = workingList.head
             workingList = workingList.tail
 
-            if (!finishedNodes.exists(_.eq(node))) {
-                val successors = succ(node, env)
-                result = (node, successors)  :: result
+            if (! finishedNodes.exists(_.eq(curNode))) {
+                val successors = succ(curNode, env)
+                result = (curNode, successors)  :: result
                 workingList = workingList ++ successors.map(x => x.entry)
-                finishedNodes = node :: finishedNodes
+                finishedNodes = curNode :: finishedNodes
             }
         }
         result
@@ -34,14 +34,15 @@ trait CFGHelper extends IntraCFG {
         var workingList = List(i)
         var finishedNodes = List[AST]()
 
-        while (!workingList.isEmpty) {
+        while (workingList.nonEmpty) {
             val curNode = workingList.head
             workingList = workingList.tail
 
-            if (finishedNodes.filter(_.eq(curNode)).isEmpty) {
-                result = (curNode, pred(curNode, env)) :: result
-                workingList = workingList ++ result.head._2.map(x => x.entry)
-                finishedNodes = finishedNodes ++ List(c)
+            if (! finishedNodes.exists(_.eq(curNode))) {
+                val predecessors = pred(curNode, env)
+                result = (curNode, predecessors) :: result
+                workingList = workingList ++ predecessors.map(x => x.entry)
+                finishedNodes = curNode :: finishedNodes
             }
         }
         result
