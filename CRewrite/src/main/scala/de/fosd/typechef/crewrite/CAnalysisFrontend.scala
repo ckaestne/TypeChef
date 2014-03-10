@@ -65,14 +65,14 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
         else udm.get(key).filter { d => env.featureExpr(d) and env.featureExpr(key) isSatisfiable fm }
     }
 
-    private val fanalyze = fDefs.map {
+    private val fAnalyze = fDefs.map {
         x => (x, getAllSucc(x, env).filterNot {x => x._1.isInstanceOf[FunctionDef]})
     }
 
     var errors: List[TypeChefError] = List()
 
     def deadStore(): Boolean = {
-        val err = fanalyze.flatMap(deadStore)
+        val err = fAnalyze.flatMap(deadStore)
 
         if (err.isEmpty) {
             println("No dead stores found!")
@@ -101,17 +101,17 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
                         if (idecls.exists(isPartOf(_, fa._1)))
                             err ::= new TypeChefError(Severity.Warning, fi, "warning: Variable " + i.name +
                                 " is a dead store!", i, "")
-                    case Some((x, z)) =>
-                        if (z.isSatisfiable(fm)) {
+                    case Some((x, errCondition)) =>
+                        if (errCondition.isSatisfiable(fm)) {
                             val xdecls = getDecls(x)
                             val idecls = getDecls(i)
-                            for (ei <- idecls) {
+                            for (iEntry <- idecls) {
                                 // with isPartOf we reduce the number of false positives, since we only
                                 // check local variables and function parameters.
                                 // an assignment to a global variable might be used in another function
-                                if (isPartOf(ei, fa._1) && xdecls.exists(_.eq(ei)))
-                                    err ::= new TypeChefError(Severity.Warning, z.not(), "warning: Variable " + i.name +
-                                        " is a dead store!", i, "")
+                                if (isPartOf(iEntry, fa._1) && xdecls.exists(_.eq(iEntry)))
+                                    err ::= new TypeChefError(Severity.Warning, errCondition.not(), "warning: Variable " +
+                                        i.name + " is a dead store!", i, "")
                             }
 
                         }
@@ -133,7 +133,7 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
             }
         }
 
-        val err = fanalyze.flatMap(doubleFree(_, caseStudy))
+        val err = fAnalyze.flatMap(doubleFree(_, caseStudy))
 
         if (err.isEmpty) {
             println("No double frees found!")
@@ -146,9 +146,9 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
     }
 
 
-    private def doubleFree(fa: (FunctionDef, List[(AST, List[Opt[AST]])]), casestudy: String): List[TypeChefError] = {
+    private def doubleFree(fa: (FunctionDef, List[(AST, List[Opt[AST]])]), caseStudy: String): List[TypeChefError] = {
         var err: List[TypeChefError] = List()
-        val df = new DoubleFree(env, dum, udm, FeatureExprFactory.empty, fa._1, casestudy)
+        val df = new DoubleFree(env, dum, udm, FeatureExprFactory.empty, fa._1, caseStudy)
         val nss = fa._2.map(_._1).filterNot(x => x.isInstanceOf[FunctionDef])
 
         for (s <- nss) {
@@ -156,16 +156,16 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
             if (g.nonEmpty) {
                 val in = df.in(s)
 
-                for (((i, _), h) <- in)
+                for (((i, _), errCondition) <- in)
                     g.find {case ((t, _), _) => t == i} match {
                         case None =>
                         case Some(((x, _), _)) =>
-                            if (h.isSatisfiable(fm)) {
+                            if (errCondition.isSatisfiable(fm)) {
                                 val xDecls = getDecls(x)
                                 val iDecls = getDecls(i)
-                                for (ei <- iDecls)
-                                    if (xDecls.exists(_.eq(ei)))
-                                        err ::= new TypeChefError(Severity.Warning, h, "warning: Variable " + x.name +
+                                for (iEntry <- iDecls)
+                                    if (xDecls.exists(_.eq(iEntry)))
+                                        err ::= new TypeChefError(Severity.Warning, errCondition, "warning: Variable " + x.name +
                                             " is freed multiple times!", x, "")
                             }
                     }
@@ -175,7 +175,7 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
     }
 
     def uninitializedMemory(): Boolean = {
-        val err = fanalyze.flatMap(uninitializedMemory)
+        val err = fAnalyze.flatMap(uninitializedMemory)
 
         if (err.isEmpty) {
             println("No usages of uninitialized memory found!")
@@ -198,16 +198,16 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
             if (g.nonEmpty) {
                 val in = um.in(s)
 
-                for (((i, _), h) <- in)
+                for (((i, _), errCondition) <- in)
                     g.find {case ((t, _), _) => t == i} match {
                         case None =>
                         case Some(((x, _), _)) =>
-                            if (h.isSatisfiable(fm)) {
+                            if (errCondition.isSatisfiable(fm)) {
                                 val xDecls = getDecls(x)
                                 val iDecls = getDecls(i)
-                                for (ei <- iDecls)
-                                    if (xDecls.exists(_.eq(ei)))
-                                        err ::= new TypeChefError(Severity.Warning, h, "warning: Variable " + x.name +
+                                for (iEntry <- iDecls)
+                                    if (xDecls.exists(_.eq(iEntry)))
+                                        err ::= new TypeChefError(Severity.Warning, errCondition, "warning: Variable " + x.name +
                                             " is used uninitialized!", x, "")
                             }
                     }
@@ -218,7 +218,7 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
     }
 
     def xfree(): Boolean = {
-        val err = fanalyze.flatMap(xfree)
+        val err = fAnalyze.flatMap(xfree)
 
         if (err.isEmpty) {
             println("No static allocated memory is freed!")
@@ -242,16 +242,16 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
             if (g.nonEmpty) {
                 val in = xf.in(s)
 
-                for (((i, _), h) <- in)
+                for (((i, _), errCondition) <- in)
                     g.find(_ == i) match {
                         case None =>
                         case Some(x) =>
-                            if (h.isSatisfiable(fm)) {
+                            if (errCondition.isSatisfiable(fm)) {
                                 val xDecls = getDecls(x)
                                 val iDecls = getDecls(i)
-                                for (ei <- iDecls)
-                                    if (xDecls.exists(_.eq(ei)))
-                                        err ::= new TypeChefError(Severity.Warning, h, "warning: Variable " + x.name +
+                                for (iEntry <- iDecls)
+                                    if (xDecls.exists(_.eq(iEntry)))
+                                        err ::= new TypeChefError(Severity.Warning, errCondition, "warning: Variable " + x.name +
                                             " is freed although not dynamically allocated!", x, "")
                             }
                     }
@@ -262,7 +262,7 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
     }
 
     def danglingSwitchCode(): Boolean = {
-        val err = fanalyze.flatMap {x => danglingSwitchCode(x._1)}
+        val err = fAnalyze.flatMap {x => danglingSwitchCode(x._1)}
 
         if (err.isEmpty) {
             println("No dangling code in switch statements found!")
@@ -288,7 +288,7 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
     }
 
     def cfgInNonVoidFunc(): Boolean = {
-        val err = fanalyze.flatMap(cfgInNonVoidFunc)
+        val err = fAnalyze.flatMap(cfgInNonVoidFunc)
 
         if (err.isEmpty) {
             println("Control flow in non-void functions always ends in return statements!")
@@ -309,7 +309,7 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
     }
 
     def caseTermination(): Boolean = {
-        val err = fanalyze.flatMap(caseTermination)
+        val err = fAnalyze.flatMap(caseTermination)
 
         if (err.isEmpty) {
             println("Case statements with code are properly terminated with break statements!")
@@ -323,7 +323,6 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
 
     private def caseTermination(fa: (FunctionDef, List[(AST, List[Opt[AST]])])): List[TypeChefError] = {
         val caseStmts = filterAllASTElems[CaseStatement](fa._1)
-
         val ct = new CaseTermination(env)
 
         caseStmts.filterNot(ct.isTerminating).map {
@@ -335,7 +334,7 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
     }
 
     def stdLibFuncReturn(): Boolean = {
-        val err = fanalyze.flatMap(stdLibFuncReturn)
+        val err = fAnalyze.flatMap(stdLibFuncReturn)
 
         if (err.isEmpty) {
             println("Return values of stdlib functions are properly checked for errors!")
@@ -368,19 +367,19 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
                 // if it is not in s, we report an error
                 val g = cle.getUsedVariables(s)
                 val in = cle.in(s)
-                for (((e, _), fi) <- in) {
-                    g.find {case ((t, _), _) => t == e} match {
+                for (((i, _), errCondition) <- in) {
+                    g.find {case ((elem, _), _) => elem == i} match {
                         case None =>
                         case Some((k@(x, _), _)) =>
-                            if (fi.isSatisfiable(fm)) {
+                            if (errCondition.isSatisfiable(fm)) {
                                 val xDecls = getDecls(x)
-                                val eDecls = getDecls(e)
+                                val iDecls = getDecls(i)
 
-                                for (ee <- eDecls) {
+                                for (iEntry <- iDecls) {
                                     val kills = cle.kill(s)
-                                    if (xDecls.exists(_.eq(ee)) && !kills.contains(k)) {
-                                        err ::= new TypeChefError(Severity.SecurityWarning, fi, "The value of " +
-                                            PrettyPrinter.print(e) + " is not properly checked for (" + errorvalues + ")!", e)
+                                    if (xDecls.exists(_.eq(iEntry)) && !kills.contains(k)) {
+                                        err ::= new TypeChefError(Severity.SecurityWarning, errCondition, "The value of " +
+                                            PrettyPrinter.print(i) + " is not properly checked for (" + errorvalues + ")!", i)
                                     }
                                 }
                             }
