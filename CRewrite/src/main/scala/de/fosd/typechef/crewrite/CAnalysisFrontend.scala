@@ -17,7 +17,7 @@ import de.fosd.typechef.crewrite.asthelper.{ASTEnv, CASTEnv}
 sealed abstract class CAnalysisFrontend(tunit: TranslationUnit) extends CFGHelper {
 
     protected val env: ASTEnv = CASTEnv.createASTEnv(tunit)
-    val funDefs: List[FunctionDef] = filterAllASTElems[FunctionDef](tunit)
+    val fDefs: List[FunctionDef] = filterAllASTElems[FunctionDef](tunit)
 
 }
 
@@ -36,13 +36,13 @@ class CInterAnalysisFrontend(tunit: TranslationUnit, fm: FeatureModel = FeatureE
             case _ => FeatureExprFactory.True
         }
 
-        for (fun <- funDefs) {
-            val functionName = fun.declarator.getName
-            val cfg = getAllSucc(fun, env)
+        for (fDef <- fDefs) {
+            val fName = fDef.declarator.getName
+            val cfg = getAllSucc(fDef, env)
             val cleanedCfg = cfg.map {
                 x => (x._1, x._2.distinct.filter {y => y.feature.isSatisfiable(fm)}) // filter duplicates and wrong succs
             }
-            writer.writeMethodGraph(cleanedCfg, lookupFExpr, functionName)
+            writer.writeMethodGraph(cleanedCfg, lookupFExpr, fName)
         }
         writer.writeFooter()
         writer.close()
@@ -65,7 +65,7 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
         else udm.get(key).filter { d => env.featureExpr(d) and env.featureExpr(key) isSatisfiable fm }
     }
 
-    private val fanalyze = funDefs.map {
+    private val fanalyze = fDefs.map {
         x => (x, getAllSucc(x, env).filterNot {x => x._1.isInstanceOf[FunctionDef]})
     }
 
