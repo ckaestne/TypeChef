@@ -1,8 +1,6 @@
 package de.fosd.typechef.crewrite
 
-import de.fosd.typechef.parser.c.{AST}
-import de.fosd.typechef.featureexpr.FeatureModel
-import de.fosd.typechef.conditional.Opt
+import de.fosd.typechef.parser.c.AST
 import de.fosd.typechef.crewrite.asthelper.ASTEnv
 
 trait CFGHelper extends IntraCFG {
