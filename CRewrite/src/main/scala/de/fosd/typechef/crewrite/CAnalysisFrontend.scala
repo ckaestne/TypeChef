@@ -94,7 +94,7 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
 
                 // code such as "int a;" occurs frequently and issues an error
                 // we filter them out by checking the declaration use map for usages
-                if (dum.containsKey(i) && dum.get(i).size > 0) {}
+                if (dum.containsKey(i) && dum.get(i).nonEmpty) {}
                 else out.find {case (t, _) => t == i} match {
                     case None =>
                         val idecls = getDecls(i)
@@ -123,7 +123,7 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
     }
 
     def doubleFree(): Boolean = {
-        val casestudy = {
+        val caseStudy = {
             tunit.getFile match {
                 case None => ""
                 case Some(x) =>
@@ -133,7 +133,7 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
             }
         }
 
-        val err = fanalyze.flatMap(doubleFree(_, casestudy))
+        val err = fanalyze.flatMap(doubleFree(_, caseStudy))
 
         if (err.isEmpty) {
             println("No double frees found!")
@@ -148,14 +148,12 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
 
     private def doubleFree(fa: (FunctionDef, List[(AST, List[Opt[AST]])]), casestudy: String): List[TypeChefError] = {
         var err: List[TypeChefError] = List()
-
         val df = new DoubleFree(env, dum, udm, FeatureExprFactory.empty, fa._1, casestudy)
-
         val nss = fa._2.map(_._1).filterNot(x => x.isInstanceOf[FunctionDef])
 
         for (s <- nss) {
             val g = df.gen(s)
-            if (g.size > 0) {
+            if (g.nonEmpty) {
                 val in = df.in(s)
 
                 for (((i, _), h) <- in)
@@ -163,10 +161,10 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
                         case None =>
                         case Some(((x, _), _)) =>
                             if (h.isSatisfiable(fm)) {
-                                val xdecls = getDecls(x)
-                                val idecls = getDecls(i)
-                                for (ei <- idecls)
-                                    if (xdecls.exists(_.eq(ei)))
+                                val xDecls = getDecls(x)
+                                val iDecls = getDecls(i)
+                                for (ei <- iDecls)
+                                    if (xDecls.exists(_.eq(ei)))
                                         err ::= new TypeChefError(Severity.Warning, h, "warning: Variable " + x.name +
                                             " is freed multiple times!", x, "")
                             }
@@ -192,13 +190,12 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
 
     private def uninitializedMemory(fa: (FunctionDef, List[(AST, List[Opt[AST]])])): List[TypeChefError] = {
         var err: List[TypeChefError] = List()
-
         val um = new UninitializedMemory(env, dum, udm, FeatureExprFactory.empty, fa._1)
         val nss = fa._2.map(_._1).filterNot(x => x.isInstanceOf[FunctionDef])
 
         for (s <- nss) {
             val g = um.getRelevantIdUsages(s)
-            if (g.size > 0) {
+            if (g.nonEmpty) {
                 val in = um.in(s)
 
                 for (((i, _), h) <- in)
@@ -206,10 +203,10 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
                         case None =>
                         case Some(((x, _), _)) =>
                             if (h.isSatisfiable(fm)) {
-                                val xdecls = getDecls(x)
-                                val idecls = getDecls(i)
-                                for (ei <- idecls)
-                                    if (xdecls.exists(_.eq(ei)))
+                                val xDecls = getDecls(x)
+                                val iDecls = getDecls(i)
+                                for (ei <- iDecls)
+                                    if (xDecls.exists(_.eq(ei)))
                                         err ::= new TypeChefError(Severity.Warning, h, "warning: Variable " + x.name +
                                             " is used uninitialized!", x, "")
                             }
@@ -242,7 +239,7 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
 
         for (s <- nss) {
             val g = xf.freedVariables(s)
-            if (g.size > 0) {
+            if (g.nonEmpty) {
                 val in = xf.in(s)
 
                 for (((i, _), h) <- in)
@@ -250,10 +247,10 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
                         case None =>
                         case Some(x) =>
                             if (h.isSatisfiable(fm)) {
-                                val xdecls = getDecls(x)
-                                val idecls = getDecls(i)
-                                for (ei <- idecls)
-                                    if (xdecls.exists(_.eq(ei)))
+                                val xDecls = getDecls(x)
+                                val iDecls = getDecls(i)
+                                for (ei <- iDecls)
+                                    if (xDecls.exists(_.eq(ei)))
                                         err ::= new TypeChefError(Severity.Warning, h, "warning: Variable " + x.name +
                                             " is freed although not dynamically allocated!", x, "")
                             }
@@ -325,11 +322,11 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
     }
 
     private def caseTermination(fa: (FunctionDef, List[(AST, List[Opt[AST]])])): List[TypeChefError] = {
-        val casestmts = filterAllASTElems[CaseStatement](fa._1)
+        val caseStmts = filterAllASTElems[CaseStatement](fa._1)
 
         val ct = new CaseTermination(env)
 
-        casestmts.filterNot(ct.isTerminating).map {
+        caseStmts.filterNot(ct.isTerminating).map {
             x => {
                 new TypeChefError(Severity.Warning, env.featureExpr(x),
                     "Case statement is not terminated by a break!", x, "")
@@ -366,10 +363,9 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
                         PrettyPrinter.print(e) + " is not properly checked for (" + errorvalues + ")!", e)
                 }
 
-
                 // stdlib call is assigned to a variable that we track with our dataflow analysis
-                // we check whether used variables that hold the value of a stdlib function are killed in s,
-                // if not we report an error
+                // we check whether used variables that hold the value of a stdlib function are killed in s or not,
+                // if it is not in s, we report an error
                 val g = cle.getUsedVariables(s)
                 val in = cle.in(s)
                 for (((e, _), fi) <- in) {
@@ -377,12 +373,12 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
                         case None =>
                         case Some((k@(x, _), _)) =>
                             if (fi.isSatisfiable(fm)) {
-                                val xdecls = getDecls(x)
-                                val edecls = getDecls(e)
+                                val xDecls = getDecls(x)
+                                val eDecls = getDecls(e)
 
-                                for (ee <- edecls) {
+                                for (ee <- eDecls) {
                                     val kills = cle.kill(s)
-                                    if (xdecls.exists(_.eq(ee)) && !kills.contains(k)) {
+                                    if (xDecls.exists(_.eq(ee)) && !kills.contains(k)) {
                                         err ::= new TypeChefError(Severity.SecurityWarning, fi, "The value of " +
                                             PrettyPrinter.print(e) + " is not properly checked for (" + errorvalues + ")!", e)
                                     }
