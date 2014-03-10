@@ -18,6 +18,7 @@ import java.io._
 import util.Random
 import java.util.Collections
 import de.fosd.typechef.featureexpr.sat.{SATFeatureExprFactory, SATFeatureModel}
+import de.fosd.typechef.crewrite.asthelper.{CASTEnv, ASTEnv, ASTNavigation}
 
 /**
  *
@@ -26,7 +27,7 @@ import de.fosd.typechef.featureexpr.sat.{SATFeatureExprFactory, SATFeatureModel}
  * Time: 3:45 PM
  *
  */
-object FamilyBasedVsSampleBased extends EnforceTreeHelper with ASTNavigation with CFGHelper {
+object FamilyBasedVsSampleBased extends ASTNavigation with CFGHelper {
     type Task = Pair[String, List[SimpleConfiguration]]
 
     /**Maps SingleFeatureExpr Objects to IDs (IDs only known/used in this file) */
@@ -687,7 +688,7 @@ object FamilyBasedVsSampleBased extends EnforceTreeHelper with ASTNavigation wit
     private def intraDataflowAnalysis(f: FunctionDef, udm: UseDeclMap, env: ASTEnv, fm: FeatureModel) {
         if (f.stmt.innerStatements.isEmpty) return
 
-        val pp = getAllPred(f, FeatureExprFactory.empty, env)
+        val pp = getAllPred(f, env)
         val li = new Liveness(f, env, udm, FeatureExprFactory.empty)
 
         val nss = pp.map(_._1).filterNot(x => x.isInstanceOf[FunctionDef])
