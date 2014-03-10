@@ -165,8 +165,8 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
                                 val iDecls = getDecls(i)
                                 for (iEntry <- iDecls)
                                     if (xDecls.exists(_.eq(iEntry)))
-                                        err ::= new TypeChefError(Severity.Warning, errCondition, "warning: Variable " + x.name +
-                                            " is freed multiple times!", x, "")
+                                        err ::= new TypeChefError(Severity.Warning, errCondition, "warning: Variable " +
+                                            x.name + " is freed multiple times!", x, "")
                             }
                     }
             }
@@ -207,8 +207,8 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
                                 val iDecls = getDecls(i)
                                 for (iEntry <- iDecls)
                                     if (xDecls.exists(_.eq(iEntry)))
-                                        err ::= new TypeChefError(Severity.Warning, errCondition, "warning: Variable " + x.name +
-                                            " is used uninitialized!", x, "")
+                                        err ::= new TypeChefError(Severity.Warning, errCondition, "warning: Variable " +
+                                            x.name + " is used uninitialized!", x, "")
                             }
                     }
             }
@@ -250,8 +250,8 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
                                 val iDecls = getDecls(i)
                                 for (iEntry <- iDecls)
                                     if (xDecls.exists(_.eq(iEntry)))
-                                        err ::= new TypeChefError(Severity.Warning, errCondition, "warning: Variable " + x.name +
-                                            " is freed although not dynamically allocated!", x, "")
+                                        err ::= new TypeChefError(Severity.Warning, errCondition, "warning: Variable " +
+                                            x.name + " is freed although not dynamically allocated!", x, "")
                             }
                     }
             }
