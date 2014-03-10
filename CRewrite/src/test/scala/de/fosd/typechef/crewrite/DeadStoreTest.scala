@@ -75,4 +75,60 @@ void test1(int *code,
             }
             """.stripMargin) should be(false)
     }
+
+    @Test def test_var_optional() {
+        deadstore(
+            """
+            void foo() {
+              int a;
+              #ifdef A
+              a = 0;
+              #endif
+            }
+            """.stripMargin
+        ) should be (false)
+        deadstore(
+            """
+            void foo() {
+              int a;
+              #ifdef A
+              a = 0;
+              #endif
+              #ifdef A
+              a;
+              #endif
+            }
+            """.stripMargin
+        ) should be (true)
+        deadstore(
+            """
+            void foo() {
+              int a;
+              #ifdef A
+              a = 0;
+              #endif
+              #ifndef A
+              a;
+              #endif
+            }
+            """.stripMargin
+        ) should be (false)
+    }
+
+    @Test def test_var_alternative() {
+        deadstore(
+            """
+            void foo() {
+              int a = 0;
+              #ifdef A
+              a++;
+              a;
+              #else
+              a--;
+              a;
+              #endif
+            }
+            """.stripMargin
+        ) should be (true)
+    }
 }
