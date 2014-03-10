@@ -222,7 +222,8 @@ sealed abstract class MonotoneFW[T](val f: FunctionDef, env: ASTEnv, val fm: Fea
     // this does not allow to selectively compute dataflow properties for a single cfgstmt.
     // TODO should be fixed with an improved version using kiama's attribute grammars.
     def solve(): Unit = {
-        assert(f != null)
+        if (f == null)
+            return
 
         // initialize solution
         val flow = if (isForward) getAllPred(f, env)

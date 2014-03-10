@@ -101,8 +101,11 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
                         if (idecls.exists(isPartOf(_, fa._1)))
                             err ::= new TypeChefError(Severity.Warning, fi, "warning: Variable " + i.name +
                                 " is a dead store!", i, "")
-                    case Some((x, errCondition)) =>
-                        if (errCondition.isSatisfiable(fm)) {
+                    case Some((x, liveCondition)) =>
+                        // we use Liveness to determine dead stores;
+                        // in the case of the liveness conditions is not satisfiable
+                        // we emit an error
+                        if (! liveCondition.isSatisfiable(fm)) {
                             val xdecls = getDecls(x)
                             val idecls = getDecls(i)
                             for (iEntry <- idecls) {
@@ -110,7 +113,7 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
                                 // check local variables and function parameters.
                                 // an assignment to a global variable might be used in another function
                                 if (isPartOf(iEntry, fa._1) && xdecls.exists(_.eq(iEntry)))
-                                    err ::= new TypeChefError(Severity.Warning, errCondition.not(), "warning: Variable " +
+                                    err ::= new TypeChefError(Severity.Warning, liveCondition.not(), "warning: Variable " +
                                         i.name + " is a dead store!", i, "")
                             }
 
