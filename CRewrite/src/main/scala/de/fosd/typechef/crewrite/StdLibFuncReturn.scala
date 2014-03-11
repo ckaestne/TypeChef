@@ -72,6 +72,7 @@ sealed abstract class StdLibFuncReturn(env: ASTEnv, dum: DeclUseMap, udm: UseDec
         var res = l
 
         val checkvar = manytd(query {
+            case i: Id => res ++= fromCache(i, true)
             case NAryExpr(i: Id, others) => {
                 val existingerrchecks = errorreturn.flatMap { st => subtermIsPartOfTerm(st, others) }
                 val fexp = existingerrchecks.foldRight(FeatureExprFactory.False){ (x, y) => env.featureExpr(x) or y }

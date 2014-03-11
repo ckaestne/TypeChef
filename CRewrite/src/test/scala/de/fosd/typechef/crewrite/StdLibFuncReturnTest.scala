@@ -41,6 +41,17 @@ class StdLibFuncReturnTest extends TestHelper with ShouldMatchers with CFGHelper
                 if (a == ((void*)1)) { }
             }
             """.stripMargin) should be(false)
+    }
 
+    @Test def test_variable() {
+        stdlibfuncreturn(
+            """
+            void* malloc() { return (void*)0; }
+            void foo() {
+                void* a = malloc();
+
+                if (a) { }
+            }
+            """.stripMargin) should be(true)
     }
 }
