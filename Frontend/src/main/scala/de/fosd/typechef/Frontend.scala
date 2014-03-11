@@ -125,7 +125,7 @@ object Frontend {
             if (ast == null) {
                 //no parsing and serialization if read serialized ast
                 val parserMain = new ParserMain(new CParser(fm))
-                ast = parserMain.parserMain(in, opt).asInstanceOf[TranslationUnit]
+                ast = parserMain.parserMain(in, opt)
                 ast = EnforceTreeHelper.prepareAST[TranslationUnit](ast)
 
                 if (ast != null && opt.serializeAST) {
