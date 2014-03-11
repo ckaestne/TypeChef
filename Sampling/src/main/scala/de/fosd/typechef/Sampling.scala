@@ -61,7 +61,7 @@ object Sampling {
                 ast = Frontend.loadSerializedAST(opt.getSerializedASTFilename)
 
             } catch {
-                case e: Throwable => println(e.getMessage); ast=null
+                case e: Throwable => println(e.getMessage); ast = null
             }
             if (ast == null)
                 println("... failed reading AST\n")
@@ -76,7 +76,7 @@ object Sampling {
             }
         }
 
-        if (ast != null) {
+        if (ast != null && opt.analyze) {
             val fm_ts = opt.getTypeSystemFeatureModel.and(opt.getLocalFeatureModel).and(opt.getFilePresenceCondition)
             val treeast = EnforceTreeHelper.prepareAST[TranslationUnit](ast)
             FamilyBasedVsSampleBased.typecheckProducts(fm_ts, fm_ts, treeast, opt, "")

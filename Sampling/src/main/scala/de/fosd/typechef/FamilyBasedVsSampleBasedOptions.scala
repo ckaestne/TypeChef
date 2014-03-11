@@ -7,6 +7,9 @@ import de.fosd.typechef.options.{FrontendOptionsWithConfigFiles, Options}
 import de.fosd.typechef.options.Options.OptionGroup
 
 class FamilyBasedVsSampleBasedOptions extends FrontendOptionsWithConfigFiles {
+
+    def analyze = singleconf || codecoverage || codecoverageNH || pairwise || family
+
     private[typechef] var singleconf: Boolean = false
     private[typechef] var codecoverage: Boolean = false
     private[typechef] var codecoverageNH: Boolean = false
