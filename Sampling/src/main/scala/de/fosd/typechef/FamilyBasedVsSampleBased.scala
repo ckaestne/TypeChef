@@ -174,7 +174,7 @@ object FamilyBasedVsSampleBased extends ASTNavigation with CFGHelper {
                                           opt: FamilyBasedVsSampleBasedOptions, logMessage: String) {
         val ff: FileFeatures = new FileFeatures(ast)
         val (log, fileID, samplingTasks) = initSampling(fm_scanner, fm, ast, ff, opt, logMessage)
-        val samplingTastsWithoutFamily = samplingTasks.filterNot {x => x._1 == "family"}
+        val samplingTasksWithoutFamily = samplingTasks.filterNot {x => x._1 == "family"}
         println("starting error checking.")
         val sw = new StopWatch()
 
@@ -217,14 +217,14 @@ object FamilyBasedVsSampleBased extends ASTNavigation with CFGHelper {
         for (e <- sa.errors) fw.write(e + "\n\n")
 
         var caughterrorsmap = Map[String, Integer]()
-        for ((name, _) <- samplingTastsWithoutFamily) caughterrorsmap += ((name, 0))
+        for ((name, _) <- samplingTasksWithoutFamily) caughterrorsmap += ((name, 0))
 
 
         // check for each error whether the tasklist of an sampling approach contains a configuration
         // that fulfills the error condition (using evaluate)
         for (e <- sa.errors) {
-            for ((name, tasklist) <- samplingTastsWithoutFamily) {
-                if (tasklist.exists {x => e.condition.evaluate(x.getTrueSet.map(_.feature))})
+            for ((name, taskList) <- samplingTasksWithoutFamily) {
+                if (taskList.exists {x => e.condition.evaluate(x.getTrueSet.map(_.feature))})
                     caughterrorsmap += ((name, 1 + caughterrorsmap(name)))
             }
         }
