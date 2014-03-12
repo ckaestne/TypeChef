@@ -33,8 +33,6 @@ class FileFeatures(@transient val tunit: TranslationUnit) extends scala.Serializ
             (x: SingleFeatureExpr, y: SingleFeatureExpr) => x.feature.compare(y.feature) > 0
         })
 
-        assert(! featureList.isEmpty)
-
         featureList
     }
 }
