@@ -78,13 +78,13 @@ object Sampling {
 
         if (ast != null) {
             val fm_ts = opt.getTypeSystemFeatureModel.and(opt.getLocalFeatureModel).and(opt.getFilePresenceCondition)
-            val treeast = EnforceTreeHelper.prepareAST[TranslationUnit](ast)
+            val treeAst = EnforceTreeHelper.prepareAST[TranslationUnit](ast)
 
             if (opt.analyze)
-                FamilyBasedVsSampleBased.typecheckProducts(fm_ts, fm_ts, treeast, opt, "")
+                FamilyBasedVsSampleBased.typecheckProducts(fm_ts, fm_ts, treeAst, opt, "")
 
             if (opt.errorDetection)
-                FamilyBasedVsSampleBased.checkDFGErrorsAgainstSamplingConfigs(fm_ts, fm_ts, treeast, opt, "")
+                FamilyBasedVsSampleBased.checkDFGErrorsAgainstSamplingConfigs(fm_ts, fm_ts, treeAst, opt, "")
         }
     }
 
