@@ -41,11 +41,11 @@ sealed abstract class StdLibFuncReturn(env: ASTEnv, dum: DeclUseMap, udm: UseDec
         // we track variables with the return value of a stdlib function call that is in function
         val returnVar = manytd(query {
             case AssignExpr(i@Id(_), "=", source) =>
-                filterAllASTElems[PostfixExpr](source).map {
+                filterAllASTElems[PostfixExpr](source).collect {
                     case PostfixExpr(Id(name), FunctionCall(_)) => if (function.contains(name)) res ++= fromCache(i)
                 }
             case InitDeclaratorI(AtomicNamedDeclarator(_, i: Id, _), _, Some(init)) =>
-                filterAllASTElems[PostfixExpr](init).map {
+                filterAllASTElems[PostfixExpr](init).collect {
                     case PostfixExpr(Id(name), FunctionCall(_)) => if (function.contains(name)) res ++= fromCache(i)
                 }
         })
