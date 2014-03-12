@@ -357,7 +357,7 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
 
         for (s <- nss) {
             for (cle <- cl) {
-                lazy val errorValues = cle.errorreturn.map(PrettyPrinter.print).mkString(" 'or' ")
+                lazy val errorValues = cle.errorReturn.map(PrettyPrinter.print).mkString(" 'or' ")
 
                 // check CFG element directly; without dataflow analysis
                 for (e <- cle.checkForPotentialCalls(s)) {

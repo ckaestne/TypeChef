@@ -50,7 +50,7 @@ class StdLibFuncReturnTest extends TestHelper with ShouldMatchers with CFGHelper
             void foo() {
                 void* a = malloc();
 
-                if (a) { }
+                if (a != ((void*)0)) { }
             }
             """.stripMargin) should be(true)
     }
