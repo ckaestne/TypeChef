@@ -56,7 +56,7 @@ object FamilyBasedVsSampleBased extends ASTNavigation with CFGHelper {
         }
 
         /** code coverage - no Header files */
-        if (opt.codecoverageNH) {
+        if (opt.codeCoverageNH) {
             val (clog, ctasks) = ConfigurationHandling.buildConfigurationsCodecoverageNH(tunit, ff, fm, configdir, caseStudy, tasks)
             log = log + clog
             tasks ++= ctasks
@@ -65,7 +65,7 @@ object FamilyBasedVsSampleBased extends ASTNavigation with CFGHelper {
         }
 
         /** code coverage - including Header files */
-        if (opt.codecoverage) {
+        if (opt.codeCoverage) {
             val (clog, ctasks) = ConfigurationHandling.buildConfigurationsCodecoverage(tunit, ff, fm, configdir, caseStudy, tasks)
             log = log + clog
             tasks ++= ctasks
@@ -74,7 +74,7 @@ object FamilyBasedVsSampleBased extends ASTNavigation with CFGHelper {
         }
 
         /** singleconf */
-        if (opt.singleconf) {
+        if (opt.singleConf) {
             val (flog, ftasks) = ConfigurationHandling.buildConfigurationsSingleConf(tunit, ff, fm, opt, configdir, caseStudy, tasks)
             log = log + flog
             tasks ++= ftasks
@@ -170,7 +170,7 @@ object FamilyBasedVsSampleBased extends ASTNavigation with CFGHelper {
         }
     }
 
-    def checkErrorsAgainstSamplingConfigs(fm_scanner: FeatureModel, fm: FeatureModel, ast: TranslationUnit,
+    def checkDFGErrorsAgainstSamplingConfigs(fm_scanner: FeatureModel, fm: FeatureModel, ast: TranslationUnit,
                                           opt: FamilyBasedVsSampleBasedOptions, logMessage: String) {
         val ff: FileFeatures = new FileFeatures(ast)
         val (log, fileID, samplingTasks) = initSampling(fm_scanner, fm, ast, ff, opt, logMessage)
