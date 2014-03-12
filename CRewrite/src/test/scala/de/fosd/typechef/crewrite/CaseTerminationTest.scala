@@ -120,6 +120,35 @@ class CaseTerminationTest extends TestHelper with ShouldMatchers with CFGHelper 
             #endif
             }
             """.stripMargin) should be(false)
+    }
 
+    @Test def test_cyclic() {
+        // no error because cycle belongs to case block
+        caseTermination(
+            """
+            void foo(int a) {
+              switch (a) {
+                case 0:
+                l:
+                a = 1;
+                goto l;
+                break;
+              }
+            }
+            """.stripMargin) should be(true)
+
+        // error because cycle includes a case statement
+        caseTermination(
+            """
+            void foo(int a) {
+              switch (a) {
+                l:
+                case 0:
+                a = 1;
+                goto l;
+                break;
+              }
+            }
+            """.stripMargin) should be(false)
     }
 }
