@@ -48,6 +48,22 @@ class CSSParserTest {
         assertParseable("\n#if (abc)\ndiv1 {color: red}\n#else\ndiv2 {color: red}\n#endif\n", p.StyleSheet)
     }
     
+    @Test def test5 {
+    	assertParseable("table#maintable th, div {SYM}", p.StyleSheet)
+    }
+    
+    @Test def test6 {
+    	assertParseable("table#maintable, div {SYM}", p.StyleSheet)
+    }
+    
+    @Test def test7 {
+    	assertParseable("body,#footer,ul {margin:0;padding:0;}", p.StyleSheet)
+    }
+    
+    @Test def test8 {
+    	assertParseable(".yellowtext {margin:0;padding:0;}", p.StyleSheet)
+    }
+    
     // Problem with space in if-else: 1 Success becomes SplittedParseResult(Success, Success) 
     @Test def test_Debug1 {
     	assertParseable("\n#if (abc)\n   body {background-image:url('./skins/header-}\n#else\ndiv { div }\n#endif\n", p.StyleSheet)

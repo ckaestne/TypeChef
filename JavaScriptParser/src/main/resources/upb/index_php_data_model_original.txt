@@ -1,0 +1,515 @@
+
+#if (isset($_COOKIE['password_env']))
+
+#if ($tdb->is_logged_in())
+
+#if ($refresh && $_GET["a"] != 1 && $_POST["a"] != 1 && $_GET["s"] != 1 && $_POST["s"] != 1)
+
+#if ($_GET['action'] == 'markallread')
+<meta http-equiv='refresh' content='0;URL=
+#if ((isset($_GET['ref'])))
+[SYM]
+#else
+index.php
+#endif
+'>
+#else
+
+#endif
+<meta http-equiv='refresh' content='0;URL=[SYM]?[SYM]'>
+#else
+
+#if ($_GET['action'] == 'markallread')
+<meta http-equiv='refresh' content='0;URL=
+#if ((isset($_GET['ref'])))
+[SYM]
+#else
+index.php
+#endif
+'>
+#else
+
+#endif
+
+#endif
+
+#else
+
+#if ($_GET['action'] == 'markallread')
+<meta http-equiv='refresh' content='0;URL=
+#if ((isset($_GET['ref'])))
+[SYM]
+#else
+index.php
+#endif
+'>
+#else
+
+#endif
+
+#endif
+<meta http-equiv='refresh' content='0;URL=[SYM]?[SYM]'>
+#else
+
+#if ($tdb->is_logged_in())
+
+#if ($refresh && $_GET["a"] != 1 && $_POST["a"] != 1 && $_GET["s"] != 1 && $_POST["s"] != 1)
+
+#if ($_GET['action'] == 'markallread')
+<meta http-equiv='refresh' content='0;URL=
+#if ((isset($_GET['ref'])))
+[SYM]
+#else
+index.php
+#endif
+'>
+#else
+
+#endif
+<meta http-equiv='refresh' content='0;URL=[SYM]?[SYM]'>
+#else
+
+#if ($_GET['action'] == 'markallread')
+<meta http-equiv='refresh' content='0;URL=
+#if ((isset($_GET['ref'])))
+[SYM]
+#else
+index.php
+#endif
+'>
+#else
+
+#endif
+
+#endif
+
+#else
+
+#if ($_GET['action'] == 'markallread')
+<meta http-equiv='refresh' content='0;URL=
+#if ((isset($_GET['ref'])))
+[SYM]
+#else
+index.php
+#endif
+'>
+#else
+
+#endif
+
+#endif
+
+#endif
+<!DOCTYPE html PUBLIC '-//W3C//DTD XHTML 1.0 Strict//EN' 'http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd'>
+<html xmlns='http://www.w3.org/1999/xhtml' xml:lang='en' lang='en'>
+<head>
+<title>
+#if ((!isset($where) || $where == ''))
+[SYM]
+#else
+[SYM]
+#endif
+</title>
+<meta http-equiv='Content-Type' content='text/html; charset=utf-8' />
+<link rel='stylesheet' type='text/css' href='[SYM]/css/style.css' />
+<link rel='stylesheet' type='text/css' href='skins/disabled.css' />
+<script type='text/javascript' src='./includes/scripts.js'></script>
+<script type='text/javascript' src='./includes/301a.js'></script></head>
+<body>
+<div id='upb_container'>
+	<div class='main_cat_wrapper2'>
+		<table class='main_table_2' cellspacing='1'>
+			<tr>
+				<td id='logo'><img src='[SYM]' alt='' title='' /></td>
+			</tr>
+		</table>
+	</div>
+ <br />
+	<br />
+	<div class='tabstyle_1'>
+		<ul>
+#if ($tdb->is_logged_in())
+
+			<li><a href='index.php' title='Forum Home'><span>Forum Home</span></a></li>
+			<li><a href='[SYM]' title='Site Home'><span>Site Home</span></a></li>
+			<li><a href='showmembers.php' title='Members'><span>Members</span></a></li>
+			<li><a href='search.php' title='Search'><span>Search</span></a></li>
+			<li><a href='board_faq.php' title='Help Faq'><span>Help Faq</span></a></li>
+#else
+
+			<li><a href='index.php' title='Forum Home'><span>Forum Home</span></a></li>
+			<li><a href='[SYM]' title='Site Home'><span>Site Home</span></a></li>
+			<li><a href='search.php' title='Search'><span>Search</span></a></li>
+			<li><a href='board_faq.php' title='Help Faq'><span>Help Faq</span></a></li>
+#endif
+
+		</ul>
+	</div>
+	<div style='clear:both;'></div>
+		
+	<div class='main_cat_wrapper'>
+		<div class='cat_area_1'>[SYM]</div>
+		<table class='main_table' cellspacing='1'>
+		<tbody>
+		<tr>
+			<td class='area_welcome'><div class='welcome_text'>
+#if ($tdb->is_logged_in())
+
+				<strong>
+#if (!$tdb->is_logged_in())
+You are not logged in.
+#else
+Welcome, [SYM]!
+#endif
+</strong>&nbsp;&nbsp;
+				
+#if (!$tdb->is_logged_in())
+
+#else
+
+#if ($_COOKIE["power_env"] >= 3)
+<a href='admin.php'>Admin Panel</a>&nbsp;&middot;
+#if ($_REGIST['reg_approval'])
+
+#if ($_SESSION['reg_approval_count'] > 0)
+(<a href='admin_members.php?action=confirm#skip_nav'><b>[SYM] Unapproved User</b></a>)&nbsp;&middot;
+#else
+
+#endif
+
+#else
+
+#endif
+
+#else
+
+#endif
+
+#endif
+
+				<a href='
+#if (!$tdb->is_logged_in())
+login.php?ref=
+#if (preg_match("/viewforum.php/", $_SERVER["PHP_SELF"]))
+viewforum.php?id=[SYM]
+#else
+
+#if (preg_match("/viewtopic.php/", $_SERVER["PHP_SELF"]))
+viewtopic.php?id=[SYM]&t_id=[SYM]
+#else
+
+#endif
+
+#endif
+
+#else
+logoff.php
+#endif
+'>Logout</a>
+				&middot;&nbsp;<a href='profile.php'>User CP</a>
+				&middot;&nbsp;<a href='
+#if (!$tdb->is_logged_in())
+login.php?ref=pmsystem.php
+#else
+pmsystem.php
+#endif
+'>Messenger</a>
+				
+#if (!$tdb->is_logged_in())
+
+#else
+
+#if ((int)$new_pm != 0)
+-&nbsp;<a href='pmsystem.php?section=inbox'><strong>[SYM]</strong> new PMs in your inbox</a>
+#else
+-&nbsp;No new messages
+#endif
+
+#endif
+
+#else
+
+				<strong>
+#if (!$tdb->is_logged_in())
+You are not logged in.
+#else
+Welcome, [SYM]!
+#endif
+</strong>  Please 
+#if ($_REGIST['disable_reg'])
+
+#else
+<a href='register.php'><strong>Register</strong></a> or 
+#endif
+<a href='
+#if (!$tdb->is_logged_in())
+login.php?ref=
+#if (preg_match("/viewforum.php/", $_SERVER["PHP_SELF"]))
+viewforum.php?id=[SYM]
+#else
+
+#if (preg_match("/viewtopic.php/", $_SERVER["PHP_SELF"]))
+viewtopic.php?id=[SYM]&t_id=[SYM]
+#else
+
+#endif
+
+#endif
+
+#else
+logoff.php
+#endif
+'><strong>Login</strong></a>.
+#endif
+
+			</div></td>
+		</tr>
+		</tbody>
+		</table>
+		<div class='footer'><img src='[SYM]/images/spacer.gif' alt='' title='' /></div>
+	</div>
+	<br />
+#if (!$tdb->is_logged_in() && isset($_COOKIE['user_env']) && isset($_COOKIE['uniquekey_env']) && isset($_COOKIE['id_env']))
+[SYM]
+#else
+
+#endif
+
+
+	<div class='breadcrumb'><span class='breadcrumb_home'><a href='index.php'>[SYM]</a></span>
+#if (isset($where))
+&nbsp;<span class='breadcrumb_page'>[SYM] [SYM]</span>
+#else
+
+#endif
+
+	</div>
+#if ($_CONFIG["servicemessage"] != "" && ($_SESSION['servicemessage'] != md5($_CONFIG['servicemessage']) || basename($_SERVER['PHP_SELF']) == 'index.php'))
+
+	<div class='main_cat_wrapper'>
+		<div class='cat_area_1'>Announcements</div>
+		<table class='main_table' cellspacing='1'>
+		<tbody>
+			<tr>
+			<td class='area_1' style='text-align:left;'>[SYM]</td>
+			</tr>
+		</tbody>
+		</table>
+		<div class='footer'><img src='[SYM]/images/spacer.gif' alt='' title='' /></div>
+	</div>
+	<br />
+#else
+
+#endif
+
+#if ($_COOKIE['power_env'] == '0' && $_REGIST['disable_reg'])
+[SYM]
+#else
+
+#endif
+
+#if ($cRecs[0]["id"] == "")
+
+			<div class='alert'><div class='alert_text'>
+			<strong>Attention!</strong></div><div style='padding:4px;'>No categories have been added yet.<br />
+#if ($_COOKIE["power_env"] < 3)
+
+#else
+ To add a Category, <a href='admin_forums.php?action=add_cat'>click here</a>.
+#endif
+</div></div>
+#else
+
+#if ($cRecs[0]["id"] == "")
+[SYM]
+#else
+[RepeatBegin]
+
+#if ($_COOKIE["power_env"] >= $cRec["view"])
+
+	<div class='main_cat_wrapper'>
+		<div class='cat_area_1'>[SYM]</div>
+		<table class='main_table' cellspacing='1'>
+		<tbody>
+    			<tr>
+    				<th style='width: 75%;'>Forum</th>
+    				<th style='width:25%;text-align:center;'>Latest Topic</th>
+    			</tr>
+#if ($cRec["sort"] == "")
+
+    			<tr>
+    				<td class='area_2' style='text-align:center;font-weight:bold;padding:12px;line-height:20px;' colspan='2'>No forums have been added to this Category yet.<br />
+#if ($_COOKIE["power_env"] < "3")
+
+#else
+ To add a forum, <a href='admin_forums.php?action=add_forum&cat_id=[SYM]'>click here</a>.
+#endif
+</td>
+    			</tr>
+#else
+[RepeatBegin]
+
+#if ((int)$fRec["view"] <= (int)($_COOKIE["power_env"]))
+
+    			<tr>
+    				<td class='area_2' onmouseover=" this.className='area_2_over'"  onmouseout=" this.className='area_2'" >
+    								<span class='link_1'>
+#if ($tRec[0]["id"] != "")
+<a href='xml.php?id=[SYM]'><img src='images/rss.png' class='rss' alt='RSS Feed' title='RSS Feed'></a>
+#else
+
+#endif
+ <a href='viewforum.php?id=[SYM]'>[SYM]</a></span>
+    								<div class='description'>[SYM]</div>
+    								<div class='box_posts'><strong>Posts:</strong>&nbsp;[SYM]</div>
+    								<div class='box_topics'><strong>Topics:</strong>&nbsp;[SYM]</div></td>
+    				<td class='area_1' style='text-align:center;'><img src='[SYM]/icons/
+#if ($fRec["topics"] == "0")
+off.png
+#else
+
+#if ($tRec[0]["id"] == "")
+off.png
+#else
+
+#if ($_SESSION['newTopics']['f'.$fRec['id']]['t'.$tRec[0]['id']] == 2)
+star.gif
+#else
+
+#if (($tRec[0]['last_post'] > $_SESSION['newTopics']['lastVisitForums'][$fRec['id']] && !isset($_SESSION['newTopics']['f'.$fRec['id']]['t'.$tRec[0]['id']]))
+								|| $_SESSION['newTopics']['f'.$fRec['id']]['t'.$tRec[0]['id']] != 0)
+on.png
+#else
+off.png
+#endif
+
+#endif
+
+#endif
+
+#endif
+' class='index_post_image' alt='' title='' /><span class='latest_topic'>
+#if ($tRec[0]["id"] == "")
+No Posts
+#else
+<span class='date'>[SYM]</span><br /><strong>In:</strong>&nbsp;<strong><a href='viewtopic.php?id=[SYM]&amp;t_id=[SYM]'>[SYM]</a></strong><br /><strong>By:</strong> 
+#if ($tRec[0]["user_id"] != "0")
+<span class='link_2'><a href='profile.php?action=get&amp;id=[SYM]'  style='color : #
+#if ($user[0]["level"] == "1")
+[SYM]
+#else
+
+#if ($user[0]["level"] == "2")
+[SYM]
+#else
+
+#if ($user[0]["level"] >= 3)
+[SYM]
+#else
+[SYM]
+#endif
+
+#endif
+
+#endif
+;'>[SYM]</a></span>
+#else
+a [SYM]
+#endif
+
+#endif
+</span></td>
+    			</tr>
+#else
+
+#endif
+
+[RepeatEnd]
+#endif
+
+		</tbody>
+		</table>
+		<div class='footer'><img src='[SYM]/images/spacer.gif' alt='' title='' /></div>
+	</div>
+	<br />
+#else
+
+#endif
+
+[RepeatEnd]
+#endif
+
+#endif
+
+		<div id='tabstyle_2'>
+			<ul>
+				<li><a href='index.php?action=markallread' title='Mark as read'><span>Mark all forums as read?</span></a></li>
+			</ul>
+		</div>
+		<div style='clear:both;'></div>
+	<div class='main_cat_wrapper'>
+		<div class='cat_area_1'>Community Information</div>
+		<table class='main_table' cellspacing='1'>
+		<tbody>
+			<tr>
+				<th>Users online in the last 15 minutes: [SYM]</th>
+			</tr>
+			<tr>
+				<td class='area_2'>
+					<span class='whos_online'>[SYM] member(s) and [SYM] guest(s).</span>
+					<hr />
+					<strong>
+#if ($whos["users"] > 0)
+[SYM]
+#else
+
+#endif
+</strong></td>
+			</tr>
+			<tr>
+				<th>Board Statistics</th>
+			</tr>
+			<tr>
+				<td class='area_1'>
+					<div class='legend_2'>No New Posts</div>
+					<div class='legend_1'><img src='[SYM]/icons/off.png' alt='' title='' /></div>
+					<div class='legend_2'>New Posts</div>
+					<div class='legend_1'><img src='[SYM]/icons/on.png' alt='' title='' /></div>
+					<span class='stats'>
+					<strong>Total Topics:</strong> 
+#if ($cRecs[0]["id"] == "")
+
+#else
+
+#if ($cRecs[0]["id"] == "")
+
+#else
+0
+#endif
+
+#endif
+<br />
+					<strong>Total Posts:</strong> 
+#if ($cRecs[0]["id"] == "")
+
+#else
+
+#if ($cRecs[0]["id"] == "")
+
+#else
+0
+#endif
+
+#endif
+<br />
+					<strong>Total Members:</strong> [SYM]<br />
+					<strong>Newest Member:</strong> <span class='link_2'><a href='profile.php?action=get&amp;id=[SYM]'>[SYM]</a></span><br />
+					<strong>Forum Page Views:</strong> [SYM]<br />
+					<strong>Busiest Day:</strong> [SYM] Page Views on [SYM]<br />
+          <strong>Page Rendering Time:</strong> [SYM] seconds</span></td>
+			</tr>
+		</tbody>
+		</table>
+		<div class='footer'><img src='[SYM]/images/spacer.gif' alt='' title='' /></div>
+	</div>
+	<br />

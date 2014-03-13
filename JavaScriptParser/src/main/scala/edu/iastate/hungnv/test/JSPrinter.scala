@@ -70,22 +70,26 @@ object JSPrinter {
     // new awesome fast version using a string writer instance
     def print(ast: AST): String = printW(ast, new StringWriter()).toString
 
-    def layoutW(d: Doc, p: Writer): Unit = d match {
+    def layoutW(d: Doc, p: Writer) = layoutWGeneric(d, p, true)
+    
+    def layoutWNoLineBreaks(d: Doc, p: Writer) = layoutWGeneric(d, p, false)
+    
+    def layoutWGeneric(d: Doc, p: Writer, withLineBreaks: Boolean): Unit = d match {
         case Empty => p.write("")
-        case Line => p.write("\n")
+        case Line => if (withLineBreaks) p.write("\n") else p.write(" ")
         case Text(s, position) => {
           p.write(s)
           if (position != NoPosition && Main.printPositionInfoForJS)
         	  p.write(" @" + position.toString + " ")
         }
         case Cons(l, r) =>
-            layoutW(l, p)
-            layoutW(r, p)
-        case Nest(n, Empty) => layoutW(Empty, p)
+            layoutWGeneric(l, p, withLineBreaks)
+            layoutWGeneric(r, p, withLineBreaks)
+        case Nest(n, Empty) => layoutWGeneric(Empty, p, withLineBreaks)
         case Nest(n, Line) => p.write("\n" + ("   " * n))
-        case Nest(n, t@Text(s, _)) => layoutW(t, p)
-        case Nest(n, Cons(l, r)) => layoutW(Cons(Nest(n, l), Nest(n, r)), p)
-        case Nest(i, Nest(j, x)) => layoutW(Nest(i + j, x), p)
+        case Nest(n, t@Text(s, _)) => layoutWGeneric(t, p, withLineBreaks)
+        case Nest(n, Cons(l, r)) => layoutWGeneric(Cons(Nest(n, l), Nest(n, r)), p, withLineBreaks)
+        case Nest(i, Nest(j, x)) => layoutWGeneric(Nest(i + j, x), p, withLineBreaks)
         case _ =>
     }
 
@@ -243,7 +247,7 @@ object JSPrinter {
 
         ast match {
           case JSProgram(sourceElements) => sep(sourceElements, _ * _)
-          case JSFunctionDeclaration(name, param, funBody) => name ~ " = function " ~ name ~ "(params)" ~ " {" ~> funBody * "}"
+          case JSFunctionDeclaration(name, param, funBody) => name ~ " = function " ~ "(params)" ~ " {" ~> funBody * "}"
           case j@JSIdentifier(name) => Text(name, j.getPositionFrom)
           case JSExprStatement(expr) => expr ~ ";"
           case JSAssignment(e1, op, e2) => e1 ~~ op ~~ e2
@@ -262,6 +266,7 @@ object JSPrinter {
           case JSEmptyStatement() => Empty
           case j@JSThis() => Text("this", j.getPositionFrom)
           case JSReturnStatement(e) => "return " ~ opt(e) ~ ";"
+          case JSConstructorCall(target, arguments) => "new " ~ target ~ "(" ~ listSep(arguments, _ ~ ", " ~ _) ~ ")"
           case _ => "AST:" ~ ast.getClass().toString()
           
             /*

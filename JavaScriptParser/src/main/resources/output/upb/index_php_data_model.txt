@@ -1,0 +1,604 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+ Text
+ <head>
+  Text
+  <title>
+   Text
+   Text
+  </title>
+  Text
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  </meta>
+  Text
+  <link rel="stylesheet" type="text/css" href="[SYM]/css/style.css">
+  </link>
+  Text
+  <link rel="stylesheet" type="text/css" href="skins/disabled.css">
+  </link>
+  Text
+  <script type="text/javascript" src="./includes/scripts.js">
+  </script>
+  Text
+  <script type="text/javascript" src="./includes/301a.js">
+  </script>
+ </head>
+ Text
+ <body>
+  Text
+  <div id="upb_container">
+   Text
+   <div class="main_cat_wrapper2">
+    Text
+    <table class="main_table_2" cellspacing="1">
+     Text
+     <tr>
+      Text
+      <td id="logo">
+       <img src="[SYM]" alt="" title="">
+       </img>
+      </td>
+      Text
+     </tr>
+     Text
+    </table>
+    Text
+   </div>
+   Text
+   <br>
+   </br>
+   Text
+   <br>
+   </br>
+   Text
+   <div class="tabstyle_1">
+    Text
+    <ul>
+     Text
+     <li cond="List(def($tdb->is_logged_in()), True)">
+      <a href="index.php" title="Forum Home" cond="List(def($tdb->is_logged_in()), True)">
+       <span cond="List(def($tdb->is_logged_in()), True)">
+        Text
+       </span>
+      </a>
+     </li>
+     Text
+     <li cond="List(def($tdb->is_logged_in()), True)">
+      <a href="[SYM]" title="Site Home" cond="List(def($tdb->is_logged_in()), True)">
+       <span cond="List(def($tdb->is_logged_in()), True)">
+        Text
+       </span>
+      </a>
+     </li>
+     Text
+     <li cond="List(def($tdb->is_logged_in()), True)">
+      <a href="showmembers.php" title="Members" cond="List(def($tdb->is_logged_in()), True)">
+       <span cond="List(def($tdb->is_logged_in()), True)">
+        Text
+       </span>
+      </a>
+     </li>
+     Text
+     <li cond="List(def($tdb->is_logged_in()), True)">
+      <a href="search.php" title="Search" cond="List(def($tdb->is_logged_in()), True)">
+       <span cond="List(def($tdb->is_logged_in()), True)">
+        Text
+       </span>
+      </a>
+     </li>
+     Text
+     <li cond="List(def($tdb->is_logged_in()), True)">
+      <a href="board_faq.php" title="Help Faq" cond="List(def($tdb->is_logged_in()), True)">
+       <span cond="List(def($tdb->is_logged_in()), True)">
+        Text
+       </span>
+      </a>
+     </li>
+     Text
+     <li cond="List(!def($tdb->is_logged_in()), True)">
+      <a href="index.php" title="Forum Home" cond="List(!def($tdb->is_logged_in()), True)">
+       <span cond="List(!def($tdb->is_logged_in()), True)">
+        Text
+       </span>
+      </a>
+     </li>
+     Text
+     <li cond="List(!def($tdb->is_logged_in()), True)">
+      <a href="[SYM]" title="Site Home" cond="List(!def($tdb->is_logged_in()), True)">
+       <span cond="List(!def($tdb->is_logged_in()), True)">
+        Text
+       </span>
+      </a>
+     </li>
+     Text
+     <li cond="List(!def($tdb->is_logged_in()), True)">
+      <a href="search.php" title="Search" cond="List(!def($tdb->is_logged_in()), True)">
+       <span cond="List(!def($tdb->is_logged_in()), True)">
+        Text
+       </span>
+      </a>
+     </li>
+     Text
+     <li cond="List(!def($tdb->is_logged_in()), True)">
+      <a href="board_faq.php" title="Help Faq" cond="List(!def($tdb->is_logged_in()), True)">
+       <span cond="List(!def($tdb->is_logged_in()), True)">
+        Text
+       </span>
+      </a>
+     </li>
+     Text
+    </ul>
+    Text
+   </div>
+   Text
+   <div style="clear:both;">
+   </div>
+   Text
+   <div class="main_cat_wrapper">
+    Text
+    <div class="cat_area_1">
+     Text
+    </div>
+    Text
+    <table class="main_table" cellspacing="1">
+     Text
+     <tbody>
+      Text
+      <tr>
+       Text
+       <td class="area_welcome">
+        <div class="welcome_text">
+         Text
+         <strong cond="List((!def(!$tdb->is_logged_in())&def((int)$new_pm != 0)&def($tdb->is_logged_in())), True)">
+          Text
+         </strong>
+         <strong cond="List((def($tdb->is_logged_in())&def(!$tdb->is_logged_in())), True)">
+          Text
+         </strong>
+         Text
+         <strong cond="List((!def(!$tdb->is_logged_in())&!def((int)$new_pm != 0)&def($tdb->is_logged_in())), True)">
+          Text
+         </strong>
+         Text
+         <strong cond="List(!def($tdb->is_logged_in()), True)">
+          Text
+          Text
+         </strong>
+         <a href="admin.php" cond="List((def($tdb->is_logged_in())&def($_SESSION['reg_approval_count'] > 0)&def($_COOKIE['power_env'] >= 3)&def($_REGIST['reg_approval'])&!def(!$tdb->is_logged_in())&!def((int)$new_pm != 0)), True)">
+          Text
+         </a>
+         Text
+         Text
+         Text
+         <a href="admin.php" cond="List((def($_COOKIE['power_env'] >= 3)&(!def($_SESSION['reg_approval_count'] > 0)|def((int)$new_pm != 0)|!def($_REGIST['reg_approval']))&!def(!$tdb->is_logged_in())&def($tdb->is_logged_in())), True)">
+          Text
+         </a>
+         <a href="register.php" cond="List((!def($tdb->is_logged_in())&!def($_REGIST['disable_reg'])), True)">
+          <strong cond="List((!def($tdb->is_logged_in())&!def($_REGIST['disable_reg'])), True)">
+           Text
+          </strong>
+         </a>
+         <a href="admin_members.php?action=confirm#skip_nav" cond="List((def($tdb->is_logged_in())&def($_SESSION['reg_approval_count'] > 0)&def($_COOKIE['power_env'] >= 3)&def($_REGIST['reg_approval'])&!def(!$tdb->is_logged_in())&!def((int)$new_pm != 0)), True)">
+          <b cond="List((def($tdb->is_logged_in())&def($_SESSION['reg_approval_count'] > 0)&def($_COOKIE['power_env'] >= 3)&def($_REGIST['reg_approval'])&!def(!$tdb->is_logged_in())&!def((int)$new_pm != 0)), True)">
+           Text
+          </b>
+         </a>
+         Text
+         Text
+         Text
+         Text
+         Text
+         <a href="login.php?ref=" href="login.php?ref=viewtopic.php?id=[SYM]&t_id=[SYM]" href="logoff.php" href="login.php?ref=viewforum.php?id=[SYM]" cond="List((def($tdb->is_logged_in())&(def(!$tdb->is_logged_in())|!def((int)$new_pm != 0))), True)">
+          Text
+         </a>
+         <a href="login.php?ref=" href="login.php?ref=viewtopic.php?id=[SYM]&t_id=[SYM]" href="logoff.php" href="login.php?ref=viewforum.php?id=[SYM]" cond="List(!def($tdb->is_logged_in()), True)">
+          <strong cond="List(!def($tdb->is_logged_in()), True)">
+           Text
+          </strong>
+         </a>
+         Text
+         <a href="admin_members.php?action=confirm#skip_nav" cond="List((def($tdb->is_logged_in())&def($_SESSION['reg_approval_count'] > 0)&def((int)$new_pm != 0)&def($_COOKIE['power_env'] >= 3)&def($_REGIST['reg_approval'])&!def(!$tdb->is_logged_in())), True)">
+          <b cond="List((def($tdb->is_logged_in())&def($_SESSION['reg_approval_count'] > 0)&def((int)$new_pm != 0)&def($_COOKIE['power_env'] >= 3)&def($_REGIST['reg_approval'])&!def(!$tdb->is_logged_in())), True)">
+           Text
+          </b>
+         </a>
+         <a href="profile.php" cond="List((def($tdb->is_logged_in())&(def(!$tdb->is_logged_in())|!def((int)$new_pm != 0))), True)">
+          Text
+         </a>
+         Text
+         Text
+         Text
+         <a href="pmsystem.php" href="login.php?ref=pmsystem.php" cond="List((def($tdb->is_logged_in())&(def(!$tdb->is_logged_in())|!def((int)$new_pm != 0))), True)">
+          Text
+         </a>
+         <a href="login.php?ref=" href="login.php?ref=viewtopic.php?id=[SYM]&t_id=[SYM]" href="logoff.php" href="login.php?ref=viewforum.php?id=[SYM]" cond="List((!def(!$tdb->is_logged_in())&def((int)$new_pm != 0)&def($tdb->is_logged_in())), True)">
+          Text
+         </a>
+         Text
+         Text
+         <a href="profile.php" cond="List((!def(!$tdb->is_logged_in())&def((int)$new_pm != 0)&def($tdb->is_logged_in())), True)">
+          Text
+         </a>
+         Text
+         <a href="pmsystem.php" href="login.php?ref=pmsystem.php" cond="List((!def(!$tdb->is_logged_in())&def((int)$new_pm != 0)&def($tdb->is_logged_in())), True)">
+          Text
+         </a>
+         Text
+         <a href="pmsystem.php?section=inbox" cond="List((!def(!$tdb->is_logged_in())&def((int)$new_pm != 0)&def($tdb->is_logged_in())), True)">
+          <strong cond="List((!def(!$tdb->is_logged_in())&def((int)$new_pm != 0)&def($tdb->is_logged_in())), True)">
+           Text
+          </strong>
+          Text
+         </a>
+         Text
+        </div>
+       </td>
+       Text
+      </tr>
+      Text
+     </tbody>
+     Text
+    </table>
+    Text
+    <div class="footer">
+     <img src="[SYM]/images/spacer.gif" alt="" title="">
+     </img>
+    </div>
+    Text
+   </div>
+   Text
+   <br>
+   </br>
+   Text
+   Text
+   <div class="breadcrumb">
+    <span class="breadcrumb_home">
+     <a href="index.php">
+      Text
+     </a>
+    </span>
+    Text
+    <span class="breadcrumb_page" cond="List(def(isset($where)), True)">
+     Text
+    </span>
+    Text
+   </div>
+   Text
+   <div class="main_cat_wrapper" cond="List(def($_CONFIG['servicemessage'] != '' && ($_SESSION['servicemessage'] != md5($_CONFIG['servicemessage']) || basename($_SERVER['PHP_SELF']) == 'index.php')), True)">
+    Text
+    <div class="cat_area_1" cond="List(def($_CONFIG['servicemessage'] != '' && ($_SESSION['servicemessage'] != md5($_CONFIG['servicemessage']) || basename($_SERVER['PHP_SELF']) == 'index.php')), True)">
+     Text
+    </div>
+    Text
+    <table class="main_table" cellspacing="1" cond="List(def($_CONFIG['servicemessage'] != '' && ($_SESSION['servicemessage'] != md5($_CONFIG['servicemessage']) || basename($_SERVER['PHP_SELF']) == 'index.php')), True)">
+     Text
+     <tbody cond="List(def($_CONFIG['servicemessage'] != '' && ($_SESSION['servicemessage'] != md5($_CONFIG['servicemessage']) || basename($_SERVER['PHP_SELF']) == 'index.php')), True)">
+      Text
+      <tr cond="List(def($_CONFIG['servicemessage'] != '' && ($_SESSION['servicemessage'] != md5($_CONFIG['servicemessage']) || basename($_SERVER['PHP_SELF']) == 'index.php')), True)">
+       Text
+       <td class="area_1" style="text-align:left;" cond="List(def($_CONFIG['servicemessage'] != '' && ($_SESSION['servicemessage'] != md5($_CONFIG['servicemessage']) || basename($_SERVER['PHP_SELF']) == 'index.php')), True)">
+        Text
+       </td>
+       Text
+      </tr>
+      Text
+     </tbody>
+     Text
+    </table>
+    Text
+    <div class="footer" cond="List(def($_CONFIG['servicemessage'] != '' && ($_SESSION['servicemessage'] != md5($_CONFIG['servicemessage']) || basename($_SERVER['PHP_SELF']) == 'index.php')), True)">
+     <img src="[SYM]/images/spacer.gif" alt="" title="" cond="List(def($_CONFIG['servicemessage'] != '' && ($_SESSION['servicemessage'] != md5($_CONFIG['servicemessage']) || basename($_SERVER['PHP_SELF']) == 'index.php')), True)">
+     </img>
+    </div>
+    Text
+   </div>
+   Text
+   <br cond="List(def($_CONFIG['servicemessage'] != '' && ($_SESSION['servicemessage'] != md5($_CONFIG['servicemessage']) || basename($_SERVER['PHP_SELF']) == 'index.php')), True)">
+   </br>
+   Text
+   Text
+   Text
+   Text
+   Text
+   <div class="main_cat_wrapper" cond="List((!def($cRecs[0]['id'] == '')&def($_COOKIE['power_env'] >= $cRec['view'])), True)">
+    Text
+    <div class="cat_area_1" cond="List((!def($cRecs[0]['id'] == '')&def($_COOKIE['power_env'] >= $cRec['view'])), True)">
+     Text
+    </div>
+    Text
+    <table class="main_table" cellspacing="1" cond="List((!def($cRecs[0]['id'] == '')&def($_COOKIE['power_env'] >= $cRec['view'])), True)">
+     Text
+     <tbody cond="List((!def($cRecs[0]['id'] == '')&def($_COOKIE['power_env'] >= $cRec['view'])), True)">
+      Text
+      <tr cond="List((!def($cRecs[0]['id'] == '')&def($_COOKIE['power_env'] >= $cRec['view'])), True)">
+       Text
+       <th style="width: 75%;" cond="List((!def($cRecs[0]['id'] == '')&def($_COOKIE['power_env'] >= $cRec['view'])), True)">
+        Text
+       </th>
+       Text
+       <th style="width:25%;text-align:center;" cond="List((!def($cRecs[0]['id'] == '')&def($_COOKIE['power_env'] >= $cRec['view'])), True)">
+        Text
+       </th>
+       Text
+      </tr>
+      Text
+      <tr>
+       Text
+       <td class="area_2" style="text-align:center;font-weight:bold;padding:12px;line-height:20px;" colspan="2">
+        Text
+        <br>
+        </br>
+        Text
+        <a href="admin_forums.php?action=add_forum&cat_id=[SYM]">
+         Text
+        </a>
+        Text
+       </td>
+       Text
+      </tr>
+      Text
+      Text
+      <tr>
+       Text
+       <td class="area_2" onmouseover="javascript: this.className = 'area_2_over';" onmouseout="javascript: this.className = 'area_2';">
+        Text
+        <span class="link_1">
+         <a href="xml.php?id=[SYM]">
+          <img src="images/rss.png" class="rss" alt="RSS Feed" title="RSS Feed">
+          </img>
+         </a>
+         Text
+         <a href="viewforum.php?id=[SYM]">
+          Text
+         </a>
+        </span>
+        Text
+        <div class="description">
+         Text
+        </div>
+        Text
+        <div class="box_posts">
+         <strong>
+          Text
+         </strong>
+         Text
+        </div>
+        Text
+        <div class="box_topics">
+         <strong>
+          Text
+         </strong>
+         Text
+        </div>
+       </td>
+       Text
+       <td class="area_1" style="text-align:center;">
+        <img src="[SYM]/icons/off.png" src="[SYM]/icons/on.png" src="[SYM]/icons/star.gif" class="index_post_image" alt="" title="">
+        </img>
+        <span class="latest_topic">
+         Text
+         <span class="date">
+          Text
+         </span>
+         <br>
+         </br>
+         <strong>
+          Text
+         </strong>
+         Text
+         <strong>
+          <a href="viewtopic.php?id=[SYM]&amp;t_id=[SYM]">
+           Text
+          </a>
+         </strong>
+         <br>
+         </br>
+         <strong>
+          Text
+         </strong>
+         Text
+         Text
+         <span class="link_2">
+          <a href="profile.php?action=get&amp;id=[SYM]" style="color : #[SYM];">
+           Text
+          </a>
+         </span>
+        </span>
+       </td>
+       Text
+      </tr>
+      Text
+      Text
+     </tbody>
+     Text
+    </table>
+    Text
+    <div class="footer" cond="List((!def($cRecs[0]['id'] == '')&def($_COOKIE['power_env'] >= $cRec['view'])), True)">
+     <img src="[SYM]/images/spacer.gif" alt="" title="" cond="List((!def($cRecs[0]['id'] == '')&def($_COOKIE['power_env'] >= $cRec['view'])), True)">
+     </img>
+    </div>
+    Text
+   </div>
+   Text
+   Text
+   <div class="alert" cond="List(def($cRecs[0]['id'] == ''), True)">
+    <div class="alert_text" cond="List(def($cRecs[0]['id'] == ''), True)">
+     Text
+     <strong cond="List(def($cRecs[0]['id'] == ''), True)">
+      Text
+     </strong>
+    </div>
+    <div style="padding:4px;" cond="List(def($cRecs[0]['id'] == ''), True)">
+     Text
+     <br cond="List(def($cRecs[0]['id'] == ''), True)">
+     </br>
+     Text
+     <a href="admin_forums.php?action=add_cat">
+      Text
+     </a>
+     Text
+    </div>
+   </div>
+   <br cond="List((!def($cRecs[0]['id'] == '')&def($_COOKIE['power_env'] >= $cRec['view'])), True)">
+   </br>
+   Text
+   Text
+   <div id="tabstyle_2">
+    Text
+    <ul>
+     Text
+     <li>
+      <a href="index.php?action=markallread" title="Mark as read">
+       <span>
+        Text
+       </span>
+      </a>
+     </li>
+     Text
+    </ul>
+    Text
+   </div>
+   Text
+   <div style="clear:both;">
+   </div>
+   Text
+   <div class="main_cat_wrapper">
+    Text
+    <div class="cat_area_1">
+     Text
+    </div>
+    Text
+    <table class="main_table" cellspacing="1">
+     Text
+     <tbody>
+      Text
+      <tr>
+       Text
+       <th>
+        Text
+       </th>
+       Text
+      </tr>
+      Text
+      <tr>
+       Text
+       <td class="area_2">
+        Text
+        <span class="whos_online">
+         Text
+        </span>
+        Text
+        <hr>
+        </hr>
+        Text
+        <strong>
+         Text
+        </strong>
+       </td>
+       Text
+      </tr>
+      Text
+      <tr>
+       Text
+       <th>
+        Text
+       </th>
+       Text
+      </tr>
+      Text
+      <tr>
+       Text
+       <td class="area_1">
+        Text
+        <div class="legend_2">
+         Text
+        </div>
+        Text
+        <div class="legend_1">
+         <img src="[SYM]/icons/off.png" alt="" title="">
+         </img>
+        </div>
+        Text
+        <div class="legend_2">
+         Text
+        </div>
+        Text
+        <div class="legend_1">
+         <img src="[SYM]/icons/on.png" alt="" title="">
+         </img>
+        </div>
+        Text
+        <span class="stats">
+         Text
+         <strong>
+          Text
+         </strong>
+         Text
+         <br>
+         </br>
+         Text
+         <strong>
+          Text
+         </strong>
+         Text
+         <br>
+         </br>
+         Text
+         <strong>
+          Text
+         </strong>
+         Text
+         <br>
+         </br>
+         Text
+         <strong>
+          Text
+         </strong>
+         Text
+         <span class="link_2">
+          <a href="profile.php?action=get&amp;id=[SYM]">
+           Text
+          </a>
+         </span>
+         <br>
+         </br>
+         Text
+         <strong>
+          Text
+         </strong>
+         Text
+         <br>
+         </br>
+         Text
+         <strong>
+          Text
+         </strong>
+         Text
+         <br>
+         </br>
+         Text
+         <strong>
+          Text
+         </strong>
+         Text
+        </span>
+       </td>
+       Text
+      </tr>
+      Text
+     </tbody>
+     Text
+    </table>
+    Text
+    <div class="footer">
+     <img src="[SYM]/images/spacer.gif" alt="" title="">
+     </img>
+    </div>
+    Text
+   </div>
+   Text
+   <br>
+   </br>
+   Text
+  </div>
+ </body>
+</html>

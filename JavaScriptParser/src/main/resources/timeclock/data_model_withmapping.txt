@@ -1,0 +1,824 @@
+<html>
+  (Location: header.php @ Line 6) <head>
+  (Location: header.php @ Line 59) 
+#if ($use_client_tz == "yes")
+
+#if (!isset($_COOKIE['tzoffset']))
+<s (Location: tzoffset.php @ Line 1) cript language="JavaScript">
+
+  var time = new Date()
+  var cookieexpire = new Date(time.getTime() + 90 * 24 * 60 * 60 * 1000); //cookie expires in 90 days
+  var timeclock = document.cookie;
+  var timezone = (-(time.getTimezoneOffset()))
+
+  function getthecookie(name) { 
+    var index = timeclock.indexOf(name + "=");
+    if (index == -1) return null;
+    index = timeclock.indexOf("=", index) + 1;
+    var endstr = timeclock.indexOf(";", index);
+    if (endstr == -1) endstr = timeclock.length;
+    return unescape(timeclock.substring(index, endstr));
+  }
+
+  function setthecookie(timeclock, value) { 
+    if (value != null && value != "")
+      document.cookie=timeclock + "=" + escape(value) + "; expires=" + cookieexpire.toGMTString();
+    timeclock = document.cookie; 
+  }
+
+  var tzoffset = getthecookie("tzoffset") || timezone;
+  if (tzoffset == null || tzoffset == "")
+    tzoffset="0";
+  setthecookie("tzoffset", tzoffset);
+</script>
+
+
+
+ (Location: tzoffset.php @ Line 1) <meta http-equiv='refresh' content='0;URL=timeclock.php'>
+  (Location: header.php @ Line 63) 
+#else
+
+#endif
+
+#else
+
+#endif
+<link rel='stylesheet' type='text/css' media='screen' href='css/default.css' />
+  (Location: header.php @ Line 67) <link rel='stylesheet' type='text/css' media='print' href='css/print.css' />
+  (Location: header.php @ Line 68) 
+#if ($refresh == "none")
+</head>
+  (Location: header.php @ Line 73) 
+#else
+<meta http-equiv='refresh' content="  (Location: header.php @ Line 75) 300 (Location: config.inc.php @ Line 202) ;URL=timeclock.php" >
+  (Location: header.php @ Line 75) <script language=" javascript"  src=" scripts/pnguin_timeclock.js" ></script>
+  (Location: header.php @ Line 76) </head>
+  (Location: header.php @ Line 77) 
+#endif
+<body>
+ (Location: header.php @ Line 93) 
+#if (!isset($_GET['printer_friendly']))
+<table class=header width=100% border=0 cellpadding=0 cellspacing=1>
+  (Location: topmain.php @ Line 3)   <tr> (Location: topmain.php @ Line 4) 
+#if ($logo == "none")
+    <td height=35 align=left></td>
+  (Location: topmain.php @ Line 10) 
+#else
+<td align=left><a href='index.php'><img border=0 src=' (Location: topmain.php @ Line 12) images/logos/phptimeclock.png (Location: config.inc.php @ Line 195) '></a></td>
+  (Location: topmain.php @ Line 12) 
+#endif
+
+#if (($dbexists <> "1") || (@$my_dbversion <> $dbversion))
+    <td no class=notprint valign=middle align=left style='font-size:13;font-weight:bold;color:#AA0000'><p>***Your database is out of date.***<br />
+                                                                                    &nbsp;&nbsp;&nbsp;Upgrade it via the admin section.</p></td>
+  (Location: topmain.php @ Line 18) 
+#else
+
+#endif
+
+#if ($date_link == "none")
+
+#if ($use_client_tz == "yes")
+    <td class=notprint valign=middle align=right style='font-size:9px;'>
+              <p>If the times below appear to be an hour off, click <a href='resetcookie.php' style='font-size:9px;'>here</a> to reset.<br />
+                If that doesn't work, restart your web browser and reset again.</p></td>
+  (Location: topmain.php @ Line 27) 
+#else
+
+#endif
+    <td colspan=2 scope=col align=right valign=middle><a style='color:#000000;font-family:Tahoma;font-size:10pt;text-decoration:none;'> (Location: topmain.php @ Line 32) 
+#else
+
+#if ($use_client_tz == "yes")
+    <td class=notprint valign=middle align=right style='font-size:9px;'>
+              <p>If the times below appear to be an hour off, click <a href='resetcookie.php' style='font-size:9px;'>here</a> to reset.<br />
+                If that doesn't work, restart your web browser and reset again.</p></td>
+  (Location: topmain.php @ Line 37) 
+#else
+
+#endif
+    <td colspan=2 scope=col align=right valign=middle><a href=' (Location: topmain.php @ Line 42) http://www.historychannel.com/tdih (Location: config.inc.php @ Line 208) ' style='color:#000000;font-family:Tahoma;font-size:10pt;
+            text-decoration:none;'> (Location: topmain.php @ Line 42) 
+#endif
+[SYM]&nbsp;&nbsp;</a></td></tr>
+  (Location: topmain.php @ Line 49) </table>
+  (Location: topmain.php @ Line 50) <table class=topmain_row_color width=100% border=0 cellpadding=0 cellspacing=0>
+  (Location: topmain.php @ Line 54)   <tr>
+  (Location: topmain.php @ Line 55) 
+#if (isset($_SESSION['valid_user']))
+    <td align=left valign=middle width=10 style='padding-left:12px;'><img src='images/icons/user_orange.png' border='0'></td>
+  (Location: topmain.php @ Line 59)     <td align=left valign=middle style='color:#000000;font-family:Tahoma;font-size:10pt;padding-left:8px;'>logged in as:  (Location: topmain.php @ Line 60) [SYM]</td>
+  (Location: topmain.php @ Line 60) 
+#else
+
+#if (isset($_SESSION['time_admin_valid_user']))
+    <td align=left valign=middle width=10 style='padding-left:12px;'><img src='images/icons/user_red.png' border='0'></td>
+  (Location: topmain.php @ Line 65)     <td align=left valign=middle style='color:#000000;font-family:Tahoma;font-size:10pt;padding-left:8px;'>logged in as:  (Location: topmain.php @ Line 66) [SYM]</td>
+  (Location: topmain.php @ Line 66) 
+#else
+
+#if (isset($_SESSION['valid_reports_user']))
+    <td align=left valign=middle width=10 style='padding-left:12px;'><img src='images/icons/user_suit.png' border='0'></td>
+  (Location: topmain.php @ Line 71)     <td align=left valign=middle style='color:#000000;font-family:Tahoma;font-size:10pt;padding-left:8px;'>logged in as:  (Location: topmain.php @ Line 72) [SYM]</td>
+  (Location: topmain.php @ Line 72) 
+#else
+
+#endif
+
+#endif
+
+#endif
+    <td align=right valign=middle><img src='images/icons/house.png' border='0'>&nbsp;&nbsp;</td>
+  (Location: topmain.php @ Line 75)     <td align=right valign=middle width=10><a href='index.php' style='color:#000000;font-family:Tahoma;font-size:10pt;text-decoration:none;'>
+        Home&nbsp;&nbsp;</a></td>
+  (Location: topmain.php @ Line 76)     <td align=right valign=middle width=23><img src='images/icons/bricks.png' border='0'>&nbsp;&nbsp;</td>
+  (Location: topmain.php @ Line 78)     <td align=right valign=middle width=10><a href='login.php' style='color:#000000;font-family:Tahoma;font-size:10pt;text-decoration:none;'>
+        Administration&nbsp;&nbsp;</a></td>
+  (Location: topmain.php @ Line 79)     <td align=right valign=middle width=23><img src='images/icons/report.png' border='0'>&nbsp;&nbsp;</td>
+  (Location: topmain.php @ Line 81) 
+#if ($use_reports_password == "yes")
+    <td align=right valign=middle width=10><a href='login_reports.php' style='color:#000000;font-family:Tahoma;font-size:10pt;
+        text-decoration:none;'>Reports&nbsp;&nbsp;</a></td>
+  (Location: topmain.php @ Line 84) 
+#else
+
+#if ($use_reports_password == "no")
+    <td align=right valign=middle width=10><a href='reports/index.php' style='color:#000000;font-family:Tahoma;font-size:10pt;
+        text-decoration:none;'>Reports&nbsp;&nbsp;</a></td>
+  (Location: topmain.php @ Line 89) 
+#else
+
+#endif
+
+#endif
+
+#if ((isset($_SESSION['valid_user'])) || (isset($_SESSION['valid_reports_user'])) || (isset($_SESSION['time_admin_valid_user'])))
+    <td align=right valign=middle width=20><img src='images/icons/arrow_rotate_clockwise.png' border='0'>&nbsp;</td>
+  (Location: topmain.php @ Line 94)     <td align=right valign=middle width=10><a href='logout.php' style='color:#000000;font-family:Tahoma;font-size:10pt;text-decoration:none;'>
+            Logout&nbsp;&nbsp;</a></td>
+  (Location: topmain.php @ Line 95) 
+#else
+
+#endif
+</tr></table>
+  (Location: topmain.php @ Line 99) 
+#if ($display_weather == 'yes')
+
+#if (mysql_pconnect($db_hostname, $db_username, $db_password))
+
+#else
+<p>Unable to connect to MySQL database!</p> (Location: phpweather.php @ Line 58) 
+#endif
+
+#else
+
+#endif
+<table width=100% height=89% border=0 cellpadding=0 cellspacing=1>
+  (Location: leftmain.php @ Line 108)   <tr valign=top>
+  (Location: leftmain.php @ Line 109)     <td class=left_main width=170 align=left scope=col>
+  (Location: leftmain.php @ Line 110)       <table class=hide width=100% border=0 cellpadding=1 cellspacing=0>
+  (Location: leftmain.php @ Line 111) 
+#if ($links == "none")
+        <tr></tr>
+  (Location: leftmain.php @ Line 116) 
+#else
+        <tr><td class=left_rows height=7 align=left valign=middle></td></tr>
+  (Location: leftmain.php @ Line 118) [RepeatBegin]
+        <tr><td class=left_rows height=18 align=left valign=middle><a class=admin_headings href=' (Location: leftmain.php @ Line 121) [SYM]'> (Location: leftmain.php @ Line 121) [SYM]</a></td>
+                      </tr>
+  (Location: leftmain.php @ Line 121) 
+[RepeatEnd]
+#endif
+        <form name='timeclock' action=' (Location: leftmain.php @ Line 129) [SYM]' method='post'>
+  (Location: leftmain.php @ Line 129) 
+#if ($links == "none")
+        <tr><td height=7></td></tr>
+  (Location: leftmain.php @ Line 132) 
+#else
+        <tr><td height=20></td></tr>
+  (Location: leftmain.php @ Line 134) 
+#endif
+        <tr><td class=title_underline height=4 align=left valign=middle style='padding-left:10px;'>Please sign in below:</td></tr>
+  (Location: leftmain.php @ Line 137)         <tr><td height=7></td></tr>
+  (Location: leftmain.php @ Line 138)         <tr><td height=4 align=left valign=middle class=misc_items>Name:</td></tr>
+  (Location: leftmain.php @ Line 139)         <tr><td height=4 align=left valign=middle class=misc_items>
+  (Location: leftmain.php @ Line 140) 
+#if ($show_display_name == "yes")
+              <select name='left_displayname' tabindex=1>
+  (Location: leftmain.php @ Line 148)               <option value =''>...</option>
+  (Location: leftmain.php @ Line 149) [RepeatBegin]
+
+#if ((isset($_COOKIE['remember_me'])) && (stripslashes($_COOKIE['remember_me']) == $abc))
+              <option selected> (Location: leftmain.php @ Line 156) [SYM]</option>
+  (Location: leftmain.php @ Line 156) 
+#else
+              <option> (Location: leftmain.php @ Line 158) [SYM]</option>
+  (Location: leftmain.php @ Line 158) 
+#endif
+
+[RepeatEnd]              </select></td></tr>
+  (Location: leftmain.php @ Line 163)         <tr><td height=7></td></tr>
+  (Location: leftmain.php @ Line 165) 
+#else
+              <select name='left_fullname' tabindex=1>
+  (Location: leftmain.php @ Line 171)               <option value =''>...</option>
+  (Location: leftmain.php @ Line 172) [RepeatBegin]
+
+#if ((isset($_COOKIE['remember_me'])) && (stripslashes($_COOKIE['remember_me']) == $def))
+              <option selected> (Location: leftmain.php @ Line 178) [SYM]</option>
+  (Location: leftmain.php @ Line 178) 
+#else
+              <option> (Location: leftmain.php @ Line 180) [SYM]</option>
+  (Location: leftmain.php @ Line 180) 
+#endif
+
+[RepeatEnd]              </select></td></tr>
+  (Location: leftmain.php @ Line 185)         <tr><td height=7></td></tr>
+  (Location: leftmain.php @ Line 187) 
+#endif
+
+#if ($use_passwd == "yes")
+        <tr><td height=4 align=left valign=middle class=misc_items>Password:</td></tr>
+  (Location: leftmain.php @ Line 193)         <tr><td height=4 align=left valign=middle class=misc_items> (Location: leftmain.php @ Line 194) <input type='password' name='employee_passwd' maxlength='25' size='17' tabindex=2></td></tr>
+  (Location: leftmain.php @ Line 195)         <tr><td height=7></td></tr>
+  (Location: leftmain.php @ Line 196) 
+#else
+
+#endif
+        <tr><td height=4 align=left valign=middle class=misc_items>In/Out:</td></tr>
+  (Location: leftmain.php @ Line 199)         <tr><td height=4 align=left valign=middle class=misc_items>
+  (Location: leftmain.php @ Line 200)               <select name='left_inout' tabindex=3>
+  (Location: leftmain.php @ Line 207)               <option value =''>...</option>
+  (Location: leftmain.php @ Line 208) [RepeatBegin]
+              <option> (Location: leftmain.php @ Line 211) [SYM]</option>
+  (Location: leftmain.php @ Line 211) 
+[RepeatEnd]              </select></td></tr>
+  (Location: leftmain.php @ Line 214)         <tr><td height=7></td></tr>
+  (Location: leftmain.php @ Line 217)         <tr><td height=4 align=left valign=middle class=misc_items>Notes:</td></tr>
+  (Location: leftmain.php @ Line 218)         <tr><td height=4 align=left valign=middle class=misc_items> (Location: leftmain.php @ Line 219) <input type='text' name='left_notes' maxlength='250' size='17' tabindex=4></td></tr>
+  (Location: leftmain.php @ Line 220) 
+#if (!isset($_COOKIE['remember_me']))
+        <tr><td width=100%><table width=100% border=0 cellpadding=0 cellspacing=0>
+                  <tr><td nowrap height=4 align=left valign=middle class=misc_items width=10%>Remember&nbsp;Me?</td><td width=90% align=left 
+                    class=misc_items style='padding-left:0px;padding-right:0px;' tabindex=5><input type='checkbox' name='remember_me' value='1'></td></tr>
+                    </table></td><tr>
+  (Location: leftmain.php @ Line 223) 
+#else
+
+#if (isset($_COOKIE['remember_me']))
+        <tr><td width=100%><table width=100% border=0 cellpadding=0 cellspacing=0>
+                  <tr><td nowrap height=4 align=left valign=middle class=misc_items width=10%>Reset&nbsp;Cookie?</td><td width=90% align=left 
+                    class=misc_items style='padding-left:0px;padding-right:0px;' tabindex=5><input type='checkbox' name='reset_cookie' value='1'></td></tr>
+                    </table></td><tr>
+  (Location: leftmain.php @ Line 230) 
+#else
+
+#endif
+
+#endif
+        <tr><td height=7></td></tr>
+  (Location: leftmain.php @ Line 236)         <tr><td height=4 align=left valign=middle class=misc_items><input type='submit' name='submit_button' value='Submit' align='center' 
+                tabindex=6></td></tr></form>
+  (Location: leftmain.php @ Line 237) 
+#if ($display_weather == "yes")
+        <tr><td height=25 align=left valign=bottom class=misc_items><font color='00589C'><b><u>Weather Conditions:</u></b></font></td></tr>
+  (Location: leftmain.php @ Line 241)         <tr><td height=7></td></tr>
+  (Location: leftmain.php @ Line 242)         <tr><td align=left valign=middle class=misc_items><b> (Location: leftmain.php @ Line 243) Jackson, Mississippi (Location: config.inc.php @ Line 349) </b></td></tr>
+  (Location: leftmain.php @ Line 243)         <tr><td height=4></td></tr>
+  (Location: leftmain.php @ Line 244)         <tr><td align=left valign=middle class=misc_items>Currently:  (Location: leftmain.php @ Line 245) 
+#if ($display_weather == 'yes')
+
+#if (!isset($data['temp_f']))
+ (Location: leftmain.php @ Line 82) 
+#else
+[SYM]
+#endif
+
+#else
+
+#endif
+&#176;</td></tr>
+  (Location: leftmain.php @ Line 245)         <tr><td height=4></td></tr>
+  (Location: leftmain.php @ Line 246)         <tr><td align=left valign=middle class=misc_items>Feels Like:  (Location: leftmain.php @ Line 247) 
+#if ($display_weather == 'yes')
+
+#if ((isset($heatindex)) || ($windchill <> ''))
+
+#if (!isset($heatindex))
+
+#if (!isset($data['windchill_f']))
+ (Location: leftmain.php @ Line 83) 
+#else
+[SYM]
+#endif
+
+#else
+
+#if (($temp <> '') && ($temp >= '70') && ($humidity <> ''))
+[SYM]
+#else
+
+#endif
+
+#endif
+
+#else
+
+#if (!isset($data['temp_f']))
+ (Location: leftmain.php @ Line 82) 
+#else
+[SYM]
+#endif
+
+#endif
+
+#else
+
+#endif
+&#176;</td></tr>
+  (Location: leftmain.php @ Line 247)         <tr><td height=4></td></tr>
+  (Location: leftmain.php @ Line 248)         <tr><td align=left valign=middle class=misc_items>Skies:  (Location: leftmain.php @ Line 249) 
+#if ($display_weather == 'yes')
+
+#if (!isset($data['cloud_layer1_condition']))
+ (Location: leftmain.php @ Line 90) 
+#else
+[SYM]
+#endif
+
+#else
+
+#endif
+</td></tr>
+  (Location: leftmain.php @ Line 249)         <tr><td height=4></td></tr>
+  (Location: leftmain.php @ Line 250)         <tr><td align=left valign=middle class=misc_items>Wind:  (Location: leftmain.php @ Line 251) 
+#if ($display_weather == 'yes')
+
+#if ($wind == 0)
+None (Location: leftmain.php @ Line 86) 
+#else
+
+#if (!isset($data['wind_dir_text_short']))
+ (Location: leftmain.php @ Line 84) 
+#else
+[SYM]
+#endif
+
+#endif
+
+#else
+
+#endif
+  (Location: leftmain.php @ Line 251) 
+#if ($display_weather == 'yes')
+
+#if ($wind == 0)
+ (Location: leftmain.php @ Line 86) 
+#else
+
+#if (!isset($data['wind_miles_per_hour']))
+ (Location: leftmain.php @ Line 85) 
+#else
+[SYM]
+#endif
+
+#endif
+
+#else
+
+#endif
+
+#if ($display_weather == 'yes')
+
+#if ($wind == 0)
+ (Location: leftmain.php @ Line 86) 
+#else
+mph (Location: leftmain.php @ Line 78) 
+#endif
+
+#else
+
+#endif
+</td></tr>
+  (Location: leftmain.php @ Line 251)         <tr><td height=4></td></tr>
+  (Location: leftmain.php @ Line 252) 
+#if ($humidity == 'None')
+        <tr><td align=left valign=middle class=misc_items>Humidity:  (Location: leftmain.php @ Line 255) 
+#if ($display_weather == 'yes')
+
+#if (!isset($data['rel_humidity']))
+None (Location: leftmain.php @ Line 88) 
+#else
+[SYM]
+#endif
+
+#else
+
+#endif
+</td></tr>
+  (Location: leftmain.php @ Line 255) 
+#else
+        <tr><td align=left valign=middle class=misc_items>Humidity:  (Location: leftmain.php @ Line 257) 
+#if ($display_weather == 'yes')
+
+#if (!isset($data['rel_humidity']))
+None (Location: leftmain.php @ Line 88) 
+#else
+[SYM]
+#endif
+
+#else
+
+#endif
+%</td></tr>
+  (Location: leftmain.php @ Line 257) 
+#endif
+        <tr><td height=4></td></tr>
+  (Location: leftmain.php @ Line 260)         <tr><td align=left valign=middle class=misc_items>Visibility:  (Location: leftmain.php @ Line 261) 
+#if ($display_weather == 'yes')
+
+#if (!isset($data['visibility_miles']))
+ (Location: leftmain.php @ Line 87) 
+#else
+[SYM]
+#endif
+
+#else
+
+#endif
+ miles</td></tr>
+  (Location: leftmain.php @ Line 261)         <tr><td height=4></td></tr>
+  (Location: leftmain.php @ Line 262)         <tr><td align=left valign=middle class=misc_items><font color='FF0000'>Last Updated:  (Location: leftmain.php @ Line 263) 
+#if ($display_weather == 'yes')
+
+#if (!isset($data['time']))
+ (Location: leftmain.php @ Line 89) 
+#else
+[SYM]
+#endif
+
+#else
+
+#endif
+</font></td></tr>
+  (Location: leftmain.php @ Line 263) 
+#else
+
+#endif
+        <tr><td height=90%></td></tr>
+  (Location: leftmain.php @ Line 266)       </table></td>
+  (Location: leftmain.php @ Line 267) 
+#if ($request == 'POST')
+
+#if ($use_passwd == "no")
+<head>
+  (Location: leftmain.php @ Line 396) <meta http-equiv='refresh' content=0;url=index.php>
+  (Location: leftmain.php @ Line 397) </head>
+  (Location: leftmain.php @ Line 398) 
+#else
+<head>
+  (Location: leftmain.php @ Line 440) <meta http-equiv='refresh' content=0;url=index.php>
+  (Location: leftmain.php @ Line 441) </head>
+  (Location: leftmain.php @ Line 442) 
+#endif
+
+#else
+
+#endif
+
+#else
+
+#endif
+<title> (Location: timeclock.php @ Line 17) 
+#if (!isset($_GET['printer_friendly']))
+PHP Timeclock (Location: config.inc.php @ Line 355)   (Location: config.inc.php @ Line 361) 1.04 (Location: config.inc.php @ Line 356) 
+#else
+PHP Timeclock (Location: config.inc.php @ Line 355)   (Location: config.inc.php @ Line 361) 1.04 (Location: config.inc.php @ Line 356) 
+#endif
+</title>
+  (Location: timeclock.php @ Line 17) 
+#if (!isset($_GET['printer_friendly']))
+    <td align=left class=right_main scope=col>
+  (Location: timeclock.php @ Line 21)       <table width=100% height=100% border=0 cellpadding=5 cellspacing=1>
+  (Location: timeclock.php @ Line 22)         <tr class=right_main_text>
+  (Location: timeclock.php @ Line 23)           <td valign=top>
+  (Location: timeclock.php @ Line 24) 
+#else
+
+#endif
+            <table width=100% align=center class=misc_items border=0 cellpadding=3 cellspacing=0>
+  (Location: timeclock.php @ Line 186) 
+#if (!isset($_GET['printer_friendly']))
+              <tr class=display_hide>
+  (Location: timeclock.php @ Line 189) 
+#else
+              <tr>
+  (Location: timeclock.php @ Line 191) 
+#endif
+                <td nowrap style='font-size:9px;color:#000000;padding-left:10px;'> (Location: timeclock.php @ Line 194) Current Status Report (Location: timeclock.php @ Line 184) &nbsp;&nbsp;---->&nbsp;&nbsp;As of:  (Location: timeclock.php @ Line 194) [SYM], 
+                     (Location: timeclock.php @ Line 194) [SYM]</td></tr>
+  (Location: timeclock.php @ Line 195)             </table>
+  (Location: timeclock.php @ Line 196) [RepeatBegin]
+
+#if ($row_count == 0)
+
+#if ($page_count == 0)
+            <table class=misc_items width=100% border=0 cellpadding=2 cellspacing=0>
+  (Location: display.php @ Line 18) 
+#if (!isset($_GET['printer_friendly']))
+              <tr><td align=right colspan=7><a style='font-size:11px;color:#853d27;' 
+                                          href='timeclock.php?printer_friendly=true'>printer friendly page</a></td></tr>
+  (Location: display.php @ Line 21) 
+#else
+
+#endif
+              <tr class=notprint>
+  (Location: display.php @ Line 25)                 <td nowrap width=20% align=left style='padding-left:10px;padding-right:10px;'>
+                                    <a style='font-size:11px;color:#27408b;'
+                                    href=' (Location: display.php @ Line 26) timeclock.php (Location: timeclock.php @ Line 18) ?sortcolumn=empfullname&sortdirection= (Location: display.php @ Line 28) 
+#if ($sortdirection == "asc")
+desc (Location: timeclock.php @ Line 53) 
+#else
+asc (Location: timeclock.php @ Line 55) 
+#endif
+'>Name</a></td>
+  (Location: display.php @ Line 28)                 <td nowrap width=7% align=left style='padding-left:10px;'><a style='font-size:11px;color:#27408b;'
+                                    href=' (Location: display.php @ Line 29) timeclock.php (Location: timeclock.php @ Line 18) ?sortcolumn=inout&sortdirection= (Location: display.php @ Line 30) 
+#if ($sortdirection == "asc")
+desc (Location: timeclock.php @ Line 53) 
+#else
+asc (Location: timeclock.php @ Line 55) 
+#endif
+'>In/Out</a></td>
+  (Location: display.php @ Line 30)                 <td nowrap width=5% align=right style='padding-right:10px;'><a style='font-size:11px;color:#27408b;' 
+                                    href=' (Location: display.php @ Line 31) timeclock.php (Location: timeclock.php @ Line 18) ?sortcolumn=tstamp&sortdirection= (Location: display.php @ Line 32) 
+#if ($sortdirection == "asc")
+desc (Location: timeclock.php @ Line 53) 
+#else
+asc (Location: timeclock.php @ Line 55) 
+#endif
+'>Time</a></td>
+  (Location: display.php @ Line 32)                 <td nowrap width=5% align=right style='padding-left:10px;'><a style='font-size:11px;color:#27408b;' 
+                                    href=' (Location: display.php @ Line 33) timeclock.php (Location: timeclock.php @ Line 18) ?sortcolumn=tstamp&sortdirection= (Location: display.php @ Line 34) 
+#if ($sortdirection == "asc")
+desc (Location: timeclock.php @ Line 53) 
+#else
+asc (Location: timeclock.php @ Line 55) 
+#endif
+'>Date</a></td>
+  (Location: display.php @ Line 34) 
+#if ($display_office_name == "yes")
+                <td nowrap width=10% align=left style='padding-left:10px;'><a style='font-size:11px;color:#27408b;' 
+                                        href=' (Location: display.php @ Line 37) timeclock.php (Location: timeclock.php @ Line 18) ?sortcolumn=office&sortdirection= (Location: display.php @ Line 38) 
+#if ($sortdirection == "asc")
+desc (Location: timeclock.php @ Line 53) 
+#else
+asc (Location: timeclock.php @ Line 55) 
+#endif
+'>Office</a></td>
+  (Location: display.php @ Line 38) 
+#else
+
+#endif
+
+#if ($display_group_name == "yes")
+                <td nowrap width=10% align=left style='padding-left:10px;'><a style='font-size:11px;color:#27408b;' 
+                                        href=' (Location: display.php @ Line 42) timeclock.php (Location: timeclock.php @ Line 18) ?sortcolumn=groups&sortdirection= (Location: display.php @ Line 43) 
+#if ($sortdirection == "asc")
+desc (Location: timeclock.php @ Line 53) 
+#else
+asc (Location: timeclock.php @ Line 55) 
+#endif
+'>Group</a></td>
+  (Location: display.php @ Line 43) 
+#else
+
+#endif
+                <td style='padding-left:10px;'><a style='font-size:11px;color:#27408b;'
+                                    href=' (Location: display.php @ Line 46) timeclock.php (Location: timeclock.php @ Line 18) ?sortcolumn=notes&sortdirection= (Location: display.php @ Line 47) 
+#if ($sortdirection == "asc")
+desc (Location: timeclock.php @ Line 53) 
+#else
+asc (Location: timeclock.php @ Line 55) 
+#endif
+'><u>Notes</u></a></td>
+  (Location: display.php @ Line 47)               </tr>
+  (Location: display.php @ Line 48) 
+#else
+
+#endif
+              <tr class=notdisplay>
+  (Location: display.php @ Line 57)                 <td nowrap width=20% align=left style='padding-left:10px;padding-right:10px;font-size:11px;color:#27408b;
+                            text-decoration:underline;'>Name</td>
+  (Location: display.php @ Line 58)                 <td nowrap width=7% align=left style='padding-left:10px;font-size:11px;color:#27408b;
+                            text-decoration:underline;'>In/Out</td>
+  (Location: display.php @ Line 60)                 <td nowrap width=5% align=right style='padding-right:10px;font-size:11px;color:#27408b;
+                            text-decoration:underline;'>Time</td>
+  (Location: display.php @ Line 62)                 <td nowrap width=5% align=right style='padding-left:10px;font-size:11px;color:#27408b;
+                            text-decoration:underline;'>Date</td>
+  (Location: display.php @ Line 64) 
+#if ($display_office_name == "yes")
+                <td nowrap width=10% align=left style='padding-left:10px;font-size:11px;color:#27408b;
+                                text-decoration:underline;'>Office</td>
+  (Location: display.php @ Line 68) 
+#else
+
+#endif
+
+#if ($display_group_name == "yes")
+                <td nowrap width=10% align=left style='padding-left:10px;font-size:11px;color:#27408b;
+                                text-decoration:underline;'>Group</td>
+  (Location: display.php @ Line 73) 
+#else
+
+#endif
+                <td style='padding-left:10px;'><a style='font-size:11px;color:#27408b;text-decoration:underline;'>Notes</td>
+  (Location: display.php @ Line 77)               </tr>
+  (Location: display.php @ Line 78) 
+#else
+
+#endif
+
+#if ($show_display_name == "yes")
+[SYM]
+#else
+
+#if ($show_display_name == "no")
+[SYM]
+#else
+
+#endif
+
+#endif
+                <td nowrap align=left width=7% style='background-color: (Location: display.php @ Line 99) 
+#if (($row_count % 2))
+
+#if (!isset($_GET['printer_friendly']))
+#EFEFEF (Location: config.inc.php @ Line 213) 
+#else
+#EFEFEF (Location: config.inc.php @ Line 213) 
+#endif
+
+#else
+
+#if (!isset($_GET['printer_friendly']))
+#FBFBFB (Location: config.inc.php @ Line 214) 
+#else
+#FBFBFB (Location: config.inc.php @ Line 214) 
+#endif
+
+#endif
+;color: (Location: display.php @ Line 99) [SYM];
+                        padding-left:10px;'> (Location: display.php @ Line 99) [SYM]</td>
+  (Location: display.php @ Line 100)                 <td nowrap align=right width=5% bgcolor=' (Location: display.php @ Line 101) 
+#if (($row_count % 2))
+
+#if (!isset($_GET['printer_friendly']))
+#EFEFEF (Location: config.inc.php @ Line 213) 
+#else
+#EFEFEF (Location: config.inc.php @ Line 213) 
+#endif
+
+#else
+
+#if (!isset($_GET['printer_friendly']))
+#FBFBFB (Location: config.inc.php @ Line 214) 
+#else
+#FBFBFB (Location: config.inc.php @ Line 214) 
+#endif
+
+#endif
+' style='padding-right:10px;'> (Location: display.php @ Line 101) [SYM]</td>
+  (Location: display.php @ Line 101)                 <td nowrap align=right width=5% bgcolor=' (Location: display.php @ Line 102) 
+#if (($row_count % 2))
+
+#if (!isset($_GET['printer_friendly']))
+#EFEFEF (Location: config.inc.php @ Line 213) 
+#else
+#EFEFEF (Location: config.inc.php @ Line 213) 
+#endif
+
+#else
+
+#if (!isset($_GET['printer_friendly']))
+#FBFBFB (Location: config.inc.php @ Line 214) 
+#else
+#FBFBFB (Location: config.inc.php @ Line 214) 
+#endif
+
+#endif
+' style='padding-left:10px;'> (Location: display.php @ Line 102) [SYM]</td>
+  (Location: display.php @ Line 102) 
+#if ($display_office_name == "yes")
+                <td nowrap align=left width=10% bgcolor=' (Location: display.php @ Line 105) 
+#if (($row_count % 2))
+
+#if (!isset($_GET['printer_friendly']))
+#EFEFEF (Location: config.inc.php @ Line 213) 
+#else
+#EFEFEF (Location: config.inc.php @ Line 213) 
+#endif
+
+#else
+
+#if (!isset($_GET['printer_friendly']))
+#FBFBFB (Location: config.inc.php @ Line 214) 
+#else
+#FBFBFB (Location: config.inc.php @ Line 214) 
+#endif
+
+#endif
+' style='padding-left:10px;'> (Location: display.php @ Line 105) [SYM]</td>
+  (Location: display.php @ Line 105) 
+#else
+
+#endif
+
+#if ($display_group_name == "yes")
+                <td nowrap align=left width=10% bgcolor=' (Location: display.php @ Line 109) 
+#if (($row_count % 2))
+
+#if (!isset($_GET['printer_friendly']))
+#EFEFEF (Location: config.inc.php @ Line 213) 
+#else
+#EFEFEF (Location: config.inc.php @ Line 213) 
+#endif
+
+#else
+
+#if (!isset($_GET['printer_friendly']))
+#FBFBFB (Location: config.inc.php @ Line 214) 
+#else
+#FBFBFB (Location: config.inc.php @ Line 214) 
+#endif
+
+#endif
+' style='padding-left:10px;'> (Location: display.php @ Line 109) [SYM]</td>
+  (Location: display.php @ Line 109) 
+#else
+
+#endif
+[SYM]              </tr>
+  (Location: display.php @ Line 113) 
+#if ($row_count == 40)
+              <tr style=" page-break-before:always;" ></tr>
+  (Location: display.php @ Line 120) 
+#else
+
+#endif
+
+[RepeatEnd]            </table>
+  (Location: display.php @ Line 127) 
+#if (!isset($_GET['printer_friendly']))
+          </td></tr>
+  (Location: display.php @ Line 130) 
+#else
+
+#endif
+
+#if (!isset($_GET['printer_friendly']))
+        <tr class=hide><td height=4% class=misc_items align=right valign=middle scope=row colspan=2>Powered by&nbsp;<a class=footer_links 
+            href='http://httpd.apache.org/'>Apache</a>&nbsp;&#177<a class=footer_links href='http://mysql.org'>&nbsp;MySql</a> 
+            &#177 (Location: footer.php @ Line 5) 
+#if ($email == "none")
+<a class=footer_links href='http://php.net'>&nbsp;PHP</a> (Location: footer.php @ Line 10) 
+#else
+<a class=footer_links href='http://php.net'>&nbsp;PHP</a>&nbsp;&#8226;&nbsp;<a class=footer_links href='mailto: (Location: footer.php @ Line 12) 
+#if (!isset($_GET['printer_friendly']))
+none (Location: config.inc.php @ Line 100) 
+#else
+none (Location: config.inc.php @ Line 100) 
+#endif
+'> (Location: footer.php @ Line 12) 
+#if (!isset($_GET['printer_friendly']))
+none (Location: config.inc.php @ Line 100) 
+#else
+none (Location: config.inc.php @ Line 100) 
+#endif
+</a> (Location: footer.php @ Line 12) 
+#endif
+&nbsp;&#8226;<a class=footer_links href='http://timeclock.sourceforge.net'>&nbsp; (Location: footer.php @ Line 15) 
+#if (!isset($_GET['printer_friendly']))
+PHP Timeclock (Location: config.inc.php @ Line 355) 
+#else
+PHP Timeclock (Location: config.inc.php @ Line 355) 
+#endif
+&nbsp; (Location: footer.php @ Line 15) 
+#if (!isset($_GET['printer_friendly']))
+1.04 (Location: config.inc.php @ Line 356) 
+#else
+1.04 (Location: config.inc.php @ Line 356) 
+#endif
+</a></td></tr>
+  (Location: footer.php @ Line 15)       </table>
+  (Location: footer.php @ Line 16)     </td>
+  (Location: footer.php @ Line 17)   </tr>
+  (Location: footer.php @ Line 18) </table>
+  (Location: footer.php @ Line 19) </body>
+  (Location: footer.php @ Line 20) </html>
+  (Location: footer.php @ Line 21) 
+#else
+
+#endif
+
+ (Location: timeclock.php @ Line 204) 

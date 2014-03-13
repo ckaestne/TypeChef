@@ -1,0 +1,4629 @@
+
+#if (isset($_COOKIE['password_env']))
+
+#if ($tdb->is_logged_in())
+
+#if ($refresh && $_GET["a"] != 1 && $_POST["a"] != 1 && $_GET["s"] != 1 && $_POST["s"] != 1)
+<meta http-equiv='refresh' content=' (Location: includes/inc/func.inc.php @ Line 23) 0 (Location: includes/header.php @ Line 54) ;URL= (Location: includes/inc/func.inc.php @ Line 23) [SYM]? (Location: includes/header.php @ Line 54) [SYM]'> (Location: includes/inc/func.inc.php @ Line 23) 
+#else
+
+#endif
+
+#else
+
+#endif
+<meta http-equiv='refresh' content=' (Location: includes/inc/func.inc.php @ Line 23) 0 (Location: includes/header.php @ Line 70) ;URL= (Location: includes/inc/func.inc.php @ Line 23) [SYM]? (Location: includes/header.php @ Line 70) [SYM]'> (Location: includes/inc/func.inc.php @ Line 23) 
+#else
+
+#if ($tdb->is_logged_in())
+
+#if ($refresh && $_GET["a"] != 1 && $_POST["a"] != 1 && $_GET["s"] != 1 && $_POST["s"] != 1)
+<meta http-equiv='refresh' content=' (Location: includes/inc/func.inc.php @ Line 23) 0 (Location: includes/header.php @ Line 54) ;URL= (Location: includes/inc/func.inc.php @ Line 23) [SYM]? (Location: includes/header.php @ Line 54) [SYM]'> (Location: includes/inc/func.inc.php @ Line 23) 
+#else
+
+#endif
+
+#else
+
+#endif
+
+#endif
+<!DOCTYPE html PUBLIC '-//W3C//DTD XHTML 1.0 Strict//EN' 'http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd'>
+<html xmlns='http://www.w3.org/1999/xhtml' xml:lang='en' lang='en'>
+<head>
+<title> (Location: includes/header.php @ Line 144) 
+#if ((!isset($where) || $where == ''))
+[SYM]
+#else
+[SYM]
+#endif
+</title>
+<meta http-equiv='Content-Type' content='text/html; charset=utf-8' />
+<link rel='stylesheet' type='text/css' href=' (Location: includes/header.php @ Line 147) [SYM]/css/style.css' />
+<link rel='stylesheet' type='text/css' href='skins/disabled.css' />
+<script type='text/javascript' src='./includes/scripts.js'></script>
+<script type='text/javascript' src='./includes/301a.js'></script> (Location: includes/header.php @ Line 149) </head>
+<body>
+<div id='upb_container'>
+	<div class='main_cat_wrapper2'>
+		<table class='main_table_2' cellspacing='1'>
+			<tr>
+				<td id='logo'><img src=' (Location: includes/header.php @ Line 163) [SYM]' alt='' title='' /></td>
+			</tr>
+		</table>
+	</div>
+ <br />
+	<br />
+	<div class='tabstyle_1'>
+		<ul> (Location: includes/header.php @ Line 169) 
+#if ($tdb->is_logged_in())
+
+			<li><a href='index.php' title='Forum Home'><span>Forum Home</span></a></li>
+			<li><a href=' (Location: includes/header.php @ Line 177) [SYM]' title='Site Home'><span>Site Home</span></a></li>
+			<li><a href='showmembers.php' title='Members'><span>Members</span></a></li>
+			<li><a href='search.php' title='Search'><span>Search</span></a></li>
+			<li><a href='board_faq.php' title='Help Faq'><span>Help Faq</span></a></li> (Location: includes/header.php @ Line 179) 
+#else
+
+			<li><a href='index.php' title='Forum Home'><span>Forum Home</span></a></li>
+			<li><a href=' (Location: includes/header.php @ Line 183) [SYM]' title='Site Home'><span>Site Home</span></a></li>
+			<li><a href='search.php' title='Search'><span>Search</span></a></li>
+			<li><a href='board_faq.php' title='Help Faq'><span>Help Faq</span></a></li> (Location: includes/header.php @ Line 185) 
+#endif
+
+		</ul>
+	</div>
+	<div style='clear:both;'></div>
+		 (Location: includes/header.php @ Line 188) 
+	<div class='main_cat_wrapper'>
+		<div class='cat_area_1'> (Location: includes/inc/func.inc.php @ Line 260) [SYM]</div>
+		<table class='main_table' cellspacing='1'>
+		<tbody> (Location: includes/inc/func.inc.php @ Line 262) 
+		<tr>
+			<td class='area_welcome'><div class='welcome_text'> (Location: includes/header.php @ Line 194) 
+#if ($tdb->is_logged_in())
+
+				<strong> (Location: includes/header.php @ Line 197) 
+#if (!$tdb->is_logged_in())
+You are not logged in. (Location: includes/header.php @ Line 115) 
+#else
+Welcome,  (Location: includes/header.php @ Line 119) [SYM]! (Location: includes/header.php @ Line 119) 
+#endif
+</strong>&nbsp;&nbsp;
+				 (Location: includes/header.php @ Line 198) 
+#if (!$tdb->is_logged_in())
+
+#else
+
+#if ($_COOKIE["power_env"] >= 3)
+<a href='admin.php'>Admin Panel</a>&nbsp;&middot; (Location: includes/header.php @ Line 130) 
+#if ($_REGIST['reg_approval'])
+
+#if ($_SESSION['reg_approval_count'] > 0)
+(<a href='admin_members.php?action=confirm#skip_nav'><b> (Location: includes/header.php @ Line 137) [SYM] Unapproved User</b></a>)&nbsp;&middot; (Location: includes/header.php @ Line 137) 
+#else
+
+#endif
+
+#else
+
+#endif
+
+#else
+
+#endif
+
+#endif
+
+				<a href=' (Location: includes/header.php @ Line 199) 
+#if (!$tdb->is_logged_in())
+login.php?ref= (Location: includes/header.php @ Line 116) 
+#if (preg_match("/viewforum.php/", $_SERVER["PHP_SELF"]))
+viewforum.php?id= (Location: includes/header.php @ Line 108) [SYM]
+#else
+
+#if (preg_match("/viewtopic.php/", $_SERVER["PHP_SELF"]))
+viewtopic.php?id= (Location: includes/header.php @ Line 112) [SYM]&t_id= (Location: includes/header.php @ Line 112) [SYM]
+#else
+ (Location: includes/header.php @ Line 104) 
+#endif
+
+#endif
+
+#else
+logoff.php (Location: includes/header.php @ Line 120) 
+#endif
+'>Logout</a>
+				&middot;&nbsp;<a href='profile.php'>User CP</a>
+				&middot;&nbsp;<a href=' (Location: includes/header.php @ Line 200) 
+#if (!$tdb->is_logged_in())
+login.php?ref=pmsystem.php (Location: includes/header.php @ Line 117) 
+#else
+pmsystem.php (Location: includes/header.php @ Line 121) 
+#endif
+'>Messenger</a>
+				 (Location: includes/header.php @ Line 202) 
+#if (!$tdb->is_logged_in())
+
+#else
+
+#if ((int)$new_pm != 0)
+-&nbsp;<a href='pmsystem.php?section=inbox'><strong> (Location: includes/header.php @ Line 126) [SYM]</strong> new PMs in your inbox</a> (Location: includes/header.php @ Line 126) 
+#else
+-&nbsp;No new messages (Location: includes/header.php @ Line 127) 
+#endif
+
+#endif
+
+#else
+
+				<strong> (Location: includes/header.php @ Line 205) 
+#if (!$tdb->is_logged_in())
+You are not logged in. (Location: includes/header.php @ Line 115) 
+#else
+Welcome,  (Location: includes/header.php @ Line 119) [SYM]! (Location: includes/header.php @ Line 119) 
+#endif
+</strong>  Please  (Location: includes/header.php @ Line 206) 
+#if ($_REGIST['disable_reg'])
+ (Location: includes/header.php @ Line 207) 
+#else
+<a href='register.php'><strong>Register</strong></a> or  (Location: includes/header.php @ Line 208) 
+#endif
+<a href=' (Location: includes/header.php @ Line 209) 
+#if (!$tdb->is_logged_in())
+login.php?ref= (Location: includes/header.php @ Line 116) 
+#if (preg_match("/viewforum.php/", $_SERVER["PHP_SELF"]))
+viewforum.php?id= (Location: includes/header.php @ Line 108) [SYM]
+#else
+
+#if (preg_match("/viewtopic.php/", $_SERVER["PHP_SELF"]))
+viewtopic.php?id= (Location: includes/header.php @ Line 112) [SYM]&t_id= (Location: includes/header.php @ Line 112) [SYM]
+#else
+ (Location: includes/header.php @ Line 104) 
+#endif
+
+#endif
+
+#else
+logoff.php (Location: includes/header.php @ Line 120) 
+#endif
+'><strong>Login</strong></a>. (Location: includes/header.php @ Line 209) 
+#endif
+
+			</div></td>
+		</tr> (Location: includes/header.php @ Line 211) 
+		</tbody>
+		</table>
+		<div class='footer'><img src=' (Location: includes/inc/func.inc.php @ Line 271) [SYM]/images/spacer.gif' alt='' title='' /></div>
+	</div>
+	<br /> (Location: includes/inc/func.inc.php @ Line 274) 
+#if (!$tdb->is_logged_in() && isset($_COOKIE['user_env']) && isset($_COOKIE['uniquekey_env']) && isset($_COOKIE['id_env']))
+[SYM]
+#else
+
+#endif
+
+
+	<div class='breadcrumb'><span class='breadcrumb_home'><a href='index.php'> (Location: includes/header.php @ Line 221) [SYM]</a></span> (Location: includes/header.php @ Line 223) 
+#if (isset($where))
+&nbsp;<span class='breadcrumb_page'> (Location: includes/header.php @ Line 224) [SYM]  (Location: includes/header.php @ Line 224) <a href='admin.php'>Admin</a>  (Location: admin_forums.php @ Line 15) [SYM] <a href='admin_forums.php'>Manage Forums</a> (Location: admin_forums.php @ Line 15) </span> (Location: includes/header.php @ Line 224) 
+#else
+
+#endif
+
+	</div> (Location: includes/header.php @ Line 225) 
+#if ($_CONFIG["servicemessage"] != "" && ($_SESSION['servicemessage'] != md5($_CONFIG['servicemessage']) || basename($_SERVER['PHP_SELF']) == 'index.php'))
+
+	<div class='main_cat_wrapper'>
+		<div class='cat_area_1'> (Location: includes/inc/func.inc.php @ Line 260) Announcements (Location: includes/header.php @ Line 231) </div>
+		<table class='main_table' cellspacing='1'>
+		<tbody> (Location: includes/inc/func.inc.php @ Line 262) 
+			<tr>
+			<td class='area_1' style='text-align:left;'> (Location: includes/header.php @ Line 232) [SYM]</td>
+			</tr> (Location: includes/header.php @ Line 234) 
+		</tbody>
+		</table>
+		<div class='footer'><img src=' (Location: includes/inc/func.inc.php @ Line 271) [SYM]/images/spacer.gif' alt='' title='' /></div>
+	</div>
+	<br /> (Location: includes/inc/func.inc.php @ Line 274) 
+#else
+
+#endif
+
+#if ($tdb->is_logged_in() && $_COOKIE["power_env"] >= 3)
+
+#if ($_GET["action"] == "edit_cat")
+
+#if (isset($_GET["id"]))
+
+#if (isset($_POST["u_cat"]))
+
+						<div class='alert_confirm'>
+						<div class='alert_confirm_text'>
+						<strong>Redirecting:</div><div style='padding:4px;'>
+						Category successfully edited.
+						</div>
+						</div> (Location: admin_forums.php @ Line 25) <meta http-equiv='refresh' content=' (Location: includes/inc/func.inc.php @ Line 23) 2 (Location: admin_forums.php @ Line 32) ;URL= (Location: includes/inc/func.inc.php @ Line 23) [SYM]'> (Location: includes/inc/func.inc.php @ Line 23) 
+#else
+<form action='admin_forums.php?action=edit_cat&id= (Location: admin_forums.php @ Line 35) [SYM]' method='POST' name='form'> (Location: admin_forums.php @ Line 35) 
+	<div class='main_cat_wrapper'>
+		<div class='cat_area_1'> (Location: includes/inc/func.inc.php @ Line 260) Editing a category (Location: admin_forums.php @ Line 36) </div>
+		<table class='main_table' cellspacing='1'>
+		<tbody> (Location: includes/inc/func.inc.php @ Line 262) <input type=" hidden"  name=" neworder"  value=" " >
+			<tr>
+				<th colspan='2'>&nbsp;</th>
+			</tr>
+			<tr>
+				<td class='area_1' style='width:35%'><strong>Change category's name to</strong></td>
+				<td class='area_2'><input type='text' name='u_cat' value=' (Location: admin_forums.php @ Line 37) [SYM]' size='40'></td>
+			</tr>
+			<tr>
+				<td class='area_1'><strong>Who can see this category?</strong></td>
+				<td class='area_2'><select size='1' name='u_view'> (Location: admin_forums.php @ Line 43) 
+#if ([Unresolved Constraint])
+ (Location: includes/inc/func.inc.php @ Line 80) 
+#if ((bool)$exclude_guests === FALSE)
+
+#if (($user_power == 0 || $user_power == ''))
+
+#if ($dropdown)
+<option value="0" selected>Guests and above</option> (Location: includes/inc/func.inc.php @ Line 83) 
+#else
+
+#if ($shortDropDown)
+<option value="0" selected>Guests+</option> (Location: includes/inc/func.inc.php @ Line 88) 
+#else
+
+#if ($oneDropDown)
+<option value="0" selected>Guests</option> (Location: includes/inc/func.inc.php @ Line 89) 
+#else
+
+#if ($oneShortDropDown)
+<option value="0" selected>Guest</option> (Location: includes/inc/func.inc.php @ Line 90) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="0">Guests and above</option> (Location: includes/inc/func.inc.php @ Line 92) 
+#else
+
+#if ($shortDropDown)
+<option value="0">Guests+</option> (Location: includes/inc/func.inc.php @ Line 93) 
+#else
+
+#if ($oneDropDown)
+<option value="0">Guests</option> (Location: includes/inc/func.inc.php @ Line 94) 
+#else
+
+#if ($oneShortDropDown)
+<option value="0">Guest</option> (Location: includes/inc/func.inc.php @ Line 95) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#endif
+
+#if ($user_power == 1)
+
+#if ($dropdown)
+<option value="1" selected>Members and above</option> (Location: includes/inc/func.inc.php @ Line 99) 
+#else
+
+#if ($shortDropDown)
+<option value="1" selected>Members+</option> (Location: includes/inc/func.inc.php @ Line 104) 
+#else
+
+#if ($oneDropDown)
+<option value="1" selected>Members</option> (Location: includes/inc/func.inc.php @ Line 105) 
+#else
+
+#if ($oneShortDropDown)
+<option value="1" selected>Member</option> (Location: includes/inc/func.inc.php @ Line 106) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="1">Members and above</option> (Location: includes/inc/func.inc.php @ Line 108) 
+#else
+
+#if ($shortDropDown)
+<option value="1">Members+</option> (Location: includes/inc/func.inc.php @ Line 109) 
+#else
+
+#if ($oneDropDown)
+<option value="1">Member</option> (Location: includes/inc/func.inc.php @ Line 110) 
+#else
+
+#if ($oneShortDropDown)
+<option value="1">Member</option> (Location: includes/inc/func.inc.php @ Line 111) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#if ($user_power == 2)
+
+#if ($dropdown)
+<option value="2" selected>Moderators and Administrators</option> (Location: includes/inc/func.inc.php @ Line 114) 
+#else
+
+#if ($shortDropDown)
+<option value="2" selected>Mods+</option> (Location: includes/inc/func.inc.php @ Line 119) 
+#else
+
+#if ($oneDropDown)
+<option value="2" selected>Moderator</option> (Location: includes/inc/func.inc.php @ Line 120) 
+#else
+
+#if ($oneShortDropDown)
+<option value="2" selected>Mod</option> (Location: includes/inc/func.inc.php @ Line 121) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="2">Moderators and Administrators</option> (Location: includes/inc/func.inc.php @ Line 123) 
+#else
+
+#if ($shortDropDown)
+<option value="2">Mods+</option> (Location: includes/inc/func.inc.php @ Line 124) 
+#else
+
+#if ($oneDropDown)
+<option value="2">Moderator</option> (Location: includes/inc/func.inc.php @ Line 125) 
+#else
+
+#if ($oneShortDropDown)
+<option value="2">Mod</option> (Location: includes/inc/func.inc.php @ Line 126) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#if ($user_power >= 3)
+
+#if ($dropdown)
+<option value="3" selected>Administrators only</option> (Location: includes/inc/func.inc.php @ Line 129) 
+#else
+
+#if ($shortDropDown)
+<option value="3" selected>Admins</option> (Location: includes/inc/func.inc.php @ Line 134) 
+#else
+
+#if ($oneDropDown)
+<option value="3" selected>Administrator</option> (Location: includes/inc/func.inc.php @ Line 135) 
+#else
+
+#if ($oneShortDropDown)
+<option value="3" selected>Admin</option> (Location: includes/inc/func.inc.php @ Line 136) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="3">Administrators only</option> (Location: includes/inc/func.inc.php @ Line 138) 
+#else
+
+#if ($shortDropDown)
+<option value="3">Admins</option> (Location: includes/inc/func.inc.php @ Line 139) 
+#else
+
+#if ($oneDropDown)
+<option value="3">Administrator</option> (Location: includes/inc/func.inc.php @ Line 140) 
+#else
+
+#if ($oneShortDropDown)
+<option value="3">Admin</option> (Location: includes/inc/func.inc.php @ Line 141) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($oneShortText)
+Admin (Location: includes/inc/func.inc.php @ Line 133) 
+#else
+
+#if ($oneText)
+Administrator (Location: includes/inc/func.inc.php @ Line 132) 
+#else
+
+#if ($allShortText)
+admins (Location: includes/inc/func.inc.php @ Line 131) 
+#else
+
+#if ($allText)
+<b>admins</b> only (Location: includes/inc/func.inc.php @ Line 130) 
+#else
+
+#if ($oneShortText)
+Mod (Location: includes/inc/func.inc.php @ Line 118) 
+#else
+
+#if ($oneText)
+Moderator (Location: includes/inc/func.inc.php @ Line 117) 
+#else
+
+#if ($allShortText)
+mods+ (Location: includes/inc/func.inc.php @ Line 116) 
+#else
+
+#if ($allText)
+<b>mods & admins</b> (Location: includes/inc/func.inc.php @ Line 115) 
+#else
+
+#if ($oneShortText)
+Member (Location: includes/inc/func.inc.php @ Line 103) 
+#else
+
+#if ($oneText)
+Member (Location: includes/inc/func.inc.php @ Line 102) 
+#else
+
+#if ($allShortText)
+members+ (Location: includes/inc/func.inc.php @ Line 101) 
+#else
+
+#if ($allText)
+<b>members</b> and above (Location: includes/inc/func.inc.php @ Line 100) 
+#else
+
+#if ($oneShortText)
+Guest (Location: includes/inc/func.inc.php @ Line 87) 
+#else
+
+#if ($oneText)
+Guest (Location: includes/inc/func.inc.php @ Line 86) 
+#else
+
+#if ($allShortText)
+guest+ (Location: includes/inc/func.inc.php @ Line 85) 
+#else
+
+#if ($allText)
+<b>guests</b> and above (Location: includes/inc/func.inc.php @ Line 84) 
+#else
+FALSE[Unresolved Location]
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+</select></td>
+			</tr> (Location: admin_forums.php @ Line 49) </td></tr><tr>
+				<td class='footer_3' colspan='2'><img src='./skins/default/images/spacer.gif' alt='' title='' /></td>
+			</tr><tr><td class='footer_3a' style='text-align:center;' colspan='2'><input type='submit' value='Edit'></td></tr> (Location: admin_forums.php @ Line 51) 
+		</tbody>
+		</table>
+		<div class='footer'><img src=' (Location: includes/inc/func.inc.php @ Line 271) [SYM]/images/spacer.gif' alt='' title='' /></div>
+	</div>
+	<br /> (Location: includes/inc/func.inc.php @ Line 274) </form> (Location: admin_forums.php @ Line 56) 
+#endif
+
+#else
+No id selected. (Location: admin_forums.php @ Line 59) 
+#endif
+
+#else
+
+#if ($_GET["action"] == "delete_cat")
+
+#if (isset($_GET["id"]))
+
+#if ($_POST["verify"] == "Ok")
+
+						<div class='alert_confirm'>
+						<div class='alert_confirm_text'>
+						<strong>Redirecting:</div><div style='padding:4px;'>
+						Successfully deleted category.
+						</div>
+						</div>
+						 (Location: admin_forums.php @ Line 102) <meta http-equiv='refresh' content=' (Location: includes/inc/func.inc.php @ Line 23) 2 (Location: admin_forums.php @ Line 110) ;URL= (Location: includes/inc/func.inc.php @ Line 23) [SYM]'> (Location: includes/inc/func.inc.php @ Line 23) 
+#else
+
+#if ($_POST["verify"] == "Cancel")
+<meta http-equiv='refresh' content=' (Location: includes/inc/func.inc.php @ Line 23) 0 (Location: admin_forums.php @ Line 112) ;URL= (Location: includes/inc/func.inc.php @ Line 23) admin_forums.php (Location: admin_forums.php @ Line 112) '> (Location: includes/inc/func.inc.php @ Line 23) 
+#else
+
+<form action=' (Location: includes/inc/func.inc.php @ Line 149) admin_forums.php?action=delete_cat&id= (Location: admin_forums.php @ Line 114) [SYM]' METHOD=POST>
+<div class='alert'><div class='alert_text'>
+<strong> (Location: includes/inc/func.inc.php @ Line 150) Are you sure you want to delete this category and all forums in this category? (Location: admin_forums.php @ Line 114) </strong></div><div style='padding:4px;'><input type=submit name='verify' value='Ok'> <input type=submit name='verify' value='Cancel'>
+</div></div>
+</form> (Location: includes/inc/func.inc.php @ Line 152) 
+#endif
+
+#endif
+
+#else
+No id selected. (Location: admin_forums.php @ Line 117) 
+#endif
+
+#else
+
+#if ($_GET["action"] == "add_cat")
+
+#if (isset($_POST['command']))
+
+					<div class='alert_confirm'>
+					<div class='alert_confirm_text'>
+					<strong>Successfully added new category:</strong></div><div style='padding:4px;'>
+					 (Location: admin_forums.php @ Line 132) [SYM]
+					</div>
+					</div> (Location: admin_forums.php @ Line 136) 
+#if ($_POST['command'] == 'Add and Add another Category')
+<meta http-equiv='refresh' content=' (Location: includes/inc/func.inc.php @ Line 23) 2 (Location: admin_forums.php @ Line 139) ;URL= (Location: includes/inc/func.inc.php @ Line 23) [SYM]?action=add_cat (Location: admin_forums.php @ Line 139) '> (Location: includes/inc/func.inc.php @ Line 23) 
+#else
+
+#if ($_POST['command'] == 'Add and Add forums to this category')
+<meta http-equiv='refresh' content=' (Location: includes/inc/func.inc.php @ Line 23) 2 (Location: admin_forums.php @ Line 140) ;URL= (Location: includes/inc/func.inc.php @ Line 23) admin_forums.php?action=add_forum&cat_id= (Location: admin_forums.php @ Line 140) [SYM]'> (Location: includes/inc/func.inc.php @ Line 23) 
+#else
+<meta http-equiv='refresh' content=' (Location: includes/inc/func.inc.php @ Line 23) 2 (Location: admin_forums.php @ Line 141) ;URL= (Location: includes/inc/func.inc.php @ Line 23) [SYM]'> (Location: includes/inc/func.inc.php @ Line 23) 
+#endif
+
+#endif
+
+#else
+<form action='admin_forums.php?action=add_cat' method=POST> (Location: admin_forums.php @ Line 143) 
+	<div class='main_cat_wrapper'>
+		<div class='cat_area_1'> (Location: includes/inc/func.inc.php @ Line 260) Creating a new category (Location: admin_forums.php @ Line 144) </div>
+		<table class='main_table' cellspacing='1'>
+		<tbody> (Location: includes/inc/func.inc.php @ Line 262) 
+			<tr>
+				<th colspan='2'>&nbsp;</th>
+			</tr>
+			<tr>
+				<td class='area_1' style='width:20%'><strong>Name of new category</strong></td>
+				<td class='area_2'><input type=text name=u_cat size='40'></td>
+			</tr>
+			<tr>
+				<td class='area_1'><strong>Who can see the category?</strong></td>
+				<td class='area_2'><select size='1' name='u_view'>
+					 (Location: admin_forums.php @ Line 145) 
+#if ([Unresolved Constraint])
+ (Location: includes/inc/func.inc.php @ Line 80) 
+#if ((bool)$exclude_guests === FALSE)
+
+#if (($user_power == 0 || $user_power == ''))
+
+#if ($dropdown)
+<option value="0" selected>Guests and above</option> (Location: includes/inc/func.inc.php @ Line 83) 
+#else
+
+#if ($shortDropDown)
+<option value="0" selected>Guests+</option> (Location: includes/inc/func.inc.php @ Line 88) 
+#else
+
+#if ($oneDropDown)
+<option value="0" selected>Guests</option> (Location: includes/inc/func.inc.php @ Line 89) 
+#else
+
+#if ($oneShortDropDown)
+<option value="0" selected>Guest</option> (Location: includes/inc/func.inc.php @ Line 90) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="0">Guests and above</option> (Location: includes/inc/func.inc.php @ Line 92) 
+#else
+
+#if ($shortDropDown)
+<option value="0">Guests+</option> (Location: includes/inc/func.inc.php @ Line 93) 
+#else
+
+#if ($oneDropDown)
+<option value="0">Guests</option> (Location: includes/inc/func.inc.php @ Line 94) 
+#else
+
+#if ($oneShortDropDown)
+<option value="0">Guest</option> (Location: includes/inc/func.inc.php @ Line 95) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#endif
+
+#if ($user_power == 1)
+
+#if ($dropdown)
+<option value="1" selected>Members and above</option> (Location: includes/inc/func.inc.php @ Line 99) 
+#else
+
+#if ($shortDropDown)
+<option value="1" selected>Members+</option> (Location: includes/inc/func.inc.php @ Line 104) 
+#else
+
+#if ($oneDropDown)
+<option value="1" selected>Members</option> (Location: includes/inc/func.inc.php @ Line 105) 
+#else
+
+#if ($oneShortDropDown)
+<option value="1" selected>Member</option> (Location: includes/inc/func.inc.php @ Line 106) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="1">Members and above</option> (Location: includes/inc/func.inc.php @ Line 108) 
+#else
+
+#if ($shortDropDown)
+<option value="1">Members+</option> (Location: includes/inc/func.inc.php @ Line 109) 
+#else
+
+#if ($oneDropDown)
+<option value="1">Member</option> (Location: includes/inc/func.inc.php @ Line 110) 
+#else
+
+#if ($oneShortDropDown)
+<option value="1">Member</option> (Location: includes/inc/func.inc.php @ Line 111) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#if ($user_power == 2)
+
+#if ($dropdown)
+<option value="2" selected>Moderators and Administrators</option> (Location: includes/inc/func.inc.php @ Line 114) 
+#else
+
+#if ($shortDropDown)
+<option value="2" selected>Mods+</option> (Location: includes/inc/func.inc.php @ Line 119) 
+#else
+
+#if ($oneDropDown)
+<option value="2" selected>Moderator</option> (Location: includes/inc/func.inc.php @ Line 120) 
+#else
+
+#if ($oneShortDropDown)
+<option value="2" selected>Mod</option> (Location: includes/inc/func.inc.php @ Line 121) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="2">Moderators and Administrators</option> (Location: includes/inc/func.inc.php @ Line 123) 
+#else
+
+#if ($shortDropDown)
+<option value="2">Mods+</option> (Location: includes/inc/func.inc.php @ Line 124) 
+#else
+
+#if ($oneDropDown)
+<option value="2">Moderator</option> (Location: includes/inc/func.inc.php @ Line 125) 
+#else
+
+#if ($oneShortDropDown)
+<option value="2">Mod</option> (Location: includes/inc/func.inc.php @ Line 126) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#if ($user_power >= 3)
+
+#if ($dropdown)
+<option value="3" selected>Administrators only</option> (Location: includes/inc/func.inc.php @ Line 129) 
+#else
+
+#if ($shortDropDown)
+<option value="3" selected>Admins</option> (Location: includes/inc/func.inc.php @ Line 134) 
+#else
+
+#if ($oneDropDown)
+<option value="3" selected>Administrator</option> (Location: includes/inc/func.inc.php @ Line 135) 
+#else
+
+#if ($oneShortDropDown)
+<option value="3" selected>Admin</option> (Location: includes/inc/func.inc.php @ Line 136) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="3">Administrators only</option> (Location: includes/inc/func.inc.php @ Line 138) 
+#else
+
+#if ($shortDropDown)
+<option value="3">Admins</option> (Location: includes/inc/func.inc.php @ Line 139) 
+#else
+
+#if ($oneDropDown)
+<option value="3">Administrator</option> (Location: includes/inc/func.inc.php @ Line 140) 
+#else
+
+#if ($oneShortDropDown)
+<option value="3">Admin</option> (Location: includes/inc/func.inc.php @ Line 141) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($oneShortText)
+Admin (Location: includes/inc/func.inc.php @ Line 133) 
+#else
+
+#if ($oneText)
+Administrator (Location: includes/inc/func.inc.php @ Line 132) 
+#else
+
+#if ($allShortText)
+admins (Location: includes/inc/func.inc.php @ Line 131) 
+#else
+
+#if ($allText)
+<b>admins</b> only (Location: includes/inc/func.inc.php @ Line 130) 
+#else
+
+#if ($oneShortText)
+Mod (Location: includes/inc/func.inc.php @ Line 118) 
+#else
+
+#if ($oneText)
+Moderator (Location: includes/inc/func.inc.php @ Line 117) 
+#else
+
+#if ($allShortText)
+mods+ (Location: includes/inc/func.inc.php @ Line 116) 
+#else
+
+#if ($allText)
+<b>mods & admins</b> (Location: includes/inc/func.inc.php @ Line 115) 
+#else
+
+#if ($oneShortText)
+Member (Location: includes/inc/func.inc.php @ Line 103) 
+#else
+
+#if ($oneText)
+Member (Location: includes/inc/func.inc.php @ Line 102) 
+#else
+
+#if ($allShortText)
+members+ (Location: includes/inc/func.inc.php @ Line 101) 
+#else
+
+#if ($allText)
+<b>members</b> and above (Location: includes/inc/func.inc.php @ Line 100) 
+#else
+
+#if ($oneShortText)
+Guest (Location: includes/inc/func.inc.php @ Line 87) 
+#else
+
+#if ($oneText)
+Guest (Location: includes/inc/func.inc.php @ Line 86) 
+#else
+
+#if ($allShortText)
+guest+ (Location: includes/inc/func.inc.php @ Line 85) 
+#else
+
+#if ($allText)
+<b>guests</b> and above (Location: includes/inc/func.inc.php @ Line 84) 
+#else
+FALSE[Unresolved Location]
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+</select></td>
+			</tr>
+			<tr>
+				<td class='footer_3' colspan='2'><img src='./skins/default/images/spacer.gif' alt='' title='' /></td>
+			</tr>
+			<tr>
+				<td class='footer_3a' colspan='2' style='text-align:center;'><input type=submit name='command' value='Add'> <input type=submit name='command' value='Add and Add another Category'> <input type=submit name='command' value='Add and Add forums to this category'></td>
+			</tr> (Location: admin_forums.php @ Line 156) 
+		</tbody>
+		</table>
+		<div class='footer'><img src=' (Location: includes/inc/func.inc.php @ Line 271) [SYM]/images/spacer.gif' alt='' title='' /></div>
+	</div>
+	<br /> (Location: includes/inc/func.inc.php @ Line 274) </form> (Location: admin_forums.php @ Line 165) 
+#endif
+
+#else
+
+#if ($_GET["action"] == "edit_forum")
+
+#if (isset($_GET["id"]))
+
+#if (isset($_POST["u_forum"]))
+
+						<div class='alert_confirm'>
+						<div class='alert_confirm_text'>
+						<strong>Redirecting:</div><div style='padding:4px;'>
+						Forum successfully edited.
+						</div>
+						</div> (Location: admin_forums.php @ Line 190) <meta http-equiv='refresh' content=' (Location: includes/inc/func.inc.php @ Line 23) 2 (Location: admin_forums.php @ Line 197) ;URL= (Location: includes/inc/func.inc.php @ Line 23) [SYM]'> (Location: includes/inc/func.inc.php @ Line 23) 
+#else
+<form action=' (Location: admin_forums.php @ Line 209) [SYM]?action=edit_forum&id= (Location: admin_forums.php @ Line 209) [SYM]' method=POST> (Location: admin_forums.php @ Line 209) 
+	<div class='main_cat_wrapper'>
+		<div class='cat_area_1'> (Location: includes/inc/func.inc.php @ Line 260) Editing a forum (Location: admin_forums.php @ Line 210) </div>
+		<table class='main_table' cellspacing='1'>
+		<tbody> (Location: includes/inc/func.inc.php @ Line 262) 
+			<tr>
+				<th colspan='2'>&nbsp;</th>
+			</tr> (Location: admin_forums.php @ Line 211) 
+			<tr>
+				<td class='area_1' style='width:20%'><strong>Name of forum</strong></td>
+				<td class='area_2'><input type=text name=u_forum size='40' maxlength=50 value=' (Location: admin_forums.php @ Line 215) [SYM]'></td>
+			</tr>
+			<tr>
+				<td class='footer_3' colspan='2'><img src='./skins/default/images/spacer.gif' alt='' title='' /></td>
+			</tr>
+			<tr>
+				<td class='area_1'><strong>Parent category</strong></td>
+				<td class='area_2'> (Location: admin_forums.php @ Line 218) <Select name=cat>
+  (Location: admin_forums.php @ Line 200) [RepeatBegin]
+
+#if ($cRec["id"] == $fRec[0]["cat"])
+<option value=' (Location: admin_forums.php @ Line 202) [SYM]' selected> (Location: admin_forums.php @ Line 202) [SYM]</option> (Location: admin_forums.php @ Line 202) 
+#else
+<option value=' (Location: admin_forums.php @ Line 203) [SYM]'> (Location: admin_forums.php @ Line 203) [SYM]</option> (Location: admin_forums.php @ Line 203) 
+#endif
+
+[RepeatEnd]</select> (Location: admin_forums.php @ Line 205) </td>
+			</tr>
+			<tr>
+				<td class='area_1'><strong>Who can see this forum?</strong></td>
+				<td class='area_2'> (Location: admin_forums.php @ Line 225) <select size='1' name='u_view'> (Location: admin_forums.php @ Line 206) 
+#if ([Unresolved Constraint])
+ (Location: includes/inc/func.inc.php @ Line 80) 
+#if ((bool)$exclude_guests === FALSE)
+
+#if (($user_power == 0 || $user_power == ''))
+
+#if ($dropdown)
+<option value="0" selected>Guests and above</option> (Location: includes/inc/func.inc.php @ Line 83) 
+#else
+
+#if ($shortDropDown)
+<option value="0" selected>Guests+</option> (Location: includes/inc/func.inc.php @ Line 88) 
+#else
+
+#if ($oneDropDown)
+<option value="0" selected>Guests</option> (Location: includes/inc/func.inc.php @ Line 89) 
+#else
+
+#if ($oneShortDropDown)
+<option value="0" selected>Guest</option> (Location: includes/inc/func.inc.php @ Line 90) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="0">Guests and above</option> (Location: includes/inc/func.inc.php @ Line 92) 
+#else
+
+#if ($shortDropDown)
+<option value="0">Guests+</option> (Location: includes/inc/func.inc.php @ Line 93) 
+#else
+
+#if ($oneDropDown)
+<option value="0">Guests</option> (Location: includes/inc/func.inc.php @ Line 94) 
+#else
+
+#if ($oneShortDropDown)
+<option value="0">Guest</option> (Location: includes/inc/func.inc.php @ Line 95) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#endif
+
+#if ($user_power == 1)
+
+#if ($dropdown)
+<option value="1" selected>Members and above</option> (Location: includes/inc/func.inc.php @ Line 99) 
+#else
+
+#if ($shortDropDown)
+<option value="1" selected>Members+</option> (Location: includes/inc/func.inc.php @ Line 104) 
+#else
+
+#if ($oneDropDown)
+<option value="1" selected>Members</option> (Location: includes/inc/func.inc.php @ Line 105) 
+#else
+
+#if ($oneShortDropDown)
+<option value="1" selected>Member</option> (Location: includes/inc/func.inc.php @ Line 106) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="1">Members and above</option> (Location: includes/inc/func.inc.php @ Line 108) 
+#else
+
+#if ($shortDropDown)
+<option value="1">Members+</option> (Location: includes/inc/func.inc.php @ Line 109) 
+#else
+
+#if ($oneDropDown)
+<option value="1">Member</option> (Location: includes/inc/func.inc.php @ Line 110) 
+#else
+
+#if ($oneShortDropDown)
+<option value="1">Member</option> (Location: includes/inc/func.inc.php @ Line 111) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#if ($user_power == 2)
+
+#if ($dropdown)
+<option value="2" selected>Moderators and Administrators</option> (Location: includes/inc/func.inc.php @ Line 114) 
+#else
+
+#if ($shortDropDown)
+<option value="2" selected>Mods+</option> (Location: includes/inc/func.inc.php @ Line 119) 
+#else
+
+#if ($oneDropDown)
+<option value="2" selected>Moderator</option> (Location: includes/inc/func.inc.php @ Line 120) 
+#else
+
+#if ($oneShortDropDown)
+<option value="2" selected>Mod</option> (Location: includes/inc/func.inc.php @ Line 121) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="2">Moderators and Administrators</option> (Location: includes/inc/func.inc.php @ Line 123) 
+#else
+
+#if ($shortDropDown)
+<option value="2">Mods+</option> (Location: includes/inc/func.inc.php @ Line 124) 
+#else
+
+#if ($oneDropDown)
+<option value="2">Moderator</option> (Location: includes/inc/func.inc.php @ Line 125) 
+#else
+
+#if ($oneShortDropDown)
+<option value="2">Mod</option> (Location: includes/inc/func.inc.php @ Line 126) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#if ($user_power >= 3)
+
+#if ($dropdown)
+<option value="3" selected>Administrators only</option> (Location: includes/inc/func.inc.php @ Line 129) 
+#else
+
+#if ($shortDropDown)
+<option value="3" selected>Admins</option> (Location: includes/inc/func.inc.php @ Line 134) 
+#else
+
+#if ($oneDropDown)
+<option value="3" selected>Administrator</option> (Location: includes/inc/func.inc.php @ Line 135) 
+#else
+
+#if ($oneShortDropDown)
+<option value="3" selected>Admin</option> (Location: includes/inc/func.inc.php @ Line 136) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="3">Administrators only</option> (Location: includes/inc/func.inc.php @ Line 138) 
+#else
+
+#if ($shortDropDown)
+<option value="3">Admins</option> (Location: includes/inc/func.inc.php @ Line 139) 
+#else
+
+#if ($oneDropDown)
+<option value="3">Administrator</option> (Location: includes/inc/func.inc.php @ Line 140) 
+#else
+
+#if ($oneShortDropDown)
+<option value="3">Admin</option> (Location: includes/inc/func.inc.php @ Line 141) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($oneShortText)
+Admin (Location: includes/inc/func.inc.php @ Line 133) 
+#else
+
+#if ($oneText)
+Administrator (Location: includes/inc/func.inc.php @ Line 132) 
+#else
+
+#if ($allShortText)
+admins (Location: includes/inc/func.inc.php @ Line 131) 
+#else
+
+#if ($allText)
+<b>admins</b> only (Location: includes/inc/func.inc.php @ Line 130) 
+#else
+
+#if ($oneShortText)
+Mod (Location: includes/inc/func.inc.php @ Line 118) 
+#else
+
+#if ($oneText)
+Moderator (Location: includes/inc/func.inc.php @ Line 117) 
+#else
+
+#if ($allShortText)
+mods+ (Location: includes/inc/func.inc.php @ Line 116) 
+#else
+
+#if ($allText)
+<b>mods & admins</b> (Location: includes/inc/func.inc.php @ Line 115) 
+#else
+
+#if ($oneShortText)
+Member (Location: includes/inc/func.inc.php @ Line 103) 
+#else
+
+#if ($oneText)
+Member (Location: includes/inc/func.inc.php @ Line 102) 
+#else
+
+#if ($allShortText)
+members+ (Location: includes/inc/func.inc.php @ Line 101) 
+#else
+
+#if ($allText)
+<b>members</b> and above (Location: includes/inc/func.inc.php @ Line 100) 
+#else
+
+#if ($oneShortText)
+Guest (Location: includes/inc/func.inc.php @ Line 87) 
+#else
+
+#if ($oneText)
+Guest (Location: includes/inc/func.inc.php @ Line 86) 
+#else
+
+#if ($allShortText)
+guest+ (Location: includes/inc/func.inc.php @ Line 85) 
+#else
+
+#if ($allText)
+<b>guests</b> and above (Location: includes/inc/func.inc.php @ Line 84) 
+#else
+FALSE[Unresolved Location]
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+</select> (Location: admin_forums.php @ Line 206) </td>
+			</tr>
+			<tr>
+				<td class='area_1'><strong>Who can post in this forum?</strong></td>
+				<td class='area_2'> (Location: admin_forums.php @ Line 229) <select size='1' name='u_post'> (Location: admin_forums.php @ Line 207) 
+#if ([Unresolved Constraint])
+ (Location: includes/inc/func.inc.php @ Line 80) 
+#if ((bool)$exclude_guests === FALSE)
+
+#if (($user_power == 0 || $user_power == ''))
+
+#if ($dropdown)
+<option value="0" selected>Guests and above</option> (Location: includes/inc/func.inc.php @ Line 83) 
+#else
+
+#if ($shortDropDown)
+<option value="0" selected>Guests+</option> (Location: includes/inc/func.inc.php @ Line 88) 
+#else
+
+#if ($oneDropDown)
+<option value="0" selected>Guests</option> (Location: includes/inc/func.inc.php @ Line 89) 
+#else
+
+#if ($oneShortDropDown)
+<option value="0" selected>Guest</option> (Location: includes/inc/func.inc.php @ Line 90) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="0">Guests and above</option> (Location: includes/inc/func.inc.php @ Line 92) 
+#else
+
+#if ($shortDropDown)
+<option value="0">Guests+</option> (Location: includes/inc/func.inc.php @ Line 93) 
+#else
+
+#if ($oneDropDown)
+<option value="0">Guests</option> (Location: includes/inc/func.inc.php @ Line 94) 
+#else
+
+#if ($oneShortDropDown)
+<option value="0">Guest</option> (Location: includes/inc/func.inc.php @ Line 95) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#endif
+
+#if ($user_power == 1)
+
+#if ($dropdown)
+<option value="1" selected>Members and above</option> (Location: includes/inc/func.inc.php @ Line 99) 
+#else
+
+#if ($shortDropDown)
+<option value="1" selected>Members+</option> (Location: includes/inc/func.inc.php @ Line 104) 
+#else
+
+#if ($oneDropDown)
+<option value="1" selected>Members</option> (Location: includes/inc/func.inc.php @ Line 105) 
+#else
+
+#if ($oneShortDropDown)
+<option value="1" selected>Member</option> (Location: includes/inc/func.inc.php @ Line 106) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="1">Members and above</option> (Location: includes/inc/func.inc.php @ Line 108) 
+#else
+
+#if ($shortDropDown)
+<option value="1">Members+</option> (Location: includes/inc/func.inc.php @ Line 109) 
+#else
+
+#if ($oneDropDown)
+<option value="1">Member</option> (Location: includes/inc/func.inc.php @ Line 110) 
+#else
+
+#if ($oneShortDropDown)
+<option value="1">Member</option> (Location: includes/inc/func.inc.php @ Line 111) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#if ($user_power == 2)
+
+#if ($dropdown)
+<option value="2" selected>Moderators and Administrators</option> (Location: includes/inc/func.inc.php @ Line 114) 
+#else
+
+#if ($shortDropDown)
+<option value="2" selected>Mods+</option> (Location: includes/inc/func.inc.php @ Line 119) 
+#else
+
+#if ($oneDropDown)
+<option value="2" selected>Moderator</option> (Location: includes/inc/func.inc.php @ Line 120) 
+#else
+
+#if ($oneShortDropDown)
+<option value="2" selected>Mod</option> (Location: includes/inc/func.inc.php @ Line 121) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="2">Moderators and Administrators</option> (Location: includes/inc/func.inc.php @ Line 123) 
+#else
+
+#if ($shortDropDown)
+<option value="2">Mods+</option> (Location: includes/inc/func.inc.php @ Line 124) 
+#else
+
+#if ($oneDropDown)
+<option value="2">Moderator</option> (Location: includes/inc/func.inc.php @ Line 125) 
+#else
+
+#if ($oneShortDropDown)
+<option value="2">Mod</option> (Location: includes/inc/func.inc.php @ Line 126) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#if ($user_power >= 3)
+
+#if ($dropdown)
+<option value="3" selected>Administrators only</option> (Location: includes/inc/func.inc.php @ Line 129) 
+#else
+
+#if ($shortDropDown)
+<option value="3" selected>Admins</option> (Location: includes/inc/func.inc.php @ Line 134) 
+#else
+
+#if ($oneDropDown)
+<option value="3" selected>Administrator</option> (Location: includes/inc/func.inc.php @ Line 135) 
+#else
+
+#if ($oneShortDropDown)
+<option value="3" selected>Admin</option> (Location: includes/inc/func.inc.php @ Line 136) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="3">Administrators only</option> (Location: includes/inc/func.inc.php @ Line 138) 
+#else
+
+#if ($shortDropDown)
+<option value="3">Admins</option> (Location: includes/inc/func.inc.php @ Line 139) 
+#else
+
+#if ($oneDropDown)
+<option value="3">Administrator</option> (Location: includes/inc/func.inc.php @ Line 140) 
+#else
+
+#if ($oneShortDropDown)
+<option value="3">Admin</option> (Location: includes/inc/func.inc.php @ Line 141) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($oneShortText)
+Admin (Location: includes/inc/func.inc.php @ Line 133) 
+#else
+
+#if ($oneText)
+Administrator (Location: includes/inc/func.inc.php @ Line 132) 
+#else
+
+#if ($allShortText)
+admins (Location: includes/inc/func.inc.php @ Line 131) 
+#else
+
+#if ($allText)
+<b>admins</b> only (Location: includes/inc/func.inc.php @ Line 130) 
+#else
+
+#if ($oneShortText)
+Mod (Location: includes/inc/func.inc.php @ Line 118) 
+#else
+
+#if ($oneText)
+Moderator (Location: includes/inc/func.inc.php @ Line 117) 
+#else
+
+#if ($allShortText)
+mods+ (Location: includes/inc/func.inc.php @ Line 116) 
+#else
+
+#if ($allText)
+<b>mods & admins</b> (Location: includes/inc/func.inc.php @ Line 115) 
+#else
+
+#if ($oneShortText)
+Member (Location: includes/inc/func.inc.php @ Line 103) 
+#else
+
+#if ($oneText)
+Member (Location: includes/inc/func.inc.php @ Line 102) 
+#else
+
+#if ($allShortText)
+members+ (Location: includes/inc/func.inc.php @ Line 101) 
+#else
+
+#if ($allText)
+<b>members</b> and above (Location: includes/inc/func.inc.php @ Line 100) 
+#else
+
+#if ($oneShortText)
+Guest (Location: includes/inc/func.inc.php @ Line 87) 
+#else
+
+#if ($oneText)
+Guest (Location: includes/inc/func.inc.php @ Line 86) 
+#else
+
+#if ($allShortText)
+guest+ (Location: includes/inc/func.inc.php @ Line 85) 
+#else
+
+#if ($allText)
+<b>guests</b> and above (Location: includes/inc/func.inc.php @ Line 84) 
+#else
+FALSE[Unresolved Location]
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+</select> (Location: admin_forums.php @ Line 207) </td>
+			</tr>
+			<tr>
+				<td class='area_1'><strong>Who can reply in this forum?</strong></td>
+				<td class='area_2'> (Location: admin_forums.php @ Line 233) <select size='1' name='u_reply'> (Location: admin_forums.php @ Line 208) 
+#if ([Unresolved Constraint])
+ (Location: includes/inc/func.inc.php @ Line 80) 
+#if ((bool)$exclude_guests === FALSE)
+
+#if (($user_power == 0 || $user_power == ''))
+
+#if ($dropdown)
+<option value="0" selected>Guests and above</option> (Location: includes/inc/func.inc.php @ Line 83) 
+#else
+
+#if ($shortDropDown)
+<option value="0" selected>Guests+</option> (Location: includes/inc/func.inc.php @ Line 88) 
+#else
+
+#if ($oneDropDown)
+<option value="0" selected>Guests</option> (Location: includes/inc/func.inc.php @ Line 89) 
+#else
+
+#if ($oneShortDropDown)
+<option value="0" selected>Guest</option> (Location: includes/inc/func.inc.php @ Line 90) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="0">Guests and above</option> (Location: includes/inc/func.inc.php @ Line 92) 
+#else
+
+#if ($shortDropDown)
+<option value="0">Guests+</option> (Location: includes/inc/func.inc.php @ Line 93) 
+#else
+
+#if ($oneDropDown)
+<option value="0">Guests</option> (Location: includes/inc/func.inc.php @ Line 94) 
+#else
+
+#if ($oneShortDropDown)
+<option value="0">Guest</option> (Location: includes/inc/func.inc.php @ Line 95) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#endif
+
+#if ($user_power == 1)
+
+#if ($dropdown)
+<option value="1" selected>Members and above</option> (Location: includes/inc/func.inc.php @ Line 99) 
+#else
+
+#if ($shortDropDown)
+<option value="1" selected>Members+</option> (Location: includes/inc/func.inc.php @ Line 104) 
+#else
+
+#if ($oneDropDown)
+<option value="1" selected>Members</option> (Location: includes/inc/func.inc.php @ Line 105) 
+#else
+
+#if ($oneShortDropDown)
+<option value="1" selected>Member</option> (Location: includes/inc/func.inc.php @ Line 106) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="1">Members and above</option> (Location: includes/inc/func.inc.php @ Line 108) 
+#else
+
+#if ($shortDropDown)
+<option value="1">Members+</option> (Location: includes/inc/func.inc.php @ Line 109) 
+#else
+
+#if ($oneDropDown)
+<option value="1">Member</option> (Location: includes/inc/func.inc.php @ Line 110) 
+#else
+
+#if ($oneShortDropDown)
+<option value="1">Member</option> (Location: includes/inc/func.inc.php @ Line 111) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#if ($user_power == 2)
+
+#if ($dropdown)
+<option value="2" selected>Moderators and Administrators</option> (Location: includes/inc/func.inc.php @ Line 114) 
+#else
+
+#if ($shortDropDown)
+<option value="2" selected>Mods+</option> (Location: includes/inc/func.inc.php @ Line 119) 
+#else
+
+#if ($oneDropDown)
+<option value="2" selected>Moderator</option> (Location: includes/inc/func.inc.php @ Line 120) 
+#else
+
+#if ($oneShortDropDown)
+<option value="2" selected>Mod</option> (Location: includes/inc/func.inc.php @ Line 121) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="2">Moderators and Administrators</option> (Location: includes/inc/func.inc.php @ Line 123) 
+#else
+
+#if ($shortDropDown)
+<option value="2">Mods+</option> (Location: includes/inc/func.inc.php @ Line 124) 
+#else
+
+#if ($oneDropDown)
+<option value="2">Moderator</option> (Location: includes/inc/func.inc.php @ Line 125) 
+#else
+
+#if ($oneShortDropDown)
+<option value="2">Mod</option> (Location: includes/inc/func.inc.php @ Line 126) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#if ($user_power >= 3)
+
+#if ($dropdown)
+<option value="3" selected>Administrators only</option> (Location: includes/inc/func.inc.php @ Line 129) 
+#else
+
+#if ($shortDropDown)
+<option value="3" selected>Admins</option> (Location: includes/inc/func.inc.php @ Line 134) 
+#else
+
+#if ($oneDropDown)
+<option value="3" selected>Administrator</option> (Location: includes/inc/func.inc.php @ Line 135) 
+#else
+
+#if ($oneShortDropDown)
+<option value="3" selected>Admin</option> (Location: includes/inc/func.inc.php @ Line 136) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="3">Administrators only</option> (Location: includes/inc/func.inc.php @ Line 138) 
+#else
+
+#if ($shortDropDown)
+<option value="3">Admins</option> (Location: includes/inc/func.inc.php @ Line 139) 
+#else
+
+#if ($oneDropDown)
+<option value="3">Administrator</option> (Location: includes/inc/func.inc.php @ Line 140) 
+#else
+
+#if ($oneShortDropDown)
+<option value="3">Admin</option> (Location: includes/inc/func.inc.php @ Line 141) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($oneShortText)
+Admin (Location: includes/inc/func.inc.php @ Line 133) 
+#else
+
+#if ($oneText)
+Administrator (Location: includes/inc/func.inc.php @ Line 132) 
+#else
+
+#if ($allShortText)
+admins (Location: includes/inc/func.inc.php @ Line 131) 
+#else
+
+#if ($allText)
+<b>admins</b> only (Location: includes/inc/func.inc.php @ Line 130) 
+#else
+
+#if ($oneShortText)
+Mod (Location: includes/inc/func.inc.php @ Line 118) 
+#else
+
+#if ($oneText)
+Moderator (Location: includes/inc/func.inc.php @ Line 117) 
+#else
+
+#if ($allShortText)
+mods+ (Location: includes/inc/func.inc.php @ Line 116) 
+#else
+
+#if ($allText)
+<b>mods & admins</b> (Location: includes/inc/func.inc.php @ Line 115) 
+#else
+
+#if ($oneShortText)
+Member (Location: includes/inc/func.inc.php @ Line 103) 
+#else
+
+#if ($oneText)
+Member (Location: includes/inc/func.inc.php @ Line 102) 
+#else
+
+#if ($allShortText)
+members+ (Location: includes/inc/func.inc.php @ Line 101) 
+#else
+
+#if ($allText)
+<b>members</b> and above (Location: includes/inc/func.inc.php @ Line 100) 
+#else
+
+#if ($oneShortText)
+Guest (Location: includes/inc/func.inc.php @ Line 87) 
+#else
+
+#if ($oneText)
+Guest (Location: includes/inc/func.inc.php @ Line 86) 
+#else
+
+#if ($allShortText)
+guest+ (Location: includes/inc/func.inc.php @ Line 85) 
+#else
+
+#if ($allText)
+<b>guests</b> and above (Location: includes/inc/func.inc.php @ Line 84) 
+#else
+FALSE[Unresolved Location]
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+</select> (Location: admin_forums.php @ Line 208) </td>
+			</tr>
+			<tr>
+				<td class='footer_3' colspan='2'><img src='./skins/default/images/spacer.gif' alt='' title='' /></td>
+			</tr>
+			<tr>
+				<td class='area_1'><strong>Forum description</strong></td>
+				<td class='area_2'><textarea cols=30 rows=5 maxlength=50 name=des> (Location: admin_forums.php @ Line 237) [SYM]</textarea></td>
+			</tr>
+			<tr>
+				<td class='footer_3' colspan='2'><img src='./skins/default/images/spacer.gif' alt='' title='' /></td>
+			</tr>
+			<tr>
+				<td class='footer_3a' colspan='2' style='text-align:center;'><input type=submit value='Edit'></td>
+			</tr>
+		 (Location: admin_forums.php @ Line 244) 
+		</tbody>
+		</table>
+		<div class='footer'><img src=' (Location: includes/inc/func.inc.php @ Line 271) [SYM]/images/spacer.gif' alt='' title='' /></div>
+	</div>
+	<br /> (Location: includes/inc/func.inc.php @ Line 274) 
+	   </form> (Location: admin_forums.php @ Line 254) 
+#endif
+
+#else
+No id selected. (Location: admin_forums.php @ Line 258) 
+#endif
+
+#else
+
+#if ($_GET["action"] == "delete_forum")
+
+#if (isset($_GET["id"]))
+
+#if ($_POST["verify"] == "Ok")
+
+						<div class='alert_confirm'>
+						<div class='alert_confirm_text'>
+						<strong>Redirecting:</div><div style='padding:4px;'>
+						Successfully deleted forum.
+						</div>
+						</div> (Location: admin_forums.php @ Line 294) <meta http-equiv='refresh' content=' (Location: includes/inc/func.inc.php @ Line 23) 2 (Location: admin_forums.php @ Line 301) ;URL= (Location: includes/inc/func.inc.php @ Line 23) [SYM]'> (Location: includes/inc/func.inc.php @ Line 23) 
+#else
+
+#if ($_POST['verify'] == "Cancel")
+<meta http-equiv='refresh' content=' (Location: includes/inc/func.inc.php @ Line 23) 0 (Location: admin_forums.php @ Line 303) ;URL= (Location: includes/inc/func.inc.php @ Line 23) admin_forums.php (Location: admin_forums.php @ Line 303) '> (Location: includes/inc/func.inc.php @ Line 23) 
+#else
+
+<form action=' (Location: includes/inc/func.inc.php @ Line 149) admin_forums.php?action=delete_forum&id= (Location: admin_forums.php @ Line 305) [SYM]' METHOD=POST>
+<div class='alert'><div class='alert_text'>
+<strong> (Location: includes/inc/func.inc.php @ Line 150) Are you sure you want to delete this forum? (Location: admin_forums.php @ Line 305) </strong></div><div style='padding:4px;'><input type=submit name='verify' value='Ok'> <input type=submit name='verify' value='Cancel'>
+</div></div>
+</form> (Location: includes/inc/func.inc.php @ Line 152) 
+#endif
+
+#endif
+
+#else
+No id selected. (Location: admin_forums.php @ Line 308) 
+#endif
+
+#else
+
+#if ($_GET["action"] == "add_forum")
+
+#if (isset($_POST["u_forum"]))
+
+					<div class='alert_confirm'>
+					<div class='alert_confirm_text'>
+					<strong>Redirecting:</div><div style='padding:4px;'>
+					Successfully added new Forum  (Location: admin_forums.php @ Line 361) [SYM]
+					</div>
+					</div>
+					 (Location: admin_forums.php @ Line 365) 
+#if ($_POST['command'] == 'Add and Add another forum to the selected Category')
+<meta http-equiv='refresh' content=' (Location: includes/inc/func.inc.php @ Line 23) 2 (Location: admin_forums.php @ Line 369) ;URL= (Location: includes/inc/func.inc.php @ Line 23) [SYM]?action=add_forum&cat_id= (Location: admin_forums.php @ Line 369) [SYM]'> (Location: includes/inc/func.inc.php @ Line 23) 
+#else
+
+#if ($_POST['command'] == 'Add and Add another forum')
+<meta http-equiv='refresh' content=' (Location: includes/inc/func.inc.php @ Line 23) 2 (Location: admin_forums.php @ Line 370) ;URL= (Location: includes/inc/func.inc.php @ Line 23) [SYM]?action=add_forum (Location: admin_forums.php @ Line 370) '> (Location: includes/inc/func.inc.php @ Line 23) 
+#else
+<meta http-equiv='refresh' content=' (Location: includes/inc/func.inc.php @ Line 23) 2 (Location: admin_forums.php @ Line 371) ;URL= (Location: includes/inc/func.inc.php @ Line 23) [SYM]'> (Location: includes/inc/func.inc.php @ Line 23) 
+#endif
+
+#endif
+
+#else
+<form action='admin_forums.php?action=add_forum' method=POST> (Location: admin_forums.php @ Line 383) 
+	<div class='main_cat_wrapper'>
+		<div class='cat_area_1'> (Location: includes/inc/func.inc.php @ Line 260) Creating a new forum (Location: admin_forums.php @ Line 384) </div>
+		<table class='main_table' cellspacing='1'>
+		<tbody> (Location: includes/inc/func.inc.php @ Line 262) 
+			<tr>
+				<th colspan='2'>&nbsp;</th>
+			</tr> (Location: admin_forums.php @ Line 385) 
+			<tr>
+				<td class='area_1' style='width:20%'><strong>Name of new forum</strong></td>
+				<td class='area_2'><input type=text name=u_forum maxlength=50 size='40'></td>
+			</tr>
+			<tr>
+				<td class='footer_3' colspan='2'><img src='./skins/default/images/spacer.gif' alt='' title='' /></td>
+			</tr>
+			<tr>
+				<td class='area_1'><strong>Parent category</strong></td>
+				<td class='area_2'> (Location: admin_forums.php @ Line 389) <Select name=cat>
+  (Location: admin_forums.php @ Line 374) [RepeatBegin]
+
+#if (isset($_GET['cat_id']) && $_GET['cat_id'] == $cat['id'])
+<option value=' (Location: admin_forums.php @ Line 376) [SYM]' selected> (Location: admin_forums.php @ Line 376) [SYM]</option> (Location: admin_forums.php @ Line 376) 
+#else
+<option value=' (Location: admin_forums.php @ Line 377) [SYM]'> (Location: admin_forums.php @ Line 377) [SYM]</option> (Location: admin_forums.php @ Line 377) 
+#endif
+
+[RepeatEnd]</select> (Location: admin_forums.php @ Line 379) </td>
+			</tr>
+			<tr>
+				<td class='area_1'><strong>Who can see this forum?</strong></td>
+				<td class='area_2'> (Location: admin_forums.php @ Line 399) <select size='1' name='u_view'> (Location: admin_forums.php @ Line 380) 
+#if ([Unresolved Constraint])
+ (Location: includes/inc/func.inc.php @ Line 80) 
+#if ((bool)$exclude_guests === FALSE)
+
+#if (($user_power == 0 || $user_power == ''))
+
+#if ($dropdown)
+<option value="0" selected>Guests and above</option> (Location: includes/inc/func.inc.php @ Line 83) 
+#else
+
+#if ($shortDropDown)
+<option value="0" selected>Guests+</option> (Location: includes/inc/func.inc.php @ Line 88) 
+#else
+
+#if ($oneDropDown)
+<option value="0" selected>Guests</option> (Location: includes/inc/func.inc.php @ Line 89) 
+#else
+
+#if ($oneShortDropDown)
+<option value="0" selected>Guest</option> (Location: includes/inc/func.inc.php @ Line 90) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="0">Guests and above</option> (Location: includes/inc/func.inc.php @ Line 92) 
+#else
+
+#if ($shortDropDown)
+<option value="0">Guests+</option> (Location: includes/inc/func.inc.php @ Line 93) 
+#else
+
+#if ($oneDropDown)
+<option value="0">Guests</option> (Location: includes/inc/func.inc.php @ Line 94) 
+#else
+
+#if ($oneShortDropDown)
+<option value="0">Guest</option> (Location: includes/inc/func.inc.php @ Line 95) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#endif
+
+#if ($user_power == 1)
+
+#if ($dropdown)
+<option value="1" selected>Members and above</option> (Location: includes/inc/func.inc.php @ Line 99) 
+#else
+
+#if ($shortDropDown)
+<option value="1" selected>Members+</option> (Location: includes/inc/func.inc.php @ Line 104) 
+#else
+
+#if ($oneDropDown)
+<option value="1" selected>Members</option> (Location: includes/inc/func.inc.php @ Line 105) 
+#else
+
+#if ($oneShortDropDown)
+<option value="1" selected>Member</option> (Location: includes/inc/func.inc.php @ Line 106) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="1">Members and above</option> (Location: includes/inc/func.inc.php @ Line 108) 
+#else
+
+#if ($shortDropDown)
+<option value="1">Members+</option> (Location: includes/inc/func.inc.php @ Line 109) 
+#else
+
+#if ($oneDropDown)
+<option value="1">Member</option> (Location: includes/inc/func.inc.php @ Line 110) 
+#else
+
+#if ($oneShortDropDown)
+<option value="1">Member</option> (Location: includes/inc/func.inc.php @ Line 111) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#if ($user_power == 2)
+
+#if ($dropdown)
+<option value="2" selected>Moderators and Administrators</option> (Location: includes/inc/func.inc.php @ Line 114) 
+#else
+
+#if ($shortDropDown)
+<option value="2" selected>Mods+</option> (Location: includes/inc/func.inc.php @ Line 119) 
+#else
+
+#if ($oneDropDown)
+<option value="2" selected>Moderator</option> (Location: includes/inc/func.inc.php @ Line 120) 
+#else
+
+#if ($oneShortDropDown)
+<option value="2" selected>Mod</option> (Location: includes/inc/func.inc.php @ Line 121) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="2">Moderators and Administrators</option> (Location: includes/inc/func.inc.php @ Line 123) 
+#else
+
+#if ($shortDropDown)
+<option value="2">Mods+</option> (Location: includes/inc/func.inc.php @ Line 124) 
+#else
+
+#if ($oneDropDown)
+<option value="2">Moderator</option> (Location: includes/inc/func.inc.php @ Line 125) 
+#else
+
+#if ($oneShortDropDown)
+<option value="2">Mod</option> (Location: includes/inc/func.inc.php @ Line 126) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#if ($user_power >= 3)
+
+#if ($dropdown)
+<option value="3" selected>Administrators only</option> (Location: includes/inc/func.inc.php @ Line 129) 
+#else
+
+#if ($shortDropDown)
+<option value="3" selected>Admins</option> (Location: includes/inc/func.inc.php @ Line 134) 
+#else
+
+#if ($oneDropDown)
+<option value="3" selected>Administrator</option> (Location: includes/inc/func.inc.php @ Line 135) 
+#else
+
+#if ($oneShortDropDown)
+<option value="3" selected>Admin</option> (Location: includes/inc/func.inc.php @ Line 136) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="3">Administrators only</option> (Location: includes/inc/func.inc.php @ Line 138) 
+#else
+
+#if ($shortDropDown)
+<option value="3">Admins</option> (Location: includes/inc/func.inc.php @ Line 139) 
+#else
+
+#if ($oneDropDown)
+<option value="3">Administrator</option> (Location: includes/inc/func.inc.php @ Line 140) 
+#else
+
+#if ($oneShortDropDown)
+<option value="3">Admin</option> (Location: includes/inc/func.inc.php @ Line 141) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($oneShortText)
+Admin (Location: includes/inc/func.inc.php @ Line 133) 
+#else
+
+#if ($oneText)
+Administrator (Location: includes/inc/func.inc.php @ Line 132) 
+#else
+
+#if ($allShortText)
+admins (Location: includes/inc/func.inc.php @ Line 131) 
+#else
+
+#if ($allText)
+<b>admins</b> only (Location: includes/inc/func.inc.php @ Line 130) 
+#else
+
+#if ($oneShortText)
+Mod (Location: includes/inc/func.inc.php @ Line 118) 
+#else
+
+#if ($oneText)
+Moderator (Location: includes/inc/func.inc.php @ Line 117) 
+#else
+
+#if ($allShortText)
+mods+ (Location: includes/inc/func.inc.php @ Line 116) 
+#else
+
+#if ($allText)
+<b>mods & admins</b> (Location: includes/inc/func.inc.php @ Line 115) 
+#else
+
+#if ($oneShortText)
+Member (Location: includes/inc/func.inc.php @ Line 103) 
+#else
+
+#if ($oneText)
+Member (Location: includes/inc/func.inc.php @ Line 102) 
+#else
+
+#if ($allShortText)
+members+ (Location: includes/inc/func.inc.php @ Line 101) 
+#else
+
+#if ($allText)
+<b>members</b> and above (Location: includes/inc/func.inc.php @ Line 100) 
+#else
+
+#if ($oneShortText)
+Guest (Location: includes/inc/func.inc.php @ Line 87) 
+#else
+
+#if ($oneText)
+Guest (Location: includes/inc/func.inc.php @ Line 86) 
+#else
+
+#if ($allShortText)
+guest+ (Location: includes/inc/func.inc.php @ Line 85) 
+#else
+
+#if ($allText)
+<b>guests</b> and above (Location: includes/inc/func.inc.php @ Line 84) 
+#else
+FALSE[Unresolved Location]
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+</select> (Location: admin_forums.php @ Line 380) </td>
+			</tr>
+			<tr>
+				<td class='area_1'><strong>Who can post in this forum?</strong></td>
+				<td class='area_2'> (Location: admin_forums.php @ Line 403) <select size='1' name='u_post'> (Location: admin_forums.php @ Line 381) 
+#if ([Unresolved Constraint])
+ (Location: includes/inc/func.inc.php @ Line 80) 
+#if ((bool)$exclude_guests === FALSE)
+
+#if (($user_power == 0 || $user_power == ''))
+
+#if ($dropdown)
+<option value="0" selected>Guests and above</option> (Location: includes/inc/func.inc.php @ Line 83) 
+#else
+
+#if ($shortDropDown)
+<option value="0" selected>Guests+</option> (Location: includes/inc/func.inc.php @ Line 88) 
+#else
+
+#if ($oneDropDown)
+<option value="0" selected>Guests</option> (Location: includes/inc/func.inc.php @ Line 89) 
+#else
+
+#if ($oneShortDropDown)
+<option value="0" selected>Guest</option> (Location: includes/inc/func.inc.php @ Line 90) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="0">Guests and above</option> (Location: includes/inc/func.inc.php @ Line 92) 
+#else
+
+#if ($shortDropDown)
+<option value="0">Guests+</option> (Location: includes/inc/func.inc.php @ Line 93) 
+#else
+
+#if ($oneDropDown)
+<option value="0">Guests</option> (Location: includes/inc/func.inc.php @ Line 94) 
+#else
+
+#if ($oneShortDropDown)
+<option value="0">Guest</option> (Location: includes/inc/func.inc.php @ Line 95) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#endif
+
+#if ($user_power == 1)
+
+#if ($dropdown)
+<option value="1" selected>Members and above</option> (Location: includes/inc/func.inc.php @ Line 99) 
+#else
+
+#if ($shortDropDown)
+<option value="1" selected>Members+</option> (Location: includes/inc/func.inc.php @ Line 104) 
+#else
+
+#if ($oneDropDown)
+<option value="1" selected>Members</option> (Location: includes/inc/func.inc.php @ Line 105) 
+#else
+
+#if ($oneShortDropDown)
+<option value="1" selected>Member</option> (Location: includes/inc/func.inc.php @ Line 106) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="1">Members and above</option> (Location: includes/inc/func.inc.php @ Line 108) 
+#else
+
+#if ($shortDropDown)
+<option value="1">Members+</option> (Location: includes/inc/func.inc.php @ Line 109) 
+#else
+
+#if ($oneDropDown)
+<option value="1">Member</option> (Location: includes/inc/func.inc.php @ Line 110) 
+#else
+
+#if ($oneShortDropDown)
+<option value="1">Member</option> (Location: includes/inc/func.inc.php @ Line 111) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#if ($user_power == 2)
+
+#if ($dropdown)
+<option value="2" selected>Moderators and Administrators</option> (Location: includes/inc/func.inc.php @ Line 114) 
+#else
+
+#if ($shortDropDown)
+<option value="2" selected>Mods+</option> (Location: includes/inc/func.inc.php @ Line 119) 
+#else
+
+#if ($oneDropDown)
+<option value="2" selected>Moderator</option> (Location: includes/inc/func.inc.php @ Line 120) 
+#else
+
+#if ($oneShortDropDown)
+<option value="2" selected>Mod</option> (Location: includes/inc/func.inc.php @ Line 121) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="2">Moderators and Administrators</option> (Location: includes/inc/func.inc.php @ Line 123) 
+#else
+
+#if ($shortDropDown)
+<option value="2">Mods+</option> (Location: includes/inc/func.inc.php @ Line 124) 
+#else
+
+#if ($oneDropDown)
+<option value="2">Moderator</option> (Location: includes/inc/func.inc.php @ Line 125) 
+#else
+
+#if ($oneShortDropDown)
+<option value="2">Mod</option> (Location: includes/inc/func.inc.php @ Line 126) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#if ($user_power >= 3)
+
+#if ($dropdown)
+<option value="3" selected>Administrators only</option> (Location: includes/inc/func.inc.php @ Line 129) 
+#else
+
+#if ($shortDropDown)
+<option value="3" selected>Admins</option> (Location: includes/inc/func.inc.php @ Line 134) 
+#else
+
+#if ($oneDropDown)
+<option value="3" selected>Administrator</option> (Location: includes/inc/func.inc.php @ Line 135) 
+#else
+
+#if ($oneShortDropDown)
+<option value="3" selected>Admin</option> (Location: includes/inc/func.inc.php @ Line 136) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="3">Administrators only</option> (Location: includes/inc/func.inc.php @ Line 138) 
+#else
+
+#if ($shortDropDown)
+<option value="3">Admins</option> (Location: includes/inc/func.inc.php @ Line 139) 
+#else
+
+#if ($oneDropDown)
+<option value="3">Administrator</option> (Location: includes/inc/func.inc.php @ Line 140) 
+#else
+
+#if ($oneShortDropDown)
+<option value="3">Admin</option> (Location: includes/inc/func.inc.php @ Line 141) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($oneShortText)
+Admin (Location: includes/inc/func.inc.php @ Line 133) 
+#else
+
+#if ($oneText)
+Administrator (Location: includes/inc/func.inc.php @ Line 132) 
+#else
+
+#if ($allShortText)
+admins (Location: includes/inc/func.inc.php @ Line 131) 
+#else
+
+#if ($allText)
+<b>admins</b> only (Location: includes/inc/func.inc.php @ Line 130) 
+#else
+
+#if ($oneShortText)
+Mod (Location: includes/inc/func.inc.php @ Line 118) 
+#else
+
+#if ($oneText)
+Moderator (Location: includes/inc/func.inc.php @ Line 117) 
+#else
+
+#if ($allShortText)
+mods+ (Location: includes/inc/func.inc.php @ Line 116) 
+#else
+
+#if ($allText)
+<b>mods & admins</b> (Location: includes/inc/func.inc.php @ Line 115) 
+#else
+
+#if ($oneShortText)
+Member (Location: includes/inc/func.inc.php @ Line 103) 
+#else
+
+#if ($oneText)
+Member (Location: includes/inc/func.inc.php @ Line 102) 
+#else
+
+#if ($allShortText)
+members+ (Location: includes/inc/func.inc.php @ Line 101) 
+#else
+
+#if ($allText)
+<b>members</b> and above (Location: includes/inc/func.inc.php @ Line 100) 
+#else
+
+#if ($oneShortText)
+Guest (Location: includes/inc/func.inc.php @ Line 87) 
+#else
+
+#if ($oneText)
+Guest (Location: includes/inc/func.inc.php @ Line 86) 
+#else
+
+#if ($allShortText)
+guest+ (Location: includes/inc/func.inc.php @ Line 85) 
+#else
+
+#if ($allText)
+<b>guests</b> and above (Location: includes/inc/func.inc.php @ Line 84) 
+#else
+FALSE[Unresolved Location]
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+</select> (Location: admin_forums.php @ Line 381) </td>
+			</tr>
+			<tr>
+				<td class='area_1'><strong>Who can reply in this forum?</strong></td>
+				<td class='area_2'> (Location: admin_forums.php @ Line 407) <select size='1' name='u_reply'> (Location: admin_forums.php @ Line 382) 
+#if ([Unresolved Constraint])
+ (Location: includes/inc/func.inc.php @ Line 80) 
+#if ((bool)$exclude_guests === FALSE)
+
+#if (($user_power == 0 || $user_power == ''))
+
+#if ($dropdown)
+<option value="0" selected>Guests and above</option> (Location: includes/inc/func.inc.php @ Line 83) 
+#else
+
+#if ($shortDropDown)
+<option value="0" selected>Guests+</option> (Location: includes/inc/func.inc.php @ Line 88) 
+#else
+
+#if ($oneDropDown)
+<option value="0" selected>Guests</option> (Location: includes/inc/func.inc.php @ Line 89) 
+#else
+
+#if ($oneShortDropDown)
+<option value="0" selected>Guest</option> (Location: includes/inc/func.inc.php @ Line 90) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="0">Guests and above</option> (Location: includes/inc/func.inc.php @ Line 92) 
+#else
+
+#if ($shortDropDown)
+<option value="0">Guests+</option> (Location: includes/inc/func.inc.php @ Line 93) 
+#else
+
+#if ($oneDropDown)
+<option value="0">Guests</option> (Location: includes/inc/func.inc.php @ Line 94) 
+#else
+
+#if ($oneShortDropDown)
+<option value="0">Guest</option> (Location: includes/inc/func.inc.php @ Line 95) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#endif
+
+#if ($user_power == 1)
+
+#if ($dropdown)
+<option value="1" selected>Members and above</option> (Location: includes/inc/func.inc.php @ Line 99) 
+#else
+
+#if ($shortDropDown)
+<option value="1" selected>Members+</option> (Location: includes/inc/func.inc.php @ Line 104) 
+#else
+
+#if ($oneDropDown)
+<option value="1" selected>Members</option> (Location: includes/inc/func.inc.php @ Line 105) 
+#else
+
+#if ($oneShortDropDown)
+<option value="1" selected>Member</option> (Location: includes/inc/func.inc.php @ Line 106) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="1">Members and above</option> (Location: includes/inc/func.inc.php @ Line 108) 
+#else
+
+#if ($shortDropDown)
+<option value="1">Members+</option> (Location: includes/inc/func.inc.php @ Line 109) 
+#else
+
+#if ($oneDropDown)
+<option value="1">Member</option> (Location: includes/inc/func.inc.php @ Line 110) 
+#else
+
+#if ($oneShortDropDown)
+<option value="1">Member</option> (Location: includes/inc/func.inc.php @ Line 111) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#if ($user_power == 2)
+
+#if ($dropdown)
+<option value="2" selected>Moderators and Administrators</option> (Location: includes/inc/func.inc.php @ Line 114) 
+#else
+
+#if ($shortDropDown)
+<option value="2" selected>Mods+</option> (Location: includes/inc/func.inc.php @ Line 119) 
+#else
+
+#if ($oneDropDown)
+<option value="2" selected>Moderator</option> (Location: includes/inc/func.inc.php @ Line 120) 
+#else
+
+#if ($oneShortDropDown)
+<option value="2" selected>Mod</option> (Location: includes/inc/func.inc.php @ Line 121) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="2">Moderators and Administrators</option> (Location: includes/inc/func.inc.php @ Line 123) 
+#else
+
+#if ($shortDropDown)
+<option value="2">Mods+</option> (Location: includes/inc/func.inc.php @ Line 124) 
+#else
+
+#if ($oneDropDown)
+<option value="2">Moderator</option> (Location: includes/inc/func.inc.php @ Line 125) 
+#else
+
+#if ($oneShortDropDown)
+<option value="2">Mod</option> (Location: includes/inc/func.inc.php @ Line 126) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#if ($user_power >= 3)
+
+#if ($dropdown)
+<option value="3" selected>Administrators only</option> (Location: includes/inc/func.inc.php @ Line 129) 
+#else
+
+#if ($shortDropDown)
+<option value="3" selected>Admins</option> (Location: includes/inc/func.inc.php @ Line 134) 
+#else
+
+#if ($oneDropDown)
+<option value="3" selected>Administrator</option> (Location: includes/inc/func.inc.php @ Line 135) 
+#else
+
+#if ($oneShortDropDown)
+<option value="3" selected>Admin</option> (Location: includes/inc/func.inc.php @ Line 136) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="3">Administrators only</option> (Location: includes/inc/func.inc.php @ Line 138) 
+#else
+
+#if ($shortDropDown)
+<option value="3">Admins</option> (Location: includes/inc/func.inc.php @ Line 139) 
+#else
+
+#if ($oneDropDown)
+<option value="3">Administrator</option> (Location: includes/inc/func.inc.php @ Line 140) 
+#else
+
+#if ($oneShortDropDown)
+<option value="3">Admin</option> (Location: includes/inc/func.inc.php @ Line 141) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($oneShortText)
+Admin (Location: includes/inc/func.inc.php @ Line 133) 
+#else
+
+#if ($oneText)
+Administrator (Location: includes/inc/func.inc.php @ Line 132) 
+#else
+
+#if ($allShortText)
+admins (Location: includes/inc/func.inc.php @ Line 131) 
+#else
+
+#if ($allText)
+<b>admins</b> only (Location: includes/inc/func.inc.php @ Line 130) 
+#else
+
+#if ($oneShortText)
+Mod (Location: includes/inc/func.inc.php @ Line 118) 
+#else
+
+#if ($oneText)
+Moderator (Location: includes/inc/func.inc.php @ Line 117) 
+#else
+
+#if ($allShortText)
+mods+ (Location: includes/inc/func.inc.php @ Line 116) 
+#else
+
+#if ($allText)
+<b>mods & admins</b> (Location: includes/inc/func.inc.php @ Line 115) 
+#else
+
+#if ($oneShortText)
+Member (Location: includes/inc/func.inc.php @ Line 103) 
+#else
+
+#if ($oneText)
+Member (Location: includes/inc/func.inc.php @ Line 102) 
+#else
+
+#if ($allShortText)
+members+ (Location: includes/inc/func.inc.php @ Line 101) 
+#else
+
+#if ($allText)
+<b>members</b> and above (Location: includes/inc/func.inc.php @ Line 100) 
+#else
+
+#if ($oneShortText)
+Guest (Location: includes/inc/func.inc.php @ Line 87) 
+#else
+
+#if ($oneText)
+Guest (Location: includes/inc/func.inc.php @ Line 86) 
+#else
+
+#if ($allShortText)
+guest+ (Location: includes/inc/func.inc.php @ Line 85) 
+#else
+
+#if ($allText)
+<b>guests</b> and above (Location: includes/inc/func.inc.php @ Line 84) 
+#else
+FALSE[Unresolved Location]
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+</select> (Location: admin_forums.php @ Line 382) </td>
+			</tr>
+			<tr>
+				<td class='footer_3' colspan='2'><img src='./skins/default/images/spacer.gif' alt='' title='' /></td>
+			</tr>
+			<tr>
+				<td class='area_1'><strong>Forum description</strong></td>
+				<td class='area_2'><textarea cols=30 rows=5 maxlength=70 name=des></textarea></td>
+			</tr>
+			<tr>
+				<td class='footer_3' colspan='2'><img src='./skins/default/images/spacer.gif' alt='' title='' /></td>
+			</tr>
+			<tr>
+				<td class='footer_3a' colspan='2' style='text-align:center;'><input type=submit value='Add'> <input type=submit name='command' value='Add and Add another forum' size='10'> <input type=submit name='command' value='Add and Add another forum to the selected Category' size='15'></td>
+			</tr>
+		 (Location: admin_forums.php @ Line 411) 
+		</tbody>
+		</table>
+		<div class='footer'><img src=' (Location: includes/inc/func.inc.php @ Line 271) [SYM]/images/spacer.gif' alt='' title='' /></div>
+	</div>
+	<br /> (Location: includes/inc/func.inc.php @ Line 274) </form> (Location: admin_forums.php @ Line 428) 
+#endif
+
+#else
+
+#if ($_GET['action'] == "shift")
+
+#if (FALSE !== ($index = array_search($_GET['id'], $sort)))
+<meta http-equiv='refresh' content=' (Location: includes/inc/func.inc.php @ Line 23) 0 (Location: admin_forums.php @ Line 456) ;URL= (Location: includes/inc/func.inc.php @ Line 23) admin_forums.php#skip_nav (Location: admin_forums.php @ Line 456) '> (Location: includes/inc/func.inc.php @ Line 23) 
+#else
+
+#endif
+
+#else
+
+#if (empty($cRecs))
+<meta http-equiv='refresh' content=' (Location: includes/inc/func.inc.php @ Line 23) 0 (Location: admin_forums.php @ Line 466) ;URL= (Location: includes/inc/func.inc.php @ Line 23) admin_forums.php?action=add_cat (Location: admin_forums.php @ Line 466) '> (Location: includes/inc/func.inc.php @ Line 23) 
+#else
+
+#endif
+
+	<div class='main_cat_wrapper'>
+		<div class='cat_area_1'> (Location: includes/inc/func.inc.php @ Line 260) [SYM]</div>
+		<table class='main_table' cellspacing='1'>
+		<tbody> (Location: includes/inc/func.inc.php @ Line 262) 
+			<tr>
+				<th>Admin Panel Navigation</th>
+			</tr> (Location: admin_forums.php @ Line 493) 
+			<tr>
+				<td class='area_2' style='padding:20px;' valign='top'> (Location: admin_forums.php @ Line 497) 
+#if (isset($_COOKIE["user_env"]) && isset($_COOKIE["uniquekey_env"]) && isset($_COOKIE["power_env"]) && isset($_COOKIE["id_env"]))
+
+#if ($tdb->is_logged_in() && $_COOKIE["power_env"] >= 3)
+
+				<div style='width:50%;float:left;line-height:20px;text-align:center;'><span class='link_1'>
+				<a href='admin_forums.php#skip_nav' target = '_parent'>Manage Forums</a><br />
+				<a href='admin_config.php#skip_nav' target = '_parent'>Manage Settings</a><br />
+				<a href='admin_members.php#skip_nav' target = '_parent'>Manage Members</a><br />
+				<a href='admin_smilies.php#skip_nav' target = '_parent'>Manage Smilies</a><br />
+			<a href='admin_icons.php#skip_nav' target = '_parent'>Manage Post Icons</a></div>
+				<div style='width:50%;float:right;line-height:20px;text-align:center;'><span class='link_1'>
+		        <a href='admin_checkupdate.php#skip_nav' target = '_parent'>Check for Updates</a><br />
+				<a href='admin_banuser.php#skip_nav' target = '_parent'>Manage Banned users</a><br />
+				<a href='admin_badwords.php#skip_nav' target = '_parent'>Manage Filtered Lanuage</a><br />
+				<a href='admin_iplog.php#skip_nav' target = '_parent'>View the IP Address Log</a><br />
+				<a href='admin_restore.php#skip_nav' target = '_parent'>Backup/Restore the database</a><br /></span></div> (Location: admin_navigation.php @ Line 6) 
+#else
+
+#endif
+
+#else
+
+#endif
+</td>
+			</tr> (Location: admin_forums.php @ Line 501) 
+		</tbody>
+		</table>
+		<div class='footer'><img src=' (Location: includes/inc/func.inc.php @ Line 271) [SYM]/images/spacer.gif' alt='' title='' /></div>
+	</div>
+	<br /> (Location: includes/inc/func.inc.php @ Line 274) <a name='skip_nav'>&nbsp;</a>
+			<div id='tabstyle_2'>
+			    <ul>
+			        <li><a href='admin_forums.php?action=add_cat' title='Add a new forum?'><span>Add a new category?</span></a></li>
+			        <li><a href='admin_forums.php?action=add_forum' title='Add a new forum?'><span>Add a new forum?</span></a></li>
+			    </ul>
+			</div>
+			<div style='clear:both;'></div><div id='sorting'> (Location: admin_forums.php @ Line 504) 
+	<div class='main_cat_wrapper'>
+		<div class='cat_area_1'> (Location: includes/inc/func.inc.php @ Line 260) Forum Control (Location: admin_forums.php @ Line 513) </div>
+		<table class='main_table' cellspacing='1'>
+		<tbody> (Location: includes/inc/func.inc.php @ Line 262) 
+			<tr>
+			    <th style='width:7%;'>&nbsp;</th>
+				<th style='width:68%;'>Name</th>
+				<th style='width:5%;text-align:center;'>View</th>
+				<th style='width:5%;text-align:center;'>Post</th>
+				<th style='width:5%;text-align:center;'>Reply</th>
+				<th style='width:10%;text-align:center;'>Edit?</th>
+				<th style='width:10%;text-align:center;'>Delete?</th>
+			</tr> (Location: admin_forums.php @ Line 515) 
+#if ($cRecs[0]["name"] == "")
+
+			<tr>
+				<td class='area_2' style='text-align:center;font-weight:bold;padding:12px;line-height:20px;' colspan='7'>No categories found</td>
+			</tr> (Location: admin_forums.php @ Line 526) 
+#else
+[RepeatBegin]
+
+			<tr>
+			    <td class='area_1' style='padding:8px;text-align:center;'> (Location: admin_forums.php @ Line 534) 
+#if ($i>0)
+<span id='enabled_msg'><a href=" javascript:forumSort('cat',  'up',' (Location: admin_forums.php @ Line 538) [SYM]');" ><img src='./images/up.gif'></a></span> (Location: admin_forums.php @ Line 538) <span id='disabled_msg'><a href='admin_forums.php?action=shift&what=cat&where=up&id= (Location: admin_forums.php @ Line 539) [SYM]'><img src='./images/up.gif'></a></span> (Location: admin_forums.php @ Line 539) 
+#else
+&nbsp;&nbsp;&nbsp; (Location: admin_forums.php @ Line 542) 
+#endif
+
+#if ($i<($c1-1))
+<span id='enabled_msg'><a href=" javascript:forumSort('cat','down',' (Location: admin_forums.php @ Line 544) [SYM]');" ><img src='./images/down.gif'></a></span> (Location: admin_forums.php @ Line 544) <span id='disabled_msg'><a href='admin_forums.php?action=shift&what=cat&where=down&id= (Location: admin_forums.php @ Line 545) [SYM]'><img src='./images/down.gif'></a></span> (Location: admin_forums.php @ Line 545) 
+#else
+ (Location: admin_forums.php @ Line 548) 
+#endif
+</td> (Location: admin_forums.php @ Line 549) <td class='area_1' style='padding:8px;'><strong> (Location: admin_forums.php @ Line 550) [SYM]</strong></td>
+				<td class='area_1' style='padding:8px;text-align:center;' colspan=3> (Location: admin_forums.php @ Line 550) 
+#if ([Unresolved Constraint])
+ (Location: includes/inc/func.inc.php @ Line 80) 
+#if ((bool)$exclude_guests === FALSE)
+
+#if (($user_power == 0 || $user_power == ''))
+
+#if ($dropdown)
+<option value="0" selected>Guests and above</option> (Location: includes/inc/func.inc.php @ Line 83) 
+#else
+
+#if ($shortDropDown)
+<option value="0" selected>Guests+</option> (Location: includes/inc/func.inc.php @ Line 88) 
+#else
+
+#if ($oneDropDown)
+<option value="0" selected>Guests</option> (Location: includes/inc/func.inc.php @ Line 89) 
+#else
+
+#if ($oneShortDropDown)
+<option value="0" selected>Guest</option> (Location: includes/inc/func.inc.php @ Line 90) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="0">Guests and above</option> (Location: includes/inc/func.inc.php @ Line 92) 
+#else
+
+#if ($shortDropDown)
+<option value="0">Guests+</option> (Location: includes/inc/func.inc.php @ Line 93) 
+#else
+
+#if ($oneDropDown)
+<option value="0">Guests</option> (Location: includes/inc/func.inc.php @ Line 94) 
+#else
+
+#if ($oneShortDropDown)
+<option value="0">Guest</option> (Location: includes/inc/func.inc.php @ Line 95) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#endif
+
+#if ($user_power == 1)
+
+#if ($dropdown)
+<option value="1" selected>Members and above</option> (Location: includes/inc/func.inc.php @ Line 99) 
+#else
+
+#if ($shortDropDown)
+<option value="1" selected>Members+</option> (Location: includes/inc/func.inc.php @ Line 104) 
+#else
+
+#if ($oneDropDown)
+<option value="1" selected>Members</option> (Location: includes/inc/func.inc.php @ Line 105) 
+#else
+
+#if ($oneShortDropDown)
+<option value="1" selected>Member</option> (Location: includes/inc/func.inc.php @ Line 106) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="1">Members and above</option> (Location: includes/inc/func.inc.php @ Line 108) 
+#else
+
+#if ($shortDropDown)
+<option value="1">Members+</option> (Location: includes/inc/func.inc.php @ Line 109) 
+#else
+
+#if ($oneDropDown)
+<option value="1">Member</option> (Location: includes/inc/func.inc.php @ Line 110) 
+#else
+
+#if ($oneShortDropDown)
+<option value="1">Member</option> (Location: includes/inc/func.inc.php @ Line 111) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#if ($user_power == 2)
+
+#if ($dropdown)
+<option value="2" selected>Moderators and Administrators</option> (Location: includes/inc/func.inc.php @ Line 114) 
+#else
+
+#if ($shortDropDown)
+<option value="2" selected>Mods+</option> (Location: includes/inc/func.inc.php @ Line 119) 
+#else
+
+#if ($oneDropDown)
+<option value="2" selected>Moderator</option> (Location: includes/inc/func.inc.php @ Line 120) 
+#else
+
+#if ($oneShortDropDown)
+<option value="2" selected>Mod</option> (Location: includes/inc/func.inc.php @ Line 121) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="2">Moderators and Administrators</option> (Location: includes/inc/func.inc.php @ Line 123) 
+#else
+
+#if ($shortDropDown)
+<option value="2">Mods+</option> (Location: includes/inc/func.inc.php @ Line 124) 
+#else
+
+#if ($oneDropDown)
+<option value="2">Moderator</option> (Location: includes/inc/func.inc.php @ Line 125) 
+#else
+
+#if ($oneShortDropDown)
+<option value="2">Mod</option> (Location: includes/inc/func.inc.php @ Line 126) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#if ($user_power >= 3)
+
+#if ($dropdown)
+<option value="3" selected>Administrators only</option> (Location: includes/inc/func.inc.php @ Line 129) 
+#else
+
+#if ($shortDropDown)
+<option value="3" selected>Admins</option> (Location: includes/inc/func.inc.php @ Line 134) 
+#else
+
+#if ($oneDropDown)
+<option value="3" selected>Administrator</option> (Location: includes/inc/func.inc.php @ Line 135) 
+#else
+
+#if ($oneShortDropDown)
+<option value="3" selected>Admin</option> (Location: includes/inc/func.inc.php @ Line 136) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="3">Administrators only</option> (Location: includes/inc/func.inc.php @ Line 138) 
+#else
+
+#if ($shortDropDown)
+<option value="3">Admins</option> (Location: includes/inc/func.inc.php @ Line 139) 
+#else
+
+#if ($oneDropDown)
+<option value="3">Administrator</option> (Location: includes/inc/func.inc.php @ Line 140) 
+#else
+
+#if ($oneShortDropDown)
+<option value="3">Admin</option> (Location: includes/inc/func.inc.php @ Line 141) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($oneShortText)
+Admin (Location: includes/inc/func.inc.php @ Line 133) 
+#else
+
+#if ($oneText)
+Administrator (Location: includes/inc/func.inc.php @ Line 132) 
+#else
+
+#if ($allShortText)
+admins (Location: includes/inc/func.inc.php @ Line 131) 
+#else
+
+#if ($allText)
+<b>admins</b> only (Location: includes/inc/func.inc.php @ Line 130) 
+#else
+
+#if ($oneShortText)
+Mod (Location: includes/inc/func.inc.php @ Line 118) 
+#else
+
+#if ($oneText)
+Moderator (Location: includes/inc/func.inc.php @ Line 117) 
+#else
+
+#if ($allShortText)
+mods+ (Location: includes/inc/func.inc.php @ Line 116) 
+#else
+
+#if ($allText)
+<b>mods & admins</b> (Location: includes/inc/func.inc.php @ Line 115) 
+#else
+
+#if ($oneShortText)
+Member (Location: includes/inc/func.inc.php @ Line 103) 
+#else
+
+#if ($oneText)
+Member (Location: includes/inc/func.inc.php @ Line 102) 
+#else
+
+#if ($allShortText)
+members+ (Location: includes/inc/func.inc.php @ Line 101) 
+#else
+
+#if ($allText)
+<b>members</b> and above (Location: includes/inc/func.inc.php @ Line 100) 
+#else
+
+#if ($oneShortText)
+Guest (Location: includes/inc/func.inc.php @ Line 87) 
+#else
+
+#if ($oneText)
+Guest (Location: includes/inc/func.inc.php @ Line 86) 
+#else
+
+#if ($allShortText)
+guest+ (Location: includes/inc/func.inc.php @ Line 85) 
+#else
+
+#if ($allText)
+<b>guests</b> and above (Location: includes/inc/func.inc.php @ Line 84) 
+#else
+FALSE[Unresolved Location]
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+</td>
+				<td class='area_1' style='padding:8px;text-align:center;'><a href='admin_forums.php?action=edit_cat&id= (Location: admin_forums.php @ Line 551) [SYM]'>Edit</a></td>
+				<td class='area_1' style='padding:8px;text-align:center;'><a href='admin_forums.php?action=delete_cat&id= (Location: admin_forums.php @ Line 552) [SYM]'>Delete</a></td>
+			</tr> (Location: admin_forums.php @ Line 553) 
+#if ($cRecs[$i]['sort'] == '')
+
+			<tr>
+				<td class='area_2' style='text-align:center;font-weight:bold;padding:12px;line-height:20px;' colspan='7'>No forums exist in this category yet.</td>
+			</tr> (Location: admin_forums.php @ Line 557) 
+#else
+[RepeatBegin]
+
+			<tr>
+			    <td class='area_2' style='padding:8px;text-align:center;'> (Location: admin_forums.php @ Line 571) 
+#if ($j>0)
+<span id='enabled_msg'><a href=" javascript:forumSort('forum','up',' (Location: admin_forums.php @ Line 576) [SYM]');" ><img src='./images/up.gif'></a></span> (Location: admin_forums.php @ Line 576) <span id='disabled_msg'><a href='admin_forums.php?action=shift&what=forum&where=up&id= (Location: admin_forums.php @ Line 577) [SYM]'><img src='./images/up.gif'></a></span> (Location: admin_forums.php @ Line 577) 
+#else
+&nbsp;&nbsp;&nbsp; (Location: admin_forums.php @ Line 579) 
+#endif
+
+#if ($j<($c2-1))
+<span id='enabled_msg'><a href=" javascript:forumSort('forum','down',' (Location: admin_forums.php @ Line 582) [SYM]');" ><img src='./images/down.gif'></a></span> (Location: admin_forums.php @ Line 582) <span id='disabled_msg'><a href='admin_forums.php?action=shift&what=forum&where=down&id= (Location: admin_forums.php @ Line 583) [SYM]'><img src='./images/down.gif'></a></span> (Location: admin_forums.php @ Line 583) 
+#else
+&nbsp;&nbsp;&nbsp; (Location: admin_forums.php @ Line 586) 
+#endif
+</td>
+				<td class='area_2' style='padding:8px;'><strong>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (Location: admin_forums.php @ Line 588) [SYM]</td>
+				<td class='area_2' style='padding:8px;text-align:center;'> (Location: admin_forums.php @ Line 589) 
+#if ([Unresolved Constraint])
+ (Location: includes/inc/func.inc.php @ Line 80) 
+#if ((bool)$exclude_guests === FALSE)
+
+#if (($user_power == 0 || $user_power == ''))
+
+#if ($dropdown)
+<option value="0" selected>Guests and above</option> (Location: includes/inc/func.inc.php @ Line 83) 
+#else
+
+#if ($shortDropDown)
+<option value="0" selected>Guests+</option> (Location: includes/inc/func.inc.php @ Line 88) 
+#else
+
+#if ($oneDropDown)
+<option value="0" selected>Guests</option> (Location: includes/inc/func.inc.php @ Line 89) 
+#else
+
+#if ($oneShortDropDown)
+<option value="0" selected>Guest</option> (Location: includes/inc/func.inc.php @ Line 90) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="0">Guests and above</option> (Location: includes/inc/func.inc.php @ Line 92) 
+#else
+
+#if ($shortDropDown)
+<option value="0">Guests+</option> (Location: includes/inc/func.inc.php @ Line 93) 
+#else
+
+#if ($oneDropDown)
+<option value="0">Guests</option> (Location: includes/inc/func.inc.php @ Line 94) 
+#else
+
+#if ($oneShortDropDown)
+<option value="0">Guest</option> (Location: includes/inc/func.inc.php @ Line 95) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#endif
+
+#if ($user_power == 1)
+
+#if ($dropdown)
+<option value="1" selected>Members and above</option> (Location: includes/inc/func.inc.php @ Line 99) 
+#else
+
+#if ($shortDropDown)
+<option value="1" selected>Members+</option> (Location: includes/inc/func.inc.php @ Line 104) 
+#else
+
+#if ($oneDropDown)
+<option value="1" selected>Members</option> (Location: includes/inc/func.inc.php @ Line 105) 
+#else
+
+#if ($oneShortDropDown)
+<option value="1" selected>Member</option> (Location: includes/inc/func.inc.php @ Line 106) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="1">Members and above</option> (Location: includes/inc/func.inc.php @ Line 108) 
+#else
+
+#if ($shortDropDown)
+<option value="1">Members+</option> (Location: includes/inc/func.inc.php @ Line 109) 
+#else
+
+#if ($oneDropDown)
+<option value="1">Member</option> (Location: includes/inc/func.inc.php @ Line 110) 
+#else
+
+#if ($oneShortDropDown)
+<option value="1">Member</option> (Location: includes/inc/func.inc.php @ Line 111) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#if ($user_power == 2)
+
+#if ($dropdown)
+<option value="2" selected>Moderators and Administrators</option> (Location: includes/inc/func.inc.php @ Line 114) 
+#else
+
+#if ($shortDropDown)
+<option value="2" selected>Mods+</option> (Location: includes/inc/func.inc.php @ Line 119) 
+#else
+
+#if ($oneDropDown)
+<option value="2" selected>Moderator</option> (Location: includes/inc/func.inc.php @ Line 120) 
+#else
+
+#if ($oneShortDropDown)
+<option value="2" selected>Mod</option> (Location: includes/inc/func.inc.php @ Line 121) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="2">Moderators and Administrators</option> (Location: includes/inc/func.inc.php @ Line 123) 
+#else
+
+#if ($shortDropDown)
+<option value="2">Mods+</option> (Location: includes/inc/func.inc.php @ Line 124) 
+#else
+
+#if ($oneDropDown)
+<option value="2">Moderator</option> (Location: includes/inc/func.inc.php @ Line 125) 
+#else
+
+#if ($oneShortDropDown)
+<option value="2">Mod</option> (Location: includes/inc/func.inc.php @ Line 126) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#if ($user_power >= 3)
+
+#if ($dropdown)
+<option value="3" selected>Administrators only</option> (Location: includes/inc/func.inc.php @ Line 129) 
+#else
+
+#if ($shortDropDown)
+<option value="3" selected>Admins</option> (Location: includes/inc/func.inc.php @ Line 134) 
+#else
+
+#if ($oneDropDown)
+<option value="3" selected>Administrator</option> (Location: includes/inc/func.inc.php @ Line 135) 
+#else
+
+#if ($oneShortDropDown)
+<option value="3" selected>Admin</option> (Location: includes/inc/func.inc.php @ Line 136) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="3">Administrators only</option> (Location: includes/inc/func.inc.php @ Line 138) 
+#else
+
+#if ($shortDropDown)
+<option value="3">Admins</option> (Location: includes/inc/func.inc.php @ Line 139) 
+#else
+
+#if ($oneDropDown)
+<option value="3">Administrator</option> (Location: includes/inc/func.inc.php @ Line 140) 
+#else
+
+#if ($oneShortDropDown)
+<option value="3">Admin</option> (Location: includes/inc/func.inc.php @ Line 141) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($oneShortText)
+Admin (Location: includes/inc/func.inc.php @ Line 133) 
+#else
+
+#if ($oneText)
+Administrator (Location: includes/inc/func.inc.php @ Line 132) 
+#else
+
+#if ($allShortText)
+admins (Location: includes/inc/func.inc.php @ Line 131) 
+#else
+
+#if ($allText)
+<b>admins</b> only (Location: includes/inc/func.inc.php @ Line 130) 
+#else
+
+#if ($oneShortText)
+Mod (Location: includes/inc/func.inc.php @ Line 118) 
+#else
+
+#if ($oneText)
+Moderator (Location: includes/inc/func.inc.php @ Line 117) 
+#else
+
+#if ($allShortText)
+mods+ (Location: includes/inc/func.inc.php @ Line 116) 
+#else
+
+#if ($allText)
+<b>mods & admins</b> (Location: includes/inc/func.inc.php @ Line 115) 
+#else
+
+#if ($oneShortText)
+Member (Location: includes/inc/func.inc.php @ Line 103) 
+#else
+
+#if ($oneText)
+Member (Location: includes/inc/func.inc.php @ Line 102) 
+#else
+
+#if ($allShortText)
+members+ (Location: includes/inc/func.inc.php @ Line 101) 
+#else
+
+#if ($allText)
+<b>members</b> and above (Location: includes/inc/func.inc.php @ Line 100) 
+#else
+
+#if ($oneShortText)
+Guest (Location: includes/inc/func.inc.php @ Line 87) 
+#else
+
+#if ($oneText)
+Guest (Location: includes/inc/func.inc.php @ Line 86) 
+#else
+
+#if ($allShortText)
+guest+ (Location: includes/inc/func.inc.php @ Line 85) 
+#else
+
+#if ($allText)
+<b>guests</b> and above (Location: includes/inc/func.inc.php @ Line 84) 
+#else
+FALSE[Unresolved Location]
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+</td>
+				<td class='area_2' style='padding:8px;text-align:center;'> (Location: admin_forums.php @ Line 590) 
+#if ([Unresolved Constraint])
+ (Location: includes/inc/func.inc.php @ Line 80) 
+#if ((bool)$exclude_guests === FALSE)
+
+#if (($user_power == 0 || $user_power == ''))
+
+#if ($dropdown)
+<option value="0" selected>Guests and above</option> (Location: includes/inc/func.inc.php @ Line 83) 
+#else
+
+#if ($shortDropDown)
+<option value="0" selected>Guests+</option> (Location: includes/inc/func.inc.php @ Line 88) 
+#else
+
+#if ($oneDropDown)
+<option value="0" selected>Guests</option> (Location: includes/inc/func.inc.php @ Line 89) 
+#else
+
+#if ($oneShortDropDown)
+<option value="0" selected>Guest</option> (Location: includes/inc/func.inc.php @ Line 90) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="0">Guests and above</option> (Location: includes/inc/func.inc.php @ Line 92) 
+#else
+
+#if ($shortDropDown)
+<option value="0">Guests+</option> (Location: includes/inc/func.inc.php @ Line 93) 
+#else
+
+#if ($oneDropDown)
+<option value="0">Guests</option> (Location: includes/inc/func.inc.php @ Line 94) 
+#else
+
+#if ($oneShortDropDown)
+<option value="0">Guest</option> (Location: includes/inc/func.inc.php @ Line 95) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#endif
+
+#if ($user_power == 1)
+
+#if ($dropdown)
+<option value="1" selected>Members and above</option> (Location: includes/inc/func.inc.php @ Line 99) 
+#else
+
+#if ($shortDropDown)
+<option value="1" selected>Members+</option> (Location: includes/inc/func.inc.php @ Line 104) 
+#else
+
+#if ($oneDropDown)
+<option value="1" selected>Members</option> (Location: includes/inc/func.inc.php @ Line 105) 
+#else
+
+#if ($oneShortDropDown)
+<option value="1" selected>Member</option> (Location: includes/inc/func.inc.php @ Line 106) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="1">Members and above</option> (Location: includes/inc/func.inc.php @ Line 108) 
+#else
+
+#if ($shortDropDown)
+<option value="1">Members+</option> (Location: includes/inc/func.inc.php @ Line 109) 
+#else
+
+#if ($oneDropDown)
+<option value="1">Member</option> (Location: includes/inc/func.inc.php @ Line 110) 
+#else
+
+#if ($oneShortDropDown)
+<option value="1">Member</option> (Location: includes/inc/func.inc.php @ Line 111) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#if ($user_power == 2)
+
+#if ($dropdown)
+<option value="2" selected>Moderators and Administrators</option> (Location: includes/inc/func.inc.php @ Line 114) 
+#else
+
+#if ($shortDropDown)
+<option value="2" selected>Mods+</option> (Location: includes/inc/func.inc.php @ Line 119) 
+#else
+
+#if ($oneDropDown)
+<option value="2" selected>Moderator</option> (Location: includes/inc/func.inc.php @ Line 120) 
+#else
+
+#if ($oneShortDropDown)
+<option value="2" selected>Mod</option> (Location: includes/inc/func.inc.php @ Line 121) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="2">Moderators and Administrators</option> (Location: includes/inc/func.inc.php @ Line 123) 
+#else
+
+#if ($shortDropDown)
+<option value="2">Mods+</option> (Location: includes/inc/func.inc.php @ Line 124) 
+#else
+
+#if ($oneDropDown)
+<option value="2">Moderator</option> (Location: includes/inc/func.inc.php @ Line 125) 
+#else
+
+#if ($oneShortDropDown)
+<option value="2">Mod</option> (Location: includes/inc/func.inc.php @ Line 126) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#if ($user_power >= 3)
+
+#if ($dropdown)
+<option value="3" selected>Administrators only</option> (Location: includes/inc/func.inc.php @ Line 129) 
+#else
+
+#if ($shortDropDown)
+<option value="3" selected>Admins</option> (Location: includes/inc/func.inc.php @ Line 134) 
+#else
+
+#if ($oneDropDown)
+<option value="3" selected>Administrator</option> (Location: includes/inc/func.inc.php @ Line 135) 
+#else
+
+#if ($oneShortDropDown)
+<option value="3" selected>Admin</option> (Location: includes/inc/func.inc.php @ Line 136) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="3">Administrators only</option> (Location: includes/inc/func.inc.php @ Line 138) 
+#else
+
+#if ($shortDropDown)
+<option value="3">Admins</option> (Location: includes/inc/func.inc.php @ Line 139) 
+#else
+
+#if ($oneDropDown)
+<option value="3">Administrator</option> (Location: includes/inc/func.inc.php @ Line 140) 
+#else
+
+#if ($oneShortDropDown)
+<option value="3">Admin</option> (Location: includes/inc/func.inc.php @ Line 141) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($oneShortText)
+Admin (Location: includes/inc/func.inc.php @ Line 133) 
+#else
+
+#if ($oneText)
+Administrator (Location: includes/inc/func.inc.php @ Line 132) 
+#else
+
+#if ($allShortText)
+admins (Location: includes/inc/func.inc.php @ Line 131) 
+#else
+
+#if ($allText)
+<b>admins</b> only (Location: includes/inc/func.inc.php @ Line 130) 
+#else
+
+#if ($oneShortText)
+Mod (Location: includes/inc/func.inc.php @ Line 118) 
+#else
+
+#if ($oneText)
+Moderator (Location: includes/inc/func.inc.php @ Line 117) 
+#else
+
+#if ($allShortText)
+mods+ (Location: includes/inc/func.inc.php @ Line 116) 
+#else
+
+#if ($allText)
+<b>mods & admins</b> (Location: includes/inc/func.inc.php @ Line 115) 
+#else
+
+#if ($oneShortText)
+Member (Location: includes/inc/func.inc.php @ Line 103) 
+#else
+
+#if ($oneText)
+Member (Location: includes/inc/func.inc.php @ Line 102) 
+#else
+
+#if ($allShortText)
+members+ (Location: includes/inc/func.inc.php @ Line 101) 
+#else
+
+#if ($allText)
+<b>members</b> and above (Location: includes/inc/func.inc.php @ Line 100) 
+#else
+
+#if ($oneShortText)
+Guest (Location: includes/inc/func.inc.php @ Line 87) 
+#else
+
+#if ($oneText)
+Guest (Location: includes/inc/func.inc.php @ Line 86) 
+#else
+
+#if ($allShortText)
+guest+ (Location: includes/inc/func.inc.php @ Line 85) 
+#else
+
+#if ($allText)
+<b>guests</b> and above (Location: includes/inc/func.inc.php @ Line 84) 
+#else
+FALSE[Unresolved Location]
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+</td>
+				<td class='area_2' style='padding:8px;text-align:center;'> (Location: admin_forums.php @ Line 591) 
+#if ([Unresolved Constraint])
+ (Location: includes/inc/func.inc.php @ Line 80) 
+#if ((bool)$exclude_guests === FALSE)
+
+#if (($user_power == 0 || $user_power == ''))
+
+#if ($dropdown)
+<option value="0" selected>Guests and above</option> (Location: includes/inc/func.inc.php @ Line 83) 
+#else
+
+#if ($shortDropDown)
+<option value="0" selected>Guests+</option> (Location: includes/inc/func.inc.php @ Line 88) 
+#else
+
+#if ($oneDropDown)
+<option value="0" selected>Guests</option> (Location: includes/inc/func.inc.php @ Line 89) 
+#else
+
+#if ($oneShortDropDown)
+<option value="0" selected>Guest</option> (Location: includes/inc/func.inc.php @ Line 90) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="0">Guests and above</option> (Location: includes/inc/func.inc.php @ Line 92) 
+#else
+
+#if ($shortDropDown)
+<option value="0">Guests+</option> (Location: includes/inc/func.inc.php @ Line 93) 
+#else
+
+#if ($oneDropDown)
+<option value="0">Guests</option> (Location: includes/inc/func.inc.php @ Line 94) 
+#else
+
+#if ($oneShortDropDown)
+<option value="0">Guest</option> (Location: includes/inc/func.inc.php @ Line 95) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#endif
+
+#if ($user_power == 1)
+
+#if ($dropdown)
+<option value="1" selected>Members and above</option> (Location: includes/inc/func.inc.php @ Line 99) 
+#else
+
+#if ($shortDropDown)
+<option value="1" selected>Members+</option> (Location: includes/inc/func.inc.php @ Line 104) 
+#else
+
+#if ($oneDropDown)
+<option value="1" selected>Members</option> (Location: includes/inc/func.inc.php @ Line 105) 
+#else
+
+#if ($oneShortDropDown)
+<option value="1" selected>Member</option> (Location: includes/inc/func.inc.php @ Line 106) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="1">Members and above</option> (Location: includes/inc/func.inc.php @ Line 108) 
+#else
+
+#if ($shortDropDown)
+<option value="1">Members+</option> (Location: includes/inc/func.inc.php @ Line 109) 
+#else
+
+#if ($oneDropDown)
+<option value="1">Member</option> (Location: includes/inc/func.inc.php @ Line 110) 
+#else
+
+#if ($oneShortDropDown)
+<option value="1">Member</option> (Location: includes/inc/func.inc.php @ Line 111) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#if ($user_power == 2)
+
+#if ($dropdown)
+<option value="2" selected>Moderators and Administrators</option> (Location: includes/inc/func.inc.php @ Line 114) 
+#else
+
+#if ($shortDropDown)
+<option value="2" selected>Mods+</option> (Location: includes/inc/func.inc.php @ Line 119) 
+#else
+
+#if ($oneDropDown)
+<option value="2" selected>Moderator</option> (Location: includes/inc/func.inc.php @ Line 120) 
+#else
+
+#if ($oneShortDropDown)
+<option value="2" selected>Mod</option> (Location: includes/inc/func.inc.php @ Line 121) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="2">Moderators and Administrators</option> (Location: includes/inc/func.inc.php @ Line 123) 
+#else
+
+#if ($shortDropDown)
+<option value="2">Mods+</option> (Location: includes/inc/func.inc.php @ Line 124) 
+#else
+
+#if ($oneDropDown)
+<option value="2">Moderator</option> (Location: includes/inc/func.inc.php @ Line 125) 
+#else
+
+#if ($oneShortDropDown)
+<option value="2">Mod</option> (Location: includes/inc/func.inc.php @ Line 126) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#if ($user_power >= 3)
+
+#if ($dropdown)
+<option value="3" selected>Administrators only</option> (Location: includes/inc/func.inc.php @ Line 129) 
+#else
+
+#if ($shortDropDown)
+<option value="3" selected>Admins</option> (Location: includes/inc/func.inc.php @ Line 134) 
+#else
+
+#if ($oneDropDown)
+<option value="3" selected>Administrator</option> (Location: includes/inc/func.inc.php @ Line 135) 
+#else
+
+#if ($oneShortDropDown)
+<option value="3" selected>Admin</option> (Location: includes/inc/func.inc.php @ Line 136) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="3">Administrators only</option> (Location: includes/inc/func.inc.php @ Line 138) 
+#else
+
+#if ($shortDropDown)
+<option value="3">Admins</option> (Location: includes/inc/func.inc.php @ Line 139) 
+#else
+
+#if ($oneDropDown)
+<option value="3">Administrator</option> (Location: includes/inc/func.inc.php @ Line 140) 
+#else
+
+#if ($oneShortDropDown)
+<option value="3">Admin</option> (Location: includes/inc/func.inc.php @ Line 141) 
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($oneShortText)
+Admin (Location: includes/inc/func.inc.php @ Line 133) 
+#else
+
+#if ($oneText)
+Administrator (Location: includes/inc/func.inc.php @ Line 132) 
+#else
+
+#if ($allShortText)
+admins (Location: includes/inc/func.inc.php @ Line 131) 
+#else
+
+#if ($allText)
+<b>admins</b> only (Location: includes/inc/func.inc.php @ Line 130) 
+#else
+
+#if ($oneShortText)
+Mod (Location: includes/inc/func.inc.php @ Line 118) 
+#else
+
+#if ($oneText)
+Moderator (Location: includes/inc/func.inc.php @ Line 117) 
+#else
+
+#if ($allShortText)
+mods+ (Location: includes/inc/func.inc.php @ Line 116) 
+#else
+
+#if ($allText)
+<b>mods & admins</b> (Location: includes/inc/func.inc.php @ Line 115) 
+#else
+
+#if ($oneShortText)
+Member (Location: includes/inc/func.inc.php @ Line 103) 
+#else
+
+#if ($oneText)
+Member (Location: includes/inc/func.inc.php @ Line 102) 
+#else
+
+#if ($allShortText)
+members+ (Location: includes/inc/func.inc.php @ Line 101) 
+#else
+
+#if ($allText)
+<b>members</b> and above (Location: includes/inc/func.inc.php @ Line 100) 
+#else
+
+#if ($oneShortText)
+Guest (Location: includes/inc/func.inc.php @ Line 87) 
+#else
+
+#if ($oneText)
+Guest (Location: includes/inc/func.inc.php @ Line 86) 
+#else
+
+#if ($allShortText)
+guest+ (Location: includes/inc/func.inc.php @ Line 85) 
+#else
+
+#if ($allText)
+<b>guests</b> and above (Location: includes/inc/func.inc.php @ Line 84) 
+#else
+FALSE[Unresolved Location]
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+</td>
+				<td class='area_2' style='padding:8px;text-align:center;'><a href='admin_forums.php?action=edit_forum&id= (Location: admin_forums.php @ Line 592) [SYM]'>Edit</a></td>
+				<td class='area_2' style='padding:8px;text-align:center;'><a href='admin_forums.php?action=delete_forum&id= (Location: admin_forums.php @ Line 593) [SYM]'>Delete</a></td>
+			</tr> (Location: admin_forums.php @ Line 594) 
+[RepeatEnd]
+#endif
+
+[RepeatEnd]
+#endif
+
+		</tbody>
+		</table>
+		<div class='footer'><img src=' (Location: includes/inc/func.inc.php @ Line 271) [SYM]/images/spacer.gif' alt='' title='' /></div>
+	</div>
+	<br /> (Location: includes/inc/func.inc.php @ Line 274) </div> (Location: admin_forums.php @ Line 601) 
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+<div class='copy'><a href='http://forum.myupb.com/'>  (Location: includes/footer.php @ Line 14) Powered by myUPB v (Location: includes/footer.php @ Line 15) [SYM]</a>&nbsp;&nbsp;&middot;&nbsp;&nbsp;
+	&copy; PHP Outburst 2002 -  (Location: includes/footer.php @ Line 15) [SYM]<br>
+<br>
+<a rel="license"
+	href="http://creativecommons.org/licenses/by-nc-sa/3.0/"><img
+	alt="Creative Commons License" style="border-width: 0;"
+	src="http://i.creativecommons.org/l/by-nc-sa/3.0/80x15.png"
+	align='absmiddle' /></a></div>
+</div>
+
+</body>
+</html>
+ (Location: includes/footer.php @ Line 17) 
+#else
+
+			<div class='alert'><div class='alert_text'>
+			<strong>Access Denied!</strong></div><div style='padding:4px;'>you are not authorized to be here.</div></div>
+			<meta http-equiv='refresh' content='2;URL=login.php?ref=admin.php'> (Location: admin_forums.php @ Line 605) 
+#endif

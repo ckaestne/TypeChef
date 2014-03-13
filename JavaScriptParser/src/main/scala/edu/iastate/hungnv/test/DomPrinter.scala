@@ -200,10 +200,11 @@ object DomPrinter {
 
         ast match {
           case DNode(name, attributes, children, openTag, closingTag) => 
-            		"Node <" ~ name.name ~ "> at " ~ name.getPositionFrom.toString ~ " to " ~ name.getPositionTo.toString ~ " until " ~ closingTag.getPositionTo.toString ~> 
+            		//"Node <" ~ name.name ~ "> at " ~ name.getPositionFrom.toString ~ " to " ~ name.getPositionTo.toString ~ " until " ~ closingTag.getPositionTo.toString ~> 
+            		"Node <" ~ name.name ~ ">" ~>
         		  		(("Attributes" ~> 
         		  			sep(attributes, _ ~ _)) *
-        		  		sep(children, _ * _))
+        		  		(if (children != null) sep(children, _ * _) else Empty))
         		  		
           case DText(x) => {
                     val out = new StringBuilder

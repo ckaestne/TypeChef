@@ -19,7 +19,11 @@ case class CRuleSet(selectors: List[CSelector], declarations: String) extends AS
 
 abstract class CSelector() extends AST
 
-case class CSimpleSelector(name: DString, kind: String) extends CSelector // kind: "#", ".", or ""
+case class CSimpleSelector(name: DString, nestedSelector: Option[CSelector]) extends CSelector
+
+case class CClassSelector(name: DString) extends CSelector
+
+case class CHashSelector(name: DString) extends CSelector
 
 case class COtherSelector(name: DString) extends CSelector
 

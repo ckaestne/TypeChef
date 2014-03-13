@@ -47,18 +47,18 @@ class HTMLDomParser extends MultiFeatureParser {
                                             else
                                               
                                               // BEGIN OF QUICK FIX
-//                                            	if (startR.name.equals("img")) // Handled specifically for img, ...
+//                                            	if (startR.name.name.equals("img") | startR.name.name.equals("meta")) // Handled specifically for img, ...
 //                                            	  Success(DNode(startR.name, startR.attributes, null, startR, null), startRest)
-//                                            	  else
-                                            // END OF QUICK FIX
+//                                            	else
+                                              // END OF QUICK FIX
                                               
                                                 Error("Mismatching closing tag for <" + startR.name.name + "> (found </" + closingR.name.name + "> at " + closingRest.pos + ")", in, List())
                                         case n@NoSuccess(msg, restCl, _) =>
-                                            // BEGIN OF QUICK FIX
-//                                            if (startR.name.equals("img")) // Handled specifically for img, ...
+                                              // BEGIN OF QUICK FIX
+//                                            	if (startR.name.name.equals("img") | startR.name.name.equals("meta")) // Handled specifically for img, ...
 //                                            	  Success(DNode(startR.name, startR.attributes, null, startR, null), startRest)
-//                                            else
-                                            // END OF QUICK FIX   
+//                                            	else
+                                              // END OF QUICK FIX 
                                                
                                             Error("No matching closing tag for <" + startR.name.name + ">", in, List(n))
                                     }

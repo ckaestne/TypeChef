@@ -169,7 +169,7 @@
           Text
           Text
          </strong>
-         <a href="admin.php" cond="List((def($_REGIST['reg_approval'])&def($_COOKIE['power_env'] >= 3)&!def((int)$new_pm != 0)&def($tdb->is_logged_in())&!def(!$tdb->is_logged_in())&def($_SESSION['reg_approval_count'] > 0)), True)">
+         <a href="admin.php" cond="List((def($_SESSION['reg_approval_count'] > 0)&def($tdb->is_logged_in())&def($_COOKIE['power_env'] >= 3)&!def(!$tdb->is_logged_in())&!def((int)$new_pm != 0)&def($_REGIST['reg_approval'])), True)">
           Text
          </a>
          Text
@@ -183,8 +183,8 @@
            Text
           </strong>
          </a>
-         <a href="admin_members.php?action=confirm#skip_nav" cond="List((def($_REGIST['reg_approval'])&def($_COOKIE['power_env'] >= 3)&!def((int)$new_pm != 0)&def($tdb->is_logged_in())&!def(!$tdb->is_logged_in())&def($_SESSION['reg_approval_count'] > 0)), True)">
-          <b cond="List((def($_REGIST['reg_approval'])&def($_COOKIE['power_env'] >= 3)&!def((int)$new_pm != 0)&def($tdb->is_logged_in())&!def(!$tdb->is_logged_in())&def($_SESSION['reg_approval_count'] > 0)), True)">
+         <a href="admin_members.php?action=confirm#skip_nav" cond="List((def($_SESSION['reg_approval_count'] > 0)&def($tdb->is_logged_in())&def($_COOKIE['power_env'] >= 3)&!def(!$tdb->is_logged_in())&!def((int)$new_pm != 0)&def($_REGIST['reg_approval'])), True)">
+          <b cond="List((def($_SESSION['reg_approval_count'] > 0)&def($tdb->is_logged_in())&def($_COOKIE['power_env'] >= 3)&!def(!$tdb->is_logged_in())&!def((int)$new_pm != 0)&def($_REGIST['reg_approval'])), True)">
            Text
           </b>
          </a>
@@ -202,8 +202,8 @@
           </strong>
          </a>
          Text
-         <a href="admin_members.php?action=confirm#skip_nav" cond="List((def((int)$new_pm != 0)&def($_REGIST['reg_approval'])&def($_COOKIE['power_env'] >= 3)&def($tdb->is_logged_in())&!def(!$tdb->is_logged_in())&def($_SESSION['reg_approval_count'] > 0)), True)">
-          <b cond="List((def((int)$new_pm != 0)&def($_REGIST['reg_approval'])&def($_COOKIE['power_env'] >= 3)&def($tdb->is_logged_in())&!def(!$tdb->is_logged_in())&def($_SESSION['reg_approval_count'] > 0)), True)">
+         <a href="admin_members.php?action=confirm#skip_nav" cond="List((def((int)$new_pm != 0)&def($_SESSION['reg_approval_count'] > 0)&def($tdb->is_logged_in())&def($_COOKIE['power_env'] >= 3)&!def(!$tdb->is_logged_in())&def($_REGIST['reg_approval'])), True)">
+          <b cond="List((def((int)$new_pm != 0)&def($_SESSION['reg_approval_count'] > 0)&def($tdb->is_logged_in())&def($_COOKIE['power_env'] >= 3)&!def(!$tdb->is_logged_in())&def($_REGIST['reg_approval'])), True)">
            Text
           </b>
          </a>
@@ -328,109 +328,109 @@
    Text
    Text
    Text
-   <div class="alert_confirm" cond="List((!def($_GET['action'] == 'delete_cat')&def($_GET['action'] == 'add_cat')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&def(isset($_POST['command']))&!def($_GET['action'] == 'edit_cat')), True)">
+   <div class="alert_confirm" cond="List((!def($_GET['action'] == 'delete_cat')&def($_GET['action'] == 'add_cat')&def(isset($_POST['command']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')), True)">
     Text
-    <div class="alert_confirm_text" cond="List((!def($_GET['action'] == 'delete_cat')&def($_GET['action'] == 'add_cat')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&def(isset($_POST['command']))&!def($_GET['action'] == 'edit_cat')), True)">
+    <div class="alert_confirm_text" cond="List((!def($_GET['action'] == 'delete_cat')&def($_GET['action'] == 'add_cat')&def(isset($_POST['command']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')), True)">
      Text
-     <strong cond="List((!def($_GET['action'] == 'delete_cat')&def($_GET['action'] == 'add_cat')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&def(isset($_POST['command']))&!def($_GET['action'] == 'edit_cat')), True)">
+     <strong cond="List((!def($_GET['action'] == 'delete_cat')&def($_GET['action'] == 'add_cat')&def(isset($_POST['command']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')), True)">
       Text
      </strong>
     </div>
-    <div style="padding:4px;" cond="List((!def($_GET['action'] == 'delete_cat')&def($_GET['action'] == 'add_cat')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&def(isset($_POST['command']))&!def($_GET['action'] == 'edit_cat')), True)">
+    <div style="padding:4px;" cond="List((!def($_GET['action'] == 'delete_cat')&def($_GET['action'] == 'add_cat')&def(isset($_POST['command']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')), True)">
      Text
     </div>
     Text
    </div>
-   <div class="alert_confirm" cond="List((def($_POST['verify'] == 'Ok')&def($_GET['action'] == 'delete_cat')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&def(isset($_GET['id']))), True)">
+   <div class="alert_confirm" cond="List((def($_GET['action'] == 'delete_cat')&def(isset($_GET['id']))&def($_POST['verify'] == 'Ok')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')), True)">
     Text
-    <div class="alert_confirm_text" cond="List((def($_POST['verify'] == 'Ok')&def($_GET['action'] == 'delete_cat')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&def(isset($_GET['id']))), True)">
+    <div class="alert_confirm_text" cond="List((def($_GET['action'] == 'delete_cat')&def(isset($_GET['id']))&def($_POST['verify'] == 'Ok')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')), True)">
      Text
-     <strong cond="List((def($_POST['verify'] == 'Ok')&def($_GET['action'] == 'delete_cat')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&def(isset($_GET['id']))), True)">
+     <strong cond="List((def($_GET['action'] == 'delete_cat')&def(isset($_GET['id']))&def($_POST['verify'] == 'Ok')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')), True)">
       Text
      </strong>
     </div>
-    <div style="padding:4px;" cond="List((def($_POST['verify'] == 'Ok')&def($_GET['action'] == 'delete_cat')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&def(isset($_GET['id']))), True)">
+    <div style="padding:4px;" cond="List((def($_GET['action'] == 'delete_cat')&def(isset($_GET['id']))&def($_POST['verify'] == 'Ok')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')), True)">
      Text
     </div>
     Text
    </div>
-   <meta http-equiv="refresh" content="0;URL=admin_forums.php?action=add_cat" cond="List((def(empty($cRecs))&!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'shift')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def(isset($_COOKIE['user_env']) && isset($_COOKIE['uniquekey_env']) && isset($_COOKIE['power_env']) && isset($_COOKIE['id_env']))&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')), True)">
+   <meta http-equiv="refresh" content="0;URL=admin_forums.php?action=add_cat" cond="List((!def($_GET['action'] == 'shift')&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'delete_forum')&!def($_GET['action'] == 'add_forum')&!def(isset($_COOKIE['user_env']) && isset($_COOKIE['uniquekey_env']) && isset($_COOKIE['power_env']) && isset($_COOKIE['id_env']))&def(empty($cRecs))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'edit_forum')), True)">
    </meta>
-   <div class="alert_confirm" cond="List((def($_POST['verify'] == 'Ok')&!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'edit_forum')&def($_GET['action'] == 'delete_forum')&def(isset($_GET['id']))), True)">
+   <div class="alert_confirm" cond="List((!def($_GET['action'] == 'delete_cat')&def(isset($_GET['id']))&def($_POST['verify'] == 'Ok')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&def($_GET['action'] == 'delete_forum')&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'edit_forum')), True)">
     Text
-    <div class="alert_confirm_text" cond="List((def($_POST['verify'] == 'Ok')&!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'edit_forum')&def($_GET['action'] == 'delete_forum')&def(isset($_GET['id']))), True)">
+    <div class="alert_confirm_text" cond="List((!def($_GET['action'] == 'delete_cat')&def(isset($_GET['id']))&def($_POST['verify'] == 'Ok')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&def($_GET['action'] == 'delete_forum')&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'edit_forum')), True)">
      Text
-     <strong cond="List((def($_POST['verify'] == 'Ok')&!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'edit_forum')&def($_GET['action'] == 'delete_forum')&def(isset($_GET['id']))), True)">
+     <strong cond="List((!def($_GET['action'] == 'delete_cat')&def(isset($_GET['id']))&def($_POST['verify'] == 'Ok')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&def($_GET['action'] == 'delete_forum')&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'edit_forum')), True)">
       Text
      </strong>
     </div>
-    <div style="padding:4px;" cond="List((def($_POST['verify'] == 'Ok')&!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'edit_forum')&def($_GET['action'] == 'delete_forum')&def(isset($_GET['id']))), True)">
+    <div style="padding:4px;" cond="List((!def($_GET['action'] == 'delete_cat')&def(isset($_GET['id']))&def($_POST['verify'] == 'Ok')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&def($_GET['action'] == 'delete_forum')&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'edit_forum')), True)">
      Text
     </div>
     Text
    </div>
-   <meta http-equiv="refresh" content="2;URL=SYM?action=add_cat" cond="List((!def($_GET['action'] == 'delete_cat')&def($_POST['command'] == 'Add and Add another Category')&def($_GET['action'] == 'add_cat')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&def(isset($_POST['command']))&!def($_GET['action'] == 'edit_cat')), True)">
+   <meta http-equiv="refresh" content="2;URL=SYM?action=add_cat" cond="List((!def($_GET['action'] == 'delete_cat')&def($_GET['action'] == 'add_cat')&def(isset($_POST['command']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&def($_POST['command'] == 'Add and Add another Category')), True)">
    </meta>
    Text
-   <form action="admin_forums.php?action=delete_cat&id=SYM" METHOD="POST" cond="List((def($_GET['action'] == 'delete_cat')&!def($_POST['verify'] == 'Cancel')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&def(isset($_GET['id']))&!def($_POST['verify'] == 'Ok')), True)">
+   <form action="admin_forums.php?action=delete_cat&id=SYM" METHOD="POST" cond="List((!def($_POST['verify'] == 'Ok')&def($_GET['action'] == 'delete_cat')&def(isset($_GET['id']))&!def($_POST['verify'] == 'Cancel')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')), True)">
     Text
-    <div class="alert" cond="List((def($_GET['action'] == 'delete_cat')&!def($_POST['verify'] == 'Cancel')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&def(isset($_GET['id']))&!def($_POST['verify'] == 'Ok')), True)">
-     <div class="alert_text" cond="List((def($_GET['action'] == 'delete_cat')&!def($_POST['verify'] == 'Cancel')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&def(isset($_GET['id']))&!def($_POST['verify'] == 'Ok')), True)">
+    <div class="alert" cond="List((!def($_POST['verify'] == 'Ok')&def($_GET['action'] == 'delete_cat')&def(isset($_GET['id']))&!def($_POST['verify'] == 'Cancel')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')), True)">
+     <div class="alert_text" cond="List((!def($_POST['verify'] == 'Ok')&def($_GET['action'] == 'delete_cat')&def(isset($_GET['id']))&!def($_POST['verify'] == 'Cancel')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')), True)">
       Text
-      <strong cond="List((def($_GET['action'] == 'delete_cat')&!def($_POST['verify'] == 'Cancel')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&def(isset($_GET['id']))&!def($_POST['verify'] == 'Ok')), True)">
+      <strong cond="List((!def($_POST['verify'] == 'Ok')&def($_GET['action'] == 'delete_cat')&def(isset($_GET['id']))&!def($_POST['verify'] == 'Cancel')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')), True)">
        Text
       </strong>
      </div>
-     <div style="padding:4px;" cond="List((def($_GET['action'] == 'delete_cat')&!def($_POST['verify'] == 'Cancel')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&def(isset($_GET['id']))&!def($_POST['verify'] == 'Ok')), True)">
-      <input type="submit" name="verify" value="Ok" cond="List((def($_GET['action'] == 'delete_cat')&!def($_POST['verify'] == 'Cancel')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&def(isset($_GET['id']))&!def($_POST['verify'] == 'Ok')), True)">
+     <div style="padding:4px;" cond="List((!def($_POST['verify'] == 'Ok')&def($_GET['action'] == 'delete_cat')&def(isset($_GET['id']))&!def($_POST['verify'] == 'Cancel')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')), True)">
+      <input type="submit" name="verify" value="Ok" cond="List((!def($_POST['verify'] == 'Ok')&def($_GET['action'] == 'delete_cat')&def(isset($_GET['id']))&!def($_POST['verify'] == 'Cancel')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')), True)">
       </input>
       Text
-      <input type="submit" name="verify" value="Cancel" cond="List((def($_GET['action'] == 'delete_cat')&!def($_POST['verify'] == 'Cancel')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&def(isset($_GET['id']))&!def($_POST['verify'] == 'Ok')), True)">
+      <input type="submit" name="verify" value="Cancel" cond="List((!def($_POST['verify'] == 'Ok')&def($_GET['action'] == 'delete_cat')&def(isset($_GET['id']))&!def($_POST['verify'] == 'Cancel')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')), True)">
       </input>
       Text
      </div>
     </div>
     Text
    </form>
-   <div class="alert_confirm" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&def($_GET['action'] == 'edit_forum')&def(isset($_POST['u_forum']))&def(isset($_GET['id']))), True)">
+   <div class="alert_confirm" cond="List((!def($_GET['action'] == 'delete_cat')&def(isset($_POST['u_forum']))&def(isset($_GET['id']))&def($_GET['action'] == 'edit_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')), True)">
     Text
-    <div class="alert_confirm_text" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&def($_GET['action'] == 'edit_forum')&def(isset($_POST['u_forum']))&def(isset($_GET['id']))), True)">
+    <div class="alert_confirm_text" cond="List((!def($_GET['action'] == 'delete_cat')&def(isset($_POST['u_forum']))&def(isset($_GET['id']))&def($_GET['action'] == 'edit_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')), True)">
      Text
-     <strong cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&def($_GET['action'] == 'edit_forum')&def(isset($_POST['u_forum']))&def(isset($_GET['id']))), True)">
+     <strong cond="List((!def($_GET['action'] == 'delete_cat')&def(isset($_POST['u_forum']))&def(isset($_GET['id']))&def($_GET['action'] == 'edit_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')), True)">
       Text
      </strong>
     </div>
-    <div style="padding:4px;" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&def($_GET['action'] == 'edit_forum')&def(isset($_POST['u_forum']))&def(isset($_GET['id']))), True)">
+    <div style="padding:4px;" cond="List((!def($_GET['action'] == 'delete_cat')&def(isset($_POST['u_forum']))&def(isset($_GET['id']))&def($_GET['action'] == 'edit_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')), True)">
      Text
     </div>
     Text
    </div>
-   <meta http-equiv="refresh" content="2;URL=admin_forums.php?action=add_forum&cat_id=SYM" cond="List((!def($_GET['action'] == 'delete_cat')&def($_GET['action'] == 'add_cat')&!def($_POST['command'] == 'Add and Add another Category')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&def(isset($_POST['command']))&!def($_GET['action'] == 'edit_cat')&def($_POST['command'] == 'Add and Add forums to this category')), True)">
+   <meta http-equiv="refresh" content="2;URL=admin_forums.php?action=add_forum&cat_id=SYM" cond="List((!def($_POST['command'] == 'Add and Add another Category')&!def($_GET['action'] == 'delete_cat')&def($_POST['command'] == 'Add and Add forums to this category')&def($_GET['action'] == 'add_cat')&def(isset($_POST['command']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')), True)">
    </meta>
    Text
    Text
    Text
-   <div class="main_cat_wrapper" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'shift')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def(isset($_COOKIE['user_env']) && isset($_COOKIE['uniquekey_env']) && isset($_COOKIE['power_env']) && isset($_COOKIE['id_env']))&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')), True)">
+   <div class="main_cat_wrapper" cond="List((!def($_GET['action'] == 'shift')&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'delete_forum')&!def($_GET['action'] == 'add_forum')&!def(isset($_COOKIE['user_env']) && isset($_COOKIE['uniquekey_env']) && isset($_COOKIE['power_env']) && isset($_COOKIE['id_env']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'edit_forum')), True)">
     Text
-    <div class="cat_area_1" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'shift')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def(isset($_COOKIE['user_env']) && isset($_COOKIE['uniquekey_env']) && isset($_COOKIE['power_env']) && isset($_COOKIE['id_env']))&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')), True)">
+    <div class="cat_area_1" cond="List((!def($_GET['action'] == 'shift')&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'delete_forum')&!def($_GET['action'] == 'add_forum')&!def(isset($_COOKIE['user_env']) && isset($_COOKIE['uniquekey_env']) && isset($_COOKIE['power_env']) && isset($_COOKIE['id_env']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'edit_forum')), True)">
      Text
     </div>
     Text
-    <table class="main_table" cellspacing="1" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'shift')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def(isset($_COOKIE['user_env']) && isset($_COOKIE['uniquekey_env']) && isset($_COOKIE['power_env']) && isset($_COOKIE['id_env']))&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')), True)">
+    <table class="main_table" cellspacing="1" cond="List((!def($_GET['action'] == 'shift')&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'delete_forum')&!def($_GET['action'] == 'add_forum')&!def(isset($_COOKIE['user_env']) && isset($_COOKIE['uniquekey_env']) && isset($_COOKIE['power_env']) && isset($_COOKIE['id_env']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'edit_forum')), True)">
      Text
-     <tbody cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'shift')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def(isset($_COOKIE['user_env']) && isset($_COOKIE['uniquekey_env']) && isset($_COOKIE['power_env']) && isset($_COOKIE['id_env']))&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')), True)">
+     <tbody cond="List((!def($_GET['action'] == 'shift')&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'delete_forum')&!def($_GET['action'] == 'add_forum')&!def(isset($_COOKIE['user_env']) && isset($_COOKIE['uniquekey_env']) && isset($_COOKIE['power_env']) && isset($_COOKIE['id_env']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'edit_forum')), True)">
       Text
-      <tr cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'shift')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def(isset($_COOKIE['user_env']) && isset($_COOKIE['uniquekey_env']) && isset($_COOKIE['power_env']) && isset($_COOKIE['id_env']))&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')), True)">
+      <tr cond="List((!def($_GET['action'] == 'shift')&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'delete_forum')&!def($_GET['action'] == 'add_forum')&!def(isset($_COOKIE['user_env']) && isset($_COOKIE['uniquekey_env']) && isset($_COOKIE['power_env']) && isset($_COOKIE['id_env']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'edit_forum')), True)">
        Text
-       <th cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'shift')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def(isset($_COOKIE['user_env']) && isset($_COOKIE['uniquekey_env']) && isset($_COOKIE['power_env']) && isset($_COOKIE['id_env']))&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')), True)">
+       <th cond="List((!def($_GET['action'] == 'shift')&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'delete_forum')&!def($_GET['action'] == 'add_forum')&!def(isset($_COOKIE['user_env']) && isset($_COOKIE['uniquekey_env']) && isset($_COOKIE['power_env']) && isset($_COOKIE['id_env']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'edit_forum')), True)">
         Text
        </th>
        Text
       </tr>
       Text
-      <tr cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'shift')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def(isset($_COOKIE['user_env']) && isset($_COOKIE['uniquekey_env']) && isset($_COOKIE['power_env']) && isset($_COOKIE['id_env']))&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')), True)">
+      <tr cond="List((!def($_GET['action'] == 'shift')&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'delete_forum')&!def($_GET['action'] == 'add_forum')&!def(isset($_COOKIE['user_env']) && isset($_COOKIE['uniquekey_env']) && isset($_COOKIE['power_env']) && isset($_COOKIE['id_env']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'edit_forum')), True)">
        Text
-       <td class="area_2" style="padding:20px;" valign="top" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'shift')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def(isset($_COOKIE['user_env']) && isset($_COOKIE['uniquekey_env']) && isset($_COOKIE['power_env']) && isset($_COOKIE['id_env']))&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')), True)">
+       <td class="area_2" style="padding:20px;" valign="top" cond="List((!def($_GET['action'] == 'shift')&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'delete_forum')&!def($_GET['action'] == 'add_forum')&!def(isset($_COOKIE['user_env']) && isset($_COOKIE['uniquekey_env']) && isset($_COOKIE['power_env']) && isset($_COOKIE['id_env']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'edit_forum')), True)">
        </td>
        Text
       </tr>
@@ -439,80 +439,80 @@
      Text
     </table>
     Text
-    <div class="footer" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'shift')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def(isset($_COOKIE['user_env']) && isset($_COOKIE['uniquekey_env']) && isset($_COOKIE['power_env']) && isset($_COOKIE['id_env']))&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')), True)">
-     <img src="SYM/images/spacer.gif" alt="" title="" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'shift')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def(isset($_COOKIE['user_env']) && isset($_COOKIE['uniquekey_env']) && isset($_COOKIE['power_env']) && isset($_COOKIE['id_env']))&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')), True)">
+    <div class="footer" cond="List((!def($_GET['action'] == 'shift')&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'delete_forum')&!def($_GET['action'] == 'add_forum')&!def(isset($_COOKIE['user_env']) && isset($_COOKIE['uniquekey_env']) && isset($_COOKIE['power_env']) && isset($_COOKIE['id_env']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'edit_forum')), True)">
+     <img src="SYM/images/spacer.gif" alt="" title="" cond="List((!def($_GET['action'] == 'shift')&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'delete_forum')&!def($_GET['action'] == 'add_forum')&!def(isset($_COOKIE['user_env']) && isset($_COOKIE['uniquekey_env']) && isset($_COOKIE['power_env']) && isset($_COOKIE['id_env']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'edit_forum')), True)">
      </img>
     </div>
     Text
    </div>
-   <div class="alert_confirm" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')&def(isset($_POST['u_forum']))), True)">
+   <div class="alert_confirm" cond="List((!def($_GET['action'] == 'delete_cat')&def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_forum')), True)">
     Text
-    <div class="alert_confirm_text" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')&def(isset($_POST['u_forum']))), True)">
+    <div class="alert_confirm_text" cond="List((!def($_GET['action'] == 'delete_cat')&def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_forum')), True)">
      Text
-     <strong cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')&def(isset($_POST['u_forum']))), True)">
+     <strong cond="List((!def($_GET['action'] == 'delete_cat')&def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_forum')), True)">
       Text
      </strong>
     </div>
-    <div style="padding:4px;" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')&def(isset($_POST['u_forum']))), True)">
+    <div style="padding:4px;" cond="List((!def($_GET['action'] == 'delete_cat')&def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_forum')), True)">
      Text
     </div>
     Text
    </div>
    Text
-   <form action="admin_forums.php?action=add_forum" method="POST" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')), True)">
+   <form action="admin_forums.php?action=add_forum" method="POST" cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'delete_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_forum')), True)">
     Text
-    <div class="main_cat_wrapper" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')), True)">
+    <div class="main_cat_wrapper" cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'delete_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_forum')), True)">
      Text
-     <div class="cat_area_1" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')), True)">
+     <div class="cat_area_1" cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'delete_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_forum')), True)">
       Text
      </div>
      Text
-     <table class="main_table" cellspacing="1" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')), True)">
+     <table class="main_table" cellspacing="1" cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'delete_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_forum')), True)">
       Text
-      <tbody cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')), True)">
+      <tbody cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'delete_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_forum')), True)">
        Text
-       <tr cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')), True)">
+       <tr cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'delete_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_forum')), True)">
         Text
-        <th colspan="2" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')), True)">
+        <th colspan="2" cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'delete_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_forum')), True)">
          Text
         </th>
         Text
        </tr>
        Text
-       <tr cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')), True)">
+       <tr cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'delete_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_forum')), True)">
         Text
-        <td class="area_1" style="width:20%" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')), True)">
-         <strong cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')), True)">
+        <td class="area_1" style="width:20%" cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'delete_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_forum')), True)">
+         <strong cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'delete_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_forum')), True)">
           Text
          </strong>
         </td>
         Text
-        <td class="area_2" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')), True)">
-         <input type="text" name="u_forum" maxlength="50" size="40" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')), True)">
+        <td class="area_2" cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'delete_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_forum')), True)">
+         <input type="text" name="u_forum" maxlength="50" size="40" cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'delete_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_forum')), True)">
          </input>
         </td>
         Text
        </tr>
        Text
-       <tr cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')), True)">
+       <tr cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'delete_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_forum')), True)">
         Text
-        <td class="footer_3" colspan="2" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')), True)">
-         <img src="./skins/default/images/spacer.gif" alt="" title="" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')), True)">
+        <td class="footer_3" colspan="2" cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'delete_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_forum')), True)">
+         <img src="./skins/default/images/spacer.gif" alt="" title="" cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'delete_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_forum')), True)">
          </img>
         </td>
         Text
        </tr>
        Text
-       <tr cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')), True)">
+       <tr cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'delete_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_forum')), True)">
         Text
-        <td class="area_1" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')), True)">
-         <strong cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')), True)">
+        <td class="area_1" cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'delete_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_forum')), True)">
+         <strong cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'delete_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_forum')), True)">
           Text
          </strong>
         </td>
         Text
-        <td class="area_2" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')), True)">
-         <select name="cat" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')), True)">
+        <td class="area_2" cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'delete_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_forum')), True)">
+         <select name="cat" cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'delete_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_forum')), True)">
           Text
           <option value="SYM" selected=>
            Text
@@ -525,16 +525,16 @@
         Text
        </tr>
        Text
-       <tr cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')), True)">
+       <tr cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'delete_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_forum')), True)">
         Text
-        <td class="area_1" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')), True)">
-         <strong cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')), True)">
+        <td class="area_1" cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'delete_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_forum')), True)">
+         <strong cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'delete_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_forum')), True)">
           Text
          </strong>
         </td>
         Text
-        <td class="area_2" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')), True)">
-         <select size="1" name="u_view" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')), True)">
+        <td class="area_2" cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'delete_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_forum')), True)">
+         <select size="1" name="u_view" cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'delete_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_forum')), True)">
           <option value="0" selected=>
            Text
           </option>
@@ -728,16 +728,16 @@
         Text
        </tr>
        Text
-       <tr cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')), True)">
+       <tr cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'delete_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_forum')), True)">
         Text
-        <td class="area_1" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')), True)">
-         <strong cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')), True)">
+        <td class="area_1" cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'delete_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_forum')), True)">
+         <strong cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'delete_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_forum')), True)">
           Text
          </strong>
         </td>
         Text
-        <td class="area_2" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')), True)">
-         <select size="1" name="u_post" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')), True)">
+        <td class="area_2" cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'delete_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_forum')), True)">
+         <select size="1" name="u_post" cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'delete_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_forum')), True)">
           <option value="0" selected=>
            Text
           </option>
@@ -931,16 +931,16 @@
         Text
        </tr>
        Text
-       <tr cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')), True)">
+       <tr cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'delete_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_forum')), True)">
         Text
-        <td class="area_1" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')), True)">
-         <strong cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')), True)">
+        <td class="area_1" cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'delete_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_forum')), True)">
+         <strong cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'delete_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_forum')), True)">
           Text
          </strong>
         </td>
         Text
-        <td class="area_2" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')), True)">
-         <select size="1" name="u_reply" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')), True)">
+        <td class="area_2" cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'delete_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_forum')), True)">
+         <select size="1" name="u_reply" cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'delete_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_forum')), True)">
           <option value="0" selected=>
            Text
           </option>
@@ -1134,49 +1134,49 @@
         Text
        </tr>
        Text
-       <tr cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')), True)">
+       <tr cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'delete_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_forum')), True)">
         Text
-        <td class="footer_3" colspan="2" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')), True)">
-         <img src="./skins/default/images/spacer.gif" alt="" title="" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')), True)">
+        <td class="footer_3" colspan="2" cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'delete_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_forum')), True)">
+         <img src="./skins/default/images/spacer.gif" alt="" title="" cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'delete_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_forum')), True)">
          </img>
         </td>
         Text
        </tr>
        Text
-       <tr cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')), True)">
+       <tr cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'delete_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_forum')), True)">
         Text
-        <td class="area_1" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')), True)">
-         <strong cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')), True)">
+        <td class="area_1" cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'delete_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_forum')), True)">
+         <strong cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'delete_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_forum')), True)">
           Text
          </strong>
         </td>
         Text
-        <td class="area_2" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')), True)">
-         <textarea cols="30" rows="5" maxlength="70" name="des" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')), True)">
+        <td class="area_2" cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'delete_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_forum')), True)">
+         <textarea cols="30" rows="5" maxlength="70" name="des" cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'delete_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_forum')), True)">
          </textarea>
         </td>
         Text
        </tr>
        Text
-       <tr cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')), True)">
+       <tr cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'delete_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_forum')), True)">
         Text
-        <td class="footer_3" colspan="2" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')), True)">
-         <img src="./skins/default/images/spacer.gif" alt="" title="" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')), True)">
+        <td class="footer_3" colspan="2" cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'delete_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_forum')), True)">
+         <img src="./skins/default/images/spacer.gif" alt="" title="" cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'delete_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_forum')), True)">
          </img>
         </td>
         Text
        </tr>
        Text
-       <tr cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')), True)">
+       <tr cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'delete_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_forum')), True)">
         Text
-        <td class="footer_3a" colspan="2" style="text-align:center;" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')), True)">
-         <input type="submit" value="Add" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')), True)">
+        <td class="footer_3a" colspan="2" style="text-align:center;" cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'delete_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_forum')), True)">
+         <input type="submit" value="Add" cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'delete_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_forum')), True)">
          </input>
          Text
-         <input type="submit" name="command" value="Add and Add another forum" size="10" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')), True)">
+         <input type="submit" name="command" value="Add and Add another forum" size="10" cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'delete_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_forum')), True)">
          </input>
          Text
-         <input type="submit" name="command" value="Add and Add another forum to the selected Category" size="15" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')), True)">
+         <input type="submit" name="command" value="Add and Add another forum to the selected Category" size="15" cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'delete_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_forum')), True)">
          </input>
         </td>
         Text
@@ -1186,36 +1186,36 @@
       Text
      </table>
      Text
-     <div class="footer" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')), True)">
-      <img src="SYM/images/spacer.gif" alt="" title="" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')), True)">
+     <div class="footer" cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'delete_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_forum')), True)">
+      <img src="SYM/images/spacer.gif" alt="" title="" cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'delete_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_forum')), True)">
       </img>
      </div>
      Text
     </div>
     Text
-    <br cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')), True)">
+    <br cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'delete_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_forum')), True)">
     </br>
    </form>
-   <br cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'shift')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def(isset($_COOKIE['user_env']) && isset($_COOKIE['uniquekey_env']) && isset($_COOKIE['power_env']) && isset($_COOKIE['id_env']))&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')), True)">
+   <br cond="List((!def($_GET['action'] == 'shift')&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'delete_forum')&!def($_GET['action'] == 'add_forum')&!def(isset($_COOKIE['user_env']) && isset($_COOKIE['uniquekey_env']) && isset($_COOKIE['power_env']) && isset($_COOKIE['id_env']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'edit_forum')), True)">
    </br>
    Text
-   <a name="skip_nav" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'shift')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def(isset($_COOKIE['user_env']) && isset($_COOKIE['uniquekey_env']) && isset($_COOKIE['power_env']) && isset($_COOKIE['id_env']))&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')), True)">
+   <a name="skip_nav" cond="List((!def($_GET['action'] == 'shift')&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'delete_forum')&!def($_GET['action'] == 'add_forum')&!def(isset($_COOKIE['user_env']) && isset($_COOKIE['uniquekey_env']) && isset($_COOKIE['power_env']) && isset($_COOKIE['id_env']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'edit_forum')), True)">
     Text
    </a>
-   <form action="admin_forums.php?action=delete_forum&id=SYM" METHOD="POST" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def($_POST['verify'] == 'Cancel')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'edit_forum')&def($_GET['action'] == 'delete_forum')&def(isset($_GET['id']))&!def($_POST['verify'] == 'Ok')), True)">
+   <form action="admin_forums.php?action=delete_forum&id=SYM" METHOD="POST" cond="List((!def($_POST['verify'] == 'Ok')&!def($_GET['action'] == 'delete_cat')&def(isset($_GET['id']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&def($_GET['action'] == 'delete_forum')&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&!def($_POST['verify'] == 'Cancel')&!def($_GET['action'] == 'edit_forum')), True)">
     Text
-    <div class="alert" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def($_POST['verify'] == 'Cancel')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'edit_forum')&def($_GET['action'] == 'delete_forum')&def(isset($_GET['id']))&!def($_POST['verify'] == 'Ok')), True)">
-     <div class="alert_text" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def($_POST['verify'] == 'Cancel')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'edit_forum')&def($_GET['action'] == 'delete_forum')&def(isset($_GET['id']))&!def($_POST['verify'] == 'Ok')), True)">
+    <div class="alert" cond="List((!def($_POST['verify'] == 'Ok')&!def($_GET['action'] == 'delete_cat')&def(isset($_GET['id']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&def($_GET['action'] == 'delete_forum')&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&!def($_POST['verify'] == 'Cancel')&!def($_GET['action'] == 'edit_forum')), True)">
+     <div class="alert_text" cond="List((!def($_POST['verify'] == 'Ok')&!def($_GET['action'] == 'delete_cat')&def(isset($_GET['id']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&def($_GET['action'] == 'delete_forum')&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&!def($_POST['verify'] == 'Cancel')&!def($_GET['action'] == 'edit_forum')), True)">
       Text
-      <strong cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def($_POST['verify'] == 'Cancel')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'edit_forum')&def($_GET['action'] == 'delete_forum')&def(isset($_GET['id']))&!def($_POST['verify'] == 'Ok')), True)">
+      <strong cond="List((!def($_POST['verify'] == 'Ok')&!def($_GET['action'] == 'delete_cat')&def(isset($_GET['id']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&def($_GET['action'] == 'delete_forum')&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&!def($_POST['verify'] == 'Cancel')&!def($_GET['action'] == 'edit_forum')), True)">
        Text
       </strong>
      </div>
-     <div style="padding:4px;" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def($_POST['verify'] == 'Cancel')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'edit_forum')&def($_GET['action'] == 'delete_forum')&def(isset($_GET['id']))&!def($_POST['verify'] == 'Ok')), True)">
-      <input type="submit" name="verify" value="Ok" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def($_POST['verify'] == 'Cancel')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'edit_forum')&def($_GET['action'] == 'delete_forum')&def(isset($_GET['id']))&!def($_POST['verify'] == 'Ok')), True)">
+     <div style="padding:4px;" cond="List((!def($_POST['verify'] == 'Ok')&!def($_GET['action'] == 'delete_cat')&def(isset($_GET['id']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&def($_GET['action'] == 'delete_forum')&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&!def($_POST['verify'] == 'Cancel')&!def($_GET['action'] == 'edit_forum')), True)">
+      <input type="submit" name="verify" value="Ok" cond="List((!def($_POST['verify'] == 'Ok')&!def($_GET['action'] == 'delete_cat')&def(isset($_GET['id']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&def($_GET['action'] == 'delete_forum')&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&!def($_POST['verify'] == 'Cancel')&!def($_GET['action'] == 'edit_forum')), True)">
       </input>
       Text
-      <input type="submit" name="verify" value="Cancel" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def($_POST['verify'] == 'Cancel')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'edit_forum')&def($_GET['action'] == 'delete_forum')&def(isset($_GET['id']))&!def($_POST['verify'] == 'Ok')), True)">
+      <input type="submit" name="verify" value="Cancel" cond="List((!def($_POST['verify'] == 'Ok')&!def($_GET['action'] == 'delete_cat')&def(isset($_GET['id']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&def($_GET['action'] == 'delete_forum')&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&!def($_POST['verify'] == 'Cancel')&!def($_GET['action'] == 'edit_forum')), True)">
       </input>
       Text
      </div>
@@ -1223,23 +1223,23 @@
     Text
    </form>
    Text
-   <meta http-equiv="refresh" content="2;URL=SYM?action=add_forum&cat_id=SYM" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&def($_POST['command'] == 'Add and Add another forum to the selected Category')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')&def(isset($_POST['u_forum']))), True)">
+   <meta http-equiv="refresh" content="2;URL=SYM?action=add_forum&cat_id=SYM" cond="List((!def($_GET['action'] == 'delete_cat')&def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&def($_POST['command'] == 'Add and Add another forum to the selected Category')&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_forum')), True)">
    </meta>
-   <div id="tabstyle_2" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'shift')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def(isset($_COOKIE['user_env']) && isset($_COOKIE['uniquekey_env']) && isset($_COOKIE['power_env']) && isset($_COOKIE['id_env']))&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')), True)">
+   <div id="tabstyle_2" cond="List((!def($_GET['action'] == 'shift')&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'delete_forum')&!def($_GET['action'] == 'add_forum')&!def(isset($_COOKIE['user_env']) && isset($_COOKIE['uniquekey_env']) && isset($_COOKIE['power_env']) && isset($_COOKIE['id_env']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'edit_forum')), True)">
     Text
-    <ul cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'shift')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def(isset($_COOKIE['user_env']) && isset($_COOKIE['uniquekey_env']) && isset($_COOKIE['power_env']) && isset($_COOKIE['id_env']))&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')), True)">
+    <ul cond="List((!def($_GET['action'] == 'shift')&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'delete_forum')&!def($_GET['action'] == 'add_forum')&!def(isset($_COOKIE['user_env']) && isset($_COOKIE['uniquekey_env']) && isset($_COOKIE['power_env']) && isset($_COOKIE['id_env']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'edit_forum')), True)">
      Text
-     <li cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'shift')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def(isset($_COOKIE['user_env']) && isset($_COOKIE['uniquekey_env']) && isset($_COOKIE['power_env']) && isset($_COOKIE['id_env']))&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')), True)">
-      <a href="admin_forums.php?action=add_cat" title="Add a new forum?" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'shift')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def(isset($_COOKIE['user_env']) && isset($_COOKIE['uniquekey_env']) && isset($_COOKIE['power_env']) && isset($_COOKIE['id_env']))&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')), True)">
-       <span cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'shift')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def(isset($_COOKIE['user_env']) && isset($_COOKIE['uniquekey_env']) && isset($_COOKIE['power_env']) && isset($_COOKIE['id_env']))&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')), True)">
+     <li cond="List((!def($_GET['action'] == 'shift')&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'delete_forum')&!def($_GET['action'] == 'add_forum')&!def(isset($_COOKIE['user_env']) && isset($_COOKIE['uniquekey_env']) && isset($_COOKIE['power_env']) && isset($_COOKIE['id_env']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'edit_forum')), True)">
+      <a href="admin_forums.php?action=add_cat" title="Add a new forum?" cond="List((!def($_GET['action'] == 'shift')&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'delete_forum')&!def($_GET['action'] == 'add_forum')&!def(isset($_COOKIE['user_env']) && isset($_COOKIE['uniquekey_env']) && isset($_COOKIE['power_env']) && isset($_COOKIE['id_env']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'edit_forum')), True)">
+       <span cond="List((!def($_GET['action'] == 'shift')&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'delete_forum')&!def($_GET['action'] == 'add_forum')&!def(isset($_COOKIE['user_env']) && isset($_COOKIE['uniquekey_env']) && isset($_COOKIE['power_env']) && isset($_COOKIE['id_env']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'edit_forum')), True)">
         Text
        </span>
       </a>
      </li>
      Text
-     <li cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'shift')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def(isset($_COOKIE['user_env']) && isset($_COOKIE['uniquekey_env']) && isset($_COOKIE['power_env']) && isset($_COOKIE['id_env']))&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')), True)">
-      <a href="admin_forums.php?action=add_forum" title="Add a new forum?" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'shift')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def(isset($_COOKIE['user_env']) && isset($_COOKIE['uniquekey_env']) && isset($_COOKIE['power_env']) && isset($_COOKIE['id_env']))&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')), True)">
-       <span cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'shift')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def(isset($_COOKIE['user_env']) && isset($_COOKIE['uniquekey_env']) && isset($_COOKIE['power_env']) && isset($_COOKIE['id_env']))&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')), True)">
+     <li cond="List((!def($_GET['action'] == 'shift')&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'delete_forum')&!def($_GET['action'] == 'add_forum')&!def(isset($_COOKIE['user_env']) && isset($_COOKIE['uniquekey_env']) && isset($_COOKIE['power_env']) && isset($_COOKIE['id_env']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'edit_forum')), True)">
+      <a href="admin_forums.php?action=add_forum" title="Add a new forum?" cond="List((!def($_GET['action'] == 'shift')&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'delete_forum')&!def($_GET['action'] == 'add_forum')&!def(isset($_COOKIE['user_env']) && isset($_COOKIE['uniquekey_env']) && isset($_COOKIE['power_env']) && isset($_COOKIE['id_env']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'edit_forum')), True)">
+       <span cond="List((!def($_GET['action'] == 'shift')&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'delete_forum')&!def($_GET['action'] == 'add_forum')&!def(isset($_COOKIE['user_env']) && isset($_COOKIE['uniquekey_env']) && isset($_COOKIE['power_env']) && isset($_COOKIE['id_env']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'edit_forum')), True)">
         Text
        </span>
       </a>
@@ -1248,60 +1248,60 @@
     </ul>
     Text
    </div>
-   <form action="SYM?action=edit_forum&id=SYM" method="POST" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&def($_GET['action'] == 'edit_forum')&def(isset($_GET['id']))), True)">
+   <form action="SYM?action=edit_forum&id=SYM" method="POST" cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&def(isset($_GET['id']))&def($_GET['action'] == 'edit_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')), True)">
     Text
-    <div class="main_cat_wrapper" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&def($_GET['action'] == 'edit_forum')&def(isset($_GET['id']))), True)">
+    <div class="main_cat_wrapper" cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&def(isset($_GET['id']))&def($_GET['action'] == 'edit_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')), True)">
      Text
-     <div class="cat_area_1" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&def($_GET['action'] == 'edit_forum')&def(isset($_GET['id']))), True)">
+     <div class="cat_area_1" cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&def(isset($_GET['id']))&def($_GET['action'] == 'edit_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')), True)">
       Text
      </div>
      Text
-     <table class="main_table" cellspacing="1" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&def($_GET['action'] == 'edit_forum')&def(isset($_GET['id']))), True)">
+     <table class="main_table" cellspacing="1" cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&def(isset($_GET['id']))&def($_GET['action'] == 'edit_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')), True)">
       Text
-      <tbody cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&def($_GET['action'] == 'edit_forum')&def(isset($_GET['id']))), True)">
+      <tbody cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&def(isset($_GET['id']))&def($_GET['action'] == 'edit_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')), True)">
        Text
-       <tr cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&def($_GET['action'] == 'edit_forum')&def(isset($_GET['id']))), True)">
+       <tr cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&def(isset($_GET['id']))&def($_GET['action'] == 'edit_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')), True)">
         Text
-        <th colspan="2" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&def($_GET['action'] == 'edit_forum')&def(isset($_GET['id']))), True)">
+        <th colspan="2" cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&def(isset($_GET['id']))&def($_GET['action'] == 'edit_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')), True)">
          Text
         </th>
         Text
        </tr>
        Text
-       <tr cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&def($_GET['action'] == 'edit_forum')&def(isset($_GET['id']))), True)">
+       <tr cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&def(isset($_GET['id']))&def($_GET['action'] == 'edit_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')), True)">
         Text
-        <td class="area_1" style="width:20%" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&def($_GET['action'] == 'edit_forum')&def(isset($_GET['id']))), True)">
-         <strong cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&def($_GET['action'] == 'edit_forum')&def(isset($_GET['id']))), True)">
+        <td class="area_1" style="width:20%" cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&def(isset($_GET['id']))&def($_GET['action'] == 'edit_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')), True)">
+         <strong cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&def(isset($_GET['id']))&def($_GET['action'] == 'edit_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')), True)">
           Text
          </strong>
         </td>
         Text
-        <td class="area_2" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&def($_GET['action'] == 'edit_forum')&def(isset($_GET['id']))), True)">
-         <input type="text" name="u_forum" size="40" maxlength="50" value="SYM" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&def($_GET['action'] == 'edit_forum')&def(isset($_GET['id']))), True)">
+        <td class="area_2" cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&def(isset($_GET['id']))&def($_GET['action'] == 'edit_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')), True)">
+         <input type="text" name="u_forum" size="40" maxlength="50" value="SYM" cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&def(isset($_GET['id']))&def($_GET['action'] == 'edit_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')), True)">
          </input>
         </td>
         Text
        </tr>
        Text
-       <tr cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&def($_GET['action'] == 'edit_forum')&def(isset($_GET['id']))), True)">
+       <tr cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&def(isset($_GET['id']))&def($_GET['action'] == 'edit_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')), True)">
         Text
-        <td class="footer_3" colspan="2" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&def($_GET['action'] == 'edit_forum')&def(isset($_GET['id']))), True)">
-         <img src="./skins/default/images/spacer.gif" alt="" title="" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&def($_GET['action'] == 'edit_forum')&def(isset($_GET['id']))), True)">
+        <td class="footer_3" colspan="2" cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&def(isset($_GET['id']))&def($_GET['action'] == 'edit_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')), True)">
+         <img src="./skins/default/images/spacer.gif" alt="" title="" cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&def(isset($_GET['id']))&def($_GET['action'] == 'edit_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')), True)">
          </img>
         </td>
         Text
        </tr>
        Text
-       <tr cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&def($_GET['action'] == 'edit_forum')&def(isset($_GET['id']))), True)">
+       <tr cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&def(isset($_GET['id']))&def($_GET['action'] == 'edit_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')), True)">
         Text
-        <td class="area_1" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&def($_GET['action'] == 'edit_forum')&def(isset($_GET['id']))), True)">
-         <strong cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&def($_GET['action'] == 'edit_forum')&def(isset($_GET['id']))), True)">
+        <td class="area_1" cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&def(isset($_GET['id']))&def($_GET['action'] == 'edit_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')), True)">
+         <strong cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&def(isset($_GET['id']))&def($_GET['action'] == 'edit_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')), True)">
           Text
          </strong>
         </td>
         Text
-        <td class="area_2" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&def($_GET['action'] == 'edit_forum')&def(isset($_GET['id']))), True)">
-         <select name="cat" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&def($_GET['action'] == 'edit_forum')&def(isset($_GET['id']))), True)">
+        <td class="area_2" cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&def(isset($_GET['id']))&def($_GET['action'] == 'edit_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')), True)">
+         <select name="cat" cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&def(isset($_GET['id']))&def($_GET['action'] == 'edit_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')), True)">
           Text
           <option value="SYM" selected=>
            Text
@@ -1314,16 +1314,16 @@
         Text
        </tr>
        Text
-       <tr cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&def($_GET['action'] == 'edit_forum')&def(isset($_GET['id']))), True)">
+       <tr cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&def(isset($_GET['id']))&def($_GET['action'] == 'edit_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')), True)">
         Text
-        <td class="area_1" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&def($_GET['action'] == 'edit_forum')&def(isset($_GET['id']))), True)">
-         <strong cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&def($_GET['action'] == 'edit_forum')&def(isset($_GET['id']))), True)">
+        <td class="area_1" cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&def(isset($_GET['id']))&def($_GET['action'] == 'edit_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')), True)">
+         <strong cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&def(isset($_GET['id']))&def($_GET['action'] == 'edit_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')), True)">
           Text
          </strong>
         </td>
         Text
-        <td class="area_2" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&def($_GET['action'] == 'edit_forum')&def(isset($_GET['id']))), True)">
-         <select size="1" name="u_view" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&def($_GET['action'] == 'edit_forum')&def(isset($_GET['id']))), True)">
+        <td class="area_2" cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&def(isset($_GET['id']))&def($_GET['action'] == 'edit_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')), True)">
+         <select size="1" name="u_view" cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&def(isset($_GET['id']))&def($_GET['action'] == 'edit_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')), True)">
           <option value="0" selected=>
            Text
           </option>
@@ -1517,16 +1517,16 @@
         Text
        </tr>
        Text
-       <tr cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&def($_GET['action'] == 'edit_forum')&def(isset($_GET['id']))), True)">
+       <tr cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&def(isset($_GET['id']))&def($_GET['action'] == 'edit_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')), True)">
         Text
-        <td class="area_1" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&def($_GET['action'] == 'edit_forum')&def(isset($_GET['id']))), True)">
-         <strong cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&def($_GET['action'] == 'edit_forum')&def(isset($_GET['id']))), True)">
+        <td class="area_1" cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&def(isset($_GET['id']))&def($_GET['action'] == 'edit_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')), True)">
+         <strong cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&def(isset($_GET['id']))&def($_GET['action'] == 'edit_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')), True)">
           Text
          </strong>
         </td>
         Text
-        <td class="area_2" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&def($_GET['action'] == 'edit_forum')&def(isset($_GET['id']))), True)">
-         <select size="1" name="u_post" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&def($_GET['action'] == 'edit_forum')&def(isset($_GET['id']))), True)">
+        <td class="area_2" cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&def(isset($_GET['id']))&def($_GET['action'] == 'edit_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')), True)">
+         <select size="1" name="u_post" cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&def(isset($_GET['id']))&def($_GET['action'] == 'edit_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')), True)">
           <option value="0" selected=>
            Text
           </option>
@@ -1723,16 +1723,16 @@
         Text
        </tr>
        Text
-       <tr cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&def($_GET['action'] == 'edit_forum')&def(isset($_GET['id']))), True)">
+       <tr cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&def(isset($_GET['id']))&def($_GET['action'] == 'edit_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')), True)">
         Text
-        <td class="area_1" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&def($_GET['action'] == 'edit_forum')&def(isset($_GET['id']))), True)">
-         <strong cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&def($_GET['action'] == 'edit_forum')&def(isset($_GET['id']))), True)">
+        <td class="area_1" cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&def(isset($_GET['id']))&def($_GET['action'] == 'edit_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')), True)">
+         <strong cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&def(isset($_GET['id']))&def($_GET['action'] == 'edit_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')), True)">
           Text
          </strong>
         </td>
         Text
-        <td class="area_2" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&def($_GET['action'] == 'edit_forum')&def(isset($_GET['id']))), True)">
-         <select size="1" name="u_reply" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&def($_GET['action'] == 'edit_forum')&def(isset($_GET['id']))), True)">
+        <td class="area_2" cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&def(isset($_GET['id']))&def($_GET['action'] == 'edit_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')), True)">
+         <select size="1" name="u_reply" cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&def(isset($_GET['id']))&def($_GET['action'] == 'edit_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')), True)">
           <option value="0" selected=>
            Text
           </option>
@@ -1926,44 +1926,44 @@
         Text
        </tr>
        Text
-       <tr cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&def($_GET['action'] == 'edit_forum')&def(isset($_GET['id']))), True)">
+       <tr cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&def(isset($_GET['id']))&def($_GET['action'] == 'edit_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')), True)">
         Text
-        <td class="footer_3" colspan="2" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&def($_GET['action'] == 'edit_forum')&def(isset($_GET['id']))), True)">
-         <img src="./skins/default/images/spacer.gif" alt="" title="" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&def($_GET['action'] == 'edit_forum')&def(isset($_GET['id']))), True)">
+        <td class="footer_3" colspan="2" cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&def(isset($_GET['id']))&def($_GET['action'] == 'edit_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')), True)">
+         <img src="./skins/default/images/spacer.gif" alt="" title="" cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&def(isset($_GET['id']))&def($_GET['action'] == 'edit_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')), True)">
          </img>
         </td>
         Text
        </tr>
        Text
-       <tr cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&def($_GET['action'] == 'edit_forum')&def(isset($_GET['id']))), True)">
+       <tr cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&def(isset($_GET['id']))&def($_GET['action'] == 'edit_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')), True)">
         Text
-        <td class="area_1" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&def($_GET['action'] == 'edit_forum')&def(isset($_GET['id']))), True)">
-         <strong cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&def($_GET['action'] == 'edit_forum')&def(isset($_GET['id']))), True)">
+        <td class="area_1" cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&def(isset($_GET['id']))&def($_GET['action'] == 'edit_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')), True)">
+         <strong cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&def(isset($_GET['id']))&def($_GET['action'] == 'edit_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')), True)">
           Text
          </strong>
         </td>
         Text
-        <td class="area_2" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&def($_GET['action'] == 'edit_forum')&def(isset($_GET['id']))), True)">
-         <textarea cols="30" rows="5" maxlength="50" name="des" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&def($_GET['action'] == 'edit_forum')&def(isset($_GET['id']))), True)">
+        <td class="area_2" cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&def(isset($_GET['id']))&def($_GET['action'] == 'edit_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')), True)">
+         <textarea cols="30" rows="5" maxlength="50" name="des" cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&def(isset($_GET['id']))&def($_GET['action'] == 'edit_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')), True)">
           Text
          </textarea>
         </td>
         Text
        </tr>
        Text
-       <tr cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&def($_GET['action'] == 'edit_forum')&def(isset($_GET['id']))), True)">
+       <tr cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&def(isset($_GET['id']))&def($_GET['action'] == 'edit_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')), True)">
         Text
-        <td class="footer_3" colspan="2" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&def($_GET['action'] == 'edit_forum')&def(isset($_GET['id']))), True)">
-         <img src="./skins/default/images/spacer.gif" alt="" title="" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&def($_GET['action'] == 'edit_forum')&def(isset($_GET['id']))), True)">
+        <td class="footer_3" colspan="2" cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&def(isset($_GET['id']))&def($_GET['action'] == 'edit_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')), True)">
+         <img src="./skins/default/images/spacer.gif" alt="" title="" cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&def(isset($_GET['id']))&def($_GET['action'] == 'edit_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')), True)">
          </img>
         </td>
         Text
        </tr>
        Text
-       <tr cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&def($_GET['action'] == 'edit_forum')&def(isset($_GET['id']))), True)">
+       <tr cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&def(isset($_GET['id']))&def($_GET['action'] == 'edit_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')), True)">
         Text
-        <td class="footer_3a" colspan="2" style="text-align:center;" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&def($_GET['action'] == 'edit_forum')&def(isset($_GET['id']))), True)">
-         <input type="submit" value="Edit" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&def($_GET['action'] == 'edit_forum')&def(isset($_GET['id']))), True)">
+        <td class="footer_3a" colspan="2" style="text-align:center;" cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&def(isset($_GET['id']))&def($_GET['action'] == 'edit_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')), True)">
+         <input type="submit" value="Edit" cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&def(isset($_GET['id']))&def($_GET['action'] == 'edit_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')), True)">
          </input>
         </td>
         Text
@@ -1973,67 +1973,67 @@
       Text
      </table>
      Text
-     <div class="footer" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&def($_GET['action'] == 'edit_forum')&def(isset($_GET['id']))), True)">
-      <img src="SYM/images/spacer.gif" alt="" title="" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&def($_GET['action'] == 'edit_forum')&def(isset($_GET['id']))), True)">
+     <div class="footer" cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&def(isset($_GET['id']))&def($_GET['action'] == 'edit_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')), True)">
+      <img src="SYM/images/spacer.gif" alt="" title="" cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&def(isset($_GET['id']))&def($_GET['action'] == 'edit_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')), True)">
       </img>
      </div>
      Text
     </div>
     Text
-    <br cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def(isset($_POST['u_forum']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&def($_GET['action'] == 'edit_forum')&def(isset($_GET['id']))), True)">
+    <br cond="List((!def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_cat')&def(isset($_GET['id']))&def($_GET['action'] == 'edit_forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')), True)">
     </br>
     Text
    </form>
    Text
-   <meta http-equiv="refresh" content="2;URL=SYM?action=add_forum" cond="List((!def($_POST['command'] == 'Add and Add another forum to the selected Category')&!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')&def(isset($_POST['u_forum']))&def($_POST['command'] == 'Add and Add another forum')), True)">
+   <meta http-equiv="refresh" content="2;URL=SYM?action=add_forum" cond="List((!def($_GET['action'] == 'delete_cat')&def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_forum')&def($_POST['command'] == 'Add and Add another forum')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&!def($_POST['command'] == 'Add and Add another forum to the selected Category')&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_forum')), True)">
    </meta>
-   <div style="clear:both;" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'shift')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def(isset($_COOKIE['user_env']) && isset($_COOKIE['uniquekey_env']) && isset($_COOKIE['power_env']) && isset($_COOKIE['id_env']))&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')), True)">
+   <div style="clear:both;" cond="List((!def($_GET['action'] == 'shift')&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'delete_forum')&!def($_GET['action'] == 'add_forum')&!def(isset($_COOKIE['user_env']) && isset($_COOKIE['uniquekey_env']) && isset($_COOKIE['power_env']) && isset($_COOKIE['id_env']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'edit_forum')), True)">
    </div>
-   <form action="admin_forums.php?action=add_cat" method="POST" cond="List((!def($_GET['action'] == 'delete_cat')&def($_GET['action'] == 'add_cat')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def(isset($_POST['command']))), True)">
+   <form action="admin_forums.php?action=add_cat" method="POST" cond="List((!def($_GET['action'] == 'delete_cat')&def($_GET['action'] == 'add_cat')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def(isset($_POST['command']))&!def($_GET['action'] == 'edit_cat')), True)">
     Text
-    <div class="main_cat_wrapper" cond="List((!def($_GET['action'] == 'delete_cat')&def($_GET['action'] == 'add_cat')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def(isset($_POST['command']))), True)">
+    <div class="main_cat_wrapper" cond="List((!def($_GET['action'] == 'delete_cat')&def($_GET['action'] == 'add_cat')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def(isset($_POST['command']))&!def($_GET['action'] == 'edit_cat')), True)">
      Text
-     <div class="cat_area_1" cond="List((!def($_GET['action'] == 'delete_cat')&def($_GET['action'] == 'add_cat')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def(isset($_POST['command']))), True)">
+     <div class="cat_area_1" cond="List((!def($_GET['action'] == 'delete_cat')&def($_GET['action'] == 'add_cat')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def(isset($_POST['command']))&!def($_GET['action'] == 'edit_cat')), True)">
       Text
      </div>
      Text
-     <table class="main_table" cellspacing="1" cond="List((!def($_GET['action'] == 'delete_cat')&def($_GET['action'] == 'add_cat')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def(isset($_POST['command']))), True)">
+     <table class="main_table" cellspacing="1" cond="List((!def($_GET['action'] == 'delete_cat')&def($_GET['action'] == 'add_cat')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def(isset($_POST['command']))&!def($_GET['action'] == 'edit_cat')), True)">
       Text
-      <tbody cond="List((!def($_GET['action'] == 'delete_cat')&def($_GET['action'] == 'add_cat')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def(isset($_POST['command']))), True)">
+      <tbody cond="List((!def($_GET['action'] == 'delete_cat')&def($_GET['action'] == 'add_cat')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def(isset($_POST['command']))&!def($_GET['action'] == 'edit_cat')), True)">
        Text
-       <tr cond="List((!def($_GET['action'] == 'delete_cat')&def($_GET['action'] == 'add_cat')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def(isset($_POST['command']))), True)">
+       <tr cond="List((!def($_GET['action'] == 'delete_cat')&def($_GET['action'] == 'add_cat')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def(isset($_POST['command']))&!def($_GET['action'] == 'edit_cat')), True)">
         Text
-        <th colspan="2" cond="List((!def($_GET['action'] == 'delete_cat')&def($_GET['action'] == 'add_cat')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def(isset($_POST['command']))), True)">
+        <th colspan="2" cond="List((!def($_GET['action'] == 'delete_cat')&def($_GET['action'] == 'add_cat')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def(isset($_POST['command']))&!def($_GET['action'] == 'edit_cat')), True)">
          Text
         </th>
         Text
        </tr>
        Text
-       <tr cond="List((!def($_GET['action'] == 'delete_cat')&def($_GET['action'] == 'add_cat')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def(isset($_POST['command']))), True)">
+       <tr cond="List((!def($_GET['action'] == 'delete_cat')&def($_GET['action'] == 'add_cat')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def(isset($_POST['command']))&!def($_GET['action'] == 'edit_cat')), True)">
         Text
-        <td class="area_1" style="width:20%" cond="List((!def($_GET['action'] == 'delete_cat')&def($_GET['action'] == 'add_cat')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def(isset($_POST['command']))), True)">
-         <strong cond="List((!def($_GET['action'] == 'delete_cat')&def($_GET['action'] == 'add_cat')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def(isset($_POST['command']))), True)">
+        <td class="area_1" style="width:20%" cond="List((!def($_GET['action'] == 'delete_cat')&def($_GET['action'] == 'add_cat')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def(isset($_POST['command']))&!def($_GET['action'] == 'edit_cat')), True)">
+         <strong cond="List((!def($_GET['action'] == 'delete_cat')&def($_GET['action'] == 'add_cat')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def(isset($_POST['command']))&!def($_GET['action'] == 'edit_cat')), True)">
           Text
          </strong>
         </td>
         Text
-        <td class="area_2" cond="List((!def($_GET['action'] == 'delete_cat')&def($_GET['action'] == 'add_cat')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def(isset($_POST['command']))), True)">
-         <input type="text" name="u_cat" size="40" cond="List((!def($_GET['action'] == 'delete_cat')&def($_GET['action'] == 'add_cat')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def(isset($_POST['command']))), True)">
+        <td class="area_2" cond="List((!def($_GET['action'] == 'delete_cat')&def($_GET['action'] == 'add_cat')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def(isset($_POST['command']))&!def($_GET['action'] == 'edit_cat')), True)">
+         <input type="text" name="u_cat" size="40" cond="List((!def($_GET['action'] == 'delete_cat')&def($_GET['action'] == 'add_cat')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def(isset($_POST['command']))&!def($_GET['action'] == 'edit_cat')), True)">
          </input>
         </td>
         Text
        </tr>
        Text
-       <tr cond="List((!def($_GET['action'] == 'delete_cat')&def($_GET['action'] == 'add_cat')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def(isset($_POST['command']))), True)">
+       <tr cond="List((!def($_GET['action'] == 'delete_cat')&def($_GET['action'] == 'add_cat')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def(isset($_POST['command']))&!def($_GET['action'] == 'edit_cat')), True)">
         Text
-        <td class="area_1" cond="List((!def($_GET['action'] == 'delete_cat')&def($_GET['action'] == 'add_cat')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def(isset($_POST['command']))), True)">
-         <strong cond="List((!def($_GET['action'] == 'delete_cat')&def($_GET['action'] == 'add_cat')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def(isset($_POST['command']))), True)">
+        <td class="area_1" cond="List((!def($_GET['action'] == 'delete_cat')&def($_GET['action'] == 'add_cat')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def(isset($_POST['command']))&!def($_GET['action'] == 'edit_cat')), True)">
+         <strong cond="List((!def($_GET['action'] == 'delete_cat')&def($_GET['action'] == 'add_cat')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def(isset($_POST['command']))&!def($_GET['action'] == 'edit_cat')), True)">
           Text
          </strong>
         </td>
         Text
-        <td class="area_2" cond="List((!def($_GET['action'] == 'delete_cat')&def($_GET['action'] == 'add_cat')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def(isset($_POST['command']))), True)">
-         <select size="1" name="u_view" cond="List((!def($_GET['action'] == 'delete_cat')&def($_GET['action'] == 'add_cat')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def(isset($_POST['command']))), True)">
+        <td class="area_2" cond="List((!def($_GET['action'] == 'delete_cat')&def($_GET['action'] == 'add_cat')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def(isset($_POST['command']))&!def($_GET['action'] == 'edit_cat')), True)">
+         <select size="1" name="u_view" cond="List((!def($_GET['action'] == 'delete_cat')&def($_GET['action'] == 'add_cat')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def(isset($_POST['command']))&!def($_GET['action'] == 'edit_cat')), True)">
           Text
           Text
           <option value="0" selected=>
@@ -2220,25 +2220,25 @@
         Text
        </tr>
        Text
-       <tr cond="List((!def($_GET['action'] == 'delete_cat')&def($_GET['action'] == 'add_cat')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def(isset($_POST['command']))), True)">
+       <tr cond="List((!def($_GET['action'] == 'delete_cat')&def($_GET['action'] == 'add_cat')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def(isset($_POST['command']))&!def($_GET['action'] == 'edit_cat')), True)">
         Text
-        <td class="footer_3" colspan="2" cond="List((!def($_GET['action'] == 'delete_cat')&def($_GET['action'] == 'add_cat')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def(isset($_POST['command']))), True)">
-         <img src="./skins/default/images/spacer.gif" alt="" title="" cond="List((!def($_GET['action'] == 'delete_cat')&def($_GET['action'] == 'add_cat')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def(isset($_POST['command']))), True)">
+        <td class="footer_3" colspan="2" cond="List((!def($_GET['action'] == 'delete_cat')&def($_GET['action'] == 'add_cat')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def(isset($_POST['command']))&!def($_GET['action'] == 'edit_cat')), True)">
+         <img src="./skins/default/images/spacer.gif" alt="" title="" cond="List((!def($_GET['action'] == 'delete_cat')&def($_GET['action'] == 'add_cat')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def(isset($_POST['command']))&!def($_GET['action'] == 'edit_cat')), True)">
          </img>
         </td>
         Text
        </tr>
        Text
-       <tr cond="List((!def($_GET['action'] == 'delete_cat')&def($_GET['action'] == 'add_cat')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def(isset($_POST['command']))), True)">
+       <tr cond="List((!def($_GET['action'] == 'delete_cat')&def($_GET['action'] == 'add_cat')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def(isset($_POST['command']))&!def($_GET['action'] == 'edit_cat')), True)">
         Text
-        <td class="footer_3a" colspan="2" style="text-align:center;" cond="List((!def($_GET['action'] == 'delete_cat')&def($_GET['action'] == 'add_cat')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def(isset($_POST['command']))), True)">
-         <input type="submit" name="command" value="Add" cond="List((!def($_GET['action'] == 'delete_cat')&def($_GET['action'] == 'add_cat')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def(isset($_POST['command']))), True)">
+        <td class="footer_3a" colspan="2" style="text-align:center;" cond="List((!def($_GET['action'] == 'delete_cat')&def($_GET['action'] == 'add_cat')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def(isset($_POST['command']))&!def($_GET['action'] == 'edit_cat')), True)">
+         <input type="submit" name="command" value="Add" cond="List((!def($_GET['action'] == 'delete_cat')&def($_GET['action'] == 'add_cat')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def(isset($_POST['command']))&!def($_GET['action'] == 'edit_cat')), True)">
          </input>
          Text
-         <input type="submit" name="command" value="Add and Add another Category" cond="List((!def($_GET['action'] == 'delete_cat')&def($_GET['action'] == 'add_cat')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def(isset($_POST['command']))), True)">
+         <input type="submit" name="command" value="Add and Add another Category" cond="List((!def($_GET['action'] == 'delete_cat')&def($_GET['action'] == 'add_cat')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def(isset($_POST['command']))&!def($_GET['action'] == 'edit_cat')), True)">
          </input>
          Text
-         <input type="submit" name="command" value="Add and Add forums to this category" cond="List((!def($_GET['action'] == 'delete_cat')&def($_GET['action'] == 'add_cat')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def(isset($_POST['command']))), True)">
+         <input type="submit" name="command" value="Add and Add forums to this category" cond="List((!def($_GET['action'] == 'delete_cat')&def($_GET['action'] == 'add_cat')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def(isset($_POST['command']))&!def($_GET['action'] == 'edit_cat')), True)">
          </input>
         </td>
         Text
@@ -2248,55 +2248,55 @@
       Text
      </table>
      Text
-     <div class="footer" cond="List((!def($_GET['action'] == 'delete_cat')&def($_GET['action'] == 'add_cat')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def(isset($_POST['command']))), True)">
-      <img src="SYM/images/spacer.gif" alt="" title="" cond="List((!def($_GET['action'] == 'delete_cat')&def($_GET['action'] == 'add_cat')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def(isset($_POST['command']))), True)">
+     <div class="footer" cond="List((!def($_GET['action'] == 'delete_cat')&def($_GET['action'] == 'add_cat')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def(isset($_POST['command']))&!def($_GET['action'] == 'edit_cat')), True)">
+      <img src="SYM/images/spacer.gif" alt="" title="" cond="List((!def($_GET['action'] == 'delete_cat')&def($_GET['action'] == 'add_cat')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def(isset($_POST['command']))&!def($_GET['action'] == 'edit_cat')), True)">
       </img>
      </div>
      Text
     </div>
     Text
-    <br cond="List((!def($_GET['action'] == 'delete_cat')&def($_GET['action'] == 'add_cat')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def(isset($_POST['command']))), True)">
+    <br cond="List((!def($_GET['action'] == 'delete_cat')&def($_GET['action'] == 'add_cat')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def(isset($_POST['command']))&!def($_GET['action'] == 'edit_cat')), True)">
     </br>
    </form>
-   <div id="sorting" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'shift')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def(isset($_COOKIE['user_env']) && isset($_COOKIE['uniquekey_env']) && isset($_COOKIE['power_env']) && isset($_COOKIE['id_env']))&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')), True)">
+   <div id="sorting" cond="List((!def($_GET['action'] == 'shift')&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'delete_forum')&!def($_GET['action'] == 'add_forum')&!def(isset($_COOKIE['user_env']) && isset($_COOKIE['uniquekey_env']) && isset($_COOKIE['power_env']) && isset($_COOKIE['id_env']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'edit_forum')), True)">
     Text
-    <div class="main_cat_wrapper" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'shift')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def(isset($_COOKIE['user_env']) && isset($_COOKIE['uniquekey_env']) && isset($_COOKIE['power_env']) && isset($_COOKIE['id_env']))&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')), True)">
+    <div class="main_cat_wrapper" cond="List((!def($_GET['action'] == 'shift')&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'delete_forum')&!def($_GET['action'] == 'add_forum')&!def(isset($_COOKIE['user_env']) && isset($_COOKIE['uniquekey_env']) && isset($_COOKIE['power_env']) && isset($_COOKIE['id_env']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'edit_forum')), True)">
      Text
-     <div class="cat_area_1" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'shift')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def(isset($_COOKIE['user_env']) && isset($_COOKIE['uniquekey_env']) && isset($_COOKIE['power_env']) && isset($_COOKIE['id_env']))&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')), True)">
+     <div class="cat_area_1" cond="List((!def($_GET['action'] == 'shift')&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'delete_forum')&!def($_GET['action'] == 'add_forum')&!def(isset($_COOKIE['user_env']) && isset($_COOKIE['uniquekey_env']) && isset($_COOKIE['power_env']) && isset($_COOKIE['id_env']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'edit_forum')), True)">
       Text
      </div>
      Text
-     <table class="main_table" cellspacing="1" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'shift')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def(isset($_COOKIE['user_env']) && isset($_COOKIE['uniquekey_env']) && isset($_COOKIE['power_env']) && isset($_COOKIE['id_env']))&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')), True)">
+     <table class="main_table" cellspacing="1" cond="List((!def($_GET['action'] == 'shift')&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'delete_forum')&!def($_GET['action'] == 'add_forum')&!def(isset($_COOKIE['user_env']) && isset($_COOKIE['uniquekey_env']) && isset($_COOKIE['power_env']) && isset($_COOKIE['id_env']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'edit_forum')), True)">
       Text
-      <tbody cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'shift')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def(isset($_COOKIE['user_env']) && isset($_COOKIE['uniquekey_env']) && isset($_COOKIE['power_env']) && isset($_COOKIE['id_env']))&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')), True)">
+      <tbody cond="List((!def($_GET['action'] == 'shift')&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'delete_forum')&!def($_GET['action'] == 'add_forum')&!def(isset($_COOKIE['user_env']) && isset($_COOKIE['uniquekey_env']) && isset($_COOKIE['power_env']) && isset($_COOKIE['id_env']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'edit_forum')), True)">
        Text
-       <tr cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'shift')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def(isset($_COOKIE['user_env']) && isset($_COOKIE['uniquekey_env']) && isset($_COOKIE['power_env']) && isset($_COOKIE['id_env']))&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')), True)">
+       <tr cond="List((!def($_GET['action'] == 'shift')&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'delete_forum')&!def($_GET['action'] == 'add_forum')&!def(isset($_COOKIE['user_env']) && isset($_COOKIE['uniquekey_env']) && isset($_COOKIE['power_env']) && isset($_COOKIE['id_env']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'edit_forum')), True)">
         Text
-        <th style="width:7%;" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'shift')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def(isset($_COOKIE['user_env']) && isset($_COOKIE['uniquekey_env']) && isset($_COOKIE['power_env']) && isset($_COOKIE['id_env']))&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')), True)">
+        <th style="width:7%;" cond="List((!def($_GET['action'] == 'shift')&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'delete_forum')&!def($_GET['action'] == 'add_forum')&!def(isset($_COOKIE['user_env']) && isset($_COOKIE['uniquekey_env']) && isset($_COOKIE['power_env']) && isset($_COOKIE['id_env']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'edit_forum')), True)">
          Text
         </th>
         Text
-        <th style="width:68%;" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'shift')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def(isset($_COOKIE['user_env']) && isset($_COOKIE['uniquekey_env']) && isset($_COOKIE['power_env']) && isset($_COOKIE['id_env']))&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')), True)">
+        <th style="width:68%;" cond="List((!def($_GET['action'] == 'shift')&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'delete_forum')&!def($_GET['action'] == 'add_forum')&!def(isset($_COOKIE['user_env']) && isset($_COOKIE['uniquekey_env']) && isset($_COOKIE['power_env']) && isset($_COOKIE['id_env']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'edit_forum')), True)">
          Text
         </th>
         Text
-        <th style="width:5%;text-align:center;" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'shift')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def(isset($_COOKIE['user_env']) && isset($_COOKIE['uniquekey_env']) && isset($_COOKIE['power_env']) && isset($_COOKIE['id_env']))&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')), True)">
+        <th style="width:5%;text-align:center;" cond="List((!def($_GET['action'] == 'shift')&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'delete_forum')&!def($_GET['action'] == 'add_forum')&!def(isset($_COOKIE['user_env']) && isset($_COOKIE['uniquekey_env']) && isset($_COOKIE['power_env']) && isset($_COOKIE['id_env']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'edit_forum')), True)">
          Text
         </th>
         Text
-        <th style="width:5%;text-align:center;" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'shift')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def(isset($_COOKIE['user_env']) && isset($_COOKIE['uniquekey_env']) && isset($_COOKIE['power_env']) && isset($_COOKIE['id_env']))&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')), True)">
+        <th style="width:5%;text-align:center;" cond="List((!def($_GET['action'] == 'shift')&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'delete_forum')&!def($_GET['action'] == 'add_forum')&!def(isset($_COOKIE['user_env']) && isset($_COOKIE['uniquekey_env']) && isset($_COOKIE['power_env']) && isset($_COOKIE['id_env']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'edit_forum')), True)">
          Text
         </th>
         Text
-        <th style="width:5%;text-align:center;" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'shift')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def(isset($_COOKIE['user_env']) && isset($_COOKIE['uniquekey_env']) && isset($_COOKIE['power_env']) && isset($_COOKIE['id_env']))&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')), True)">
+        <th style="width:5%;text-align:center;" cond="List((!def($_GET['action'] == 'shift')&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'delete_forum')&!def($_GET['action'] == 'add_forum')&!def(isset($_COOKIE['user_env']) && isset($_COOKIE['uniquekey_env']) && isset($_COOKIE['power_env']) && isset($_COOKIE['id_env']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'edit_forum')), True)">
          Text
         </th>
         Text
-        <th style="width:10%;text-align:center;" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'shift')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def(isset($_COOKIE['user_env']) && isset($_COOKIE['uniquekey_env']) && isset($_COOKIE['power_env']) && isset($_COOKIE['id_env']))&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')), True)">
+        <th style="width:10%;text-align:center;" cond="List((!def($_GET['action'] == 'shift')&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'delete_forum')&!def($_GET['action'] == 'add_forum')&!def(isset($_COOKIE['user_env']) && isset($_COOKIE['uniquekey_env']) && isset($_COOKIE['power_env']) && isset($_COOKIE['id_env']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'edit_forum')), True)">
          Text
         </th>
         Text
-        <th style="width:10%;text-align:center;" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'shift')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def(isset($_COOKIE['user_env']) && isset($_COOKIE['uniquekey_env']) && isset($_COOKIE['power_env']) && isset($_COOKIE['id_env']))&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')), True)">
+        <th style="width:10%;text-align:center;" cond="List((!def($_GET['action'] == 'shift')&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'delete_forum')&!def($_GET['action'] == 'add_forum')&!def(isset($_COOKIE['user_env']) && isset($_COOKIE['uniquekey_env']) && isset($_COOKIE['power_env']) && isset($_COOKIE['id_env']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'edit_forum')), True)">
          Text
         </th>
         Text
@@ -3187,17 +3187,17 @@
       Text
      </table>
      Text
-     <div class="footer" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'shift')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def(isset($_COOKIE['user_env']) && isset($_COOKIE['uniquekey_env']) && isset($_COOKIE['power_env']) && isset($_COOKIE['id_env']))&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')), True)">
-      <img src="SYM/images/spacer.gif" alt="" title="" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'shift')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def(isset($_COOKIE['user_env']) && isset($_COOKIE['uniquekey_env']) && isset($_COOKIE['power_env']) && isset($_COOKIE['id_env']))&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')), True)">
+     <div class="footer" cond="List((!def($_GET['action'] == 'shift')&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'delete_forum')&!def($_GET['action'] == 'add_forum')&!def(isset($_COOKIE['user_env']) && isset($_COOKIE['uniquekey_env']) && isset($_COOKIE['power_env']) && isset($_COOKIE['id_env']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'edit_forum')), True)">
+      <img src="SYM/images/spacer.gif" alt="" title="" cond="List((!def($_GET['action'] == 'shift')&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'delete_forum')&!def($_GET['action'] == 'add_forum')&!def(isset($_COOKIE['user_env']) && isset($_COOKIE['uniquekey_env']) && isset($_COOKIE['power_env']) && isset($_COOKIE['id_env']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'edit_forum')), True)">
       </img>
      </div>
      Text
     </div>
     Text
-    <br cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'shift')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&!def(isset($_COOKIE['user_env']) && isset($_COOKIE['uniquekey_env']) && isset($_COOKIE['power_env']) && isset($_COOKIE['id_env']))&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')), True)">
+    <br cond="List((!def($_GET['action'] == 'shift')&!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'delete_forum')&!def($_GET['action'] == 'add_forum')&!def(isset($_COOKIE['user_env']) && isset($_COOKIE['uniquekey_env']) && isset($_COOKIE['power_env']) && isset($_COOKIE['id_env']))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'edit_forum')), True)">
     </br>
    </div>
-   <meta http-equiv="refresh" content="2;URL=SYM" cond="List((!def($_GET['action'] == 'edit_cat')&((def(isset($_GET['id']))&((def($_GET['action'] == 'delete_cat')&def($_POST['verify'] == 'Ok'))|(!def($_GET['action'] == 'delete_cat')&((def($_POST['verify'] == 'Ok')&((!def($_POST['command'] == 'Add and Add another Category')&!def($_POST['command'] == 'Add and Add forums to this category')&def(isset($_POST['command']))&def($_GET['action'] == 'add_cat'))|(!def($_GET['action'] == 'add_cat')&((def($_GET['action'] == 'edit_forum')&def(isset($_POST['u_forum'])))|(!def($_GET['action'] == 'edit_forum')&((def(isset($_POST['u_forum']))&(def($_GET['action'] == 'delete_forum')|(!def($_POST['command'] == 'Add and Add another forum to the selected Category')&!def($_POST['command'] == 'Add and Add another forum')&def($_GET['action'] == 'add_forum'))))|(!def(isset($_POST['u_forum']))&def($_GET['action'] == 'delete_forum'))))))))|(!def($_POST['verify'] == 'Ok')&((!def($_POST['command'] == 'Add and Add another Category')&!def($_POST['command'] == 'Add and Add forums to this category')&def(isset($_POST['command']))&def($_GET['action'] == 'add_cat'))|(!def($_GET['action'] == 'add_cat')&((def($_GET['action'] == 'edit_forum')&def(isset($_POST['u_forum'])))|(!def($_POST['command'] == 'Add and Add another forum to the selected Category')&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_forum')&!def($_POST['command'] == 'Add and Add another forum')&!def($_GET['action'] == 'delete_forum')&def(isset($_POST['u_forum'])))))))))))|(!def($_GET['action'] == 'delete_cat')&((!def($_POST['command'] == 'Add and Add another Category')&!def($_POST['command'] == 'Add and Add forums to this category')&def(isset($_POST['command']))&def($_GET['action'] == 'add_cat'))|(!def($_POST['command'] == 'Add and Add another forum to the selected Category')&!def($_GET['action'] == 'add_cat')&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_forum')&!def($_POST['command'] == 'Add and Add another forum')&!def($_GET['action'] == 'delete_forum')&def(isset($_POST['u_forum']))))&!def(isset($_GET['id']))))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)), True)">
+   <meta http-equiv="refresh" content="2;URL=SYM" cond="List((!def($_GET['action'] == 'edit_cat')&((def(isset($_GET['id']))&((def($_GET['action'] == 'delete_cat')&def($_POST['verify'] == 'Ok'))|(!def($_GET['action'] == 'delete_cat')&((def($_POST['verify'] == 'Ok')&((!def($_POST['command'] == 'Add and Add another Category')&!def($_POST['command'] == 'Add and Add forums to this category')&def(isset($_POST['command']))&def($_GET['action'] == 'add_cat'))|(!def($_GET['action'] == 'add_cat')&((def($_GET['action'] == 'edit_forum')&def(isset($_POST['u_forum'])))|(!def($_GET['action'] == 'edit_forum')&((def(isset($_POST['u_forum']))&(def($_GET['action'] == 'delete_forum')|(!def($_POST['command'] == 'Add and Add another forum to the selected Category')&!def($_POST['command'] == 'Add and Add another forum')&def($_GET['action'] == 'add_forum'))))|(!def(isset($_POST['u_forum']))&def($_GET['action'] == 'delete_forum'))))))))|(!def($_POST['verify'] == 'Ok')&((!def($_POST['command'] == 'Add and Add another Category')&!def($_POST['command'] == 'Add and Add forums to this category')&def(isset($_POST['command']))&def($_GET['action'] == 'add_cat'))|(!def($_GET['action'] == 'add_cat')&((def($_GET['action'] == 'edit_forum')&def(isset($_POST['u_forum'])))|(def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_forum')&!def($_POST['command'] == 'Add and Add another forum')&!def($_POST['command'] == 'Add and Add another forum to the selected Category')&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_forum'))))))))))|(!def($_GET['action'] == 'delete_cat')&((!def($_POST['command'] == 'Add and Add another Category')&!def($_POST['command'] == 'Add and Add forums to this category')&def(isset($_POST['command']))&def($_GET['action'] == 'add_cat'))|(def(isset($_POST['u_forum']))&!def($_GET['action'] == 'delete_forum')&!def($_POST['command'] == 'Add and Add another forum')&!def($_GET['action'] == 'add_cat')&!def($_POST['command'] == 'Add and Add another forum to the selected Category')&def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_forum')))&!def(isset($_GET['id']))))&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)), True)">
    </meta>
    <form action="admin_forums.php?action=edit_cat&id=SYM" method="POST" name="form" cond="List((def(isset($_GET['id']))&!def(isset($_POST['u_cat']))&def($_GET['action'] == 'edit_cat')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)), True)">
     Text
@@ -3473,10 +3473,10 @@
    Text
    Text
    Text
-   <meta http-equiv="refresh" content="0;URL=admin_forums.php" cond="List((def(isset($_GET['id']))&((!def($_POST['verify'] == 'Ok')&def($_POST['verify'] == 'Cancel')&def($_GET['action'] == 'delete_cat'))|(!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&def($_POST['verify'] == 'Cancel')&!def($_GET['action'] == 'edit_forum')&def($_GET['action'] == 'delete_forum')&!def($_POST['verify'] == 'Ok')))&!def($_GET['action'] == 'edit_cat')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)), True)">
+   <meta http-equiv="refresh" content="0;URL=admin_forums.php" cond="List((def(isset($_GET['id']))&((!def($_POST['verify'] == 'Ok')&def($_POST['verify'] == 'Cancel')&def($_GET['action'] == 'delete_cat'))|(!def($_POST['verify'] == 'Ok')&!def($_GET['action'] == 'delete_cat')&def($_GET['action'] == 'delete_forum')&def($_POST['verify'] == 'Cancel')&!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'edit_forum')))&!def($_GET['action'] == 'edit_cat')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)), True)">
    </meta>
    Text
-   <meta http-equiv="refresh" content="0;URL=admin_forums.php#skip_nav" cond="List((!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'delete_cat')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&!def($_GET['action'] == 'add_forum')&!def($_GET['action'] == 'edit_cat')&def(FALSE !== ($index = array_search($_GET['id'], $sort)))&!def($_GET['action'] == 'edit_forum')&!def($_GET['action'] == 'delete_forum')&def($_GET['action'] == 'shift')), True)">
+   <meta http-equiv="refresh" content="0;URL=admin_forums.php#skip_nav" cond="List((!def($_GET['action'] == 'delete_cat')&!def($_GET['action'] == 'delete_forum')&!def($_GET['action'] == 'add_forum')&def($_GET['action'] == 'shift')&def($tdb->is_logged_in() && $_COOKIE['power_env'] >= 3)&def(FALSE !== ($index = array_search($_GET['id'], $sort)))&!def($_GET['action'] == 'edit_cat')&!def($_GET['action'] == 'add_cat')&!def($_GET['action'] == 'edit_forum')), True)">
    </meta>
    <div class="copy">
     <a href="http://forum.myupb.com/">
@@ -3670,7 +3670,7 @@
           Text
           Text
          </strong>
-         <a href="admin.php" cond="List((def($_REGIST['reg_approval'])&def($_COOKIE['power_env'] >= 3)&!def((int)$new_pm != 0)&def($tdb->is_logged_in())&!def(!$tdb->is_logged_in())&def($_SESSION['reg_approval_count'] > 0)), True)">
+         <a href="admin.php" cond="List((def($_SESSION['reg_approval_count'] > 0)&def($tdb->is_logged_in())&def($_COOKIE['power_env'] >= 3)&!def(!$tdb->is_logged_in())&!def((int)$new_pm != 0)&def($_REGIST['reg_approval'])), True)">
           Text
          </a>
          Text
@@ -3684,8 +3684,8 @@
            Text
           </strong>
          </a>
-         <a href="admin_members.php?action=confirm#skip_nav" cond="List((def($_REGIST['reg_approval'])&def($_COOKIE['power_env'] >= 3)&!def((int)$new_pm != 0)&def($tdb->is_logged_in())&!def(!$tdb->is_logged_in())&def($_SESSION['reg_approval_count'] > 0)), True)">
-          <b cond="List((def($_REGIST['reg_approval'])&def($_COOKIE['power_env'] >= 3)&!def((int)$new_pm != 0)&def($tdb->is_logged_in())&!def(!$tdb->is_logged_in())&def($_SESSION['reg_approval_count'] > 0)), True)">
+         <a href="admin_members.php?action=confirm#skip_nav" cond="List((def($_SESSION['reg_approval_count'] > 0)&def($tdb->is_logged_in())&def($_COOKIE['power_env'] >= 3)&!def(!$tdb->is_logged_in())&!def((int)$new_pm != 0)&def($_REGIST['reg_approval'])), True)">
+          <b cond="List((def($_SESSION['reg_approval_count'] > 0)&def($tdb->is_logged_in())&def($_COOKIE['power_env'] >= 3)&!def(!$tdb->is_logged_in())&!def((int)$new_pm != 0)&def($_REGIST['reg_approval'])), True)">
            Text
           </b>
          </a>
@@ -3703,8 +3703,8 @@
           </strong>
          </a>
          Text
-         <a href="admin_members.php?action=confirm#skip_nav" cond="List((def((int)$new_pm != 0)&def($_REGIST['reg_approval'])&def($_COOKIE['power_env'] >= 3)&def($tdb->is_logged_in())&!def(!$tdb->is_logged_in())&def($_SESSION['reg_approval_count'] > 0)), True)">
-          <b cond="List((def((int)$new_pm != 0)&def($_REGIST['reg_approval'])&def($_COOKIE['power_env'] >= 3)&def($tdb->is_logged_in())&!def(!$tdb->is_logged_in())&def($_SESSION['reg_approval_count'] > 0)), True)">
+         <a href="admin_members.php?action=confirm#skip_nav" cond="List((def((int)$new_pm != 0)&def($_SESSION['reg_approval_count'] > 0)&def($tdb->is_logged_in())&def($_COOKIE['power_env'] >= 3)&!def(!$tdb->is_logged_in())&def($_REGIST['reg_approval'])), True)">
+          <b cond="List((def((int)$new_pm != 0)&def($_SESSION['reg_approval_count'] > 0)&def($tdb->is_logged_in())&def($_COOKIE['power_env'] >= 3)&!def(!$tdb->is_logged_in())&def($_REGIST['reg_approval'])), True)">
            Text
           </b>
          </a>

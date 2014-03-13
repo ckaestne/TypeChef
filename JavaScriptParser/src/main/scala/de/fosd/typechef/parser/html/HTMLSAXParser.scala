@@ -88,13 +88,16 @@ class HTMLSAXParser extends MultiFeatureParser {
 
   def isWordChar(x: Elem): Boolean =
     (('a' to 'z') ++ ('A' to 'Z') ++ ('0' to '9') :+ '_' :+ '-' :+ ':') contains x.getKind()
+    
+  def isCharInAttrValue(x: Elem): Boolean = 
+    (('a' to 'z') ++ ('A' to 'Z') ++ ('0' to '9') :+ '_' :+ '-' :+ ':' :+ '%' :+ '.') contains x.getKind()
 
   def Attributes: MultiParser[List[Opt[HAttribute]]] = repSep(Attribute, WSs)
   def Attribute: MultiParser[HAttribute] = Identifier ~ opt((WSs ?) ~ '=' ~> AttrValue) ^^ { case i ~ v => HAttribute(i, v) }
   def AttrValue: MultiParser[String] =
     (('"' ~> repPlain(token("any char except \"", _.getKindChar() != '"')) <~ '"') |
       ('\'' ~> repPlain(token("any char except '", _.getKindChar() != '\'')) <~ '\'') |
-      (repPlain(token("any word character", isWordChar(_))))) ^^ { _.map(_.getText()).mkString }
+      (repPlain(token("any word character", isCharInAttrValue(_))))) ^^ { _.map(_.getText()).mkString }
 
 }
 

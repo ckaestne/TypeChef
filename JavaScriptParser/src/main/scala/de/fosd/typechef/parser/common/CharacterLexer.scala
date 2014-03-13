@@ -130,7 +130,8 @@ object CharacterLexer {
     var c = r.read()
     var pos = position
     while (c >= 0) {
-    	tokens.+=:(new CharacterToken(c, fexprCombinedStack.peek(), new JPosition(file, -1, pos)))
+    	val position = new JPosition(file, str.hashCode(), pos) // file, ID of the string literal, character offset
+    	tokens.+=:(new CharacterToken(c, fexprCombinedStack.peek(), position))
     	
     	c = r.read()
     	pos += 1
@@ -181,8 +182,9 @@ object CharacterLexer {
           val str = (x \ "@StringValue")
 //          println("Literal: " + str.text)
           visitString(str.text, (x \ "@File").text, (x \ "@Position").text.toInt, fexprCombinedStack, fexprStack, tokens)
-          // TODO: Set location in XML file
-          //visitString(str.text, (x \ "@File").text, x., fexprCombinedStack, fexprStack, tokens)
+          
+          // TODO: Set location in XML file. Currently doesn't work.
+          // visitString(str.text, (x \ "@File").text, x.., fexprCombinedStack, fexprStack, tokens)
         }
         else {
           println("Error in CharacterLexer.visitNode. Can't recognize label: " + x.label)

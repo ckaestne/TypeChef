@@ -58,8 +58,7 @@
       Text
      </b>
      Text
-     <a href="#" onClick="javascript: document.logout.submit();
-">
+     <a href="#" onClick="document.logout.submit(); ">
       Text
       Text
      </a>
@@ -348,9 +347,9 @@
      <br>
      </br>
      Text
-     <form accept-charset="utf-8" method="get" name="searchform" onsubmit="javascript: return false;">
+     <form accept-charset="utf-8" method="get" name="searchform" onsubmit="return false;">
       Text
-      <input type="text" value="SYM" name="searchstring" title="SYMSYM" title="SYM" size="45" tabindex="0" onkeyup="javascript: filterResults(this);">
+      <input type="text" value="SYM" name="searchstring" title="SYMSYM" title="SYM" size="45" tabindex="0" onkeyup="filterResults(this);">
       </input>
       <input type="text" value="SYM" name="searchstring" title="SYMSYM" title="SYM" size="45" tabindex="0">
       </input>
@@ -383,7 +382,7 @@
     Text
     <form id="right" method="get">
      Text
-     <select name="group" onchange="javascript: this.parentNode.submit();">
+     <select name="group" onchange="this.parentNode.submit();">
       Text
       Text
       <option>
@@ -517,7 +516,7 @@
       Text
      </table>
      Text
-     <input type="checkbox" id="MassCB" onclick="javascript: MassSelection();" cond="List((def([Unresolved Constraint])&def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+     <input type="checkbox" id="MassCB" onclick="MassSelection();" cond="List((def([Unresolved Constraint])&def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
      </input>
      Text
      <em cond="List((def([Unresolved Constraint])&def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
@@ -531,15 +530,15 @@
      <br cond="List((def([Unresolved Constraint])&def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
      </br>
      <div class="left">
-      <input type="button" value=" SYMSYM" value=" SYM" onclick="javascript: Doodle();">
+      <input type="button" value=" SYMSYM" value=" SYM" onclick="Doodle();">
       </input>
      </div>
      <div class="left" cond="List((def([Unresolved Constraint])&def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
-      <input type="button" value=" SYMSYM" value=" SYM" onclick="javascript: MailSelection();" cond="List((def([Unresolved Constraint])&def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+      <input type="button" value=" SYMSYM" value=" SYM" onclick="MailSelection();" cond="List((def([Unresolved Constraint])&def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
       </input>
      </div>
      <div class="left" cond="List((def([Unresolved Constraint])&def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
-      <input type="button" value=" SYMSYM" value=" SYM" onclick="javascript: DeleteSel();" cond="List((def([Unresolved Constraint])&def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+      <input type="button" value=" SYMSYM" value=" SYM" onclick="DeleteSel();" cond="List((def([Unresolved Constraint])&def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
       </input>
      </div>
      <div class="left">
@@ -568,7 +567,7 @@
     <hr>
     </hr>
     <script type="text/javascript" cond="List((def([Unresolved Constraint])&def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">if (php_cond("def([Unresolved Constraint])")) {
-   MassSelection = function MassSelection(params) {
+   MassSelection = function (params) {
       select_count = document.getElementsByName("selected[]").length;
       all_checked = document.getElementById("MassCB").checked;
       for (;;) 
@@ -581,7 +580,7 @@
    }
 }
 if (php_cond("def([Unresolved Constraint])")) {
-   MailSelection = function MailSelection(params) {
+   MailSelection = function (params) {
       var addresses = "";
       var dst_count = 0;
       select_count = document.getElementsByName("selected[]").length;
@@ -621,7 +620,7 @@ if (php_cond("def([Unresolved Constraint])")) {
    }
 }
 if (php_cond("def([Unresolved Constraint])")) {
-   Doodle = function Doodle(params) {
+   Doodle = function (params) {
       var participants = "";
       var dst_count = 0;
       select_count = document.getElementsByName("selected[]").length;
@@ -642,7 +641,7 @@ if (php_cond("def([Unresolved Constraint])")) {
    }
 }
 if (php_cond("def([Unresolved Constraint])")) {
-   DeleteSel = function DeleteSel(params) {
+   DeleteSel = function (params) {
       var participants = "";
       var dst_count = 0;
       select_count = document.getElementsByName("selected[]").length;
@@ -665,7 +664,7 @@ if (php_cond("def([Unresolved Constraint])")) {
    }
 }
 if (php_cond("def([Unresolved Constraint])")) {
-   applyZebra = function applyZebra(params) {
+   applyZebra = function (params) {
       var maintable = document.getElementById("maintable");
       var tbody = maintable.getElementsByTagName("tbody");
       var entries = tbody[0].children;
@@ -688,7 +687,7 @@ if (php_cond("def([Unresolved Constraint])")) {
    }
 }
 if (php_cond("def([Unresolved Constraint])")) {
-   filterResults = function filterResults(params) {
+   filterResults = function (params) {
       var query = field.value;
       var words = query.toLowerCase().split(" ");
       var maintable = document.getElementById("maintable");
@@ -777,8 +776,7 @@ if (php_cond("(def([Unresolved Constraint])&def($_SERVER['SERVER_NAME'] == 'php-
       Text
      </b>
      Text
-     <a href="#" onClick="javascript: document.logout.submit();
-">
+     <a href="#" onClick="document.logout.submit(); ">
       Text
       Text
      </a>
@@ -1067,9 +1065,9 @@ if (php_cond("(def([Unresolved Constraint])&def($_SERVER['SERVER_NAME'] == 'php-
      <br>
      </br>
      Text
-     <form accept-charset="utf-8" method="get" name="searchform" onsubmit="javascript: return false;">
+     <form accept-charset="utf-8" method="get" name="searchform" onsubmit="return false;">
       Text
-      <input type="text" value="SYM" name="searchstring" title="SYMSYM" title="SYM" size="45" tabindex="0" onkeyup="javascript: filterResults(this);">
+      <input type="text" value="SYM" name="searchstring" title="SYMSYM" title="SYM" size="45" tabindex="0" onkeyup="filterResults(this);">
       </input>
       <input type="text" value="SYM" name="searchstring" title="SYMSYM" title="SYM" size="45" tabindex="0">
       </input>
@@ -1102,7 +1100,7 @@ if (php_cond("(def([Unresolved Constraint])&def($_SERVER['SERVER_NAME'] == 'php-
     Text
     <form id="right" method="get">
      Text
-     <select name="group" onchange="javascript: this.parentNode.submit();">
+     <select name="group" onchange="this.parentNode.submit();">
       Text
       Text
       <option>
@@ -1236,7 +1234,7 @@ if (php_cond("(def([Unresolved Constraint])&def($_SERVER['SERVER_NAME'] == 'php-
       Text
      </table>
      Text
-     <input type="checkbox" id="MassCB" onclick="javascript: MassSelection();" cond="List((!def([Unresolved Constraint])|!def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+     <input type="checkbox" id="MassCB" onclick="MassSelection();" cond="List((!def([Unresolved Constraint])|!def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
      </input>
      Text
      <em cond="List((!def([Unresolved Constraint])|!def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
@@ -1250,15 +1248,15 @@ if (php_cond("(def([Unresolved Constraint])&def($_SERVER['SERVER_NAME'] == 'php-
      <br cond="List((!def([Unresolved Constraint])|!def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
      </br>
      <div class="left">
-      <input type="button" value=" SYMSYM" value=" SYM" onclick="javascript: Doodle();">
+      <input type="button" value=" SYMSYM" value=" SYM" onclick="Doodle();">
       </input>
      </div>
      <div class="left" cond="List((!def([Unresolved Constraint])|!def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
-      <input type="button" value=" SYMSYM" value=" SYM" onclick="javascript: MailSelection();" cond="List((!def([Unresolved Constraint])|!def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+      <input type="button" value=" SYMSYM" value=" SYM" onclick="MailSelection();" cond="List((!def([Unresolved Constraint])|!def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
       </input>
      </div>
      <div class="left" cond="List((!def([Unresolved Constraint])|!def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
-      <input type="button" value=" SYMSYM" value=" SYM" onclick="javascript: DeleteSel();" cond="List((!def([Unresolved Constraint])|!def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
+      <input type="button" value=" SYMSYM" value=" SYM" onclick="DeleteSel();" cond="List((!def([Unresolved Constraint])|!def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">
       </input>
      </div>
      <div class="left">
@@ -1287,7 +1285,7 @@ if (php_cond("(def([Unresolved Constraint])&def($_SERVER['SERVER_NAME'] == 'php-
     <hr>
     </hr>
     <script type="text/javascript" cond="List((!def([Unresolved Constraint])|!def($_SERVER['SERVER_NAME'] == 'php-addressbook.sourceforge.net')), True)">if (php_cond("def([Unresolved Constraint])")) {
-   MassSelection = function MassSelection(params) {
+   MassSelection = function (params) {
       select_count = document.getElementsByName("selected[]").length;
       all_checked = document.getElementById("MassCB").checked;
       for (;;) 
@@ -1300,7 +1298,7 @@ if (php_cond("(def([Unresolved Constraint])&def($_SERVER['SERVER_NAME'] == 'php-
    }
 }
 if (php_cond("def([Unresolved Constraint])")) {
-   MailSelection = function MailSelection(params) {
+   MailSelection = function (params) {
       var addresses = "";
       var dst_count = 0;
       select_count = document.getElementsByName("selected[]").length;
@@ -1340,7 +1338,7 @@ if (php_cond("def([Unresolved Constraint])")) {
    }
 }
 if (php_cond("def([Unresolved Constraint])")) {
-   Doodle = function Doodle(params) {
+   Doodle = function (params) {
       var participants = "";
       var dst_count = 0;
       select_count = document.getElementsByName("selected[]").length;
@@ -1361,7 +1359,7 @@ if (php_cond("def([Unresolved Constraint])")) {
    }
 }
 if (php_cond("def([Unresolved Constraint])")) {
-   DeleteSel = function DeleteSel(params) {
+   DeleteSel = function (params) {
       var participants = "";
       var dst_count = 0;
       select_count = document.getElementsByName("selected[]").length;
@@ -1384,7 +1382,7 @@ if (php_cond("def([Unresolved Constraint])")) {
    }
 }
 if (php_cond("def([Unresolved Constraint])")) {
-   applyZebra = function applyZebra(params) {
+   applyZebra = function (params) {
       var maintable = document.getElementById("maintable");
       var tbody = maintable.getElementsByTagName("tbody");
       var entries = tbody[0].children;
@@ -1407,7 +1405,7 @@ if (php_cond("def([Unresolved Constraint])")) {
    }
 }
 if (php_cond("def([Unresolved Constraint])")) {
-   filterResults = function filterResults(params) {
+   filterResults = function (params) {
       var query = field.value;
       var words = query.toLowerCase().split(" ");
       var maintable = document.getElementById("maintable");

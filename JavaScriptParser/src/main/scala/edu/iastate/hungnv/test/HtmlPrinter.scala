@@ -214,12 +214,14 @@ object HtmlPrinter {
           }
           jsSource = jsSource ::: List(Opt(FeatureExprFactory.True, new CharacterToken(';', FeatureExprFactory.True, new de.fosd.typechef.parser.common.JPosition("", -1, -1)))) // Adhoc fix: Add semi-colon right before the ending </script> tag to force joins (fixed a bug with function filterResults when running AddressBook-6.2.12)
           
-          script = prettyPrintJS(jsSource)
+          script = prettyPrintJS(jsSource, true)
         }
 
         "<" ~ name.name ~ (if (attributes.isEmpty) Empty else " " ~ sep(attributes, _ ~~ _)) ~ (if (list_feature_expr.size == 2) (" cond=\"" ~ list_feature_expr.toString.replace("\"", "'")) ~ "\"" else Empty) ~ ">" ~
           (if (name.name.equals("script"))
             script
+          else if (children == null)
+            Empty
           else if (children.isEmpty)
             Empty
           else
@@ -257,8 +259,10 @@ object HtmlPrinter {
           (if (value.isDefined) 
         	  ("\"" ~
         	      (if (name.name.startsWith("on"))
-        	    	  "javascript: " ~ prettyPrintJS(stringToListOfOptToken(value.get + ";", new JPosition(name.getPositionTo.getFile, name.getPositionTo.getLine, name.getPositionTo.getColumn)))
+//        	    	  "javascript: " ~ prettyPrintJS(stringToListOfOptToken(value.get + ";", new JPosition(name.getPositionTo.getFile, name.getPositionTo.getLine, name.getPositionTo.getColumn)), false)
 //        	    	  "javascript: " ~ value.get ~ ";"
+        	    	  prettyPrintJS(stringToListOfOptToken(value.get + ";", new JPosition(name.getPositionTo.getFile, name.getPositionTo.getLine, name.getPositionTo.getColumn)), false)        	        
+//        	    	  value.get
         	      else
         	    	  value.get) ~ 
         	  "\"") 
@@ -276,7 +280,7 @@ object HtmlPrinter {
     list.reverse
   }
 
-  def prettyPrintJS(tokens: List[Opt[CharacterToken]]): String = {
+  def prettyPrintJS(tokens: List[Opt[CharacterToken]], withLineBreaks: Boolean): String = {
 //    val str = new StringBuilder
 //    for (optToken <- tokens) {
 //    	str ++= optToken.entry.getText
@@ -288,7 +292,7 @@ object HtmlPrinter {
 
     var doc = JSPrinter.prettyPrint(domResult, List(FeatureExprFactory.True))
     val layout = new java.io.StringWriter()
-    JSPrinter.layoutW(doc, layout)
+    JSPrinter.layoutWGeneric(doc, layout, withLineBreaks)
     
 //    var layout = JSPrinter2.print(domResult, List(FeatureExprFactory.True), 0)
     

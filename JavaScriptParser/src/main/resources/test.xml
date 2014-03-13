@@ -1,4 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <Output>
-<Literal File="" Position="0" StringValue="&lt;script&gt;return false;&lt;/script&gt;"/>
+<Select File="" Position="0" StringValue="COND">
+<True>
+<Literal File="" Position="1000" StringValue="&lt;a&gt;x&lt;/a&gt;"/>
+</True>
+<False>
+<Literal File="" Position="2000" StringValue="&lt;b&gt;y&lt;/b&gt;"/>
+</False>
+</Select>
 </Output>

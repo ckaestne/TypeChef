@@ -71,3 +71,5 @@ case class JSFieldAccess(e: JSExpression, field: JSIdentifier) extends JSExpress
 case class JSArrayAccess(e: JSExpression, index: JSExpression) extends JSExpression
 
 case class JSReturnStatement(e: Option[JSExpression]) extends JSStatement
+
+case class JSConstructorCall(target: JSExpression, arguments: List[JSExpression]) extends JSExpression

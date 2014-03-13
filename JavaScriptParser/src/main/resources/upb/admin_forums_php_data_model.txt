@@ -1,0 +1,4600 @@
+<!DOCTYPE html PUBLIC '-//W3C//DTD XHTML 1.0 Strict//EN' 'http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd'>
+<html xmlns='http://www.w3.org/1999/xhtml' xml:lang='en' lang='en'>
+<head>
+<title>
+#if ((!isset($where) || $where == ''))
+[SYM]
+#else
+[SYM]
+#endif
+</title>
+<meta http-equiv='Content-Type' content='text/html; charset=utf-8' />
+<link rel='stylesheet' type='text/css' href='[SYM]/css/style.css' />
+<link rel='stylesheet' type='text/css' href='skins/disabled.css' />
+<script type='text/javascript' src='./includes/scripts.js'></script>
+<script type='text/javascript' src='./includes/301a.js'></script></head>
+<body>
+<div id='upb_container'>
+	<div class='main_cat_wrapper2'>
+		<table class='main_table_2' cellspacing='1'>
+			<tr>
+				<td id='logo'><img src='[SYM]' alt='' title='' /></td>
+			</tr>
+		</table>
+	</div>
+ <br />
+	<br />
+	<div class='tabstyle_1'>
+		<ul>
+#if ($tdb->is_logged_in())
+
+			<li><a href='index.php' title='Forum Home'><span>Forum Home</span></a></li>
+			<li><a href='[SYM]' title='Site Home'><span>Site Home</span></a></li>
+			<li><a href='showmembers.php' title='Members'><span>Members</span></a></li>
+			<li><a href='search.php' title='Search'><span>Search</span></a></li>
+			<li><a href='board_faq.php' title='Help Faq'><span>Help Faq</span></a></li>
+#else
+
+			<li><a href='index.php' title='Forum Home'><span>Forum Home</span></a></li>
+			<li><a href='[SYM]' title='Site Home'><span>Site Home</span></a></li>
+			<li><a href='search.php' title='Search'><span>Search</span></a></li>
+			<li><a href='board_faq.php' title='Help Faq'><span>Help Faq</span></a></li>
+#endif
+
+		</ul>
+	</div>
+	<div style='clear:both;'></div>
+		
+	<div class='main_cat_wrapper'>
+		<div class='cat_area_1'>[SYM]</div>
+		<table class='main_table' cellspacing='1'>
+		<tbody>
+		<tr>
+			<td class='area_welcome'><div class='welcome_text'>
+#if ($tdb->is_logged_in())
+
+				<strong>
+#if (!$tdb->is_logged_in())
+You are not logged in.
+#else
+Welcome, [SYM]!
+#endif
+</strong>&nbsp;&nbsp;
+				
+#if (!$tdb->is_logged_in())
+
+#else
+
+#if ($_COOKIE["power_env"] >= 3)
+<a href='admin.php'>Admin Panel</a>&nbsp;&middot;
+#if ($_REGIST['reg_approval'])
+
+#if ($_SESSION['reg_approval_count'] > 0)
+(<a href='admin_members.php?action=confirm#skip_nav'><b>[SYM] Unapproved User</b></a>)&nbsp;&middot;
+#else
+
+#endif
+
+#else
+
+#endif
+
+#else
+
+#endif
+
+#endif
+
+				<a href='
+#if (!$tdb->is_logged_in())
+login.php?ref=
+#if (preg_match("/viewforum.php/", $_SERVER["PHP_SELF"]))
+viewforum.php?id=[SYM]
+#else
+
+#if (preg_match("/viewtopic.php/", $_SERVER["PHP_SELF"]))
+viewtopic.php?id=[SYM]&t_id=[SYM]
+#else
+
+#endif
+
+#endif
+
+#else
+logoff.php
+#endif
+'>Logout</a>
+				&middot;&nbsp;<a href='profile.php'>User CP</a>
+				&middot;&nbsp;<a href='
+#if (!$tdb->is_logged_in())
+login.php?ref=pmsystem.php
+#else
+pmsystem.php
+#endif
+'>Messenger</a>
+				
+#if (!$tdb->is_logged_in())
+
+#else
+
+#if ((int)$new_pm != 0)
+-&nbsp;<a href='pmsystem.php?section=inbox'><strong>[SYM]</strong> new PMs in your inbox</a>
+#else
+-&nbsp;No new messages
+#endif
+
+#endif
+
+#else
+
+				<strong>
+#if (!$tdb->is_logged_in())
+You are not logged in.
+#else
+Welcome, [SYM]!
+#endif
+</strong>  Please 
+#if ($_REGIST['disable_reg'])
+
+#else
+<a href='register.php'><strong>Register</strong></a> or 
+#endif
+<a href='
+#if (!$tdb->is_logged_in())
+login.php?ref=
+#if (preg_match("/viewforum.php/", $_SERVER["PHP_SELF"]))
+viewforum.php?id=[SYM]
+#else
+
+#if (preg_match("/viewtopic.php/", $_SERVER["PHP_SELF"]))
+viewtopic.php?id=[SYM]&t_id=[SYM]
+#else
+
+#endif
+
+#endif
+
+#else
+logoff.php
+#endif
+'><strong>Login</strong></a>.
+#endif
+
+			</div></td>
+		</tr>
+		</tbody>
+		</table>
+		<div class='footer'><img src='[SYM]/images/spacer.gif' alt='' title='' /></div>
+	</div>
+	<br />
+#if (!$tdb->is_logged_in() && isset($_COOKIE['user_env']) && isset($_COOKIE['uniquekey_env']) && isset($_COOKIE['id_env']))
+[SYM]
+#else
+
+#endif
+
+
+	<div class='breadcrumb'><span class='breadcrumb_home'><a href='index.php'>[SYM]</a></span>
+#if (isset($where))
+&nbsp;<span class='breadcrumb_page'>[SYM] <a href='admin.php'>Admin</a> [SYM] <a href='admin_forums.php'>Manage Forums</a></span>
+#else
+
+#endif
+
+	</div>
+#if ($_CONFIG["servicemessage"] != "" && ($_SESSION['servicemessage'] != md5($_CONFIG['servicemessage']) || basename($_SERVER['PHP_SELF']) == 'index.php'))
+
+	<div class='main_cat_wrapper'>
+		<div class='cat_area_1'>Announcements</div>
+		<table class='main_table' cellspacing='1'>
+		<tbody>
+			<tr>
+			<td class='area_1' style='text-align:left;'>[SYM]</td>
+			</tr>
+		</tbody>
+		</table>
+		<div class='footer'><img src='[SYM]/images/spacer.gif' alt='' title='' /></div>
+	</div>
+	<br />
+#else
+
+#endif
+
+#if ($tdb->is_logged_in() && $_COOKIE["power_env"] >= 3)
+
+#if ($_GET["action"] == "edit_cat")
+
+#if (isset($_GET["id"]))
+
+#if (isset($_POST["u_cat"]))
+
+						<div class='alert_confirm'>
+						<div class='alert_confirm_text'>
+						<strong>Redirecting:</strong></div><div style='padding:4px;'>
+						Category successfully edited.
+						</div>
+						</div><meta http-equiv='refresh' content='2;URL=[SYM]' />
+#else
+<form action='admin_forums.php?action=edit_cat&id=[SYM]' method='POST' name='form'>
+	<div class='main_cat_wrapper'>
+		<div class='cat_area_1'>Editing a category</div>
+		<table class='main_table' cellspacing='1'>
+		<tbody><input type=" hidden"  name=" neworder"  value=" " />
+			<tr>
+				<th colspan='2'>&nbsp;</th>
+			</tr>
+			<tr>
+				<td class='area_1' style='width:35%'><strong>Change category's name to</strong></td>
+				<td class='area_2'><input type='text' name='u_cat' value='[SYM]' size='40' /></td>
+			</tr>
+			<tr>
+				<td class='area_1'><strong>Who can see this category?</strong></td>
+				<td class='area_2'><select size='1' name='u_view'>
+#if ([Unresolved Constraint])
+
+#if ((bool)$exclude_guests === FALSE)
+
+#if (($user_power == 0 || $user_power == ''))
+
+#if ($dropdown)
+<option value="0" selected>Guests and above</option>
+#else
+
+#if ($shortDropDown)
+<option value="0" selected>Guests+</option>
+#else
+
+#if ($oneDropDown)
+<option value="0" selected>Guests</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="0" selected>Guest</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="0">Guests and above</option>
+#else
+
+#if ($shortDropDown)
+<option value="0">Guests+</option>
+#else
+
+#if ($oneDropDown)
+<option value="0">Guests</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="0">Guest</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#endif
+
+#if ($user_power == 1)
+
+#if ($dropdown)
+<option value="1" selected>Members and above</option>
+#else
+
+#if ($shortDropDown)
+<option value="1" selected>Members+</option>
+#else
+
+#if ($oneDropDown)
+<option value="1" selected>Members</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="1" selected>Member</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="1">Members and above</option>
+#else
+
+#if ($shortDropDown)
+<option value="1">Members+</option>
+#else
+
+#if ($oneDropDown)
+<option value="1">Member</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="1">Member</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#if ($user_power == 2)
+
+#if ($dropdown)
+<option value="2" selected>Moderators and Administrators</option>
+#else
+
+#if ($shortDropDown)
+<option value="2" selected>Mods+</option>
+#else
+
+#if ($oneDropDown)
+<option value="2" selected>Moderator</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="2" selected>Mod</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="2">Moderators and Administrators</option>
+#else
+
+#if ($shortDropDown)
+<option value="2">Mods+</option>
+#else
+
+#if ($oneDropDown)
+<option value="2">Moderator</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="2">Mod</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#if ($user_power >= 3)
+
+#if ($dropdown)
+<option value="3" selected>Administrators only</option>
+#else
+
+#if ($shortDropDown)
+<option value="3" selected>Admins</option>
+#else
+
+#if ($oneDropDown)
+<option value="3" selected>Administrator</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="3" selected>Admin</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="3">Administrators only</option>
+#else
+
+#if ($shortDropDown)
+<option value="3">Admins</option>
+#else
+
+#if ($oneDropDown)
+<option value="3">Administrator</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="3">Admin</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($oneShortText)
+Admin
+#else
+
+#if ($oneText)
+Administrator
+#else
+
+#if ($allShortText)
+admins
+#else
+
+#if ($allText)
+<b>admins</b> only
+#else
+
+#if ($oneShortText)
+Mod
+#else
+
+#if ($oneText)
+Moderator
+#else
+
+#if ($allShortText)
+mods+
+#else
+
+#if ($allText)
+<b>mods & admins</b>
+#else
+
+#if ($oneShortText)
+Member
+#else
+
+#if ($oneText)
+Member
+#else
+
+#if ($allShortText)
+members+
+#else
+
+#if ($allText)
+<b>members</b> and above
+#else
+
+#if ($oneShortText)
+Guest
+#else
+
+#if ($oneText)
+Guest
+#else
+
+#if ($allShortText)
+guest+
+#else
+
+#if ($allText)
+<b>guests</b> and above
+#else
+FALSE
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+</select></td>
+			</tr><!--</td></tr>--><tr>
+				<td class='footer_3' colspan='2'><img src='./skins/default/images/spacer.gif' alt='' title='' /></td>
+			</tr><tr><td class='footer_3a' style='text-align:center;' colspan='2'><input type='submit' value='Edit' /></td></tr>
+		</tbody>
+		</table>
+		<div class='footer'><img src='[SYM]/images/spacer.gif' alt='' title='' /></div>
+	</div>
+	<br /></form>
+#endif
+
+#else
+No id selected.
+#endif
+
+#else
+
+#if ($_GET["action"] == "delete_cat")
+
+#if (isset($_GET["id"]))
+
+#if ($_POST["verify"] == "Ok")
+
+						<div class='alert_confirm'>
+						<div class='alert_confirm_text'>
+						<strong>Redirecting:</strong></div><div style='padding:4px;'>
+						Successfully deleted category.
+						</div>
+						</div>
+						<meta http-equiv='refresh' content='2;URL=[SYM]' />
+#else
+
+#if ($_POST["verify"] == "Cancel")
+<meta http-equiv='refresh' content='0;URL=admin_forums.php' />
+#else
+
+<form action='admin_forums.php?action=delete_cat&id=[SYM]' METHOD=POST>
+<div class='alert'><div class='alert_text'>
+<strong>Are you sure you want to delete this category and all forums in this category?</strong></div><div style='padding:4px;'><input type=submit name='verify' value='Ok' /> <input type=submit name='verify' value='Cancel' />
+</div></div>
+</form>
+#endif
+
+#endif
+
+#else
+No id selected.
+#endif
+
+#else
+
+#if ($_GET["action"] == "add_cat")
+
+#if (isset($_POST['command']))
+
+					<div class='alert_confirm'>
+					<div class='alert_confirm_text'>
+					<strong>Successfully added new category:</strong></div><div style='padding:4px;'>
+					[SYM]
+					</div>
+					</div>
+#if ($_POST['command'] == 'Add and Add another Category')
+<meta http-equiv='refresh' content='2;URL=[SYM]?action=add_cat' />
+#else
+
+#if ($_POST['command'] == 'Add and Add forums to this category')
+<meta http-equiv='refresh' content='2;URL=admin_forums.php?action=add_forum&cat_id=[SYM]' />
+#else
+<meta http-equiv='refresh' content='2;URL=[SYM]' />
+#endif
+
+#endif
+
+#else
+<form action='admin_forums.php?action=add_cat' method=POST>
+	<div class='main_cat_wrapper'>
+		<div class='cat_area_1'>Creating a new category</div>
+		<table class='main_table' cellspacing='1'>
+		<tbody>
+			<tr>
+				<th colspan='2'>&nbsp;</th>
+			</tr>
+			<tr>
+				<td class='area_1' style='width:20%'><strong>Name of new category</strong></td>
+				<td class='area_2'><input type=text name=u_cat size='40' /></td>
+			</tr>
+			<tr>
+				<td class='area_1'><strong>Who can see the category?</strong></td>
+				<td class='area_2'><select size='1' name='u_view'>
+					
+#if ([Unresolved Constraint])
+
+#if ((bool)$exclude_guests === FALSE)
+
+#if (($user_power == 0 || $user_power == ''))
+
+#if ($dropdown)
+<option value="0" selected>Guests and above</option>
+#else
+
+#if ($shortDropDown)
+<option value="0" selected>Guests+</option>
+#else
+
+#if ($oneDropDown)
+<option value="0" selected>Guests</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="0" selected>Guest</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="0">Guests and above</option>
+#else
+
+#if ($shortDropDown)
+<option value="0">Guests+</option>
+#else
+
+#if ($oneDropDown)
+<option value="0">Guests</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="0">Guest</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#endif
+
+#if ($user_power == 1)
+
+#if ($dropdown)
+<option value="1" selected>Members and above</option>
+#else
+
+#if ($shortDropDown)
+<option value="1" selected>Members+</option>
+#else
+
+#if ($oneDropDown)
+<option value="1" selected>Members</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="1" selected>Member</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="1">Members and above</option>
+#else
+
+#if ($shortDropDown)
+<option value="1">Members+</option>
+#else
+
+#if ($oneDropDown)
+<option value="1">Member</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="1">Member</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#if ($user_power == 2)
+
+#if ($dropdown)
+<option value="2" selected>Moderators and Administrators</option>
+#else
+
+#if ($shortDropDown)
+<option value="2" selected>Mods+</option>
+#else
+
+#if ($oneDropDown)
+<option value="2" selected>Moderator</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="2" selected>Mod</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="2">Moderators and Administrators</option>
+#else
+
+#if ($shortDropDown)
+<option value="2">Mods+</option>
+#else
+
+#if ($oneDropDown)
+<option value="2">Moderator</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="2">Mod</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#if ($user_power >= 3)
+
+#if ($dropdown)
+<option value="3" selected>Administrators only</option>
+#else
+
+#if ($shortDropDown)
+<option value="3" selected>Admins</option>
+#else
+
+#if ($oneDropDown)
+<option value="3" selected>Administrator</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="3" selected>Admin</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="3">Administrators only</option>
+#else
+
+#if ($shortDropDown)
+<option value="3">Admins</option>
+#else
+
+#if ($oneDropDown)
+<option value="3">Administrator</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="3">Admin</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($oneShortText)
+Admin
+#else
+
+#if ($oneText)
+Administrator
+#else
+
+#if ($allShortText)
+admins
+#else
+
+#if ($allText)
+<b>admins</b> only
+#else
+
+#if ($oneShortText)
+Mod
+#else
+
+#if ($oneText)
+Moderator
+#else
+
+#if ($allShortText)
+mods+
+#else
+
+#if ($allText)
+<b>mods & admins</b>
+#else
+
+#if ($oneShortText)
+Member
+#else
+
+#if ($oneText)
+Member
+#else
+
+#if ($allShortText)
+members+
+#else
+
+#if ($allText)
+<b>members</b> and above
+#else
+
+#if ($oneShortText)
+Guest
+#else
+
+#if ($oneText)
+Guest
+#else
+
+#if ($allShortText)
+guest+
+#else
+
+#if ($allText)
+<b>guests</b> and above
+#else
+FALSE
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+</select></td>
+			</tr>
+			<tr>
+				<td class='footer_3' colspan='2'><img src='./skins/default/images/spacer.gif' alt='' title='' /></td>
+			</tr>
+			<tr>
+				<td class='footer_3a' colspan='2' style='text-align:center;'><input type=submit name='command' value='Add' /> <input type=submit name='command' value='Add and Add another Category' /> <input type=submit name='command' value='Add and Add forums to this category' /></td>
+			</tr>
+		</tbody>
+		</table>
+		<div class='footer'><img src='[SYM]/images/spacer.gif' alt='' title='' /></div>
+	</div>
+	<br /></form>
+#endif
+
+#else
+
+#if ($_GET["action"] == "edit_forum")
+
+#if (isset($_GET["id"]))
+
+#if (isset($_POST["u_forum"]))
+
+						<div class='alert_confirm'>
+						<div class='alert_confirm_text'>
+						<strong>Redirecting:</strong></div><div style='padding:4px;'>
+						Forum successfully edited.
+						</div>
+						</div><meta http-equiv='refresh' content='2;URL=[SYM]' />
+#else
+<form action='[SYM]?action=edit_forum&id=[SYM]' method=POST>
+	<div class='main_cat_wrapper'>
+		<div class='cat_area_1'>Editing a forum</div>
+		<table class='main_table' cellspacing='1'>
+		<tbody>
+			<tr>
+				<th colspan='2'>&nbsp;</th>
+			</tr>
+			<tr>
+				<td class='area_1' style='width:20%'><strong>Name of forum</strong></td>
+				<td class='area_2'><input type=text name=u_forum size='40' maxlength=50 value='[SYM]' /></td>
+			</tr>
+			<tr>
+				<td class='footer_3' colspan='2'><img src='./skins/default/images/spacer.gif' alt='' title='' /></td>
+			</tr>
+			<tr>
+				<td class='area_1'><strong>Parent category</strong></td>
+				<td class='area_2'><select name=cat>
+ [RepeatBegin]
+
+#if ($cRec["id"] == $fRec[0]["cat"])
+<option value='[SYM]' selected>[SYM]</option>
+#else
+<option value='[SYM]'>[SYM]</option>
+#endif
+
+[RepeatEnd]</select></td>
+			</tr>
+			<tr>
+				<td class='area_1'><strong>Who can see this forum?</strong></td>
+				<td class='area_2'><select size='1' name='u_view'>
+#if ([Unresolved Constraint])
+
+#if ((bool)$exclude_guests === FALSE)
+
+#if (($user_power == 0 || $user_power == ''))
+
+#if ($dropdown)
+<option value="0" selected>Guests and above</option>
+#else
+
+#if ($shortDropDown)
+<option value="0" selected>Guests+</option>
+#else
+
+#if ($oneDropDown)
+<option value="0" selected>Guests</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="0" selected>Guest</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="0">Guests and above</option>
+#else
+
+#if ($shortDropDown)
+<option value="0">Guests+</option>
+#else
+
+#if ($oneDropDown)
+<option value="0">Guests</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="0">Guest</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#endif
+
+#if ($user_power == 1)
+
+#if ($dropdown)
+<option value="1" selected>Members and above</option>
+#else
+
+#if ($shortDropDown)
+<option value="1" selected>Members+</option>
+#else
+
+#if ($oneDropDown)
+<option value="1" selected>Members</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="1" selected>Member</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="1">Members and above</option>
+#else
+
+#if ($shortDropDown)
+<option value="1">Members+</option>
+#else
+
+#if ($oneDropDown)
+<option value="1">Member</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="1">Member</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#if ($user_power == 2)
+
+#if ($dropdown)
+<option value="2" selected>Moderators and Administrators</option>
+#else
+
+#if ($shortDropDown)
+<option value="2" selected>Mods+</option>
+#else
+
+#if ($oneDropDown)
+<option value="2" selected>Moderator</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="2" selected>Mod</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="2">Moderators and Administrators</option>
+#else
+
+#if ($shortDropDown)
+<option value="2">Mods+</option>
+#else
+
+#if ($oneDropDown)
+<option value="2">Moderator</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="2">Mod</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#if ($user_power >= 3)
+
+#if ($dropdown)
+<option value="3" selected>Administrators only</option>
+#else
+
+#if ($shortDropDown)
+<option value="3" selected>Admins</option>
+#else
+
+#if ($oneDropDown)
+<option value="3" selected>Administrator</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="3" selected>Admin</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="3">Administrators only</option>
+#else
+
+#if ($shortDropDown)
+<option value="3">Admins</option>
+#else
+
+#if ($oneDropDown)
+<option value="3">Administrator</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="3">Admin</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($oneShortText)
+Admin
+#else
+
+#if ($oneText)
+Administrator
+#else
+
+#if ($allShortText)
+admins
+#else
+
+#if ($allText)
+<b>admins</b> only
+#else
+
+#if ($oneShortText)
+Mod
+#else
+
+#if ($oneText)
+Moderator
+#else
+
+#if ($allShortText)
+mods+
+#else
+
+#if ($allText)
+<b>mods & admins</b>
+#else
+
+#if ($oneShortText)
+Member
+#else
+
+#if ($oneText)
+Member
+#else
+
+#if ($allShortText)
+members+
+#else
+
+#if ($allText)
+<b>members</b> and above
+#else
+
+#if ($oneShortText)
+Guest
+#else
+
+#if ($oneText)
+Guest
+#else
+
+#if ($allShortText)
+guest+
+#else
+
+#if ($allText)
+<b>guests</b> and above
+#else
+FALSE
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+</select></td>
+			</tr>
+			<tr>
+				<td class='area_1'><strong>Who can post in this forum?</strong></td>
+				<td class='area_2'><select size='1' name='u_post'>
+#if ([Unresolved Constraint])
+
+#if ((bool)$exclude_guests === FALSE)
+
+#if (($user_power == 0 || $user_power == ''))
+
+#if ($dropdown)
+<option value="0" selected>Guests and above</option>
+#else
+
+#if ($shortDropDown)
+<option value="0" selected>Guests+</option>
+#else
+
+#if ($oneDropDown)
+<option value="0" selected>Guests</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="0" selected>Guest</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="0">Guests and above</option>
+#else
+
+#if ($shortDropDown)
+<option value="0">Guests+</option>
+#else
+
+#if ($oneDropDown)
+<option value="0">Guests</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="0">Guest</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#endif
+
+#if ($user_power == 1)
+
+#if ($dropdown)
+<option value="1" selected>Members and above</option>
+#else
+
+#if ($shortDropDown)
+<option value="1" selected>Members+</option>
+#else
+
+#if ($oneDropDown)
+<option value="1" selected>Members</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="1" selected>Member</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="1">Members and above</option>
+#else
+
+#if ($shortDropDown)
+<option value="1">Members+</option>
+#else
+
+#if ($oneDropDown)
+<option value="1">Member</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="1">Member</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#if ($user_power == 2)
+
+#if ($dropdown)
+<option value="2" selected>Moderators and Administrators</option>
+#else
+
+#if ($shortDropDown)
+<option value="2" selected>Mods+</option>
+#else
+
+#if ($oneDropDown)
+<option value="2" selected>Moderator</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="2" selected>Mod</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="2">Moderators and Administrators</option>
+#else
+
+#if ($shortDropDown)
+<option value="2">Mods+</option>
+#else
+
+#if ($oneDropDown)
+<option value="2">Moderator</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="2">Mod</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#if ($user_power >= 3)
+
+#if ($dropdown)
+<option value="3" selected>Administrators only</option>
+#else
+
+#if ($shortDropDown)
+<option value="3" selected>Admins</option>
+#else
+
+#if ($oneDropDown)
+<option value="3" selected>Administrator</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="3" selected>Admin</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="3">Administrators only</option>
+#else
+
+#if ($shortDropDown)
+<option value="3">Admins</option>
+#else
+
+#if ($oneDropDown)
+<option value="3">Administrator</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="3">Admin</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($oneShortText)
+Admin
+#else
+
+#if ($oneText)
+Administrator
+#else
+
+#if ($allShortText)
+admins
+#else
+
+#if ($allText)
+<b>admins</b> only
+#else
+
+#if ($oneShortText)
+Mod
+#else
+
+#if ($oneText)
+Moderator
+#else
+
+#if ($allShortText)
+mods+
+#else
+
+#if ($allText)
+<b>mods & admins</b>
+#else
+
+#if ($oneShortText)
+Member
+#else
+
+#if ($oneText)
+Member
+#else
+
+#if ($allShortText)
+members+
+#else
+
+#if ($allText)
+<b>members</b> and above
+#else
+
+#if ($oneShortText)
+Guest
+#else
+
+#if ($oneText)
+Guest
+#else
+
+#if ($allShortText)
+guest+
+#else
+
+#if ($allText)
+<b>guests</b> and above
+#else
+FALSE
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+</select></td>
+			</tr>
+			<tr>
+				<td class='area_1'><strong>Who can reply in this forum?</strong></td>
+				<td class='area_2'><select size='1' name='u_reply'>
+#if ([Unresolved Constraint])
+
+#if ((bool)$exclude_guests === FALSE)
+
+#if (($user_power == 0 || $user_power == ''))
+
+#if ($dropdown)
+<option value="0" selected>Guests and above</option>
+#else
+
+#if ($shortDropDown)
+<option value="0" selected>Guests+</option>
+#else
+
+#if ($oneDropDown)
+<option value="0" selected>Guests</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="0" selected>Guest</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="0">Guests and above</option>
+#else
+
+#if ($shortDropDown)
+<option value="0">Guests+</option>
+#else
+
+#if ($oneDropDown)
+<option value="0">Guests</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="0">Guest</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#endif
+
+#if ($user_power == 1)
+
+#if ($dropdown)
+<option value="1" selected>Members and above</option>
+#else
+
+#if ($shortDropDown)
+<option value="1" selected>Members+</option>
+#else
+
+#if ($oneDropDown)
+<option value="1" selected>Members</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="1" selected>Member</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="1">Members and above</option>
+#else
+
+#if ($shortDropDown)
+<option value="1">Members+</option>
+#else
+
+#if ($oneDropDown)
+<option value="1">Member</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="1">Member</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#if ($user_power == 2)
+
+#if ($dropdown)
+<option value="2" selected>Moderators and Administrators</option>
+#else
+
+#if ($shortDropDown)
+<option value="2" selected>Mods+</option>
+#else
+
+#if ($oneDropDown)
+<option value="2" selected>Moderator</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="2" selected>Mod</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="2">Moderators and Administrators</option>
+#else
+
+#if ($shortDropDown)
+<option value="2">Mods+</option>
+#else
+
+#if ($oneDropDown)
+<option value="2">Moderator</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="2">Mod</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#if ($user_power >= 3)
+
+#if ($dropdown)
+<option value="3" selected>Administrators only</option>
+#else
+
+#if ($shortDropDown)
+<option value="3" selected>Admins</option>
+#else
+
+#if ($oneDropDown)
+<option value="3" selected>Administrator</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="3" selected>Admin</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="3">Administrators only</option>
+#else
+
+#if ($shortDropDown)
+<option value="3">Admins</option>
+#else
+
+#if ($oneDropDown)
+<option value="3">Administrator</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="3">Admin</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($oneShortText)
+Admin
+#else
+
+#if ($oneText)
+Administrator
+#else
+
+#if ($allShortText)
+admins
+#else
+
+#if ($allText)
+<b>admins</b> only
+#else
+
+#if ($oneShortText)
+Mod
+#else
+
+#if ($oneText)
+Moderator
+#else
+
+#if ($allShortText)
+mods+
+#else
+
+#if ($allText)
+<b>mods & admins</b>
+#else
+
+#if ($oneShortText)
+Member
+#else
+
+#if ($oneText)
+Member
+#else
+
+#if ($allShortText)
+members+
+#else
+
+#if ($allText)
+<b>members</b> and above
+#else
+
+#if ($oneShortText)
+Guest
+#else
+
+#if ($oneText)
+Guest
+#else
+
+#if ($allShortText)
+guest+
+#else
+
+#if ($allText)
+<b>guests</b> and above
+#else
+FALSE
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+</select></td>
+			</tr>
+			<tr>
+				<td class='footer_3' colspan='2'><img src='./skins/default/images/spacer.gif' alt='' title='' /></td>
+			</tr>
+			<tr>
+				<td class='area_1'><strong>Forum description</strong></td>
+				<td class='area_2'><textarea cols=30 rows=5 maxlength=50 name=des>[SYM]</textarea></td>
+			</tr>
+			<tr>
+				<td class='footer_3' colspan='2'><img src='./skins/default/images/spacer.gif' alt='' title='' /></td>
+			</tr>
+			<tr>
+				<td class='footer_3a' colspan='2' style='text-align:center;'><input type=submit value='Edit' /></td>
+			</tr>
+		
+		</tbody>
+		</table>
+		<div class='footer'><img src='[SYM]/images/spacer.gif' alt='' title='' /></div>
+	</div>
+	<br />
+	   </form>
+#endif
+
+#else
+No id selected.
+#endif
+
+#else
+
+#if ($_GET["action"] == "delete_forum")
+
+#if (isset($_GET["id"]))
+
+#if ($_POST["verify"] == "Ok")
+
+						<div class='alert_confirm'>
+						<div class='alert_confirm_text'>
+						<strong>Redirecting:</strong></div><div style='padding:4px;'>
+						Successfully deleted forum.
+						</div>
+						</div><meta http-equiv='refresh' content='2;URL=[SYM]' />
+#else
+
+#if ($_POST['verify'] == "Cancel")
+<meta http-equiv='refresh' content='0;URL=admin_forums.php' />
+#else
+
+<form action='admin_forums.php?action=delete_forum&id=[SYM]' METHOD=POST>
+<div class='alert'><div class='alert_text'>
+<strong>Are you sure you want to delete this forum?</strong></div><div style='padding:4px;'><input type=submit name='verify' value='Ok' /> <input type=submit name='verify' value='Cancel' />
+</div></div>
+</form>
+#endif
+
+#endif
+
+#else
+No id selected.
+#endif
+
+#else
+
+#if ($_GET["action"] == "add_forum")
+
+#if (isset($_POST["u_forum"]))
+
+					<div class='alert_confirm'>
+					<div class='alert_confirm_text'>
+					<strong>Redirecting:</strong></div><div style='padding:4px;'>
+					Successfully added new Forum [SYM]
+					</div>
+					</div>
+					
+#if ($_POST['command'] == 'Add and Add another forum to the selected Category')
+<meta http-equiv='refresh' content='2;URL=[SYM]?action=add_forum&cat_id=[SYM]' />
+#else
+
+#if ($_POST['command'] == 'Add and Add another forum')
+<meta http-equiv='refresh' content='2;URL=[SYM]?action=add_forum' />
+#else
+<meta http-equiv='refresh' content='2;URL=[SYM]' />
+#endif
+
+#endif
+
+#else
+<form action='admin_forums.php?action=add_forum' method=POST>
+	<div class='main_cat_wrapper'>
+		<div class='cat_area_1'>Creating a new forum</div>
+		<table class='main_table' cellspacing='1'>
+		<tbody>
+			<tr>
+				<th colspan='2'>&nbsp;</th>
+			</tr>
+			<tr>
+				<td class='area_1' style='width:20%'><strong>Name of new forum</strong></td>
+				<td class='area_2'><input type=text name=u_forum maxlength=50 size='40' /></td>
+			</tr>
+			<tr>
+				<td class='footer_3' colspan='2'><img src='./skins/default/images/spacer.gif' alt='' title='' /></td>
+			</tr>
+			<tr>
+				<td class='area_1'><strong>Parent category</strong></td>
+				<td class='area_2'><select name=cat>
+ [RepeatBegin]
+
+#if (isset($_GET['cat_id']) && $_GET['cat_id'] == $cat['id'])
+<option value='[SYM]' selected>[SYM]</option>
+#else
+<option value='[SYM]'>[SYM]</option>
+#endif
+
+[RepeatEnd]</select></td>
+			</tr>
+			<tr>
+				<td class='area_1'><strong>Who can see this forum?</strong></td>
+				<td class='area_2'><select size='1' name='u_view'>
+#if ([Unresolved Constraint])
+
+#if ((bool)$exclude_guests === FALSE)
+
+#if (($user_power == 0 || $user_power == ''))
+
+#if ($dropdown)
+<option value="0" selected>Guests and above</option>
+#else
+
+#if ($shortDropDown)
+<option value="0" selected>Guests+</option>
+#else
+
+#if ($oneDropDown)
+<option value="0" selected>Guests</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="0" selected>Guest</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="0">Guests and above</option>
+#else
+
+#if ($shortDropDown)
+<option value="0">Guests+</option>
+#else
+
+#if ($oneDropDown)
+<option value="0">Guests</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="0">Guest</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#endif
+
+#if ($user_power == 1)
+
+#if ($dropdown)
+<option value="1" selected>Members and above</option>
+#else
+
+#if ($shortDropDown)
+<option value="1" selected>Members+</option>
+#else
+
+#if ($oneDropDown)
+<option value="1" selected>Members</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="1" selected>Member</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="1">Members and above</option>
+#else
+
+#if ($shortDropDown)
+<option value="1">Members+</option>
+#else
+
+#if ($oneDropDown)
+<option value="1">Member</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="1">Member</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#if ($user_power == 2)
+
+#if ($dropdown)
+<option value="2" selected>Moderators and Administrators</option>
+#else
+
+#if ($shortDropDown)
+<option value="2" selected>Mods+</option>
+#else
+
+#if ($oneDropDown)
+<option value="2" selected>Moderator</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="2" selected>Mod</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="2">Moderators and Administrators</option>
+#else
+
+#if ($shortDropDown)
+<option value="2">Mods+</option>
+#else
+
+#if ($oneDropDown)
+<option value="2">Moderator</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="2">Mod</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#if ($user_power >= 3)
+
+#if ($dropdown)
+<option value="3" selected>Administrators only</option>
+#else
+
+#if ($shortDropDown)
+<option value="3" selected>Admins</option>
+#else
+
+#if ($oneDropDown)
+<option value="3" selected>Administrator</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="3" selected>Admin</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="3">Administrators only</option>
+#else
+
+#if ($shortDropDown)
+<option value="3">Admins</option>
+#else
+
+#if ($oneDropDown)
+<option value="3">Administrator</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="3">Admin</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($oneShortText)
+Admin
+#else
+
+#if ($oneText)
+Administrator
+#else
+
+#if ($allShortText)
+admins
+#else
+
+#if ($allText)
+<b>admins</b> only
+#else
+
+#if ($oneShortText)
+Mod
+#else
+
+#if ($oneText)
+Moderator
+#else
+
+#if ($allShortText)
+mods+
+#else
+
+#if ($allText)
+<b>mods & admins</b>
+#else
+
+#if ($oneShortText)
+Member
+#else
+
+#if ($oneText)
+Member
+#else
+
+#if ($allShortText)
+members+
+#else
+
+#if ($allText)
+<b>members</b> and above
+#else
+
+#if ($oneShortText)
+Guest
+#else
+
+#if ($oneText)
+Guest
+#else
+
+#if ($allShortText)
+guest+
+#else
+
+#if ($allText)
+<b>guests</b> and above
+#else
+FALSE
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+</select></td>
+			</tr>
+			<tr>
+				<td class='area_1'><strong>Who can post in this forum?</strong></td>
+				<td class='area_2'><select size='1' name='u_post'>
+#if ([Unresolved Constraint])
+
+#if ((bool)$exclude_guests === FALSE)
+
+#if (($user_power == 0 || $user_power == ''))
+
+#if ($dropdown)
+<option value="0" selected>Guests and above</option>
+#else
+
+#if ($shortDropDown)
+<option value="0" selected>Guests+</option>
+#else
+
+#if ($oneDropDown)
+<option value="0" selected>Guests</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="0" selected>Guest</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="0">Guests and above</option>
+#else
+
+#if ($shortDropDown)
+<option value="0">Guests+</option>
+#else
+
+#if ($oneDropDown)
+<option value="0">Guests</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="0">Guest</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#endif
+
+#if ($user_power == 1)
+
+#if ($dropdown)
+<option value="1" selected>Members and above</option>
+#else
+
+#if ($shortDropDown)
+<option value="1" selected>Members+</option>
+#else
+
+#if ($oneDropDown)
+<option value="1" selected>Members</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="1" selected>Member</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="1">Members and above</option>
+#else
+
+#if ($shortDropDown)
+<option value="1">Members+</option>
+#else
+
+#if ($oneDropDown)
+<option value="1">Member</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="1">Member</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#if ($user_power == 2)
+
+#if ($dropdown)
+<option value="2" selected>Moderators and Administrators</option>
+#else
+
+#if ($shortDropDown)
+<option value="2" selected>Mods+</option>
+#else
+
+#if ($oneDropDown)
+<option value="2" selected>Moderator</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="2" selected>Mod</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="2">Moderators and Administrators</option>
+#else
+
+#if ($shortDropDown)
+<option value="2">Mods+</option>
+#else
+
+#if ($oneDropDown)
+<option value="2">Moderator</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="2">Mod</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#if ($user_power >= 3)
+
+#if ($dropdown)
+<option value="3" selected>Administrators only</option>
+#else
+
+#if ($shortDropDown)
+<option value="3" selected>Admins</option>
+#else
+
+#if ($oneDropDown)
+<option value="3" selected>Administrator</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="3" selected>Admin</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="3">Administrators only</option>
+#else
+
+#if ($shortDropDown)
+<option value="3">Admins</option>
+#else
+
+#if ($oneDropDown)
+<option value="3">Administrator</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="3">Admin</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($oneShortText)
+Admin
+#else
+
+#if ($oneText)
+Administrator
+#else
+
+#if ($allShortText)
+admins
+#else
+
+#if ($allText)
+<b>admins</b> only
+#else
+
+#if ($oneShortText)
+Mod
+#else
+
+#if ($oneText)
+Moderator
+#else
+
+#if ($allShortText)
+mods+
+#else
+
+#if ($allText)
+<b>mods & admins</b>
+#else
+
+#if ($oneShortText)
+Member
+#else
+
+#if ($oneText)
+Member
+#else
+
+#if ($allShortText)
+members+
+#else
+
+#if ($allText)
+<b>members</b> and above
+#else
+
+#if ($oneShortText)
+Guest
+#else
+
+#if ($oneText)
+Guest
+#else
+
+#if ($allShortText)
+guest+
+#else
+
+#if ($allText)
+<b>guests</b> and above
+#else
+FALSE
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+</select></td>
+			</tr>
+			<tr>
+				<td class='area_1'><strong>Who can reply in this forum?</strong></td>
+				<td class='area_2'><select size='1' name='u_reply'>
+#if ([Unresolved Constraint])
+
+#if ((bool)$exclude_guests === FALSE)
+
+#if (($user_power == 0 || $user_power == ''))
+
+#if ($dropdown)
+<option value="0" selected>Guests and above</option>
+#else
+
+#if ($shortDropDown)
+<option value="0" selected>Guests+</option>
+#else
+
+#if ($oneDropDown)
+<option value="0" selected>Guests</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="0" selected>Guest</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="0">Guests and above</option>
+#else
+
+#if ($shortDropDown)
+<option value="0">Guests+</option>
+#else
+
+#if ($oneDropDown)
+<option value="0">Guests</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="0">Guest</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#endif
+
+#if ($user_power == 1)
+
+#if ($dropdown)
+<option value="1" selected>Members and above</option>
+#else
+
+#if ($shortDropDown)
+<option value="1" selected>Members+</option>
+#else
+
+#if ($oneDropDown)
+<option value="1" selected>Members</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="1" selected>Member</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="1">Members and above</option>
+#else
+
+#if ($shortDropDown)
+<option value="1">Members+</option>
+#else
+
+#if ($oneDropDown)
+<option value="1">Member</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="1">Member</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#if ($user_power == 2)
+
+#if ($dropdown)
+<option value="2" selected>Moderators and Administrators</option>
+#else
+
+#if ($shortDropDown)
+<option value="2" selected>Mods+</option>
+#else
+
+#if ($oneDropDown)
+<option value="2" selected>Moderator</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="2" selected>Mod</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="2">Moderators and Administrators</option>
+#else
+
+#if ($shortDropDown)
+<option value="2">Mods+</option>
+#else
+
+#if ($oneDropDown)
+<option value="2">Moderator</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="2">Mod</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#if ($user_power >= 3)
+
+#if ($dropdown)
+<option value="3" selected>Administrators only</option>
+#else
+
+#if ($shortDropDown)
+<option value="3" selected>Admins</option>
+#else
+
+#if ($oneDropDown)
+<option value="3" selected>Administrator</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="3" selected>Admin</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="3">Administrators only</option>
+#else
+
+#if ($shortDropDown)
+<option value="3">Admins</option>
+#else
+
+#if ($oneDropDown)
+<option value="3">Administrator</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="3">Admin</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($oneShortText)
+Admin
+#else
+
+#if ($oneText)
+Administrator
+#else
+
+#if ($allShortText)
+admins
+#else
+
+#if ($allText)
+<b>admins</b> only
+#else
+
+#if ($oneShortText)
+Mod
+#else
+
+#if ($oneText)
+Moderator
+#else
+
+#if ($allShortText)
+mods+
+#else
+
+#if ($allText)
+<b>mods & admins</b>
+#else
+
+#if ($oneShortText)
+Member
+#else
+
+#if ($oneText)
+Member
+#else
+
+#if ($allShortText)
+members+
+#else
+
+#if ($allText)
+<b>members</b> and above
+#else
+
+#if ($oneShortText)
+Guest
+#else
+
+#if ($oneText)
+Guest
+#else
+
+#if ($allShortText)
+guest+
+#else
+
+#if ($allText)
+<b>guests</b> and above
+#else
+FALSE
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+</select></td>
+			</tr>
+			<tr>
+				<td class='footer_3' colspan='2'><img src='./skins/default/images/spacer.gif' alt='' title='' /></td>
+			</tr>
+			<tr>
+				<td class='area_1'><strong>Forum description</strong></td>
+				<td class='area_2'><textarea cols=30 rows=5 maxlength=70 name=des></textarea></td>
+			</tr>
+			<tr>
+				<td class='footer_3' colspan='2'><img src='./skins/default/images/spacer.gif' alt='' title='' /></td>
+			</tr>
+			<tr>
+				<td class='footer_3a' colspan='2' style='text-align:center;'><input type=submit value='Add' /> <input type=submit name='command' value='Add and Add another forum' size='10' /> <input type=submit name='command' value='Add and Add another forum to the selected Category' size='15' /></td>
+			</tr>
+		
+		</tbody>
+		</table>
+		<div class='footer'><img src='[SYM]/images/spacer.gif' alt='' title='' /></div>
+	</div>
+	<br /></form>
+#endif
+
+#else
+
+#if ($_GET['action'] == "shift")
+
+#if (FALSE !== ($index = array_search($_GET['id'], $sort)))
+<meta http-equiv='refresh' content='0;URL=admin_forums.php#skip_nav' />
+#else
+
+#endif
+
+#else
+
+#if (empty($cRecs))
+<meta http-equiv='refresh' content='0;URL=admin_forums.php?action=add_cat' />
+#else
+
+#endif
+
+	<div class='main_cat_wrapper'>
+		<div class='cat_area_1'>[SYM]</div>
+		<table class='main_table' cellspacing='1'>
+		<tbody>
+			<tr>
+				<th>Admin Panel Navigation</th>
+			</tr>
+			<tr>
+				<td class='area_2' style='padding:20px;' valign='top'>
+#if (isset($_COOKIE["user_env"]) && isset($_COOKIE["uniquekey_env"]) && isset($_COOKIE["power_env"]) && isset($_COOKIE["id_env"]))
+
+#if ($tdb->is_logged_in() && $_COOKIE["power_env"] >= 3)
+
+				<div style='width:50%;float:left;line-height:20px;text-align:center;'><span class='link_1'>
+				<a href='admin_forums.php#skip_nav' target = '_parent'>Manage Forums</a><br />
+				<a href='admin_config.php#skip_nav' target = '_parent'>Manage Settings</a><br />
+				<a href='admin_members.php#skip_nav' target = '_parent'>Manage Members</a><br />
+				<a href='admin_smilies.php#skip_nav' target = '_parent'>Manage Smilies</a><br />
+			<a href='admin_icons.php#skip_nav' target = '_parent'>Manage Post Icons</a></div>
+				<div style='width:50%;float:right;line-height:20px;text-align:center;'><span class='link_1'>
+		        <a href='admin_checkupdate.php#skip_nav' target = '_parent'>Check for Updates</a><br />
+				<a href='admin_banuser.php#skip_nav' target = '_parent'>Manage Banned users</a><br />
+				<a href='admin_badwords.php#skip_nav' target = '_parent'>Manage Filtered Lanuage</a><br />
+				<a href='admin_iplog.php#skip_nav' target = '_parent'>View the IP Address Log</a><br />
+				<a href='admin_restore.php#skip_nav' target = '_parent'>Backup/Restore the database</a><br /></span></div>
+#else
+
+#endif
+
+#else
+
+#endif
+</td>
+			</tr>
+		</tbody>
+		</table>
+		<div class='footer'><img src='[SYM]/images/spacer.gif' alt='' title='' /></div>
+	</div>
+	<br /><a name='skip_nav'>&nbsp;</a>
+			<div id='tabstyle_2'>
+			    <ul>
+			        <li><a href='admin_forums.php?action=add_cat' title='Add a new forum?'><span>Add a new category?</span></a></li>
+			        <li><a href='admin_forums.php?action=add_forum' title='Add a new forum?'><span>Add a new forum?</span></a></li>
+			    </ul>
+			</div>
+			<div style='clear:both;'></div><div id='sorting'>
+	<div class='main_cat_wrapper'>
+		<div class='cat_area_1'>Forum Control</div>
+		<table class='main_table' cellspacing='1'>
+		<tbody>
+			<tr>
+			    <th style='width:7%;'>&nbsp;</th>
+				<th style='width:68%;'>Name</th>
+				<th style='width:5%;text-align:center;'>View</th>
+				<th style='width:5%;text-align:center;'>Post</th>
+				<th style='width:5%;text-align:center;'>Reply</th>
+				<th style='width:10%;text-align:center;'>Edit?</th>
+				<th style='width:10%;text-align:center;'>Delete?</th>
+			</tr>
+#if ($cRecs[0]["name"] == "")
+
+			<tr>
+				<td class='area_2' style='text-align:center;font-weight:bold;padding:12px;line-height:20px;' colspan='7'>No categories found</td>
+			</tr>
+#else
+[RepeatBegin]
+
+			<tr>
+			    <td class='area_1' style='padding:8px;text-align:center;'>
+#if ($i>0)
+<span id='enabled_msg'><a href=" javascript:forumSort('cat',  'up','[SYM]');" ><img src='./images/up.gif' /></a></span><span id='disabled_msg'><a href='admin_forums.php?action=shift&what=cat&where=up&id=[SYM]'><img src='./images/up.gif' /></a></span>
+#else
+&nbsp;&nbsp;&nbsp;
+#endif
+
+#if ($i<($c1-1))
+<span id='enabled_msg'><a href=" javascript:forumSort('cat','down','[SYM]');" ><img src='./images/down.gif' /></a></span><span id='disabled_msg'><a href='admin_forums.php?action=shift&what=cat&where=down&id=[SYM]'><img src='./images/down.gif' /></a></span>
+#else
+
+#endif
+</td><td class='area_1' style='padding:8px;'><strong>[SYM]</strong></td>
+				<td class='area_1' style='padding:8px;text-align:center;' colspan=3>
+#if ([Unresolved Constraint])
+
+#if ((bool)$exclude_guests === FALSE)
+
+#if (($user_power == 0 || $user_power == ''))
+
+#if ($dropdown)
+<option value="0" selected>Guests and above</option>
+#else
+
+#if ($shortDropDown)
+<option value="0" selected>Guests+</option>
+#else
+
+#if ($oneDropDown)
+<option value="0" selected>Guests</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="0" selected>Guest</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="0">Guests and above</option>
+#else
+
+#if ($shortDropDown)
+<option value="0">Guests+</option>
+#else
+
+#if ($oneDropDown)
+<option value="0">Guests</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="0">Guest</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#endif
+
+#if ($user_power == 1)
+
+#if ($dropdown)
+<option value="1" selected>Members and above</option>
+#else
+
+#if ($shortDropDown)
+<option value="1" selected>Members+</option>
+#else
+
+#if ($oneDropDown)
+<option value="1" selected>Members</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="1" selected>Member</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="1">Members and above</option>
+#else
+
+#if ($shortDropDown)
+<option value="1">Members+</option>
+#else
+
+#if ($oneDropDown)
+<option value="1">Member</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="1">Member</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#if ($user_power == 2)
+
+#if ($dropdown)
+<option value="2" selected>Moderators and Administrators</option>
+#else
+
+#if ($shortDropDown)
+<option value="2" selected>Mods+</option>
+#else
+
+#if ($oneDropDown)
+<option value="2" selected>Moderator</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="2" selected>Mod</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="2">Moderators and Administrators</option>
+#else
+
+#if ($shortDropDown)
+<option value="2">Mods+</option>
+#else
+
+#if ($oneDropDown)
+<option value="2">Moderator</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="2">Mod</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#if ($user_power >= 3)
+
+#if ($dropdown)
+<option value="3" selected>Administrators only</option>
+#else
+
+#if ($shortDropDown)
+<option value="3" selected>Admins</option>
+#else
+
+#if ($oneDropDown)
+<option value="3" selected>Administrator</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="3" selected>Admin</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="3">Administrators only</option>
+#else
+
+#if ($shortDropDown)
+<option value="3">Admins</option>
+#else
+
+#if ($oneDropDown)
+<option value="3">Administrator</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="3">Admin</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($oneShortText)
+Admin
+#else
+
+#if ($oneText)
+Administrator
+#else
+
+#if ($allShortText)
+admins
+#else
+
+#if ($allText)
+<b>admins</b> only
+#else
+
+#if ($oneShortText)
+Mod
+#else
+
+#if ($oneText)
+Moderator
+#else
+
+#if ($allShortText)
+mods+
+#else
+
+#if ($allText)
+<b>mods & admins</b>
+#else
+
+#if ($oneShortText)
+Member
+#else
+
+#if ($oneText)
+Member
+#else
+
+#if ($allShortText)
+members+
+#else
+
+#if ($allText)
+<b>members</b> and above
+#else
+
+#if ($oneShortText)
+Guest
+#else
+
+#if ($oneText)
+Guest
+#else
+
+#if ($allShortText)
+guest+
+#else
+
+#if ($allText)
+<b>guests</b> and above
+#else
+FALSE
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+</td>
+				<td class='area_1' style='padding:8px;text-align:center;'><a href='admin_forums.php?action=edit_cat&id=[SYM]'>Edit</a></td>
+				<td class='area_1' style='padding:8px;text-align:center;'><a href='admin_forums.php?action=delete_cat&id=[SYM]'>Delete</a></td>
+			</tr>
+#if ($cRecs[$i]['sort'] == '')
+
+			<tr>
+				<td class='area_2' style='text-align:center;font-weight:bold;padding:12px;line-height:20px;' colspan='7'>No forums exist in this category yet.</td>
+			</tr>
+#else
+[RepeatBegin]
+
+			<tr>
+			    <td class='area_2' style='padding:8px;text-align:center;'>
+#if ($j>0)
+<span id='enabled_msg'><a href=" javascript:forumSort('forum','up','[SYM]');" ><img src='./images/up.gif' /></a></span><span id='disabled_msg'><a href='admin_forums.php?action=shift&what=forum&where=up&id=[SYM]'><img src='./images/up.gif' /></a></span>
+#else
+&nbsp;&nbsp;&nbsp;
+#endif
+
+#if ($j<($c2-1))
+<span id='enabled_msg'><a href=" javascript:forumSort('forum','down','[SYM]');" ><img src='./images/down.gif' /></a></span><span id='disabled_msg'><a href='admin_forums.php?action=shift&what=forum&where=down&id=[SYM]'><img src='./images/down.gif' /></a></span>
+#else
+&nbsp;&nbsp;&nbsp;
+#endif
+</td>
+				<td class='area_2' style='padding:8px;'><strong>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[SYM]</strong></td>
+				<td class='area_2' style='padding:8px;text-align:center;'>
+#if ([Unresolved Constraint])
+
+#if ((bool)$exclude_guests === FALSE)
+
+#if (($user_power == 0 || $user_power == ''))
+
+#if ($dropdown)
+<option value="0" selected>Guests and above</option>
+#else
+
+#if ($shortDropDown)
+<option value="0" selected>Guests+</option>
+#else
+
+#if ($oneDropDown)
+<option value="0" selected>Guests</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="0" selected>Guest</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="0">Guests and above</option>
+#else
+
+#if ($shortDropDown)
+<option value="0">Guests+</option>
+#else
+
+#if ($oneDropDown)
+<option value="0">Guests</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="0">Guest</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#endif
+
+#if ($user_power == 1)
+
+#if ($dropdown)
+<option value="1" selected>Members and above</option>
+#else
+
+#if ($shortDropDown)
+<option value="1" selected>Members+</option>
+#else
+
+#if ($oneDropDown)
+<option value="1" selected>Members</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="1" selected>Member</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="1">Members and above</option>
+#else
+
+#if ($shortDropDown)
+<option value="1">Members+</option>
+#else
+
+#if ($oneDropDown)
+<option value="1">Member</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="1">Member</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#if ($user_power == 2)
+
+#if ($dropdown)
+<option value="2" selected>Moderators and Administrators</option>
+#else
+
+#if ($shortDropDown)
+<option value="2" selected>Mods+</option>
+#else
+
+#if ($oneDropDown)
+<option value="2" selected>Moderator</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="2" selected>Mod</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="2">Moderators and Administrators</option>
+#else
+
+#if ($shortDropDown)
+<option value="2">Mods+</option>
+#else
+
+#if ($oneDropDown)
+<option value="2">Moderator</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="2">Mod</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#if ($user_power >= 3)
+
+#if ($dropdown)
+<option value="3" selected>Administrators only</option>
+#else
+
+#if ($shortDropDown)
+<option value="3" selected>Admins</option>
+#else
+
+#if ($oneDropDown)
+<option value="3" selected>Administrator</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="3" selected>Admin</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="3">Administrators only</option>
+#else
+
+#if ($shortDropDown)
+<option value="3">Admins</option>
+#else
+
+#if ($oneDropDown)
+<option value="3">Administrator</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="3">Admin</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($oneShortText)
+Admin
+#else
+
+#if ($oneText)
+Administrator
+#else
+
+#if ($allShortText)
+admins
+#else
+
+#if ($allText)
+<b>admins</b> only
+#else
+
+#if ($oneShortText)
+Mod
+#else
+
+#if ($oneText)
+Moderator
+#else
+
+#if ($allShortText)
+mods+
+#else
+
+#if ($allText)
+<b>mods & admins</b>
+#else
+
+#if ($oneShortText)
+Member
+#else
+
+#if ($oneText)
+Member
+#else
+
+#if ($allShortText)
+members+
+#else
+
+#if ($allText)
+<b>members</b> and above
+#else
+
+#if ($oneShortText)
+Guest
+#else
+
+#if ($oneText)
+Guest
+#else
+
+#if ($allShortText)
+guest+
+#else
+
+#if ($allText)
+<b>guests</b> and above
+#else
+FALSE
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+</td>
+				<td class='area_2' style='padding:8px;text-align:center;'>
+#if ([Unresolved Constraint])
+
+#if ((bool)$exclude_guests === FALSE)
+
+#if (($user_power == 0 || $user_power == ''))
+
+#if ($dropdown)
+<option value="0" selected>Guests and above</option>
+#else
+
+#if ($shortDropDown)
+<option value="0" selected>Guests+</option>
+#else
+
+#if ($oneDropDown)
+<option value="0" selected>Guests</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="0" selected>Guest</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="0">Guests and above</option>
+#else
+
+#if ($shortDropDown)
+<option value="0">Guests+</option>
+#else
+
+#if ($oneDropDown)
+<option value="0">Guests</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="0">Guest</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#endif
+
+#if ($user_power == 1)
+
+#if ($dropdown)
+<option value="1" selected>Members and above</option>
+#else
+
+#if ($shortDropDown)
+<option value="1" selected>Members+</option>
+#else
+
+#if ($oneDropDown)
+<option value="1" selected>Members</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="1" selected>Member</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="1">Members and above</option>
+#else
+
+#if ($shortDropDown)
+<option value="1">Members+</option>
+#else
+
+#if ($oneDropDown)
+<option value="1">Member</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="1">Member</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#if ($user_power == 2)
+
+#if ($dropdown)
+<option value="2" selected>Moderators and Administrators</option>
+#else
+
+#if ($shortDropDown)
+<option value="2" selected>Mods+</option>
+#else
+
+#if ($oneDropDown)
+<option value="2" selected>Moderator</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="2" selected>Mod</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="2">Moderators and Administrators</option>
+#else
+
+#if ($shortDropDown)
+<option value="2">Mods+</option>
+#else
+
+#if ($oneDropDown)
+<option value="2">Moderator</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="2">Mod</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#if ($user_power >= 3)
+
+#if ($dropdown)
+<option value="3" selected>Administrators only</option>
+#else
+
+#if ($shortDropDown)
+<option value="3" selected>Admins</option>
+#else
+
+#if ($oneDropDown)
+<option value="3" selected>Administrator</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="3" selected>Admin</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="3">Administrators only</option>
+#else
+
+#if ($shortDropDown)
+<option value="3">Admins</option>
+#else
+
+#if ($oneDropDown)
+<option value="3">Administrator</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="3">Admin</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($oneShortText)
+Admin
+#else
+
+#if ($oneText)
+Administrator
+#else
+
+#if ($allShortText)
+admins
+#else
+
+#if ($allText)
+<b>admins</b> only
+#else
+
+#if ($oneShortText)
+Mod
+#else
+
+#if ($oneText)
+Moderator
+#else
+
+#if ($allShortText)
+mods+
+#else
+
+#if ($allText)
+<b>mods & admins</b>
+#else
+
+#if ($oneShortText)
+Member
+#else
+
+#if ($oneText)
+Member
+#else
+
+#if ($allShortText)
+members+
+#else
+
+#if ($allText)
+<b>members</b> and above
+#else
+
+#if ($oneShortText)
+Guest
+#else
+
+#if ($oneText)
+Guest
+#else
+
+#if ($allShortText)
+guest+
+#else
+
+#if ($allText)
+<b>guests</b> and above
+#else
+FALSE
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+</td>
+				<td class='area_2' style='padding:8px;text-align:center;'>
+#if ([Unresolved Constraint])
+
+#if ((bool)$exclude_guests === FALSE)
+
+#if (($user_power == 0 || $user_power == ''))
+
+#if ($dropdown)
+<option value="0" selected>Guests and above</option>
+#else
+
+#if ($shortDropDown)
+<option value="0" selected>Guests+</option>
+#else
+
+#if ($oneDropDown)
+<option value="0" selected>Guests</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="0" selected>Guest</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="0">Guests and above</option>
+#else
+
+#if ($shortDropDown)
+<option value="0">Guests+</option>
+#else
+
+#if ($oneDropDown)
+<option value="0">Guests</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="0">Guest</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#endif
+
+#if ($user_power == 1)
+
+#if ($dropdown)
+<option value="1" selected>Members and above</option>
+#else
+
+#if ($shortDropDown)
+<option value="1" selected>Members+</option>
+#else
+
+#if ($oneDropDown)
+<option value="1" selected>Members</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="1" selected>Member</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="1">Members and above</option>
+#else
+
+#if ($shortDropDown)
+<option value="1">Members+</option>
+#else
+
+#if ($oneDropDown)
+<option value="1">Member</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="1">Member</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#if ($user_power == 2)
+
+#if ($dropdown)
+<option value="2" selected>Moderators and Administrators</option>
+#else
+
+#if ($shortDropDown)
+<option value="2" selected>Mods+</option>
+#else
+
+#if ($oneDropDown)
+<option value="2" selected>Moderator</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="2" selected>Mod</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="2">Moderators and Administrators</option>
+#else
+
+#if ($shortDropDown)
+<option value="2">Mods+</option>
+#else
+
+#if ($oneDropDown)
+<option value="2">Moderator</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="2">Mod</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#if ($user_power >= 3)
+
+#if ($dropdown)
+<option value="3" selected>Administrators only</option>
+#else
+
+#if ($shortDropDown)
+<option value="3" selected>Admins</option>
+#else
+
+#if ($oneDropDown)
+<option value="3" selected>Administrator</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="3" selected>Admin</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($dropdown)
+<option value="3">Administrators only</option>
+#else
+
+#if ($shortDropDown)
+<option value="3">Admins</option>
+#else
+
+#if ($oneDropDown)
+<option value="3">Administrator</option>
+#else
+
+#if ($oneShortDropDown)
+<option value="3">Admin</option>
+#else
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#else
+
+#if ($oneShortText)
+Admin
+#else
+
+#if ($oneText)
+Administrator
+#else
+
+#if ($allShortText)
+admins
+#else
+
+#if ($allText)
+<b>admins</b> only
+#else
+
+#if ($oneShortText)
+Mod
+#else
+
+#if ($oneText)
+Moderator
+#else
+
+#if ($allShortText)
+mods+
+#else
+
+#if ($allText)
+<b>mods & admins</b>
+#else
+
+#if ($oneShortText)
+Member
+#else
+
+#if ($oneText)
+Member
+#else
+
+#if ($allShortText)
+members+
+#else
+
+#if ($allText)
+<b>members</b> and above
+#else
+
+#if ($oneShortText)
+Guest
+#else
+
+#if ($oneText)
+Guest
+#else
+
+#if ($allShortText)
+guest+
+#else
+
+#if ($allText)
+<b>guests</b> and above
+#else
+FALSE
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+</td>
+				<td class='area_2' style='padding:8px;text-align:center;'><a href='admin_forums.php?action=edit_forum&id=[SYM]'>Edit</a></td>
+				<td class='area_2' style='padding:8px;text-align:center;'><a href='admin_forums.php?action=delete_forum&id=[SYM]'>Delete</a></td>
+			</tr>
+[RepeatEnd]
+#endif
+
+[RepeatEnd]
+#endif
+
+		</tbody>
+		</table>
+		<div class='footer'><img src='[SYM]/images/spacer.gif' alt='' title='' /></div>
+	</div>
+	<br /></div>
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+
+#endif
+<div class='copy'><a href='http://forum.myupb.com/'> Powered by myUPB v[SYM]</a>&nbsp;&nbsp;&middot;&nbsp;&nbsp;
+	&copy; PHP Outburst 2002 - [SYM]<br />
+<br />
+<a rel="license"
+	href="http://creativecommons.org/licenses/by-nc-sa/3.0/"><img
+	alt="Creative Commons License" style="border-width: 0;"
+	src="http://i.creativecommons.org/l/by-nc-sa/3.0/80x15.png"
+	align='absmiddle' /></a></div>
+</div>
+
+</body>
+</html>
+
+#else
+
+			<div class='alert'><div class='alert_text'>
+			<strong>Access Denied!</strong></div><div style='padding:4px;'>you are not authorized to be here.</div></div>
+			<meta http-equiv='refresh' content='2;URL=login.php?ref=admin.php' />
+			</div></body></html>
+#endif

@@ -1,0 +1,1084 @@
+<html>
+ Text
+ <head cond="List(def($refresh == 'none'), True)">
+  Text
+  <script language="JavaScript">if (php_cond("(def($use_client_tz == 'yes')&def(!isset($_COOKIE['tzoffset'])))")) {
+   var time @tzoffset.php:-1:38:3  = new Date @tzoffset.php:-1:45:3 ();
+}
+if (php_cond("(def($use_client_tz == 'yes')&def(!isset($_COOKIE['tzoffset'])))")) {
+   var cookieexpire @tzoffset.php:-1:63:4  = new Date @tzoffset.php:-1:78:4 (time @tzoffset.php:-1:87:4 .getTime @tzoffset.php:-1:91:4 () + 90 @tzoffset.php:-1:104:4  * 24 @tzoffset.php:-1:109:4  * 60 @tzoffset.php:-1:114:4  * 60 @tzoffset.php:-1:119:4  * 1000 @tzoffset.php:-1:124:4 );
+}
+if (php_cond("(def($use_client_tz == 'yes')&def(!isset($_COOKIE['tzoffset'])))")) {
+   var timeclock @tzoffset.php:-1:165:5  = document @tzoffset.php:-1:177:5 .cookie @tzoffset.php:-1:185:5 ;
+}
+if (php_cond("(def($use_client_tz == 'yes')&def(!isset($_COOKIE['tzoffset'])))")) {
+   var timezone @tzoffset.php:-1:200:6  = -time @tzoffset.php:-1:214:6 .getTimezoneOffset @tzoffset.php:-1:218:6 ();
+}
+if (php_cond("(def($use_client_tz == 'yes')&def(!isset($_COOKIE['tzoffset'])))")) {
+   getthecookie @tzoffset.php:-1:254:8  = function (params) {
+      var index @tzoffset.php:-1:284:9  = timeclock @tzoffset.php:-1:292:9 .indexOf @tzoffset.php:-1:301:9 (name @tzoffset.php:-1:310:9  + "=" @tzoffset.php:-1:317:9 );
+      if (index @tzoffset.php:-1:331:10  == -1 @tzoffset.php:-1:340:10 )
+         return null @tzoffset.php:-1:350:10 ;
+      index @tzoffset.php:-1:361:11  = timeclock @tzoffset.php:-1:369:11 .indexOf @tzoffset.php:-1:378:11 ("=" @tzoffset.php:-1:387:11 , index @tzoffset.php:-1:390:11 ) + 1 @tzoffset.php:-1:401:11 ;
+      var endstr @tzoffset.php:-1:412:12  = timeclock @tzoffset.php:-1:421:12 .indexOf @tzoffset.php:-1:430:12 (";" @tzoffset.php:-1:439:12 , index @tzoffset.php:-1:442:12 );
+      if (endstr @tzoffset.php:-1:460:13  == -1 @tzoffset.php:-1:470:13 )
+         endstr @tzoffset.php:-1:474:13  = timeclock @tzoffset.php:-1:483:13 .length @tzoffset.php:-1:492:13 ;
+      return unescape @tzoffset.php:-1:512:14 (timeclock @tzoffset.php:-1:521:14 .substring @tzoffset.php:-1:530:14 (index @tzoffset.php:-1:541:14 , endstr @tzoffset.php:-1:546:14 ));
+   }
+}
+if (php_cond("(def($use_client_tz == 'yes')&def(!isset($_COOKIE['tzoffset'])))")) {
+   setthecookie @tzoffset.php:-1:574:17  = function (params) {
+      if (value @tzoffset.php:-1:616:18  != null @tzoffset.php:-1:625:18  && value @tzoffset.php:-1:633:18  != "" @tzoffset.php:-1:642:18 )
+         document @tzoffset.php:-1:652:19 .cookie @tzoffset.php:-1:660:19  = timeclock @tzoffset.php:-1:668:19  + "=" @tzoffset.php:-1:680:19  + escape @tzoffset.php:-1:686:19 (value @tzoffset.php:-1:693:19 ) + "; expires=" @tzoffset.php:-1:702:19  + cookieexpire @tzoffset.php:-1:717:19 .toGMTString @tzoffset.php:-1:729:19 ();
+      timeclock @tzoffset.php:-1:749:20  = document @tzoffset.php:-1:761:20 .cookie @tzoffset.php:-1:769:20 ;
+   }
+}
+if (php_cond("(def($use_client_tz == 'yes')&def(!isset($_COOKIE['tzoffset'])))")) {
+   var tzoffset @tzoffset.php:-1:790:23  = getthecookie @tzoffset.php:-1:801:23 ("tzoffset" @tzoffset.php:-1:814:23 ) || timezone @tzoffset.php:-1:829:23 ;
+}
+if (php_cond("(def($use_client_tz == 'yes')&def(!isset($_COOKIE['tzoffset'])))")) {
+   if (tzoffset @tzoffset.php:-1:845:24  == null @tzoffset.php:-1:857:24  || tzoffset @tzoffset.php:-1:865:24  == "" @tzoffset.php:-1:877:24 )
+      tzoffset @tzoffset.php:-1:885:25  = "0" @tzoffset.php:-1:894:25 ;
+}
+if (php_cond("(def($use_client_tz == 'yes')&def(!isset($_COOKIE['tzoffset'])))")) {
+   setthecookie @tzoffset.php:-1:901:26 ("tzoffset" @tzoffset.php:-1:914:26 , tzoffset @tzoffset.php:-1:924:26 );
+}
+
+  </script>
+  Text
+  <meta http-equiv="refresh" content="0;URL=timeclock.php">
+  </meta>
+  Text
+  <style cond="List(def($refresh == 'none'), True)">
+   Text
+  </style>
+  <style cond="List(def($refresh == 'none'), True)">
+   Text
+  </style>
+ </head>
+ <head cond="List(!def($refresh == 'none'), True)">
+  Text
+  <script language="JavaScript">if (php_cond("(def($use_client_tz == 'yes')&def(!isset($_COOKIE['tzoffset'])))")) {
+   var time @tzoffset.php:-1:38:3  = new Date @tzoffset.php:-1:45:3 ();
+}
+if (php_cond("(def($use_client_tz == 'yes')&def(!isset($_COOKIE['tzoffset'])))")) {
+   var cookieexpire @tzoffset.php:-1:63:4  = new Date @tzoffset.php:-1:78:4 (time @tzoffset.php:-1:87:4 .getTime @tzoffset.php:-1:91:4 () + 90 @tzoffset.php:-1:104:4  * 24 @tzoffset.php:-1:109:4  * 60 @tzoffset.php:-1:114:4  * 60 @tzoffset.php:-1:119:4  * 1000 @tzoffset.php:-1:124:4 );
+}
+if (php_cond("(def($use_client_tz == 'yes')&def(!isset($_COOKIE['tzoffset'])))")) {
+   var timeclock @tzoffset.php:-1:165:5  = document @tzoffset.php:-1:177:5 .cookie @tzoffset.php:-1:185:5 ;
+}
+if (php_cond("(def($use_client_tz == 'yes')&def(!isset($_COOKIE['tzoffset'])))")) {
+   var timezone @tzoffset.php:-1:200:6  = -time @tzoffset.php:-1:214:6 .getTimezoneOffset @tzoffset.php:-1:218:6 ();
+}
+if (php_cond("(def($use_client_tz == 'yes')&def(!isset($_COOKIE['tzoffset'])))")) {
+   getthecookie @tzoffset.php:-1:254:8  = function (params) {
+      var index @tzoffset.php:-1:284:9  = timeclock @tzoffset.php:-1:292:9 .indexOf @tzoffset.php:-1:301:9 (name @tzoffset.php:-1:310:9  + "=" @tzoffset.php:-1:317:9 );
+      if (index @tzoffset.php:-1:331:10  == -1 @tzoffset.php:-1:340:10 )
+         return null @tzoffset.php:-1:350:10 ;
+      index @tzoffset.php:-1:361:11  = timeclock @tzoffset.php:-1:369:11 .indexOf @tzoffset.php:-1:378:11 ("=" @tzoffset.php:-1:387:11 , index @tzoffset.php:-1:390:11 ) + 1 @tzoffset.php:-1:401:11 ;
+      var endstr @tzoffset.php:-1:412:12  = timeclock @tzoffset.php:-1:421:12 .indexOf @tzoffset.php:-1:430:12 (";" @tzoffset.php:-1:439:12 , index @tzoffset.php:-1:442:12 );
+      if (endstr @tzoffset.php:-1:460:13  == -1 @tzoffset.php:-1:470:13 )
+         endstr @tzoffset.php:-1:474:13  = timeclock @tzoffset.php:-1:483:13 .length @tzoffset.php:-1:492:13 ;
+      return unescape @tzoffset.php:-1:512:14 (timeclock @tzoffset.php:-1:521:14 .substring @tzoffset.php:-1:530:14 (index @tzoffset.php:-1:541:14 , endstr @tzoffset.php:-1:546:14 ));
+   }
+}
+if (php_cond("(def($use_client_tz == 'yes')&def(!isset($_COOKIE['tzoffset'])))")) {
+   setthecookie @tzoffset.php:-1:574:17  = function (params) {
+      if (value @tzoffset.php:-1:616:18  != null @tzoffset.php:-1:625:18  && value @tzoffset.php:-1:633:18  != "" @tzoffset.php:-1:642:18 )
+         document @tzoffset.php:-1:652:19 .cookie @tzoffset.php:-1:660:19  = timeclock @tzoffset.php:-1:668:19  + "=" @tzoffset.php:-1:680:19  + escape @tzoffset.php:-1:686:19 (value @tzoffset.php:-1:693:19 ) + "; expires=" @tzoffset.php:-1:702:19  + cookieexpire @tzoffset.php:-1:717:19 .toGMTString @tzoffset.php:-1:729:19 ();
+      timeclock @tzoffset.php:-1:749:20  = document @tzoffset.php:-1:761:20 .cookie @tzoffset.php:-1:769:20 ;
+   }
+}
+if (php_cond("(def($use_client_tz == 'yes')&def(!isset($_COOKIE['tzoffset'])))")) {
+   var tzoffset @tzoffset.php:-1:790:23  = getthecookie @tzoffset.php:-1:801:23 ("tzoffset" @tzoffset.php:-1:814:23 ) || timezone @tzoffset.php:-1:829:23 ;
+}
+if (php_cond("(def($use_client_tz == 'yes')&def(!isset($_COOKIE['tzoffset'])))")) {
+   if (tzoffset @tzoffset.php:-1:845:24  == null @tzoffset.php:-1:857:24  || tzoffset @tzoffset.php:-1:865:24  == "" @tzoffset.php:-1:877:24 )
+      tzoffset @tzoffset.php:-1:885:25  = "0" @tzoffset.php:-1:894:25 ;
+}
+if (php_cond("(def($use_client_tz == 'yes')&def(!isset($_COOKIE['tzoffset'])))")) {
+   setthecookie @tzoffset.php:-1:901:26 ("tzoffset" @tzoffset.php:-1:914:26 , tzoffset @tzoffset.php:-1:924:26 );
+}
+
+  </script>
+  Text
+  <meta http-equiv="refresh" content="0;URL=timeclock.php">
+  </meta>
+  Text
+  <style cond="List(!def($refresh == 'none'), True)">
+   Text
+  </style>
+  <style cond="List(!def($refresh == 'none'), True)">
+   Text
+  </style>
+  <meta http-equiv="refresh" content=" 300;URL=timeclock.php" cond="List(!def($refresh == 'none'), True)">
+  </meta>
+  Text
+  <script language=" javascript" src=" scripts/pnguin_timeclock.js" cond="List(!def($refresh == 'none'), True)">
+  </script>
+  Text
+ </head>
+ Text
+ Text
+ <body>
+  Text
+  <table class="header" width="100%" border="0" cellpadding="0" cellspacing="1">
+   Text
+   <tr>
+    Text
+    <td height="35" align="left" cond="List((def(!isset($_GET['printer_friendly']))&def($logo == 'none')), True)">
+    </td>
+    Text
+    Text
+    Text
+    <td align="left" cond="List((!def(!isset($_GET['printer_friendly']))|!def($logo == 'none')), True)">
+     <a href="index.php" cond="List((!def(!isset($_GET['printer_friendly']))|!def($logo == 'none')), True)">
+      <img border="0" src="images/logos/phptimeclock.png" cond="List((!def(!isset($_GET['printer_friendly']))|!def($logo == 'none')), True)">
+      </img>
+     </a>
+    </td>
+    Text
+    Text
+    Text
+    Text
+    Text
+    <td no= class="notprint" valign="middle" align="left" style="font-size:13;font-weight:bold;color:#AA0000" cond="List((!def(!isset($_GET['printer_friendly']))|def(($dbexists <> '1') || (@$my_dbversion <> $dbversion))), True)">
+     <p cond="List((!def(!isset($_GET['printer_friendly']))|def(($dbexists <> '1') || (@$my_dbversion <> $dbversion))), True)">
+      Text
+      <br cond="List((!def(!isset($_GET['printer_friendly']))|def(($dbexists <> '1') || (@$my_dbversion <> $dbversion))), True)">
+      </br>
+      Text
+     </p>
+    </td>
+    Text
+    Text
+    Text
+    Text
+    Text
+    Text
+    <td class="notprint" valign="middle" align="right" style="font-size:9px;" cond="List((def($use_client_tz == 'yes')|!def(!isset($_GET['printer_friendly']))), True)">
+     Text
+     Text
+     <p cond="List((def($use_client_tz == 'yes')|!def(!isset($_GET['printer_friendly']))), True)">
+      Text
+      Text
+      <a href="resetcookie.php" style="font-size:9px;" cond="List((def($use_client_tz == 'yes')|!def(!isset($_GET['printer_friendly']))), True)">
+       Text
+       Text
+      </a>
+      Text
+      Text
+      <br cond="List((def($use_client_tz == 'yes')|!def(!isset($_GET['printer_friendly']))), True)">
+      </br>
+      Text
+      Text
+     </p>
+    </td>
+    Text
+    Text
+    <td colspan="2" scope="col" align="right" valign="middle">
+     <a href="http://www.historychannel.com/tdih" style="color:#000000;font-family:Tahoma;font-size:10pt;
+            text-decoration:none;" cond="List((def(!isset($_GET['printer_friendly']))&!def($date_link == 'none')), True)">
+      Text
+     </a>
+     <a style="color:#000000;font-family:Tahoma;font-size:10pt;text-decoration:none;" cond="List((!def(!isset($_GET['printer_friendly']))|def($date_link == 'none')), True)">
+      Text
+     </a>
+    </td>
+   </tr>
+   Text
+  </table>
+  Text
+  <table class="topmain_row_color" width="100%" border="0" cellpadding="0" cellspacing="0">
+   Text
+   <tr>
+    Text
+    Text
+    Text
+    Text
+    <td align="left" valign="middle" width="10" style="padding-left:12px;" cond="List((def(!isset($_GET['printer_friendly']))&(def(isset($_SESSION['valid_user']))|def(isset($_SESSION['time_admin_valid_user'])))), True)">
+     <img src="images/icons/user_red.png" border="0">
+     </img>
+     <img src="images/icons/user_orange.png" border="0">
+     </img>
+    </td>
+    <td align="left" valign="middle" width="10" style="padding-left:12px;" cond="List((!def(isset($_SESSION['time_admin_valid_user']))&def(isset($_SESSION['valid_reports_user']))&!def(isset($_SESSION['valid_user']))&def(!isset($_GET['printer_friendly']))), True)">
+     <img src="images/icons/user_suit.png" border="0" cond="List((!def(isset($_SESSION['time_admin_valid_user']))&def(isset($_SESSION['valid_reports_user']))&!def(isset($_SESSION['valid_user']))&def(!isset($_GET['printer_friendly']))), True)">
+     </img>
+    </td>
+    Text
+    Text
+    Text
+    <td align="left" valign="middle" style="color:#000000;font-family:Tahoma;font-size:10pt;padding-left:8px;" cond="List((!def(isset($_SESSION['time_admin_valid_user']))&def(isset($_SESSION['valid_reports_user']))&!def(isset($_SESSION['valid_user']))&def(!isset($_GET['printer_friendly']))), True)">
+     Text
+    </td>
+    <td align="left" valign="middle" style="color:#000000;font-family:Tahoma;font-size:10pt;padding-left:8px;" cond="List((def(!isset($_GET['printer_friendly']))&(def(isset($_SESSION['valid_user']))|def(isset($_SESSION['time_admin_valid_user'])))), True)">
+     Text
+     Text
+    </td>
+    Text
+    Text
+    Text
+    <td align="right" valign="middle">
+     <img src="images/icons/house.png" border="0">
+     </img>
+     Text
+    </td>
+    Text
+    <td align="right" valign="middle" width="10">
+     <a href="index.php" style="color:#000000;font-family:Tahoma;font-size:10pt;text-decoration:none;">
+      Text
+     </a>
+    </td>
+    Text
+    <td align="right" valign="middle" width="23">
+     <img src="images/icons/bricks.png" border="0">
+     </img>
+     Text
+    </td>
+    Text
+    <td align="right" valign="middle" width="10">
+     <a href="login.php" style="color:#000000;font-family:Tahoma;font-size:10pt;text-decoration:none;">
+      Text
+     </a>
+    </td>
+    Text
+    <td align="right" valign="middle" width="23">
+     <img src="images/icons/report.png" border="0">
+     </img>
+     Text
+    </td>
+    Text
+    Text
+    Text
+    <td align="right" valign="middle" width="10" cond="List((def(!isset($_GET['printer_friendly']))&(def($use_reports_password == 'yes')|def($use_reports_password == 'no'))), True)">
+     <a href="reports/index.php" style="color:#000000;font-family:Tahoma;font-size:10pt;
+        text-decoration:none;">
+      Text
+     </a>
+     <a href="login_reports.php" style="color:#000000;font-family:Tahoma;font-size:10pt;
+        text-decoration:none;">
+      Text
+     </a>
+    </td>
+    Text
+    Text
+    <td align="right" valign="middle" width="20" cond="List((def(!isset($_GET['printer_friendly']))&def((isset($_SESSION['valid_user'])) || (isset($_SESSION['valid_reports_user'])) || (isset($_SESSION['time_admin_valid_user'])))), True)">
+     <img src="images/icons/arrow_rotate_clockwise.png" border="0" cond="List((def(!isset($_GET['printer_friendly']))&def((isset($_SESSION['valid_user'])) || (isset($_SESSION['valid_reports_user'])) || (isset($_SESSION['time_admin_valid_user'])))), True)">
+     </img>
+     Text
+    </td>
+    Text
+    <td align="right" valign="middle" width="10" cond="List((def(!isset($_GET['printer_friendly']))&def((isset($_SESSION['valid_user'])) || (isset($_SESSION['valid_reports_user'])) || (isset($_SESSION['time_admin_valid_user'])))), True)">
+     <a href="logout.php" style="color:#000000;font-family:Tahoma;font-size:10pt;text-decoration:none;" cond="List((def(!isset($_GET['printer_friendly']))&def((isset($_SESSION['valid_user'])) || (isset($_SESSION['valid_reports_user'])) || (isset($_SESSION['time_admin_valid_user'])))), True)">
+      Text
+     </a>
+    </td>
+    Text
+   </tr>
+  </table>
+  Text
+  <p cond="List((def($display_weather == 'yes')&!def(mysql_pconnect($db_hostname, $db_username, $db_password))&def(!isset($_GET['printer_friendly']))), True)">
+   Text
+  </p>
+  <table width="100%" height="89%" border="0" cellpadding="0" cellspacing="1">
+   Text
+   <tr valign="top">
+    Text
+    <td class="left_main" width="170" align="left" scope="col">
+     Text
+     <table class="hide" width="100%" border="0" cellpadding="1" cellspacing="0">
+      Text
+      Text
+      <tr cond="List((def(!isset($_GET['printer_friendly']))&def($links == 'none')), True)">
+      </tr>
+      <tr cond="List((!def(!isset($_GET['printer_friendly']))|!def($links == 'none')), True)">
+       <td class="left_rows" height="7" align="left" valign="middle" cond="List((!def(!isset($_GET['printer_friendly']))|!def($links == 'none')), True)">
+       </td>
+      </tr>
+      Text
+      Text
+      <tr cond="List((!def(!isset($_GET['printer_friendly']))|!def($links == 'none')), True)">
+       <td class="left_rows" height="18" align="left" valign="middle" cond="List((!def(!isset($_GET['printer_friendly']))|!def($links == 'none')), True)">
+        <a class="admin_headings" href="SYM" cond="List((!def(!isset($_GET['printer_friendly']))|!def($links == 'none')), True)">
+         Text
+        </a>
+       </td>
+       Text
+      </tr>
+      Text
+      <form name="timeclock" action="SYM" method="post">
+       Text
+       Text
+       <tr>
+        <td height="7" cond="List((def(!isset($_GET['printer_friendly']))&def($links == 'none')), True)">
+        </td>
+        <td height="20" cond="List((!def(!isset($_GET['printer_friendly']))|!def($links == 'none')), True)">
+        </td>
+       </tr>
+       Text
+       Text
+       <tr>
+        <td class="title_underline" height="4" align="left" valign="middle" style="padding-left:10px;">
+         Text
+        </td>
+       </tr>
+       Text
+       <tr>
+        <td height="7">
+        </td>
+       </tr>
+       Text
+       <tr>
+        <td height="4" align="left" valign="middle" class="misc_items">
+         Text
+        </td>
+       </tr>
+       Text
+       <tr>
+        <td height="4" align="left" valign="middle" class="misc_items">
+         Text
+         Text
+         <select name="left_displayname" tabindex="1" cond="List((def(!isset($_GET['printer_friendly']))&def($show_display_name == 'yes')), True)">
+          Text
+          <option value="" cond="List((def(!isset($_GET['printer_friendly']))&def($show_display_name == 'yes')), True)">
+           Text
+          </option>
+          Text
+          Text
+          <option selected=>
+           Text
+          </option>
+          <option>
+           Text
+          </option>
+          Text
+          Text
+         </select>
+         <select name="left_fullname" tabindex="1" cond="List((!def(!isset($_GET['printer_friendly']))|!def($show_display_name == 'yes')), True)">
+          Text
+          <option value="" cond="List((!def(!isset($_GET['printer_friendly']))|!def($show_display_name == 'yes')), True)">
+           Text
+          </option>
+          Text
+          Text
+          <option selected=>
+           Text
+          </option>
+          <option>
+           Text
+          </option>
+          Text
+          Text
+         </select>
+        </td>
+       </tr>
+       Text
+       Text
+       <tr>
+        <td height="7">
+        </td>
+       </tr>
+       Text
+       Text
+       Text
+       Text
+       <tr cond="List((!def(!isset($_GET['printer_friendly']))|def($use_passwd == 'yes')), True)">
+        <td height="4" align="left" valign="middle" class="misc_items" cond="List((!def(!isset($_GET['printer_friendly']))|def($use_passwd == 'yes')), True)">
+         Text
+        </td>
+       </tr>
+       Text
+       <tr cond="List((!def(!isset($_GET['printer_friendly']))|def($use_passwd == 'yes')), True)">
+        <td height="4" align="left" valign="middle" class="misc_items" cond="List((!def(!isset($_GET['printer_friendly']))|def($use_passwd == 'yes')), True)">
+         <input type="password" name="employee_passwd" maxlength="25" size="17" tabindex="2" cond="List((!def(!isset($_GET['printer_friendly']))|def($use_passwd == 'yes')), True)">
+         </input>
+        </td>
+       </tr>
+       Text
+       <tr cond="List((!def(!isset($_GET['printer_friendly']))|def($use_passwd == 'yes')), True)">
+        <td height="7" cond="List((!def(!isset($_GET['printer_friendly']))|def($use_passwd == 'yes')), True)">
+        </td>
+       </tr>
+       Text
+       <tr>
+        <td height="4" align="left" valign="middle" class="misc_items">
+         Text
+        </td>
+       </tr>
+       Text
+       <tr>
+        <td height="4" align="left" valign="middle" class="misc_items">
+         Text
+         <select name="left_inout" tabindex="3">
+          Text
+          <option value="">
+           Text
+          </option>
+          Text
+          <option>
+           Text
+          </option>
+          Text
+         </select>
+        </td>
+       </tr>
+       Text
+       <tr>
+        <td height="7">
+        </td>
+       </tr>
+       Text
+       <tr>
+        <td height="4" align="left" valign="middle" class="misc_items">
+         Text
+        </td>
+       </tr>
+       Text
+       <tr>
+        <td height="4" align="left" valign="middle" class="misc_items">
+         <input type="text" name="left_notes" maxlength="250" size="17" tabindex="4">
+         </input>
+        </td>
+       </tr>
+       Text
+       Text
+       Text
+       <tr cond="List((def(!isset($_GET['printer_friendly']))&(def(!isset($_COOKIE['remember_me']))|def(isset($_COOKIE['remember_me'])))), True)">
+        <td width="100%" cond="List((def(!isset($_GET['printer_friendly']))&(def(!isset($_COOKIE['remember_me']))|def(isset($_COOKIE['remember_me'])))), True)">
+         <table width="100%" border="0" cellpadding="0" cellspacing="0" cond="List((def(!isset($_GET['printer_friendly']))&(def(!isset($_COOKIE['remember_me']))|def(isset($_COOKIE['remember_me'])))), True)">
+          Text
+          Text
+          <tr cond="List((def(!isset($_GET['printer_friendly']))&(def(!isset($_COOKIE['remember_me']))|def(isset($_COOKIE['remember_me'])))), True)">
+           <td nowrap= height="4" align="left" valign="middle" class="misc_items" width="10%" cond="List((def(!isset($_GET['printer_friendly']))&(def(!isset($_COOKIE['remember_me']))|def(isset($_COOKIE['remember_me'])))), True)">
+            Text
+            Text
+           </td>
+           <td width="90%" align="left" class="misc_items" style="padding-left:0px;padding-right:0px;" tabindex="5" cond="List((def(!isset($_GET['printer_friendly']))&(def(!isset($_COOKIE['remember_me']))|def(isset($_COOKIE['remember_me'])))), True)">
+            <input type="checkbox" name="reset_cookie" value="1">
+            </input>
+            <input type="checkbox" name="remember_me" value="1">
+            </input>
+           </td>
+          </tr>
+          Text
+          Text
+         </table>
+        </td>
+       </tr>
+       Text
+       Text
+       <tr>
+        <td height="7">
+        </td>
+       </tr>
+       Text
+       <tr>
+        <td height="4" align="left" valign="middle" class="misc_items">
+         <input type="submit" name="submit_button" value="Submit" align="center" tabindex="6">
+         </input>
+        </td>
+       </tr>
+      </form>
+      Text
+      Text
+      <tr cond="List((def(!isset($_GET['printer_friendly']))&def($display_weather == 'yes')), True)">
+       <td height="25" align="left" valign="bottom" class="misc_items" cond="List((def(!isset($_GET['printer_friendly']))&def($display_weather == 'yes')), True)">
+        <font color="00589C" cond="List((def(!isset($_GET['printer_friendly']))&def($display_weather == 'yes')), True)">
+         <b cond="List((def(!isset($_GET['printer_friendly']))&def($display_weather == 'yes')), True)">
+          <u cond="List((def(!isset($_GET['printer_friendly']))&def($display_weather == 'yes')), True)">
+           Text
+          </u>
+         </b>
+        </font>
+       </td>
+      </tr>
+      Text
+      <tr cond="List((def(!isset($_GET['printer_friendly']))&def($display_weather == 'yes')), True)">
+       <td height="7" cond="List((def(!isset($_GET['printer_friendly']))&def($display_weather == 'yes')), True)">
+       </td>
+      </tr>
+      Text
+      <tr cond="List((def(!isset($_GET['printer_friendly']))&def($display_weather == 'yes')), True)">
+       <td align="left" valign="middle" class="misc_items" cond="List((def(!isset($_GET['printer_friendly']))&def($display_weather == 'yes')), True)">
+        <b cond="List((def(!isset($_GET['printer_friendly']))&def($display_weather == 'yes')), True)">
+         Text
+        </b>
+       </td>
+      </tr>
+      Text
+      <tr cond="List((def(!isset($_GET['printer_friendly']))&def($display_weather == 'yes')), True)">
+       <td height="4" cond="List((def(!isset($_GET['printer_friendly']))&def($display_weather == 'yes')), True)">
+       </td>
+      </tr>
+      Text
+      <tr cond="List((def(!isset($_GET['printer_friendly']))&def($display_weather == 'yes')), True)">
+       <td align="left" valign="middle" class="misc_items" cond="List((def(!isset($_GET['printer_friendly']))&def($display_weather == 'yes')), True)">
+        Text
+       </td>
+      </tr>
+      Text
+      <tr cond="List((def(!isset($_GET['printer_friendly']))&def($display_weather == 'yes')), True)">
+       <td height="4" cond="List((def(!isset($_GET['printer_friendly']))&def($display_weather == 'yes')), True)">
+       </td>
+      </tr>
+      Text
+      <tr cond="List((def(!isset($_GET['printer_friendly']))&def($display_weather == 'yes')), True)">
+       <td align="left" valign="middle" class="misc_items" cond="List((def(!isset($_GET['printer_friendly']))&def($display_weather == 'yes')), True)">
+        Text
+       </td>
+      </tr>
+      Text
+      <tr cond="List((def(!isset($_GET['printer_friendly']))&def($display_weather == 'yes')), True)">
+       <td height="4" cond="List((def(!isset($_GET['printer_friendly']))&def($display_weather == 'yes')), True)">
+       </td>
+      </tr>
+      Text
+      <tr cond="List((def(!isset($_GET['printer_friendly']))&def($display_weather == 'yes')), True)">
+       <td align="left" valign="middle" class="misc_items" cond="List((def(!isset($_GET['printer_friendly']))&def($display_weather == 'yes')), True)">
+        Text
+       </td>
+      </tr>
+      Text
+      <tr cond="List((def(!isset($_GET['printer_friendly']))&def($display_weather == 'yes')), True)">
+       <td height="4" cond="List((def(!isset($_GET['printer_friendly']))&def($display_weather == 'yes')), True)">
+       </td>
+      </tr>
+      Text
+      <tr cond="List((def(!isset($_GET['printer_friendly']))&def($display_weather == 'yes')), True)">
+       <td align="left" valign="middle" class="misc_items" cond="List((def(!isset($_GET['printer_friendly']))&def($display_weather == 'yes')), True)">
+        Text
+       </td>
+      </tr>
+      Text
+      <tr cond="List((def(!isset($_GET['printer_friendly']))&def($display_weather == 'yes')), True)">
+       <td height="4" cond="List((def(!isset($_GET['printer_friendly']))&def($display_weather == 'yes')), True)">
+       </td>
+      </tr>
+      Text
+      Text
+      <tr cond="List((def(!isset($_GET['printer_friendly']))&def($display_weather == 'yes')), True)">
+       <td align="left" valign="middle" class="misc_items" cond="List((def(!isset($_GET['printer_friendly']))&def($display_weather == 'yes')), True)">
+        Text
+        Text
+       </td>
+      </tr>
+      Text
+      Text
+      <tr cond="List((def(!isset($_GET['printer_friendly']))&def($display_weather == 'yes')), True)">
+       <td height="4" cond="List((def(!isset($_GET['printer_friendly']))&def($display_weather == 'yes')), True)">
+       </td>
+      </tr>
+      Text
+      <tr cond="List((def(!isset($_GET['printer_friendly']))&def($display_weather == 'yes')), True)">
+       <td align="left" valign="middle" class="misc_items" cond="List((def(!isset($_GET['printer_friendly']))&def($display_weather == 'yes')), True)">
+        Text
+       </td>
+      </tr>
+      Text
+      <tr cond="List((def(!isset($_GET['printer_friendly']))&def($display_weather == 'yes')), True)">
+       <td height="4" cond="List((def(!isset($_GET['printer_friendly']))&def($display_weather == 'yes')), True)">
+       </td>
+      </tr>
+      Text
+      <tr cond="List((def(!isset($_GET['printer_friendly']))&def($display_weather == 'yes')), True)">
+       <td align="left" valign="middle" class="misc_items" cond="List((def(!isset($_GET['printer_friendly']))&def($display_weather == 'yes')), True)">
+        <font color="FF0000" cond="List((def(!isset($_GET['printer_friendly']))&def($display_weather == 'yes')), True)">
+         Text
+        </font>
+       </td>
+      </tr>
+      Text
+      <tr>
+       <td height="90%">
+       </td>
+      </tr>
+      Text
+     </table>
+    </td>
+    Text
+    <head cond="List((def($request == 'POST')&def($use_passwd == 'no')&def(!isset($_GET['printer_friendly']))), True)">
+     Text
+     <meta http-equiv="refresh" content="0" url="index.php" cond="List((def($request == 'POST')&def($use_passwd == 'no')&def(!isset($_GET['printer_friendly']))), True)">
+     </meta>
+     Text
+    </head>
+    Text
+    <head cond="List((def($request == 'POST')&!def($use_passwd == 'no')&def(!isset($_GET['printer_friendly']))), True)">
+     Text
+     <meta http-equiv="refresh" content="0" url="index.php" cond="List((def($request == 'POST')&!def($use_passwd == 'no')&def(!isset($_GET['printer_friendly']))), True)">
+     </meta>
+     Text
+    </head>
+    Text
+    <title>
+     Text
+    </title>
+    Text
+    <td align="left" class="right_main" scope="col">
+     Text
+     <table width="100%" height="100%" border="0" cellpadding="5" cellspacing="1">
+      Text
+      <tr class="right_main_text">
+       Text
+       <td valign="top">
+        Text
+        <table width="100%" align="center" class="misc_items" border="0" cellpadding="3" cellspacing="0">
+         Text
+         <tr class="display_hide">
+          Text
+          <td nowrap= style="font-size:9px;color:#000000;padding-left:10px;">
+           Text
+          </td>
+         </tr>
+         Text
+        </table>
+        Text
+        Text
+        Text
+        <tr cond="List((def($row_count == 0)&def($page_count == 0)&def(!isset($_GET['printer_friendly']))), True)">
+         <td align="right" colspan="7" cond="List((def($row_count == 0)&def($page_count == 0)&def(!isset($_GET['printer_friendly']))), True)">
+          <a style="font-size:11px;color:#853d27;" href="timeclock.php?printer_friendly=true" cond="List((def($row_count == 0)&def($page_count == 0)&def(!isset($_GET['printer_friendly']))), True)">
+           Text
+          </a>
+         </td>
+        </tr>
+        Text
+        <tr class="notprint" cond="List((def($row_count == 0)&def($page_count == 0)&def(!isset($_GET['printer_friendly']))), True)">
+         Text
+         <td nowrap= width="20%" align="left" style="padding-left:10px;padding-right:10px;" cond="List((def($row_count == 0)&def($page_count == 0)&def(!isset($_GET['printer_friendly']))), True)">
+          Text
+          <a style="font-size:11px;color:#27408b;" href="timeclock.php?sortcolumn=empfullname&sortdirection=desc" href="timeclock.php?sortcolumn=empfullname&sortdirection=asc" cond="List((def($row_count == 0)&def($page_count == 0)&def(!isset($_GET['printer_friendly']))), True)">
+           Text
+          </a>
+         </td>
+         Text
+         <td nowrap= width="7%" align="left" style="padding-left:10px;" cond="List((def($row_count == 0)&def($page_count == 0)&def(!isset($_GET['printer_friendly']))), True)">
+          <a style="font-size:11px;color:#27408b;" href="timeclock.php?sortcolumn=inout&sortdirection=desc" href="timeclock.php?sortcolumn=inout&sortdirection=asc" cond="List((def($row_count == 0)&def($page_count == 0)&def(!isset($_GET['printer_friendly']))), True)">
+           Text
+          </a>
+         </td>
+         Text
+         <td nowrap= width="5%" align="right" style="padding-right:10px;" cond="List((def($row_count == 0)&def($page_count == 0)&def(!isset($_GET['printer_friendly']))), True)">
+          <a style="font-size:11px;color:#27408b;" href="timeclock.php?sortcolumn=tstamp&sortdirection=desc" href="timeclock.php?sortcolumn=tstamp&sortdirection=asc" cond="List((def($row_count == 0)&def($page_count == 0)&def(!isset($_GET['printer_friendly']))), True)">
+           Text
+          </a>
+         </td>
+         Text
+         <td nowrap= width="5%" align="right" style="padding-left:10px;" cond="List((def($row_count == 0)&def($page_count == 0)&def(!isset($_GET['printer_friendly']))), True)">
+          <a style="font-size:11px;color:#27408b;" href="timeclock.php?sortcolumn=tstamp&sortdirection=desc" href="timeclock.php?sortcolumn=tstamp&sortdirection=asc" cond="List((def($row_count == 0)&def($page_count == 0)&def(!isset($_GET['printer_friendly']))), True)">
+           Text
+          </a>
+         </td>
+         Text
+         Text
+         Text
+         <td nowrap= width="10%" align="left" style="padding-left:10px;">
+          <a style="font-size:11px;color:#27408b;" href="timeclock.php?sortcolumn=office&sortdirection=desc" href="timeclock.php?sortcolumn=office&sortdirection=asc">
+           Text
+          </a>
+         </td>
+         Text
+         Text
+         <td nowrap= width="10%" align="left" style="padding-left:10px;">
+          <a style="font-size:11px;color:#27408b;" href="timeclock.php?sortcolumn=groups&sortdirection=desc" href="timeclock.php?sortcolumn=groups&sortdirection=asc">
+           Text
+          </a>
+         </td>
+         Text
+         <td style="padding-left:10px;" cond="List((def($row_count == 0)&def($page_count == 0)&def(!isset($_GET['printer_friendly']))), True)">
+          <a style="font-size:11px;color:#27408b;" href="timeclock.php?sortcolumn=notes&sortdirection=desc" href="timeclock.php?sortcolumn=notes&sortdirection=asc" cond="List((def($row_count == 0)&def($page_count == 0)&def(!isset($_GET['printer_friendly']))), True)">
+           <u cond="List((def($row_count == 0)&def($page_count == 0)&def(!isset($_GET['printer_friendly']))), True)">
+            Text
+           </u>
+          </a>
+         </td>
+         Text
+        </tr>
+        Text
+        <tr class="notdisplay" cond="List(def($row_count == 0), True)">
+         Text
+         <td nowrap= width="20%" align="left" style="padding-left:10px;padding-right:10px;font-size:11px;color:#27408b;
+                            text-decoration:underline;" cond="List(def($row_count == 0), True)">
+          Text
+         </td>
+         Text
+         <td nowrap= width="7%" align="left" style="padding-left:10px;font-size:11px;color:#27408b;
+                            text-decoration:underline;" cond="List(def($row_count == 0), True)">
+          Text
+         </td>
+         Text
+         <td nowrap= width="5%" align="right" style="padding-right:10px;font-size:11px;color:#27408b;
+                            text-decoration:underline;" cond="List(def($row_count == 0), True)">
+          Text
+         </td>
+         Text
+         <td nowrap= width="5%" align="right" style="padding-left:10px;font-size:11px;color:#27408b;
+                            text-decoration:underline;" cond="List(def($row_count == 0), True)">
+          Text
+         </td>
+         Text
+         Text
+         Text
+         <td nowrap= width="10%" align="left" style="padding-left:10px;font-size:11px;color:#27408b;
+                                text-decoration:underline;">
+          Text
+         </td>
+         Text
+         Text
+         <td nowrap= width="10%" align="left" style="padding-left:10px;font-size:11px;color:#27408b;
+                                text-decoration:underline;">
+          Text
+         </td>
+         Text
+         <td style="padding-left:10px;" cond="List(def($row_count == 0), True)">
+          <a style="font-size:11px;color:#27408b;text-decoration:underline;" cond="List(def($row_count == 0), True)">
+           Text
+          </a>
+         </td>
+         Text
+        </tr>
+        Text
+        <tr>
+         <td nowrap= align="left" width="7%" style="background-color:#EFEFEF;color:SYM;
+                        padding-left:10px;" style="background-color:#FBFBFB;color:SYM;
+                        padding-left:10px;">
+          Text
+         </td>
+         Text
+         <td nowrap= align="right" width="5%" bgcolor="#EFEFEF" bgcolor="#FBFBFB" style="padding-right:10px;">
+          Text
+         </td>
+         Text
+         <td nowrap= align="right" width="5%" bgcolor="#EFEFEF" bgcolor="#FBFBFB" style="padding-left:10px;">
+          Text
+         </td>
+         Text
+         Text
+         Text
+         <td nowrap= align="left" width="10%" bgcolor="#EFEFEF" bgcolor="#FBFBFB" style="padding-left:10px;" cond="List(def($display_office_name == 'yes'), True)">
+          Text
+         </td>
+         Text
+         Text
+         <td nowrap= align="left" width="10%" bgcolor="#EFEFEF" bgcolor="#FBFBFB" style="padding-left:10px;" cond="List(def($display_group_name == 'yes'), True)">
+          Text
+         </td>
+         Text
+        </tr>
+        Text
+        Text
+        <tr style=" page-break-before:always;" cond="List(def($row_count == 40), True)">
+        </tr>
+        Text
+       </td>
+      </tr>
+      Text
+      <tr class="hide">
+       <td height="4%" class="misc_items" align="right" valign="middle" scope="row" colspan="2">
+        Text
+        <a class="footer_links" href="http://httpd.apache.org/">
+         Text
+        </a>
+        Text
+        <a class="footer_links" href="http://mysql.org">
+         Text
+        </a>
+        Text
+        <a class="footer_links" href="http://php.net" cond="List((def(!isset($_GET['printer_friendly']))&def($email == 'none')), True)">
+         Text
+        </a>
+        <a class="footer_links" href="http://php.net" cond="List((!def(!isset($_GET['printer_friendly']))|!def($email == 'none')), True)">
+         Text
+        </a>
+        Text
+        <a class="footer_links" href="mailto:none" cond="List((!def(!isset($_GET['printer_friendly']))|!def($email == 'none')), True)">
+         Text
+        </a>
+        Text
+        <a class="footer_links" href="http://timeclock.sourceforge.net">
+         Text
+        </a>
+       </td>
+      </tr>
+      Text
+     </table>
+     Text
+    </td>
+    Text
+   </tr>
+   Text
+  </table>
+  Text
+ </body>
+ Text
+</html><html>
+ Text
+ <head cond="List(def($refresh == 'none'), True)">
+  Text
+  <script language="JavaScript">if (php_cond("(def($use_client_tz == 'yes')&def(!isset($_COOKIE['tzoffset'])))")) {
+   var time @tzoffset.php:-1:38:3  = new Date @tzoffset.php:-1:45:3 ();
+}
+if (php_cond("(def($use_client_tz == 'yes')&def(!isset($_COOKIE['tzoffset'])))")) {
+   var cookieexpire @tzoffset.php:-1:63:4  = new Date @tzoffset.php:-1:78:4 (time @tzoffset.php:-1:87:4 .getTime @tzoffset.php:-1:91:4 () + 90 @tzoffset.php:-1:104:4  * 24 @tzoffset.php:-1:109:4  * 60 @tzoffset.php:-1:114:4  * 60 @tzoffset.php:-1:119:4  * 1000 @tzoffset.php:-1:124:4 );
+}
+if (php_cond("(def($use_client_tz == 'yes')&def(!isset($_COOKIE['tzoffset'])))")) {
+   var timeclock @tzoffset.php:-1:165:5  = document @tzoffset.php:-1:177:5 .cookie @tzoffset.php:-1:185:5 ;
+}
+if (php_cond("(def($use_client_tz == 'yes')&def(!isset($_COOKIE['tzoffset'])))")) {
+   var timezone @tzoffset.php:-1:200:6  = -time @tzoffset.php:-1:214:6 .getTimezoneOffset @tzoffset.php:-1:218:6 ();
+}
+if (php_cond("(def($use_client_tz == 'yes')&def(!isset($_COOKIE['tzoffset'])))")) {
+   getthecookie @tzoffset.php:-1:254:8  = function (params) {
+      var index @tzoffset.php:-1:284:9  = timeclock @tzoffset.php:-1:292:9 .indexOf @tzoffset.php:-1:301:9 (name @tzoffset.php:-1:310:9  + "=" @tzoffset.php:-1:317:9 );
+      if (index @tzoffset.php:-1:331:10  == -1 @tzoffset.php:-1:340:10 )
+         return null @tzoffset.php:-1:350:10 ;
+      index @tzoffset.php:-1:361:11  = timeclock @tzoffset.php:-1:369:11 .indexOf @tzoffset.php:-1:378:11 ("=" @tzoffset.php:-1:387:11 , index @tzoffset.php:-1:390:11 ) + 1 @tzoffset.php:-1:401:11 ;
+      var endstr @tzoffset.php:-1:412:12  = timeclock @tzoffset.php:-1:421:12 .indexOf @tzoffset.php:-1:430:12 (";" @tzoffset.php:-1:439:12 , index @tzoffset.php:-1:442:12 );
+      if (endstr @tzoffset.php:-1:460:13  == -1 @tzoffset.php:-1:470:13 )
+         endstr @tzoffset.php:-1:474:13  = timeclock @tzoffset.php:-1:483:13 .length @tzoffset.php:-1:492:13 ;
+      return unescape @tzoffset.php:-1:512:14 (timeclock @tzoffset.php:-1:521:14 .substring @tzoffset.php:-1:530:14 (index @tzoffset.php:-1:541:14 , endstr @tzoffset.php:-1:546:14 ));
+   }
+}
+if (php_cond("(def($use_client_tz == 'yes')&def(!isset($_COOKIE['tzoffset'])))")) {
+   setthecookie @tzoffset.php:-1:574:17  = function (params) {
+      if (value @tzoffset.php:-1:616:18  != null @tzoffset.php:-1:625:18  && value @tzoffset.php:-1:633:18  != "" @tzoffset.php:-1:642:18 )
+         document @tzoffset.php:-1:652:19 .cookie @tzoffset.php:-1:660:19  = timeclock @tzoffset.php:-1:668:19  + "=" @tzoffset.php:-1:680:19  + escape @tzoffset.php:-1:686:19 (value @tzoffset.php:-1:693:19 ) + "; expires=" @tzoffset.php:-1:702:19  + cookieexpire @tzoffset.php:-1:717:19 .toGMTString @tzoffset.php:-1:729:19 ();
+      timeclock @tzoffset.php:-1:749:20  = document @tzoffset.php:-1:761:20 .cookie @tzoffset.php:-1:769:20 ;
+   }
+}
+if (php_cond("(def($use_client_tz == 'yes')&def(!isset($_COOKIE['tzoffset'])))")) {
+   var tzoffset @tzoffset.php:-1:790:23  = getthecookie @tzoffset.php:-1:801:23 ("tzoffset" @tzoffset.php:-1:814:23 ) || timezone @tzoffset.php:-1:829:23 ;
+}
+if (php_cond("(def($use_client_tz == 'yes')&def(!isset($_COOKIE['tzoffset'])))")) {
+   if (tzoffset @tzoffset.php:-1:845:24  == null @tzoffset.php:-1:857:24  || tzoffset @tzoffset.php:-1:865:24  == "" @tzoffset.php:-1:877:24 )
+      tzoffset @tzoffset.php:-1:885:25  = "0" @tzoffset.php:-1:894:25 ;
+}
+if (php_cond("(def($use_client_tz == 'yes')&def(!isset($_COOKIE['tzoffset'])))")) {
+   setthecookie @tzoffset.php:-1:901:26 ("tzoffset" @tzoffset.php:-1:914:26 , tzoffset @tzoffset.php:-1:924:26 );
+}
+
+  </script>
+  Text
+  <meta http-equiv="refresh" content="0;URL=timeclock.php">
+  </meta>
+  Text
+  <style cond="List(def($refresh == 'none'), True)">
+   Text
+  </style>
+  <style cond="List(def($refresh == 'none'), True)">
+   Text
+  </style>
+ </head>
+ <head cond="List(!def($refresh == 'none'), True)">
+  Text
+  <script language="JavaScript">if (php_cond("(def($use_client_tz == 'yes')&def(!isset($_COOKIE['tzoffset'])))")) {
+   var time @tzoffset.php:-1:38:3  = new Date @tzoffset.php:-1:45:3 ();
+}
+if (php_cond("(def($use_client_tz == 'yes')&def(!isset($_COOKIE['tzoffset'])))")) {
+   var cookieexpire @tzoffset.php:-1:63:4  = new Date @tzoffset.php:-1:78:4 (time @tzoffset.php:-1:87:4 .getTime @tzoffset.php:-1:91:4 () + 90 @tzoffset.php:-1:104:4  * 24 @tzoffset.php:-1:109:4  * 60 @tzoffset.php:-1:114:4  * 60 @tzoffset.php:-1:119:4  * 1000 @tzoffset.php:-1:124:4 );
+}
+if (php_cond("(def($use_client_tz == 'yes')&def(!isset($_COOKIE['tzoffset'])))")) {
+   var timeclock @tzoffset.php:-1:165:5  = document @tzoffset.php:-1:177:5 .cookie @tzoffset.php:-1:185:5 ;
+}
+if (php_cond("(def($use_client_tz == 'yes')&def(!isset($_COOKIE['tzoffset'])))")) {
+   var timezone @tzoffset.php:-1:200:6  = -time @tzoffset.php:-1:214:6 .getTimezoneOffset @tzoffset.php:-1:218:6 ();
+}
+if (php_cond("(def($use_client_tz == 'yes')&def(!isset($_COOKIE['tzoffset'])))")) {
+   getthecookie @tzoffset.php:-1:254:8  = function (params) {
+      var index @tzoffset.php:-1:284:9  = timeclock @tzoffset.php:-1:292:9 .indexOf @tzoffset.php:-1:301:9 (name @tzoffset.php:-1:310:9  + "=" @tzoffset.php:-1:317:9 );
+      if (index @tzoffset.php:-1:331:10  == -1 @tzoffset.php:-1:340:10 )
+         return null @tzoffset.php:-1:350:10 ;
+      index @tzoffset.php:-1:361:11  = timeclock @tzoffset.php:-1:369:11 .indexOf @tzoffset.php:-1:378:11 ("=" @tzoffset.php:-1:387:11 , index @tzoffset.php:-1:390:11 ) + 1 @tzoffset.php:-1:401:11 ;
+      var endstr @tzoffset.php:-1:412:12  = timeclock @tzoffset.php:-1:421:12 .indexOf @tzoffset.php:-1:430:12 (";" @tzoffset.php:-1:439:12 , index @tzoffset.php:-1:442:12 );
+      if (endstr @tzoffset.php:-1:460:13  == -1 @tzoffset.php:-1:470:13 )
+         endstr @tzoffset.php:-1:474:13  = timeclock @tzoffset.php:-1:483:13 .length @tzoffset.php:-1:492:13 ;
+      return unescape @tzoffset.php:-1:512:14 (timeclock @tzoffset.php:-1:521:14 .substring @tzoffset.php:-1:530:14 (index @tzoffset.php:-1:541:14 , endstr @tzoffset.php:-1:546:14 ));
+   }
+}
+if (php_cond("(def($use_client_tz == 'yes')&def(!isset($_COOKIE['tzoffset'])))")) {
+   setthecookie @tzoffset.php:-1:574:17  = function (params) {
+      if (value @tzoffset.php:-1:616:18  != null @tzoffset.php:-1:625:18  && value @tzoffset.php:-1:633:18  != "" @tzoffset.php:-1:642:18 )
+         document @tzoffset.php:-1:652:19 .cookie @tzoffset.php:-1:660:19  = timeclock @tzoffset.php:-1:668:19  + "=" @tzoffset.php:-1:680:19  + escape @tzoffset.php:-1:686:19 (value @tzoffset.php:-1:693:19 ) + "; expires=" @tzoffset.php:-1:702:19  + cookieexpire @tzoffset.php:-1:717:19 .toGMTString @tzoffset.php:-1:729:19 ();
+      timeclock @tzoffset.php:-1:749:20  = document @tzoffset.php:-1:761:20 .cookie @tzoffset.php:-1:769:20 ;
+   }
+}
+if (php_cond("(def($use_client_tz == 'yes')&def(!isset($_COOKIE['tzoffset'])))")) {
+   var tzoffset @tzoffset.php:-1:790:23  = getthecookie @tzoffset.php:-1:801:23 ("tzoffset" @tzoffset.php:-1:814:23 ) || timezone @tzoffset.php:-1:829:23 ;
+}
+if (php_cond("(def($use_client_tz == 'yes')&def(!isset($_COOKIE['tzoffset'])))")) {
+   if (tzoffset @tzoffset.php:-1:845:24  == null @tzoffset.php:-1:857:24  || tzoffset @tzoffset.php:-1:865:24  == "" @tzoffset.php:-1:877:24 )
+      tzoffset @tzoffset.php:-1:885:25  = "0" @tzoffset.php:-1:894:25 ;
+}
+if (php_cond("(def($use_client_tz == 'yes')&def(!isset($_COOKIE['tzoffset'])))")) {
+   setthecookie @tzoffset.php:-1:901:26 ("tzoffset" @tzoffset.php:-1:914:26 , tzoffset @tzoffset.php:-1:924:26 );
+}
+
+  </script>
+  Text
+  <meta http-equiv="refresh" content="0;URL=timeclock.php">
+  </meta>
+  Text
+  <style cond="List(!def($refresh == 'none'), True)">
+   Text
+  </style>
+  <style cond="List(!def($refresh == 'none'), True)">
+   Text
+  </style>
+  <meta http-equiv="refresh" content=" 300;URL=timeclock.php" cond="List(!def($refresh == 'none'), True)">
+  </meta>
+  Text
+  <script language=" javascript" src=" scripts/pnguin_timeclock.js" cond="List(!def($refresh == 'none'), True)">
+  </script>
+  Text
+ </head>
+ Text
+ Text
+ <body>
+  Text
+  <title>
+   Text
+  </title>
+  Text
+  <table width="100%" align="center" class="misc_items" border="0" cellpadding="3" cellspacing="0">
+   Text
+   <tr>
+    Text
+    <td nowrap= style="font-size:9px;color:#000000;padding-left:10px;">
+     Text
+    </td>
+   </tr>
+   Text
+  </table>
+  Text
+  Text
+  Text
+  <tr class="notprint" cond="List((def($row_count == 0)&def($page_count == 0)), True)">
+   Text
+   <td nowrap= width="20%" align="left" style="padding-left:10px;padding-right:10px;" cond="List((def($row_count == 0)&def($page_count == 0)), True)">
+    Text
+    <a style="font-size:11px;color:#27408b;" href="timeclock.php?sortcolumn=empfullname&sortdirection=desc" href="timeclock.php?sortcolumn=empfullname&sortdirection=asc" cond="List((def($row_count == 0)&def($page_count == 0)), True)">
+     Text
+    </a>
+   </td>
+   Text
+   <td nowrap= width="7%" align="left" style="padding-left:10px;" cond="List((def($row_count == 0)&def($page_count == 0)), True)">
+    <a style="font-size:11px;color:#27408b;" href="timeclock.php?sortcolumn=inout&sortdirection=desc" href="timeclock.php?sortcolumn=inout&sortdirection=asc" cond="List((def($row_count == 0)&def($page_count == 0)), True)">
+     Text
+    </a>
+   </td>
+   Text
+   <td nowrap= width="5%" align="right" style="padding-right:10px;" cond="List((def($row_count == 0)&def($page_count == 0)), True)">
+    <a style="font-size:11px;color:#27408b;" href="timeclock.php?sortcolumn=tstamp&sortdirection=desc" href="timeclock.php?sortcolumn=tstamp&sortdirection=asc" cond="List((def($row_count == 0)&def($page_count == 0)), True)">
+     Text
+    </a>
+   </td>
+   Text
+   <td nowrap= width="5%" align="right" style="padding-left:10px;" cond="List((def($row_count == 0)&def($page_count == 0)), True)">
+    <a style="font-size:11px;color:#27408b;" href="timeclock.php?sortcolumn=tstamp&sortdirection=desc" href="timeclock.php?sortcolumn=tstamp&sortdirection=asc" cond="List((def($row_count == 0)&def($page_count == 0)), True)">
+     Text
+    </a>
+   </td>
+   Text
+   Text
+   Text
+   <td nowrap= width="10%" align="left" style="padding-left:10px;">
+    <a style="font-size:11px;color:#27408b;" href="timeclock.php?sortcolumn=office&sortdirection=desc" href="timeclock.php?sortcolumn=office&sortdirection=asc">
+     Text
+    </a>
+   </td>
+   Text
+   Text
+   <td nowrap= width="10%" align="left" style="padding-left:10px;">
+    <a style="font-size:11px;color:#27408b;" href="timeclock.php?sortcolumn=groups&sortdirection=desc" href="timeclock.php?sortcolumn=groups&sortdirection=asc">
+     Text
+    </a>
+   </td>
+   Text
+   <td style="padding-left:10px;" cond="List((def($row_count == 0)&def($page_count == 0)), True)">
+    <a style="font-size:11px;color:#27408b;" href="timeclock.php?sortcolumn=notes&sortdirection=desc" href="timeclock.php?sortcolumn=notes&sortdirection=asc" cond="List((def($row_count == 0)&def($page_count == 0)), True)">
+     <u cond="List((def($row_count == 0)&def($page_count == 0)), True)">
+      Text
+     </u>
+    </a>
+   </td>
+   Text
+  </tr>
+  Text
+  <tr class="notdisplay" cond="List(def($row_count == 0), True)">
+   Text
+   <td nowrap= width="20%" align="left" style="padding-left:10px;padding-right:10px;font-size:11px;color:#27408b;
+                            text-decoration:underline;" cond="List(def($row_count == 0), True)">
+    Text
+   </td>
+   Text
+   <td nowrap= width="7%" align="left" style="padding-left:10px;font-size:11px;color:#27408b;
+                            text-decoration:underline;" cond="List(def($row_count == 0), True)">
+    Text
+   </td>
+   Text
+   <td nowrap= width="5%" align="right" style="padding-right:10px;font-size:11px;color:#27408b;
+                            text-decoration:underline;" cond="List(def($row_count == 0), True)">
+    Text
+   </td>
+   Text
+   <td nowrap= width="5%" align="right" style="padding-left:10px;font-size:11px;color:#27408b;
+                            text-decoration:underline;" cond="List(def($row_count == 0), True)">
+    Text
+   </td>
+   Text
+   Text
+   Text
+   <td nowrap= width="10%" align="left" style="padding-left:10px;font-size:11px;color:#27408b;
+                                text-decoration:underline;">
+    Text
+   </td>
+   Text
+   Text
+   <td nowrap= width="10%" align="left" style="padding-left:10px;font-size:11px;color:#27408b;
+                                text-decoration:underline;">
+    Text
+   </td>
+   Text
+   <td style="padding-left:10px;" cond="List(def($row_count == 0), True)">
+    <a style="font-size:11px;color:#27408b;text-decoration:underline;" cond="List(def($row_count == 0), True)">
+     Text
+    </a>
+   </td>
+   Text
+  </tr>
+  Text
+  <tr>
+   <td nowrap= align="left" width="7%" style="background-color:#EFEFEF;color:SYM;
+                        padding-left:10px;" style="background-color:#FBFBFB;color:SYM;
+                        padding-left:10px;">
+    Text
+   </td>
+   Text
+   <td nowrap= align="right" width="5%" bgcolor="#EFEFEF" bgcolor="#FBFBFB" style="padding-right:10px;">
+    Text
+   </td>
+   Text
+   <td nowrap= align="right" width="5%" bgcolor="#EFEFEF" bgcolor="#FBFBFB" style="padding-left:10px;">
+    Text
+   </td>
+   Text
+   Text
+   Text
+   <td nowrap= align="left" width="10%" bgcolor="#EFEFEF" bgcolor="#FBFBFB" style="padding-left:10px;" cond="List(def($display_office_name == 'yes'), True)">
+    Text
+   </td>
+   Text
+   Text
+   <td nowrap= align="left" width="10%" bgcolor="#EFEFEF" bgcolor="#FBFBFB" style="padding-left:10px;" cond="List(def($display_group_name == 'yes'), True)">
+    Text
+   </td>
+   Text
+  </tr>
+  Text
+  Text
+  <tr style=" page-break-before:always;" cond="List(def($row_count == 40), True)">
+  </tr>
+  Text
+ </body>
+</html>TextText

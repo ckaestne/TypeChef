@@ -1,0 +1,959 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<Output>
+<Concat>
+<Literal File="header.php" Position="52" StringValue="&lt;html&gt;&#10; "/>
+<Literal File="header.php" Position="1539" StringValue="&lt;head&gt;&#10; "/>
+<Select File="header.php" Position="1554" StringValue="$use_client_tz == &quot;yes&quot;">
+<True>
+<Select File="header.php" Position="1589" StringValue="!isset($_COOKIE['tzoffset'])">
+<True>
+<Concat>
+<Literal File="tzoffset.php" Position="0" StringValue="&lt;s"/>
+<Literal File="tzoffset.php" Position="2" StringValue="cript language=&quot;JavaScript&quot;&gt;&#10;&#10;  var time = new Date();&#10;  var cookieexpire = new Date(time.getTime() + 90 * 24 * 60 * 60 * 1000); //cookie expires in 90 days&#10;  var timeclock = document.cookie;&#10;  var timezone = (-(time.getTimezoneOffset()));&#10;&#10;  function getthecookie(name) { &#10;    var index = timeclock.indexOf(name + &quot;=&quot;);&#10;    if (index == -1) return null;&#10;    index = timeclock.indexOf(&quot;=&quot;, index) + 1;&#10;    var endstr = timeclock.indexOf(&quot;;&quot;, index);&#10;    if (endstr == -1) endstr = timeclock.length;&#10;    return unescape(timeclock.substring(index, endstr));&#10;  }&#10;&#10;  function setthecookie(timeclock, value) { &#10;    if (value != null &amp;&amp; value != &quot;&quot;)&#10;      document.cookie=timeclock + &quot;=&quot; + escape(value) + &quot;; expires=&quot; + cookieexpire.toGMTString();&#10;    timeclock = document.cookie; &#10;  }&#10;&#10;  var tzoffset = getthecookie(&quot;tzoffset&quot;) || timezone;&#10;  if (tzoffset == null || tzoffset == &quot;&quot;)&#10;    tzoffset=&quot;0&quot;;&#10;  setthecookie(&quot;tzoffset&quot;, tzoffset);&#10;&lt;/script&gt;&#10;&#10;&#10;&#10;"/>
+<Literal File="header.php" Position="1667" StringValue="&lt;meta http-equiv='refresh' content='0;URL=timeclock.php' /&gt;&#10; "/>
+</Concat>
+</True>
+</Select>
+</True>
+</Select>
+<Literal File="css/default.css" Position="0" StringValue="&lt;style&gt; .install {&#10;&#9;font-family: Tahoma, Verdana, Trebuchet MS, sans-serif;&#10;&#9;font-size: 11px;&#10;}&#10;.install_bold {&#10;&#9;font-family: Tahoma, Verdana, Trebuchet MS, sans-serif;&#10;&#9;font-size: 11px;&#10;        font-weight: bold;&#10;        padding-left:25px;&#10;        padding-right:25px;&#10;        color: #333333;&#10;}&#10;.install_bold_center {&#10;&#9;font-family: Tahoma, Verdana, Trebuchet MS, sans-serif;&#10;&#9;font-size: 11px;&#10;        font-weight: bold;&#10;        padding-left:65px;&#10;        color: #333333;&#10;}&#10;.install_little_text {&#10;&#9;font-family: Tahoma, Verdana, Trebuchet MS, sans-serif;&#10;&#9;font-size: 9px;&#10;        padding-right:25px;&#10;        padding-left:25px;&#10;}&#10;.install_paragraph {&#10;&#9;font-family: Tahoma, Verdana, Trebuchet MS, sans-serif;&#10;&#9;font-size: 11px;&#10;        padding-left:25px;&#10;        padding-right:25px;&#10;}&#10;.install_paragraph_center {&#10;&#9;font-family: Tahoma, Verdana, Trebuchet MS, sans-serif;&#10;&#9;font-size: 11px;&#10;}&#10;.install_table {&#10;&#9;border: solid #CCCCCC;&#10;&#9;border-width: 1px 1px 1px 1px;&#10;}&#10;.admin_headings {&#10;&#9;text-decoration: none;&#10;&#9;font-family: Tahoma, Verdana, Trebuchet MS, sans-serif;&#10;&#9;font-size: 11px;&#10;        color: #27408b;&#10;}&#10;.column_headings {&#10;&#9;font-family: Tahoma, Verdana, Trebuchet MS, sans-serif;&#10;&#9;font-size: 10pt;&#10;&#9;text-decoration: underline;&#10;&#9;color: 27408b;&#10;}&#10;.current_left_rows {&#10;        background-color: #eeeeee;&#10;&#9;border: solid #748771;&#10;&#9;border-width: 0px 0px 1px 0px;&#10;&#9;padding-left: 10px;&#10;        color: #27408b;&#10;&#9;font-weight: bold;&#10;}&#10;.current_left_rows_indent {&#10;&#9;text-decoration: none;&#10;        color: #748771;&#10;&#9;font-family: Tahoma, Verdana, Trebuchet MS, sans-serif;&#10;&#9;font-size: 11px;&#10;        background-color: #eeeeee;&#10;&#9;border: solid #748771;&#10;&#9;border-width: 0px 0px 0px 0px;&#10;&#9;padding-left: 32px;&#10;&#9;font-weight: bold;&#10;}&#10;.display_hide {&#10;&#9;display: none;&#10;}&#10;.display_row {&#10;&#9;font-family: Tahoma, Verdana, Trebuchet MS, sans-serif;&#10;&#9;font-size: 11px;&#10;&#9;padding-left: 10px;&#10;&#9;color: 000;&#10;&#9;border-width: 1px 1px 1px 1px;&#10;&#9;border-color: 000;&#10;}&#10;.footer_links {&#10;&#9;font-weight: none;&#10;&#9;text-decoration: none;&#10;        color: #27408b;&#10;}&#10;.header {&#10;        height:45px;&#10;        background-color: #748771;&#10;&#9;border: solid #cdc0b0;&#10;&#9;border-width: 0px 0px 1px 0px;&#10;}&#10;.left_main {&#10;&#9;background-color: #FCFCFF;&#10;&#9;border: solid #cdc0b0;&#10;&#9;border-width: 0px 1px 1px 1px;&#10;}&#10;.left_rows {&#10;&#9;background-color: #FCFCFF;&#10;&#9;border: solid #808088;&#10;&#9;border-width: 0px 0px 1px 0px;&#10;&#9;padding-left: 10px;&#10;}&#10;.left_rows_border_top {&#10;&#9;background-color: #FCFCFF;&#10;&#9;border: solid #808088;&#10;&#9;border-width: 1px 0px 1px 0px;&#10;&#9;padding-left: 10px;&#10;}&#10;.left_rows_headings {&#10;&#9;font-weight: bold;&#10;&#9;background-color: #FCFCFF;&#10;&#9;border: solid #808088;&#10;&#9;border-width: 0px 0px 1px 0px;&#10;&#9;padding-left: 10px;&#10;        color: #000000;&#10;&#9;font-family: Tahoma, Verdana, Trebuchet MS, sans-serif;&#10;&#9;font-size: 11px;&#10;}&#10;.left_rows_indent {&#10;&#9;text-decoration: none;&#10;        color: #748771;&#10;&#9;font-family: Tahoma, Verdana, Trebuchet MS, sans-serif;&#10;&#9;font-size: 11px;&#10;&#9;background-color: #FCFCFF;&#10;&#9;border: solid #808088;&#10;&#9;border-width: 0px 0px 0px 0px;&#10;&#9;padding-left: 32px;&#10;}&#10;.misc_items {&#10;&#9;font-family: Tahoma, Verdana, Trebuchet MS, sans-serif;&#10;&#9;font-size: 11px;&#10;&#9;padding-left: 10px;&#10;&#9;padding-right: 10px;&#10;&#9;color: 748771;&#10;}&#10;.notdisplay {&#10;&#9;font-family: Tahoma, Verdana, Trebuchet MS, sans-serif;&#10;&#9;font-size: 11px;&#10;&#9;padding-left: 10px;&#10;&#9;display: none;&#10;}&#10;.notdisplay_rpt {&#10;&#9;font-family: Tahoma, Verdana, Trebuchet MS, sans-serif;&#10;&#9;font-size: 11px;&#10;&#9;display: none;&#10;}&#10;.notprint {&#10;&#9;font-family: Tahoma, Verdana, Trebuchet MS, sans-serif;&#10;&#9;font-size: 11px;&#10;&#9;padding-left: 10px;&#10;}&#10;.right_main {&#10;&#9;background-color: #FCFCFF;&#10;&#9;border: solid #cdc0b0;&#10;&#9;border-width: 0px 1px 1px 1px;&#10;}&#10;.right_main_text {&#10;&#9;font-family: Tahoma, Verdana, Trebuchet MS, sans-serif;&#10;&#9;font-size: 11px;&#10;&#9;background-color: #FCFCFF;&#10;&#9;padding-left: 10px;&#10;}&#10;.rightside_heading {&#10;&#9;border-color : #bbb;&#10;&#9;border-style : solid;&#10;&#9;border-width : 0px 0px 1px 0px;&#10;&#9;background-color: #eee;&#10;&#9;text-align : left;&#10;&#9;font-family: Tahoma, Verdana, Trebuchet MS, sans-serif;&#10;&#9;font-size: 13px;&#10;&#9;font-weight : bold;&#10;&#9;padding : 4px;&#10;}&#10;.table_border {&#10;&#9;border-color : #bbb;&#10;&#9;border-style : solid;&#10;&#9;border-width : 1px 1px 1px 1px;&#10;}&#10;.table_heading {&#10;&#9;background-color : #eeeeee;&#10;&#9;border-color : #bbbbbb;&#10;&#9;border-style : solid;&#10;&#9;border-width : 0px 1px 1px 0px;&#10;&#9;font-family: Tahoma, Verdana, Trebuchet MS, sans-serif;&#10;&#9;font-size: 11px;&#10;&#9;font-weight : bold;&#10;&#9;padding : 4px;&#10;}&#10;.table_heading_no_color {&#10;&#9;background-color: #FCFCFF;&#10;&#9;text-align : left;&#10;&#9;font-family: Tahoma, Verdana, Trebuchet MS, sans-serif;&#10;&#9;font-size: 11px;&#10;&#9;font-weight : bold;&#10;&#9;padding : 4px;&#10;}&#10;.table_rows {&#10;&#9;font-family: Tahoma, Verdana, Trebuchet MS, sans-serif;&#10;&#9;font-size: 11px;&#10;&#9;padding : 2px;&#10;}&#10;.table_rows_green {&#10;&#9;font-family: Tahoma, Verdana, Trebuchet MS, sans-serif;&#10;&#9;font-size: 11px;&#10;&#9;color: #009900;&#10;&#9;padding : 2px;&#10;}&#10;.table_rows_red {&#10;&#9;font-family: Tahoma, Verdana, Trebuchet MS, sans-serif;&#10;&#9;font-size: 11px;&#10;&#9;color: #FF0000;&#10;&#9;padding : 2px;&#10;}&#10;.title_underline {&#10;&#9;text-decoration: underline;&#10;&#9;color: #27408b;&#10;&#9;font-family: Tahoma, Verdana, Trebuchet MS, sans-serif;&#10;&#9;font-size: 10pt;&#10;&#9;padding-left: 0px;&#10;}&#10;.topmain_row_color {&#10;&#9;font-family: Tahoma, Verdana, Trebuchet MS, sans-serif;&#10;&#9;font-size: 11px;&#10;&#9;background-color: #cdc0b0;&#10;&#9;border: solid #748771;&#10;&#9;border-width: 1px 0px 1px 0px;&#10;}&#10;a:active {&#10;&#9;color: #748771;&#10;&#9;text-decoration: none;&#10;}&#10;a:hover {&#10;&#9;text-decoration: none;&#10;&#9;font-size: 11px;&#10;        color: #853d27;&#10;}&#10;&#10;&lt;/style&gt;"/>
+<Literal File="css/print.css" Position="0" StringValue="&lt;style&gt;&#10;&#10;.admin_headings {&#10;        font-weight: bold;&#10;        text-decoration: none;&#10;        color: #748771;&#10;        font-family: Tahoma, Verdana, Trebuchet MS, sans-serif;&#10;        font-size: 11px;&#10;}&#10;.header {&#10;&#9;display: none;&#10;}&#10;.hide {&#10;&#9;display: none;&#10;}&#10;.left_main {&#10;&#9;display:none;&#10;}&#10;.misc_items {&#10;        font-family: Tahoma, Verdana, Trebuchet MS, sans-serif;&#10;        font-size: 11px;&#10;&#9;padding-left: 10px;&#10;}&#10;.notdisplay {&#10;        font-family: Tahoma, Verdana, Trebuchet MS, sans-serif;&#10;        font-size: 11px;&#10;        padding-left:10px;&#10;}&#10;.notdisplay_rpt {&#10;        font-family: Tahoma, Verdana, Trebuchet MS, sans-serif;&#10;        font-size: 11px;&#10;}&#10;.notprint {&#10;        font-family: Tahoma, Verdana, Trebuchet MS, sans-serif;&#10;        font-size: 11px;&#10;        padding-left: 10px;&#10;        display: none;&#10;}&#10;.topmain_row_color {&#10;&#9;display:none;&#10;}&#10;&lt;/style&gt;"/>
+<Select File="header.php" Position="1960" StringValue="$refresh == &quot;none&quot;">
+<True>
+<Literal File="header.php" Position="1992" StringValue="&lt;/head&gt;&#10; "/>
+</True>
+<False>
+<Concat>
+<Literal File="header.php" Position="2023" StringValue="&lt;meta http-equiv='refresh' content=&quot; "/>
+<Literal File="config.inc.php" Position="7509" StringValue="300"/>
+<Literal File="header.php" Position="2068" StringValue=";URL=timeclock.php&quot; /&gt;&#10; "/>
+<Literal File="header.php" Position="2104" StringValue="&lt;script language=&quot; javascript&quot;  src=&quot; scripts/pnguin_timeclock.js&quot; &gt;&lt;/script&gt;&#10; "/>
+<Literal File="header.php" Position="2196" StringValue="&lt;/head&gt;&#10; "/>
+</Concat>
+</False>
+</Select>
+<Literal File="header.php" Position="2474" StringValue="&lt;body&gt;&#10;"/>
+<Select File="timeclock.php" Position="77" StringValue="!isset($_GET['printer_friendly'])">
+<True>
+<Concat>
+<Literal File="topmain.php" Position="13" StringValue="&lt;table class=header width=100% border=0 cellpadding=0 cellspacing=1&gt;&#10; "/>
+<Literal File="topmain.php" Position="92" StringValue="  &lt;tr&gt;"/>
+<Select File="topmain.php" Position="257" StringValue="$logo == &quot;none&quot;">
+<True>
+<Literal File="topmain.php" Position="286" StringValue="    &lt;td height=35 align=left&gt;&lt;/td&gt;&#10; "/>
+</True>
+<False>
+<Concat>
+<Literal File="topmain.php" Position="344" StringValue="&lt;td align=left&gt;&lt;a href='index.php'&gt;&lt;img border=0 src='"/>
+<Literal File="config.inc.php" Position="7233" StringValue="images/logos/phptimeclock.png"/>
+<Literal File="topmain.php" Position="403" StringValue="' /&gt;&lt;/a&gt;&lt;/td&gt;&#10; "/>
+</Concat>
+</False>
+</Select>
+<Select File="topmain.php" Position="470" StringValue="($dbexists &lt;&gt; &quot;1&quot;) || (@$my_dbversion &lt;&gt; $dbversion)">
+<True>
+<Literal File="topmain.php" Position="536" StringValue="    &lt;td no class=notprint valign=middle align=left style='font-size:13;font-weight:bold;color:#AA0000'&gt;&lt;p&gt;***Your database is out of date.***&lt;br /&gt;&#10;                                                                                    &amp;nbsp;&amp;nbsp;&amp;nbsp;Upgrade it via the admin section.&lt;/p&gt;&lt;/td&gt;&#10; "/>
+</True>
+</Select>
+<Select File="topmain.php" Position="906" StringValue="$date_link == &quot;none&quot;">
+<True>
+<Concat>
+<Select File="topmain.php" Position="939" StringValue="$use_client_tz == &quot;yes&quot;">
+<True>
+<Literal File="topmain.php" Position="980" StringValue="    &lt;td class=notprint valign=middle align=right style='font-size:9px;'&gt;&#10;              &lt;p&gt;If the times below appear to be an hour off, click &lt;a href='resetcookie.php' style='font-size:9px;'&gt;here&lt;/a&gt; to reset.&lt;br /&gt;&#10;                If that doesn't work, restart your web browser and reset again.&lt;/p&gt;&lt;/td&gt;&#10; "/>
+</True>
+</Select>
+<Literal File="topmain.php" Position="1305" StringValue="    &lt;td colspan=2 scope=col align=right valign=middle&gt;&lt;a style='color:#000000;font-family:Tahoma;font-size:10pt;text-decoration:none;'&gt;"/>
+</Concat>
+</True>
+<False>
+<Concat>
+<Select File="topmain.php" Position="1462" StringValue="$use_client_tz == &quot;yes&quot;">
+<True>
+<Literal File="topmain.php" Position="1503" StringValue="    &lt;td class=notprint valign=middle align=right style='font-size:9px;'&gt;&#10;              &lt;p&gt;If the times below appear to be an hour off, click &lt;a href='resetcookie.php' style='font-size:9px;'&gt;here&lt;/a&gt; to reset.&lt;br /&gt;&#10;                If that doesn't work, restart your web browser and reset again.&lt;/p&gt;&lt;/td&gt;&#10; "/>
+</True>
+</Select>
+<Literal File="topmain.php" Position="1828" StringValue="    &lt;td colspan=2 scope=col align=right valign=middle&gt;&lt;a href='"/>
+<Literal File="config.inc.php" Position="7724" StringValue="http://www.historychannel.com/tdih"/>
+<Literal File="topmain.php" Position="1901" StringValue="' style='color:#000000;font-family:Tahoma;font-size:10pt;&#10;            text-decoration:none;'&gt;"/>
+</Concat>
+</False>
+</Select>
+<Symbolic File="topmain.php" Position="2146" StringValue="$todaydate">
+<Symbolic File="topmain.php" Position="2124" StringValue="date('F j, Y')"/>
+</Symbolic>
+<Literal File="topmain.php" Position="2156" StringValue="&amp;nbsp;&amp;nbsp;&lt;/a&gt;&lt;/td&gt;&lt;/tr&gt;&#10; "/>
+<Literal File="topmain.php" Position="2193" StringValue="&lt;/table&gt;&#10; "/>
+<Literal File="topmain.php" Position="2239" StringValue="&lt;table class=topmain_row_color width=100% border=0 cellpadding=0 cellspacing=0&gt;&#10; "/>
+<Literal File="topmain.php" Position="2329" StringValue="  &lt;tr&gt;&#10; "/>
+<Select File="topmain.php" Position="2345" StringValue="isset($_SESSION['valid_user'])">
+<True>
+<Concat>
+<Literal File="topmain.php" Position="2436" StringValue="    &lt;td align=left valign=middle width=10 style='padding-left:12px;'&gt;&lt;img src='images/icons/user_orange.png' border='0' /&gt;&lt;/td&gt;&#10; "/>
+<Literal File="topmain.php" Position="2576" StringValue="    &lt;td align=left valign=middle style='color:#000000;font-family:Tahoma;font-size:10pt;padding-left:8px;'&gt;logged in as: "/>
+<Symbolic File="topmain.php" Position="2697" StringValue="$logged_in_user">
+<Symbolic File="topmain.php" Position="2401" StringValue="$_SESSION['valid_user']"/>
+</Symbolic>
+<Literal File="topmain.php" Position="2712" StringValue="&lt;/td&gt;&#10; "/>
+</Concat>
+</True>
+<False>
+<Select File="topmain.php" Position="2735" StringValue="isset($_SESSION['time_admin_valid_user'])">
+<True>
+<Concat>
+<Literal File="topmain.php" Position="2848" StringValue="    &lt;td align=left valign=middle width=10 style='padding-left:12px;'&gt;&lt;img src='images/icons/user_red.png' border='0' /&gt;&lt;/td&gt;&#10; "/>
+<Literal File="topmain.php" Position="2985" StringValue="    &lt;td align=left valign=middle style='color:#000000;font-family:Tahoma;font-size:10pt;padding-left:8px;'&gt;logged in as: "/>
+<Symbolic File="topmain.php" Position="3106" StringValue="$logged_in_user">
+<Symbolic File="topmain.php" Position="2802" StringValue="$_SESSION['time_admin_valid_user']"/>
+</Symbolic>
+<Literal File="topmain.php" Position="3121" StringValue="&lt;/td&gt;&#10; "/>
+</Concat>
+</True>
+<False>
+<Select File="topmain.php" Position="3144" StringValue="isset($_SESSION['valid_reports_user'])">
+<True>
+<Concat>
+<Literal File="topmain.php" Position="3251" StringValue="    &lt;td align=left valign=middle width=10 style='padding-left:12px;'&gt;&lt;img src='images/icons/user_suit.png' border='0' /&gt;&lt;/td&gt;&#10; "/>
+<Literal File="topmain.php" Position="3389" StringValue="    &lt;td align=left valign=middle style='color:#000000;font-family:Tahoma;font-size:10pt;padding-left:8px;'&gt;logged in as: "/>
+<Symbolic File="topmain.php" Position="3510" StringValue="$logged_in_user">
+<Symbolic File="topmain.php" Position="3208" StringValue="$_SESSION['valid_reports_user']"/>
+</Symbolic>
+<Literal File="topmain.php" Position="3525" StringValue="&lt;/td&gt;&#10; "/>
+</Concat>
+</True>
+</Select>
+</False>
+</Select>
+</False>
+</Select>
+<Literal File="topmain.php" Position="3544" StringValue="    &lt;td align=right valign=middle&gt;&lt;img src='images/icons/house.png' border='0' /&gt;&amp;nbsp;&amp;nbsp;&lt;/td&gt;&#10; "/>
+<Literal File="topmain.php" Position="3654" StringValue="    &lt;td align=right valign=middle width=10&gt;&lt;a href='index.php' style='color:#000000;font-family:Tahoma;font-size:10pt;text-decoration:none;'&gt;&#10;        Home&amp;nbsp;&amp;nbsp;&lt;/a&gt;&lt;/td&gt;&#10; "/>
+<Literal File="topmain.php" Position="3840" StringValue="    &lt;td align=right valign=middle width=23&gt;&lt;img src='images/icons/bricks.png' border='0' /&gt;&amp;nbsp;&amp;nbsp;&lt;/td&gt;&#10; "/>
+<Literal File="topmain.php" Position="3960" StringValue="    &lt;td align=right valign=middle width=10&gt;&lt;a href='login.php' style='color:#000000;font-family:Tahoma;font-size:10pt;text-decoration:none;'&gt;&#10;        Administration&amp;nbsp;&amp;nbsp;&lt;/a&gt;&lt;/td&gt;&#10; "/>
+<Literal File="topmain.php" Position="4156" StringValue="    &lt;td align=right valign=middle width=23&gt;&lt;img src='images/icons/report.png' border='0' /&gt;&amp;nbsp;&amp;nbsp;&lt;/td&gt;&#10; "/>
+<Select File="topmain.php" Position="4275" StringValue="$use_reports_password == &quot;yes&quot;">
+<True>
+<Literal File="topmain.php" Position="4319" StringValue="    &lt;td align=right valign=middle width=10&gt;&lt;a href='login_reports.php' style='color:#000000;font-family:Tahoma;font-size:10pt;&#10;        text-decoration:none;'&gt;Reports&amp;nbsp;&amp;nbsp;&lt;/a&gt;&lt;/td&gt;&#10; "/>
+</True>
+<False>
+<Select File="topmain.php" Position="4522" StringValue="$use_reports_password == &quot;no&quot;">
+<True>
+<Literal File="topmain.php" Position="4565" StringValue="    &lt;td align=right valign=middle width=10&gt;&lt;a href='reports/index.php' style='color:#000000;font-family:Tahoma;font-size:10pt;&#10;        text-decoration:none;'&gt;Reports&amp;nbsp;&amp;nbsp;&lt;/a&gt;&lt;/td&gt;&#10; "/>
+</True>
+</Select>
+</False>
+</Select>
+<Select File="topmain.php" Position="4763" StringValue="(isset($_SESSION['valid_user'])) || (isset($_SESSION['valid_reports_user'])) || (isset($_SESSION['time_admin_valid_user']))">
+<True>
+<Concat>
+<Literal File="topmain.php" Position="4900" StringValue="    &lt;td align=right valign=middle width=20&gt;&lt;img src='images/icons/arrow_rotate_clockwise.png' border='0' /&gt;&amp;nbsp;&lt;/td&gt;&#10; "/>
+<Literal File="topmain.php" Position="5031" StringValue="    &lt;td align=right valign=middle width=10&gt;&lt;a href='logout.php' style='color:#000000;font-family:Tahoma;font-size:10pt;text-decoration:none;'&gt;&#10;            Logout&amp;nbsp;&amp;nbsp;&lt;/a&gt;&lt;/td&gt;&#10; "/>
+</Concat>
+</True>
+</Select>
+<Literal File="topmain.php" Position="5227" StringValue="&lt;/tr&gt;&lt;/table&gt;&#10; "/>
+<Select File="leftmain.php" Position="2414" StringValue="$display_weather == 'yes'">
+<True>
+<Select File="phpweather.php" Position="1151" StringValue="mysql_pconnect($db_hostname, $db_username, $db_password)">
+<False>
+<Literal File="phpweather.php" Position="1263" StringValue="&lt;p&gt;Unable to connect to MySQL database!&lt;/p&gt;"/>
+</False>
+</Select>
+</True>
+</Select>
+<Literal File="leftmain.php" Position="4299" StringValue="&lt;table width=100% height=89% border=0 cellpadding=0 cellspacing=1&gt;&#10; "/>
+<Literal File="leftmain.php" Position="4376" StringValue="  &lt;tr valign=top&gt;&#10; "/>
+<Literal File="leftmain.php" Position="4404" StringValue="    &lt;td class=left_main width=170 align=left scope=col&gt;&#10; "/>
+<Literal File="leftmain.php" Position="4470" StringValue="      &lt;table class=hide width=100% border=0 cellpadding=1 cellspacing=0&gt;&#10; "/>
+<Select File="leftmain.php" Position="4598" StringValue="$links == &quot;none&quot;">
+<True>
+<Literal File="leftmain.php" Position="4628" StringValue="        &lt;tr&gt;&lt;/tr&gt;&#10; "/>
+</True>
+<False>
+<Concat>
+<Literal File="leftmain.php" Position="4669" StringValue="        &lt;tr&gt;&lt;td class=left_rows height=7 align=left valign=middle&gt;&lt;/td&gt;&lt;/tr&gt;&#10; "/>
+<Repeat File="leftmain.php" Position="4766" StringValue="$x&lt;count($display_links)">
+<Concat>
+<Literal File="leftmain.php" Position="4814" StringValue="        &lt;tr&gt;&lt;td class=left_rows height=18 align=left valign=middle&gt;&lt;a class=admin_headings href='"/>
+<Symbolic File="leftmain.php" Position="4911" StringValue="$links[$x]"/>
+<Literal File="leftmain.php" Position="4921" StringValue="'&gt;"/>
+<Symbolic File="leftmain.php" Position="4923" StringValue="$display_links[$x]"/>
+<Literal File="leftmain.php" Position="4941" StringValue="&lt;/a&gt;&lt;/td&gt;&#10;                      &lt;/tr&gt;&#10; "/>
+</Concat>
+</Repeat>
+</Concat>
+</False>
+</Select>
+<Literal File="leftmain.php" Position="5056" StringValue="        &lt;form name='timeclock' action='"/>
+<Symbolic File="leftmain.php" Position="5095" StringValue="$self">
+<Symbolic File="leftmain.php" Position="42" StringValue="$_SERVER['PHP_SELF']"/>
+</Symbolic>
+<Literal File="leftmain.php" Position="5100" StringValue="' method='post'&gt;&#10; "/>
+<Select File="leftmain.php" Position="5126" StringValue="$links == &quot;none&quot;">
+<True>
+<Literal File="leftmain.php" Position="5156" StringValue="        &lt;tr&gt;&lt;td height=7&gt;&lt;/td&gt;&lt;/tr&gt;&#10; "/>
+</True>
+<False>
+<Literal File="leftmain.php" Position="5215" StringValue="        &lt;tr&gt;&lt;td height=20&gt;&lt;/td&gt;&lt;/tr&gt;&#10; "/>
+</False>
+</Select>
+<Literal File="leftmain.php" Position="5265" StringValue="        &lt;tr&gt;&lt;td class=title_underline height=4 align=left valign=middle style='padding-left:10px;'&gt;Please sign in below:&lt;/td&gt;&lt;/tr&gt;&#10; "/>
+<Literal File="leftmain.php" Position="5406" StringValue="        &lt;tr&gt;&lt;td height=7&gt;&lt;/td&gt;&lt;/tr&gt;&#10; "/>
+<Literal File="leftmain.php" Position="5452" StringValue="        &lt;tr&gt;&lt;td height=4 align=left valign=middle class=misc_items&gt;Name:&lt;/td&gt;&lt;/tr&gt;&#10; "/>
+<Literal File="leftmain.php" Position="5545" StringValue="        &lt;tr&gt;&lt;td height=4 align=left valign=middle class=misc_items&gt;&#10; "/>
+<Select File="leftmain.php" Position="5676" StringValue="$show_display_name == &quot;yes&quot;">
+<True>
+<Concat>
+<Literal File="leftmain.php" Position="5897" StringValue="              &lt;select name='left_displayname' tabindex=1&gt;&#10; "/>
+<Literal File="leftmain.php" Position="5969" StringValue="              &lt;option value =''&gt;...&lt;/option&gt;&#10; "/>
+<Repeat File="leftmain.php" Position="6030" StringValue="$row = mysql_fetch_array($emp_name_result)">
+<Select File="leftmain.php" Position="6146" StringValue="(isset($_COOKIE['remember_me'])) &amp;&amp; (stripslashes($_COOKIE['remember_me']) == $abc)">
+<True>
+<Concat>
+<Literal File="leftmain.php" Position="6251" StringValue="              &lt;option selected&gt;"/>
+<Symbolic File="leftmain.php" Position="6282" StringValue="$abc">
+<Symbolic File="leftmain.php" Position="6092" StringValue="stripslashes(&quot;&quot;.$row['displayname'].&quot;&quot;)"/>
+</Symbolic>
+<Literal File="leftmain.php" Position="6286" StringValue="&lt;/option&gt;&#10; "/>
+</Concat>
+</True>
+<False>
+<Concat>
+<Literal File="leftmain.php" Position="6335" StringValue="              &lt;option&gt;"/>
+<Symbolic File="leftmain.php" Position="6357" StringValue="$abc">
+<Symbolic File="leftmain.php" Position="6092" StringValue="stripslashes(&quot;&quot;.$row['displayname'].&quot;&quot;)"/>
+</Symbolic>
+<Literal File="leftmain.php" Position="6361" StringValue="&lt;/option&gt;&#10; "/>
+</Concat>
+</False>
+</Select>
+</Repeat>
+<Literal File="leftmain.php" Position="6403" StringValue="              &lt;/select&gt;&lt;/td&gt;&lt;/tr&gt;&#10; "/>
+<Literal File="leftmain.php" Position="6492" StringValue="        &lt;tr&gt;&lt;td height=7&gt;&lt;/td&gt;&lt;/tr&gt;&#10; "/>
+</Concat>
+</True>
+<False>
+<Concat>
+<Literal File="leftmain.php" Position="6732" StringValue="              &lt;select name='left_fullname' tabindex=1&gt;&#10; "/>
+<Literal File="leftmain.php" Position="6801" StringValue="              &lt;option value =''&gt;...&lt;/option&gt;&#10; "/>
+<Repeat File="leftmain.php" Position="6862" StringValue="$row = mysql_fetch_array($emp_name_result)">
+<Select File="leftmain.php" Position="6977" StringValue="(isset($_COOKIE['remember_me'])) &amp;&amp; (stripslashes($_COOKIE['remember_me']) == $def)">
+<True>
+<Concat>
+<Literal File="leftmain.php" Position="7082" StringValue="              &lt;option selected&gt;"/>
+<Symbolic File="leftmain.php" Position="7113" StringValue="$def">
+<Symbolic File="leftmain.php" Position="6924" StringValue="stripslashes(&quot;&quot;.$row['empfullname'].&quot;&quot;)"/>
+</Symbolic>
+<Literal File="leftmain.php" Position="7117" StringValue="&lt;/option&gt;&#10; "/>
+</Concat>
+</True>
+<False>
+<Concat>
+<Literal File="leftmain.php" Position="7166" StringValue="              &lt;option&gt;"/>
+<Symbolic File="leftmain.php" Position="7188" StringValue="$def">
+<Symbolic File="leftmain.php" Position="6924" StringValue="stripslashes(&quot;&quot;.$row['empfullname'].&quot;&quot;)"/>
+</Symbolic>
+<Literal File="leftmain.php" Position="7192" StringValue="&lt;/option&gt;&#10; "/>
+</Concat>
+</False>
+</Select>
+</Repeat>
+<Literal File="leftmain.php" Position="7234" StringValue="              &lt;/select&gt;&lt;/td&gt;&lt;/tr&gt;&#10; "/>
+<Literal File="leftmain.php" Position="7323" StringValue="        &lt;tr&gt;&lt;td height=7&gt;&lt;/td&gt;&lt;/tr&gt;&#10; "/>
+</Concat>
+</False>
+</Select>
+<Select File="leftmain.php" Position="7429" StringValue="$use_passwd == &quot;yes&quot;">
+<True>
+<Concat>
+<Literal File="leftmain.php" Position="7464" StringValue="        &lt;tr&gt;&lt;td height=4 align=left valign=middle class=misc_items&gt;Password:&lt;/td&gt;&lt;/tr&gt;&#10; "/>
+<Literal File="leftmain.php" Position="7565" StringValue="        &lt;tr&gt;&lt;td height=4 align=left valign=middle class=misc_items&gt;"/>
+<Literal File="leftmain.php" Position="7654" StringValue="&lt;input type='password' name='employee_passwd' maxlength='25' size='17' tabindex=2 /&gt;&lt;/td&gt;&lt;/tr&gt;&#10; "/>
+<Literal File="leftmain.php" Position="7761" StringValue="        &lt;tr&gt;&lt;td height=7&gt;&lt;/td&gt;&lt;/tr&gt;&#10; "/>
+</Concat>
+</True>
+</Select>
+<Literal File="leftmain.php" Position="7810" StringValue="        &lt;tr&gt;&lt;td height=4 align=left valign=middle class=misc_items&gt;In/Out:&lt;/td&gt;&lt;/tr&gt;&#10; "/>
+<Literal File="leftmain.php" Position="7905" StringValue="        &lt;tr&gt;&lt;td height=4 align=left valign=middle class=misc_items&gt;&#10; "/>
+<Literal File="leftmain.php" Position="8140" StringValue="              &lt;select name='left_inout' tabindex=3&gt;&#10; "/>
+<Literal File="leftmain.php" Position="8202" StringValue="              &lt;option value =''&gt;...&lt;/option&gt;&#10; "/>
+<Repeat File="leftmain.php" Position="8259" StringValue="$row = mysql_fetch_array($punchlist_result)">
+<Concat>
+<Literal File="leftmain.php" Position="8316" StringValue="              &lt;option&gt;"/>
+<Symbolic File="leftmain.php" Position="8340" StringValue="$row['punchitems']"/>
+<Literal File="leftmain.php" Position="8360" StringValue="&lt;/option&gt;&#10; "/>
+</Concat>
+</Repeat>
+<Literal File="leftmain.php" Position="8383" StringValue="              &lt;/select&gt;&lt;/td&gt;&lt;/tr&gt;&#10; "/>
+<Literal File="leftmain.php" Position="8468" StringValue="        &lt;tr&gt;&lt;td height=7&gt;&lt;/td&gt;&lt;/tr&gt;&#10; "/>
+<Literal File="leftmain.php" Position="8514" StringValue="        &lt;tr&gt;&lt;td height=4 align=left valign=middle class=misc_items&gt;Notes:&lt;/td&gt;&lt;/tr&gt;&#10; "/>
+<Literal File="leftmain.php" Position="8608" StringValue="        &lt;tr&gt;&lt;td height=4 align=left valign=middle class=misc_items&gt;"/>
+<Literal File="leftmain.php" Position="8695" StringValue="&lt;input type='text' name='left_notes' maxlength='250' size='17' tabindex=4 /&gt;&lt;/td&gt;&lt;/tr&gt;&#10; "/>
+<Select File="leftmain.php" Position="8789" StringValue="!isset($_COOKIE['remember_me'])">
+<True>
+<Literal File="leftmain.php" Position="8834" StringValue="        &lt;tr&gt;&lt;td width=100%&gt;&lt;table width=100% border=0 cellpadding=0 cellspacing=0&gt;&#10;                  &lt;tr&gt;&lt;td nowrap height=4 align=left valign=middle class=misc_items width=10%&gt;Remember&amp;nbsp;Me?&lt;/td&gt;&lt;td width=90% align=left &#10;                    class=misc_items style='padding-left:0px;padding-right:0px;' tabindex=5&gt;&lt;input type='checkbox' name='remember_me' value='1' /&gt;&lt;/td&gt;&lt;/tr&gt;&#10;                    &lt;/table&gt;&lt;/td&gt;&lt;/tr&gt;&#10; "/>
+</True>
+<False>
+<Select File="leftmain.php" Position="9268" StringValue="isset($_COOKIE['remember_me'])">
+<True>
+<Literal File="leftmain.php" Position="9312" StringValue="        &lt;tr&gt;&lt;td width=100%&gt;&lt;table width=100% border=0 cellpadding=0 cellspacing=0&gt;&#10;                  &lt;tr&gt;&lt;td nowrap height=4 align=left valign=middle class=misc_items width=10%&gt;Reset&amp;nbsp;Cookie?&lt;/td&gt;&lt;td width=90% align=left &#10;                    class=misc_items style='padding-left:0px;padding-right:0px;' tabindex=5&gt;&lt;input type='checkbox' name='reset_cookie' value='1' /&gt;&lt;/td&gt;&lt;/tr&gt;&#10;                    &lt;/table&gt;&lt;/td&gt;&lt;/tr&gt;&#10; "/>
+</True>
+</Select>
+</False>
+</Select>
+<Literal File="leftmain.php" Position="9745" StringValue="        &lt;tr&gt;&lt;td height=7&gt;&lt;/td&gt;&lt;/tr&gt;&#10; "/>
+<Literal File="leftmain.php" Position="9791" StringValue="        &lt;tr&gt;&lt;td height=4 align=left valign=middle class=misc_items&gt;&lt;input type='submit' name='submit_button' value='Submit' align='center' &#10;                tabindex=6 /&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/form&gt;&#10; "/>
+<Select File="leftmain.php" Position="9985" StringValue="$display_weather == &quot;yes&quot;">
+<True>
+<Concat>
+<Literal File="leftmain.php" Position="10024" StringValue="        &lt;tr&gt;&lt;td height=25 align=left valign=bottom class=misc_items&gt;&lt;font color='00589C'&gt;&lt;b&gt;&lt;u&gt;Weather Conditions:&lt;/u&gt;&lt;/b&gt;&lt;/font&gt;&lt;/td&gt;&lt;/tr&gt;&#10; "/>
+<Literal File="leftmain.php" Position="10178" StringValue="        &lt;tr&gt;&lt;td height=7&gt;&lt;/td&gt;&lt;/tr&gt;&#10; "/>
+<Literal File="leftmain.php" Position="10228" StringValue="        &lt;tr&gt;&lt;td align=left valign=middle class=misc_items&gt;&lt;b&gt;"/>
+<Literal File="config.inc.php" Position="13393" StringValue="Jackson, Mississippi"/>
+<Literal File="leftmain.php" Position="10294" StringValue="&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt;&#10; "/>
+<Literal File="leftmain.php" Position="10323" StringValue="        &lt;tr&gt;&lt;td height=4&gt;&lt;/td&gt;&lt;/tr&gt;&#10; "/>
+<Literal File="leftmain.php" Position="10373" StringValue="        &lt;tr&gt;&lt;td align=left valign=middle class=misc_items&gt;Currently: "/>
+<Select File="leftmain.php" Position="2414" StringValue="$display_weather == 'yes'">
+<True>
+<Select File="leftmain.php" Position="2592" StringValue="!isset($data['temp_f'])">
+<True>
+<Literal File="leftmain.php" Position="2627" StringValue=""/>
+</True>
+<False>
+<Symbolic File="leftmain.php" Position="2645" StringValue="$data['temp_f']"/>
+</False>
+</Select>
+</True>
+</Select>
+<Literal File="leftmain.php" Position="10447" StringValue="&amp;#176;&lt;/td&gt;&lt;/tr&gt;&#10; "/>
+<Literal File="leftmain.php" Position="10478" StringValue="        &lt;tr&gt;&lt;td height=4&gt;&lt;/td&gt;&lt;/tr&gt;&#10; "/>
+<Literal File="leftmain.php" Position="10528" StringValue="        &lt;tr&gt;&lt;td align=left valign=middle class=misc_items&gt;Feels Like: "/>
+<Select File="leftmain.php" Position="2414" StringValue="$display_weather == 'yes'">
+<True>
+<Select File="leftmain.php" Position="4063" StringValue="(isset($heatindex)) || ($windchill &lt;&gt; '')">
+<True>
+<Select File="leftmain.php" Position="4120" StringValue="!isset($heatindex)">
+<True>
+<Select File="leftmain.php" Position="2671" StringValue="!isset($data['windchill_f'])">
+<True>
+<Literal File="leftmain.php" Position="2716" StringValue=""/>
+</True>
+<False>
+<Symbolic File="leftmain.php" Position="2739" StringValue="$data['windchill_f']"/>
+</False>
+</Select>
+</True>
+<False>
+<Select File="leftmain.php" Position="3530" StringValue="($temp &lt;&gt; '') &amp;&amp; ($temp &gt;= '70') &amp;&amp; ($humidity &lt;&gt; '')">
+<True>
+<Symbolic File="leftmain.php" Position="3608" StringValue="number_format(-42.379 + (2.04901523 * $temp) + (10.1433312 * $humidity) - (0.22475541 * $temp * $humidity)&#10;                                   - (0.00683783 * ($temp * $temp)) - (0.05481717 * ($humidity * $humidity))&#10;                                   + (0.00122874 * ($temp * $temp) * $humidity) + (0.00085282 * $temp * ($humidity * $humidity))&#10;                                   - (0.00000199 * ($temp * $temp) * ($humidity * $humidity)))"/>
+</True>
+</Select>
+</False>
+</Select>
+</True>
+<False>
+<Select File="leftmain.php" Position="2592" StringValue="!isset($data['temp_f'])">
+<True>
+<Literal File="leftmain.php" Position="2627" StringValue=""/>
+</True>
+<False>
+<Symbolic File="leftmain.php" Position="2645" StringValue="$data['temp_f']"/>
+</False>
+</Select>
+</False>
+</Select>
+</True>
+</Select>
+<Literal File="leftmain.php" Position="10608" StringValue="&amp;#176;&lt;/td&gt;&lt;/tr&gt;&#10; "/>
+<Literal File="leftmain.php" Position="10639" StringValue="        &lt;tr&gt;&lt;td height=4&gt;&lt;/td&gt;&lt;/tr&gt;&#10; "/>
+<Literal File="leftmain.php" Position="10689" StringValue="        &lt;tr&gt;&lt;td align=left valign=middle class=misc_items&gt;Skies: "/>
+<Select File="leftmain.php" Position="2414" StringValue="$display_weather == 'yes'">
+<True>
+<Select File="leftmain.php" Position="3405" StringValue="!isset($data['cloud_layer1_condition'])">
+<True>
+<Literal File="leftmain.php" Position="3463" StringValue=""/>
+</True>
+<False>
+<Symbolic File="leftmain.php" Position="3488" StringValue="$data['cloud_layer1_condition']"/>
+</False>
+</Select>
+</True>
+</Select>
+<Literal File="leftmain.php" Position="10766" StringValue="&lt;/td&gt;&lt;/tr&gt;&#10; "/>
+<Literal File="leftmain.php" Position="10791" StringValue="        &lt;tr&gt;&lt;td height=4&gt;&lt;/td&gt;&lt;/tr&gt;&#10; "/>
+<Literal File="leftmain.php" Position="10841" StringValue="        &lt;tr&gt;&lt;td align=left valign=middle class=misc_items&gt;Wind: "/>
+<Select File="leftmain.php" Position="2414" StringValue="$display_weather == 'yes'">
+<True>
+<Select File="leftmain.php" Position="2995" StringValue="$wind == 0">
+<True>
+<Literal File="leftmain.php" Position="3021" StringValue="None"/>
+</True>
+<False>
+<Select File="leftmain.php" Position="2770" StringValue="!isset($data['wind_dir_text_short'])">
+<True>
+<Literal File="leftmain.php" Position="2822" StringValue=""/>
+</True>
+<False>
+<Symbolic File="leftmain.php" Position="2844" StringValue="$data['wind_dir_text_short']"/>
+</False>
+</Select>
+</False>
+</Select>
+</True>
+</Select>
+<Literal File="leftmain.php" Position="10914" StringValue=" "/>
+<Select File="leftmain.php" Position="2414" StringValue="$display_weather == 'yes'">
+<True>
+<Select File="leftmain.php" Position="2995" StringValue="$wind == 0">
+<True>
+<Literal File="leftmain.php" Position="3048" StringValue=""/>
+</True>
+<False>
+<Select File="leftmain.php" Position="2883" StringValue="!isset($data['wind_miles_per_hour'])">
+<True>
+<Literal File="leftmain.php" Position="2931" StringValue=""/>
+</True>
+<False>
+<Symbolic File="leftmain.php" Position="2949" StringValue="round($data['wind_miles_per_hour'])"/>
+</False>
+</Select>
+</False>
+</Select>
+</True>
+</Select>
+<Select File="leftmain.php" Position="2414" StringValue="$display_weather == 'yes'">
+<True>
+<Select File="leftmain.php" Position="2995" StringValue="$wind == 0">
+<True>
+<Literal File="leftmain.php" Position="3036" StringValue=""/>
+</True>
+<False>
+<Literal File="leftmain.php" Position="2553" StringValue="mph"/>
+</False>
+</Select>
+</True>
+</Select>
+<Literal File="leftmain.php" Position="10924" StringValue="&lt;/td&gt;&lt;/tr&gt;&#10; "/>
+<Literal File="leftmain.php" Position="10949" StringValue="        &lt;tr&gt;&lt;td height=4&gt;&lt;/td&gt;&lt;/tr&gt;&#10; "/>
+<Select File="leftmain.php" Position="10998" StringValue="$humidity == 'None'">
+<True>
+<Concat>
+<Literal File="leftmain.php" Position="11035" StringValue="        &lt;tr&gt;&lt;td align=left valign=middle class=misc_items&gt;Humidity: "/>
+<Select File="leftmain.php" Position="2414" StringValue="$display_weather == 'yes'">
+<True>
+<Select File="leftmain.php" Position="3201" StringValue="!isset($data['rel_humidity'])">
+<True>
+<Literal File="leftmain.php" Position="3246" StringValue="None"/>
+</True>
+<False>
+<Symbolic File="leftmain.php" Position="3272" StringValue="round($data['rel_humidity'], 0)"/>
+</False>
+</Select>
+</True>
+</Select>
+<Literal File="leftmain.php" Position="11112" StringValue="&lt;/td&gt;&lt;/tr&gt;&#10; "/>
+</Concat>
+</True>
+<False>
+<Concat>
+<Literal File="leftmain.php" Position="11154" StringValue="        &lt;tr&gt;&lt;td align=left valign=middle class=misc_items&gt;Humidity: "/>
+<Select File="leftmain.php" Position="2414" StringValue="$display_weather == 'yes'">
+<True>
+<Select File="leftmain.php" Position="3201" StringValue="!isset($data['rel_humidity'])">
+<True>
+<Literal File="leftmain.php" Position="3246" StringValue="None"/>
+</True>
+<False>
+<Symbolic File="leftmain.php" Position="3272" StringValue="round($data['rel_humidity'], 0)"/>
+</False>
+</Select>
+</True>
+</Select>
+<Literal File="leftmain.php" Position="11231" StringValue="%&lt;/td&gt;&lt;/tr&gt;&#10; "/>
+</Concat>
+</False>
+</Select>
+<Literal File="leftmain.php" Position="11264" StringValue="        &lt;tr&gt;&lt;td height=4&gt;&lt;/td&gt;&lt;/tr&gt;&#10; "/>
+<Literal File="leftmain.php" Position="11314" StringValue="        &lt;tr&gt;&lt;td align=left valign=middle class=misc_items&gt;Visibility: "/>
+<Select File="leftmain.php" Position="2414" StringValue="$display_weather == 'yes'">
+<True>
+<Select File="leftmain.php" Position="3090" StringValue="!isset($data['visibility_miles'])">
+<True>
+<Literal File="leftmain.php" Position="3141" StringValue=""/>
+</True>
+<False>
+<Symbolic File="leftmain.php" Position="3165" StringValue="$data['visibility_miles']"/>
+</False>
+</Select>
+</True>
+</Select>
+<Literal File="leftmain.php" Position="11395" StringValue=" miles&lt;/td&gt;&lt;/tr&gt;&#10; "/>
+<Literal File="leftmain.php" Position="11426" StringValue="        &lt;tr&gt;&lt;td height=4&gt;&lt;/td&gt;&lt;/tr&gt;&#10; "/>
+<Literal File="leftmain.php" Position="11476" StringValue="        &lt;tr&gt;&lt;td align=left valign=middle class=misc_items&gt;&lt;font color='FF0000'&gt;Last Updated: "/>
+<Select File="leftmain.php" Position="2414" StringValue="$display_weather == 'yes'">
+<True>
+<Select File="leftmain.php" Position="3314" StringValue="!isset($data['time'])">
+<True>
+<Literal File="leftmain.php" Position="3347" StringValue=""/>
+</True>
+<False>
+<Symbolic File="leftmain.php" Position="3365" StringValue="date($timefmt, $data['time'])"/>
+</False>
+</Select>
+</True>
+</Select>
+<Literal File="leftmain.php" Position="11574" StringValue="&lt;/font&gt;&lt;/td&gt;&lt;/tr&gt;&#10; "/>
+</Concat>
+</True>
+</Select>
+<Literal File="leftmain.php" Position="11605" StringValue="        &lt;tr&gt;&lt;td height=90%&gt;&lt;/td&gt;&lt;/tr&gt;&#10; "/>
+<Literal File="leftmain.php" Position="11653" StringValue="      &lt;/table&gt;&lt;/td&gt;&#10; "/>
+<Select File="leftmain.php" Position="11682" StringValue="$request == 'POST'">
+<True>
+<Select File="leftmain.php" Position="15193" StringValue="$use_passwd == &quot;no&quot;">
+<True>
+<Concat>
+<Literal File="leftmain.php" Position="16342" StringValue="&lt;head&gt;&#10; "/>
+<Literal File="leftmain.php" Position="16367" StringValue="&lt;meta http-equiv='refresh' content=0 url=index.php /&gt;&#10; "/>
+<Literal File="leftmain.php" Position="16437" StringValue="&lt;/head&gt;&#10; "/>
+</Concat>
+</True>
+<False>
+<Concat>
+<Literal File="leftmain.php" Position="18019" StringValue="&lt;head&gt;&#10; "/>
+<Literal File="leftmain.php" Position="18044" StringValue="&lt;meta http-equiv='refresh' content=0 url=index.php /&gt;&#10; "/>
+<Literal File="leftmain.php" Position="18114" StringValue="&lt;/head&gt;&#10; "/>
+</Concat>
+</False>
+</Select>
+</True>
+</Select>
+</Concat>
+</True>
+</Select>
+<Literal File="timeclock.php" Position="255" StringValue="&lt;title&gt;"/>
+<Select File="timeclock.php" Position="77" StringValue="!isset($_GET['printer_friendly'])">
+<True>
+<Concat>
+<Literal File="config.inc.php" Position="13478" StringValue="PHP Timeclock"/>
+<Literal File="config.inc.php" Position="13705" StringValue=" "/>
+<Literal File="config.inc.php" Position="13510" StringValue="1.04"/>
+</Concat>
+</True>
+<False>
+<Concat>
+<Literal File="config.inc.php" Position="13478" StringValue="PHP Timeclock"/>
+<Literal File="config.inc.php" Position="13705" StringValue=" "/>
+<Literal File="config.inc.php" Position="13510" StringValue="1.04"/>
+</Concat>
+</False>
+</Select>
+<Literal File="timeclock.php" Position="268" StringValue="&lt;/title&gt;&#10; "/>
+<Select File="timeclock.php" Position="319" StringValue="!isset($_GET['printer_friendly'])">
+<True>
+<Concat>
+<Literal File="timeclock.php" Position="366" StringValue="    &lt;td align=left class=right_main scope=col&gt;&#10; "/>
+<Literal File="timeclock.php" Position="427" StringValue="      &lt;table width=100% height=100% border=0 cellpadding=5 cellspacing=1&gt;&#10; "/>
+<Literal File="timeclock.php" Position="515" StringValue="        &lt;tr class=right_main_text&gt;&#10; "/>
+<Literal File="timeclock.php" Position="564" StringValue="          &lt;td valign=top&gt;&#10; "/>
+</Concat>
+</True>
+</Select>
+<Literal File="timeclock.php" Position="9133" StringValue="            &lt;table width=100% align=center class=misc_items border=0 cellpadding=3 cellspacing=0&gt;&#10; "/>
+<Select File="timeclock.php" Position="9240" StringValue="!isset($_GET['printer_friendly'])">
+<True>
+<Literal File="timeclock.php" Position="9287" StringValue="              &lt;tr class=display_hide&gt;&#10; "/>
+</True>
+<False>
+<Literal File="timeclock.php" Position="9348" StringValue="              &lt;tr&gt;&#10; "/>
+</False>
+</Select>
+<Literal File="timeclock.php" Position="9380" StringValue="                &lt;td nowrap style='font-size:9px;color:#000000;padding-left:10px;'&gt;"/>
+<Literal File="timeclock.php" Position="9102" StringValue="Current Status Report"/>
+<Literal File="timeclock.php" Position="9474" StringValue="&amp;nbsp;&amp;nbsp;----&gt;&amp;nbsp;&amp;nbsp;As of: "/>
+<Symbolic File="timeclock.php" Position="9510" StringValue="$tclock_time">
+<Symbolic File="timeclock.php" Position="9011" StringValue="date($timefmt, $tclock_stamp)"/>
+</Symbolic>
+<Literal File="timeclock.php" Position="9522" StringValue=", &#10;                    "/>
+<Symbolic File="timeclock.php" Position="9545" StringValue="$tclock_date">
+<Symbolic File="timeclock.php" Position="9057" StringValue="date($datefmt, $tclock_stamp)"/>
+</Symbolic>
+<Literal File="timeclock.php" Position="9557" StringValue="&lt;/td&gt;&lt;/tr&gt;&#10; "/>
+<Literal File="timeclock.php" Position="9578" StringValue="            &lt;/table&gt;&#10; "/>
+<Repeat File="display.php" Position="48" StringValue="$row=mysql_fetch_array($result)">
+<Concat>
+<Select File="display.php" Position="231" StringValue="$row_count == 0">
+<True>
+<Concat>
+<Select File="display.php" Position="267" StringValue="$page_count == 0">
+<True>
+<Concat>
+<Literal File="display.php" Position="380" StringValue="             "/>
+<Select File="display.php" Position="490" StringValue="!isset($_GET['printer_friendly'])">
+<True>
+<Literal File="display.php" Position="553" StringValue="              &lt;tr&gt;&lt;td align=right colspan=7&gt;&lt;a style='font-size:11px;color:#853d27;' &#10;                                          href='timeclock.php?printer_friendly=true'&gt;printer friendly page&lt;/a&gt;&lt;/td&gt;&lt;/tr&gt;&#10; "/>
+</True>
+</Select>
+<Literal File="display.php" Position="805" StringValue="              &lt;tr class=notprint&gt;&#10; "/>
+<Literal File="display.php" Position="865" StringValue="                &lt;td nowrap width=20% align=left style='padding-left:10px;padding-right:10px;'&gt;&#10;                                    &lt;a style='font-size:11px;color:#27408b;'&#10;                                    href='"/>
+<Literal File="timeclock.php" Position="298" StringValue="timeclock.php"/>
+<Literal File="display.php" Position="1092" StringValue="?sortcolumn=empfullname&amp;sortdirection="/>
+<Select File="timeclock.php" Position="1105" StringValue="$sortdirection == &quot;asc&quot;">
+<True>
+<Literal File="timeclock.php" Position="1157" StringValue="desc"/>
+</True>
+<False>
+<Literal File="timeclock.php" Position="1198" StringValue="asc"/>
+</False>
+</Select>
+<Literal File="display.php" Position="1147" StringValue="'&gt;Name&lt;/a&gt;&lt;/td&gt;&#10; "/>
+<Literal File="display.php" Position="1189" StringValue="                &lt;td nowrap width=7% align=left style='padding-left:10px;'&gt;&lt;a style='font-size:11px;color:#27408b;'&#10;                                    href='"/>
+<Literal File="timeclock.php" Position="298" StringValue="timeclock.php"/>
+<Literal File="display.php" Position="1359" StringValue="?sortcolumn=inout&amp;sortdirection="/>
+<Select File="timeclock.php" Position="1105" StringValue="$sortdirection == &quot;asc&quot;">
+<True>
+<Literal File="timeclock.php" Position="1157" StringValue="desc"/>
+</True>
+<False>
+<Literal File="timeclock.php" Position="1198" StringValue="asc"/>
+</False>
+</Select>
+<Literal File="display.php" Position="1408" StringValue="'&gt;In/Out&lt;/a&gt;&lt;/td&gt;&#10; "/>
+<Literal File="display.php" Position="1452" StringValue="                &lt;td nowrap width=5% align=right style='padding-right:10px;'&gt;&lt;a style='font-size:11px;color:#27408b;' &#10;                                    href='"/>
+<Literal File="timeclock.php" Position="298" StringValue="timeclock.php"/>
+<Literal File="display.php" Position="1625" StringValue="?sortcolumn=tstamp&amp;sortdirection="/>
+<Select File="timeclock.php" Position="1105" StringValue="$sortdirection == &quot;asc&quot;">
+<True>
+<Literal File="timeclock.php" Position="1157" StringValue="desc"/>
+</True>
+<False>
+<Literal File="timeclock.php" Position="1198" StringValue="asc"/>
+</False>
+</Select>
+<Literal File="display.php" Position="1675" StringValue="'&gt;Time&lt;/a&gt;&lt;/td&gt;&#10; "/>
+<Literal File="display.php" Position="1717" StringValue="                &lt;td nowrap width=5% align=right style='padding-left:10px;'&gt;&lt;a style='font-size:11px;color:#27408b;' &#10;                                    href='"/>
+<Literal File="timeclock.php" Position="298" StringValue="timeclock.php"/>
+<Literal File="display.php" Position="1889" StringValue="?sortcolumn=tstamp&amp;sortdirection="/>
+<Select File="timeclock.php" Position="1105" StringValue="$sortdirection == &quot;asc&quot;">
+<True>
+<Literal File="timeclock.php" Position="1157" StringValue="desc"/>
+</True>
+<False>
+<Literal File="timeclock.php" Position="1198" StringValue="asc"/>
+</False>
+</Select>
+<Literal File="display.php" Position="1939" StringValue="'&gt;Date&lt;/a&gt;&lt;/td&gt;&#10; "/>
+<Select File="display.php" Position="1980" StringValue="$display_office_name == &quot;yes&quot;">
+<True>
+<Concat>
+<Literal File="display.php" Position="2039" StringValue="                &lt;td nowrap width=10% align=left style='padding-left:10px;'&gt;&lt;a style='font-size:11px;color:#27408b;' &#10;                                        href='"/>
+<Literal File="timeclock.php" Position="298" StringValue="timeclock.php"/>
+<Literal File="display.php" Position="2215" StringValue="?sortcolumn=office&amp;sortdirection="/>
+<Select File="timeclock.php" Position="1105" StringValue="$sortdirection == &quot;asc&quot;">
+<True>
+<Literal File="timeclock.php" Position="1157" StringValue="desc"/>
+</True>
+<False>
+<Literal File="timeclock.php" Position="1198" StringValue="asc"/>
+</False>
+</Select>
+<Literal File="display.php" Position="2265" StringValue="'&gt;Office&lt;/a&gt;&lt;/td&gt;&#10; "/>
+</Concat>
+</True>
+</Select>
+<Select File="display.php" Position="2326" StringValue="$display_group_name == &quot;yes&quot;">
+<True>
+<Concat>
+<Literal File="display.php" Position="2384" StringValue="                &lt;td nowrap width=10% align=left style='padding-left:10px;'&gt;&lt;a style='font-size:11px;color:#27408b;' &#10;                                        href='"/>
+<Literal File="timeclock.php" Position="298" StringValue="timeclock.php"/>
+<Literal File="display.php" Position="2560" StringValue="?sortcolumn=groups&amp;sortdirection="/>
+<Select File="timeclock.php" Position="1105" StringValue="$sortdirection == &quot;asc&quot;">
+<True>
+<Literal File="timeclock.php" Position="1157" StringValue="desc"/>
+</True>
+<False>
+<Literal File="timeclock.php" Position="1198" StringValue="asc"/>
+</False>
+</Select>
+<Literal File="display.php" Position="2610" StringValue="'&gt;Group&lt;/a&gt;&lt;/td&gt;&#10; "/>
+</Concat>
+</True>
+</Select>
+<Literal File="display.php" Position="2672" StringValue="                &lt;td style='padding-left:10px;'&gt;&lt;a style='font-size:11px;color:#27408b;'&#10;                                    href='"/>
+<Literal File="timeclock.php" Position="298" StringValue="timeclock.php"/>
+<Literal File="display.php" Position="2815" StringValue="?sortcolumn=notes&amp;sortdirection="/>
+<Select File="timeclock.php" Position="1105" StringValue="$sortdirection == &quot;asc&quot;">
+<True>
+<Literal File="timeclock.php" Position="1157" StringValue="desc"/>
+</True>
+<False>
+<Literal File="timeclock.php" Position="1198" StringValue="asc"/>
+</False>
+</Select>
+<Literal File="display.php" Position="2864" StringValue="'&gt;&lt;u&gt;Notes&lt;/u&gt;&lt;/a&gt;&lt;/td&gt;&#10; "/>
+<Literal File="display.php" Position="2914" StringValue="              &lt;/tr&gt;&#10; "/>
+</Concat>
+</True>
+</Select>
+<Literal File="display.php" Position="3154" StringValue="              &lt;tr class=notdisplay&gt;&#10; "/>
+<Literal File="display.php" Position="3208" StringValue="                &lt;td nowrap width=20% align=left style='padding-left:10px;padding-right:10px;font-size:11px;color:#27408b;&#10;                            text-decoration:underline;'&gt;Name&lt;/td&gt;&#10; "/>
+<Literal File="display.php" Position="3414" StringValue="                &lt;td nowrap width=7% align=left style='padding-left:10px;font-size:11px;color:#27408b;&#10;                            text-decoration:underline;'&gt;In/Out&lt;/td&gt;&#10; "/>
+<Literal File="display.php" Position="3602" StringValue="                &lt;td nowrap width=5% align=right style='padding-right:10px;font-size:11px;color:#27408b;&#10;                            text-decoration:underline;'&gt;Time&lt;/td&gt;&#10; "/>
+<Literal File="display.php" Position="3790" StringValue="                &lt;td nowrap width=5% align=right style='padding-left:10px;font-size:11px;color:#27408b;&#10;                            text-decoration:underline;'&gt;Date&lt;/td&gt;&#10; "/>
+<Select File="display.php" Position="3976" StringValue="$display_office_name == &quot;yes&quot;">
+<True>
+<Literal File="display.php" Position="4027" StringValue="                &lt;td nowrap width=10% align=left style='padding-left:10px;font-size:11px;color:#27408b;&#10;                                text-decoration:underline;'&gt;Office&lt;/td&gt;&#10; "/>
+</True>
+</Select>
+<Select File="display.php" Position="4229" StringValue="$display_group_name == &quot;yes&quot;">
+<True>
+<Literal File="display.php" Position="4279" StringValue="                &lt;td nowrap width=10% align=left style='padding-left:10px;font-size:11px;color:#27408b;&#10;                                text-decoration:underline;'&gt;Group&lt;/td&gt;&#10; "/>
+</True>
+</Select>
+<Literal File="display.php" Position="4482" StringValue="                &lt;td style='padding-left:10px;'&gt;&lt;a style='font-size:11px;color:#27408b;text-decoration:underline;'&gt;Notes&lt;/a&gt;&lt;/td&gt;&#10; "/>
+<Literal File="display.php" Position="4625" StringValue="              &lt;/tr&gt;&#10; "/>
+</Concat>
+</True>
+</Select>
+<Select File="display.php" Position="4931" StringValue="$show_display_name == &quot;yes&quot;">
+<True>
+<Symbolic File="display.php" Position="4975" StringValue="stripslashes(&quot;              &lt;tr class=display_row&gt;&lt;td nowrap width=20% bgcolor='$row_color' style='padding-left:10px; &#10;                          padding-right:10px;'&gt;&quot;.$row[&quot;displayname&quot;].&quot;&lt;/td&gt;\n&quot;)"/>
+</True>
+<False>
+<Select File="display.php" Position="5189" StringValue="$show_display_name == &quot;no&quot;">
+<True>
+<Symbolic File="display.php" Position="5232" StringValue="stripslashes(&quot;              &lt;tr class=display_row&gt;&lt;td nowrap width=20% bgcolor='$row_color' style='padding-left:10px;&#10;                          padding-right:10px;'&gt;&quot;.$row[&quot;empfullname&quot;].&quot;&lt;/td&gt;\n&quot;)"/>
+</True>
+</Select>
+</False>
+</Select>
+<Literal File="display.php" Position="5448" StringValue="                &lt;tr&gt;&lt;td nowrap align=left width=7% style='background-color:"/>
+<Select File="display.php" Position="4713" StringValue="($row_count % 2)">
+<True>
+<Select File="timeclock.php" Position="77" StringValue="!isset($_GET['printer_friendly'])">
+<True>
+<Literal File="config.inc.php" Position="7849" StringValue="#EFEFEF"/>
+</True>
+<False>
+<Literal File="config.inc.php" Position="7849" StringValue="#EFEFEF"/>
+</False>
+</Select>
+</True>
+<False>
+<Select File="timeclock.php" Position="77" StringValue="!isset($_GET['printer_friendly'])">
+<True>
+<Literal File="config.inc.php" Position="7870" StringValue="#FBFBFB"/>
+</True>
+<False>
+<Literal File="config.inc.php" Position="7870" StringValue="#FBFBFB"/>
+</False>
+</Select>
+</False>
+</Select>
+<Literal File="display.php" Position="5529" StringValue=";color:"/>
+<Symbolic File="display.php" Position="5538" StringValue="$row[&quot;color&quot;]"/>
+<Literal File="display.php" Position="5553" StringValue=";&#10;                        padding-left:10px;'&gt;"/>
+<Symbolic File="display.php" Position="5601" StringValue="$row[&quot;inout&quot;]"/>
+<Literal File="display.php" Position="5616" StringValue="&lt;/td&gt;&#10; "/>
+<Literal File="display.php" Position="5636" StringValue="                &lt;td nowrap align=right width=5% bgcolor='"/>
+<Select File="display.php" Position="4713" StringValue="($row_count % 2)">
+<True>
+<Select File="timeclock.php" Position="77" StringValue="!isset($_GET['printer_friendly'])">
+<True>
+<Literal File="config.inc.php" Position="7849" StringValue="#EFEFEF"/>
+</True>
+<False>
+<Literal File="config.inc.php" Position="7849" StringValue="#EFEFEF"/>
+</False>
+</Select>
+</True>
+<False>
+<Select File="timeclock.php" Position="77" StringValue="!isset($_GET['printer_friendly'])">
+<True>
+<Literal File="config.inc.php" Position="7870" StringValue="#FBFBFB"/>
+</True>
+<False>
+<Literal File="config.inc.php" Position="7870" StringValue="#FBFBFB"/>
+</False>
+</Select>
+</False>
+</Select>
+<Literal File="display.php" Position="5703" StringValue="' style='padding-right:10px;'&gt;"/>
+<Symbolic File="display.php" Position="5735" StringValue="$time">
+<Symbolic File="display.php" Position="4846" StringValue="date($timefmt, $display_stamp)"/>
+</Symbolic>
+<Literal File="display.php" Position="5742" StringValue="&lt;/td&gt;&#10; "/>
+<Literal File="display.php" Position="5762" StringValue="                &lt;td nowrap align=right width=5% bgcolor='"/>
+<Select File="display.php" Position="4713" StringValue="($row_count % 2)">
+<True>
+<Select File="timeclock.php" Position="77" StringValue="!isset($_GET['printer_friendly'])">
+<True>
+<Literal File="config.inc.php" Position="7849" StringValue="#EFEFEF"/>
+</True>
+<False>
+<Literal File="config.inc.php" Position="7849" StringValue="#EFEFEF"/>
+</False>
+</Select>
+</True>
+<False>
+<Select File="timeclock.php" Position="77" StringValue="!isset($_GET['printer_friendly'])">
+<True>
+<Literal File="config.inc.php" Position="7870" StringValue="#FBFBFB"/>
+</True>
+<False>
+<Literal File="config.inc.php" Position="7870" StringValue="#FBFBFB"/>
+</False>
+</Select>
+</False>
+</Select>
+<Literal File="display.php" Position="5829" StringValue="' style='padding-left:10px;'&gt;"/>
+<Symbolic File="display.php" Position="5860" StringValue="$date">
+<Symbolic File="display.php" Position="4890" StringValue="date($datefmt, $display_stamp)"/>
+</Symbolic>
+<Literal File="display.php" Position="5867" StringValue="&lt;/td&gt;&#10; "/>
+<Select File="display.php" Position="5886" StringValue="$display_office_name == &quot;yes&quot;">
+<True>
+<Concat>
+<Literal File="display.php" Position="5933" StringValue="                &lt;td nowrap align=left width=10% bgcolor='"/>
+<Select File="display.php" Position="4713" StringValue="($row_count % 2)">
+<True>
+<Select File="timeclock.php" Position="77" StringValue="!isset($_GET['printer_friendly'])">
+<True>
+<Literal File="config.inc.php" Position="7849" StringValue="#EFEFEF"/>
+</True>
+<False>
+<Literal File="config.inc.php" Position="7849" StringValue="#EFEFEF"/>
+</False>
+</Select>
+</True>
+<False>
+<Select File="timeclock.php" Position="77" StringValue="!isset($_GET['printer_friendly'])">
+<True>
+<Literal File="config.inc.php" Position="7870" StringValue="#FBFBFB"/>
+</True>
+<False>
+<Literal File="config.inc.php" Position="7870" StringValue="#FBFBFB"/>
+</False>
+</Select>
+</False>
+</Select>
+<Literal File="display.php" Position="6000" StringValue="' style='padding-left:10px;'&gt;"/>
+<Symbolic File="display.php" Position="6031" StringValue="$row[&quot;office&quot;]"/>
+<Literal File="display.php" Position="6047" StringValue="&lt;/td&gt;&#10; "/>
+</Concat>
+</True>
+</Select>
+<Select File="display.php" Position="6072" StringValue="$display_group_name == &quot;yes&quot;">
+<True>
+<Concat>
+<Literal File="display.php" Position="6118" StringValue="                &lt;td nowrap align=left width=10% bgcolor='"/>
+<Select File="display.php" Position="4713" StringValue="($row_count % 2)">
+<True>
+<Select File="timeclock.php" Position="77" StringValue="!isset($_GET['printer_friendly'])">
+<True>
+<Literal File="config.inc.php" Position="7849" StringValue="#EFEFEF"/>
+</True>
+<False>
+<Literal File="config.inc.php" Position="7849" StringValue="#EFEFEF"/>
+</False>
+</Select>
+</True>
+<False>
+<Select File="timeclock.php" Position="77" StringValue="!isset($_GET['printer_friendly'])">
+<True>
+<Literal File="config.inc.php" Position="7870" StringValue="#FBFBFB"/>
+</True>
+<False>
+<Literal File="config.inc.php" Position="7870" StringValue="#FBFBFB"/>
+</False>
+</Select>
+</False>
+</Select>
+<Literal File="display.php" Position="6185" StringValue="' style='padding-left:10px;'&gt;"/>
+<Symbolic File="display.php" Position="6216" StringValue="$row[&quot;groups&quot;]"/>
+<Literal File="display.php" Position="6232" StringValue="&lt;/td&gt;&#10; "/>
+</Concat>
+</True>
+</Select>
+<Symbolic File="display.php" Position="6258" StringValue="stripslashes(&quot;                &lt;td bgcolor='$row_color' style='padding-left:10px;'&gt;&quot;.$row[&quot;notes&quot;].&quot;&lt;/td&gt;\n&quot;)"/>
+<Literal File="display.php" Position="6378" StringValue="              &lt;/tr&gt;&#10; "/>
+<Select File="display.php" Position="6474" StringValue="$row_count == 40">
+<True>
+<Literal File="display.php" Position="6508" StringValue="              &lt;tr style=&quot; page-break-before:always;&quot; &gt;&lt;/tr&gt;&#10; "/>
+</True>
+</Select>
+</Concat>
+</Repeat>
+<Literal File="display.php" Position="6635" StringValue="             "/>
+<Select File="display.php" Position="6665" StringValue="!isset($_GET['printer_friendly'])">
+<True>
+<Literal File="display.php" Position="6712" StringValue="          &lt;/td&gt;&lt;/tr&gt;&#10; "/>
+</True>
+</Select>
+<Select File="timeclock.php" Position="9631" StringValue="!isset($_GET['printer_friendly'])">
+<True>
+<Concat>
+<Literal File="footer.php" Position="75" StringValue="        &lt;tr class=hide&gt;&lt;td height=4% class=misc_items align=right valign=middle scope=row colspan=2&gt;Powered by&amp;nbsp;&lt;a class=footer_links &#10;            href='http://httpd.apache.org/'&gt;Apache&lt;/a&gt;&amp;nbsp;&amp;#177&lt;a class=footer_links href='http://mysql.org'&gt;&amp;nbsp;MySql&lt;/a&gt; &#10;            &amp;#177"/>
+<Select File="footer.php" Position="367" StringValue="$email == &quot;none&quot;">
+<True>
+<Literal File="footer.php" Position="397" StringValue="&lt;a class=footer_links href='http://php.net'&gt;&amp;nbsp;PHP&lt;/a&gt;"/>
+</True>
+<False>
+<Concat>
+<Literal File="footer.php" Position="476" StringValue="&lt;a class=footer_links href='http://php.net'&gt;&amp;nbsp;PHP&lt;/a&gt;&amp;nbsp;&amp;#8226;&amp;nbsp;&lt;a class=footer_links href='mailto:"/>
+<Select File="timeclock.php" Position="77" StringValue="!isset($_GET['printer_friendly'])">
+<True>
+<Literal File="config.inc.php" Position="3540" StringValue="none"/>
+</True>
+<False>
+<Literal File="config.inc.php" Position="3540" StringValue="none"/>
+</False>
+</Select>
+<Literal File="footer.php" Position="593" StringValue="'&gt;"/>
+<Select File="timeclock.php" Position="77" StringValue="!isset($_GET['printer_friendly'])">
+<True>
+<Literal File="config.inc.php" Position="3540" StringValue="none"/>
+</True>
+<False>
+<Literal File="config.inc.php" Position="3540" StringValue="none"/>
+</False>
+</Select>
+<Literal File="footer.php" Position="601" StringValue="&lt;/a&gt;"/>
+</Concat>
+</False>
+</Select>
+<Literal File="footer.php" Position="617" StringValue="&amp;nbsp;&amp;#8226;&lt;a class=footer_links href='http://timeclock.sourceforge.net'&gt;&amp;nbsp;"/>
+<Select File="timeclock.php" Position="77" StringValue="!isset($_GET['printer_friendly'])">
+<True>
+<Literal File="config.inc.php" Position="13478" StringValue="PHP Timeclock"/>
+</True>
+<False>
+<Literal File="config.inc.php" Position="13478" StringValue="PHP Timeclock"/>
+</False>
+</Select>
+<Literal File="footer.php" Position="707" StringValue="&amp;nbsp;"/>
+<Select File="timeclock.php" Position="77" StringValue="!isset($_GET['printer_friendly'])">
+<True>
+<Literal File="config.inc.php" Position="13510" StringValue="1.04"/>
+</True>
+<False>
+<Literal File="config.inc.php" Position="13510" StringValue="1.04"/>
+</False>
+</Select>
+<Literal File="footer.php" Position="725" StringValue="&lt;/a&gt;&lt;/td&gt;&lt;/tr&gt;&#10; "/>
+<Literal File="footer.php" Position="750" StringValue="      &lt;/table&gt;&#10; "/>
+<Literal File="footer.php" Position="775" StringValue="    &lt;/td&gt;&#10; "/>
+<Literal File="footer.php" Position="795" StringValue="  &lt;/tr&gt;&#10; "/>
+<Literal File="footer.php" Position="813" StringValue="&lt;/table&gt;&#10; "/>
+<Literal File="footer.php" Position="832" StringValue="&lt;/body&gt;&#10; "/>
+<Literal File="footer.php" Position="850" StringValue="&lt;/html&gt;&#10; "/>
+</Concat>
+</True>
+<False>
+<Literal File="timeclock.php" Position="-1" StringValue="&lt;/body&gt;&lt;/html&gt;"/>
+</False>
+</Select>
+<Literal File="timeclock.php" Position="9700" StringValue="&#10;"/>
+</Concat>
+</Output>

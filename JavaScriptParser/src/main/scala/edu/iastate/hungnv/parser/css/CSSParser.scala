@@ -64,6 +64,7 @@ class CSSParser extends MultiFeatureParser {
    * http://www.w3.org/TR/CSS21/grammar.html#grammar
    */
   def StyleSheet: MultiParser[CStyleSheet] = 
+    						WSo ~>
   							opt(CHARSET_SYM ~ STRING ~ ';') ~>
   							repPlain(S | CDO | CDC) ~>
   							repOpt(RuleSet <~ repPlain(CDO ~ Sa | CDC ~ Sa)) ^^ { CStyleSheet(_) } // FIXME
@@ -74,22 +75,30 @@ class CSSParser extends MultiFeatureParser {
 		  					'{' <~ Declaration <~ '}' <~ Sa ^^ { case s => new CRuleSet(s, "") } // FIXME
   
   def Selector: MultiParser[CSelector] = 
-		  					SimpleSelector <~
-		  					opt((Combinator ~ Selector) | (Sp ~ opt(opt(Combinator) ~ Selector)))
+		  					SimpleSelector ~
+		  					opt((Combinator ~ Selector) | (Sp ~ opt(opt(Combinator) ~ Selector))) ^^ {
+		  								case x ~ None => x
+		  								case x ~ Some(List(_*)~None) => x
+		  								case x ~ y => new COtherSelector(new DString(x.toString + y.toString))
+		  							}
 		  					
   def Combinator: MultiParser[Any] = 
     						('+' ~ Sa) |
     						('>' ~ Sa)
   
   def SimpleSelector: MultiParser[CSelector] = 
-    						(ElementName <~ repPlain(HASH | Clazz | Attrib | Pseudo)) ^^ {x => new CSimpleSelector(x, "")} |
+    						(ElementName ~ repPlain(HASH | Clazz | Attrib | Pseudo)) ^^ {
+    									case x ~ List() => new CSimpleSelector(x, None)
+    									case x ~ List(y) => new CSimpleSelector(x, Some(y))
+    									case x ~ _ => new COtherSelector(new DString(""))
+    								} |
     						rep1Plain(HASH | Clazz | Attrib | Pseudo) ^^ { x => x.head }
   
   def ElementName: MultiParser[DString] =
 		  					IDENT | ('*' ^^ {x => new DString(x.getText) })
 		  					
   def Clazz: MultiParser[CSelector] =
-    						'.' ~> IDENT ^^ {x => new CSimpleSelector(x, ".")}
+    						'.' ~> IDENT ^^ {x => new CClassSelector(x)}
     						
   def Attrib: MultiParser[CSelector] =
     						'[' ~ Sa ~ IDENT ~ Sa ~ opt(("=" | INCLUDES | DASHMATCH) ~ Sa ~ (IDENT | STRING) ~ Sa) ~ ']' ^^ {_ => new COtherSelector(new DString(""))}
@@ -112,7 +121,7 @@ class CSSParser extends MultiFeatureParser {
   
   def IDENT: MultiParser[DString] = Char ~ repPlain(Char) ^^ { case f ~ r => new DString((f :: r).map(_.getText()).mkString) } // FIXME
   
-  def HASH: MultiParser[CSelector] = '#' ~> IDENT ^^ {x => new CSimpleSelector(x, "#") } // FIXME
+  def HASH: MultiParser[CSelector] = '#' ~> IDENT ^^ {x => new CHashSelector(x) } // FIXME
   
   def INCLUDES = "~="
     
@@ -134,4 +143,5 @@ class CSSParser extends MultiFeatureParser {
    * Hung's utility methods
    */
   def negate(c: Char): MultiParser[Any] = token("any char except " + c, x => x.getKindChar() != c)
+  
 }

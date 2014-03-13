@@ -1,0 +1,515 @@
+
+#if (isset($_COOKIE['password_env']))
+
+#if ($tdb->is_logged_in())
+
+#if ($refresh && $_GET["a"] != 1 && $_POST["a"] != 1 && $_GET["s"] != 1 && $_POST["s"] != 1)
+
+#if ($_GET['action'] == 'markallread')
+<meta http-equiv='refresh' content=' (Location: includes/inc/func.inc.php @ Line 23) 0 (Location: index.php @ Line 29) ;URL= (Location: includes/inc/func.inc.php @ Line 23) 
+#if ((isset($_GET['ref'])))
+[SYM]
+#else
+index.php (Location: index.php @ Line 28) 
+#endif
+'> (Location: includes/inc/func.inc.php @ Line 23) 
+#else
+
+#endif
+<meta http-equiv='refresh' content=' (Location: includes/inc/func.inc.php @ Line 23) 0 (Location: includes/header.php @ Line 54) ;URL= (Location: includes/inc/func.inc.php @ Line 23) [SYM]? (Location: includes/header.php @ Line 54) [SYM]'> (Location: includes/inc/func.inc.php @ Line 23) 
+#else
+
+#if ($_GET['action'] == 'markallread')
+<meta http-equiv='refresh' content=' (Location: includes/inc/func.inc.php @ Line 23) 0 (Location: index.php @ Line 29) ;URL= (Location: includes/inc/func.inc.php @ Line 23) 
+#if ((isset($_GET['ref'])))
+[SYM]
+#else
+index.php (Location: index.php @ Line 28) 
+#endif
+'> (Location: includes/inc/func.inc.php @ Line 23) 
+#else
+
+#endif
+
+#endif
+
+#else
+
+#if ($_GET['action'] == 'markallread')
+<meta http-equiv='refresh' content=' (Location: includes/inc/func.inc.php @ Line 23) 0 (Location: index.php @ Line 29) ;URL= (Location: includes/inc/func.inc.php @ Line 23) 
+#if ((isset($_GET['ref'])))
+[SYM]
+#else
+index.php (Location: index.php @ Line 28) 
+#endif
+'> (Location: includes/inc/func.inc.php @ Line 23) 
+#else
+
+#endif
+
+#endif
+<meta http-equiv='refresh' content=' (Location: includes/inc/func.inc.php @ Line 23) 0 (Location: includes/header.php @ Line 70) ;URL= (Location: includes/inc/func.inc.php @ Line 23) [SYM]? (Location: includes/header.php @ Line 70) [SYM]'> (Location: includes/inc/func.inc.php @ Line 23) 
+#else
+
+#if ($tdb->is_logged_in())
+
+#if ($refresh && $_GET["a"] != 1 && $_POST["a"] != 1 && $_GET["s"] != 1 && $_POST["s"] != 1)
+
+#if ($_GET['action'] == 'markallread')
+<meta http-equiv='refresh' content=' (Location: includes/inc/func.inc.php @ Line 23) 0 (Location: index.php @ Line 29) ;URL= (Location: includes/inc/func.inc.php @ Line 23) 
+#if ((isset($_GET['ref'])))
+[SYM]
+#else
+index.php (Location: index.php @ Line 28) 
+#endif
+'> (Location: includes/inc/func.inc.php @ Line 23) 
+#else
+
+#endif
+<meta http-equiv='refresh' content=' (Location: includes/inc/func.inc.php @ Line 23) 0 (Location: includes/header.php @ Line 54) ;URL= (Location: includes/inc/func.inc.php @ Line 23) [SYM]? (Location: includes/header.php @ Line 54) [SYM]'> (Location: includes/inc/func.inc.php @ Line 23) 
+#else
+
+#if ($_GET['action'] == 'markallread')
+<meta http-equiv='refresh' content=' (Location: includes/inc/func.inc.php @ Line 23) 0 (Location: index.php @ Line 29) ;URL= (Location: includes/inc/func.inc.php @ Line 23) 
+#if ((isset($_GET['ref'])))
+[SYM]
+#else
+index.php (Location: index.php @ Line 28) 
+#endif
+'> (Location: includes/inc/func.inc.php @ Line 23) 
+#else
+
+#endif
+
+#endif
+
+#else
+
+#if ($_GET['action'] == 'markallread')
+<meta http-equiv='refresh' content=' (Location: includes/inc/func.inc.php @ Line 23) 0 (Location: index.php @ Line 29) ;URL= (Location: includes/inc/func.inc.php @ Line 23) 
+#if ((isset($_GET['ref'])))
+[SYM]
+#else
+index.php (Location: index.php @ Line 28) 
+#endif
+'> (Location: includes/inc/func.inc.php @ Line 23) 
+#else
+
+#endif
+
+#endif
+
+#endif
+<!DOCTYPE html PUBLIC '-//W3C//DTD XHTML 1.0 Strict//EN' 'http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd'>
+<html xmlns='http://www.w3.org/1999/xhtml' xml:lang='en' lang='en'>
+<head>
+<title> (Location: includes/header.php @ Line 144) 
+#if ((!isset($where) || $where == ''))
+[SYM]
+#else
+[SYM]
+#endif
+</title>
+<meta http-equiv='Content-Type' content='text/html; charset=utf-8' />
+<link rel='stylesheet' type='text/css' href=' (Location: includes/header.php @ Line 147) [SYM]/css/style.css' />
+<link rel='stylesheet' type='text/css' href='skins/disabled.css' />
+<script type='text/javascript' src='./includes/scripts.js'></script>
+<script type='text/javascript' src='./includes/301a.js'></script> (Location: includes/header.php @ Line 149) </head>
+<body>
+<div id='upb_container'>
+	<div class='main_cat_wrapper2'>
+		<table class='main_table_2' cellspacing='1'>
+			<tr>
+				<td id='logo'><img src=' (Location: includes/header.php @ Line 163) [SYM]' alt='' title='' /></td>
+			</tr>
+		</table>
+	</div>
+ <br />
+	<br />
+	<div class='tabstyle_1'>
+		<ul> (Location: includes/header.php @ Line 169) 
+#if ($tdb->is_logged_in())
+
+			<li><a href='index.php' title='Forum Home'><span>Forum Home</span></a></li>
+			<li><a href=' (Location: includes/header.php @ Line 177) [SYM]' title='Site Home'><span>Site Home</span></a></li>
+			<li><a href='showmembers.php' title='Members'><span>Members</span></a></li>
+			<li><a href='search.php' title='Search'><span>Search</span></a></li>
+			<li><a href='board_faq.php' title='Help Faq'><span>Help Faq</span></a></li> (Location: includes/header.php @ Line 179) 
+#else
+
+			<li><a href='index.php' title='Forum Home'><span>Forum Home</span></a></li>
+			<li><a href=' (Location: includes/header.php @ Line 183) [SYM]' title='Site Home'><span>Site Home</span></a></li>
+			<li><a href='search.php' title='Search'><span>Search</span></a></li>
+			<li><a href='board_faq.php' title='Help Faq'><span>Help Faq</span></a></li> (Location: includes/header.php @ Line 185) 
+#endif
+
+		</ul>
+	</div>
+	<div style='clear:both;'></div>
+		 (Location: includes/header.php @ Line 188) 
+	<div class='main_cat_wrapper'>
+		<div class='cat_area_1'> (Location: includes/inc/func.inc.php @ Line 260) [SYM]</div>
+		<table class='main_table' cellspacing='1'>
+		<tbody> (Location: includes/inc/func.inc.php @ Line 262) 
+		<tr>
+			<td class='area_welcome'><div class='welcome_text'> (Location: includes/header.php @ Line 194) 
+#if ($tdb->is_logged_in())
+
+				<strong> (Location: includes/header.php @ Line 197) 
+#if (!$tdb->is_logged_in())
+You are not logged in. (Location: includes/header.php @ Line 115) 
+#else
+Welcome,  (Location: includes/header.php @ Line 119) [SYM]! (Location: includes/header.php @ Line 119) 
+#endif
+</strong>&nbsp;&nbsp;
+				 (Location: includes/header.php @ Line 198) 
+#if (!$tdb->is_logged_in())
+
+#else
+
+#if ($_COOKIE["power_env"] >= 3)
+<a href='admin.php'>Admin Panel</a>&nbsp;&middot; (Location: includes/header.php @ Line 130) 
+#if ($_REGIST['reg_approval'])
+
+#if ($_SESSION['reg_approval_count'] > 0)
+(<a href='admin_members.php?action=confirm#skip_nav'><b> (Location: includes/header.php @ Line 137) [SYM] Unapproved User</b></a>)&nbsp;&middot; (Location: includes/header.php @ Line 137) 
+#else
+
+#endif
+
+#else
+
+#endif
+
+#else
+
+#endif
+
+#endif
+
+				<a href=' (Location: includes/header.php @ Line 199) 
+#if (!$tdb->is_logged_in())
+login.php?ref= (Location: includes/header.php @ Line 116) 
+#if (preg_match("/viewforum.php/", $_SERVER["PHP_SELF"]))
+viewforum.php?id= (Location: includes/header.php @ Line 108) [SYM]
+#else
+
+#if (preg_match("/viewtopic.php/", $_SERVER["PHP_SELF"]))
+viewtopic.php?id= (Location: includes/header.php @ Line 112) [SYM]&t_id= (Location: includes/header.php @ Line 112) [SYM]
+#else
+ (Location: includes/header.php @ Line 104) 
+#endif
+
+#endif
+
+#else
+logoff.php (Location: includes/header.php @ Line 120) 
+#endif
+'>Logout</a>
+				&middot;&nbsp;<a href='profile.php'>User CP</a>
+				&middot;&nbsp;<a href=' (Location: includes/header.php @ Line 200) 
+#if (!$tdb->is_logged_in())
+login.php?ref=pmsystem.php (Location: includes/header.php @ Line 117) 
+#else
+pmsystem.php (Location: includes/header.php @ Line 121) 
+#endif
+'>Messenger</a>
+				 (Location: includes/header.php @ Line 202) 
+#if (!$tdb->is_logged_in())
+
+#else
+
+#if ((int)$new_pm != 0)
+-&nbsp;<a href='pmsystem.php?section=inbox'><strong> (Location: includes/header.php @ Line 126) [SYM]</strong> new PMs in your inbox</a> (Location: includes/header.php @ Line 126) 
+#else
+-&nbsp;No new messages (Location: includes/header.php @ Line 127) 
+#endif
+
+#endif
+
+#else
+
+				<strong> (Location: includes/header.php @ Line 205) 
+#if (!$tdb->is_logged_in())
+You are not logged in. (Location: includes/header.php @ Line 115) 
+#else
+Welcome,  (Location: includes/header.php @ Line 119) [SYM]! (Location: includes/header.php @ Line 119) 
+#endif
+</strong>  Please  (Location: includes/header.php @ Line 206) 
+#if ($_REGIST['disable_reg'])
+ (Location: includes/header.php @ Line 207) 
+#else
+<a href='register.php'><strong>Register</strong></a> or  (Location: includes/header.php @ Line 208) 
+#endif
+<a href=' (Location: includes/header.php @ Line 209) 
+#if (!$tdb->is_logged_in())
+login.php?ref= (Location: includes/header.php @ Line 116) 
+#if (preg_match("/viewforum.php/", $_SERVER["PHP_SELF"]))
+viewforum.php?id= (Location: includes/header.php @ Line 108) [SYM]
+#else
+
+#if (preg_match("/viewtopic.php/", $_SERVER["PHP_SELF"]))
+viewtopic.php?id= (Location: includes/header.php @ Line 112) [SYM]&t_id= (Location: includes/header.php @ Line 112) [SYM]
+#else
+ (Location: includes/header.php @ Line 104) 
+#endif
+
+#endif
+
+#else
+logoff.php (Location: includes/header.php @ Line 120) 
+#endif
+'><strong>Login</strong></a>. (Location: includes/header.php @ Line 209) 
+#endif
+
+			</div></td>
+		</tr> (Location: includes/header.php @ Line 211) 
+		</tbody>
+		</table>
+		<div class='footer'><img src=' (Location: includes/inc/func.inc.php @ Line 271) [SYM]/images/spacer.gif' alt='' title='' /></div>
+	</div>
+	<br /> (Location: includes/inc/func.inc.php @ Line 274) 
+#if (!$tdb->is_logged_in() && isset($_COOKIE['user_env']) && isset($_COOKIE['uniquekey_env']) && isset($_COOKIE['id_env']))
+[SYM]
+#else
+
+#endif
+
+
+	<div class='breadcrumb'><span class='breadcrumb_home'><a href='index.php'> (Location: includes/header.php @ Line 221) [SYM]</a></span> (Location: includes/header.php @ Line 223) 
+#if (isset($where))
+&nbsp;<span class='breadcrumb_page'> (Location: includes/header.php @ Line 224) [SYM]  (Location: includes/header.php @ Line 224) [SYM]</span> (Location: includes/header.php @ Line 224) 
+#else
+
+#endif
+
+	</div> (Location: includes/header.php @ Line 225) 
+#if ($_CONFIG["servicemessage"] != "" && ($_SESSION['servicemessage'] != md5($_CONFIG['servicemessage']) || basename($_SERVER['PHP_SELF']) == 'index.php'))
+
+	<div class='main_cat_wrapper'>
+		<div class='cat_area_1'> (Location: includes/inc/func.inc.php @ Line 260) Announcements (Location: includes/header.php @ Line 231) </div>
+		<table class='main_table' cellspacing='1'>
+		<tbody> (Location: includes/inc/func.inc.php @ Line 262) 
+			<tr>
+			<td class='area_1' style='text-align:left;'> (Location: includes/header.php @ Line 232) [SYM]</td>
+			</tr> (Location: includes/header.php @ Line 234) 
+		</tbody>
+		</table>
+		<div class='footer'><img src=' (Location: includes/inc/func.inc.php @ Line 271) [SYM]/images/spacer.gif' alt='' title='' /></div>
+	</div>
+	<br /> (Location: includes/inc/func.inc.php @ Line 274) 
+#else
+
+#endif
+
+#if ($_COOKIE['power_env'] == '0' && $_REGIST['disable_reg'])
+[SYM]
+#else
+
+#endif
+
+#if ($cRecs[0]["id"] == "")
+
+			<div class='alert'><div class='alert_text'>
+			<strong>Attention!</strong></div><div style='padding:4px;'>No categories have been added yet.<br /> (Location: index.php @ Line 42) 
+#if ($_COOKIE["power_env"] < 3)
+ (Location: index.php @ Line 46) 
+#else
+ To add a Category, <a href='admin_forums.php?action=add_cat'>click here</a>. (Location: index.php @ Line 48) 
+#endif
+</div></div> (Location: index.php @ Line 50) 
+#else
+
+#if ($cRecs[0]["id"] == "")
+[SYM]
+#else
+[RepeatBegin]
+
+#if ($_COOKIE["power_env"] >= $cRec["view"])
+
+	<div class='main_cat_wrapper'>
+		<div class='cat_area_1'> (Location: includes/inc/func.inc.php @ Line 260) [SYM]</div>
+		<table class='main_table' cellspacing='1'>
+		<tbody> (Location: includes/inc/func.inc.php @ Line 262) 
+    			<tr>
+    				<th style='width: 75%;'>Forum</th>
+    				<th style='width:25%;text-align:center;'>Latest Topic</th>
+    			</tr> (Location: index.php @ Line 92) 
+#if ($cRec["sort"] == "")
+
+    			<tr>
+    				<td class='area_2' style='text-align:center;font-weight:bold;padding:12px;line-height:20px;' colspan='2'>No forums have been added to this Category yet.<br /> (Location: index.php @ Line 100) 
+#if ($_COOKIE["power_env"] < "3")
+ (Location: index.php @ Line 104) 
+#else
+ To add a forum, <a href='admin_forums.php?action=add_forum&cat_id= (Location: index.php @ Line 106) [SYM]'>click here</a>. (Location: index.php @ Line 106) 
+#endif
+</td>
+    			</tr> (Location: index.php @ Line 108) 
+#else
+[RepeatBegin]
+
+#if ((int)$fRec["view"] <= (int)($_COOKIE["power_env"]))
+
+    			<tr>
+    				<td class='area_2' onmouseover=" this.className='area_2_over'"  onmouseout=" this.className='area_2'" >
+    								<span class='link_1'> (Location: index.php @ Line 149) 
+#if ($tRec[0]["id"] != "")
+<a href='xml.php?id= (Location: index.php @ Line 154) [SYM]'><img src='images/rss.png' class='rss' alt='RSS Feed' title='RSS Feed'></a> (Location: index.php @ Line 154) 
+#else
+
+#endif
+ <a href='viewforum.php?id= (Location: index.php @ Line 155) [SYM]'> (Location: index.php @ Line 155) [SYM]</a></span>
+    								<div class='description'> (Location: index.php @ Line 155) [SYM]</div>
+    								<div class='box_posts'><strong>Posts:</strong>&nbsp; (Location: index.php @ Line 156) [SYM]</div>
+    								<div class='box_topics'><strong>Topics:</strong>&nbsp; (Location: index.php @ Line 157) [SYM]</div></td>
+    				<td class='area_1' style='text-align:center;'><img src=' (Location: index.php @ Line 158) [SYM]/icons/ (Location: index.php @ Line 159) 
+#if ($fRec["topics"] == "0")
+off.png (Location: index.php @ Line 148) 
+#else
+
+#if ($tRec[0]["id"] == "")
+off.png (Location: index.php @ Line 124) 
+#else
+
+#if ($_SESSION['newTopics']['f'.$fRec['id']]['t'.$tRec[0]['id']] == 2)
+star.gif (Location: index.php @ Line 136) 
+#else
+
+#if (($tRec[0]['last_post'] > $_SESSION['newTopics']['lastVisitForums'][$fRec['id']] && !isset($_SESSION['newTopics']['f'.$fRec['id']]['t'.$tRec[0]['id']]))
+								|| $_SESSION['newTopics']['f'.$fRec['id']]['t'.$tRec[0]['id']] != 0)
+on.png (Location: index.php @ Line 143) 
+#else
+off.png (Location: index.php @ Line 144) 
+#endif
+
+#endif
+
+#endif
+
+#endif
+' class='index_post_image' alt='' title='' /><span class='latest_topic'> (Location: index.php @ Line 159) 
+#if ($tRec[0]["id"] == "")
+No Posts (Location: index.php @ Line 123) 
+#else
+<span class='date'> (Location: index.php @ Line 128) [SYM]</span><br /><strong>In:</strong>&nbsp;<strong><a href='viewtopic.php?id= (Location: index.php @ Line 128) [SYM]&amp;t_id= (Location: index.php @ Line 128) [SYM]'> (Location: index.php @ Line 128) [SYM]</a></strong><br /><strong>By:</strong>  (Location: index.php @ Line 128) 
+#if ($tRec[0]["user_id"] != "0")
+<span class='link_2'><a href='profile.php?action=get&amp;id= (Location: index.php @ Line 129) [SYM]'  style='color : # (Location: index.php @ Line 129) 
+#if ($user[0]["level"] == "1")
+[SYM]
+#else
+
+#if ($user[0]["level"] == "2")
+[SYM]
+#else
+
+#if ($user[0]["level"] >= 3)
+[SYM]
+#else
+[SYM]
+#endif
+
+#endif
+
+#endif
+;'> (Location: index.php @ Line 129) [SYM]</a></span> (Location: index.php @ Line 129) 
+#else
+a  (Location: index.php @ Line 130) [SYM] (Location: index.php @ Line 130) 
+#endif
+
+#endif
+</span></td>
+    			</tr> (Location: index.php @ Line 159) 
+#else
+
+#endif
+
+[RepeatEnd]
+#endif
+
+		</tbody>
+		</table>
+		<div class='footer'><img src=' (Location: includes/inc/func.inc.php @ Line 271) [SYM]/images/spacer.gif' alt='' title='' /></div>
+	</div>
+	<br /> (Location: includes/inc/func.inc.php @ Line 274) 
+#else
+
+#endif
+
+[RepeatEnd]
+#endif
+
+#endif
+
+		<div id='tabstyle_2'>
+			<ul> (Location: index.php @ Line 187) 
+				<li><a href='index.php?action=markallread' title='Mark as read'><span>Mark all forums as read?</span></a></li> (Location: index.php @ Line 190) 
+			</ul>
+		</div>
+		<div style='clear:both;'></div> (Location: index.php @ Line 192) 
+	<div class='main_cat_wrapper'>
+		<div class='cat_area_1'> (Location: includes/inc/func.inc.php @ Line 260) Community Information (Location: index.php @ Line 196) </div>
+		<table class='main_table' cellspacing='1'>
+		<tbody> (Location: includes/inc/func.inc.php @ Line 262) 
+			<tr>
+				<th>Users online in the last 15 minutes:  (Location: index.php @ Line 197) [SYM]</th>
+			</tr>
+			<tr>
+				<td class='area_2'> (Location: index.php @ Line 199) 
+					<span class='whos_online'> (Location: index.php @ Line 204) [SYM] member(s) and  (Location: index.php @ Line 205) [SYM] guest(s).</span>
+					<hr />
+					<strong> (Location: index.php @ Line 205) 
+#if ($whos["users"] > 0)
+[SYM]
+#else
+ (Location: index.php @ Line 179) 
+#endif
+</strong></td>
+			</tr>
+			<tr>
+				<th>Board Statistics</th>
+			</tr>
+			<tr>
+				<td class='area_1'>
+					<div class='legend_2'>No New Posts</div>
+					<div class='legend_1'><img src=' (Location: index.php @ Line 207) [SYM]/icons/off.png' alt='' title='' /></div>
+					<div class='legend_2'>New Posts</div>
+					<div class='legend_1'><img src=' (Location: index.php @ Line 215) [SYM]/icons/on.png' alt='' title='' /></div>
+					<span class='stats'>
+					<strong>Total Topics:</strong>  (Location: index.php @ Line 217) 
+#if ($cRecs[0]["id"] == "")
+
+#else
+
+#if ($cRecs[0]["id"] == "")
+
+#else
+0 (Location: index.php @ Line 87) 
+#endif
+
+#endif
+<br />
+					<strong>Total Posts:</strong>  (Location: index.php @ Line 219) 
+#if ($cRecs[0]["id"] == "")
+
+#else
+
+#if ($cRecs[0]["id"] == "")
+
+#else
+0 (Location: index.php @ Line 88) 
+#endif
+
+#endif
+<br />
+					<strong>Total Members:</strong>  (Location: index.php @ Line 220) [SYM]<br />
+					<strong>Newest Member:</strong> <span class='link_2'><a href='profile.php?action=get&amp;id= (Location: index.php @ Line 221) [SYM]'> (Location: index.php @ Line 222) [SYM]</a></span><br />
+					<strong>Forum Page Views:</strong>  (Location: index.php @ Line 222) [SYM]<br />
+					<strong>Busiest Day:</strong>  (Location: index.php @ Line 223) [SYM] Page Views on  (Location: index.php @ Line 224) [SYM]<br />
+          <strong>Page Rendering Time:</strong>  (Location: index.php @ Line 224) [SYM] seconds</span></td>
+			</tr> (Location: index.php @ Line 225) 
+		</tbody>
+		</table>
+		<div class='footer'><img src=' (Location: includes/inc/func.inc.php @ Line 271) [SYM]/images/spacer.gif' alt='' title='' /></div>
+	</div>
+	<br /> (Location: includes/inc/func.inc.php @ Line 274) 

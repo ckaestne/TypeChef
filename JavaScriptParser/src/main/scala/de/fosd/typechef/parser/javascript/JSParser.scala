@@ -209,7 +209,7 @@ class JSParser extends MultiFeatureParser {
     def MemberExpression: MultiParser[JSExpression] =
         (PrimaryExpression |
             FunctionExpression |
-            ("new" ~~~ MemberExpression ~~~? Arguments ^^ {x => JSExpr()})) ~
+            ("new" ~~~> MemberExpression ~~~? Arguments ^^ {case x ~ y  => JSConstructorCall(x, y)})) ~
             repPlain((WSo ~> '[' ~~~?> Expression <~~~? ']') ^^ {_Array(_)} |
                 ("." ~~~?> Identifier /*Name*/)^^ {_Field(_)}) ^^ {case x ~ p =>   p.foldLeft(x)((x, e) => e match {
             case _Array(i) => JSArrayAccess(x, i)
