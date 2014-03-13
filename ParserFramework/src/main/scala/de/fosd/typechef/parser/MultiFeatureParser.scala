@@ -67,12 +67,11 @@ abstract class MultiFeatureParser(val featureModel: FeatureModel = null, debugOu
         def a = thisParser
 
         def apply(in: Input, feature: FeatureExpr): MultiParseResult[U] = {
-            val startPos = in.pos
             val result = thisParser(in, feature).map(f)
-            result.mapfr(FeatureExprFactory.True, (_, r) => r match {
+            result.mapfr(FeatureExprFactory.True, (f, r) => r match {
                 case Success(t, restIn) =>
                     if (t.isInstanceOf[WithPosition])
-                        t.asInstanceOf[WithPosition].setPositionRange(startPos, restIn.pos)
+                        t.asInstanceOf[WithPosition].setPositionRange(in.skipHidden(f, featureSolverCache).pos, restIn.pos)
                     null
                 case _ => null
             })
