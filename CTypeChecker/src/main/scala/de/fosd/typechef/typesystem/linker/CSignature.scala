@@ -10,6 +10,8 @@ import de.fosd.typechef.error.Position
  * relevance.
  * its also not necessarily de/serialized
  *
+ * extraflags can refer to special features for signatures, such as weak exports; see CFlags.scala
+ *
  * TODO types should be selfcontained (i.e. not reference to structures or type names defined elsewhere,
  * but resolved to anonymous structs, etc.)
  */
@@ -24,6 +26,8 @@ case class CSignature(name: String, ctype: CType, fexpr: FeatureExpr, pos: Seq[P
     }
 
     def and(f: FeatureExpr) = CSignature(name, ctype, fexpr and f, pos, extraFlags)
+
+
 
 }
 
