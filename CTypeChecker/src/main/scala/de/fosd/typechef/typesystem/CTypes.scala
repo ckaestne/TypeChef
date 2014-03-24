@@ -322,13 +322,7 @@ class CFunction(val param: Seq[CType], val ret: CType) extends AType {
 
     override def isFunction: Boolean = true
     override def toText = param.map(_.toText).mkString("(", ", ", ")") + " => " + ret.toText
-    def toXML = <function>
-        {param.map(x => <param>
-            {x.toXML}
-        </param>)}<ret>
-            {ret.toXML}
-        </ret>
-    </function>
+    def toXML = <function>{param.map(x => <param>{x.toXML}</param>)}<ret>{ret.toXML}</ret></function>
     def markSecurityRelevant() = {
         securityRelevant = true;
         this
@@ -430,6 +424,7 @@ object CType {
         (node \ "compound").map(x => result = CCompound())
         (node \ "builtinvalist").map(x => result = CBuiltinVaList())
         (node \ "unkown").map(x => result = CUnknown(x.attribute("msg").get.text))
+        (node \ "ignore").map(x => result = CIgnore())
         result
     }
 
