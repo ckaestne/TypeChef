@@ -74,4 +74,9 @@ class PPFilesTest {
         parseFile("other/_ppfs_setargs.i")
     }
 
+//    @Test
+//    def testBusyboxAppletLib() {
+//        parseFile("other/appletlib.pi")
+//    }
+
 }
