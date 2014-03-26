@@ -7,9 +7,10 @@ import de.fosd.typechef.featureexpr._
 import de.fosd.typechef.conditional._
 import de.fosd.typechef.featureexpr.FeatureExprFactory._
 import org.junit.Ignore
+import org.scalatest.Suite
 
 @RunWith(classOf[JUnitRunner])
-class ASTNavigationTest extends ShouldMatchers with ASTNavigation with ConditionalNavigation with EnforceTreeHelper with TestHelper {
+class ASTNavigationTest extends ShouldMatchers with ASTNavigation with ConditionalNavigation with EnforceTreeHelper with TestHelper with Suite{
 
 
     val ast = getAST("void foo() {}" +
