@@ -3,7 +3,7 @@ package de.fosd.typechef.typesystem
 import scala.collection.JavaConversions._
 import java.util.{Collections, IdentityHashMap}
 
-import org.apache.logging.log4j.LogManager
+import org.apache.logging.log4j.{Level, LogManager}
 
 import de.fosd.typechef.conditional._
 import de.fosd.typechef.featureexpr.{FeatureModel, FeatureExprFactory, FeatureExpr}
@@ -323,7 +323,6 @@ trait CDeclUse extends CDeclUseInterface with CEnv with CEnvCache {
 
         // TODO andreas: refactor code looks a little messy
         def addUseCastExpr(typ: TypeName, addUse: (AST, FeatureExpr, CDeclUse.this.type#Env) => Unit, feature: FeatureExpr, env: CDeclUse.this.type#Env, lst: List[Opt[Initializer]]) {
-            logger.error("Type" + typ)
             var typedefspecifier: Id = null
             typ match {
                 case TypeName(ls, _) =>
