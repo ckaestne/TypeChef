@@ -403,9 +403,10 @@ object ConfigurationHandling {
      *                                          This corresponds to the view of the developer of a ".c" file.
      * @return
      */
-    def configurationCoverage(astRoot: TranslationUnit, fm: FeatureModel, ff: FileFeatures,
-                              existingConfigs: List[SimpleConfiguration] = List(), preferDisabledFeatures: Boolean,
-                              includeVariabilityFromHeaderFiles: Boolean = false):
+    private def configurationCoverage(astRoot: TranslationUnit, fm: FeatureModel, ff: FileFeatures,
+                                      existingConfigs: List[SimpleConfiguration] = List(),
+                                      preferDisabledFeatures: Boolean,
+                                      includeVariabilityFromHeaderFiles: Boolean = false):
     (List[SimpleConfiguration], String) = {
         var presenceConditions: Set[Set[FeatureExpr]] = Set()
 
@@ -487,11 +488,8 @@ object ConfigurationHandling {
     }
 
 
-
-
-
     /**
-     * Optimzed version of the completeConfiguration method. Uses FeatureExpr.getSatisfiableAssignment
+     * Optimized version of the completeConfiguration method. Uses FeatureExpr.getSatisfiableAssignment
      * to need only one SAT call.
      * @param expr input feature expression
      * @param ff file features
