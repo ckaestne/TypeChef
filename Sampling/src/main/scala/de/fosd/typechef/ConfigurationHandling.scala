@@ -111,8 +111,8 @@ object ConfigurationHandling {
             if (matcher.matches()) {
                 val name = "CONFIG_" + matcher.group(1)
                 val feature = FeatureExprFactory.createDefinedExternal(name)
-                var fileExTmp = fileEx.and(feature)
                 if (correctFeatureModelIncompatibility) {
+                    var fileExTmp = fileEx.and(feature)
                     val isSat = fileExTmp.isSatisfiable(fm)
                     println(name + " " + (if (isSat) "sat" else "!sat"))
                     if (!isSat) {
@@ -123,17 +123,17 @@ object ConfigurationHandling {
                     } else {
                         trueFeatures += feature
                     }
+                    fileEx = fileExTmp
                 } else {
                     trueFeatures += feature
                 }
-                fileEx = fileExTmp
             } else {
                 matcher = disabledPattern.matcher(line)
                 if (matcher.matches()) {
                     val name = "CONFIG_" + matcher.group(1)
                     val feature = FeatureExprFactory.createDefinedExternal(name)
-                    var fileExTmp = fileEx.andNot(feature)
                     if (correctFeatureModelIncompatibility) {
+                        var fileExTmp = fileEx.andNot(feature)
                         val isSat = fileEx.isSatisfiable(fm)
                         println("! " + name + " " + (if (isSat) "sat" else "!sat"))
                         if (!isSat) {
@@ -144,10 +144,10 @@ object ConfigurationHandling {
                         } else {
                             falseFeatures += feature
                         }
+                        fileEx = fileExTmp
                     } else {
                         falseFeatures += feature
                     }
-                    fileEx = fileExTmp
                 } else {
                     ignoredFeatures += 1
                 }
@@ -168,13 +168,16 @@ object ConfigurationHandling {
                 fw.append(feature.feature + "=y\n")
             fw.close()
         }
-        val interestingTrueFeatures = trueFeatures.filter(features.contains(_)).toList
-        val interestingFalseFeatures = falseFeatures.filter(features.contains(_)).toList
+        val interestingTrueFeatures = trueFeatures.filter(features.contains).toList
+        val interestingFalseFeatures = falseFeatures.filter(features.contains).toList
 
-        fileEx.getSatisfiableAssignment(fm, features.toSet, 1 == 1) match {
-            case None => println("configuration not satisfiable"); return (List(), "")
-            case Some((en, dis)) => return (List(new SimpleConfiguration(ff, en, dis)), "")
+        if (correctFeatureModelIncompatibility) {
+            fileEx.getSatisfiableAssignment(fm, features.toSet, 1 == 1) match {
+                case None => println("configuration not satisfiable"); return (List(), "")
+                case Some((en, dis)) => return (List(new SimpleConfiguration(ff, en, dis)), "")
+            }
         }
+
         (List(new SimpleConfiguration(ff, interestingTrueFeatures, interestingFalseFeatures)), "")
     }
 
@@ -244,14 +247,14 @@ object ConfigurationHandling {
 
     def buildConfigurationsSingleConf(tunit: TranslationUnit, ff: FileFeatures, fm: FeatureModel,
                                       opt: FamilyBasedVsSampleBasedOptions, configDir: File,
-                                      caseStudy: String, extasks: List[Task]): (String, List[Task]) = {
+                                      caseStudy: String, exTasks: List[Task]): (String, List[Task]) = {
         var tasks: List[Task] = List()
         var log = ""
         var msg = ""
         var startTime: Long = 0
 
-        if (extasks.exists(_._1.equals("fileconfig"))) {
-            msg = "omitting fileconfig generation, because a serialized version was loaded"
+        if (exTasks.exists(_._1.equals("singleconf"))) {
+            msg = "omitting singleconf generation, because a serialized version was loaded"
         } else {
             val configFile = if (caseStudy.equals("linux"))
                 opt.getRootFolder + "Linux_allyes_modified.config"
@@ -266,7 +269,7 @@ object ConfigurationHandling {
             startTime = System.currentTimeMillis()
             val (configs, logMsg) = ConfigurationHandling.loadConfigurationFromKconfigFile(ff, fm,
                 new File(configFile))
-            tasks :+= Pair("fileconfig", configs)
+            tasks :+= Pair("singleconf", configs)
             msg = "Time for config generation (singleconf): " + (System.currentTimeMillis() - startTime) +
                 " ms\n" + logMsg
         }
