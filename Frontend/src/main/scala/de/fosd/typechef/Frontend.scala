@@ -228,7 +228,7 @@ object Frontend extends EnforceTreeHelper {
 
     def lex(opt: FrontendOptions): TokenReader[CToken, CTypeContext] = {
         val tokens = new lexer.LexerFrontend().run(opt, opt.parse)
-        val in = CLexer.prepareTokens(tokens)
+        val in = CLexerAdapter.prepareTokens(tokens)
         in
     }
 

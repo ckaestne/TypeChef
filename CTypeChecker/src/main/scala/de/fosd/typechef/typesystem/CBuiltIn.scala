@@ -4,6 +4,7 @@ import de.fosd.typechef.featureexpr.FeatureExprFactory.True
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.conditional._
 import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
+import de.fosd.typechef.lexer.LexerFrontend
 
 /**
  * all compiler-specific built-in stuff
@@ -142,8 +143,9 @@ trait CBuiltIn extends CEnv with CTypes with CDeclTyping {
     }
 
     private def getAST(code: String): TranslationUnit = {
+        import scala.collection.JavaConversions._
         val ast: AST = new ParserMain(new CParser).parserMain(
-            () => CLexer.lex(code, null), new CTypeContext, SilentParserOptions)
+            CLexerAdapter.prepareTokens(new LexerFrontend().parse(code)), SilentParserOptions)
         assert(ast != null)
         ast.asInstanceOf[TranslationUnit]
     }

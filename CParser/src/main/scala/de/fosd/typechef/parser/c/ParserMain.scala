@@ -7,6 +7,7 @@ import FeatureExprFactory.True
 import java.util.Collections
 import de.fosd.typechef.error.Position
 import de.fosd.typechef.conditional.Opt
+import de.fosd.typechef.lexer.LexerFrontend
 
 object MyUtil {
     implicit def runnable(f: () => Unit): Runnable =
@@ -14,32 +15,41 @@ object MyUtil {
             def run() = f()
         }
 }
-
-object ParserMain {
-
-    def main(args: Array[String]) = {
-        val parserMain = new ParserMain(new CParser(null))
-
-        for (filename <- args) {
-            println("**************************************************************************")
-            println("** Processing file: " + filename)
-            println("**************************************************************************")
-            val currentDir = new File(filename).getParent()
-            parserMain.parserMain(filename, Collections.singletonList(currentDir))
-            println("**************************************************************************")
-            println("** End of processing for: " + filename)
-            println("**************************************************************************")
-        }
-    }
-}
+//
+//object ParserMain {
+//    import scala.collection.JavaConversions._
+//
+//    def main(args: Array[String]) = {
+//        val parserMain = new ParserMain(new CParser(null))
+//
+//        for (filename <- args) {
+//            println("**************************************************************************")
+//            println("** Processing file: " + filename)
+//            println("**************************************************************************")
+////            val currentDir = new File(filename).getParent()
+////            parserMain.parserMain(filename, Collections.singletonList(currentDir))
+//
+//            val currentDir = new File(filename).getParent()
+//            val lexer = (() => CLexer.prepareTokens(new LexerFrontend().parseFile(filename, Collections.singletonList(currentDir), null)))
+//            parserMain.parserMain(lexer, new CTypeContext(), DefaultParserOptions)
+//
+//            println("**************************************************************************")
+//            println("** End of processing for: " + filename)
+//            println("**************************************************************************")
+//        }
+//    }
+//}
 
 
 class ParserMain(p: CParser) {
 
-    def parserMain(filePath: String, systemIncludePath: java.util.List[String], parserOptions: ParserOptions = DefaultParserOptions): TranslationUnit = {
-        val lexer = (() => CLexer.lexFile(filePath, systemIncludePath, p.featureModel))
-        parserMain(lexer, new CTypeContext(), parserOptions)
-    }
+//    /**
+//     * debug and testing function only; do not use for serious processing since it ignores all lexer options
+//     */
+//    def parserMain(filePath: String, systemIncludePath: java.util.List[String], parserOptions: ParserOptions = DefaultParserOptions): TranslationUnit = {
+//        val lexer = (() => CLexer.lexFile(filePath, systemIncludePath, p.featureModel))
+//        parserMain(lexer, new CTypeContext(), parserOptions)
+//    }
 
     def parserMain(tokenstream: TokenReader[CToken, CTypeContext], parserOptions: ParserOptions): TranslationUnit = {
         parserMain((() => tokenstream), new CTypeContext(), parserOptions)

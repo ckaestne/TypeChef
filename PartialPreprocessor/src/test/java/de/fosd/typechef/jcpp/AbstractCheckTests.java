@@ -201,7 +201,7 @@ public class AbstractCheckTests {
             pp.addWarning(w);
         pp.setListener(new PreprocessorListener(pp) {
             @Override
-            public void handleWarning(Source source, int line, int column,
+            public void handleWarning(String source, int line, int column,
                                       String msg) throws LexerException {
                 super.handleWarning(source, line, column, msg);
                 if (!ignoreWarnings)

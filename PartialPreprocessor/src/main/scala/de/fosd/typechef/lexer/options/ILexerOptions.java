@@ -1,5 +1,6 @@
 package de.fosd.typechef.lexer.options;
 
+import de.fosd.typechef.VALexer;
 import de.fosd.typechef.featureexpr.FeatureModel;
 import de.fosd.typechef.lexer.Feature;
 import de.fosd.typechef.lexer.Warning;
@@ -25,14 +26,11 @@ public interface ILexerOptions {
 
     String getLexOutputFile();
 
-    boolean isPrintVersion();
-
-
     Set<Warning> getWarnings();
 
     Set<Feature> getFeatures();
 
-    List<String> getFiles();
+    List<VALexer.LexerInput> getInput();
 
     boolean isLexPrintToStdout();
 

@@ -18,6 +18,7 @@ import java.io._
 import util.Random
 import java.util.Collections
 import de.fosd.typechef.featureexpr.sat.{SATFeatureExprFactory, SATFeatureModel}
+import de.fosd.typechef.lexer.LexerFrontend
 
 /**
  *
@@ -674,8 +675,9 @@ object FamilyBasedVsSampleBased extends EnforceTreeHelper with ASTNavigation wit
     }
 
     def parseFile(stream: InputStream, file: String, dir: String): TranslationUnit = {
+        import scala.collection.JavaConversions._
         val ast: AST = new ParserMain(new CParser).parserMain(
-            () => CLexer.lexStream(stream, file, Collections.singletonList(dir), null), new CTypeContext, SilentParserOptions)
+            CLexerAdapter.prepareTokens(new LexerFrontend().parseStream(stream, file, Collections.singletonList(dir), null)),SilentParserOptions)
         ast.asInstanceOf[TranslationUnit]
     }
 

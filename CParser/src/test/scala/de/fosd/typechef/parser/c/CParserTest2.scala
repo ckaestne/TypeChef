@@ -8,11 +8,11 @@ import de.fosd.typechef.parser._
 /**
  * tests taken from an earlier own ANTLR approach
  */
-class CParserTest2 extends TestCase {
+class CParserTest2 extends TestCase with TestHelper {
     val p = new CParser()
 
     def assertParseable(code: String, mainProduction: (TokenReader[CToken, CTypeContext], FeatureExpr) => p.MultiParseResult[Any]) {
-        val actual = p.parseAny(code.stripMargin, mainProduction)
+        val actual = p.parseAny(lex(code.stripMargin), mainProduction)
         System.out.println(actual)
         (actual: @unchecked) match {
             case p.Success(ast, unparsed) => {

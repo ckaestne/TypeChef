@@ -120,7 +120,7 @@ trait BusyBoxVerification extends Logging with ASTNavigation with ConditionalNav
 
     protected def currentTime: Long = java.lang.management.ManagementFactory.getThreadMXBean.getCurrentThreadCpuTime / nsToMs
 
-    protected def parseFile(stream: InputStream, file: String, dir: String): TranslationUnit = new ParserMain(new CParser).parserMain(() => CLexer.lexStream(stream, file, Collections.emptyList(), null), new CTypeContext, SilentParserOptions).asInstanceOf[TranslationUnit]
+    protected def parseFile(stream: InputStream, file: String, dir: String): TranslationUnit = new ParserMain(new CParser).parserMain(() => CLexerAdapter.lexStream(stream, file, Collections.emptyList(), null), new CTypeContext, SilentParserOptions).asInstanceOf[TranslationUnit]
 
     protected def getAllRelevantIds(a: Any): List[Id] = {
         a match {

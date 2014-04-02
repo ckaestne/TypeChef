@@ -196,7 +196,7 @@ object TypeChef extends Build {
         "PartialPreprocessor",
         file("PartialPreprocessor"),
         settings = buildSettings
-    ) dependsOn(featureexpr, errorlib)
+    ) dependsOn(featureexpr, conditionallib, errorlib)
 
     lazy val cparser = Project(
         "CParser",
