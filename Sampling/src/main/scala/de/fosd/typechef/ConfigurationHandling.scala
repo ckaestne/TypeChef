@@ -102,6 +102,7 @@ object ConfigurationHandling {
         var fileEx: FeatureExpr = FeatureExprFactory.True
         var trueFeatures: Set[SingleFeatureExpr] = Set()
         var falseFeatures: Set[SingleFeatureExpr] = Set()
+        var logMsg = ""
         var retList: List[SimpleConfiguration] = List()
 
         val enabledPattern: Pattern = java.util.regex.Pattern.compile("([^=]*)=y")
@@ -110,7 +111,7 @@ object ConfigurationHandling {
             totalFeatures += 1
             var matcher = enabledPattern.matcher(line)
             if (matcher.matches()) {
-                val name = "CONFIG_" + matcher.group(1)
+                val name = matcher.group(1)
                 val feature = FeatureExprFactory.createDefinedExternal(name)
                 if (correctFeatureModelIncompatibility) {
                     var fileExTmp = fileEx.and(feature)
@@ -131,7 +132,7 @@ object ConfigurationHandling {
             } else {
                 matcher = disabledPattern.matcher(line)
                 if (matcher.matches()) {
-                    val name = "CONFIG_" + matcher.group(1)
+                    val name = matcher.group(1)
                     val feature = FeatureExprFactory.createDefinedExternal(name)
                     if (correctFeatureModelIncompatibility) {
                         var fileExTmp = fileEx.andNot(feature)
@@ -175,6 +176,8 @@ object ConfigurationHandling {
         val config = new SimpleConfiguration(ff, interestingTrueFeatures, interestingFalseFeatures)
         if (config.toFeatureExpr.isSatisfiable(fm))
             retList ::= config
+        else
+            logMsg += "Configuration not satisfiable!"
 
         if (correctFeatureModelIncompatibility) {
             fileEx.getSatisfiableAssignment(fm, features.toSet, 1 == 1) match {
@@ -183,7 +186,7 @@ object ConfigurationHandling {
             }
         }
 
-        (retList, "")
+        (retList, logMsg)
     }
 
     def saveSerializedConfigurations(tasks: List[Task], featureList: List[SingleFeatureExpr],
