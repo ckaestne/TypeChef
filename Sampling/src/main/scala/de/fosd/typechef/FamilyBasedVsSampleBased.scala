@@ -66,7 +66,7 @@ object FamilyBasedVsSampleBased extends ASTNavigation with CFGHelper {
 
         /** code coverage - including Header files */
         if (opt.codeCoverage) {
-            val (clog, ctasks) = ConfigurationHandling.buildConfigurationsCodecoverage(tunit, ff, fm, configdir, caseStudy, tasks)
+            val (clog, ctasks) = ConfigurationHandling.buildConfigurationsCodeCoverage(tunit, ff, fm, configdir, caseStudy, tasks)
             log = log + clog
             tasks ++= ctasks
         } else {

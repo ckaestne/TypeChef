@@ -346,15 +346,15 @@ object ConfigurationHandling {
         (log, tasks)
     }
 
-    def buildConfigurationsCodecoverage(tunit: TranslationUnit, ff: FileFeatures, fm: FeatureModel,
-                                                configDir: File, caseStudy: String, extasks: List[Task])
+    def buildConfigurationsCodeCoverage(tunit: TranslationUnit, ff: FileFeatures, fm: FeatureModel,
+                                                configDir: File, caseStudy: String, exTasks: List[Task])
     : (String, List[Task]) = {
         var tasks: List[Task] = List()
         var log = ""
         var msg = ""
         var startTime: Long = 0
         if (caseStudy != "linux") {
-            if (extasks.exists(_._1.equals("coverage"))) {
+            if (exTasks.exists(_._1.equals("coverage"))) {
                 msg = "omitting coverage generation, because a serialized version was loaded"
             } else {
                 startTime = System.currentTimeMillis()
