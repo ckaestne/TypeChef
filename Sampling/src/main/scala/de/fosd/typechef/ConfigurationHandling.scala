@@ -264,11 +264,11 @@ object ConfigurationHandling {
             else
                 throw new Exception("unknown case Study, give linux, busybox, openssl, or sqlite")
             startTime = System.currentTimeMillis()
-            val (configs, logmsg) = ConfigurationHandling.loadConfigurationFromKconfigFile(ff, fm,
+            val (configs, logMsg) = ConfigurationHandling.loadConfigurationFromKconfigFile(ff, fm,
                 new File(configFile))
             tasks :+= Pair("fileconfig", configs)
             msg = "Time for config generation (singleconf): " + (System.currentTimeMillis() - startTime) +
-                " ms\n" + logmsg
+                " ms\n" + logMsg
         }
         println(msg)
         log = log + msg + "\n"
@@ -277,26 +277,26 @@ object ConfigurationHandling {
 
     def buildConfigurationsPairwise(tunit: TranslationUnit, ff: FileFeatures, fm: FeatureModel,
                                     opt: FamilyBasedVsSampleBasedOptions, configDir: File,
-                                    caseStudy: String, extasks: List[Task]): (String, List[Task]) = {
+                                    caseStudy: String, exTasks: List[Task]): (String, List[Task]) = {
         var tasks: List[Task] = List()
         var log = ""
         var msg = ""
         var startTime: Long = 0
 
-        if (extasks.exists(_._1.equals("pairwise"))) {
+        if (exTasks.exists(_._1.equals("pairwise"))) {
             msg = "omitting pairwise generation, because a serialized version was loaded"
         } else {
             var productsFile: File = null
             var dimacsFM: File = null
-            var featureprefix = ""
+            var featurePrefix = ""
             if (caseStudy == "linux") {
                 productsFile = new File(opt.getRootFolder + "TypeChef-LinuxAnalysis/linux_pairwise_configs.csv")
                 dimacsFM = new File(opt.getRootFolder + "TypeChef-LinuxAnalysis/2.6.33.3-2var.dimacs")
-                featureprefix = "CONFIG_"
+                featurePrefix = "CONFIG_"
             } else if (caseStudy == "busybox") {
                 productsFile = new File(opt.getRootFolder + "TypeChef-BusyboxAnalysis/busybox_pairwise_configs.csv")
                 dimacsFM = new File(opt.getRootFolder + "TypeChef-BusyboxAnalysis/BB_fm.dimacs")
-                featureprefix = "CONFIG_"
+                featurePrefix = "CONFIG_"
             } else if (caseStudy == "openssl") {
                 productsFile = new File(opt.getRootFolder +
                     "TypeChef-OpenSSLAnalysis/openssl-1.0.1c/openssl_pairwise_configs.csv")
@@ -311,34 +311,34 @@ object ConfigurationHandling {
             }
             startTime = System.currentTimeMillis()
 
-            val (configs, logmsg) = ConfigurationHandling.loadConfigurationsFromCSVFile(productsFile, dimacsFM, ff,
-                fm, featureprefix)
+            val (configs, logMsg) = ConfigurationHandling.loadConfigurationsFromCSVFile(productsFile, dimacsFM, ff,
+                fm, featurePrefix)
 
             tasks :+= Pair("pairwise", configs)
             msg = "Time for config generation (pairwise): " + (System.currentTimeMillis() - startTime) +
-                " ms\n" + logmsg
+                " ms\n" + logMsg
         }
         println(msg)
         log = log + msg + "\n"
         (log, tasks)
     }
 
-    def buildConfigurationsCodecoverageNH(tunit: TranslationUnit, ff: FileFeatures, fm: FeatureModel,
-                                          configDir: File, caseStudy: String, extasks: List[Task])
+    def buildConfigurationsCodeCoverageNH(tunit: TranslationUnit, ff: FileFeatures, fm: FeatureModel,
+                                          configDir: File, caseStudy: String, exTasks: List[Task])
     : (String, List[Task]) = {
         var tasks: List[Task] = List()
         var log = ""
         var msg = ""
         var startTime: Long = 0
-        if (extasks.exists(_._1.equals("coverage_noHeader"))) {
+        if (exTasks.exists(_._1.equals("coverage_noHeader"))) {
             msg = "omitting coverage_noHeader generation, because a serialized version was loaded"
         } else {
             startTime = System.currentTimeMillis()
-            val (configs, logmsg) = configurationCoverage(tunit, fm, ff, List(),
+            val (configs, logMsg) = configurationCoverage(tunit, fm, ff, List(),
                 preferDisabledFeatures = false, includeVariabilityFromHeaderFiles = false)
             tasks :+= Pair("coverage_noHeader", configs)
             msg = "Time for config generation (coverage_noHeader): " +
-                (System.currentTimeMillis() - startTime) + " ms\n" + logmsg
+                (System.currentTimeMillis() - startTime) + " ms\n" + logMsg
         }
         println(msg)
         log = log + msg + "\n"
@@ -358,11 +358,11 @@ object ConfigurationHandling {
                 msg = "omitting coverage generation, because a serialized version was loaded"
             } else {
                 startTime = System.currentTimeMillis()
-                val (configs, logmsg) = configurationCoverage(tunit, fm, ff, List(),
+                val (configs, logMsg) = configurationCoverage(tunit, fm, ff, List(),
                     preferDisabledFeatures = false, includeVariabilityFromHeaderFiles = true)
                 tasks :+= Pair("coverage", configs)
                 msg = "Time for config generation (coverage): " +
-                    (System.currentTimeMillis() - startTime) + " ms\n" + logmsg
+                    (System.currentTimeMillis() - startTime) + " ms\n" + logMsg
             }
             println(msg)
             log = log + msg + "\n"
@@ -395,118 +395,72 @@ object ConfigurationHandling {
                               includeVariabilityFromHeaderFiles: Boolean = false):
     (List[SimpleConfiguration], String) = {
         var unsatCombinations = 0
-        var alreadyCoveredCombinations = 0
-        var complexNodes = 0
-        var simpleOrNodes = 0
-        var simpleAndNodes = 0
-        var nodeExpressions: Set[List[FeatureExpr]] = Set()
+        var nodeExpressions: Set[Set[FeatureExpr]] = Set()
 
-        def collectAnnotationLeafNodes(root: Any, previousFeatureExprs: List[FeatureExpr] =
-        List(FeatureExprFactory.True), previousFile: String = null) {
+        def collectAnnotationLeafNodes(root: Any, curFeatureExprSet: Set[FeatureExpr], curFile: String = null) {
             root match {
-                case x: Opt[_] => {
-                    if (x.feature.equals(previousFeatureExprs.head)) {
-                        collectAnnotationLeafNodes(x.entry, previousFeatureExprs, previousFile)
-                    } else {
-                        collectAnnotationLeafNodes(x.entry, previousFeatureExprs.::(x.feature), previousFile)
-                    }
-                }
-                case x: Choice[_] => {
-                    collectAnnotationLeafNodes(x.thenBranch, previousFeatureExprs.::(x.feature), previousFile)
-                    collectAnnotationLeafNodes(x.elseBranch, previousFeatureExprs.::(x.feature.not()), previousFile)
-                }
+                case x: Opt[_] =>
+                    collectAnnotationLeafNodes(x.entry, curFeatureExprSet + x.feature, curFile)
+                case x: Choice[_] =>
+                    collectAnnotationLeafNodes(x.thenBranch, curFeatureExprSet + x.feature, curFile)
+                    collectAnnotationLeafNodes(x.elseBranch, curFeatureExprSet + x.feature.not(), curFile)
+                case One(x) => collectAnnotationLeafNodes(x, curFeatureExprSet, curFile)
+
                 case l: List[_] =>
                     for (x <- l) {
-                        collectAnnotationLeafNodes(x, previousFeatureExprs, previousFile)
+                        collectAnnotationLeafNodes(x, curFeatureExprSet, curFile)
                     }
-                case x: AST => {
-                    val newPreviousFile = if (x.getFile.isDefined) x.getFile.get else previousFile
+                case x: AST =>
+                    val newFile = if (x.getFile.isDefined) x.getFile.get else curFile
                     if (x.productArity == 0) {
                         // termination point of recursion
                         if (includeVariabilityFromHeaderFiles ||
-                            (newPreviousFile == null || newPreviousFile.endsWith(".c"))) {
-                            if (!nodeExpressions.contains(previousFeatureExprs)) {
-                                nodeExpressions += previousFeatureExprs
-                            }
+                            (newFile != null && newFile.endsWith(".c"))) {
+                            if (!nodeExpressions.contains(curFeatureExprSet))
+                                nodeExpressions += curFeatureExprSet
                         }
                     } else {
                         for (y <- x.productIterator.toList) {
-                            collectAnnotationLeafNodes(y, previousFeatureExprs, newPreviousFile)
+                            collectAnnotationLeafNodes(y, curFeatureExprSet, newFile)
                         }
                     }
-                }
-                case Some(x) => {
-                    collectAnnotationLeafNodes(x, previousFeatureExprs, previousFile)
-                }
-                case None => {}
-                case One(x) => {
-                    collectAnnotationLeafNodes(x, previousFeatureExprs, previousFile)
-                }
-                case o => {
+                case Some(x) => collectAnnotationLeafNodes(x, curFeatureExprSet, curFile)
+                case None =>
+                case o =>
                     // termination point of recursion
                     if (includeVariabilityFromHeaderFiles ||
-                        (previousFile == null || previousFile.endsWith(".c"))) {
-                        if (!nodeExpressions.contains(previousFeatureExprs)) {
-                            nodeExpressions += previousFeatureExprs
-                        }
+                        (curFile != null && curFile.endsWith(".c"))) {
+                        if (!nodeExpressions.contains(curFeatureExprSet))
+                            nodeExpressions += curFeatureExprSet
                     }
-                }
             }
         }
-        collectAnnotationLeafNodes(astRoot, List(FeatureExprFactory.True),
-            if (astRoot.getFile.isDefined) astRoot.getFile.get else null)
+        // we set the empty string as default curFile; will be overridden when we hit an AST element with
+        // proper file information
+        collectAnnotationLeafNodes(astRoot, Set(FeatureExprFactory.True), "")
 
         // now optNodes contains all Opt[..] nodes in the file, and choiceNodes all Choice nodes.
         // True node never needs to be handled
         val handledExpressions = scala.collection.mutable.HashSet(FeatureExprFactory.True)
         var retList: List[SimpleConfiguration] = List()
 
+        println("number of different presence conditions: " + nodeExpressions.size)
+
         // inner function
         def handleFeatureExpression(fex: FeatureExpr) = {
             if (!handledExpressions.contains(fex)) {
-                // search for configs that imply this node
-                var isCovered: Boolean = false
-                fex.getConfIfSimpleAndExpr() match {
-                    case None => {
-                        fex.getConfIfSimpleOrExpr() match {
-                            case None => {
-                                complexNodes += 1
-                                isCovered = (retList ++ existingConfigs).exists(
-                                {
-                                    conf: SimpleConfiguration => conf.toFeatureExpr.implies(fex).isTautology(fm)
-                                }
-                                )
-                            }
-                            case Some((enabled: Set[SingleFeatureExpr], disabled: Set[SingleFeatureExpr])) => {
-                                simpleOrNodes += 1
-                                isCovered = (retList ++ existingConfigs).exists({
-                                    conf: SimpleConfiguration => conf.containsAtLeastOneFeatureAsEnabled(enabled) ||
-                                        conf.containsAtLeastOneFeatureAsDisabled(disabled)
-                                })
-                            }
-                        }
-                    }
-                    case Some((enabled: Set[SingleFeatureExpr], disabled: Set[SingleFeatureExpr])) => {
-                        simpleAndNodes += 1
-                        isCovered = (retList ++ existingConfigs).exists({
-                            conf: SimpleConfiguration => conf.containsAllFeaturesAsEnabled(enabled) &&
-                                conf.containsAllFeaturesAsDisabled(disabled)
-                        })
-                    }
-                }
-                if (!isCovered) {
+                if (fex.isSatisfiable(fm)) {
                     val completeConfig = completeConfiguration(fex, ff, fm, preferDisabledFeatures)
                     if (completeConfig != null) {
                         retList ::= completeConfig
                     } else {
                         unsatCombinations += 1
                     }
-                } else {
-                    alreadyCoveredCombinations += 1
+                    handledExpressions.add(fex)
                 }
-                handledExpressions.add(fex)
             }
         }
+
         if (nodeExpressions.isEmpty ||
             (nodeExpressions.size == 1 && nodeExpressions.head.equals(List(FeatureExprFactory.True)))) {
             // no feature variables in this file, build one random config and return it
@@ -518,11 +472,12 @@ object ConfigurationHandling {
                 unsatCombinations += 1
             }
         } else {
-            for (featureList: List[FeatureExpr] <- nodeExpressions) {
-                val fex: FeatureExpr = featureList.fold(FeatureExprFactory.True)(_ and _)
+            for (featureSet: Set[FeatureExpr] <- nodeExpressions) {
+                val fex: FeatureExpr = featureSet.fold(FeatureExprFactory.True)(_ and _)
                 handleFeatureExpression(fex)
             }
         }
+
         def getFeaturesInCoveredExpressions: Set[SingleFeatureExpr] = {
             // how many features have been found in this file (only the .c files)?
             var features: Set[SingleFeatureExpr] = Set()
@@ -532,15 +487,12 @@ object ConfigurationHandling {
                         features += feature
             features
         }
+
         (retList,
             " unsatisfiableCombinations:" + unsatCombinations + "\n" +
-                " already covered combinations:" + alreadyCoveredCombinations + "\n" +
                 " created combinations:" + retList.size + "\n" +
                 (if (!includeVariabilityFromHeaderFiles) " Features in CFile: " +
-                    getFeaturesInCoveredExpressions.size + "\n" else "") +
-                " found " + nodeExpressions.size + " NodeExpressions\n" +
-                " found " + simpleAndNodes + " simpleAndNodes, " + simpleOrNodes +
-                " simpleOrNodes and " + complexNodes + " complex nodes.\n")
+                    getFeaturesInCoveredExpressions.size + "\n" else "") + "\n")
     }
 
 

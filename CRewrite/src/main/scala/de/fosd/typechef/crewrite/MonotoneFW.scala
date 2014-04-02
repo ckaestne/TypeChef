@@ -126,23 +126,7 @@ sealed abstract class MonotoneFW[T](val f: FunctionDef, env: ASTEnv, val fm: Fea
         for ((e, fexp) <- l2) {
             curl.get(e) match {
                 case None =>
-                case Some(x) => {
-                    curl = curl + ((e, x and fexp.not))
-                }
-            }
-        }
-        curl
-    }
-
-    protected def intersection(l1: L, l2: L): L = {
-        var curl = l1
-        val k1 = l1.keySet
-        val k2 = l2.keySet
-        curl --= ((k1 union k2) diff (k1 intersect k2))
-        for ((e, fexp) <- l2) {
-            curl.get(e) match {
-                case None =>
-                case Some(x) => curl = curl + ((e, x and fexp))
+                case Some(x) => curl = curl + ((e, x and fexp.not))
             }
         }
         curl
@@ -245,14 +229,13 @@ sealed abstract class MonotoneFW[T](val f: FunctionDef, env: ASTEnv, val fm: Fea
                 for (Opt(feature, entry) <- fl) {
                     entry match {
                         case _: FunctionDef =>
-                        case _ => {
+                        case _ =>
                             val (update, i) = memo.lookup(entry).get._2
 
                             if (update) {
                                 val x = updateFeatureExprOfMonotoneElements(i, feature)
                                 cnew = combinationOperator(cnew, x)
                             }
-                        }
                     }
                 }
 

@@ -25,9 +25,8 @@ class DanglingSwitchCodeTest extends TestHelper with ShouldMatchers with CFGHelp
                   }
                }
         """.stripMargin) should be(false)
-    }
 
-    danglingSwitchCode( """
+        danglingSwitchCode( """
                void f(void) {
                   int a;
                   switch (a) {
@@ -35,9 +34,25 @@ class DanglingSwitchCodeTest extends TestHelper with ShouldMatchers with CFGHelp
                     default: a+3;
                   }
                }
-    """.stripMargin) should be(true)
+        """.stripMargin) should be(true)
+    }
 
-    danglingSwitchCode( """
+    // The analysis does not cover unreachable code in general!
+    @Test def test_statement_after_break() {
+        danglingSwitchCode( """
+               void f(void) {
+                  int a;
+                  switch (a) {
+                    case 0: a+2;
+                    default: a+3;
+                    a++;  // unreachable code
+                  }
+               }
+                            """.stripMargin) should be(true)
+    }
+
+    @Test def test_variable_statements() {
+        danglingSwitchCode( """
                void f(void) {
                   int a;
                   switch (a) {
@@ -48,9 +63,9 @@ class DanglingSwitchCodeTest extends TestHelper with ShouldMatchers with CFGHelp
                     default: a+3;
                   }
                }
-    """.stripMargin) should be(false)
+        """.stripMargin) should be(false)
 
-    danglingSwitchCode( """
+        danglingSwitchCode( """
                void f(void) {
                   int a;
                   #ifdef A
@@ -63,6 +78,9 @@ class DanglingSwitchCodeTest extends TestHelper with ShouldMatchers with CFGHelp
                   }
                   #endif
                }
-    """.stripMargin) should be(true)
+        """.stripMargin) should be(true)
+    }
+
+
 }
 
