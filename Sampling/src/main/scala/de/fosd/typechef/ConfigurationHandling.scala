@@ -374,8 +374,13 @@ object ConfigurationHandling {
     }
 
     /**
+     * Implements the naive variant of code coverage, with option for including variability in header
+     * files or not.
+     *
+     * For more information, see https://www4.cs.fau.de/Publications/2012/tartler_12_osr.pdf p 12
+     *
      * Creates configurations based on the variability nodes found in the given AST.
-     * Searches for variability nodes and generates enough configurations to cover all nodes.
+     * Searches for variable AST nodes and generates enough configurations to cover them all.
      * Configurations do always satisfy the FeatureModel fm.
      * If existingConfigs is non-empty, no config will be created for nodes already covered by these
      * configurations.
@@ -394,21 +399,20 @@ object ConfigurationHandling {
                               existingConfigs: List[SimpleConfiguration] = List(), preferDisabledFeatures: Boolean,
                               includeVariabilityFromHeaderFiles: Boolean = false):
     (List[SimpleConfiguration], String) = {
-        var unsatCombinations = 0
-        var nodeExpressions: Set[Set[FeatureExpr]] = Set()
+        var presenceConditions: Set[Set[FeatureExpr]] = Set()
 
-        def collectAnnotationLeafNodes(root: Any, curFeatureExprSet: Set[FeatureExpr], curFile: String = null) {
+        def collectPresenceConditions(root: Any, curFeatureExprSet: Set[FeatureExpr], curFile: String = null) {
             root match {
                 case x: Opt[_] =>
-                    collectAnnotationLeafNodes(x.entry, curFeatureExprSet + x.feature, curFile)
+                    collectPresenceConditions(x.entry, curFeatureExprSet + x.feature, curFile)
                 case x: Choice[_] =>
-                    collectAnnotationLeafNodes(x.thenBranch, curFeatureExprSet + x.feature, curFile)
-                    collectAnnotationLeafNodes(x.elseBranch, curFeatureExprSet + x.feature.not(), curFile)
-                case One(x) => collectAnnotationLeafNodes(x, curFeatureExprSet, curFile)
+                    collectPresenceConditions(x.thenBranch, curFeatureExprSet + x.feature, curFile)
+                    collectPresenceConditions(x.elseBranch, curFeatureExprSet + x.feature.not(), curFile)
+                case One(x) => collectPresenceConditions(x, curFeatureExprSet, curFile)
 
                 case l: List[_] =>
                     for (x <- l) {
-                        collectAnnotationLeafNodes(x, curFeatureExprSet, curFile)
+                        collectPresenceConditions(x, curFeatureExprSet, curFile)
                     }
                 case x: AST =>
                     val newFile = if (x.getFile.isDefined) x.getFile.get else curFile
@@ -416,83 +420,62 @@ object ConfigurationHandling {
                         // termination point of recursion
                         if (includeVariabilityFromHeaderFiles ||
                             (newFile != null && newFile.endsWith(".c"))) {
-                            if (!nodeExpressions.contains(curFeatureExprSet))
-                                nodeExpressions += curFeatureExprSet
+                            if (!presenceConditions.contains(curFeatureExprSet))
+                                presenceConditions += curFeatureExprSet
                         }
                     } else {
                         for (y <- x.productIterator.toList) {
-                            collectAnnotationLeafNodes(y, curFeatureExprSet, newFile)
+                            collectPresenceConditions(y, curFeatureExprSet, newFile)
                         }
                     }
-                case Some(x) => collectAnnotationLeafNodes(x, curFeatureExprSet, curFile)
+                case Some(x) => collectPresenceConditions(x, curFeatureExprSet, curFile)
                 case None =>
                 case o =>
                     // termination point of recursion
                     if (includeVariabilityFromHeaderFiles ||
                         (curFile != null && curFile.endsWith(".c"))) {
-                        if (!nodeExpressions.contains(curFeatureExprSet))
-                            nodeExpressions += curFeatureExprSet
+                        if (!presenceConditions.contains(curFeatureExprSet))
+                            presenceConditions += curFeatureExprSet
                     }
             }
         }
         // we set the empty string as default curFile; will be overridden when we hit an AST element with
         // proper file information
-        collectAnnotationLeafNodes(astRoot, Set(FeatureExprFactory.True), "")
+        collectPresenceConditions(astRoot, Set(FeatureExprFactory.True), "")
 
-        // now optNodes contains all Opt[..] nodes in the file, and choiceNodes all Choice nodes.
-        // True node never needs to be handled
-        val handledExpressions = scala.collection.mutable.HashSet(FeatureExprFactory.True)
         var retList: List[SimpleConfiguration] = List()
 
-        println("number of different presence conditions: " + nodeExpressions.size)
+        // if no proper presence condition occurred in the file, build one random config and return it
+        if (presenceConditions.isEmpty) {
+            val completeConfig = completeConfiguration(FeatureExprFactory.True, ff, fm, preferDisabledFeatures)
+            if (completeConfig != null) {
+                retList ::= completeConfig
+            }
+        } else {
+            for (featureSet: Set[FeatureExpr] <- presenceConditions) {
+                val pc: FeatureExpr = featureSet.fold(FeatureExprFactory.True)(_ and _)
 
-        // inner function
-        def handleFeatureExpression(fex: FeatureExpr) = {
-            if (!handledExpressions.contains(fex)) {
-                if (fex.isSatisfiable(fm)) {
-                    val completeConfig = completeConfiguration(fex, ff, fm, preferDisabledFeatures)
+                if (pc.isSatisfiable(fm)) {
+                    val completeConfig = completeConfiguration(pc, ff, fm, preferDisabledFeatures)
                     if (completeConfig != null) {
                         retList ::= completeConfig
-                    } else {
-                        unsatCombinations += 1
                     }
-                    handledExpressions.add(fex)
                 }
             }
         }
 
-        if (nodeExpressions.isEmpty ||
-            (nodeExpressions.size == 1 && nodeExpressions.head.equals(List(FeatureExprFactory.True)))) {
-            // no feature variables in this file, build one random config and return it
-            val completeConfig = completeConfiguration(FeatureExprFactory.True, ff,
-                fm, preferDisabledFeatures)
-            if (completeConfig != null) {
-                retList ::= completeConfig
-            } else {
-                unsatCombinations += 1
-            }
-        } else {
-            for (featureSet: Set[FeatureExpr] <- nodeExpressions) {
-                val fex: FeatureExpr = featureSet.fold(FeatureExprFactory.True)(_ and _)
-                handleFeatureExpression(fex)
-            }
-        }
-
+        // Determine all features in presence conditions collected from AST.
         def getFeaturesInCoveredExpressions: Set[SingleFeatureExpr] = {
-            // how many features have been found in this file (only the .c files)?
             var features: Set[SingleFeatureExpr] = Set()
-            for (exLst <- nodeExpressions)
-                for (ex <- exLst)
-                    for (feature <- ex.collectDistinctFeatureObjects)
-                        features += feature
+            for (featureExprSet <- presenceConditions)
+                for (featureExpr <- featureExprSet)
+                    features ++= featureExpr.collectDistinctFeatureObjects
             features
         }
 
-        (retList,
-            " unsatisfiableCombinations:" + unsatCombinations + "\n" +
-                " created combinations:" + retList.size + "\n" +
-                (if (!includeVariabilityFromHeaderFiles) " Features in CFile: " +
-                    getFeaturesInCoveredExpressions.size + "\n" else "") + "\n")
+        (retList, " created combinations:" + retList.size + "\n" +
+            (if (!includeVariabilityFromHeaderFiles) " Features in CFile: " +
+                getFeaturesInCoveredExpressions.size + "\n" else "") + "\n")
     }
 
 
