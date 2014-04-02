@@ -11,7 +11,7 @@ import de.fosd.typechef.conditional._
 
 object ConfigurationHandling {
     def loadConfigurationsFromCSVFile(csvFile: File, dimacsFile: File,
-                                              ff: FileFeatures, fm: FeatureModel, fnamePrefix: String = ""):
+                                      ff: FileFeatures, fm: FeatureModel, fnamePrefix: String = ""):
     (List[SimpleConfiguration], String) = {
         var retList: List[SimpleConfiguration] = List()
 
