@@ -264,7 +264,7 @@ object FamilyBasedVsSampleBased extends ASTNavigation with CFGHelper {
     }
 
     private def analyzeTasks(tasks: List[Task], tunit: TranslationUnit, ff: FileFeatures, fm: FeatureModel,
-                     opt: FamilyBasedVsSampleBasedOptions, fileID: String, startLog: String = "") {
+                             opt: FamilyBasedVsSampleBasedOptions, fileID: String, startLog: String = "") {
         val log: String = startLog
         val nstoms = 1000000
         println("start analysis.")
