@@ -79,7 +79,7 @@ object FamilyBasedVsSampleBased extends ASTNavigation with CFGHelper {
             log = log + flog
             tasks ++= ftasks
         } else {
-            tasks = tasks.filterNot(_._1 == "fileconfig")
+            tasks = tasks.filterNot(_._1 == "singleconf")
         }
 
         /** family */
