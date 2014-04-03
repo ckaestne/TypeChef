@@ -499,6 +499,8 @@ public class LexerFrontend {
             features.add(Feature.DIGRAPHS);
             features.add(Feature.TRIGRAPHS);
             features.add(Feature.LINEMARKERS);
+            features.add(Feature.GNUCEXTENSIONS);
+
         }
 
         protected DebugLexerOptions(VALexer.LexerInput source, List<String> systemIncludePath, FeatureModel featureModel) {

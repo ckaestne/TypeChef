@@ -5,17 +5,19 @@ import de.fosd.typechef.VALexer;
 import de.fosd.typechef.conditional.Conditional;
 import de.fosd.typechef.featureexpr.FeatureExpr;
 import de.fosd.typechef.featureexpr.FeatureExprFactory;
-import de.fosd.typechef.featureexpr.FeatureExprParser;
-import de.fosd.typechef.featureexpr.FeatureExprParserJava;
-import de.fosd.typechef.lexer.*;
-import de.fosd.typechef.lexer.macrotable.MacroFilter;
+import de.fosd.typechef.lexer.Feature;
+import de.fosd.typechef.lexer.FeatureExprLib;
+import de.fosd.typechef.lexer.LexerException;
+import de.fosd.typechef.lexer.LexerFrontend;
 import org.junit.Assert;
 
 import java.io.*;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class AbstractCheckTests {
 
@@ -195,20 +197,31 @@ public class AbstractCheckTests {
 
     private Conditional<LexerFrontend.LexerResult> lex(VALexer.LexerInput source, boolean debug, final String folder, final boolean ignoreWarnings)
             throws LexerException, IOException {
-        return new LexerFrontend().run(new LexerFrontend.DefaultLexerOptions(source, debug, null){
+        return new LexerFrontend().run(new LexerFrontend.DefaultLexerOptions(source, debug, null) {
             @Override
             public boolean isReturnLanguageTokensOnly() {
                 return false;
             }
+
             @Override
             public List<String> getIncludePaths() {
                 return Collections.singletonList(folder);
             }
+
             @Override
             public boolean isHandleWarningsAsErrors() {
                 return !ignoreWarnings;
             }
 
+            @Override
+            public Set<Feature> getFeatures() {
+                Set<Feature> features = new HashSet<>();
+                features.add(Feature.DIGRAPHS);
+                features.add(Feature.TRIGRAPHS);
+                features.add(Feature.LINEMARKERS);
+                features.add(Feature.GNUCEXTENSIONS);
+                return features;
+            }
         }, true);
 
 
