@@ -11,7 +11,7 @@ import de.fosd.typechef.conditional._
 
 object ConfigurationHandling {
     def loadConfigurationsFromCSVFile(csvFile: File, dimacsFile: File,
-                                      ff: FileFeatures, fm: FeatureModel, fnamePrefix: String = ""):
+                                      ff: FileFeatures, fm: FeatureModel, featureNamePrefix: String = ""):
     (List[SimpleConfiguration], String) = {
         var retList: List[SimpleConfiguration] = List()
 
@@ -38,7 +38,7 @@ object ConfigurationHandling {
         val featureNames: Array[String] = featureNamesTmp.reverse.toArray
         featureNamesTmp = null
         for (i <- 0.to(featureNames.length - 1)) {
-            val searchResult = ff.features.find(_.feature == (fnamePrefix + featureNames(i)))
+            val searchResult = ff.features.find(_.feature == (featureNamePrefix + featureNames(i)))
             if (searchResult.isDefined) {
                 featureMap.update(featureNames(i), searchResult.get)
             }
@@ -54,9 +54,9 @@ object ConfigurationHandling {
         val numProducts = csvLines.next().split(";").last.toInt + 1
 
         // create and initialize product configurations array
-        val pconfigurations = new Array[(List[SingleFeatureExpr], List[SingleFeatureExpr])](numProducts)
+        val pairwiseConfigs = new Array[(List[SingleFeatureExpr], List[SingleFeatureExpr])](numProducts)
         for (i <- 0 to numProducts - 1) {
-            pconfigurations.update(i, (List(), List()))
+            pairwiseConfigs.update(i, (List(), List()))
         }
 
         // iterate over all lines with Features, determine the selection/deselection
@@ -66,20 +66,20 @@ object ConfigurationHandling {
 
             for (i <- 1 to numProducts) {
                 if (featureMap.contains(featureLine(0))) {
-                    var product = pconfigurations(i - 1)
+                    var product = pairwiseConfigs(i - 1)
                     if (featureLine(i) == "X") {
                         product = product.copy(_1 = featureMap(featureLine(0)) :: product._1)
                     } else {
                         product = product.copy(_2 = featureMap(featureLine(0)) :: product._2)
                     }
-                    pconfigurations.update(i - 1, product)
+                    pairwiseConfigs.update(i - 1, product)
                 }
             }
         }
 
         // create a single configuration from the true features and false features list
-        for (i <- 0 to pconfigurations.length - 1) {
-            val config = new SimpleConfiguration(ff, pconfigurations(i)._1, pconfigurations(i)._2)
+        for (i <- 0 to pairwiseConfigs.length - 1) {
+            val config = new SimpleConfiguration(ff, pairwiseConfigs(i)._1, pairwiseConfigs(i)._2)
 
             // need to check the configuration here again.
             if (!config.toFeatureExpr.getSatisfiableAssignment(fm, ff.features.toSet, 1 == 1).isDefined) {
