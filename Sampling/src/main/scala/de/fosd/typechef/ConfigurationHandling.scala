@@ -92,14 +92,8 @@ object ConfigurationHandling {
         (retList, "Generated Configs: " + retList.size + "\n")
     }
 
-    def loadConfigurationFromKconfigFile(ff: FileFeatures, fm: FeatureModel,
-                                         file: File): (List[SimpleConfiguration], String) = {
+    def loadConfigurationFromKconfigFile(ff: FileFeatures, fm: FeatureModel, file: File): (List[SimpleConfiguration], String) = {
         val features = ff.features
-        val correctFeatureModelIncompatibility = false
-        var ignoredFeatures = 0
-        var changedAssignment = 0
-        var totalFeatures = 0
-        var fileEx: FeatureExpr = FeatureExprFactory.True
         var trueFeatures: Set[SingleFeatureExpr] = Set()
         var falseFeatures: Set[SingleFeatureExpr] = Set()
         var logMsg = ""
@@ -108,67 +102,23 @@ object ConfigurationHandling {
         val enabledPattern: Pattern = java.util.regex.Pattern.compile("([^=]*)=y")
         val disabledPattern: Pattern = java.util.regex.Pattern.compile("([^=]*)=n")
         for (line <- Source.fromFile(file).getLines().filterNot(_.startsWith("#")).filterNot(_.isEmpty)) {
-            totalFeatures += 1
             var matcher = enabledPattern.matcher(line)
             if (matcher.matches()) {
                 val name = matcher.group(1)
                 val feature = FeatureExprFactory.createDefinedExternal(name)
-                if (correctFeatureModelIncompatibility) {
-                    var fileExTmp = fileEx.and(feature)
-                    val isSat = fileExTmp.isSatisfiable(fm)
-                    println(name + " " + (if (isSat) "sat" else "!sat"))
-                    if (!isSat) {
-                        fileExTmp = fileEx.andNot(feature)
-                        println("disabling feature " + feature)
-                        falseFeatures += feature
-                        changedAssignment += 1
-                    } else {
-                        trueFeatures += feature
-                    }
-                    fileEx = fileExTmp
-                } else {
-                    trueFeatures += feature
-                }
+                trueFeatures += feature
             } else {
                 matcher = disabledPattern.matcher(line)
                 if (matcher.matches()) {
                     val name = matcher.group(1)
                     val feature = FeatureExprFactory.createDefinedExternal(name)
-                    if (correctFeatureModelIncompatibility) {
-                        var fileExTmp = fileEx.andNot(feature)
-                        val isSat = fileEx.isSatisfiable(fm)
-                        println("! " + name + " " + (if (isSat) "sat" else "!sat"))
-                        if (!isSat) {
-                            fileExTmp = fileEx.and(feature)
-                            println("SETTING " + name + "=y")
-                            trueFeatures += feature
-                            changedAssignment += 1
-                        } else {
-                            falseFeatures += feature
-                        }
-                        fileEx = fileExTmp
-                    } else {
-                        falseFeatures += feature
-                    }
-                } else {
-                    ignoredFeatures += 1
+                    falseFeatures += feature
                 }
             }
         }
         println("features mentioned in c-file but not in config: ")
         for (x <- features.filterNot((trueFeatures ++ falseFeatures).contains)) {
             println(x.feature)
-        }
-        if (correctFeatureModelIncompatibility) {
-            // save corrected file
-            val fw = new FileWriter(new File(file.getParentFile, file.getName + "_corrected"))
-            fw.write("# configFile written by typechef, based on " + file.getAbsoluteFile)
-            fw.write("# ignored " + ignoredFeatures + " features of " + totalFeatures + " features")
-            fw.write("# changed assignment for " + changedAssignment + " features of " +
-                totalFeatures + " features")
-            for (feature <- trueFeatures)
-                fw.append(feature.feature + "=y\n")
-            fw.close()
         }
         val interestingTrueFeatures = trueFeatures.filter(features.contains).toList
         val interestingFalseFeatures = falseFeatures.filter(features.contains).toList
@@ -178,13 +128,6 @@ object ConfigurationHandling {
             retList ::= config
         else
             logMsg += "Configuration not satisfiable!"
-
-        if (correctFeatureModelIncompatibility) {
-            fileEx.getSatisfiableAssignment(fm, features.toSet, 1 == 1) match {
-                case None => println("configuration not satisfiable"); return (List(), "")
-                case Some((en, dis)) => return (List(new SimpleConfiguration(ff, en, dis)), "")
-            }
-        }
 
         (retList, logMsg)
     }
