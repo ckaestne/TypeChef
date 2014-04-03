@@ -38,7 +38,7 @@ object ConfigurationHandling {
         val featureNames: Array[String] = featureNamesTmp.reverse.toArray
         featureNamesTmp = null
         for (i <- 0.to(featureNames.length - 1)) {
-            val searchResult = ff.features.find(_.feature.equals(fnamePrefix + featureNames(i)))
+            val searchResult = ff.features.find(_.feature == (fnamePrefix + featureNames(i)))
             if (searchResult.isDefined) {
                 featureMap.update(featureNames(i), searchResult.get)
             }
@@ -225,10 +225,7 @@ object ConfigurationHandling {
                 fileIn.close()
                 e
             } catch {
-                case i: IOException => {
-                    // do not handle
-                    throw i
-                }
+                case i: IOException => throw i
             }
         }
 
@@ -241,16 +238,15 @@ object ConfigurationHandling {
                 val configs = readObject[java.util.ArrayList[SimpleConfiguration]](file)
                 val taskName = fn.substring(0, fn.length - ".ser".length)
                 var taskConfigs: scala.collection.mutable.ListBuffer[SimpleConfiguration] = ListBuffer()
-                val iter = configs.iterator()
-                while (iter.hasNext) {
-                    taskConfigs += iter.next()
+                val i = configs.iterator()
+                while (i.hasNext) {
+                    taskConfigs += i.next()
                 }
                 taskList.+=((taskName, taskConfigs.toList))
             }
         }
         taskList.toList
     }
-
 
 
     def buildConfigurationsSingleConf(tunit: TranslationUnit, ff: FileFeatures, fm: FeatureModel,
@@ -261,7 +257,7 @@ object ConfigurationHandling {
         var msg = ""
         var startTime: Long = 0
 
-        if (exTasks.exists(_._1.equals("singleconf"))) {
+        if (exTasks.exists(_._1 == "singleconf")) {
             msg = "omitting singleconf generation, because a serialized version was loaded"
         } else {
             val configFile = if (caseStudy.equals("linux"))
@@ -294,7 +290,7 @@ object ConfigurationHandling {
         var msg = ""
         var startTime: Long = 0
 
-        if (exTasks.exists(_._1.equals("pairwise"))) {
+        if (exTasks.exists(_._1 == "pairwise")) {
             msg = "omitting pairwise generation, because a serialized version was loaded"
         } else {
             var productsFile: File = null
@@ -341,7 +337,7 @@ object ConfigurationHandling {
         var log = ""
         var msg = ""
         var startTime: Long = 0
-        if (exTasks.exists(_._1.equals("coverage_noHeader"))) {
+        if (exTasks.exists(_._1 == "coverage_noHeader")) {
             msg = "omitting coverage_noHeader generation, because a serialized version was loaded"
         } else {
             startTime = System.currentTimeMillis()
@@ -365,7 +361,7 @@ object ConfigurationHandling {
         var msg = ""
         var startTime: Long = 0
         if (caseStudy != "linux") {
-            if (exTasks.exists(_._1.equals("coverage"))) {
+            if (exTasks.exists(_._1 == "coverage")) {
                 msg = "omitting coverage generation, because a serialized version was loaded"
             } else {
                 startTime = System.currentTimeMillis()
