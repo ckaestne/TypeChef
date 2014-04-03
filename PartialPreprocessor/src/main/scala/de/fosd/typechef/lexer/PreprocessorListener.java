@@ -80,6 +80,9 @@ public class PreprocessorListener {
      */
     public void handleWarning(String source, int line, int column, String msg,
                               FeatureExpr featureExpr) throws LexerException {
+        if (featureExpr!=null && !featureExpr.isSatisfiable(pp.getFeatureModel()))
+            return;
+
         if (options.isHandleWarningsAsErrors())
             handleError(source, line, column, msg, featureExpr);
         else {
@@ -99,6 +102,9 @@ public class PreprocessorListener {
      */
     public void handleError(String source, int line, int column, String msg,
                             FeatureExpr featureExpr) throws LexerException {
+        if (featureExpr!=null && !featureExpr.isSatisfiable(pp.getFeatureModel()))
+            return;
+
         errors++;
         print((source == null ? "" : source) + ":" + line + ":" + column + ": error: " + msg
                 + "; condition: " + featureExpr, Level.SEVERE);
