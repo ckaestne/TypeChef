@@ -28,6 +28,10 @@ public interface ILexerOptions {
 
     Set<Warning> getWarnings();
 
+    boolean isPrintWarnings();
+
+    boolean isPrintLexingSuccess();
+
     Set<Feature> getFeatures();
 
     List<VALexer.LexerInput> getInput();
@@ -46,4 +50,15 @@ public interface ILexerOptions {
      * numbers in the original .c and .h files
      */
     boolean isAdjustLineNumbers();
+
+    /**
+     * by default only language tokens (that is, no white space, no tokens
+     * representing preprocessor instructions and so forth) are returned
+     *
+     * for debugging purposes this behavior can be overridden to return
+     * also all other tokens
+     *
+     * @return whether only language tokens are returned (default true)
+     */
+    boolean isReturnLanguageTokensOnly();
 }

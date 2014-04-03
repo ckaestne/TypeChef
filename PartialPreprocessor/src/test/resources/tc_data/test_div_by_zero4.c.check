@@ -1,0 +1,4 @@
+//TODO division by zero errors currently are not limited to specific configurations, but crash the preprocessor entirely
+
+//error A
+error

@@ -314,20 +314,27 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable, VA
         addInput(new FileLexerSource(file));
     }
 
+    protected void error(int line, int column, String msg)
+            throws LexerException {
+        error(line,column, msg, null);
+    }
     /**
      * Handles an error.
      * <p/>
      * If a PreprocessorListener is installed, it receives the error. Otherwise,
      * an exception is thrown.
      */
-    protected void error(int line, int column, String msg)
+    protected void error(int line, int column, String msg, FeatureExpr pc)
             throws LexerException {
+
+        if (pc ==null)
+            pc =  state.getFullPresenceCondition();
         if (listener != null)
             listener.handleError(sourceManager.getSource().getName(), line, column, msg,
-                    state.getFullPresenceCondition());
+                   pc);
         else
             throw new LexerException("Error at " + line + ":" + column + ": "
-                    + msg, state.getFullPresenceCondition());
+                    + msg, pc);
     }
 
     /**
@@ -2701,6 +2708,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable, VA
      * @see Token
      */
     public Token getNextToken() throws IOException, LexerException {
+//        FeatureExpr lastPC = state.getFullPresenceCondition();
         try {
             Token tok = parse_main();
             tok = tok.clone();
@@ -2709,7 +2717,9 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable, VA
                 System.err.println("pp: Returning " + tok);
             return tok;
         } catch (de.fosd.typechef.featureexpr.FeatureException e) {
-            throw new LexerException(e.getMessage());
+//            error(0,0,e.getMessage(),lastPC);
+//            return new SimpleToken(Token.WHITESPACE,"", sourceManager.getSource());
+            throw new LexerException(e);
         }
     }
 

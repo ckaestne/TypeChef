@@ -273,7 +273,6 @@ public abstract class LexerOptions extends Options implements ILexerOptions {
     }
 
 
-
     @Override
     public Set<Warning> getWarnings() {
         return warnings;
@@ -314,4 +313,21 @@ public abstract class LexerOptions extends Options implements ILexerOptions {
 
         return result;
     }
+
+
+    @Override
+    public boolean isPrintWarnings() {
+        return true;
+    }
+
+    @Override
+    public boolean isPrintLexingSuccess() {
+        return true;
+    }
+
+    @Override
+    public boolean isReturnLanguageTokensOnly() {
+        return true;
+    }
+
 }

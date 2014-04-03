@@ -35,7 +35,15 @@ public class LexerFrontend {
                                         final boolean printToStdOutput,
                                         final FeatureModel featureModel) throws LexerException, IOException {
 
-        return run(new DefaultLexerOptions(targetFile, printToStdOutput, featureModel), returnTokenList);
+        return run(new VALexer.FileSource(targetFile), returnTokenList, printToStdOutput, featureModel);
+    }
+
+    public Conditional<LexerResult> run(final VALexer.LexerInput input,
+                                        final boolean returnTokenList,
+                                        final boolean printToStdOutput,
+                                        final FeatureModel featureModel) throws LexerException, IOException {
+
+        return run(new DefaultLexerOptions(input, printToStdOutput, featureModel), returnTokenList);
     }
 
     public static abstract class LexerResult {
@@ -83,6 +91,10 @@ public class LexerFrontend {
         public int getLine() {
             return line;
         }
+
+        public String getPositionStr() {
+            return getFile() + ":" + getLine() + ":" + getColumn();
+        }
     }
 
 
@@ -110,7 +122,7 @@ public class LexerFrontend {
         pp.addMacro("__TYPECHEF__", FeatureExprLib.True());
 
         PrintWriter output = null;
-        if (options.getLexOutputFile()!= null && options.getLexOutputFile().length() > 0) {
+        if (options.getLexOutputFile() != null && options.getLexOutputFile().length() > 0) {
             output = new PrintWriter(new BufferedWriter(new FileWriter(options.getLexOutputFile())));
             pp.openDebugFiles(options.getLexOutputFile());
         } else if (options.isLexPrintToStdout())
@@ -152,6 +164,7 @@ public class LexerFrontend {
             System.err.println("End of search list.");
         }
 
+        LexerError crash = null;
         List<LexerToken> resultTokenList = new ArrayList<LexerToken>();
         int outputLine = 1;
         try {
@@ -164,7 +177,7 @@ public class LexerFrontend {
                     break;
 
 
-                if (returnTokenList && tok.isLanguageToken()) {
+                if (returnTokenList && (!options.isReturnLanguageTokensOnly() || tok.isLanguageToken())) {
                     resultTokenList.add(tok);
                 }
 
@@ -189,6 +202,7 @@ public class LexerFrontend {
             Preprocessor.logger.severe(e.toString());
             e.printStackTrace(System.err);
             pp.printSourceStack(System.err);
+            crash = new LexerError(e.toString(), "", -1, -1);
         } finally {
             pp.debugPreprocessorDone();
             if (output != null)
@@ -198,7 +212,14 @@ public class LexerFrontend {
         }
 
         // creating conditional result by nesting the result with all the errors received so far
-        return createResult(listener.getLexerErrorList(), resultTokenList);
+        Conditional<LexerResult> result = createResult(listener.getLexerErrorList(), resultTokenList);
+        if (crash != null)
+            result = new One<LexerResult>(crash);
+
+        if (options.isPrintLexingSuccess())
+            System.out.println(printLexingResult(result, FeatureExprFactory.True()));
+
+        return result;
     }
 
     private Conditional<LexerResult> createResult(List<PreprocessorListener.Pair<FeatureExpr, LexerError>> lexerErrorList, List<LexerToken> resultTokenList) {
@@ -211,6 +232,67 @@ public class LexerFrontend {
         }
 
         return result;
+    }
+
+
+    private String printLexingResult(Conditional<LexerResult> result, FeatureExpr feature) {
+        if (result instanceof One) {
+            LexerResult aresult = ((One<LexerResult>) result).value();
+            if (aresult instanceof LexerSuccess)
+                return (feature.toString() + "\tsucceeded\n");
+            else {
+                LexerError error = (LexerError) aresult;
+                return (feature.toString() + "\tfailed: " + error.msg + " at " + error.getPositionStr() + "\n");
+            }
+        } else if (result instanceof Choice) {
+            Choice<LexerResult> choice = (Choice<LexerResult>) result;
+            return printLexingResult(choice.thenBranch(), feature.and(choice.feature())) + "\n" +
+                    printLexingResult(choice.elseBranch(), feature.andNot(choice.feature()));
+
+        }
+        throw new UnsupportedOperationException("cannot be called with this parameter " + result);
+    }
+
+    /**
+     * helper functions (for debugging purposes) to turn a conditional parse result into a list
+     * of all the tokens of successful results
+     */
+    public static List<LexerToken> conditionalResultToList(Conditional<LexerResult> result, FeatureExpr feature) {
+        if (result instanceof One) {
+            LexerResult aresult = ((One<LexerResult>) result).value();
+            if (aresult instanceof LexerSuccess) {
+                List<LexerToken> r = ((LexerSuccess) aresult).getTokens();
+                for (LexerToken t : r)
+                    t.setFeature(t.getFeature().and(feature));
+                return r;
+            } else {
+                return Collections.emptyList();
+            }
+        } else if (result instanceof Choice) {
+            List<LexerToken> r = new ArrayList<>();
+            Choice<LexerResult> choice = (Choice<LexerResult>) result;
+            r.addAll(conditionalResultToList(choice.thenBranch(), feature.and(choice.feature())));
+            r.addAll(conditionalResultToList(choice.elseBranch(), feature.andNot(choice.feature())));
+            return r;
+        }
+        throw new UnsupportedOperationException("cannot be called with this parameter " + result);
+    }
+
+    public static FeatureExpr getErrorCondition(Conditional<LexerResult> lexerResult) {
+        if (lexerResult instanceof One) {
+            LexerResult aresult = ((One<LexerResult>) lexerResult).value();
+            if (aresult instanceof LexerSuccess) {
+                return FeatureExprFactory.False();
+            } else {
+                return FeatureExprFactory.True();
+            }
+        } else if (lexerResult instanceof Choice) {
+            Choice<LexerResult> choice = (Choice<LexerResult>) lexerResult;
+            return getErrorCondition(choice.thenBranch()).and(choice.feature()).or(
+                    getErrorCondition(choice.elseBranch()).andNot(choice.feature())
+            );
+        }
+        throw new UnsupportedOperationException("cannot be called with this parameter " + lexerResult);
     }
 
 
@@ -296,15 +378,15 @@ public class LexerFrontend {
 //    }
 
 
-    protected class DefaultLexerOptions implements ILexerOptions {
-        final File targetFile;
+    public static class DefaultLexerOptions implements ILexerOptions {
+        final VALexer.LexerInput input;
         final boolean printToStdOutput;
         final FeatureModel featureModel;
 
-        protected DefaultLexerOptions(final File targetFile,
-                                      final boolean printToStdOutput,
-                                      final FeatureModel featureModel) {
-            this.targetFile = targetFile;
+        public DefaultLexerOptions(final VALexer.LexerInput input,
+                                   final boolean printToStdOutput,
+                                   final FeatureModel featureModel) {
+            this.input = input;
             this.printToStdOutput = printToStdOutput;
             this.featureModel = featureModel;
         }
@@ -350,13 +432,23 @@ public class LexerFrontend {
         }
 
         @Override
+        public boolean isPrintWarnings() {
+            return true;
+        }
+
+        @Override
+        public boolean isPrintLexingSuccess() {
+            return false;
+        }
+
+        @Override
         public Set<Feature> getFeatures() {
             return Collections.emptySet();
         }
 
         @Override
         public List<VALexer.LexerInput> getInput() {
-            return Collections.singletonList((VALexer.LexerInput) new VALexer.FileSource(targetFile));
+            return Collections.singletonList(input);
         }
 
 
@@ -384,10 +476,15 @@ public class LexerFrontend {
         public boolean isAdjustLineNumbers() {
             return true;
         }
+
+        @Override
+        public boolean isReturnLanguageTokensOnly() {
+            return true;
+        }
     }
 
 
-    protected class DebugLexerOptions implements ILexerOptions {
+    public static class DebugLexerOptions implements ILexerOptions {
         private final VALexer.LexerInput source;
         private final List<String> systemIncludePath;
         private final FeatureModel featureModel;
@@ -447,6 +544,16 @@ public class LexerFrontend {
         }
 
         @Override
+        public boolean isPrintWarnings() {
+            return false;
+        }
+
+        @Override
+        public boolean isPrintLexingSuccess() {
+            return false;
+        }
+
+        @Override
         public Set<Feature> getFeatures() {
             return features;
         }
@@ -479,6 +586,11 @@ public class LexerFrontend {
 
         @Override
         public boolean isAdjustLineNumbers() {
+            return true;
+        }
+
+        @Override
+        public boolean isReturnLanguageTokensOnly() {
             return true;
         }
     }
