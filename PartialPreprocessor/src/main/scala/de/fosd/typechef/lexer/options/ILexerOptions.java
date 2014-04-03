@@ -61,4 +61,11 @@ public interface ILexerOptions {
      * @return whether only language tokens are returned (default true)
      */
     boolean isReturnLanguageTokensOnly();
+
+    /**
+     * debug facility to handle all warnings strictly as if they were errors
+     *
+     * used in testing; false by default
+     */
+    boolean isHandleWarningsAsErrors();
 }

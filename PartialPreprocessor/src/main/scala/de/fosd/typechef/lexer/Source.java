@@ -262,7 +262,7 @@ public abstract class Source implements Iterable<Token>, Closeable {
         if (werror)
             error(line, column, msg);
         else if (listener != null)
-            listener.handleWarning(this.getName(), line, column, msg);
+            listener.handleWarning(this.getName(), line, column, msg, null);
         else
             throw new LexerException("Warning at " + line + ":" + column + ": "
                     + msg);

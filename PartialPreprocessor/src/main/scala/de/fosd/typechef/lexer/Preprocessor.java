@@ -357,14 +357,15 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable, VA
      */
     protected void warning(int line, int column, String msg)
             throws LexerException {
+        FeatureExpr fexpr =  state.getFullPresenceCondition();
         if (warnings.contains(Warning.ERROR))
             error(line, column, msg);
         else if (listener != null)
             listener
-                    .handleWarning(sourceManager.getSource().getName(), line, column, msg);
+                    .handleWarning(sourceManager.getSource().getName(), line, column, msg, fexpr);
         else
             throw new LexerException("Warning at " + line + ":" + column + ": "
-                    + msg, state.getFullPresenceCondition());
+                    + msg, fexpr);
     }
 
     /**

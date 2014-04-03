@@ -14,6 +14,7 @@ import org.junit.Assert;
 import java.io.*;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.Collections;
 import java.util.List;
 
 public class AbstractCheckTests {
@@ -192,13 +193,22 @@ public class AbstractCheckTests {
 //            pp.debugPreprocessorDone();
     }
 
-    private Conditional<LexerFrontend.LexerResult> lex(VALexer.LexerInput source, boolean debug, String folder, final boolean ignoreWarnings)
+    private Conditional<LexerFrontend.LexerResult> lex(VALexer.LexerInput source, boolean debug, final String folder, final boolean ignoreWarnings)
             throws LexerException, IOException {
         return new LexerFrontend().run(new LexerFrontend.DefaultLexerOptions(source, debug, null){
             @Override
             public boolean isReturnLanguageTokensOnly() {
                 return false;
             }
+            @Override
+            public List<String> getIncludePaths() {
+                return Collections.singletonList(folder);
+            }
+            @Override
+            public boolean isHandleWarningsAsErrors() {
+                return !ignoreWarnings;
+            }
+
         }, true);
 
 

@@ -330,4 +330,9 @@ public abstract class LexerOptions extends Options implements ILexerOptions {
         return true;
     }
 
+    @Override
+    public boolean isHandleWarningsAsErrors() {
+        return false;
+    }
+
 }

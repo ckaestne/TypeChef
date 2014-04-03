@@ -207,12 +207,12 @@ public class JcppFileTest extends AbstractCheckTests {
 
     @Test
     public void testAlternativeDifferentArities1() throws LexerException, IOException {
-        testFile("alternDiffArities1.c");
+        testFile("alternDiffArities1.c",true,true);
     }
 
     @Test
     public void testAlternativeDifferentArities2() throws LexerException, IOException {
-        testFile("alternDiffArities2.c");
+        testFile("alternDiffArities2.c",true);
     }
 
     @Test

@@ -26,6 +26,7 @@ package de.fosd.typechef.lexer;
 import de.fosd.typechef.VALexer;
 import de.fosd.typechef.featureexpr.FeatureExpr;
 import de.fosd.typechef.featureexpr.FeatureExprFactory;
+import de.fosd.typechef.lexer.options.ILexerOptions;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,12 +44,14 @@ public class PreprocessorListener {
     private int errors;
     private int warnings;
     private VALexer pp;
+    private ILexerOptions options;
 
     private FeatureExpr invalidConfigurations = FeatureExprFactory.False();
 
-    public PreprocessorListener(VALexer pp) {
+    public PreprocessorListener(VALexer pp, ILexerOptions options) {
         clear();
         this.pp = pp;
+        this.options = options;
     }
 
     public void clear() {
@@ -75,11 +78,15 @@ public class PreprocessorListener {
      * The behaviour of this method is defined by the implementation. It may
      * simply record the error message, or it may throw an exception.
      */
-    public void handleWarning(String source, int line, int column, String msg)
-            throws LexerException {
-        warnings++;
-        print((source == null ? "" : source) + ":" + line + ":" + column + ": warning: "
-                + msg, Level.WARNING);
+    public void handleWarning(String source, int line, int column, String msg,
+                              FeatureExpr featureExpr) throws LexerException {
+        if (options.isHandleWarningsAsErrors())
+            handleError(source, line, column, msg, featureExpr);
+        else {
+            warnings++;
+            print((source == null ? "" : source) + ":" + line + ":" + column + ": warning: "
+                    + msg, Level.WARNING);
+        }
     }
 
     /**
@@ -97,7 +104,7 @@ public class PreprocessorListener {
                 + "; condition: " + featureExpr, Level.SEVERE);
         pp.debugPreprocessorDone();
 
-        errorList.add(new Pair<FeatureExpr,LexerFrontend.LexerError>(featureExpr, new LexerFrontend.LexerError(msg, source, line, column)));
+        errorList.add(new Pair<FeatureExpr, LexerFrontend.LexerError>(featureExpr, new LexerFrontend.LexerError(msg, source, line, column)));
         invalidConfigurations = invalidConfigurations.or(featureExpr);
         if (invalidConfigurations.isTautology(pp.getFeatureModel()))
             throw new LexerException("Lexer exception in all configurations. Quitting.");
@@ -107,21 +114,27 @@ public class PreprocessorListener {
     }
 
 
-    static class Pair<A,B> {
-         final B _2 ;
+    static class Pair<A, B> {
+        final B _2;
         final A _1;
 
         public Pair(A _1, B _2) {
-            this._1=_1;this._2=_2;
+            this._1 = _1;
+            this._2 = _2;
         }
     }
 
     /**
      * ordered list of errors occurring in the lexer and their conditions
      */
-    private final List<Pair<FeatureExpr,LexerFrontend.LexerError>> errorList = new ArrayList<>();
+    private final List<Pair<FeatureExpr, LexerFrontend.LexerError>> errorList = new ArrayList<>();
 
-    public FeatureExpr getInvalidConfigurations() { return invalidConfigurations; }
-    List<Pair<FeatureExpr,LexerFrontend.LexerError>> getLexerErrorList() { return errorList; }
+    public FeatureExpr getInvalidConfigurations() {
+        return invalidConfigurations;
+    }
+
+    List<Pair<FeatureExpr, LexerFrontend.LexerError>> getLexerErrorList() {
+        return errorList;
+    }
 
 }

@@ -117,7 +117,7 @@ public class LexerFrontend {
         for (Feature f : options.getFeatures())
             pp.addFeature(f);
 
-        PreprocessorListener listener = new PreprocessorListener(pp);
+        PreprocessorListener listener = new PreprocessorListener(pp, options);
         pp.setListener(listener);
         pp.addMacro("__TYPECHEF__", FeatureExprLib.True());
 
@@ -481,6 +481,11 @@ public class LexerFrontend {
         public boolean isReturnLanguageTokensOnly() {
             return true;
         }
+
+        @Override
+        public boolean isHandleWarningsAsErrors() {
+            return false;
+        }
     }
 
 
@@ -592,6 +597,11 @@ public class LexerFrontend {
         @Override
         public boolean isReturnLanguageTokensOnly() {
             return true;
+        }
+
+        @Override
+        public boolean isHandleWarningsAsErrors() {
+            return false;
         }
     }
 }
