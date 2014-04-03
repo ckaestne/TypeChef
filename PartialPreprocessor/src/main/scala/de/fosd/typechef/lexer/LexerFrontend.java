@@ -239,7 +239,7 @@ public class LexerFrontend {
         if (result instanceof One) {
             LexerResult aresult = ((One<LexerResult>) result).value();
             if (aresult instanceof LexerSuccess)
-                return (feature.toString() + "\tsucceeded\n");
+                return (feature.toString() + "\tlexer succeeded\n");
             else {
                 LexerError error = (LexerError) aresult;
                 return (feature.toString() + "\tfailed: " + error.msg + " at " + error.getPositionStr() + "\n");

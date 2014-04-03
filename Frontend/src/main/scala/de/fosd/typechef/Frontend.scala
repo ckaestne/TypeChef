@@ -118,11 +118,13 @@ object Frontend extends EnforceTreeHelper {
         }
 
         stopWatch.start("lexing")
+        println("#lexing")
         //no parsing if read serialized ast
         val in = if (ast == null) lex(opt) else null
 
 
         if (opt.parse) {
+            println("#parsing")
             stopWatch.start("parsing")
 
             if (ast == null) {
@@ -157,7 +159,7 @@ object Frontend extends EnforceTreeHelper {
                     //ProductGeneration.estimateNumberOfVariants(ast, fm_ts)
 
                     stopWatch.start("typechecking")
-                    println("type checking.")
+                    println("#type checking")
                     ts.checkAST()
                     ts.errors.map(errorXML.renderTypeError)
                 }
@@ -171,6 +173,7 @@ object Frontend extends EnforceTreeHelper {
                         ts.debugInterface(interface, new File(opt.getDebugInterfaceFilename))
                 }
                 if (opt.dumpcfg) {
+                    println("#call graph")
                     stopWatch.start("dumpCFG")
 
                     val cf = new CInterAnalysisFrontend(ast, fm_ts)

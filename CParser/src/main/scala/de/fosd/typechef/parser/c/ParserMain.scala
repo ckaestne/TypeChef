@@ -140,7 +140,7 @@ class ParserMain(p: CParser) {
     def printParseResult(result: p.MultiParseResult[Any], feature: FeatureExpr): String = {
         result match {
             case p.Success(ast, unparsed) =>
-                (feature.toString + "\tsucceeded\n")
+                (feature.toString + "\tparsing succeeded\n")
             case p.NoSuccess(msg, unparsed, inner) =>
                 (feature.toString + "\tfailed: " + msg + " at " + unparsed.pos + " (" + inner + ")\n")
             case p.SplittedParseResult(f, left, right) => {
