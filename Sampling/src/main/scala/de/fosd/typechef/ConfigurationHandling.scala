@@ -201,7 +201,7 @@ object ConfigurationHandling {
         var startTime: Long = 0
 
         if (exTasks.exists(_._1 == "singleconf")) {
-            msg = "omitting singleconf generation, because a serialized version was loaded"
+            msg = "omitting sample-set generation (singleconf) because a serialized version was loaded"
         } else {
             val configFile = if (caseStudy.equals("linux"))
                 opt.getRootFolder + "Linux_allyes_modified.config"
@@ -234,7 +234,7 @@ object ConfigurationHandling {
         var startTime: Long = 0
 
         if (exTasks.exists(_._1 == "pairwise")) {
-            msg = "omitting pairwise generation, because a serialized version was loaded"
+            msg = "omitting sample set generation (pairwise) because a serialized version was loaded"
         } else {
             var productsFile: File = null
             var dimacsFM: File = null
@@ -281,7 +281,7 @@ object ConfigurationHandling {
         var msg = ""
         var startTime: Long = 0
         if (exTasks.exists(_._1 == "coverage_noHeader")) {
-            msg = "omitting coverage_noHeader generation, because a serialized version was loaded"
+            msg = "omitting sample-set generation (code covereage no header) because a serialized version was loaded"
         } else {
             startTime = System.currentTimeMillis()
             val (configs, logMsg) = configurationCoverage(tunit, fm, ff, List(),
@@ -305,7 +305,7 @@ object ConfigurationHandling {
         var startTime: Long = 0
         if (caseStudy != "linux") {
             if (exTasks.exists(_._1 == "coverage")) {
-                msg = "omitting coverage generation, because a serialized version was loaded"
+                msg = "omitting sample-set generation (code coverage) because a serialized version was loaded"
             } else {
                 startTime = System.currentTimeMillis()
                 val (configs, logMsg) = configurationCoverage(tunit, fm, ff, List(),
