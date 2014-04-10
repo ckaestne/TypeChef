@@ -198,7 +198,7 @@ object ConfigurationHandling {
         var tasks: List[Task] = List()
         var log = ""
         var msg = ""
-        var startTime: Long = 0
+        val tb = java.lang.management.ManagementFactory.getThreadMXBean
 
         if (exTasks.exists(_._1 == "singleconf")) {
             msg = "omitting sample-set generation (singleconf) because a serialized version was loaded"
@@ -213,12 +213,14 @@ object ConfigurationHandling {
                 opt.getRootFolder + "SQLite.config"
             else
                 throw new Exception("unknown case Study, give linux, busybox, openssl, or sqlite")
-            startTime = System.currentTimeMillis()
+            val startTime = tb.getCurrentThreadCpuTime
+
             val (configs, logMsg) = ConfigurationHandling.loadConfigurationFromKconfigFile(ff, fm,
                 new File(configFile))
+            val endTime = tb.getCurrentThreadCpuTime
+
             tasks :+= Pair("singleconf", configs)
-            msg = "Time for config generation (singleconf): " + (System.currentTimeMillis() - startTime) +
-                " ms\n" + logMsg
+            msg = "Time for config generation (singleconf): " + ((endTime - startTime)/1000000) + " ms\n" + logMsg
         }
         println(msg)
         log = log + msg + "\n"
@@ -231,7 +233,7 @@ object ConfigurationHandling {
         var tasks: List[Task] = List()
         var log = ""
         var msg = ""
-        var startTime: Long = 0
+        val tb = java.lang.management.ManagementFactory.getThreadMXBean
 
         if (exTasks.exists(_._1 == "pairwise")) {
             msg = "omitting sample set generation (pairwise) because a serialized version was loaded"
@@ -259,14 +261,13 @@ object ConfigurationHandling {
             } else {
                 throw new Exception("unknown case Study, give linux or busybox")
             }
-            startTime = System.currentTimeMillis()
-
+            val startTime = tb.getCurrentThreadCpuTime
             val (configs, logMsg) = ConfigurationHandling.loadConfigurationsFromCSVFile(productsFile, dimacsFM, ff,
                 fm, featurePrefix)
+            val endTime = tb.getCurrentThreadCpuTime
 
             tasks :+= Pair("pairwise", configs)
-            msg = "Time for config generation (pairwise): " + (System.currentTimeMillis() - startTime) +
-                " ms\n" + logMsg
+            msg = "Time for config generation (pairwise): " + ((endTime - startTime)/1000000) + " ms\n" + logMsg
         }
         println(msg)
         log = log + msg + "\n"
@@ -279,16 +280,18 @@ object ConfigurationHandling {
         var tasks: List[Task] = List()
         var log = ""
         var msg = ""
-        var startTime: Long = 0
+        val tb = java.lang.management.ManagementFactory.getThreadMXBean
+
         if (exTasks.exists(_._1 == "coverage_noHeader")) {
             msg = "omitting sample-set generation (code covereage no header) because a serialized version was loaded"
         } else {
-            startTime = System.currentTimeMillis()
+            val startTime = tb.getCurrentThreadCpuTime
             val (configs, logMsg) = configurationCoverage(tunit, fm, ff, List(),
                 preferDisabledFeatures = false, includeVariabilityFromHeaderFiles = false)
+            val endTime = tb.getCurrentThreadCpuTime
             tasks :+= Pair("coverage_noHeader", configs)
             msg = "Time for config generation (coverage_noHeader): " +
-                (System.currentTimeMillis() - startTime) + " ms\n" + logMsg
+                ((endTime - startTime)/1000000) + " ms\n" + logMsg
         }
         println(msg)
         log = log + msg + "\n"
@@ -302,17 +305,20 @@ object ConfigurationHandling {
         var tasks: List[Task] = List()
         var log = ""
         var msg = ""
-        var startTime: Long = 0
+        val tb = java.lang.management.ManagementFactory.getThreadMXBean
+
         if (caseStudy != "linux") {
             if (exTasks.exists(_._1 == "coverage")) {
                 msg = "omitting sample-set generation (code coverage) because a serialized version was loaded"
             } else {
-                startTime = System.currentTimeMillis()
+                val startTime = tb.getCurrentThreadCpuTime
                 val (configs, logMsg) = configurationCoverage(tunit, fm, ff, List(),
                     preferDisabledFeatures = false, includeVariabilityFromHeaderFiles = true)
+                val endTime = tb.getCurrentThreadCpuTime
+
                 tasks :+= Pair("coverage", configs)
                 msg = "Time for config generation (coverage): " +
-                    (System.currentTimeMillis() - startTime) + " ms\n" + logMsg
+                    ((endTime - startTime)/1000000) + " ms\n" + logMsg
             }
             println(msg)
             log = log + msg + "\n"
