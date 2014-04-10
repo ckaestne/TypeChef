@@ -290,22 +290,49 @@ case class CAnonymousStruct(fields: ConditionalTypeMap, isUnion: Boolean = false
     </astruct>
 }
 
-case class CFunction(param: Seq[CType], ret: CType) extends AType {
+object CFunction {
+    def apply(param: Seq[CType], ret: CType) = new CFunction(normalizeFunctionParameters(param), ret)
+    def unapply[B](value: CFunction): Option[(Seq[CType], CType)] = value match {
+        case f: CFunction => Some((f.param, f.ret))
+        case _ => None
+    }
+
+    /**
+     * normalize CFunction types on creation
+     *
+     * following ISO C standard  ISO/IEC 9899:1999 Chapter 6.7.5.3
+     * -> unnamed void parameter as only parameter => empty parameter list
+     * -> translate array parameter into pointer
+     * -> translate function parameter into pointer to function
+     */
+    def normalizeFunctionParameters(param: Seq[CType]): Seq[CType] =
+        if (param.size == 1 && param.head.atype == CVoid())
+            Nil
+        else
+            param.map(_.map({
+                case CArray(t, l) => CPointer(t)
+                case f: CFunction => CPointer(f)
+                case e => e
+            }))
+
+}
+
+class CFunction(val param: Seq[CType], val ret: CType) extends AType {
     var securityRelevant: Boolean = false
 
     override def isFunction: Boolean = true
     override def toText = param.map(_.toText).mkString("(", ", ", ")") + " => " + ret.toText
-    def toXML = <function>
-        {param.map(x => <param>
-            {x.toXML}
-        </param>)}<ret>
-            {ret.toXML}
-        </ret>
-    </function>
+    def toXML = <function>{param.map(x => <param>{x.toXML}</param>)}<ret>{ret.toXML}</ret></function>
     def markSecurityRelevant() = {
         securityRelevant = true;
         this
     }
+    override def hashCode() = param.hashCode() * ret.hashCode()
+    override def equals(that: Any) = that match {
+        case thatf: CFunction => (this.param equals thatf.param) && (this.ret equals thatf.ret)
+        case _ => super.equals(that)
+    }
+    override def toString() = "CFunction("+param+","+ret+")"
 }
 
 
@@ -397,6 +424,7 @@ object CType {
         (node \ "compound").map(x => result = CCompound())
         (node \ "builtinvalist").map(x => result = CBuiltinVaList())
         (node \ "unkown").map(x => result = CUnknown(x.attribute("msg").get.text))
+        (node \ "ignore").map(x => result = CIgnore())
         result
     }
 

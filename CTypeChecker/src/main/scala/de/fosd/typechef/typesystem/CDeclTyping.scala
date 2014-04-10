@@ -445,7 +445,7 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface with CDeclU
                 case DeclArrayAccess(expr) =>
                     expr match {
                         case Some(expr: Expr) =>
-                            getExprType(expr, featureExpr, env)
+                            getExprType(expr, fexpr, env)
                         case _ =>
                     }
                     One(rtype.map(CArray(_)))

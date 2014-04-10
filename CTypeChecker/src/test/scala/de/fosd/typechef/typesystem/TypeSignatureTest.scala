@@ -23,11 +23,11 @@ class TypeSignatureTest extends FunSuite with ShouldMatchers with TestHelper {
 
 
     test("typdef types") {
-        expect(true) {
+        expectResult(true) {
             check("typedef int a;\n" +
                 "void foo(){a b;}")
         }
-        expect(false) {
+        expectResult(false) {
             check("#ifdef X\n" +
                 "typedef int a;\n" +
                 "#endif\n" +
@@ -37,23 +37,23 @@ class TypeSignatureTest extends FunSuite with ShouldMatchers with TestHelper {
 
 
     //    test("enum declaration") {
-    //        expect(true) {
+    //        expectResult(true) {
     //            check("enum s;") //forward declaration
     //        }
-    //        expect(false) {
+    //        expectResult(false) {
     //            check("enum s x;") //not a forward declaration
     //        }
-    //        expect(true) {
+    //        expectResult(true) {
     //            check("enum s {a,b};\n" +
     //                "void foo(){enum s x;}")
     //        }
-    //        expect(false) {
+    //        expectResult(false) {
     //            check("#ifdef X\n" +
     //                "enum s {a, b};\n" +
     //                "#endif\n" +
     //                "void foo(){enum s x;}")
     //        }
-    //        expect(false) {
+    //        expectResult(false) {
     //            check("#ifdef X\n" +
     //                "enum s {a, b};\n" +
     //                "#endif\n" +

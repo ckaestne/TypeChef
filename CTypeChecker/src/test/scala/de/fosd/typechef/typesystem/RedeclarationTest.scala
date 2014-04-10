@@ -22,43 +22,43 @@ class RedeclarationTest extends FunSuite with ShouldMatchers with TestHelper {
 
 
     test("function declaration redeclaration") {
-        expect(true) {
+        expectResult(true) {
             check("int foo();\n" +
                 "int foo();")
         }
         //more parameters are ok, but last declaration is important
-        expect(true) {
+        expectResult(true) {
             check("int foo();\n" +
                 "int foo(int a);" +
                 "void main() { foo(1); }")
         }
-        expect(false) {
+        expectResult(false) {
             check("int foo(double a);\n" +
                 "int foo(int a);")
         }
-        expect(false) {
+        expectResult(false) {
             check("int foo();\n" +
                 "int foo(int a);" +
                 "void main() { foo(); }")
         }
         //return types must not differ
-        expect(false) {
+        expectResult(false) {
             check("int foo();\n" +
                 "double foo();")
         }
     }
     test("global variable redeclaration") {
-        expect(true) {
+        expectResult(true) {
             check("int a;\n" +
                 "int a;")
         }
-        expect(false) {
+        expectResult(false) {
             check("int a;\n" +
                 "long a;")
         }
     }
     test("local variable redeclaration") {
-        expect(false) {
+        expectResult(false) {
             check("int foo() {" +
                 "int a;\n" +
                 "int a;}")
@@ -66,11 +66,11 @@ class RedeclarationTest extends FunSuite with ShouldMatchers with TestHelper {
     }
 
     test("function redefinition") {
-        expect(false) {
+        expectResult(false) {
             check("int foo() {}" +
                 "int foo() {}")
         }
-        expect(true) {
+        expectResult(true) {
             check( """
                 #ifdef X
                 int foo() {}
@@ -79,7 +79,7 @@ class RedeclarationTest extends FunSuite with ShouldMatchers with TestHelper {
                 #endif
                    """)
         }
-        expect(true) {
+        expectResult(true) {
             check( """
                 #ifdef X
                 int foo() {}
@@ -94,64 +94,64 @@ class RedeclarationTest extends FunSuite with ShouldMatchers with TestHelper {
 
 
     test("function declaration/definition") {
-        expect(true) {
+        expectResult(true) {
             check("int foo();" +
                 "int foo() {}")
         }
-        expect(false) {
+        expectResult(false) {
             check("int foo(int p);" +
                 "int foo() {}")
         }
-        expect(false) {
+        expectResult(false) {
             //actually just a warning in GCC
             check("int foo();" +
                 "int foo(int p) {}")
         }
-        expect(false) {
+        expectResult(false) {
             check("long foo();" +
                 "int foo() {}")
         }
-        expect(true) {
+        expectResult(true) {
             check("int foo() {}" +
                 "int foo();")
         }
-        expect(false) {
+        expectResult(false) {
             check("int foo() {}" +
                 "int foo(int p);")
         }
-        expect(false) {
+        expectResult(false) {
             //actually just a warning in GCC
             check("int foo(int p) {}" +
                 "int foo();")
         }
-        expect(false) {
+        expectResult(false) {
             check("int foo() {}" +
                 "double foo();")
         }
 
         //failing case: change argument to const.
         // GCC does not complain about this
-        expect(true) {
+        expectResult(true) {
             check("int foo(int x);" +
                 "int foo(const int x) {}")
         }
 
         //failing case: not sure what the problem is here. It seems it has something to do with the second line
         //(if second line is removed, no type error is detected)
-        expect(true) {
+        expectResult(true) {
             check("extern double fabs(double __x) __attribute__ ((__nothrow__)) __attribute__ ((__const__));" +
                 "extern __typeof (fabs) fabs __asm__ (\"\" \"__GI_fabs\") __attribute__ ((visibility (\"hidden\"),));" +
                 "double fabs(double x){ }")
         }
 
         //      the following is technically refused by gcc, but should also never occur in practice
-        //        expect(false) {
+        //        expectResult(false) {
         //            check("int foo(struct {int x;} x);" +
         //                "int foo(struct {const int x;} x) {}")
         //        }
     }
     test("variable scopes") {
-        expect(true) {
+        expectResult(true) {
             check("int a;" +
                 "int foo() {" +
                 "  double a;" +
@@ -161,7 +161,7 @@ class RedeclarationTest extends FunSuite with ShouldMatchers with TestHelper {
                 "  }" +
                 "}")
         }
-        expect(true) {
+        expectResult(true) {
             check("int a();" +
                 "int foo() {" +
                 "  double a;" +
@@ -174,52 +174,52 @@ class RedeclarationTest extends FunSuite with ShouldMatchers with TestHelper {
     }
 
     test("function/variable decl") {
-        expect(false) {
+        expectResult(false) {
             check("int foo;" +
                 "int foo() {}")
         }
-        expect(false) {
+        expectResult(false) {
             check("int foo;" +
                 "int foo();")
         }
-        expect(false) {
+        expectResult(false) {
             check("int foo();" +
                 "int foo;")
         }
     }
 
     test("function/variable decl inside") {
-        expect(true) {
+        expectResult(true) {
             check("int foo() {int foo;}")
         }
-        expect(true) {
+        expectResult(true) {
             check("int x;" +
                 "int foo(int x){x;}")
         }
-        expect(false) {
+        expectResult(false) {
             check("int foo(int x){double x;}")
         }
-        expect(false) {
+        expectResult(false) {
             check("int foo(int x){int x;}")
         }
     }
 
     //currently not checked
     ignore("struct redeclaration") {
-        expect(true) {
+        expectResult(true) {
             check("struct a {int x;};struct a;")
         }
-        expect(true) {
+        expectResult(true) {
             check("struct a;struct a {int x;};")
         }
-        expect(false) {
+        expectResult(false) {
             check("struct a {int x;};struct a {int x;};")
         }
 
     }
 
     test("function declaration redeclaration - reparsing?") {
-        expect(true) {
+        expectResult(true) {
             check( """int x(){}
             #ifdef OUTER
             static
@@ -238,12 +238,12 @@ class RedeclarationTest extends FunSuite with ShouldMatchers with TestHelper {
     }
 
     test("redeclaration with CIgnore") {
-        expect(true) {
+        expectResult(true) {
             check("typedef union { int x; } X __attribute__ ((__transparent_union__)); \n" +
                 "int foo(X a);\n" +
                 "int foo(int a);")
         }
-        expect(true) {
+        expectResult(true) {
             check("typedef union { int x; } X __attribute__ ((__transparent_union__)); \n" +
                 "int foo(X a){}\n" +
                 "int foo(int a){}")

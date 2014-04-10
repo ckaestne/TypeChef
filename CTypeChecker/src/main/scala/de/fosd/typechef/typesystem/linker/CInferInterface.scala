@@ -24,9 +24,9 @@ trait CInferInterface extends CTypeSystem with InterfaceWriter {
         getInferredInterface(fm)
     }
 
-    def getInferredInterface(fm: FeatureExpr = FeatureExprFactory.True) = {
+    def getInferredInterface(fm: FeatureExpr = FeatureExprFactory.True, strictness: Strictness = LINK_STRICT) = {
         cleanImports()
-        new CInterface(fm, featureNames, Set(), imports, exports).pack
+        new CInterface(fm, featureNames, Set(), imports, exports).pack(strictness)
     }
 
 

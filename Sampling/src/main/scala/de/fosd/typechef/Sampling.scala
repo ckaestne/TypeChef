@@ -66,7 +66,7 @@ object Sampling {
             if (ast == null)
                 println("... failed reading AST\n")
         } else {
-            new lexer.Main().run(opt, opt.parse)
+            new lexer.LexerFrontend().run(opt, opt.parse)
             val in = lex(opt)
             val parserMain = new ParserMain(new CParser(fm))
             ast = parserMain.parserMain(in, opt).asInstanceOf[TranslationUnit]
@@ -89,8 +89,8 @@ object Sampling {
     }
 
     def lex(opt: FamilyBasedVsSampleBasedOptions): TokenReader[CToken, CTypeContext] = {
-        val tokens = new lexer.Main().run(opt, opt.parse)
-        val in = CLexer.prepareTokens(tokens)
+        val tokens = new lexer.LexerFrontend().run(opt, opt.parse)
+        val in = CLexerAdapter.prepareTokens(tokens)
         in
     }
 }

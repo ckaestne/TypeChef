@@ -9,7 +9,6 @@ import parser.TokenReader
 import de.fosd.typechef.options.{FrontendOptionsWithConfigFiles, FrontendOptions, OptionException}
 import de.fosd.typechef.parser.c.CTypeContext
 import de.fosd.typechef.parser.c.TranslationUnit
-import de.fosd.typechef.featureexpr.FeatureExpr
 import java.util.zip.{GZIPInputStream, GZIPOutputStream}
 import de.fosd.typechef.crewrite.asthelper.EnforceTreeHelper
 
@@ -27,15 +26,7 @@ object Frontend {
             }
 
             if (opt.isPrintVersion) {
-                var version = "development build"
-                try {
-                    val cl = Class.forName("de.fosd.typechef.Version")
-                    version = "version " + cl.newInstance().asInstanceOf[VersionInfo].getVersion
-                } catch {
-                    case e: ClassNotFoundException =>
-                }
-
-                println("TypeChef " + version)
+                println("TypeChef " + getVersion)
                 return
             }
         }
@@ -48,6 +39,18 @@ object Frontend {
         }
 
         processFile(opt)
+    }
+
+
+    def getVersion: String = {
+        var version = "development build"
+        try {
+            val cl = Class.forName("de.fosd.typechef.Version")
+            version = "version " + cl.newInstance().asInstanceOf[VersionInfo].getVersion
+        } catch {
+            case e: ClassNotFoundException =>
+        }
+        version
     }
 
     private class StopWatch {
@@ -115,11 +118,13 @@ object Frontend {
         }
 
         stopWatch.start("lexing")
+        println("#lexing")
         //no parsing if read serialized ast
         val in = if (ast == null) lex(opt) else null
 
 
         if (opt.parse) {
+            println("#parsing")
             stopWatch.start("parsing")
 
             if (ast == null) {
@@ -154,7 +159,7 @@ object Frontend {
                     //ProductGeneration.estimateNumberOfVariants(ast, fm_ts)
 
                     stopWatch.start("typechecking")
-                    println("type checking.")
+                    println("#type checking")
                     ts.checkAST()
                     ts.errors.map(errorXML.renderTypeError)
                 }
@@ -224,8 +229,8 @@ object Frontend {
 
 
     def lex(opt: FrontendOptions): TokenReader[CToken, CTypeContext] = {
-        val tokens = new lexer.Main().run(opt, opt.parse)
-        val in = CLexer.prepareTokens(tokens)
+        val tokens = new lexer.LexerFrontend().run(opt, opt.parse)
+        val in = CLexerAdapter.prepareTokens(tokens)
         in
     }
 

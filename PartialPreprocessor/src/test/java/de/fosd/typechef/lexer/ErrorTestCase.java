@@ -46,7 +46,7 @@ public class ErrorTestCase {
         p = new Preprocessor();
         p.addFeature(Feature.CSYNTAX);
         p.addInput(sl);
-        pl = new PreprocessorListener(p);
+        pl = new PreprocessorListener(p, new LexerFrontend.DefaultLexerOptions(null,true,null));
         p.setListener(pl);
         assertNotNull("CPP has listener", p.getListener());
         assertTrue(testError(p));

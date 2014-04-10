@@ -74,56 +74,56 @@ class StructTest extends FunSuite with CEnv with ShouldMatchers with TestHelper 
     }
 
     test("members of struct shall not contain a member with incomplete or function type") {
-        expect(true) {
+        expectResult(true) {
             check( """
                      |struct a {
                      |  int b;
                      |};
                    """.stripMargin)
         }
-        expect(false) {
+        expectResult(false) {
             check( """
                      |struct a {
                      |  struct b x;
                      |};
                    """.stripMargin)
         }
-        expect(false) {
+        expectResult(false) {
             check( """
                      |struct a {
                      |  struct a x;
                      |};
                    """.stripMargin)
         }
-        expect(true) {
+        expectResult(true) {
             check( """
                      |struct a {
                      |  struct b * x;
                      |};
                    """.stripMargin)
         }
-        expect(false) {
+        expectResult(false) {
             check( """
                      |struct a {
                      |  int x(int);
                      |};
                    """.stripMargin)
         }
-        expect(false) {
+        expectResult(false) {
             check( """
                      |struct a {
                      |  int x(int b);
                      |};
                    """.stripMargin)
         }
-        expect(true) {
+        expectResult(true) {
             check( """
                      |struct a {
                      |  int (*x)(int);
                      |};
                    """.stripMargin)
         }
-        expect(true) {
+        expectResult(true) {
             check( """
                      |typedef struct a {
                      |  char (*x)(struct x *);
@@ -133,7 +133,7 @@ class StructTest extends FunSuite with CEnv with ShouldMatchers with TestHelper 
     }
 
     test("recursive structs") {
-        expect(true) {
+        expectResult(true) {
             check( """
                      |struct tnode {
                      |  int count;
@@ -143,7 +143,7 @@ class StructTest extends FunSuite with CEnv with ShouldMatchers with TestHelper 
                      |struct tnode *sp;
                    """.stripMargin)
         }
-        expect(false) {
+        expectResult(false) {
             check( """
                      |struct tnode {
                      |  int count;
@@ -156,7 +156,7 @@ class StructTest extends FunSuite with CEnv with ShouldMatchers with TestHelper 
 
 
 
-        expect(true) {
+        expectResult(true) {
             check( """
                      |typedef struct tnode TNODE;
                      |struct tnode {
@@ -166,7 +166,7 @@ class StructTest extends FunSuite with CEnv with ShouldMatchers with TestHelper 
                      |TNODE s, *sp;
                    """.stripMargin)
         }
-        expect(true) {
+        expectResult(true) {
             check( """
                      |struct s1 { struct s2 *s2p; /* ... */ }; // D1
                      |struct s2 { struct s1 *s1p; /* ... */ }; // D2
@@ -180,7 +180,7 @@ class StructTest extends FunSuite with CEnv with ShouldMatchers with TestHelper 
         //structs can be different in different scopes, in a declaration we need to remember which struct declaration
         //we referenced. however incomplete structs can still be changed later in the scope.
 
-        expect(true) {
+        expectResult(true) {
             check( """
                      |void foo(){
                      |  struct s1 { int a; };
@@ -192,7 +192,7 @@ class StructTest extends FunSuite with CEnv with ShouldMatchers with TestHelper 
                    """.stripMargin
             )
         }
-        expect(true) {
+        expectResult(true) {
             check(
                 """
                   |void foo() {
@@ -206,7 +206,7 @@ class StructTest extends FunSuite with CEnv with ShouldMatchers with TestHelper 
                   |}
                 """.stripMargin)
         }
-        expect(false) {
+        expectResult(false) {
             check(
                 """
                   |void foo() {
@@ -221,7 +221,7 @@ class StructTest extends FunSuite with CEnv with ShouldMatchers with TestHelper 
                 """.stripMargin)
         }
 
-        expect(true) {
+        expectResult(true) {
             check( """
                      |void foo(){
                      |  struct s1 { int a; };
@@ -233,7 +233,7 @@ class StructTest extends FunSuite with CEnv with ShouldMatchers with TestHelper 
                      |}
                    """.stripMargin)
         }
-        expect(true) {
+        expectResult(true) {
             check(
                 """
                   |void foo() {
@@ -248,7 +248,7 @@ class StructTest extends FunSuite with CEnv with ShouldMatchers with TestHelper 
                   |}
                 """.stripMargin)
         }
-        expect(false) {
+        expectResult(false) {
             check(
                 """
                   |void foo() {
@@ -266,7 +266,7 @@ class StructTest extends FunSuite with CEnv with ShouldMatchers with TestHelper 
     }
 
     test("inner structs escape") {
-        expect(true) {
+        expectResult(true) {
             check(
                 """
                   |struct { int a; struct b { int x; } bb; } c;
@@ -277,7 +277,7 @@ class StructTest extends FunSuite with CEnv with ShouldMatchers with TestHelper 
     }
 
     test("deref pointers to incomplete structs") {
-        expect(false) {
+        expectResult(false) {
             check( """
                      |struct s1 *x;
                      |void foo() {
@@ -286,7 +286,7 @@ class StructTest extends FunSuite with CEnv with ShouldMatchers with TestHelper 
                    """.stripMargin)
         }
 
-        expect(true) {
+        expectResult(true) {
             check( """
                      |void foo() {
                      |        struct x *a;
@@ -297,7 +297,7 @@ class StructTest extends FunSuite with CEnv with ShouldMatchers with TestHelper 
                      |
                    """.stripMargin)
         }
-        expect(false) {
+        expectResult(false) {
             check( """
                      |void foo() {
                      |        struct x *a;
@@ -310,7 +310,7 @@ class StructTest extends FunSuite with CEnv with ShouldMatchers with TestHelper 
     }
 
     test("struct scopes") {
-        expect(true) {
+        expectResult(true) {
             check( """
                      | void foo(){
                      |        struct x{};
@@ -321,7 +321,7 @@ class StructTest extends FunSuite with CEnv with ShouldMatchers with TestHelper 
                      |}
                    """.stripMargin)
         }
-        expect(true) {
+        expectResult(true) {
             check( """
                      | void foo(){
                      |        struct x{};
@@ -333,7 +333,7 @@ class StructTest extends FunSuite with CEnv with ShouldMatchers with TestHelper 
                      |}
                    """.stripMargin)
         }
-        expect(false) {
+        expectResult(false) {
             check( """
                      | void foo(){
                      |        struct x{};
@@ -348,19 +348,19 @@ class StructTest extends FunSuite with CEnv with ShouldMatchers with TestHelper 
     }
 
     test("incomplete structs in signatures") {
-        expect(true) {
+        expectResult(true) {
             check( """struct x {}; struct x foo() {  }""")
         }
-        expect(false) {
+        expectResult(false) {
             check( """struct x foo() { }""")
         }
-        expect(false) {
+        expectResult(false) {
             check( """void foo(struct x b) { }""")
         }
     }
 
     test("inner structs") {
-        expect(true) {
+        expectResult(true) {
             check( """
                      |struct x {
                      |   struct z { int a; } c;
@@ -368,7 +368,7 @@ class StructTest extends FunSuite with CEnv with ShouldMatchers with TestHelper 
                      |} y;
                    """.stripMargin)
         }
-        expect(false) {
+        expectResult(false) {
             check( """
                      |void foo() {
                      |        int a;
@@ -388,19 +388,19 @@ class StructTest extends FunSuite with CEnv with ShouldMatchers with TestHelper 
          * top level declarations can be declared with an incomplete type if the type is completed eventually
          * (in contrast declarations inside functions and function signatures must immediately contain complete types)
          */
-        expect(true) {
+        expectResult(true) {
             check("static __attribute__((section(\".data\" \"\"))) struct rt_rq per_cpu__init_rt_rq_var ;" +
                 "struct rt_rq {};")
         }
-        expect(true) {
+        expectResult(true) {
             check("static __attribute__((section(\".data\" \"\"))) __typeof__(struct rt_rq) per_cpu__init_rt_rq_var ;" +
                 "struct rt_rq {};")
         }
-        expect(true) {
+        expectResult(true) {
             check("struct x a;" +
                 "struct x {};")
         }
-        expect(false) {
+        expectResult(false) {
             check("struct x a;" +
                 "void foo() { a; }" +
                 "struct x {};")
@@ -411,79 +411,79 @@ class StructTest extends FunSuite with CEnv with ShouldMatchers with TestHelper 
 
 
     test("structure types without variability") {
-        expect(true) {
+        expectResult(true) {
             check("struct s;") //forward declaration
         }
-        expect(false) {
+        expectResult(false) {
             check("struct s x;") //no forward declaration
         }
-        expect(true) {
+        expectResult(true) {
             check("struct s {} x;") //empty struct declaration
         }
-        expect(true) {
+        expectResult(true) {
             check("struct s {int a;};\n" +
                 "void foo(){struct s b;}")
         }
-        expect(false) {
+        expectResult(false) {
             check("struct s { struct t x; };") // t is not a struct, check x like variable declaration
         }
-        expect(true) {
+        expectResult(true) {
             check("struct s foo();")
         }
-        expect(true) {
+        expectResult(true) {
             check("struct s { char x;} a[3];")
         }
-        expect(true) {
+        expectResult(true) {
             check("struct r{ struct s { char x;} a[3]; };")
         }
-        expect(true) {
+        expectResult(true) {
             check("struct s {int a;};\n" +
                 "void foo(){struct c {struct s x;} b;}")
         }
-        expect(false) {
+        expectResult(false) {
             check("struct s foo(){}\n" +
                 "void bar() { foo(); }")
         }
-        expect(false) {
+        expectResult(false) {
             check("struct s bar() { }")
         }
-        expect(false) {
+        expectResult(false) {
             check("void bar(struct c x) { }")
         }
-        expect(true) {
+        expectResult(true) {
             check("struct s {int a;};\n" +
                 "struct s foo(){}\n" +
                 "void bar() { foo(); }")
         }
-        expect(false) {
+        expectResult(false) {
             check("void foo(){struct {int a; struct x b;} b;}")
         }
-        expect(false) {
+        expectResult(false) {
             check("struct s {int a; struct x b;};\n" +
                 "void foo(){struct s b;}")
         }
-        expect(true) {
+        expectResult(true) {
             check("extern struct s b;")
         }
-        expect(false) {
+        expectResult(false) {
             check("extern struct s b;\n" +
                 "void foo() { b; }")
         }
     }
     test("structure types with variability") {
-        expect(false) {
+        expectResult(false) {
             check("#ifdef X\n" +
                 "struct s {int a;};\n" +
                 "#endif\n" +
                 "void foo(){struct s b;}")
         }
-        expect(false) {
+        expectResult(false) {
             check("#ifdef X\n" +
                 "struct s {int a;};\n" +
                 "#endif\n" +
                 "void foo(){struct c {struct s x;} b;}")
         }
-        expect(false) {
+        expectResult(false) {
             check("#ifdef X\n" +
                 "struct s {int a;};\n" +
                 "#endif\n" +
@@ -495,7 +495,7 @@ class StructTest extends FunSuite with CEnv with ShouldMatchers with TestHelper 
 
 
     test("alternative struct declaration") {
-        expect(true) {
+        expectResult(true) {
             check( """
 #if defined( X)
 typedef unsigned long int stat_cnt_t;
@@ -513,7 +513,7 @@ struct reiserfs_sb_info {
     }
 
     test("recursive structures") {
-        expect(true) {
+        expectResult(true) {
             check( """
                      struct mtab_list {
                 		char *dir;
@@ -522,7 +522,7 @@ struct reiserfs_sb_info {
                 	} *mtl, *m;
                    """)
         }
-        expect(true) {
+        expectResult(true) {
             check( """
          void foo(){
              struct mtab_list {
@@ -532,7 +532,7 @@ struct reiserfs_sb_info {
         	} *mtl, *m;
          }""")
         }
-        expect(true) {
+        expectResult(true) {
             check( """
             #ifdef X
                  struct x { int b;};
@@ -550,7 +550,7 @@ struct reiserfs_sb_info {
     }
 
     ignore("A specific type shall have its content defined at most once") {
-        expect(true) {
+        expectResult(true) {
             check(
                 """
                   |typedef union
@@ -562,7 +562,7 @@ struct reiserfs_sb_info {
                   |} xx;
                 """.stripMargin)
         }
-        expect(true) {
+        expectResult(true) {
             check(
                 """
                   |struct x;
@@ -570,14 +570,14 @@ struct reiserfs_sb_info {
                   |struct x;
                 """.stripMargin)
         }
-        expect(false) {
+        expectResult(false) {
             check(
                 """
                   |struct x { };
                   |struct x { };
                 """.stripMargin)
         }
-        expect(true) {
+        expectResult(true) {
             check(
                 """
                   |#ifdef X
@@ -591,19 +591,19 @@ struct reiserfs_sb_info {
     }
 
     test("extern structs") {
-        expect(true) {
+        expectResult(true) {
             check("extern struct x a;".stripMargin)
         }
-        expect(false) {
+        expectResult(false) {
             check("struct x a;".stripMargin) // error: storage size of ‘a’ isn’t known
         }
-        expect(true) {
+        expectResult(true) {
             check("extern struct x a; void foo() { &a; }".stripMargin) // valid in gcc, do not recheck at pointer creation
         }
-        expect(false) {
+        expectResult(false) {
             check("extern struct x a; void foo() { a; }".stripMargin) // valid in gcc, do not recheck at pointer creation
         }
-        expect(false) {
+        expectResult(false) {
             check("extern struct x a; void bar(struct x b){} void foo() { bar(a); }".stripMargin) // valid in gcc, do not recheck at pointer creation
         }
 

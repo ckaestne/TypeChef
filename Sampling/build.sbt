@@ -20,33 +20,3 @@ java -ea -Xmx4096m -Xms128m -Xss10m -classpath "%s" %s "$@"
 
 
 
-//generate a single fat jar file with the assembly plugin
-
-seq(assemblySettings: _*)
-
-test in assembly := {}
-
-defaultJarName in assembly <<= version { v => "../../TypeChef-" + v + ".jar" }
-
-
-//assembleArtifact in packageScala := false
-
-assembleArtifact in packageSrc := false
-
-//exclude signatures, cf http://emc-an.blogspot.com/2011/10/getting-one-big-jar-out-of-sbt-scala.html
-excludedFiles in assembly := { (bases: Seq[File]) =>
-   bases flatMap { base =>
-     (base / "META-INF" * "*").get collect {
-       case f if f.getName.toLowerCase.contains(".rsa") => f
-       case f if f.getName.toLowerCase.contains(".dsa") => f
-       case f if f.getName.toLowerCase.contains(".sf") => f
-       case f if f.getName.toLowerCase == "manifest.mf" => f
-     }
-   }}
-
-mergeStrategy in assembly <<= (mergeStrategy in assembly) { (old) =>
-  {
-    case f if f startsWith "org/fusesource/" => MergeStrategy.first
-    case x => old(x)
-  }
-}

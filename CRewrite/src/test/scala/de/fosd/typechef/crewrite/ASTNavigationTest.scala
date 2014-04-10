@@ -9,28 +9,9 @@ import de.fosd.typechef.featureexpr.FeatureExprFactory._
 import org.junit.Ignore
 import de.fosd.typechef.crewrite.asthelper._
 import de.fosd.typechef.parser.c._
-import de.fosd.typechef.conditional.Choice
-import de.fosd.typechef.conditional.Opt
-import de.fosd.typechef.conditional.One
-import de.fosd.typechef.conditional.Choice
-import de.fosd.typechef.conditional.Opt
-import de.fosd.typechef.conditional.One
-import de.fosd.typechef.conditional.Choice
-import de.fosd.typechef.conditional.Opt
-import de.fosd.typechef.conditional.One
-import de.fosd.typechef.conditional.Choice
-import de.fosd.typechef.conditional.Opt
-import de.fosd.typechef.conditional.One
-import de.fosd.typechef.parser.c.LabelStatement
-import de.fosd.typechef.parser.c.Id
-import de.fosd.typechef.conditional.Choice
-import de.fosd.typechef.parser.c.CompoundStatement
-import de.fosd.typechef.conditional.Opt
-import de.fosd.typechef.conditional.One
 
 @RunWith(classOf[JUnitRunner])
 class ASTNavigationTest extends ShouldMatchers with ASTNavigation with ConditionalNavigation with TestHelper {
-
 
     val ast = getAST("void foo() {}" +
         ";" +

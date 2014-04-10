@@ -15,10 +15,10 @@ object FeatureExprHelper {
         "__fresh" + freshFeatureNameCounter;
     }
     /** map for caching of already solved SAT checks
-     * Different objects A and B of class BDDFeatureExpr may refer to the same internal BDD and have the same hashcode and have equal-equality.
-     * If a result was stored for A, this result will also be returned for B, because A.equals(B).
-     * We use BDD here, because in contrast to BDDFeatureExpr BDD is never freed by GC and so we avoid redundant SAT checks.
-     */
+      * Different objects A and B of class BDDFeatureExpr may refer to the same internal BDD and have the same hashcode and have equal-equality.
+      * If a result was stored for A, this result will also be returned for B, because A.equals(B).
+      * We use BDD here, because in contrast to BDDFeatureExpr BDD is never freed by GC and so we avoid redundant SAT checks.
+      */
     val cacheIsSatisfiable: WeakHashMap[(BDD, FeatureModel), Boolean] = WeakHashMap()
 }
 
@@ -229,7 +229,7 @@ class BDDFeatureExpr(private[featureexpr] val bdd: BDD) extends FeatureExpr {
         //combination with a small FeatureExpr feature model
         else if (fm.clauses.isEmpty) (bdd and fm.extraConstraints.bdd and fm.assumptions.bdd).satOne() != FExprBuilder.FALSE
         //combination with SAT
-        else FeatureExprHelper.cacheIsSatisfiable.getOrElseUpdate((this.bdd,fm),
+        else FeatureExprHelper.cacheIsSatisfiable.getOrElseUpdate((this.bdd, fm),
             SatSolver.isSatisfiable(fm, toDnfClauses(toScalaAllSat((bdd and fm.extraConstraints.bdd).not().allsat())), FExprBuilder.lookupFeatureName)
         )
     }
