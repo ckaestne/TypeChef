@@ -286,7 +286,7 @@ object ConfigurationHandling {
             msg = "omitting sample-set generation (code covereage no header) because a serialized version was loaded"
         } else {
             val startTime = tb.getCurrentThreadCpuTime
-            val (configs, logMsg) = configurationCoverage(tunit, fm, ff, List(),
+            val (configs, logMsg) = codeCoverage(tunit, fm, ff, List(),
                 preferDisabledFeatures = false, includeVariabilityFromHeaderFiles = false)
             val endTime = tb.getCurrentThreadCpuTime
             tasks :+= Pair("coverage_noHeader", configs)
@@ -312,7 +312,7 @@ object ConfigurationHandling {
                 msg = "omitting sample-set generation (code coverage) because a serialized version was loaded"
             } else {
                 val startTime = tb.getCurrentThreadCpuTime
-                val (configs, logMsg) = configurationCoverage(tunit, fm, ff, List(),
+                val (configs, logMsg) = codeCoverage(tunit, fm, ff, List(),
                     preferDisabledFeatures = false, includeVariabilityFromHeaderFiles = true)
                 val endTime = tb.getCurrentThreadCpuTime
 
@@ -335,26 +335,17 @@ object ConfigurationHandling {
      *
      * For more information, see https://www4.cs.fau.de/Publications/2012/tartler_12_osr.pdf p 12
      *
-     * Creates configurations based on the variability nodes found in the given AST.
-     * Searches for variable AST nodes and generates enough configurations to cover them all.
-     * Configurations do always satisfy the FeatureModel fm.
-     * If existingConfigs is non-empty, no config will be created for nodes already covered by these
-     * configurations.
-     * @param astRoot root of the AST
-     * @param fm The Feature Model
-     * @param ff The set of "interestingFeatures". Only these features will be set in the configs.
-     *                 (Normally the set of all features appearing in the file.)
-     * @param existingConfigs described above
-     * @param preferDisabledFeatures the sat solver will prefer (many) small configs instead of (fewer) large ones
-     * @param includeVariabilityFromHeaderFiles if set to false (default) we will ignore variability in
-     *                                          files not ending with ".c".
-     *                                          This corresponds to the view of the developer of a ".c" file.
-     * @return
+     * Creates configurations based on the variability nodes found in the given AST. Searches for variable
+     * AST nodes and generates enough configurations to cover them all. Configurations do always satisfy the
+     * FeatureModel fm. If existingConfigs is non-empty, no config will be created for nodes already covered
+     * by these configurations.
+     * Please note, the algorithm uses different data structures than the ones used in the paper. This is mainly
+     * because of a different representation of presence conditions and the given input.
      */
-    private def configurationCoverage(astRoot: TranslationUnit, fm: FeatureModel, ff: FileFeatures,
-                                      existingConfigs: List[SimpleConfiguration] = List(),
-                                      preferDisabledFeatures: Boolean,
-                                      includeVariabilityFromHeaderFiles: Boolean = false):
+    private def codeCoverage(astRoot: TranslationUnit, fm: FeatureModel, ff: FileFeatures,
+                             existingConfigs: List[SimpleConfiguration] = List(),
+                             preferDisabledFeatures: Boolean,
+                             includeVariabilityFromHeaderFiles: Boolean = false):
     (List[SimpleConfiguration], String) = {
         var presenceConditions: Set[Set[FeatureExpr]] = Set()
 
@@ -367,32 +358,21 @@ object ConfigurationHandling {
                     collectPresenceConditions(x.elseBranch, curFeatureExprSet + x.feature.not(), curFile)
                 case One(x) => collectPresenceConditions(x, curFeatureExprSet, curFile)
 
-                case l: List[_] =>
-                    for (x <- l) {
-                        collectPresenceConditions(x, curFeatureExprSet, curFile)
-                    }
+                case l: List[_] => l.foreach { collectPresenceConditions(_, curFeatureExprSet, curFile)}
                 case x: AST =>
-                    val newFile = if (x.getFile.isDefined) x.getFile.get else curFile
+                    val newFile = x.getFile.getOrElse(curFile)
                     if (x.productArity == 0) {
-                        // termination point of recursion
-                        if (includeVariabilityFromHeaderFiles ||
-                            (newFile != null && newFile.endsWith(".c"))) {
-                            if (!presenceConditions.contains(curFeatureExprSet))
-                                presenceConditions += curFeatureExprSet
+                        if (includeVariabilityFromHeaderFiles || (newFile != null && newFile.endsWith(".c"))) {
+                            presenceConditions += curFeatureExprSet
                         }
                     } else {
-                        for (y <- x.productIterator.toList) {
-                            collectPresenceConditions(y, curFeatureExprSet, newFile)
-                        }
+                        x.productIterator.toList.foreach { collectPresenceConditions(_, curFeatureExprSet, newFile) }
                     }
                 case Some(x) => collectPresenceConditions(x, curFeatureExprSet, curFile)
                 case None =>
-                case o =>
-                    // termination point of recursion
-                    if (includeVariabilityFromHeaderFiles ||
-                        (curFile != null && curFile.endsWith(".c"))) {
-                        if (!presenceConditions.contains(curFeatureExprSet))
-                            presenceConditions += curFeatureExprSet
+                case _ =>
+                    if (includeVariabilityFromHeaderFiles || (curFile != null && curFile.endsWith(".c"))) {
+                        presenceConditions += curFeatureExprSet
                     }
             }
         }
@@ -445,7 +425,7 @@ object ConfigurationHandling {
      * @return
      */
     private def completeConfiguration(expr: FeatureExpr, ff: FileFeatures, model: FeatureModel,
-                              preferDisabledFeatures: Boolean = false):
+                                      preferDisabledFeatures: Boolean = false):
     SimpleConfiguration = {
         expr.getSatisfiableAssignment(model, ff.features.toSet, preferDisabledFeatures) match {
             case Some(ret) => new SimpleConfiguration(ff, ret._1, ret._2)
