@@ -1,8 +1,6 @@
 package de.fosd.typechef.crewrite
 
-import de.fosd.typechef.parser.c.{AST}
-import de.fosd.typechef.featureexpr.FeatureModel
-import de.fosd.typechef.conditional.Opt
+import de.fosd.typechef.parser.c.AST
 import de.fosd.typechef.crewrite.asthelper.ASTEnv
 
 trait CFGHelper extends IntraCFG {
@@ -14,15 +12,15 @@ trait CFGHelper extends IntraCFG {
         var workingList = List(i)
         var finishedNodes = List[AST]()
 
-        while (!workingList.isEmpty) {
-            val node = workingList.head
+        while (workingList.nonEmpty) {
+            val curNode = workingList.head
             workingList = workingList.tail
 
-            if (!finishedNodes.exists(_.eq(node))) {
-                val successors = succ(node, env)
-                result = (node, successors)  :: result
+            if (! finishedNodes.exists(_.eq(curNode))) {
+                val successors = succ(curNode, env)
+                result = (curNode, successors)  :: result
                 workingList = workingList ++ successors.map(x => x.entry)
-                finishedNodes = node :: finishedNodes
+                finishedNodes = curNode :: finishedNodes
             }
         }
         result
@@ -30,21 +28,21 @@ trait CFGHelper extends IntraCFG {
 
     // determine recursively all pred
     def getAllPred(i: AST, env: ASTEnv): SuccessorRelationship = {
-        var r = List[(AST, NextNodeList)]()
-        var s = List(i)
-        var d = List[AST]()
-        var c: AST = null
+        var result = List[(AST, NextNodeList)]()
+        var workingList = List(i)
+        var finishedNodes = List[AST]()
 
-        while (!s.isEmpty) {
-            c = s.head
-            s = s.drop(1)
+        while (workingList.nonEmpty) {
+            val curNode = workingList.head
+            workingList = workingList.tail
 
-            if (d.filter(_.eq(c)).isEmpty) {
-                r = (c, pred(c, env)) :: r
-                s = s ++ r.head._2.map(x => x.entry)
-                d = d ++ List(c)
+            if (! finishedNodes.exists(_.eq(curNode))) {
+                val predecessors = pred(curNode, env)
+                result = (curNode, predecessors) :: result
+                workingList = workingList ++ predecessors.map(x => x.entry)
+                finishedNodes = curNode :: finishedNodes
             }
         }
-        r
+        result
     }
 }

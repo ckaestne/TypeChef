@@ -2,7 +2,7 @@ package de.fosd.typechef.crewrite
 
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.typesystem.{DeclUseMap, UseDeclMap}
-import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureModel, FeatureExpr}
+import de.fosd.typechef.featureexpr.{FeatureModel, FeatureExpr}
 import de.fosd.typechef.conditional.Opt
 import de.fosd.typechef.crewrite.asthelper.ASTEnv
 
@@ -126,23 +126,7 @@ sealed abstract class MonotoneFW[T](val f: FunctionDef, env: ASTEnv, val fm: Fea
         for ((e, fexp) <- l2) {
             curl.get(e) match {
                 case None =>
-                case Some(x) => {
-                    curl = curl + ((e, x and fexp.not))
-                }
-            }
-        }
-        curl
-    }
-
-    protected def intersection(l1: L, l2: L): L = {
-        var curl = l1
-        val k1 = l1.keySet
-        val k2 = l2.keySet
-        curl --= ((k1 union k2) diff (k1 intersect k2))
-        for ((e, fexp) <- l2) {
-            curl.get(e) match {
-                case None =>
-                case Some(x) => curl = curl + ((e, x and fexp))
+                case Some(x) => curl = curl + ((e, x and fexp.not))
             }
         }
         curl
@@ -222,11 +206,12 @@ sealed abstract class MonotoneFW[T](val f: FunctionDef, env: ASTEnv, val fm: Fea
     // this does not allow to selectively compute dataflow properties for a single cfgstmt.
     // TODO should be fixed with an improved version using kiama's attribute grammars.
     def solve(): Unit = {
-        if (f == null) return
+        if (f == null)
+            return
 
         // initialize solution
         val flow = if (isForward) getAllPred(f, env)
-        else getAllSucc(f, env)
+                   else getAllSucc(f, env)
         for (cfgstmt <- flow map { _._1 })
             memo.update(cfgstmt, ((true, l), (true, l)))
 
@@ -244,14 +229,13 @@ sealed abstract class MonotoneFW[T](val f: FunctionDef, env: ASTEnv, val fm: Fea
                 for (Opt(feature, entry) <- fl) {
                     entry match {
                         case _: FunctionDef =>
-                        case _ => {
+                        case _ =>
                             val (update, i) = memo.lookup(entry).get._2
 
                             if (update) {
                                 val x = updateFeatureExprOfMonotoneElements(i, feature)
                                 cnew = combinationOperator(cnew, x)
                             }
-                        }
                     }
                 }
 

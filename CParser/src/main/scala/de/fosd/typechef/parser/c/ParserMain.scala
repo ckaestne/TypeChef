@@ -36,39 +36,37 @@ object ParserMain {
 
 class ParserMain(p: CParser) {
 
-    def parserMain(filePath: String, systemIncludePath: java.util.List[String], parserOptions: ParserOptions = DefaultParserOptions): AST = {
+    def parserMain(filePath: String, systemIncludePath: java.util.List[String], parserOptions: ParserOptions = DefaultParserOptions): TranslationUnit = {
         val lexer = (() => CLexer.lexFile(filePath, systemIncludePath, p.featureModel))
         parserMain(lexer, new CTypeContext(), parserOptions)
     }
 
-    def parserMain(tokenstream: TokenReader[CToken, CTypeContext], parserOptions: ParserOptions): AST = {
+    def parserMain(tokenstream: TokenReader[CToken, CTypeContext], parserOptions: ParserOptions): TranslationUnit = {
         parserMain((() => tokenstream), new CTypeContext(), parserOptions)
     }
 
 
     def parserMain(lexer: () => TokenReader[CToken, CTypeContext], initialContext: CTypeContext, parserOptions: ParserOptions): TranslationUnit = {
         assert(parserOptions != null)
-        //        val logStats = MyUtil.runnable(() => {
-        //            if (AbstractToken.profiling) {
-        //                val statistics = new PrintStream(new BufferedOutputStream(new FileOutputStream(filePath + ".stat")))
-        //                LineInformation.printStatistics(statistics)
-        //                statistics.close()
-        //            }
-        //        })
-        //
-        //        Runtime.getRuntime().addShutdownHook(new Thread(logStats))
-
-        val lexerStartTime = System.currentTimeMillis
+        val ctx = True
         val in: p.Input = lexer().setContext(initialContext)
 
         val parserStartTime = System.currentTimeMillis
-        val result: p.MultiParseResult[TranslationUnit] = p.phrase(p.translationUnit)(in, FeatureExprFactory.True)
-        //        val result = p.translationUnit(in, FeatureExprFactory.True)
+        val result: p.MultiParseResult[TranslationUnit] = p.phrase(p.translationUnit)(in, ctx)
         val endTime = System.currentTimeMillis
 
-        if (parserOptions.printParserResult)
-            println(printParseResult(result, FeatureExprFactory.True))
+        //ensure that "did not reach end errors are handled as part of the phrase combinator
+        result.mapr({
+            case x@p.Success(_, rest) => assert(rest.atEnd, "phrase() should have ensured reaching the end of the tokenstream in a success case"); x
+            case x => x
+        })
 
+        //print parsing results to sysout and the the error file (if configured)
+        if (parserOptions.printParserResult)
+            println(printParseResult(result, ctx))
+        renderParseResult(result, ctx, parserOptions.renderParserError)
+
+        //print statistics if configured
         if (parserOptions.printParserStatistics) {
             val distinctFeatures = getDistinctFeatures(in.tokens) //expensive to calculate with bdds (at least the current implementation)
             print("Parsing statistics: \n" +
@@ -88,22 +86,9 @@ class ParserMain(p: CParser) {
                     "  Choice Nodes: " + countChoiceNodes(result) + "\n\n")
         }
 
-        //        checkParseResult(result, FeatureExprFactory.True)
 
-        //        val resultStr: String = result.toString
-        //        println("FeatureSolverCache.statistics: " + FeatureSolverCache.statistics)
-        //        val writer = new FileWriter(filePath + ".ast")
-        //        writer.write(resultStr);
-        //        writer.close
-        //        println("done.")
-
-        val l = result.toList(FeatureExprFactory.True).filter(_._2.isSuccess)
-        if (l.isEmpty || !result.toErrorList.isEmpty) {
-            println(printParseResult(result, FeatureExprFactory.True))
-            renderParseResult(result, True, parserOptions.renderParserError)
-        }
-        if (l.isEmpty) null
-        else mergeResultsIntoSingleAST(l)
+        //return null (if parsing failed in all branches) or a single AST combining all parse results
+        mergeResultsIntoSingleAST(ctx, result)
     }
 
     /**
@@ -117,60 +102,40 @@ class ParserMain(p: CParser) {
      * top-level declarations are simply concatenated (with the mutually exclusive presence
      * conditions)
      */
-    private def mergeResultsIntoSingleAST(results: List[(FeatureExpr, p.ParseResult[TranslationUnit])]): TranslationUnit = {
-        val defs: Seq[Opt[ExternalDef]] =
-            for (result <- results;
-                 if result._2.isSuccess;
-                 Opt(f, tld) <- result._2.asInstanceOf[p.Success[TranslationUnit]].result.defs)
-            yield Opt[ExternalDef](f and result._1, tld)
-        TranslationUnit(defs.toList)
-    }
+    private def mergeResultsIntoSingleAST(ctx: FeatureExpr, result: p.MultiParseResult[TranslationUnit]): TranslationUnit = {
 
-
-    def renderParseResult[T](result: p.MultiParseResult[T], feature: FeatureExpr, renderError: (FeatureExpr, String, Position) => Object) {
-        if (renderError != null)
+        def collectTopLevelDeclarations(ctx: FeatureExpr, result: p.MultiParseResult[TranslationUnit]): List[Opt[ExternalDef]] = {
             result match {
-                case p.Success(ast, unparsed) =>
-                    if (!unparsed.atEnd)
-                        renderError(feature, "stopped before end", unparsed.first.getPosition)
-                case p.NoSuccess(msg, unparsed, inner) =>
-                    renderError(feature, msg + " (" + inner + ")", unparsed.pos)
-                case p.SplittedParseResult(f, left, right) => {
-                    renderParseResult(left, feature.and(f), renderError)
-                    renderParseResult(right, feature.and(f.not), renderError)
-                }
+                case p.Success(r: TranslationUnit, in) => r.defs.map(_.and(ctx))
+                case p.NoSuccess(_, _, _) => List()
+                case p.SplittedParseResult(f, left, right) =>
+                    collectTopLevelDeclarations(ctx and f, left) ++
+                        collectTopLevelDeclarations(ctx andNot f, right)
             }
+        }
+
+        if (result.allFailed) null
+        else TranslationUnit(collectTopLevelDeclarations(ctx, result))
     }
+
+
+    def renderParseResult[T](result: p.MultiParseResult[T], feature: FeatureExpr, renderError: (FeatureExpr, String, Position) => Object): Unit =
+        if (renderError != null)
+            result.mapfr(feature, {
+                case (f, x@p.Success(ast, unparsed)) => x
+                case (f, x@p.NoSuccess(msg, unparsed, inner)) =>
+                    renderError(f, msg + " (" + inner + ")", unparsed.pos); x
+            })
 
     def printParseResult(result: p.MultiParseResult[Any], feature: FeatureExpr): String = {
         result match {
-            case p.Success(ast, unparsed) => {
-                if (unparsed.atEnd)
-                    (feature.toString + "\tsucceeded\n")
-                else
-                    (feature.toString + "\tstopped before end (at " + unparsed.first.getPosition + ")\n")
-            }
+            case p.Success(ast, unparsed) =>
+                (feature.toString + "\tsucceeded\n")
             case p.NoSuccess(msg, unparsed, inner) =>
                 (feature.toString + "\tfailed: " + msg + " at " + unparsed.pos + " (" + inner + ")\n")
             case p.SplittedParseResult(f, left, right) => {
                 printParseResult(left, feature.and(f)) + "\n" +
                     printParseResult(right, feature.and(f.not))
-            }
-        }
-    }
-
-    def checkParseResult(result: p.MultiParseResult[Any], feature: FeatureExpr) {
-        result match {
-            case p.Success(ast, unparsed) => {
-                if (!unparsed.atEnd)
-                    new Exception("parser did not reach end of token stream with feature " + feature + " (" + unparsed.first.getPosition + "): " + unparsed).printStackTrace
-                //succeed
-            }
-            case p.NoSuccess(msg, unparsed, inner) =>
-                new Exception(msg + " at " + unparsed + " with feature " + feature + " " + inner).printStackTrace
-            case p.SplittedParseResult(f, left, right) => {
-                checkParseResult(left, feature.and(f))
-                checkParseResult(right, feature.and(f.not))
             }
         }
     }

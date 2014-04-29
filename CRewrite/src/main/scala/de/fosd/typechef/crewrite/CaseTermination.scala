@@ -10,30 +10,38 @@ import de.fosd.typechef.crewrite.asthelper.ASTEnv
 // MSC17-C
 class CaseTermination(env: ASTEnv) extends IntraCFG {
     def isTerminating(c: CaseStatement): Boolean = {
-        // get all successor elements of the case statement
-        // and filter out other case statements, as fall through (case after case)
-        // is allowed in this analysis
-        var wlist: List[Opt[AST]] = succ(c, env).filterNot({
+        // get all successor elements of the case statement and filter other
+        // case statements because case after case (fall through) is allowed
+        var wList: List[Opt[AST]] = succ(c, env).filterNot({
             case Opt(_, _: CaseStatement) => true
             case _ => false
         })
 
-        // determine switch to make sure we do not leave the successor element
+        // visited list; to determine cyclic successors
+        var vList: List[Opt[AST]] = List()
+
+        // determine the switch to determine whether successor elements
+        // still belong to the switch
         val switch = findPriorASTElem[SwitchStatement](c, env)
 
         // determine starting from the case statement that all successor elements will finally
         // come through a break statement
-        while (wlist.size > 0) {
-            val curelem = wlist.head
-            wlist = wlist.tail
+        while (wList.nonEmpty) {
+            val curElem = wList.head
+            wList = wList.tail
 
-            curelem match {
-                case Opt(_, _: BreakStatement) =>
-                case Opt(_, _: CaseStatement) => return false
-                case Opt(_, _: DefaultStatement) => return false
-                case Opt(_, s) => if (!isPartOf(s, switch)) return false
-                                  else wlist ++= succ(s, env)
+            if (! vList.exists(_.eq(curElem))) {
+                vList ::= curElem
 
+                curElem match {
+                    case Opt(_, _: BreakStatement) =>
+                    case Opt(_, _: CaseStatement) => return false
+                    case Opt(_, _: DefaultStatement) => return false
+                    case Opt(_, s) => if (!isPartOf(s, switch))
+                                          return false
+                                      else
+                                          wList ++= succ(s, env)
+                }
             }
         }
 

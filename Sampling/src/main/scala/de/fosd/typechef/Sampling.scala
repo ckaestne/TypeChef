@@ -6,8 +6,9 @@ import de.fosd.typechef.parser.c.TranslationUnit
 import de.fosd.typechef.parser.c.CTypeContext
 import de.fosd.typechef.options.OptionException
 import java.io.File
+import de.fosd.typechef.crewrite.asthelper.EnforceTreeHelper
 
-object Sampling extends EnforceTreeHelper {
+object Sampling {
     def main(args: Array[String]) {
         // load options
         val opt = new FamilyBasedVsSampleBasedOptions()
@@ -60,7 +61,7 @@ object Sampling extends EnforceTreeHelper {
                 ast = Frontend.loadSerializedAST(opt.getSerializedASTFilename)
 
             } catch {
-                case e: Throwable => println(e.getMessage); ast=null
+                case e: Throwable => println(e.getMessage); ast = null
             }
             if (ast == null)
                 println("... failed reading AST\n")
@@ -75,12 +76,15 @@ object Sampling extends EnforceTreeHelper {
             }
         }
 
-        ast = prepareAST[TranslationUnit](ast)
-
         if (ast != null) {
             val fm_ts = opt.getTypeSystemFeatureModel.and(opt.getLocalFeatureModel).and(opt.getFilePresenceCondition)
-            val treeast = prepareAST[TranslationUnit](ast.asInstanceOf[TranslationUnit])
-            FamilyBasedVsSampleBased.checkErrorsAgainstSamplingConfigs(fm_ts, fm_ts, treeast, opt, "")
+            val treeAst = EnforceTreeHelper.prepareAST[TranslationUnit](ast)
+
+            if (opt.analyze)
+                FamilyBasedVsSampleBased.typecheckProducts(fm_ts, fm_ts, treeAst, opt, "")
+
+            if (opt.errorDetection)
+                FamilyBasedVsSampleBased.checkDFGErrorsAgainstSamplingConfigs(fm_ts, fm_ts, treeAst, opt, "")
         }
     }
 

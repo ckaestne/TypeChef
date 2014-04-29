@@ -444,12 +444,12 @@ private[bdd] object FExprBuilder {
     //start with one, so we can distinguish -x and x for sat solving and tostring
     var bddFactory: BDDFactory = null
     try {
-        bddFactory = BDDFactory.init(bddValNum, bddCacheSize)
+        bddFactory = BDDFactory.init("JDD", bddValNum, bddCacheSize)
     } catch {
         case e: OutOfMemoryError =>
             println("running with low memory. consider increasing heap size.")
             bddValNum = 524288
-            bddFactory = BDDFactory.init(bddValNum, bddCacheSize)
+            bddFactory = BDDFactory.init("JDD", bddValNum, bddCacheSize)
     }
     bddFactory.setIncreaseFactor(2) //200% increase each time
     bddFactory.setMaxIncrease(0) //no upper limit on increase size

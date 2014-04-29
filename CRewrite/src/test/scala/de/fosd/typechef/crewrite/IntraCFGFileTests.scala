@@ -21,7 +21,7 @@ class IntraCFGFileTests extends TestHelper with IntraCFG with ConditionalNavigat
         val inputStream: InputStream = getClass.getResourceAsStream("/" + folder + filename)
 
         if (inputStream == null)
-            throw new FileNotFoundException("Input file not fould: " + filename)
+            throw new FileNotFoundException("Input file not found: " + filename)
 
         val ast = parseFile(inputStream, filename, folder)
         val family_ast = EnforceTreeHelper.rewriteInfiniteForLoops[TranslationUnit](EnforceTreeHelper.prepareAST(ast))

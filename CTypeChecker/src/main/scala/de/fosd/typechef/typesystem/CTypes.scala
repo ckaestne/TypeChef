@@ -73,13 +73,30 @@ case class CType(
 
     def map(f: AType => AType) = copy(atype = f(this.atype))
 
+    /**
+     * by default equals between two CTypes will only compare their ATypes (including the ATypes of nested CTypes)
+     *
+     * that is, equality checking does not care about const, volatile, and object. to check equality
+     * of two CTypes including these parameters use equalsCType
+     */
     override def equals(that: Any) = that match {
         case thattype: CType =>
             (this.isUnknown && thattype.isUnknown) ||
-                (this.atype == thattype.atype && this.isObject == thattype.isObject && this.isConstant == thattype.isConstant && this.isVolatile == thattype.isVolatile)
+                (this.atype == thattype.atype)
         case thattype: AType => throw new RuntimeException("comparison between CType and AType")
         case _ => super.equals(that)
     }
+    /**
+     * note, this check currently only checks the top-level CTypes for equality, but uses the AType
+     * equality for nested structures in CAnonymousStruct and CFunction
+     */
+    def equalsCType(that: CType) =
+        this.atype == that.atype &&
+            this.isObject == that.isObject &&
+            this.isConstant == that.isConstant &&
+            this.isVolatile == that.isVolatile
+
+
     override def hashCode() = atype.hashCode()
 
     def toXML: xml.Elem = {
