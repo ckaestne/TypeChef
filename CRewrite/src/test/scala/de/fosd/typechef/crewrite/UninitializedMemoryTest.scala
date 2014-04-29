@@ -68,7 +68,7 @@ class UninitializedMemoryTest extends TestHelper with ShouldMatchers with CFGHel
     @Test def test_uninitialized_memory_simple() {
         uninitializedMemory( """
         void get_sign(int number, int *sign) {
-            if (sign == 0) {
+            if (*sign == 0) {
                  /* ... */
             }
             if (number > 0) {
