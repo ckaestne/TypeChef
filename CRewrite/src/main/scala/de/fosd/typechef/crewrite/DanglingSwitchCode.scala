@@ -13,18 +13,13 @@ import de.fosd.typechef.featureexpr.FeatureModel
 class DanglingSwitchCode(env: ASTEnv, fm: FeatureModel) extends CFGHelper with ConditionalNavigation {
     def danglingSwitchCode(s: SwitchStatement): List[Opt[AST]] = {
         // To determine dangling switch code, we need to traverse the CFG
-        // and look for CFG statements that are not guarded by a case labels.
-        // Since we do not have a graph representation, i.e., we only have the
-        // pred/succ relation returning lists, we store everything in lists
-        // and traverse them to find erroneous statements.
-        // TODO: Should be replaced with a proper graph representation, which
-        // can be checked with DFS (check for CFG elements not guarded by case
-        // labels with a side effect).
+        // and look for CFG statements that are not guarded (in one or more
+        // configurations) by a case label.
 
         // Starting with the control flow of the switch body,
         // we continuously determine successor elements.
-        // If we hit a case or default label, we stop the successor determination for that element.
-        // If we hit a declaration statement, we check for initializers.
+        // If we hit a case or default label, we continue
+        // If we hit a declaration statement, we check for initializer.
         //   If there is one, issue an error. Otherwise determine successor elements and proceed.
         // If we hit any other AST element, we return this element as identified dangling
         // switch code.
@@ -44,7 +39,8 @@ class DanglingSwitchCode(env: ASTEnv, fm: FeatureModel) extends CFGHelper with C
                     if (containsInitializationCode(d))
                         res ::= oItem
                     else
-                        workingList ++= succ(ds, env) filter { x => isPartOf(x.entry, s) && x.feature.isSatisfiable(fm) }
+                        workingList ++= succ(ds, env)
+                            .filter { x => isPartOf(x.entry, s) && x.feature.isSatisfiable(fm) }
                 case _: AST => res ::= oItem
             }
         }

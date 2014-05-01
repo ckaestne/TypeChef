@@ -163,8 +163,7 @@ class DanglingSwitchCodeTest extends TestHelper with ShouldMatchers with CFGHelp
     @Test def test_annotated_case_labels() {
         danglingSwitchCode(
             """
-            void f(void) {
-              int a;
+            void f(int a) {
               switch (a) {
             #ifdef A
                 case 0:
@@ -194,5 +193,21 @@ class DanglingSwitchCodeTest extends TestHelper with ShouldMatchers with CFGHelp
               }
             }
             """.stripMargin) should be(true)
+
+        danglingSwitchCode(
+            """
+            void f(void) {
+              int a;
+              switch (a) {
+                int b;
+            #ifdef A
+                case 2:
+            #endif
+                b++;
+                case 1:
+                default: a+3;
+              }
+            }
+            """.stripMargin) should be(false)
     }
 }
