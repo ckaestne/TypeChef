@@ -279,7 +279,7 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
 
     private def danglingSwitchCode(f: FunctionDef): List[TypeChefError] = {
         val ss = filterAllASTElems[SwitchStatement](f)
-        val ds = new DanglingSwitchCode(env)
+        val ds = new DanglingSwitchCode(env, fm)
 
         ss.flatMap(s => {
             ds.danglingSwitchCode(s).map(e => {
