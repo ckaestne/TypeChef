@@ -1,7 +1,7 @@
 package de.fosd.typechef.crewrite
 
 import de.fosd.typechef.parser.c._
-import de.fosd.typechef.conditional.Opt
+import de.fosd.typechef.conditional.{ConditionalLib, Opt}
 import de.fosd.typechef.crewrite.asthelper.{ConditionalNavigation, ASTEnv}
 import de.fosd.typechef.featureexpr.FeatureModel
 
@@ -12,27 +12,41 @@ import de.fosd.typechef.featureexpr.FeatureModel
 // superseeded by DCL41-C (https://www.securecoding.cert.org/confluence/display/seccode/DCL41-C.+Do+not+declare+variables+inside+a+switch+statement+before+the+first+case+label)
 class DanglingSwitchCode(env: ASTEnv, fm: FeatureModel) extends CFGHelper with ConditionalNavigation {
     def danglingSwitchCode(s: SwitchStatement): List[Opt[AST]] = {
-        // determine the succ CFG and the pred CFG for the switch statement
-        val switchSuccs = (getAllSucc(s, env)
-            flatMap {_._2}
-            filter {x => isPartOf(x.entry, s) && x.feature.isSatisfiable(fm) }
-            map {_.entry}).distinct
-        val switchPreds = (getAllPred(s, env)
-            flatMap {_._2}
-            filter {x => isPartOf(x.entry, s) && x.feature.isSatisfiable(fm) }
-            map {_.entry}).distinct
+        // To determine dangling switch code, we need to traverse the CFG
+        // and look for CFG statements that are not guarded by a case labels.
+        // Since we do not have a graph representation, i.e., we only have the
+        // pred/succ relation returning lists, we store everything in lists
+        // and traverse them to find erroneous statements.
+        // TODO: Should be replaced with a proper graph representation, which
+        // can be checked with DFS (check for CFG elements not guarded by case
+        // labels with a side effect).
 
-        // determine the diff between both CFG results
-        val diff = ((switchSuccs diff switchPreds) ++ (switchPreds diff switchSuccs)).distinct
+        // Starting with the control flow of the switch body,
+        // we continuously determine successor elements.
+        // If we hit a case or default label, we stop the successor determination for that element.
+        // If we hit a declaration statement, we check for initializers.
+        //   If there is one, issue an error. Otherwise determine successor elements and proceed.
+        // If we hit any other AST element, we return this element as identified dangling
+        // switch code.
+        var workingList = ConditionalLib.leaves(s.s)
+            .flatMap { succ(_, env) }
+            .filter { x => isPartOf(x.entry, s) && x.feature.isSatisfiable(fm) }
 
-        val res = diff flatMap {
-            case x@DeclarationStatement(d) =>
-                if (containsInitializationCode(d))
-                    Some(parentOpt(x, env).asInstanceOf[Opt[AST]])
-                else
-                    None
-            case x: AST => Some(parentOpt(x, env).asInstanceOf[Opt[AST]])
-            case _      => None
+        var res: List[Opt[AST]] = List()
+        while (workingList.nonEmpty) {
+            val oItem = workingList.head
+            workingList = workingList.tail
+
+            oItem.entry match {
+                case _: CaseStatement =>
+                case _: DefaultStatement =>
+                case ds@DeclarationStatement(d) =>
+                    if (containsInitializationCode(d))
+                        res ::= oItem
+                    else
+                        workingList ++= succ(ds, env) filter { x => isPartOf(x.entry, s) && x.feature.isSatisfiable(fm) }
+                case _: AST => res ::= oItem
+            }
         }
 
         res

@@ -83,7 +83,7 @@ class DanglingSwitchCodeTest extends TestHelper with ShouldMatchers with CFGHelp
 
     // declaring variables in the scope of the switch body is ok,
     // iff they do not contain code for initialization!
-    @Test def test_declaration {
+    @Test def test_declaration() {
         danglingSwitchCode(
             """
             void f(void) {
@@ -159,5 +159,40 @@ class DanglingSwitchCodeTest extends TestHelper with ShouldMatchers with CFGHelp
             }
             """.stripMargin) should be(false)
     }
-}
 
+    @Test def test_annotated_case_labels() {
+        danglingSwitchCode(
+            """
+            void f(void) {
+              int a;
+              switch (a) {
+            #ifdef A
+                case 0:
+            #endif
+                int b;
+                b++;
+                case 1:
+                default: a+3;
+              }
+            }
+            """.stripMargin) should be(false)
+
+        danglingSwitchCode(
+            """
+            void f(void) {
+              int a;
+              switch (a) {
+            #ifdef A
+                case 0:
+            #else
+                case 2:
+            #endif
+                int b;
+                b++;
+                case 1:
+                default: a+3;
+              }
+            }
+            """.stripMargin) should be(true)
+    }
+}
