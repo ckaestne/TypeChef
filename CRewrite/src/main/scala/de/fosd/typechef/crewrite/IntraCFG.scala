@@ -448,16 +448,16 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
             case t@ElifStatement(condition, _) => getCondExprSucc(condition, ctx, oldres, env)
             case SwitchStatement(expr, _) => getExprSucc(expr, ctx, oldres, env)
 
-            case t@BreakStatement() => {
+            case t: BreakStatement => {
                 val e2b = findPriorASTElem2BreakStatement(t, env)
                 assert(e2b.isDefined, "break statement should always occur within a for, do-while, while, or switch statement")
                 getStmtSucc(e2b.get, ctx, oldres, env)
             }
-            case t@ContinueStatement() => {
+            case t: ContinueStatement => {
                 val e2c = findPriorASTElem2ContinueStatement(t, env)
                 assert(e2c.isDefined, "continue statement should always occur within a for, do-while, or while statement")
                 e2c.get match {
-                    case t@ForStatement(_, expr2, expr3, s) => {
+                    case ForStatement(_, expr2, expr3, s) => {
                         if (expr3.isDefined) getExprSucc(expr3.get, ctx, oldres, env)
                         else if (expr2.isDefined) getExprSucc(expr2.get, ctx, oldres, env)
                         else getCondStmtSucc(s, ctx, oldres, env)
@@ -763,7 +763,6 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
                     case t@SwitchStatement(expr, s) if isPartOf(nested_ast_elem, expr) => {
                         var res: CFGRes = oldres
                         if (isPartOf(nested_ast_elem, expr)) {
-                            res ++= getCondStmtSucc(s, env.featureExpr(expr), oldres, env)
                             res ++= filterCaseStatements(s, env.featureExpr(t), env)
                             val dcase = filterDefaultStatements(s, env.featureExpr(t), env)
 
