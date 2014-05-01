@@ -13,17 +13,24 @@ import de.fosd.typechef.featureexpr.FeatureModel
 class DanglingSwitchCode(env: ASTEnv, fm: FeatureModel) extends CFGHelper with ConditionalNavigation {
     def danglingSwitchCode(s: SwitchStatement): List[Opt[AST]] = {
         // determine the succ CFG and the pred CFG for the switch statement
-        val switchSuccs = getAllSucc(s, env) flatMap {_._2} filter {x => isPartOf(x.entry, s)} map {_.entry}
-        val switchPreds = getAllPred(s, env) flatMap {_._2} filter {x => isPartOf(x.entry, s)} map {_.entry}
+        val switchSuccs = (getAllSucc(s, env)
+            flatMap {_._2}
+            filter {x => isPartOf(x.entry, s) && x.feature.isSatisfiable(fm) }
+            map {_.entry}).distinct
+        val switchPreds = (getAllPred(s, env)
+            flatMap {_._2}
+            filter {x => isPartOf(x.entry, s) && x.feature.isSatisfiable(fm) }
+            map {_.entry}).distinct
 
         // determine the diff between both CFG results
         val diff = ((switchSuccs diff switchPreds) ++ (switchPreds diff switchSuccs)).distinct
 
-        println(diff)
-
         val res = diff flatMap {
-            case x@DeclarationStatement(d) if !containsInitializationCode(d) =>
-                Some(parentOpt(x, env).asInstanceOf[Opt[AST]])
+            case x@DeclarationStatement(d) =>
+                if (containsInitializationCode(d))
+                    Some(parentOpt(x, env).asInstanceOf[Opt[AST]])
+                else
+                    None
             case x: AST => Some(parentOpt(x, env).asInstanceOf[Opt[AST]])
             case _      => None
         }
