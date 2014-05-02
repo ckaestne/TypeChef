@@ -3,6 +3,8 @@ package de.fosd.typechef
 import java.io._
 import util.Random
 
+import org.kiama.rewriting.Rewriter._
+
 import de.fosd.typechef.crewrite._
 import de.fosd.typechef.featureexpr._
 import de.fosd.typechef.featureexpr.sat._
@@ -106,6 +108,16 @@ object FamilyBasedVsSampleBased extends ASTNavigation with CFGHelper {
         countNumberOfASTElementsHelper(ast)
     }
 
+    private def countNumberOfStatements(tunit: TranslationUnit): Long = {
+        var res: Long = 0
+        val r = alltd(query {
+            case _: Statement => res += 1
+        })
+
+        r(tunit)
+        res
+    }
+
     private def initSampling(fm_scanner: FeatureModel, fm: FeatureModel, ast: TranslationUnit, ff: FileFeatures,
                              opt: FamilyBasedVsSampleBasedOptions, logMessage: String): (String, String, List[Task]) = {
         var caseStudy = ""
@@ -171,7 +183,7 @@ object FamilyBasedVsSampleBased extends ASTNavigation with CFGHelper {
     }
 
     def checkDFGErrorsAgainstSamplingConfigs(fm_scanner: FeatureModel, fm: FeatureModel, ast: TranslationUnit,
-                                          opt: FamilyBasedVsSampleBasedOptions, logMessage: String) {
+                                             opt: FamilyBasedVsSampleBasedOptions, logMessage: String) {
         val ff: FileFeatures = new FileFeatures(ast)
         val (log, fileID, samplingTasks) = initSampling(fm_scanner, fm, ast, ff, opt, logMessage)
         val samplingTasksWithoutFamily = samplingTasks.filterNot {x => x._1 == "family"}
@@ -210,6 +222,7 @@ object FamilyBasedVsSampleBased extends ASTNavigation with CFGHelper {
         val fw: FileWriter = new FileWriter(file)
         fw.write("File : " + fileID + "\n")
         fw.write("Features : " + ff.features.size + "\n")
+        fw.write("Statements : " + countNumberOfStatements(ast) + "\n")
         fw.write(log + "\n")
 
         fw.write("Potential number of data-flow errors: " + sa.errors.size + "\n\n")
