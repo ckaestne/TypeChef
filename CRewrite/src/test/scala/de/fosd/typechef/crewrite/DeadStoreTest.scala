@@ -131,4 +131,15 @@ void test1(int *code,
             """.stripMargin
         ) should be (true)
     }
+
+    @Test def test_global_var() {
+        deadstore(
+            """
+            int a;
+            void foo() {
+              a = 0;
+            }
+            """.stripMargin
+        ) should be (true)
+    }
 }
