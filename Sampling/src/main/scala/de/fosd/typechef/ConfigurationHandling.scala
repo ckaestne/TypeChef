@@ -12,8 +12,8 @@ import de.fosd.typechef.conditional._
 object ConfigurationHandling {
     def loadConfigurationsFromCSVFile(csvFile: File, dimacsFile: File,
                                       ff: FileFeatures, fm: FeatureModel, featureNamePrefix: String = ""):
-    (List[SimpleConfiguration], String) = {
-        var retList: List[SimpleConfiguration] = List()
+    (Set[SimpleConfiguration], String) = {
+        var res: Set[SimpleConfiguration] = Set()
 
         // determine the feature ids used by the sat solver from the dimacs file
         // dimacs format (c stands for comment) is "c 3779 AT76C50X_USB"
@@ -85,19 +85,19 @@ object ConfigurationHandling {
             if (!config.toFeatureExpr.getSatisfiableAssignment(fm, ff.features.toSet, 1 == 1).isDefined) {
                 println("no satisfiable solution for product (" + i + "): " + csvFile)
             } else {
-                retList ::= config
+                res += config
             }
         }
 
-        (retList, "Generated Configs: " + retList.size + "\n")
+        (res, "Generated Configs: " + res.size + "\n")
     }
 
-    def loadConfigurationFromKconfigFile(ff: FileFeatures, fm: FeatureModel, file: File): (List[SimpleConfiguration], String) = {
+    def loadConfigurationFromKconfigFile(ff: FileFeatures, fm: FeatureModel, file: File): (Set[SimpleConfiguration], String) = {
         val features = ff.features
         var trueFeatures: Set[SingleFeatureExpr] = Set()
         var falseFeatures: Set[SingleFeatureExpr] = Set()
         var logMsg = ""
-        var retList: List[SimpleConfiguration] = List()
+        var res: Set[SimpleConfiguration] = Set()
 
         val enabledPattern: Pattern = java.util.regex.Pattern.compile("([^=]*)=y")
         val disabledPattern: Pattern = java.util.regex.Pattern.compile("([^=]*)=n")
@@ -125,11 +125,11 @@ object ConfigurationHandling {
 
         val config = new SimpleConfiguration(ff, interestingTrueFeatures, interestingFalseFeatures)
         if (config.toFeatureExpr.isSatisfiable(fm))
-            retList ::= config
+            res += config
         else
             logMsg += "Configuration not satisfiable!"
 
-        (retList, logMsg)
+        (res, logMsg)
     }
 
     def saveSerializedConfigurations(tasks: List[Task], featureList: List[SingleFeatureExpr],
@@ -154,7 +154,7 @@ object ConfigurationHandling {
         mainDir.mkdirs()
 
         for ((taskName, configs) <- tasks) {
-            writeObject(toJavaList(configs), new File(mainDir, taskName + ".ser"))
+            writeObject(toJavaList(configs.toList), new File(mainDir, taskName + ".ser"))
         }
     }
 
@@ -185,7 +185,7 @@ object ConfigurationHandling {
                 while (i.hasNext) {
                     taskConfigs += i.next()
                 }
-                taskList.+=((taskName, taskConfigs.toList))
+                taskList.+=((taskName, taskConfigs.toSet))
             }
         }
         taskList.toList
@@ -344,9 +344,8 @@ object ConfigurationHandling {
      */
     private def codeCoverage(astRoot: TranslationUnit, fm: FeatureModel, ff: FileFeatures,
                              existingConfigs: List[SimpleConfiguration] = List(),
-                             preferDisabledFeatures: Boolean,
-                             includeVariabilityFromHeaderFiles: Boolean = false):
-    (List[SimpleConfiguration], String) = {
+                             preferDisabledFeatures: Boolean, includeVariabilityFromHeaderFiles: Boolean = false):
+    (Set[SimpleConfiguration], String) = {
         var presenceConditions: Set[Set[FeatureExpr]] = Set()
 
         def collectPresenceConditions(root: Any, curFeatureExprSet: Set[FeatureExpr], curFile: String = null) {
@@ -380,13 +379,13 @@ object ConfigurationHandling {
         // proper file information
         collectPresenceConditions(astRoot, Set(FeatureExprFactory.True), "")
 
-        var retList: List[SimpleConfiguration] = List()
+        var res: Set[SimpleConfiguration] = Set()
 
         // if no proper presence condition occurred in the file, build one random config and return it
         if (presenceConditions.isEmpty) {
             val completeConfig = completeConfiguration(FeatureExprFactory.True, ff, fm, preferDisabledFeatures)
             if (completeConfig != null) {
-                retList ::= completeConfig
+                res += completeConfig
             }
         } else {
             for (featureSet: Set[FeatureExpr] <- presenceConditions) {
@@ -395,7 +394,7 @@ object ConfigurationHandling {
                 if (pc.isSatisfiable(fm)) {
                     val completeConfig = completeConfiguration(pc, ff, fm, preferDisabledFeatures)
                     if (completeConfig != null) {
-                        retList ::= completeConfig
+                        res += completeConfig
                     }
                 }
             }
@@ -410,7 +409,7 @@ object ConfigurationHandling {
             features
         }
 
-        (retList, " created combinations:" + retList.size + "\n" +
+        (res, " created combinations:" + res.size + "\n" +
             (if (!includeVariabilityFromHeaderFiles) " Features in CFile: " +
                 getFeaturesInCoveredExpressions.size + "\n" else "") + "\n")
     }

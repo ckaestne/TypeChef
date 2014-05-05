@@ -86,7 +86,7 @@ object FamilyBasedVsSampleBased extends ASTNavigation with CFGHelper {
 
         /** family */
         if (opt.family) {
-            val (flog, ftasks) = ("", List(Pair("family", List(new SimpleConfiguration(ff, List(), List())))))
+            val (flog, ftasks) = ("", List(Pair("family", Set(new SimpleConfiguration(ff, List(), List())))))
             log = log + flog
             tasks ++= ftasks
         } else {
@@ -288,7 +288,7 @@ object FamilyBasedVsSampleBased extends ASTNavigation with CFGHelper {
         if (tasks.size > 0) println("start task - checking (" + tasks.size + " tasks)")
         // results (taskName, (NumConfigs, productDerivationTimes, errors, typecheckingTimes, dataflowTimes))
         var configCheckingResults: List[(String, (Int, List[Long], Int, List[Long], List[Long]))] = List()
-        for ((taskDesc: String, configs: List[SimpleConfiguration]) <- tasks) {
+        for ((taskDesc: String, configs: Set[SimpleConfiguration]) <- tasks) {
             var configurationsWithErrors = 0
             var current_config = 0
             var productDerivationTimes: List[Long] = List()
