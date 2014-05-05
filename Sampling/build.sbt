@@ -6,7 +6,7 @@ mainClass in Runtime := Some("de.fosd.typechef.Sampling")
 
 
 //generate typechef.sh file with full classpath
-TaskKey[File]("mkrunsampling") <<= (baseDirectory, fullClasspath in Runtime, mainClass in Runtime) map { (base, cp, main) =>
+TaskKey[File]("mkrun") <<= (baseDirectory, fullClasspath in Runtime, mainClass in Runtime) map { (base, cp, main) =>
   val template = """#!/bin/sh
 java -ea -Xmx4096m -Xms128m -Xss10m -classpath "%s" %s "$@"
 """
