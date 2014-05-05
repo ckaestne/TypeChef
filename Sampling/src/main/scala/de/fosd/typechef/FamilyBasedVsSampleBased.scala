@@ -110,8 +110,8 @@ object FamilyBasedVsSampleBased extends ASTNavigation with CFGHelper {
 
     private def countNumberOfStatements(tunit: TranslationUnit): Long = {
         var res: Long = 0
-        val r = alltd(query {
-            case _: Statement => res += 1
+        val r = topdown(query {
+            case x: AST if x.isInstanceOf[Statement] => res += 1
         })
 
         r(tunit)
