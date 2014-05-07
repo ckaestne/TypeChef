@@ -80,11 +80,10 @@ object Sampling {
             val fm_ts = opt.getTypeSystemFeatureModel.and(opt.getLocalFeatureModel).and(opt.getFilePresenceCondition)
             val treeAst = EnforceTreeHelper.prepareAST[TranslationUnit](ast)
 
-            if (opt.analyze)
-                FamilyBasedVsSampleBased.typecheckProducts(fm_ts, fm_ts, treeAst, opt, "")
-
             if (opt.errorDetection)
                 FamilyBasedVsSampleBased.checkDFGErrorsAgainstSamplingConfigs(fm_ts, fm_ts, treeAst, opt, "")
+            else if (opt.analyze)
+                FamilyBasedVsSampleBased.typecheckProducts(fm_ts, fm_ts, treeAst, opt, "")
         }
     }
 
