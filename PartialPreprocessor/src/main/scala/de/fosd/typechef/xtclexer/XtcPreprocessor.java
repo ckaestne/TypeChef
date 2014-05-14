@@ -40,16 +40,17 @@ public class XtcPreprocessor implements VALexer {
 
 
     private LexerInterface.ErrorHandler exceptionErrorHandler = new LexerInterface.ErrorHandler() {
-        final LexerInterface.ErrorHandler defaultErrorHandler= new LexerInterface.ExceptionErrorHandler();
+        final LexerInterface.ErrorHandler defaultErrorHandler = new LexerInterface.ExceptionErrorHandler();
+
         @Override
         public void error(PresenceConditionManager.PresenceCondition pc, String msg, Locatable location) {
             //delegate to TypeChef error handler, unless none is registered; then fallback to the original Lexer error handler
-            if (listener==null)
+            if (listener == null)
                 defaultErrorHandler.error(pc, msg, location);
 
-            String file = (location.hasLocation()?location.getLocation().file:"");
-            int line= (location.hasLocation()?location.getLocation().line:-1);
-            int col = (location.hasLocation()?location.getLocation().column:-1);
+            String file = (location.hasLocation() ? location.getLocation().file : "");
+            int line = (location.hasLocation() ? location.getLocation().line : -1);
+            int col = (location.hasLocation() ? location.getLocation().column : -1);
 
             try {
                 listener.handleError(file, line, col, msg, translate(pc));
@@ -75,6 +76,13 @@ public class XtcPreprocessor implements VALexer {
             }
         };
         this.featureModel = featureModel;
+
+        try {
+            this.addMacro("__DATE__", FeatureExprFactory.True(), String.format(Locale.US, "\"%1$tb %1$2te %1$tY\"", Calendar.getInstance()));
+            this.addMacro("__TIME__", FeatureExprFactory.True(), String.format(Locale.US, "\"%1$tT\"", Calendar.getInstance()));
+        } catch (LexerException e) {
+            //won't happen
+        }
     }
 
 
@@ -494,7 +502,7 @@ public class XtcPreprocessor implements VALexer {
 
         @Override
         public void setFeature(FeatureExpr fexpr) {
-            this.fexpr=fexpr;
+            this.fexpr = fexpr;
         }
 
         @Override
