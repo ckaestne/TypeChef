@@ -118,9 +118,11 @@ object Frontend extends EnforceTreeHelper {
         }
 
         stopWatch.start("lexing")
-        println("#lexing")
         //no parsing if read serialized ast
-        val in = if (ast == null) lex(opt) else null
+        val in = if (ast == null) {
+            println("#lexing")
+            lex(opt)
+        } else null
 
 
         if (opt.parse) {
