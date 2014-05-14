@@ -1,6 +1,6 @@
 package de.fosd.typechef.conditional
 
-import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
+import de.fosd.typechef.featureexpr.{FeatureModel, FeatureExprFactory, FeatureExpr}
 import FeatureExprFactory.{True, False}
 
 
@@ -23,9 +23,10 @@ abstract class Conditional[+T] extends Product {
     def flatten[U >: T](f: (FeatureExpr, U, U) => U): U
 
     //simplify rewrites Choice Types; requires reasoning about variability
-    def simplify = _simplify(True)
-    def simplify(ctx: FeatureExpr) = _simplify(ctx)
-    protected[conditional] def _simplify(context: FeatureExpr) = this
+    def simplify = _simplify(True, FeatureExprFactory.empty)
+    def simplify(ctx: FeatureExpr) = _simplify(ctx, FeatureExprFactory.empty)
+    def simplify(fm: FeatureModel) = _simplify(True, fm)
+    protected[conditional] def _simplify(context: FeatureExpr, fm: FeatureModel) = this
 
     def map[U](f: T => U): Conditional[U] = mapr(x => One(f(x)))
     def mapf[U](inFeature: FeatureExpr, f: (FeatureExpr, T) => U): Conditional[U] = mapfr(inFeature, (c, x) => One(f(c, x)))
@@ -48,11 +49,11 @@ case class Choice[+T](feature: FeatureExpr, thenBranch: Conditional[T], elseBran
         case _ => false
     }
     override def hashCode = thenBranch.hashCode + elseBranch.hashCode
-    protected[conditional] override def _simplify(context: FeatureExpr) = {
-        lazy val aa = thenBranch._simplify(context and feature)
-        lazy val bb = elseBranch._simplify(context andNot feature)
-        if ((context and feature).isContradiction) bb
-        else if ((context andNot feature).isContradiction) aa
+    protected[conditional] override def _simplify(context: FeatureExpr, fm: FeatureModel) = {
+        lazy val aa = thenBranch._simplify(context and feature, fm)
+        lazy val bb = elseBranch._simplify(context andNot feature, fm)
+        if ((context and feature).isContradiction(fm)) bb
+        else if ((context andNot feature).isContradiction(fm)) aa
         else if (aa == bb) aa
         else Choice(feature, aa, bb)
     }
