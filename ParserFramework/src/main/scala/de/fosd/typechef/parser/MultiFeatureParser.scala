@@ -993,6 +993,10 @@ abstract class MultiFeatureParser(val featureModel: FeatureModel = null, debugOu
 
         //replace all failures by errors (non-backtracking!)
         def commit: MultiParseResult[T]
+
+        // removes branches from split parse results that are not reachable according to the feature model
+        def prune(fm: FeatureModel): MultiParseResult[T] = prune(True, fm)
+        private[MultiFeatureParser] def prune(ctx: FeatureExpr, fm: FeatureModel): MultiParseResult[T]
     }
 
     /**
@@ -1172,6 +1176,14 @@ abstract class MultiFeatureParser(val featureModel: FeatureModel = null, debugOu
 
         def commit: MultiParseResult[T] =
             SplittedParseResult(feature, resultA.commit, resultB.commit)
+
+        private[MultiFeatureParser] def prune(ctx: FeatureExpr, fm: FeatureModel): MultiParseResult[T] =
+            if ((ctx and feature).isContradiction(fm))
+                resultB.prune(ctx andNot feature, fm)
+            else if ((ctx andNot feature).isContradiction(fm))
+                resultA.prune(ctx and feature, fm)
+            else
+                SplittedParseResult(feature, resultA.prune(ctx and feature, fm), resultB.prune(ctx andNot feature, fm))
     }
 
     /**
@@ -1203,6 +1215,8 @@ abstract class MultiFeatureParser(val featureModel: FeatureModel = null, debugOu
         def joinNoSuccess() = this
 
         def toList(context: FeatureExpr) = List((context, this))
+
+        private[MultiFeatureParser] def prune(ctx: FeatureExpr, fm: FeatureModel): MultiParseResult[T] = this
     }
 
     abstract class NoSuccess(val msg: String, val nextInput: TokenReader[Elem, TypeContext], val innerErrors: List[NoSuccess]) extends ParseResult[Nothing](nextInput) {

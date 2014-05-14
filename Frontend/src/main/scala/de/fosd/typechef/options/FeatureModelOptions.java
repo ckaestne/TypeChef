@@ -13,32 +13,67 @@ import gnu.getopt.LongOpt;
 import java.util.List;
 
 /**
- * Created by IntelliJ IDEA.
- * User: kaestner
- * Date: 29.12.11
- * Time: 11:06
- * To change this template use File | Settings | File Templates.
+ * TypeChef uses two different feature models for different purposes, a small and a full
+ * feature model. The full feature model should contain all constraints of the small feature
+ * model (fullFM => smallFM).
+ * <p/>
+ * The key concern is performance since all SAT checks involving the feature model take
+ * more time. There are generally three different ways to call the SAT solver then
+ * <ul>
+ * <li>f.isSatisfiable()</li>
+ * <li>f.isSatisfiable(smallFM)</li>
+ * <li>f.isSatisfiable(fullFM)</li>
+ * </ul>
+ * The first is the fastest but may return that the formula is satisfiable even if
+ * it would not be satisfiable with the full feature model. The small feature model
+ * is more precise but also slower. The full feature model provides the reference answer
+ * but potentially at additional costs. (In Linux a check with fullFM takes about 0.5 seconds
+ * whereas the other two are essentially instantanious).
+ * <p/>
+ * A common strategy used throughout TypeChef is to use SAT checks without the
+ * feature model as long as possible and only use the
+ * full feature model before reporting bugs to a user. That way many infeasible
+ * paths are pruned early, but some may remain for additional computations.
+ * <p/>
+ * In the lexer and parser, we found that pruning only at the end when reporting error messages
+ * is too late and requires to track complex error conditions and perform many redundant
+ * computations. Running the TypeChef parser without any feature model is even slower than running
+ * it with the full feature model. Here the small feature model helps to prune more paths
+ * and safe computational effort.
+ * <p/>
+ * Feature models are used in TypeChef as follows:
+ * <ul>
+ * <li>parser and lexer use the small feature model (if available) in most checks and prune the result with the full feature model</li>
+ * <li>the type system computes without any feature model and only checks reported errors with the full feature model</li>
+ * <li>...</li>
+ * </ul>
+ * <p/>
+ * Users can specify small and full feature model separately using --featureModelDimacs or --featureModelFExpr
+ * for the small feature model and using --typeSystemFeatureModelDimacs for the full feature model.
+ * If the small feature model is not defined
+ * it is assumed to be empty. If the full feature model is not defined it is assumed to be the same
+ * as the small feature model.
  */
 public abstract class FeatureModelOptions extends LexerOptions implements ILexerOptions {
-    protected FeatureModel featureModel = null;
-    protected FeatureModel featureModel_typeSystem = null;
+    protected FeatureModel smallFeatureModel = null;
+    protected FeatureModel fullFeatureModel = null;
     protected PartialConfiguration partialConfig = null;
 
 
     @Override
-    public FeatureModel getLexerFeatureModel() {
-        if (featureModel == null)
+    public FeatureModel getSmallFeatureModel() {
+        if (smallFeatureModel == null)
             return FeatureExprLib.featureModelFactory().empty();
-        return featureModel;
+        return smallFeatureModel;
     }
 
     //    @Override
-    public FeatureModel getTypeSystemFeatureModel() {
-        if (featureModel_typeSystem != null)
-            return featureModel_typeSystem;
-        if (featureModel == null)
+    public FeatureModel getFullFeatureModel() {
+        if (fullFeatureModel != null)
+            return fullFeatureModel;
+        if (smallFeatureModel == null)
             return FeatureExprLib.featureModelFactory().empty();
-        return featureModel;
+        return smallFeatureModel;
     }
 
     private static final char FM_DIMACS = Options.genOptionId();
@@ -59,7 +94,7 @@ public abstract class FeatureModelOptions extends LexerOptions implements ILexer
 //                new Option("featureModelClass", LongOpt.REQUIRED_ARGUMENT, FM_CLASS, "classname",
 //                        "Class describing a feature model."),
                 new Option("typeSystemFeatureModelDimacs", LongOpt.REQUIRED_ARGUMENT, FM_TSDIMACS, "file",
-                        "Distinct feature model for the type system."),
+                        "Extended feature model for error checking."),
                 new Option("partialConfiguration", LongOpt.REQUIRED_ARGUMENT, FM_PARTIALCONFIG, "file",
                         "Loads a partial configuration to the type-system feature model (file with #define and #undef lines).")
         ));
@@ -71,53 +106,56 @@ public abstract class FeatureModelOptions extends LexerOptions implements ILexer
     @Override
     protected boolean interpretOption(int c, Getopt g) throws OptionException {
         if (c == FM_DIMACS) {       //--featureModelDimacs
-            if (featureModel != null)
+            if (smallFeatureModel != null)
                 throw new OptionException("cannot load feature model from dimacs file. feature model already exists.");
             checkFileExists(g.getOptarg());
             // case studies busybox and load a specialized feature model
             // all others load a standard feature model in which the prefix is set to "" (default is "CONFIG_"),
             // which is used in busybox and linux
             if (g.getOptarg().contains("linux") || g.getOptarg().contains("busybox"))
-                featureModel = FeatureExprLib.featureModelFactory().createFromDimacsFile_2Var(g.getOptarg());
+                smallFeatureModel = FeatureExprLib.featureModelFactory().createFromDimacsFile_2Var(g.getOptarg());
             else
-                featureModel = FeatureExprLib.featureModelFactory().createFromDimacsFile(g.getOptarg(), "");
+                smallFeatureModel = FeatureExprLib.featureModelFactory().createFromDimacsFile(g.getOptarg(), "");
         } else if (c == FM_FEXPR) {     //--featureModelFExpr
             checkFileExists(g.getOptarg());
             FeatureExpr f = new FeatureExprParserJava(FeatureExprLib.l()).parseFile(g.getOptarg());
-            if (featureModel == null)
-                featureModel = FeatureExprLib.featureModelFactory().create(f);
-            else featureModel = featureModel.and(f);
+            if (smallFeatureModel == null)
+                smallFeatureModel = FeatureExprLib.featureModelFactory().create(f);
+            else smallFeatureModel = smallFeatureModel.and(f);
 //        } else if (c == FM_CLASS) {//--featureModelClass
 //            try {
 //                FeatureModelFactory factory = (FeatureModelFactory) Class.forName(g.getOptarg()).newInstance();
-//                featureModel = factory.createFeatureModel();
+//                smallFeatureModel = factory.createFeatureModel();
 //            } catch (Exception e) {
 //                throw new OptionException("cannot instantiate feature model: " + e.getMessage());
 //            }
         } else if (c == FM_TSDIMACS) {
             checkFileExists(g.getOptarg());
-            featureModel_typeSystem = FeatureExprLib.featureModelFactory().createFromDimacsFile_2Var(g.getOptarg());
+            fullFeatureModel = FeatureExprLib.featureModelFactory().createFromDimacsFile_2Var(g.getOptarg());
         } else if (c == FM_PARTIALCONFIG) {
             checkFileExists(g.getOptarg());
             if (partialConfig != null)
                 throw new OptionException("cannot load a second partial configuration");
             partialConfig = PartialConfigurationParser$.MODULE$.load(g.getOptarg());
             FeatureExpr f = partialConfig.getFeatureExpr();
-            if (featureModel_typeSystem == null)
-                featureModel_typeSystem = FeatureExprLib.featureModelFactory().empty();
+            if (fullFeatureModel == null)
+                fullFeatureModel = FeatureExprLib.featureModelFactory().empty();
 
             for (String featureName : partialConfig.getDefinedFeatures())
-                featureModel_typeSystem = featureModel_typeSystem.assumeTrue(featureName);
+                fullFeatureModel = fullFeatureModel.assumeTrue(featureName);
             for (String featureName : partialConfig.getUndefinedFeatures())
-                featureModel_typeSystem = featureModel_typeSystem.assumeFalse(featureName);
+                fullFeatureModel = fullFeatureModel.assumeFalse(featureName);
         } else
             return super.interpretOption(c, g);
         return true;
     }
 
 
-    public void setFeatureModel(FeatureModel fm) {
-        featureModel = fm;
+    public void setSmallFeatureModel(FeatureModel fm) {
+        smallFeatureModel = fm;
+    }
+    public void setFullFeatureModel(FeatureModel fm) {
+        fullFeatureModel = fm;
     }
 
     @Override

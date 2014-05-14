@@ -145,7 +145,7 @@ trait CBuiltIn extends CEnv with CTypes with CDeclTyping {
     private def getAST(code: String): TranslationUnit = {
         import scala.collection.JavaConversions._
         val ast: AST = new ParserMain(new CParser).parserMain(
-            CLexerAdapter.prepareTokens(new LexerFrontend().parse(code)), SilentParserOptions)
+            CLexerAdapter.prepareTokens(new LexerFrontend().parse(code)), SilentParserOptions, null)
         assert(ast != null)
         ast.asInstanceOf[TranslationUnit]
     }

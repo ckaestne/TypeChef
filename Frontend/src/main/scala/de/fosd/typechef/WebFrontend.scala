@@ -47,7 +47,7 @@ object WebFrontend {
 
         println("<h2>Parser report</h2><pre name='parserresult'>")
         val parserMain = new ParserMain(new CParser(null, false))
-        val ast = parserMain.parserMain(in, DefaultParserOptions)
+        val ast = parserMain.parserMain(in, DefaultParserOptions, null)
         println("</pre>")
         println("<h2>AST</h2><div class='output'><div name='ast'>")
         println(ast)

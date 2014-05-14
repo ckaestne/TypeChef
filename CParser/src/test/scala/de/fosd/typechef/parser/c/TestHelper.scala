@@ -35,13 +35,13 @@ trait TestHelper {
 
     def getAST(code: String): TranslationUnit = {
         val ast: AST = new ParserMain(new CParser).parserMain(
-            () => lex(code, null), new CTypeContext, SilentParserOptions)
+            () => lex(code, null), new CTypeContext, SilentParserOptions, null)
         ast.asInstanceOf[TranslationUnit]
     }
 
     def parseFile(stream: InputStream, file: String, dir: String): TranslationUnit = {
         val ast: AST = new ParserMain(new CParser).parserMain(
-            () => lexStream(stream, file, Collections.singletonList(dir), null), new CTypeContext, SilentParserOptions)
+            () => lexStream(stream, file, Collections.singletonList(dir), null), new CTypeContext, SilentParserOptions, null)
         ast.asInstanceOf[TranslationUnit]
     }
 
