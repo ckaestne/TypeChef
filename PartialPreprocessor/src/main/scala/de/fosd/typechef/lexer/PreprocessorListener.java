@@ -102,6 +102,8 @@ public class PreprocessorListener {
      */
     public void handleError(String source, int line, int column, String msg,
                             FeatureExpr featureExpr) throws LexerException {
+        //do not report error if the error cannot occur in valid configurations
+        //that is if (FM => !fexpr) is a tautology
         if (featureExpr!=null && !featureExpr.isSatisfiable(pp.getFeatureModel()))
             return;
 
