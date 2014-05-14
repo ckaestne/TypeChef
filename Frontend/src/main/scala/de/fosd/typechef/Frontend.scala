@@ -176,13 +176,15 @@ object Frontend extends EnforceTreeHelper {
                     println("#call graph")
                     stopWatch.start("dumpCFG")
 
-                    val cf = new CInterAnalysisFrontend(ast, fm_ts)
+                    //run without feature model, because otherwise too expensive runtimes in systems such as linux
+                    val cf = new CInterAnalysisFrontend(ast/*, fm_ts*/)
                     val writer = new CFGCSVWriter(new FileWriter(new File(opt.getCCFGFilename)))
                     val dotwriter = new DotGraph(new FileWriter(new File(opt.getCCFGDotFilename)))
                     cf.writeCFG(opt.getFile, new ComposedWriter(List(dotwriter, writer)))
                 }
 
                 if (opt.staticanalyses) {
+                    println("#static analysis")
                     val sa = new CIntraAnalysisFrontend(ast, ts.asInstanceOf[CTypeSystemFrontend with CTypeCache with CDeclUse], fm_ts)
                     if (opt.warning_double_free) {
                         stopWatch.start("doublefree")
