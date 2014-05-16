@@ -6,8 +6,9 @@ import de.fosd.typechef.featureexpr.FeatureExprFactory
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.typesystem.{CTypeCache, CDeclUse, CTypeSystemFrontend}
 import de.fosd.typechef.conditional.Opt
+import de.fosd.typechef.crewrite.asthelper.{CASTEnv, EnforceTreeHelper}
 
-class UninitializedMemoryTest extends TestHelper with ShouldMatchers with CFGHelper with EnforceTreeHelper {
+class UninitializedMemoryTest extends TestHelper with ShouldMatchers with CFGHelper {
 
     private def getKilledVariables(code: String) = {
         val a = parseFunctionDef(code)
@@ -30,7 +31,7 @@ class UninitializedMemoryTest extends TestHelper with ShouldMatchers with CFGHel
     }
 
     def uninitializedMemory(code: String): Boolean = {
-        val tunit = prepareAST[TranslationUnit](parseTranslationUnit(code))
+        val tunit = EnforceTreeHelper.prepareAST[TranslationUnit](parseTranslationUnit(code))
         val ts = new CTypeSystemFrontend(tunit) with CTypeCache with CDeclUse
         assert(ts.checkASTSilent, "typecheck fails!")
         val um = new CIntraAnalysisFrontend(tunit, ts)
@@ -67,7 +68,7 @@ class UninitializedMemoryTest extends TestHelper with ShouldMatchers with CFGHel
     @Test def test_uninitialized_memory_simple() {
         uninitializedMemory( """
         void get_sign(int number, int *sign) {
-            if (sign == 0) {
+            if (*sign == 0) {
                  /* ... */
             }
             if (number > 0) {

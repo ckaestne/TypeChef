@@ -4,11 +4,12 @@ import org.junit.Test
 import org.scalatest.matchers.ShouldMatchers
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.typesystem.{CDeclUse, CTypeCache, CTypeSystemFrontend}
+import de.fosd.typechef.crewrite.asthelper.EnforceTreeHelper
 
-class DeadStoreTest extends TestHelper with ShouldMatchers with CFGHelper with EnforceTreeHelper {
+class DeadStoreTest extends TestHelper with ShouldMatchers with CFGHelper {
 
     def deadstore(code: String): Boolean = {
-        val tunit = prepareAST[TranslationUnit](parseTranslationUnit(code))
+        val tunit = EnforceTreeHelper.prepareAST[TranslationUnit](parseTranslationUnit(code))
         val ts = new CTypeSystemFrontend(tunit) with CTypeCache with CDeclUse
         assert(ts.checkASTSilent, "typecheck fails!")
         val df = new CIntraAnalysisFrontend(tunit, ts)
@@ -66,43 +67,79 @@ void test1(int *code,
     @Test def test_get_header_tar() {
         deadstore(
             """
-              void* malloc(int i) { return ((void*)0); }
-              void* xmalloc(int i) { return ((void*)0); }
-              void free(void* p) { }
+            void foo(unsigned len) {
+              char* p;
+              p += len;
 
-              #if definedEx(CONFIG_FEATURE_TAR_SELINUX)
-              static char *get_selinux_sctx_from_pax_hdr(unsigned sz)
-              {
-              	char *buf, *p;
-              	char *result;
-
-              	p = buf = xmalloc(sz + 1);
-              	buf[sz] = '\0';
-
-              	result = ((void *)0);
-              	while (sz != 0) {
-              		char *end, *value;
-              		unsigned len;
-              		len = 2;
-              		p += len;
-              		sz -= len;
-              		if ((int)sz < 0
-              		 || len == 0
-              		 || *end != ' '
-              		) {
-              			break;
-              		}
-              		p[-1] = '\0';
-              		value = end + 1;
-              		if (1 == 0) {
-              			break;
-              		}
-              	}
-
-              	free(buf);
-              	return result;
-              }
-              #endif
+              p[-1] = '\0';
+            }
             """.stripMargin) should be(false)
+    }
+
+    @Test def test_var_optional() {
+        deadstore(
+            """
+            void foo() {
+              int a;
+              #ifdef A
+              a = 0;
+              #endif
+            }
+            """.stripMargin
+        ) should be (false)
+        deadstore(
+            """
+            void foo() {
+              int a;
+              #ifdef A
+              a = 0;
+              #endif
+              #ifdef A
+              a;
+              #endif
+            }
+            """.stripMargin
+        ) should be (true)
+        deadstore(
+            """
+            void foo() {
+              int a;
+              #ifdef A
+              a = 0;
+              #endif
+              #ifndef A
+              a;
+              #endif
+            }
+            """.stripMargin
+        ) should be (false)
+    }
+
+    @Test def test_var_alternative() {
+        deadstore(
+            """
+            void foo() {
+              int a = 0;
+              #ifdef A
+              a++;
+              a;
+              #else
+              a--;
+              a;
+              #endif
+            }
+            """.stripMargin
+        ) should be (true)
+    }
+
+    @Test def test_global_var() {
+        deadstore(
+            """
+            int a;
+            void foo() {
+              a = 0;
+            }
+            """.stripMargin
+        ) should be (true)
     }
 }

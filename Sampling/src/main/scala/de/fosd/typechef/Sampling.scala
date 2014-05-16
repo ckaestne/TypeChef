@@ -6,8 +6,9 @@ import de.fosd.typechef.parser.c.TranslationUnit
 import de.fosd.typechef.parser.c.CTypeContext
 import de.fosd.typechef.options.OptionException
 import java.io.File
+import de.fosd.typechef.crewrite.asthelper.EnforceTreeHelper
 
-object Sampling extends EnforceTreeHelper {
+object Sampling {
     def main(args: Array[String]) {
         // load options
         val opt = new FamilyBasedVsSampleBasedOptions()
@@ -65,7 +66,7 @@ object Sampling extends EnforceTreeHelper {
             if (ast == null)
                 println("... failed reading AST\n")
         } else {
-            new lexer.Main().run(opt, opt.parse)
+            new lexer.LexerFrontend().run(opt, opt.parse)
             val in = lex(opt)
             val parserMain = new ParserMain(new CParser(fm))
             ast = parserMain.parserMain(in, opt).asInstanceOf[TranslationUnit]
@@ -75,18 +76,21 @@ object Sampling extends EnforceTreeHelper {
             }
         }
 
-        ast = prepareAST[TranslationUnit](ast)
 
         if (ast != null) {
             val fm_ts = opt.getTypeSystemFeatureModel.and(opt.getLocalFeatureModel).and(opt.getFilePresenceCondition)
-            val treeast = prepareAST[TranslationUnit](ast)
-            FamilyBasedVsSampleBased.typecheckProducts(fm_ts, fm_ts, treeast, opt, "")
+            val treeAst = EnforceTreeHelper.prepareAST[TranslationUnit](ast)
+
+            if (opt.errorDetection)
+                FamilyBasedVsSampleBased.checkDFGErrorsAgainstSamplingConfigs(fm_ts, fm_ts, treeAst, opt, "")
+            else if (opt.analyze)
+                FamilyBasedVsSampleBased.typecheckProducts(fm_ts, fm_ts, treeAst, opt, "")
         }
     }
 
     def lex(opt: FamilyBasedVsSampleBasedOptions): TokenReader[CToken, CTypeContext] = {
-        val tokens = new lexer.Main().run(opt, opt.parse)
-        val in = CLexer.prepareTokens(tokens)
+        val tokens = new lexer.LexerFrontend().run(opt, opt.parse)
+        val in = CLexerAdapter.prepareTokens(tokens)
         in
     }
 }

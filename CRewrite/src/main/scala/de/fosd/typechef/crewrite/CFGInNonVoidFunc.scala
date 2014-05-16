@@ -2,14 +2,14 @@ package de.fosd.typechef.crewrite
 
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.typesystem._
-import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureModel}
 import de.fosd.typechef.conditional.{One, ConditionalLib, Opt}
+import de.fosd.typechef.crewrite.asthelper.ASTEnv
 
 // implements a simple analysis that checks whether the control-flow statements
 // of a function with a non-void return type, always end in a return statement
 // https://www.securecoding.cert.org/confluence/display/seccode/MSC37-C.+Ensure+that+control+never+reaches+the+end+of+a+non-void+function
 // MSC37-C
-class CFGInNonVoidFunc(env: ASTEnv, fm: FeatureModel, ts: CTypeSystemFrontend) extends IntraCFG {
+class CFGInNonVoidFunc(env: ASTEnv, ts: CTypeSystemFrontend) extends IntraCFG {
     def cfgInNonVoidFunc(f: FunctionDef): List[Opt[AST]] = {
         // get all predecessor elements of the function and look for non-return statements
         val wlist: List[Opt[AST]] = pred(f, env)

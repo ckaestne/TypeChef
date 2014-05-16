@@ -3,7 +3,7 @@ package de.fosd.typechef
 import featureexpr.{FeatureExprFactory, FeatureExpr}
 import java.io.File
 import de.fosd.typechef.parser.c._
-import de.fosd.typechef.lexer.Main
+import de.fosd.typechef.lexer.LexerFrontend
 import de.fosd.typechef.typesystem.CTypeSystemFrontend
 import de.fosd.typechef.typesystem.linker.CInferInterface
 
@@ -32,11 +32,11 @@ object WebFrontend {
     def parse(file: File) {
 
         println("<h2>Input after macro expansion</h2><div class='output'><pre name='partiallypreprocessed'>")
-        val tokenStream = new Main().run(file, true, true, null)
+        val tokenStream = new LexerFrontend().run(file, true, true, null)
         println("</pre></div>")
 
         println("<h2>Conditional Token Stream</h2><div class='output'><div name='tokenstream'>")
-        val in = CLexer.prepareTokens(tokenStream)
+        val in = CLexerAdapter.prepareTokens(tokenStream)
         for (tok <- in.tokens) {
             print('"' + tok.getText + '"')
             if (tok.getFeature != FeatureExprFactory.True)

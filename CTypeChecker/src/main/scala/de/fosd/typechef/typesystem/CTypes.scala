@@ -73,13 +73,30 @@ case class CType(
 
     def map(f: AType => AType) = copy(atype = f(this.atype))
 
+    /**
+     * by default equals between two CTypes will only compare their ATypes (including the ATypes of nested CTypes)
+     *
+     * that is, equality checking does not care about const, volatile, and object. to check equality
+     * of two CTypes including these parameters use equalsCType
+     */
     override def equals(that: Any) = that match {
         case thattype: CType =>
             (this.isUnknown && thattype.isUnknown) ||
-                (this.atype == thattype.atype && this.isObject == thattype.isObject && this.isConstant == thattype.isConstant && this.isVolatile == thattype.isVolatile)
+                (this.atype == thattype.atype)
         case thattype: AType => throw new RuntimeException("comparison between CType and AType")
         case _ => super.equals(that)
     }
+    /**
+     * note, this check currently only checks the top-level CTypes for equality, but uses the AType
+     * equality for nested structures in CAnonymousStruct and CFunction
+     */
+    def equalsCType(that: CType) =
+        this.atype == that.atype &&
+            this.isObject == that.isObject &&
+            this.isConstant == that.isConstant &&
+            this.isVolatile == that.isVolatile
+
+
     override def hashCode() = atype.hashCode()
 
     def toXML: xml.Elem = {
@@ -273,22 +290,49 @@ case class CAnonymousStruct(fields: ConditionalTypeMap, isUnion: Boolean = false
     </astruct>
 }
 
-case class CFunction(param: Seq[CType], ret: CType) extends AType {
+object CFunction {
+    def apply(param: Seq[CType], ret: CType) = new CFunction(normalizeFunctionParameters(param), ret)
+    def unapply[B](value: CFunction): Option[(Seq[CType], CType)] = value match {
+        case f: CFunction => Some((f.param, f.ret))
+        case _ => None
+    }
+
+    /**
+     * normalize CFunction types on creation
+     *
+     * following ISO C standard  ISO/IEC 9899:1999 Chapter 6.7.5.3
+     * -> unnamed void parameter as only parameter => empty parameter list
+     * -> translate array parameter into pointer
+     * -> translate function parameter into pointer to function
+     */
+    def normalizeFunctionParameters(param: Seq[CType]): Seq[CType] =
+        if (param.size == 1 && param.head.atype == CVoid())
+            Nil
+        else
+            param.map(_.map({
+                case CArray(t, l) => CPointer(t)
+                case f: CFunction => CPointer(f)
+                case e => e
+            }))
+
+}
+
+class CFunction(val param: Seq[CType], val ret: CType) extends AType {
     var securityRelevant: Boolean = false
 
     override def isFunction: Boolean = true
     override def toText = param.map(_.toText).mkString("(", ", ", ")") + " => " + ret.toText
-    def toXML = <function>
-        {param.map(x => <param>
-            {x.toXML}
-        </param>)}<ret>
-            {ret.toXML}
-        </ret>
-    </function>
+    def toXML = <function>{param.map(x => <param>{x.toXML}</param>)}<ret>{ret.toXML}</ret></function>
     def markSecurityRelevant() = {
         securityRelevant = true;
         this
     }
+    override def hashCode() = param.hashCode() * ret.hashCode()
+    override def equals(that: Any) = that match {
+        case thatf: CFunction => (this.param equals thatf.param) && (this.ret equals thatf.ret)
+        case _ => super.equals(that)
+    }
+    override def toString() = "CFunction("+param+","+ret+")"
 }
 
 
@@ -380,6 +424,7 @@ object CType {
         (node \ "compound").map(x => result = CCompound())
         (node \ "builtinvalist").map(x => result = CBuiltinVaList())
         (node \ "unkown").map(x => result = CUnknown(x.attribute("msg").get.text))
+        (node \ "ignore").map(x => result = CIgnore())
         result
     }
 

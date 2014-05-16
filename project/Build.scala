@@ -10,8 +10,8 @@ object BuildSettings {
     import Dependencies._
 
     val buildOrganization = "de.fosd.typechef"
-    val buildVersion = "0.3.5"
-    val buildScalaVersion = "2.10.1"
+    val buildVersion = "0.3.6"
+    val buildScalaVersion = "2.10.4"
 
     val testEnvironment = Seq(junit, junitInterface, scalatest, scalacheck)
 
@@ -113,14 +113,10 @@ object ShellPrompt {
 }
 
 object Dependencies {
-    val junit = "junit" % "junit" % "4.8.2" % "test"
-    val junitInterface = "com.novocode" % "junit-interface" % "0.6" % "test"
+    val junit = "junit" % "junit" % "4.11" % "test"
+    val junitInterface = "com.novocode" % "junit-interface" % "0.10" % "test"
     val scalacheck = "org.scalacheck" %% "scalacheck" % "1.10.0" % "test"
-    val scalatest = "org.scalatest" %% "scalatest" % "1.8" % "test" cross CrossVersion.binaryMapped {
-        case "2.10" => "2.10.0" // useful if a%b was released with the old style
-        case "2.10.1" => "2.10.0" // useful if a%b was released with the old style
-        case x => x
-    }
+    val scalatest = "org.scalatest" %% "scalatest" % "1.9.1" % "test"
 }
 
 object VersionGen {
@@ -204,7 +200,7 @@ object TypeChef extends Build {
         "PartialPreprocessor",
         file("PartialPreprocessor"),
         settings = buildSettings
-    ) dependsOn(featureexpr, errorlib)
+    ) dependsOn(featureexpr, conditionallib, errorlib)
 
     lazy val cparser = Project(
         "CParser",
@@ -240,12 +236,6 @@ object TypeChef extends Build {
         settings = buildSettings ++
             Seq(libraryDependencies <+= scalaVersion(kiamaDependency(_)))
     ) dependsOn(cparser % "test->test;compile->compile", ctypechecker, conditionallib, errorlib)
-
-    lazy val crefactor = Project(
-        "CRefactor",
-        file("CRefactor"),
-        settings = buildSettings
-    ) dependsOn(cparser % "test->test;compile->compile", ctypechecker, conditionallib, crewrite, frontend, errorlib)
 
     lazy val sampling = Project(
         "Sampling",

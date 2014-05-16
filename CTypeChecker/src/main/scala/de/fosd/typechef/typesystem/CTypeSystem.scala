@@ -152,8 +152,8 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
 
             //function overriding a prototype or vice versa
             case (CPointer(CFunction(newParam, newRet)), CPointer(CFunction(prevParam, prevRet))) if ((newKind == KDefinition && prevKind == KDeclaration) || (newKind == KDeclaration && prevKind == KDefinition)) =>
-                //must have the exact same type
-                return newType == prevType
+                //must have the exact same atype (ignoring const, volatile and object)
+                return newType.atype == prevType.atype
 
             case _ =>
         }

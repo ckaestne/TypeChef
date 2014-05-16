@@ -5,8 +5,9 @@ import org.scalatest.matchers.ShouldMatchers
 import de.fosd.typechef.featureexpr.FeatureExprFactory
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.typesystem.{CDeclUse, CTypeCache, CTypeSystemFrontend}
+import de.fosd.typechef.crewrite.asthelper.{CASTEnv, EnforceTreeHelper}
 
-class DoubleFreeTest extends TestHelper with ShouldMatchers with CFGHelper with EnforceTreeHelper {
+class DoubleFreeTest extends TestHelper with ShouldMatchers with CFGHelper {
 
     // check freed pointers
     private def getFreedMem(code: String) = {
@@ -16,7 +17,7 @@ class DoubleFreeTest extends TestHelper with ShouldMatchers with CFGHelper with 
     }
 
     def doubleFree(code: String): Boolean = {
-        val tunit = prepareAST[TranslationUnit](parseTranslationUnit(code))
+        val tunit = EnforceTreeHelper.prepareAST[TranslationUnit](parseTranslationUnit(code))
         val ts = new CTypeSystemFrontend(tunit) with CTypeCache with CDeclUse
         assert(ts.checkASTSilent, "typecheck fails!")
         val df = new CIntraAnalysisFrontend(tunit, ts)

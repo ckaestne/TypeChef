@@ -3,6 +3,7 @@ package de.fosd.typechef.crewrite
 import de.fosd.typechef.featureexpr._
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.typesystem.UseDeclMap
+import de.fosd.typechef.crewrite.asthelper.ASTEnv
 
 // liveness analysis based on monotone framework
 // liveness computes all variables that are used before their next write
@@ -19,7 +20,7 @@ class Liveness(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) extends MonotoneF
 
     // returns all declared variables with their annotation
     val declaresVar: PartialFunction[(Any), L] = {
-        case a => addAnnotations(declares(a))
+        case a => addAnnotations(declares(a.asInstanceOf[AnyRef]))
     }
 
     def gen(a: AST): L = {

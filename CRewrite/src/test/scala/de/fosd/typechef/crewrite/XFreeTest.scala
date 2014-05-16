@@ -8,8 +8,9 @@ import scala.Predef._
 import de.fosd.typechef.parser.c.TranslationUnit
 import de.fosd.typechef.parser.c.Id
 import de.fosd.typechef.typesystem.{CDeclUse, CTypeCache, CTypeSystemFrontend}
+import de.fosd.typechef.crewrite.asthelper.{CASTEnv, EnforceTreeHelper}
 
-class XFreeTest extends TestHelper with ShouldMatchers with CFGHelper with EnforceTreeHelper {
+class XFreeTest extends TestHelper with ShouldMatchers with CFGHelper {
 
     private def getUninitializedVariables(code: String) = {
         val a = parseFunctionDef(code)
@@ -18,7 +19,7 @@ class XFreeTest extends TestHelper with ShouldMatchers with CFGHelper with Enfor
     }
 
     def xfree(code: String): Boolean = {
-        val tunit = prepareAST[TranslationUnit](parseTranslationUnit(code))
+        val tunit = EnforceTreeHelper.prepareAST[TranslationUnit](parseTranslationUnit(code))
         val ts = new CTypeSystemFrontend(tunit) with CTypeCache with CDeclUse
         assert(ts.checkASTSilent, "typecheck fails!")
         val xf = new CIntraAnalysisFrontend(tunit, ts)

@@ -8,7 +8,7 @@ import de.fosd.typechef.conditional._
 import org.junit.{Ignore, Test}
 import FeatureExprFactory._
 
-class CParserTest {
+class CParserTest extends TestHelper {
     val p = new CParser()
 
 
@@ -19,7 +19,7 @@ class CParserTest {
     }
 
     def assertParseResult(expected: Conditional[AST], code: String, mainProduction: p.MultiParser[Conditional[AST]]) {
-        val actual = p.parse(code.stripMargin, mainProduction).expectOneResult
+        val actual = p.parse(lex(code.stripMargin), mainProduction).expectOneResult
         System.out.println(actual)
         actual match {
             case p.Success(ast, unparsed) => {
@@ -46,7 +46,7 @@ class CParserTest {
     }
 
     def assertParseable(code: String, mainProduction: (TokenReader[CToken, CTypeContext], FeatureExpr) => p.MultiParseResult[Any]): Unit = {
-        val actual = p.parseAny(code.stripMargin, mainProduction)
+        val actual = p.parseAny(lex(code.stripMargin), mainProduction)
         System.out.println(actual)
         (actual: @unchecked) match {
             case p.Success(ast, unparsed) => {
@@ -64,7 +64,7 @@ class CParserTest {
     }
 
     def assertParseableAST[T](code: String, mainProduction: (TokenReader[CToken, CTypeContext], FeatureExpr) => p.MultiParseResult[T]): Option[T] = {
-        val actual = p.parse(code.stripMargin, mainProduction)
+        val actual = p.parse(lex(code.stripMargin), mainProduction)
         System.out.println(actual)
         (actual: @unchecked) match {
             case p.Success(ast, unparsed) => {
@@ -79,7 +79,7 @@ class CParserTest {
     }
 
     def assertParseAnyResult(expected: Any, code: String, mainProduction: (TokenReader[CToken, CTypeContext], FeatureExpr) => p.MultiParseResult[Any]) {
-        val actual = p.parseAny(code.stripMargin, mainProduction)
+        val actual = p.parseAny(lex(code.stripMargin), mainProduction)
         System.out.println(actual)
         (actual: @unchecked) match {
             case p.Success(ast, unparsed) => {
@@ -92,7 +92,7 @@ class CParserTest {
     }
 
     def assertParseError(code: String, mainProduction: (TokenReader[CToken, CTypeContext], FeatureExpr) => p.MultiParseResult[Any], expectErrorMsg: Boolean = false) {
-        val actual = p.parseAny(code.stripMargin, mainProduction)
+        val actual = p.parseAny(lex(code.stripMargin), mainProduction)
         System.out.println(actual)
         (actual: @unchecked) match {
             case p.Success(ast, unparsed) => {
@@ -128,7 +128,7 @@ class CParserTest {
 
     def lo[T](x: T, y: T, z: T) = List(o(x), o(y), o(z))
 
-    def fa = FeatureExprFactory.createDefinedExternal("a")
+    override val fa = FeatureExprFactory.createDefinedExternal("a")
 
     @Test
     def testId() {

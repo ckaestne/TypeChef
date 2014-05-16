@@ -2,11 +2,11 @@ package de.fosd.typechef.jcpp;
 
 import de.fosd.typechef.LexerToken;
 import de.fosd.typechef.lexer.LexerException;
-import de.fosd.typechef.lexer.PartialPPLexer;
-import de.fosd.typechef.lexer.StringLexerSource;
+import de.fosd.typechef.lexer.LexerFrontend;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 
 public class MultiParserInputTest {
@@ -20,8 +20,7 @@ public class MultiParserInputTest {
 
     private void checkStr(String orig, int expectedNumber)
             throws LexerException, IOException {
-        List<LexerToken> tokens = new PartialPPLexer().parse(new StringLexerSource(
-                orig, true), null, null);
+        List<LexerToken> tokens = new LexerFrontend().parse(orig, Collections.<String>emptyList(), null);
         for (LexerToken t : tokens)
             System.out.println(t);
         assert (tokens.size() == expectedNumber);

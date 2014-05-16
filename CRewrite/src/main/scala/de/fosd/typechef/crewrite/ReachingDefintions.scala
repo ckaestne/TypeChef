@@ -5,6 +5,7 @@ import org.kiama.rewriting.Rewriter._
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.typesystem.{DeclUseMap, UseDeclMap}
 import de.fosd.typechef.featureexpr.FeatureModel
+import de.fosd.typechef.crewrite.asthelper.{ASTEnv, ASTNavigation}
 
 // implements reaching definitions (rd) dataflow analysis
 // see http://en.wikipedia.org/wiki/Reaching_definition
@@ -111,8 +112,5 @@ class ReachingDefintions(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: Feat
 
     //  in(a) = for p in pred(a) r = r + out(p)
     // out(a) = gen(a) + (in(a) - kill(a))
-    protected def infunction(a: AST): L = combinator(a)
-    protected def outfunction(a: AST): L = f_l(a)
-
     protected def isForward = true
 }

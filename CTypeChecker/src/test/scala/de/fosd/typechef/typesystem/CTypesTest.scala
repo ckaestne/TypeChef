@@ -45,8 +45,8 @@ class CTypesTest extends CTypeSystem with FunSuite with ShouldMatchers {
         wf(CFunction(Seq(CInt().toCType), CVoid()))
         wf(CFunction(Seq(CInt().toCType, CDouble()), CVoid()))
         nwf(CFunction(Seq(CPointer(CStruct("NoStr"))), CVoid()))
-        nwf(CFunction(Seq(CVoid()), CVoid()))
-        nwf(CFunction(Seq(CArray(CDouble(), 2)), CVoid()))
+        wf(CFunction(Seq(CVoid()), CVoid()))
+        wf(CFunction(Seq(CArray(CDouble(), 2)), CVoid()))
         nwf(CFunction(Seq(CDouble()), CArray(CDouble(), 2)))
         wf(CStruct("wf1"))
         nwf(CStruct("wf1", true)) //union not allowed as struct and vice versa

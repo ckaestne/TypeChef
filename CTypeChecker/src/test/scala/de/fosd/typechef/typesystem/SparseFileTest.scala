@@ -4,7 +4,7 @@ import java.{util => ju, lang => jl}
 import org.junit._
 import java.io.{InputStream, FileNotFoundException}
 import de.fosd.typechef.parser.c.{ExternalDef, TestHelper, TranslationUnit}
-import de.fosd.typechef.lexer.InternalException
+import de.fosd.typechef.lexer.{LexerException, InternalException}
 import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureModel}
 
 class SparseFileTest extends TestHelper {
@@ -29,6 +29,7 @@ class SparseFileTest extends TestHelper {
             ast = parseFile(inputStream, filename, folder)
         } catch {
             case e: InternalException => ast = null
+            case e: LexerException => ast = null
         }
         val parsingError = ast == null
         val parsed = System.currentTimeMillis

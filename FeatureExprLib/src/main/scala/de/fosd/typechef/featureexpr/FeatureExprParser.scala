@@ -25,6 +25,7 @@ class FeatureExprParser(
                            featurenameParser: Regex = "[A-Za-z0-9_]*".r,
                            featurenamePrefix: Option[String] = None) extends RegexParsers {
 
+
     def toFeature(name: String) = featureFactory.createDefinedExternal(featurenamePrefix.map(_ + name).getOrElse(name))
 
 

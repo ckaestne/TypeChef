@@ -1,5 +1,6 @@
 package de.fosd.typechef.lexer.options;
 
+import de.fosd.typechef.VALexer;
 import de.fosd.typechef.featureexpr.FeatureModel;
 import de.fosd.typechef.lexer.Feature;
 import de.fosd.typechef.lexer.Warning;
@@ -25,14 +26,15 @@ public interface ILexerOptions {
 
     String getLexOutputFile();
 
-    boolean isPrintVersion();
-
-
     Set<Warning> getWarnings();
+
+    boolean isPrintWarnings();
+
+    boolean isPrintLexingSuccess();
 
     Set<Feature> getFeatures();
 
-    List<String> getFiles();
+    List<VALexer.LexerInput> getInput();
 
     boolean isLexPrintToStdout();
 
@@ -48,4 +50,22 @@ public interface ILexerOptions {
      * numbers in the original .c and .h files
      */
     boolean isAdjustLineNumbers();
+
+    /**
+     * by default only language tokens (that is, no white space, no tokens
+     * representing preprocessor instructions and so forth) are returned
+     *
+     * for debugging purposes this behavior can be overridden to return
+     * also all other tokens
+     *
+     * @return whether only language tokens are returned (default true)
+     */
+    boolean isReturnLanguageTokensOnly();
+
+    /**
+     * debug facility to handle all warnings strictly as if they were errors
+     *
+     * used in testing; false by default
+     */
+    boolean isHandleWarningsAsErrors();
 }

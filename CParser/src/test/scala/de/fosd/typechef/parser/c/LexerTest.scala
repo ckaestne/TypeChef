@@ -4,10 +4,10 @@ import junit.framework._;
 import de.fosd.typechef.featureexpr._
 
 
-class LexerTest extends TestCase {
+class LexerTest extends TestCase with TestHelper {
 
     def testLexerSimple() {
-        println(CLexer.lex("#ifdef X\n" + "#define foo f\n" + "#else\n"
+        println(lex("#ifdef X\n" + "#define foo f\n" + "#else\n"
             + "#define foo b\n" + "#endif\n" + "bar\n" + "#ifdef B\n"
             + "foo\n" + "#endif\n", FeatureExprFactory.default.featureModelFactory.create(FeatureExprFactory.createDefinedExternal("X"))))
     }

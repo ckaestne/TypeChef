@@ -9,10 +9,10 @@ import parser.TokenReader
 import de.fosd.typechef.options.{FrontendOptionsWithConfigFiles, FrontendOptions, OptionException}
 import de.fosd.typechef.parser.c.CTypeContext
 import de.fosd.typechef.parser.c.TranslationUnit
-import de.fosd.typechef.featureexpr.FeatureExpr
 import java.util.zip.{GZIPInputStream, GZIPOutputStream}
+import de.fosd.typechef.crewrite.asthelper.EnforceTreeHelper
 
-object Frontend extends EnforceTreeHelper {
+object Frontend {
 
 
     def main(args: Array[String]) {
@@ -26,15 +26,7 @@ object Frontend extends EnforceTreeHelper {
             }
 
             if (opt.isPrintVersion) {
-                var version = "development build"
-                try {
-                    val cl = Class.forName("de.fosd.typechef.Version")
-                    version = "version " + cl.newInstance().asInstanceOf[VersionInfo].getVersion
-                } catch {
-                    case e: ClassNotFoundException =>
-                }
-
-                println("TypeChef " + version)
+                println("TypeChef " + getVersion)
                 return
             }
         }
@@ -47,6 +39,18 @@ object Frontend extends EnforceTreeHelper {
         }
 
         processFile(opt)
+    }
+
+
+    def getVersion: String = {
+        var version = "development build"
+        try {
+            val cl = Class.forName("de.fosd.typechef.Version")
+            version = "version " + cl.newInstance().asInstanceOf[VersionInfo].getVersion
+        } catch {
+            case e: ClassNotFoundException =>
+        }
+        version
     }
 
     private class StopWatch {
@@ -105,7 +109,7 @@ object Frontend extends EnforceTreeHelper {
             println("loading AST.")
             try {
             ast = loadSerializedAST(opt.getSerializedASTFilename)
-            ast = prepareAST[TranslationUnit](ast)
+            ast = EnforceTreeHelper.prepareAST[TranslationUnit](ast)
             } catch {
                 case e: Throwable => println(e.toString);e.printStackTrace(); ast=null
             }
@@ -114,18 +118,20 @@ object Frontend extends EnforceTreeHelper {
         }
 
         stopWatch.start("lexing")
+        println("#lexing")
         //no parsing if read serialized ast
         val in = if (ast == null) lex(opt) else null
 
 
         if (opt.parse) {
+            println("#parsing")
             stopWatch.start("parsing")
 
             if (ast == null) {
                 //no parsing and serialization if read serialized ast
                 val parserMain = new ParserMain(new CParser(fm))
-                ast = parserMain.parserMain(in, opt).asInstanceOf[TranslationUnit]
-                ast = prepareAST[TranslationUnit](ast)
+                ast = parserMain.parserMain(in, opt)
+                ast = EnforceTreeHelper.prepareAST[TranslationUnit](ast)
 
                 println(PrettyPrinter.print(ast))
 
@@ -155,7 +161,7 @@ object Frontend extends EnforceTreeHelper {
                     //ProductGeneration.estimateNumberOfVariants(ast, fm_ts)
 
                     stopWatch.start("typechecking")
-                    println("type checking.")
+                    println("#type checking")
                     ts.checkAST()
                     ts.errors.map(errorXML.renderTypeError)
                 }
@@ -168,8 +174,8 @@ object Frontend extends EnforceTreeHelper {
                     if (opt.writeDebugInterface)
                         ts.debugInterface(interface, new File(opt.getDebugInterfaceFilename))
                 }
-                if (opt.dumpcfg) {
-                    stopWatch.start("dumpCFG")
+                if (opt.writeControlFlowGraph || opt.writeCallGraph) {
+                    stopWatch.start("writeCFG")
 
                     val cf = new CInterAnalysisFrontend(ast, fm_ts)
                     val writer = new CFGCSVWriter(new FileWriter(new File(opt.getCCFGFilename)))
@@ -225,8 +231,8 @@ object Frontend extends EnforceTreeHelper {
 
 
     def lex(opt: FrontendOptions): TokenReader[CToken, CTypeContext] = {
-        val tokens = new lexer.Main().run(opt, opt.parse)
-        val in = CLexer.prepareTokens(tokens)
+        val tokens = new lexer.LexerFrontend().run(opt, opt.parse)
+        val in = CLexerAdapter.prepareTokens(tokens)
         in
     }
 

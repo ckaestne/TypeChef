@@ -6,6 +6,7 @@ import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureModel}
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.typesystem._
 import de.fosd.typechef.conditional.Opt
+import de.fosd.typechef.crewrite.asthelper.ASTEnv
 
 // https://www.securecoding.cert.org/confluence/display/seccode/ERR33-C.+Detect+and+handle+standard+library+errors
 // ERR33-C
@@ -26,35 +27,29 @@ import de.fosd.typechef.conditional.Opt
 // i  = ??
 // E  = {FunctionDef} // see MonotoneFW
 // F  = ??
-sealed abstract class StdLibFuncReturn(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: FeatureModel) extends MonotoneFWIdLab(env, dum, udm, fm) with UsedDefinedDeclaredVariables {
+sealed abstract class StdLibFuncReturn(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: FeatureModel)
+    extends MonotoneFWIdLab(env, dum, udm, fm) with UsedDefinedDeclaredVariables {
     // list of standard library functions and their possible error returns
     // taken from above website
     val function: List[String]
-    val errorreturn: List[AST]
+    val errorReturn: List[AST]
 
     def gen(a: AST): L = {
         var res = l
 
         // we track variables with the return value of a stdlib function call that is in function
-        val retvar = manytd(query[AST] {
-            case AssignExpr(i@Id(_), "=", source) => {
-                filterAllASTElems[PostfixExpr](source).map(
-                    pfe => pfe match {
+        val returnVar = manytd(query[AST] {
+            case AssignExpr(i@Id(_), "=", source) =>
+                filterAllASTElems[PostfixExpr](source).collect {
                         case PostfixExpr(Id(name), FunctionCall(_)) => if (function.contains(name)) res ++= fromCache(i)
-                        case _ =>
-                    }
-                )
             }
             case InitDeclaratorI(AtomicNamedDeclarator(_, i: Id, _), _, Some(init)) =>
-                filterAllASTElems[PostfixExpr](init).map(
-                    pfe => pfe match {
+                filterAllASTElems[PostfixExpr](init).collect {
                         case PostfixExpr(Id(name), FunctionCall(_)) => if (function.contains(name)) res ++= fromCache(i)
-                        case _ =>
                     }
-                )
         })
 
-        retvar(a)
+        returnVar(a)
         res
     }
 
@@ -70,17 +65,16 @@ sealed abstract class StdLibFuncReturn(env: ASTEnv, dum: DeclUseMap, udm: UseDec
     def kill(a: AST): L = {
         var res = l
 
-        val checkvar = manytd(query[AST] {
-            case NAryExpr(i: Id, others) => {
-                val existingerrchecks = errorreturn.flatMap { st => subtermIsPartOfTerm(st, others) }
-                val fexp = existingerrchecks.foldRight(FeatureExprFactory.False){ (x, y) => env.featureExpr(x) or y }
+        val checkVar = manytd(query[AST] {
+            case NAryExpr(i: Id, others) =>
+                val existingErrorChecks = errorReturn.flatMap { st => subtermIsPartOfTerm(st, others) }
+                val fExp = existingErrorChecks.foldRight(FeatureExprFactory.False){ (x, y) => env.featureExpr(x) or y }
 
-                if (env.featureExpr(i).equivalentTo(fexp, fm))
-                    res ++= fromCache(i, true)
-            }
+                if (env.featureExpr(i).equivalentTo(fExp, fm))
+                    res ++= fromCache(i, isKill = true)
         })
 
-        checkvar(a)
+        checkVar(a)
         res
     }
 
@@ -88,45 +82,47 @@ sealed abstract class StdLibFuncReturn(env: ASTEnv, dum: DeclUseMap, udm: UseDec
     // this means that the function call does not occur within an AssignExpression or is part of a
     // DeclarationStatement
     def checkForPotentialCalls(a: AST): List[Id] = {
-        var potentialfcalls: List[Id] = List()
-        val getfcalls = manytd(query[AST] {
-            case PostfixExpr(i@Id(name), FunctionCall(_)) => {
+        var potentialFCalls: List[Id] = List()
+        val getFCalls = manytd(query[AST] {
+            case PostfixExpr(i@Id(name), FunctionCall(_)) =>
                 // the function call is in our list of function calls we track
                 // and the call is not part of an AssignExpr or InitDeclarator, which will be handled with
                 // the dataflow variant of this analysis
                 if (function.contains(name)
                     && findPriorASTElem[AssignExpr](i, env).isEmpty
                     && findPriorASTElem[InitDeclaratorI](i, env).isEmpty)
-                    potentialfcalls ::= i
-            }
+                    potentialFCalls ::= i
         })
 
-        getfcalls(a)
+        getFCalls(a)
 
         // check for each tracked function call, whether it belongs to an NAryExpr and, if so,
         // whether errorReturn is part of that NAryExpr
-        var erroreouscalls: List[Id] = List()
-        potentialfcalls.map(c => {
+        var erroneousCalls: List[Id] = List()
+        potentialFCalls.map(c => {
             val ne = findPriorASTElem[NAryExpr](c, env)
 
             if (ne.isDefined) {
-                // iterate errorreturn and check whether one of the elements in there occurs somewhere in the
+                // iterate errorReturn and check whether one of the elements in there occurs somewhere in the
                 // NAryExpr, i.e., we check "e" and "others" of NAryExpr
-                errorreturn.map(e => {
-                    if (! (ne.get.others.exists(sne => isPartOf(e, sne)) || isPartOf(e, ne.get.e))) erroreouscalls ::= c
+                errorReturn.map(e => {
+                    if (! (ne.get.others.exists(sne => isPartOf(e, sne)) ||
+                        isPartOf(e, ne.get.e)))
+                        erroneousCalls ::= c
                 })
             } else {
-                erroreouscalls ::= c
+                erroneousCalls ::= c
             }
         })
 
-        erroreouscalls
+        erroneousCalls
     }
 
     def getUsedVariables(a: AST): L = {
         var res = l
 
-        for (u <- uses(a)) res ++= fromCache(u)
+        for (u <- uses(a))
+            res ++= fromCache(u)
 
         res
     }
@@ -137,11 +133,11 @@ sealed abstract class StdLibFuncReturn(env: ASTEnv, dum: DeclUseMap, udm: UseDec
     protected def b = l
     protected def combinationOperator(l1: L, l2: L) = union(l1, l2)
 
-    protected def infunction(a: AST): L = combinator(a)
-    protected def outfunction(a: AST): L = f_l(a)
+    protected def isForward = true
 }
 
-class StdLibFuncReturn_Null(env: ASTEnv, dum: UseDeclMap, udm: UseDeclMap, fm: FeatureModel) extends StdLibFuncReturn(env, dum, udm, fm) {
+class StdLibFuncReturn_Null(env: ASTEnv, dum: UseDeclMap, udm: UseDeclMap, fm: FeatureModel)
+    extends StdLibFuncReturn(env, dum, udm, fm) {
 
     val function: List[String] = List(
         "aligned_alloc",
@@ -177,14 +173,16 @@ class StdLibFuncReturn_Null(env: ASTEnv, dum: UseDeclMap, udm: UseDeclMap, fm: F
         "wmemchr"
     )
 
-    val errorreturn: List[AST] = List(
+    val errorReturn: List[AST] = List(
         Constant("0"),
         // ((void*)0)
         CastExpr(TypeName(List(Opt(FeatureExprFactory.True, VoidSpecifier())),
-            Some(AtomicAbstractDeclarator(List(Opt(FeatureExprFactory.True, Pointer(List()))),List()))),Constant("0")))
+            Some(AtomicAbstractDeclarator(List(Opt(FeatureExprFactory.True,
+                Pointer(List()))),List()))),Constant("0")))
 }
 
-class StdLibFuncReturn_EOF(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: FeatureModel) extends StdLibFuncReturn(env, dum, udm, fm) {
+class StdLibFuncReturn_EOF(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: FeatureModel)
+    extends StdLibFuncReturn(env, dum, udm, fm) {
 
     val function: List[String] = List(
         "fclose",
@@ -223,6 +221,7 @@ class StdLibFuncReturn_EOF(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: Fe
         "wscanf_s"
     )
 
-    val errorreturn = List(Constant("-1")) // EOF, EOF (negative)
+    val errorReturn = List(Constant("-1")) // EOF, EOF (negative)
+
 }
 

@@ -2,11 +2,13 @@ package de.fosd.typechef.crewrite
 
 import org.junit.{Ignore, Test}
 import de.fosd.typechef.parser.c._
+import de.fosd.typechef.crewrite.asthelper.{CASTEnv, ConditionalNavigation, ASTNavigation}
 import CASTEnv._
 import de.fosd.typechef.typesystem._
 import java.io.{FilenameFilter, FileInputStream, File}
 import de.fosd.typechef.parser.c.Id
 import de.fosd.typechef.parser.c.TranslationUnit
+import de.fosd.typechef.crewrite.asthelper.{ConditionalNavigation, ASTNavigation}
 
 class DeclUseTest extends ConditionalNavigation with ASTNavigation with CDeclUse with CTypeSystem with TestHelper {
 
@@ -408,7 +410,7 @@ class DeclUseTest extends ConditionalNavigation with ASTNavigation with CDeclUse
         println("\nDef Use Map:\n" + defUseMap)
     }
 
-    @Test def test_busybox_verification_of_defUse {
+    @Ignore def test_busybox_verification_of_defUse {
         // path to busybox dir with pi files to analyse
         val folderPath = "../TypeChef-BusyboxAnalysis/busybox-1.18.5/"
         val folder = new File(folderPath)

@@ -5,6 +5,7 @@ import org.kiama.rewriting.Rewriter._
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.typesystem.{DeclUseMap, UseDeclMap}
 import de.fosd.typechef.featureexpr.FeatureModel
+import de.fosd.typechef.crewrite.asthelper.{ASTEnv, ASTNavigation}
 
 // implements a simple analysis of double-free
 // freeing memory multiple times

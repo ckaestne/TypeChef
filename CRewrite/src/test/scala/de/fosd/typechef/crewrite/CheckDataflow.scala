@@ -4,8 +4,12 @@ import de.fosd.typechef.parser.c._
 import de.fosd.typechef.typesystem.UseDeclMap
 import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureModel}
 import de.fosd.typechef.typesystem.{CDeclUse, CTypeSystemFrontend}
+import de.fosd.typechef.crewrite.asthelper.CASTEnv
 
-object CheckDataflow extends IntraCFG with CFGHelper {
+/**
+ * helper object for test cases
+ */
+private[crewrite] object CheckDataflow extends IntraCFG with CFGHelper {
 
     def checkDataflow(tunit: TranslationUnit, fm: FeatureModel = FeatureExprFactory.default.featureModelFactory.empty) {
         val fdefs = filterAllASTElems[FunctionDef](tunit)

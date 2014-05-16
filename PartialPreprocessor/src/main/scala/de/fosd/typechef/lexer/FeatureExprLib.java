@@ -35,4 +35,9 @@ public class FeatureExprLib {
         return FeatureExprFactory$.MODULE$.dflt().featureModelFactory();
     }
 
+
+    public static FeatureExprParser featureExprParser() {
+        return new FeatureExprParserJava(l());
+    }
+
 }

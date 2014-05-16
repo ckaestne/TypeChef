@@ -5,6 +5,7 @@ import org.kiama.rewriting.Rewriter._
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.typesystem.{DeclUseMap, UseDeclMap}
 import de.fosd.typechef.featureexpr.FeatureModel
+import de.fosd.typechef.crewrite.asthelper.{ASTEnv, ASTNavigation}
 
 // implements a simple analysis of freeing memory that was not dynamically allocated
 // https://www.securecoding.cert.org/confluence/display/seccode/MEM34-C.+Only+free+memory+allocated+dynamically
