@@ -38,7 +38,7 @@ class XFree(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: FeatureModel, cas
     // get all declared variables without an initialization
     def gen(a: AST): L = {
         var res = l
-        val variables = manytd(query {
+        val variables = manytd(query[AST] {
             case InitDeclaratorI(AtomicNamedDeclarator(_, i: Id, _), _, None) => res ++= fromCache(i)
             case InitDeclaratorI(AtomicNamedDeclarator(_, i: Id, _), _, Some(initializer)) => {
                 val pmallocs = filterASTElems[PostfixExpr](initializer)
@@ -59,7 +59,7 @@ class XFree(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: FeatureModel, cas
     // get variables that get an assignment with malloc
     def kill(a: AST): L = {
         var res = l
-        val assignments = manytd(query {
+        val assignments = manytd(query[AST] {
             case AssignExpr(target: Id, "=", source) => {
                 val pmallocs = filterASTElems[PostfixExpr](source)
 
@@ -114,7 +114,7 @@ class XFree(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: FeatureModel, cas
         }
 
 
-        val freedvariables = manytd(query {
+        val freedvariables = manytd(query[AST] {
             // realloc(*ptr, size) is used for reallocation of memory
             case PostfixExpr(i@Id("realloc"), FunctionCall(l)) => {
                 // realloc has two arguments but more than two elements may be passed to

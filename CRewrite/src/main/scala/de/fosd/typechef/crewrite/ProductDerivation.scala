@@ -9,7 +9,7 @@ object ProductDerivation extends EnforceTreeHelper {
     def deriveProduct[T <: Product](ast: T, selectedFeatures: Set[String]): T = {
         assert(ast != null)
 
-        val prod = manytd(rule {
+        val prod = manytd(rule[Any] {
             case l: List[Opt[_]] => {
                 var res: List[Opt[_]] = List()
                 // use l.reverse here to omit later reverse on res or use += or ++= in the thenBranch

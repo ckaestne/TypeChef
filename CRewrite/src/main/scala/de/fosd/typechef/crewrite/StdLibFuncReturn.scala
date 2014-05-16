@@ -36,7 +36,7 @@ sealed abstract class StdLibFuncReturn(env: ASTEnv, dum: DeclUseMap, udm: UseDec
         var res = l
 
         // we track variables with the return value of a stdlib function call that is in function
-        val retvar = manytd(query {
+        val retvar = manytd(query[AST] {
             case AssignExpr(i@Id(_), "=", source) => {
                 filterAllASTElems[PostfixExpr](source).map(
                     pfe => pfe match {
@@ -70,7 +70,7 @@ sealed abstract class StdLibFuncReturn(env: ASTEnv, dum: DeclUseMap, udm: UseDec
     def kill(a: AST): L = {
         var res = l
 
-        val checkvar = manytd(query {
+        val checkvar = manytd(query[AST] {
             case NAryExpr(i: Id, others) => {
                 val existingerrchecks = errorreturn.flatMap { st => subtermIsPartOfTerm(st, others) }
                 val fexp = existingerrchecks.foldRight(FeatureExprFactory.False){ (x, y) => env.featureExpr(x) or y }
@@ -89,7 +89,7 @@ sealed abstract class StdLibFuncReturn(env: ASTEnv, dum: DeclUseMap, udm: UseDec
     // DeclarationStatement
     def checkForPotentialCalls(a: AST): List[Id] = {
         var potentialfcalls: List[Id] = List()
-        val getfcalls = manytd(query {
+        val getfcalls = manytd(query[AST] {
             case PostfixExpr(i@Id(name), FunctionCall(_)) => {
                 // the function call is in our list of function calls we track
                 // and the call is not part of an AssignExpr or InitDeclarator, which will be handled with

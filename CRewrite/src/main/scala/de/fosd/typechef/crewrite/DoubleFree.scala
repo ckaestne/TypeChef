@@ -48,7 +48,7 @@ class DoubleFree(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: FeatureModel
 
     def kill(a: AST): L = {
         var res = l
-        val assignments = manytd(query {
+        val assignments = manytd(query[AST] {
             case AssignExpr(target: Id, "=", _) => res ++= fromCache(target, true)
         })
 
@@ -89,7 +89,7 @@ class DoubleFree(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: FeatureModel
         }
 
 
-        val freedpointers = manytd(query {
+        val freedpointers = manytd(query[AST] {
             // realloc(*ptr, size) is used for reallocation of memory
             case PostfixExpr(Id("realloc"), FunctionCall(l)) => {
                 // realloc has two arguments but more than two elements may be passed to

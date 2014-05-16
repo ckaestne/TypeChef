@@ -36,7 +36,7 @@ trait EnforceTreeHelper {
     def prepareAST[T <: Product](ast: T): T = {
         assert(ast != null, "ast should not be null")
 
-        val clone = everywherebu(rule {
+        val clone = everywherebu(rule[AST] {
             // function to add a break expression to infinite loops: "for (;;) {}" and "for (;;) ;"
             // reason is: for (;;) is the only infinite loop without explicit break statement,
             // so if we omit CompoundStatement in succ pred determination, we need an expression
@@ -57,7 +57,7 @@ trait EnforceTreeHelper {
     def removeDeadNodes[T <: Product](ast: T, env: ASTEnv): T = {
         assert(ast != null, "ast should not be null")
 
-        val removedead = manytd(rule {
+        val removedead = manytd(rule[List[Opt[_]]] {
             case l: List[Opt[_]] => l.filter({
                 x => env.featureExpr(x).isSatisfiable()
             })
@@ -76,7 +76,7 @@ trait EnforceTreeHelper {
     def rewriteInfiniteForLoops[T <: Product](ast: T): T = {
         assert(ast != null, "ast should not be null")
 
-        val rewrite = everywherebu(rule {
+        val rewrite = everywherebu(rule[AST] {
             case f@ForStatement(_, None, _, _) =>
                 f.copy(expr2 = Some(Constant("1")))
             case n: AST => n
@@ -92,7 +92,7 @@ trait EnforceTreeHelper {
         assert(ast != null, "ast should not be null")
         var nodeswithoutposition: List[AST] = List()
 
-        val checkpos = everywherebu(query {
+        val checkpos = everywherebu(query[AST] {
             case a: AST => if (!a.hasPosition) nodeswithoutposition ::= a
         })
 

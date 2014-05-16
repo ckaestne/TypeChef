@@ -442,7 +442,7 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
 
     def getFeatureExpressions(a: Any): List[FeatureExpr] = {
         var lst: ListBuffer[FeatureExpr] = ListBuffer()
-        val r = breadthfirst(query {
+        val r = breadthfirst(query[Opt[_]] {
             case Opt(f, _) =>
                 if (!f.equivalentTo(trueF) && !f.equivalentTo(FeatureExprFactory.False) && !lst.contains(f)) {
                     lst += f
@@ -501,7 +501,7 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
     }
 
     def replaceFeatureByTrue[T <: Product](t: T, feat: FeatureExpr): T = {
-        val r = manytd(rule {
+        val r = manytd(rule[List[Opt[_]]] {
             case l: List[Opt[_]] =>
                 l.flatMap(o =>
                     if (o.feature.equivalentTo(trueF)) {
@@ -610,7 +610,7 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
     }
 
     def convertId[T <: Product](t: T, ft: FeatureExpr): T = {
-        val r = oncetd(rule {
+        val r = oncetd(rule[AST] {
             case init@InitDeclaratorI(decl@AtomicNamedDeclarator(a, i: Id, b), attr, inits) =>
                 if (i.name != "main") {
                     addIdUsages(i, ft)
@@ -665,7 +665,7 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
     }
 
     def convertStructId[T <: Product](t: T, ft: FeatureExpr): T = {
-        val r = oncetd(rule {
+        val r = oncetd(rule[AST] {
             case decl@AtomicNamedDeclarator(a, i: Id, b) =>
                 if (i.name != "main") {
                     addIdUsages(i, ft)
@@ -693,7 +693,7 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
     }
 
     def convertAllIds[T <: Product](t: T, ft: FeatureExpr): T = {
-        val r = manytd(rule {
+        val r = manytd(rule[AST] {
             case i: Id =>
                 // TODO auf Funktionen beschränken
                 if (i.name != "main") {
@@ -712,7 +712,7 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
     Filters given Elements Opt Lists by Opt nodes where given feature implies Opt.feature and replaces these by True.
      */
     def filterOptsByFeature[T <: Product](t: T, feat: FeatureExpr): T = {
-        val r = manytd(rule {
+        val r = manytd(rule[List[Opt[_]]] {
             case l: List[Opt[_]] =>
                 l.flatMap(o => {
                     if (feat.mex(o.feature).isTautology()) {
@@ -734,7 +734,7 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
     Replaces given Elements Opt Lists Opt nodes which are the same as given feature by True.
     */
     def replaceFeature[T <: Product](t: T, feat: FeatureExpr): T = {
-        val r = manytd(rule {
+        val r = manytd(rule[List[Opt[_]]] {
             case l: List[Opt[_]] =>
                 l.flatMap(o =>
                     if (feat.mex(o.feature).isTautology()) {
@@ -756,7 +756,7 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
     in this given context. Also renames Ids if they have a declaration annotated by given FeatureExpression.
     */
     def replaceOptAndId[T <: Product](t: T, feat: FeatureExpr): T = {
-        val r = manytd(rule {
+        val r = manytd(rule[Any] {
             case l: List[Opt[_]] =>
                 l.flatMap(o =>
                     if (feat.mex(o.feature).isTautology()) {
@@ -843,7 +843,7 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
     }
 
     def replaceIdTest[T <: Product](t: T, feat: FeatureExpr): T = {
-        val r = alltd(rule {
+        val r = alltd(rule[AST] {
             case s: Statement =>
                 s
             case i: Id =>
@@ -877,7 +877,7 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
     }
 
     def replaceTrueByFeature[T <: Product](t: T, feat: FeatureExpr): T = {
-        val r = manytd(rule {
+        val r = manytd(rule[List[Opt[_]]] {
             case l: List[Opt[_]] =>
                 l.flatMap(o =>
                     if (feat.&(o.feature).isContradiction()) {
@@ -969,7 +969,7 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
     var noOfOptDecls = 0
 
     def generateStatistics[T <: Product](t: T, ft: FeatureExpr = trueF) {
-        val r = alltd(query {
+        val r = alltd(query[Opt[_]] {
             case o@Opt(feat, entry) =>
                 if (feat.equivalentTo(trueF) || feat.equivalentTo(ft)) {
                     /* A node without new context */
@@ -994,7 +994,7 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
     Transforms given AST element.
      */
     def transformRecursive[T <: Product](t: T, currentContext: FeatureExpr = trueF): T = {
-        val r = alltd(rule {
+        val r = alltd(rule[Any] {
             case l: List[Opt[_]] =>
                 l.flatMap(x => x match {
                     case o@Opt(ft: FeatureExpr, entry) =>
@@ -1402,7 +1402,7 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
     }
 
     def fixTypeChefsFeatureExpressions[T <: Product](t: T, currentContext: FeatureExpr = trueF): T = {
-        val r = alltd(rule {
+        val r = alltd(rule[List[Opt[_]]] {
             case l: List[Opt[_]] =>
                 l.flatMap(x => x match {
                     case o@Opt(ft: FeatureExpr, entry) =>
@@ -1739,7 +1739,7 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
     of opt nodes is variable. This node is then copied for the different feature combinations of his next level of opt nodes.
      */
     def liftOpts[T <: Product](t: T): T = {
-        val r = manytd(rule {
+        val r = manytd(rule[List[Opt[_]]] {
             case l: List[Opt[_]] =>
                 l.flatMap(x => x match {
                     case o@Opt(ft: FeatureExpr, entry) =>
@@ -1766,7 +1766,7 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
     }
 
     def convertIdUsagesFromDefuse[T <: Product](t: T, feat: FeatureExpr): T = {
-        val r = manytd(rule {
+        val r = manytd(rule[AST] {
             case i: Id =>
                 if (idsToBeReplaced.containsKey(i)) {
                     // Increase number of expanded statements
@@ -2440,7 +2440,7 @@ class IfdefToIf extends ASTNavigation with ConditionalNavigation {
     }
 
     def analyseDeclarations[T <: Product](t: T) = {
-        val r = manytd(query {
+        val r = manytd(query[Opt[_]] {
             case o@Opt(entry, Declaration(declSpecs, init)) =>
                 init.foreach(x => x match {
                     case Opt(ft, iDecl: InitDeclaratorI) =>

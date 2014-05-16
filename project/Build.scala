@@ -44,7 +44,7 @@ object BuildSettings {
                 else Nil
         },
 
-        crossScalaVersions := Seq("2.9.1", "2.9.2", "2.10.1"),
+        crossScalaVersions := Seq("2.9.1", "2.9.2", "2.10.4"),
 
         libraryDependencies ++= testEnvironment,
 
@@ -258,7 +258,7 @@ object TypeChef extends Build {
     def kiamaDependency(scalaVersion: String, testOnly: Boolean = false) = {
         val x = scalaVersion match {
             case "2.9.1" => "com.googlecode.kiama" %% "kiama" % "1.2.0"
-            case _ => "com.googlecode.kiama" %% "kiama" % "1.5.2-SNAPSHOT"
+            case _ => "com.googlecode.kiama" %% "kiama" % "1.6.0"
         }
         if (testOnly) x % "test" else x
     }
