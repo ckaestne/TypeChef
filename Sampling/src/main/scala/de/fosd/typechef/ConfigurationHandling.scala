@@ -283,7 +283,7 @@ object ConfigurationHandling {
         val tb = java.lang.management.ManagementFactory.getThreadMXBean
 
         if (exTasks.exists(_._1 == "coverage_noHeader")) {
-            msg = "omitting sample-set generation (code covereage no header) because a serialized version was loaded"
+            msg = "omitting sample-set generation (code coverage no header) because a serialized version was loaded"
         } else {
             val startTime = tb.getCurrentThreadCpuTime
             val (configs, logMsg) = codeCoverage(tunit, fm, ff, List(),
