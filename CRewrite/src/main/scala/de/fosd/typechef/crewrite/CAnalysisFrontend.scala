@@ -99,8 +99,8 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
                     case None =>
                         val idecls = getDecls(i)
                         if (idecls.exists(isPartOf(_, fa._1)))
-                            err ::= new TypeChefError(Severity.Warning, fi, "warning: Variable " + i.name +
-                                " is a dead store!", i, "")
+                            err ::= new TypeChefError(Severity.Warning, fi, "warning: Variable " +
+                                i.name + " is a dead store!", i, "deadstore")
                     case Some((x, liveCondition)) =>
                         // we use Liveness to determine dead stores;
                         // in the case of the liveness conditions is not satisfiable
@@ -113,8 +113,9 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
                                 // check local variables and function parameters.
                                 // an assignment to a global variable might be used in another function
                                 if (isPartOf(iEntry, fa._1) && xdecls.exists(_.eq(iEntry)))
-                                    err ::= new TypeChefError(Severity.Warning, liveCondition.not(), "warning: Variable " +
-                                        i.name + " is a dead store!", i, "")
+                                    err ::= new TypeChefError(Severity.Warning, liveCondition.not(),
+                                        "warning: Variable " + i.name + " is a dead store!",
+                                        i, "deadstore")
                             }
 
                         }
@@ -168,8 +169,9 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
                                 val iDecls = getDecls(i)
                                 for (iEntry <- iDecls)
                                     if (xDecls.exists(_.eq(iEntry)))
-                                        err ::= new TypeChefError(Severity.Warning, errCondition, "warning: Variable " +
-                                            x.name + " is freed multiple times!", x, "")
+                                        err ::= new TypeChefError(Severity.Warning, errCondition,
+                                            "warning: Variable " + x.name + " is freed multiple times!",
+                                            x, "doublefree")
                             }
                     }
             }
@@ -210,8 +212,9 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
                                 val iDecls = getDecls(i)
                                 for (iEntry <- iDecls)
                                     if (xDecls.exists(_.eq(iEntry)))
-                                        err ::= new TypeChefError(Severity.Warning, errCondition, "warning: Variable " +
-                                            x.name + " is used uninitialized!", x, "")
+                                        err ::= new TypeChefError(Severity.Warning, errCondition,
+                                            "warning: Variable " + x.name + " is used uninitialized!",
+                                            x, "uninitializedmemory")
                             }
                     }
             }
@@ -253,8 +256,10 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
                                 val iDecls = getDecls(i)
                                 for (iEntry <- iDecls)
                                     if (xDecls.exists(_.eq(iEntry)))
-                                        err ::= new TypeChefError(Severity.Warning, errCondition, "warning: Variable " +
-                                            x.name + " is freed although not dynamically allocated!", x, "")
+                                        err ::= new TypeChefError(Severity.Warning, errCondition,
+                                            "warning: Variable " + x.name +
+                                                " is freed although not dynamically allocated!", x,
+                                            "xfree")
                             }
                     }
             }
@@ -283,7 +288,8 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
 
         ss.flatMap(s => {
             ds.danglingSwitchCode(s).map(e => {
-                new TypeChefError(Severity.Warning, e.feature, "warning: switch statement has dangling code ", e.entry, "")
+                new TypeChefError(Severity.Warning, e.feature,
+                    "warning: switch statement has dangling code ", e.entry, "danglingswitchcode")
             })
 
         })
@@ -306,7 +312,8 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
         val cf = new CFGInNonVoidFunc(env, ts)
 
         cf.cfgInNonVoidFunc(fa._1).map(
-            e => new TypeChefError(Severity.Warning, e.feature, "Control flow of non-void function ends here!", e.entry, "")
+            e => new TypeChefError(Severity.Warning, e.feature,
+                "Control flow of non-void function ends here!", e.entry, "cfginnonvoidfunc")
         )
     }
 
@@ -330,7 +337,7 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
         caseStmts.filterNot(ct.isTerminating).map {
             x => {
                 new TypeChefError(Severity.Warning, env.featureExpr(x),
-                    "Case statement is not terminated by a break!", x, "")
+                    "Case statement is not terminated by a break!", x, "casetermination")
             }
         }
     }
@@ -361,8 +368,9 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
 
                 // check CFG element directly; without dataflow analysis
                 for (e <- cle.checkForPotentialCalls(s)) {
-                    err ::= new TypeChefError(Severity.SecurityWarning, env.featureExpr(e), "Return value of " +
-                        PrettyPrinter.print(e) + " is not properly checked for (" + errorValues + ")!", e)
+                    err ::= new TypeChefError(Severity.SecurityWarning, env.featureExpr(e),
+                        "Return value of " + PrettyPrinter.print(e) +
+                            " is not properly checked for (" + errorValues + ")!", e, "stdlibfuncreturn")
                 }
 
                 // stdlib call is assigned to a variable that we track with our dataflow analysis
@@ -381,8 +389,10 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
                                 for (iEntry <- iDecls) {
                                     val kills = cle.kill(s)
                                     if (xDecls.exists(_.eq(iEntry)) && !kills.contains(k)) {
-                                        err ::= new TypeChefError(Severity.SecurityWarning, errCondition, "The value of " +
-                                            PrettyPrinter.print(i) + " is not properly checked for (" + errorValues + ")!", i)
+                                        err ::= new TypeChefError(Severity.SecurityWarning, errCondition,
+                                            "The value of " +  PrettyPrinter.print(i) +
+                                                " is not properly checked for (" + errorValues + ")!",
+                                            i, "stdlibfuncreturn")
                                     }
                                 }
                             }

@@ -156,7 +156,7 @@ class XFree(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: FeatureModel, f: 
                 }
             }
 
-        })
+        })                                                            n
 
         freedvariables(a)
         res

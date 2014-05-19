@@ -86,7 +86,7 @@ object FamilyBasedVsSampleBased extends ASTNavigation with CFGHelper {
 
         /** family */
         if (opt.family) {
-            val (flog, ftasks) = ("", List(Pair("family", Set(new SimpleConfiguration(ff, List(), List())))))
+            val (flog, ftasks) = ("", List(Pair("family", List(new SimpleConfiguration(ff, List(), List())))))
             log = log + flog
             tasks ++= ftasks
         } else {
@@ -111,7 +111,7 @@ object FamilyBasedVsSampleBased extends ASTNavigation with CFGHelper {
     private def countNumberOfStatements(tunit: TranslationUnit): Long = {
         var res: Long = 0
         val r = topdown(query {
-            case x: AST if x.isInstanceOf[Statement] => res += 1
+            case x if x.isInstanceOf[Statement] => res += 1
         })
 
         r(tunit)
@@ -227,24 +227,30 @@ object FamilyBasedVsSampleBased extends ASTNavigation with CFGHelper {
 
         fw.write("Potential number of data-flow errors: " + sa.errors.size + "\n\n")
 
-        for (e <- sa.errors) fw.write(e + "\n\n")
-
-        var caughterrorsmap = Map[String, Integer]()
-        for ((name, _) <- samplingTasksWithoutFamily) caughterrorsmap += ((name, 0))
-
+        for (e <- sa.errors)
+            fw.write(e + "\n\n")
 
         // check for each error whether the tasklist of an sampling approach contains a configuration
         // that fulfills the error condition (using evaluate)
-        for (e <- sa.errors) {
-            for ((name, taskList) <- samplingTasksWithoutFamily) {
+        for (a <- List("xfree", "danglingswitchcode", "doublefree", "uninitializedmemory",
+            "cfginnonvoidfunc", "stdlibfuncreturn", "deadstore", "casetermination")) {
+
+            var coveredErrors = Map[String, Integer]()
+            for ((name, _) <- samplingTasksWithoutFamily)
+                coveredErrors += ((name, 0))
+
+            // get errors per analysis and count covering sampling configurations
+            val ansa = sa.errors.filter { err => err.severityExtra == a}
+            for (e <- ansa) {
+                for ((name, taskList) <- samplingTasksWithoutFamily) {
                 if (taskList.exists {x => e.condition.evaluate(x.getTrueSet.map(_.feature))})
-                    caughterrorsmap += ((name, 1 + caughterrorsmap(name)))
+                        coveredErrors += ((name, coveredErrors(name) + 1))
             }
         }
 
-        val reslist = ("all", sa.errors.size) :: caughterrorsmap.toList.sortBy(_._1)
-        fw.write(reslist.map(_._1).mkString(";") + "\n")
-        fw.write(reslist.map(_._2).mkString(";") + "\n")
+            val reslist = ("all", ansa.size) :: coveredErrors.toList.sortBy(_._1)
+            fw.write(a + ";" + reslist.map(_._2).mkString(";") + "\n")
+        }
 
         println(sw.toString)
 
