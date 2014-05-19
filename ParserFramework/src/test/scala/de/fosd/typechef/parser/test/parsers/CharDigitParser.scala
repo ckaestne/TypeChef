@@ -2,6 +2,7 @@ package de.fosd.typechef.parser.test.parsers
 
 import de.fosd.typechef.parser._
 import de.fosd.typechef.conditional._
+import scala.language.higherKinds
 
 
 class CharDigitParser extends MultiFeatureParser {

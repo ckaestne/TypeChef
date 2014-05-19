@@ -51,18 +51,19 @@ class ParserMain(p: CParser) {
 //        parserMain(lexer, new CTypeContext(), parserOptions)
 //    }
 
-    def parserMain(tokenstream: TokenReader[CToken, CTypeContext], parserOptions: ParserOptions): TranslationUnit = {
-        parserMain((() => tokenstream), new CTypeContext(), parserOptions)
+    def parserMain(tokenstream: TokenReader[CToken, CTypeContext], parserOptions: ParserOptions, fullFeatureModel: FeatureModel): TranslationUnit = {
+        parserMain((() => tokenstream), new CTypeContext(), parserOptions, fullFeatureModel)
     }
 
 
-    def parserMain(lexer: () => TokenReader[CToken, CTypeContext], initialContext: CTypeContext, parserOptions: ParserOptions): TranslationUnit = {
+    def parserMain(lexer: () => TokenReader[CToken, CTypeContext], initialContext: CTypeContext, parserOptions: ParserOptions, fullFeatureModel: FeatureModel): TranslationUnit = {
         assert(parserOptions != null)
         val ctx = True
         val in: p.Input = lexer().setContext(initialContext)
 
         val parserStartTime = System.currentTimeMillis
-        val result: p.MultiParseResult[TranslationUnit] = p.phrase(p.translationUnit)(in, ctx)
+        val result2: p.MultiParseResult[TranslationUnit] = p.phrase(p.translationUnit)(in, ctx)
+        val result = result2.prune(fullFeatureModel)
         val endTime = System.currentTimeMillis
 
         //ensure that "did not reach end errors are handled as part of the phrase combinator

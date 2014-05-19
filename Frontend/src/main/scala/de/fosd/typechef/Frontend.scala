@@ -97,12 +97,14 @@ object Frontend {
         val stopWatch = new StopWatch()
         stopWatch.start("loadFM")
 
-        val fm = opt.getLexerFeatureModel().and(opt.getLocalFeatureModel).and(opt.getFilePresenceCondition)
-        opt.setFeatureModel(fm) //otherwise the lexer does not get the updated feature model with file presence conditions
-        if (!opt.getFilePresenceCondition.isSatisfiable(fm)) {
+        val smallFM = opt.getSmallFeatureModel().and(opt.getLocalFeatureModel).and(opt.getFilePresenceCondition)
+        opt.setSmallFeatureModel(smallFM) //otherwise the lexer does not get the updated feature model with file presence conditions
+        if (!opt.getFilePresenceCondition.isSatisfiable(smallFM)) {
             println("file has contradictory presence condition. existing.") //otherwise this can lead to strange parser errors, because True is satisfiable, but anything else isn't
             return
         }
+        val fullFM = opt.getFullFeatureModel.and(opt.getLocalFeatureModel).and(opt.getFilePresenceCondition)
+        opt.setFullFeatureModel(fullFM) // should probably be fixed in how options are read
 
         var ast: TranslationUnit = null
         if (opt.reuseAST && opt.parse && new File(opt.getSerializedASTFilename).exists()) {
@@ -118,9 +120,11 @@ object Frontend {
         }
 
         stopWatch.start("lexing")
-        println("#lexing")
         //no parsing if read serialized ast
-        val in = if (ast == null) lex(opt) else null
+        val in = if (ast == null) {
+            println("#lexing")
+            lex(opt)
+        } else null
 
 
         if (opt.parse) {
@@ -129,11 +133,10 @@ object Frontend {
 
             if (ast == null) {
                 //no parsing and serialization if read serialized ast
-                val parserMain = new ParserMain(new CParser(fm))
-                ast = parserMain.parserMain(in, opt)
-                ast = EnforceTreeHelper.prepareAST[TranslationUnit](ast)
 
-                println(PrettyPrinter.print(ast))
+                val parserMain = new ParserMain(new CParser(smallFM))
+                ast = parserMain.parserMain(in, opt, fullFM)
+                ast = EnforceTreeHelper.prepareAST[TranslationUnit](ast)
 
                 if (ast != null && opt.serializeAST) {
                     stopWatch.start("serialize")
@@ -143,13 +146,12 @@ object Frontend {
             }
 
             if (ast != null) {
-                val fm_ts = opt.getTypeSystemFeatureModel.and(opt.getLocalFeatureModel).and(opt.getFilePresenceCondition)
 
                 // some dataflow analyses require typing information
                 val ts = if (opt.typechecksa)
-                            new CTypeSystemFrontend(ast, fm_ts, opt) with CTypeCache with CDeclUse
+                            new CTypeSystemFrontend(ast, fullFM, opt) with CTypeCache with CDeclUse
                          else
-                            new CTypeSystemFrontend(ast, fm_ts, opt)
+                            new CTypeSystemFrontend(ast, fullFM, opt)
 
 
                 /** I did some experiments with the TypeChef FeatureModel of Linux, in case I need the routines again, they are saved here. */
@@ -177,14 +179,16 @@ object Frontend {
                 if (opt.writeControlFlowGraph || opt.writeCallGraph) {
                     stopWatch.start("writeCFG")
 
-                    val cf = new CInterAnalysisFrontend(ast, fm_ts)
+                    //run without feature model, because otherwise too expensive runtimes in systems such as linux
+                    val cf = new CInterAnalysisFrontend(ast/*, fm_ts*/)
                     val writer = new CFGCSVWriter(new FileWriter(new File(opt.getCCFGFilename)))
                     val dotwriter = new DotGraph(new FileWriter(new File(opt.getCCFGDotFilename)))
                     cf.writeCFG(opt.getFile, new ComposedWriter(List(dotwriter, writer)))
                 }
 
                 if (opt.staticanalyses) {
-                    val sa = new CIntraAnalysisFrontend(ast, ts.asInstanceOf[CTypeSystemFrontend with CTypeCache with CDeclUse], fm_ts)
+                    println("#static analysis")
+                    val sa = new CIntraAnalysisFrontend(ast, ts.asInstanceOf[CTypeSystemFrontend with CTypeCache with CDeclUse], fullFM)
                     if (opt.warning_double_free) {
                         stopWatch.start("doublefree")
                         sa.doubleFree()

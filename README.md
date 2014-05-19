@@ -122,10 +122,10 @@ for example, with `echo - | gcc -dM - -E -std=gnu99` for gcc).
 Have a look at existing projects using TypeChef or contact us in
 case of questions.
 
-IntelliJ Idea users should run `sbt gen-idea` to create 
+IntelliJ Idea install the sbt plugin [sbt-idea](https://github.com/mpeltonen/sbt-idea) 
+and run `sbt gen-idea` to create 
 corresponding project and classpath information for the 
-IDE. Similar sbt plugins for Eclipse are available, 
-but we have not tried or integrated them yet. In general 
+IDE. Similar sbt plugins for Eclipse are available. In general 
 avoid to set the classpath in IDEs manually, but let sbt 
 generate corresponding files for you.
 
