@@ -121,8 +121,6 @@ sealed abstract class MonotoneFW[T](env: ASTEnv, val fm: FeatureModel) extends I
     type PGT = T
     protected def l = Map[T, FeatureExpr]()
 
-    protected def isForward: Boolean
-
     private def diff(l: L, l2: L): L = {
         var curl = l
         for ((e, fexp) <- l2) {
@@ -144,8 +142,6 @@ sealed abstract class MonotoneFW[T](env: ASTEnv, val fm: FeatureModel) extends I
         }
         curl
     }
-
-
 
     // finite flow F (flow => succ and flowR => pred)
     // beware [NNH99] define the analysis: Analysis_○(l) = ∐{Analysis_●(l') | (l',l) ∈ F} ⊔ i_E^l
