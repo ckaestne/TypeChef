@@ -53,5 +53,22 @@ class CFGInNonVoidFuncTest extends TestHelper with ShouldMatchers with CFGHelper
                    }
                             """.stripMargin) should be(true)
     }
+
+    @Test def test_securecoding {
+        cfgInNonVoidFunc(
+            """
+            int foo(int x) {
+               if (x > 0) {
+                  return 1;
+               }
+            }
+
+            void bar(int y) {
+              if (foo(y+2)) {
+                // ...
+              }
+            }
+            """.stripMargin) should be(false)
+    }
 }
 

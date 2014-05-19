@@ -81,6 +81,133 @@ class DanglingSwitchCodeTest extends TestHelper with ShouldMatchers with CFGHelp
         """.stripMargin) should be(true)
     }
 
+    // declaring variables in the scope of the switch body is ok,
+    // iff they do not contain code for initialization!
+    @Test def test_declaration() {
+        danglingSwitchCode(
+            """
+            void f(void) {
+              int a;
+              switch (a) {
+                int b;
+                case 0:
+                default: a+3;
+              }
+            }
+            """.stripMargin) should be(true)
 
+        danglingSwitchCode(
+            """
+            void f(void) {
+              int a;
+              switch (a) {
+                int b = 0;
+                case 0:
+                default: a+3;
+              }
+            }
+            """.stripMargin) should be(false)
+
+        danglingSwitchCode(
+            """
+            void f(void) {
+              int a;
+            #ifdef A
+              switch (a) {
+                int b
+                #ifndef A
+                = 0
+                #endif
+                ;
+                case 0:
+                default: a+3;
+              }
+            #endif
+            }
+            """.stripMargin) should be(true)
+
+        danglingSwitchCode(
+            """
+            void f(void) {
+              int a;
+            #ifdef A
+              switch (a) {
+                int b, c
+                #ifdef B
+                = 1
+                #endif
+                ;
+                case 0:
+                default: a+3;
+              }
+            #endif
+            }
+            """.stripMargin) should be(false)
+
+        danglingSwitchCode(
+            """
+            void f(void) {
+              int a;
+            #ifdef A
+              switch (a) {
+                int b;
+                b++;
+                case 0:
+                default: a+3;
+              }
+            #endif
+            }
+            """.stripMargin) should be(false)
+    }
+
+    @Test def test_annotated_case_labels() {
+        danglingSwitchCode(
+            """
+            void f(int a) {
+              switch (a) {
+            #ifdef A
+                case 0:
+            #endif
+                int b;
+                b++;
+                case 1:
+                default: a+3;
+              }
+            }
+            """.stripMargin) should be(false)
+
+        danglingSwitchCode(
+            """
+            void f(void) {
+              int a;
+              switch (a) {
+            #ifdef A
+                case 0:
+            #else
+                case 2:
+            #endif
+                int b;
+                b++;
+                case 1:
+                default: a+3;
+              }
+            }
+            """.stripMargin) should be(true)
+
+        danglingSwitchCode(
+            """
+            void f(void) {
+              int a;
+              switch (a) {
+                int b;
+            #ifdef A
+                case 2:
+            #endif
+                b++;
+                case 1:
+                default: a+3;
+              }
+            }
+            """.stripMargin) should be(false)
+    }
 }
-

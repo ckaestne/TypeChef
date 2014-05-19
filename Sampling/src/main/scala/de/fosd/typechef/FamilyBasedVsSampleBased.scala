@@ -3,6 +3,8 @@ package de.fosd.typechef
 import java.io._
 import util.Random
 
+import org.kiama.rewriting.Rewriter._
+
 import de.fosd.typechef.crewrite._
 import de.fosd.typechef.featureexpr._
 import de.fosd.typechef.featureexpr.sat._
@@ -106,6 +108,16 @@ object FamilyBasedVsSampleBased extends ASTNavigation with CFGHelper {
         countNumberOfASTElementsHelper(ast)
     }
 
+    private def countNumberOfStatements(tunit: TranslationUnit): Long = {
+        var res: Long = 0
+        val r = topdown(query {
+            case x if x.isInstanceOf[Statement] => res += 1
+        })
+
+        r(tunit)
+        res
+    }
+
     private def initSampling(fm_scanner: FeatureModel, fm: FeatureModel, ast: TranslationUnit, ff: FileFeatures,
                              opt: FamilyBasedVsSampleBasedOptions, logMessage: String): (String, String, List[Task]) = {
         var caseStudy = ""
@@ -171,10 +183,10 @@ object FamilyBasedVsSampleBased extends ASTNavigation with CFGHelper {
     }
 
     def checkDFGErrorsAgainstSamplingConfigs(fm_scanner: FeatureModel, fm: FeatureModel, ast: TranslationUnit,
-                                          opt: FamilyBasedVsSampleBasedOptions, logMessage: String) {
+                                             opt: FamilyBasedVsSampleBasedOptions, logMessage: String) {
         val ff: FileFeatures = new FileFeatures(ast)
-        val (log, fileID, samplingTasks) = initSampling(fm_scanner, fm, ast, ff, opt, logMessage)
-        val samplingTasksWithoutFamily = samplingTasks.filterNot {x => x._1 == "family"}
+        val (log, fileID, tasks) = initSampling(fm_scanner, fm, ast, ff, opt, logMessage)
+        val samplingTasks = tasks.filterNot {x => x._1 == "family"}
         println("starting error checking.")
         val sw = new StopWatch()
 
@@ -210,28 +222,34 @@ object FamilyBasedVsSampleBased extends ASTNavigation with CFGHelper {
         val fw: FileWriter = new FileWriter(file)
         fw.write("File : " + fileID + "\n")
         fw.write("Features : " + ff.features.size + "\n")
+        fw.write("Statements : " + countNumberOfStatements(ast) + "\n")
         fw.write(log + "\n")
 
         fw.write("Potential number of data-flow errors: " + sa.errors.size + "\n\n")
 
-        for (e <- sa.errors) fw.write(e + "\n\n")
-
-        var caughterrorsmap = Map[String, Integer]()
-        for ((name, _) <- samplingTasksWithoutFamily) caughterrorsmap += ((name, 0))
-
+        for (e <- sa.errors)
+            fw.write(e + "\n\n")
 
         // check for each error whether the tasklist of an sampling approach contains a configuration
         // that fulfills the error condition (using evaluate)
-        for (e <- sa.errors) {
-            for ((name, taskList) <- samplingTasksWithoutFamily) {
-                if (taskList.exists {x => e.condition.evaluate(x.getTrueSet.map(_.feature))})
-                    caughterrorsmap += ((name, 1 + caughterrorsmap(name)))
-            }
-        }
+        for (a <- List("xfree", "danglingswitchcode", "doublefree", "uninitializedmemory",
+            "cfginnonvoidfunc", "stdlibfuncreturn", "deadstore", "casetermination")) {
 
-        val reslist = ("all", sa.errors.size) :: caughterrorsmap.toList.sortBy(_._1)
-        fw.write(reslist.map(_._1).mkString(";") + "\n")
-        fw.write(reslist.map(_._2).mkString(";") + "\n")
+            var coveredErrors = Map[String, Integer]()
+            for ((name, _) <- samplingTasks)
+                coveredErrors += ((name, 0))
+
+            // get errors per analysis and count covering sampling configurations
+            val ansa = sa.errors.filter { err => err.severityExtra == a}
+            for (e <- ansa) {
+                for ((name, taskList) <- samplingTasks) {
+                    if (taskList.exists {x => e.condition.evaluate(x.getTrueSet.map(_.feature))})
+                        coveredErrors += ((name, coveredErrors(name) + 1))
+                }
+            }
+            val reslist = ("all", ansa.size) :: coveredErrors.toList.sortBy(_._1)
+            fw.write(a + ";" + reslist.map(_._2).mkString(";") + "\n")
+        }
 
         println(sw.toString)
 

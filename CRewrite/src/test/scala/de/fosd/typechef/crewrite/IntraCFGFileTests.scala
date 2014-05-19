@@ -53,8 +53,9 @@ class IntraCFGFileTests extends TestHelper with IntraCFG with ConditionalNavigat
     // we also ignore test cases that make use of assembler (prettyprinter fails here); these test cases are not
     // interesting anyway
 
+    // contains dangling switch code
     @Test def test_20000105_1() {
-        assert(checkCFG("20000105-1.c"))
+        assert(! checkCFG("20000105-1.c"))
     }
 
     @Test def test_20000105_2() {
@@ -2652,8 +2653,9 @@ class IntraCFGFileTests extends TestHelper with IntraCFG with ConditionalNavigat
         assert(checkCFG("bug67.c"))
     }
 
+    // contains dangling switch code
     @Test def test_bug68() {
-        assert(checkCFG("bug68.c"))
+        assert( ! checkCFG("bug68.c"))
     }
 
     @Test def test_bug69() {
