@@ -17,30 +17,24 @@ object ConfigurationHandling {
 
         // determine the feature ids used by the sat solver from the dimacs file
         // dimacs format (c stands for comment) is "c 3779 AT76C50X_USB"
-        // we have to pre-set index 0, so that the real indices start with 1
-        var featureNamesTmp: List[String] = List("--dummy--")
+        var featureNames: List[String] = List()
         val featureMap: scala.collection.mutable.HashMap[String, SingleFeatureExpr] = new scala.collection.mutable.HashMap()
-        var currentLine: Int = 1
 
         for (line: String <- Source.fromFile(dimacsFile).getLines().takeWhile(_.startsWith("c"))) {
             val lineElements: Array[String] = line.split(" ")
+            // feature indices ending with $ are artificial and can be ignored here
             if (!lineElements(1).endsWith("$")) {
-                // feature indices ending with $ are artificial and can be ignored here
-                assert(augmentString(lineElements(1)).toInt.equals(currentLine), "\"" + lineElements(1) + "\"" + " != " + currentLine)
-                featureNamesTmp ::= lineElements(2)
+                featureNames ::= lineElements(2)
             }
-            currentLine += 1
         }
 
         // maintain a hashmap that maps feature names to corresponding feature expressions (SingleFeatureExpr)
         // we only store those features that occur in the file (keeps configuration small);
         // the rest is not important for the configuration;
-        val featureNames: Array[String] = featureNamesTmp.reverse.toArray
-        featureNamesTmp = null
-        for (i <- 0.to(featureNames.length - 1)) {
-            val searchResult = ff.features.find(_.feature == (featureNamePrefix + featureNames(i)))
+        for (featureName <- featureNames) {
+            val searchResult = ff.features.find(_.feature == (featureNamePrefix + featureName))
             if (searchResult.isDefined) {
-                featureMap.update(featureNames(i), searchResult.get)
+                featureMap.update(featureName, searchResult.get)
             }
         }
 
