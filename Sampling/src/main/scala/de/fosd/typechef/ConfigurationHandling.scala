@@ -305,8 +305,8 @@ object ConfigurationHandling {
                 dimacsFM = new File(opt.getRootFolder + "TypeChef-LinuxAnalysis/2.6.33.3-2var.dimacs")
                 featurePrefix = "CONFIG_"
             } else if (caseStudy == "busybox") {
-                productsFile = new File(opt.getRootFolder + "TypeChef-BusyboxAnalysis/busybox_pairwise_configs.csv")
-                dimacsFM = new File(opt.getRootFolder + "TypeChef-BusyboxAnalysis/BB_fm.dimacs")
+                productsFile = new File(opt.getRootFolder + "busybox_pairwise_configs.csv")
+                dimacsFM = new File(opt.getRootFolder + "busybox/featureModel.dimacs")
                 featurePrefix = "CONFIG_"
             } else if (caseStudy == "openssl") {
                 productsFile = new File(opt.getRootFolder +
