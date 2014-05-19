@@ -86,7 +86,7 @@ object FamilyBasedVsSampleBased extends ASTNavigation with CFGHelper {
 
         /** family */
         if (opt.family) {
-            val (flog, ftasks) = ("", List(Pair("family", List(new SimpleConfiguration(ff, List(), List())))))
+            val (flog, ftasks) = ("", List(Pair("family", Set(new SimpleConfiguration(ff, List(), List())))))
             log = log + flog
             tasks ++= ftasks
         } else {
