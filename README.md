@@ -84,10 +84,7 @@ and several helper libraries.
 Installation and Usage
 ----------------------
 
-For simple experimentation, try our [online version](http://www.mathematik.uni-marburg.de/~kaestner/TypeChef/online/).
-
-Alternatively, you can download a .jar file including
-all necessary libraries [TypeChef.jar](http://ckaestne.github.com/TypeChef/deploy/TypeChef-0.3.4.jar). Run as usual
+You can download a .jar file including all necessary libraries [TypeChef.jar](http://ckaestne.github.com/TypeChef/deploy/TypeChef-0.3.4.jar). Run as usual
 
     java -jar TypeChef.jar ...
 
@@ -97,6 +94,9 @@ With [sbt](http://code.google.com/p/simple-build-tool/) you can include TypeChef
 ```scala
 libraryDependencies += "de.fosd.typechef" %% "frontend" % "0.3.4"
 ```
+
+There is an Eclipse plugin [Colligens](https://sites.google.com/a/ic.ufal.br/colligens/) available, developed and maintained at Universidade Federal de Alagoas and Universidade Federal de Campina Grande. The plugin is also integrated in [FeatureIDE](http://fosd.net/fide).
+
 
 To build TypeChef from source, we use 
 [sbt](http://code.google.com/p/simple-build-tool/). 
@@ -122,10 +122,10 @@ for example, with `echo - | gcc -dM - -E -std=gnu99` for gcc).
 Have a look at existing projects using TypeChef or contact us in
 case of questions.
 
-IntelliJ Idea users should run `sbt gen-idea` to create 
+IntelliJ Idea install the sbt plugin [sbt-idea](https://github.com/mpeltonen/sbt-idea) 
+and run `sbt gen-idea` to create 
 corresponding project and classpath information for the 
-IDE. Similar sbt plugins for Eclipse are available, 
-but we have not tried or integrated them yet. In general 
+IDE. Similar sbt plugins for Eclipse are available. In general 
 avoid to set the classpath in IDEs manually, but let sbt 
 generate corresponding files for you.
 
@@ -133,11 +133,7 @@ Evaluation
 ----------
 
 Details on our syntax analysis of Linux have been published 
-in an OOPSLA paper (see below).
-You find additional information on that evaluation at 
-[http://www.mathematik.uni-marburg.de/~kaestner/TypeChef/](http://www.mathematik.uni-marburg.de/~kaestner/TypeChef/)
-
-Details of the type checking and linker checking of Busybox were
+in an OOPSLA paper (see below). Details of the type checking and linker checking of Busybox were
 publishing in an subsequent OOPSLA paper (see below).
 
 The implementation of the data-flow analysis has been evaluated in two case studies (BusyBox and Linux) and the result of this evaluation is available from http://fosd.net/vaa
@@ -223,7 +219,7 @@ a technical report on the following webpage http://fosd.net/spl-strategies and t
 
 Finally, an early overview of the project with a very preliminary implementation (now terribly outdated and superseeded by the papers above) was published at
 
-> Andy Kenner, Christian Kästner, Steffen Haase, and Thomas Leich. [TypeChef: Toward Type Checking #ifdef Variability in C](http://www.informatik.uni-marburg.de/~kaestner/FOSD10-typechef.pdf). In Proceedings of the Second Workshop on Feature-Oriented Software Development (FOSD) (Eindhoven, The Netherlands), pages 25-32, New York, NY, USA, October 2010. ACM Press.
+> Andy Kenner, Christian Kästner, Steffen Haase, and Thomas Leich. [TypeChef: Toward Type Checking #ifdef Variability in C](http://www.cs.cmu.edu/~ckaestne/pdf/FOSD10-typechef.pdf). In Proceedings of the Second Workshop on Feature-Oriented Software Development (FOSD) (Eindhoven, The Netherlands), pages 25-32, New York, NY, USA, October 2010. ACM Press.
 
 Change Log
 -----------

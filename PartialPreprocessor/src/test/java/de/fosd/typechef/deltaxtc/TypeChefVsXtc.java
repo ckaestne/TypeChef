@@ -5,9 +5,9 @@ import de.fosd.typechef.featureexpr.FeatureExpr;
 import de.fosd.typechef.featureexpr.FeatureExprFactory;
 import de.fosd.typechef.lexer.FeatureExprLib;
 import de.fosd.typechef.lexer.LexerException;
-import de.fosd.typechef.lexer.PartialPPLexer;
+import de.fosd.typechef.lexer.LexerFrontend;
 import de.fosd.typechef.xtclexer.XtcPreprocessor;
-import junit.framework.Assert;
+import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 import xtc.LexerInterface;
@@ -335,7 +335,7 @@ public class TypeChefVsXtc {
 
 
         try {
-            typechefTokens = new PartialPPLexer().parseStream(getClass().getResourceAsStream(
+            typechefTokens = new LexerFrontend().parseStream(getClass().getResourceAsStream(
                     "/" + folder + filename), filename, Collections.singletonList(file.getParent()), FeatureExprLib.featureModelFactory().empty());
         } catch (Exception e) {
             e.printStackTrace();

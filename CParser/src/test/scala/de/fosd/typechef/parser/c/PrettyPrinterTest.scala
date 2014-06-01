@@ -8,7 +8,7 @@ import de.fosd.typechef.conditional._
 import org.junit.{Ignore, Test}
 import java.util.Collections
 
-class PrettyPrinterTest {
+class PrettyPrinterTest extends TestHelper {
     val p = new CParser()
 
     @Test def testPP {
@@ -291,7 +291,7 @@ class PrettyPrinterTest {
 
 
     private def parse[T](code: String, production: (TokenReader[CToken, CTypeContext], FeatureExpr) => p.MultiParseResult[T]): Option[T] = {
-        val actual = p.parse(code.stripMargin, production)
+        val actual = p.parse(lex(code.stripMargin), production)
         (actual: @unchecked) match {
             case p.Success(ast, unparsed) => {
                 assertTrue("parser did not reach end of token stream: " + unparsed, unparsed.atEnd)
@@ -305,7 +305,7 @@ class PrettyPrinterTest {
     private def _parseFile(fileName: String): TranslationUnit = {
         val inputStream = getClass.getResourceAsStream("/" + fileName)
         assertNotNull("file not found " + fileName, inputStream)
-        val result = p.phrase(p.translationUnit)(CLexer.lexStream(inputStream, fileName, Collections.singletonList("testfiles/cgram/"), null), FeatureExprFactory.True)
+        val result = p.phrase(p.translationUnit)(lexStream(inputStream, fileName, Collections.singletonList("testfiles/cgram/"), null), FeatureExprFactory.True)
 
         (result: @unchecked) match {
             case p.Success(ast, unparsed) => {

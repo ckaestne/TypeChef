@@ -147,7 +147,7 @@ class RenamingTest extends ASTNavigation with ConditionalNavigation with Logging
     }
 
     private def parseFile(stream: InputStream, file: String, dir: String): TranslationUnit = {
-        val ast: AST = new ParserMain(new CParser).parserMain(() => CLexer.lexStream(stream, file, Collections.emptyList(), null), new CTypeContext, SilentParserOptions)
+        val ast: AST = new ParserMain(new CParser).parserMain(() => CLexerAdapter.lexStream(stream, file, Collections.emptyList(), null), new CTypeContext, SilentParserOptions)
         ast.asInstanceOf[TranslationUnit]
     }
 

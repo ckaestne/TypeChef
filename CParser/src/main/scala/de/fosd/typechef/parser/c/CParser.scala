@@ -5,6 +5,9 @@ import de.fosd.typechef.parser._
 import de.fosd.typechef.conditional._
 import de.fosd.typechef.featureexpr.FeatureExprFactory.True
 import de.fosd.typechef.featureexpr.{FeatureModel, FeatureExpr}
+import scala.Some
+import de.fosd.typechef.parser.~
+import de.fosd.typechef.conditional.Opt
 
 /*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
  * based on ANTLR grammar from John D. Mitchell (john@non.net), Jul 12, 1997
@@ -16,11 +19,11 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = false) e
     type AbstractToken = CToken
     type TypeContext = CTypeContext
 
-    def parse[T](code: String, mainProduction: (TokenReader[AbstractToken, CTypeContext], FeatureExpr) => MultiParseResult[T]): MultiParseResult[T] =
-        mainProduction(CLexer.lex(code, featureModel), True)
+    def parse[T](tokenStream: TokenReader[AbstractToken, CTypeContext], mainProduction: (TokenReader[AbstractToken, CTypeContext], FeatureExpr) => MultiParseResult[T]): MultiParseResult[T] =
+        mainProduction(tokenStream, True)
 
-    def parseAny(code: String, mainProduction: (TokenReader[AbstractToken, CTypeContext], FeatureExpr) => MultiParseResult[Any]): MultiParseResult[Any] =
-        mainProduction(CLexer.lex(code, featureModel), True)
+    def parseAny(tokenStream: TokenReader[AbstractToken, CTypeContext], mainProduction: (TokenReader[AbstractToken, CTypeContext], FeatureExpr) => MultiParseResult[Any]): MultiParseResult[Any] =
+        mainProduction(tokenStream, True)
 
     //parser
     val keywords = Set("__real__", "__imag__", "__alignof__", "__alignof", "__asm", "__asm__", "__attribute__", "__attribute",

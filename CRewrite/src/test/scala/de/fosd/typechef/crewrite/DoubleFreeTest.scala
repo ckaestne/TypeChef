@@ -212,5 +212,85 @@ class DoubleFreeTest extends TestHelper with ShouldMatchers with CFGHelper with 
               }
                     """.stripMargin) should be(false)
 
+        doubleFree(
+            """
+            void* malloc(int i) { return ((void*)0); }
+            void free(void* p) { }
+            void* realloc(void* p, int i) { return ((void*)0); }
+            int shadowing() {
+                int* a = malloc(2);
+                if (a) {
+                    int* a = malloc(3);
+                    free(a);
+                }
+                free(a);
+                return 0;
+            }
+            """.stripMargin) should be(true)
+
+        doubleFree(
+            """
+            void* malloc(int i) { return ((void*)0); }
+            void free(void* p) { }
+            void* realloc(void* p, int i) { return ((void*)0); }
+            int variable_shadowing() {
+                int* a = malloc(2);
+                if (a) {
+            #ifdef A
+                    int* a = malloc(3);
+            #endif
+                    free(a);
+                }
+                free(a);
+                return 0;
+            }
+            """.stripMargin) should be(false)
+
+        doubleFree(
+            """
+            void* malloc(int i) { return ((void*)0); }
+            void free(void* p) { }
+            void* realloc(void* p, int i) { return ((void*)0); }
+            void doublefree() {
+                int* a = malloc(2);
+                free(a);
+                free(a);
+            }
+            """.stripMargin) should be(false)
+
+        doubleFree(
+            """
+            void* malloc(int i) { return ((void*)0); }
+            void free(void* p) { }
+            void* realloc(void* p, int i) { return ((void*)0); }
+            void doublefreeif() {
+                int b;
+                if (b) {
+                    int* a = malloc(2);
+                    free(a);
+                }
+            }
+            """.stripMargin) should be(true)
+
+        doubleFree(
+            """
+            void* malloc(int i) { return ((void*)0); }
+            void* xmalloc(int i) { return ((void*)0); }
+            void free(void* p) { }
+            void* realloc(void* p, int i) { return ((void*)0); }
+            int test() {
+                int fd;
+
+                if (fd >= 0) {
+                    int *md5line;
+                    int *buf;
+
+                    buf = xmalloc(4096);
+                    free(buf);
+                    free(md5line);
+                }
+                return 0;
+            }
+            """.stripMargin) should be(true)
     }
 }

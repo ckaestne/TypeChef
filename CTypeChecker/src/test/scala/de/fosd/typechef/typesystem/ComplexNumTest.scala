@@ -26,7 +26,7 @@ class ComplexNumTest extends FunSuite with ShouldMatchers with TestHelper {
     }
 
     test("complex numbers") {
-        expect(true) {
+        expectResult(true) {
             check( """extern long double cosl (long double __x) __attribute__ ((__nothrow__));
                      |extern long double sinl (long double __x) __attribute__ ((__nothrow__));
                      extern double exp (double __x) __attribute__ ((__nothrow__)); extern __typeof (exp) exp __asm__ ("" "__GI_exp") __attribute__ ((visibility ("hidden"),));

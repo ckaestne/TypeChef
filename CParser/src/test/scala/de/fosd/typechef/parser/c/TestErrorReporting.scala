@@ -6,14 +6,14 @@ import de.fosd.typechef.featureexpr._
 import org.junit.Test
 import java.util.Collections
 
-class TestErrorReporting extends TestCase {
+class TestErrorReporting extends TestCase with TestHelper {
     //XXX duplicate of CGramFilesTest.parseFile
     def parseFile(fileName: String) {
         val inputStream = getClass.getResourceAsStream("/" + fileName)
         assertNotNull("file not found " + fileName, inputStream)
         val p = new CParser()
         val result = p.translationUnit(
-            CLexer.lexStream(inputStream, fileName, Collections.singletonList("testfiles/cgram/"), null), FeatureExprFactory.True)
+            lexStream(inputStream, fileName, Collections.singletonList("testfiles/cgram/"), null), FeatureExprFactory.True)
         System.out.println(result)
         (result: @unchecked) match {
             case p.Success(ast, unparsed) => {

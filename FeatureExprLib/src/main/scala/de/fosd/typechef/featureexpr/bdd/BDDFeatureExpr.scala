@@ -15,10 +15,10 @@ object FeatureExprHelper {
         "__fresh" + freshFeatureNameCounter;
     }
     /** map for caching of already solved SAT checks
-     * Different objects A and B of class BDDFeatureExpr may refer to the same internal BDD and have the same hashcode and have equal-equality.
-     * If a result was stored for A, this result will also be returned for B, because A.equals(B).
-     * We use BDD here, because in contrast to BDDFeatureExpr BDD is never freed by GC and so we avoid redundant SAT checks.
-     */
+      * Different objects A and B of class BDDFeatureExpr may refer to the same internal BDD and have the same hashcode and have equal-equality.
+      * If a result was stored for A, this result will also be returned for B, because A.equals(B).
+      * We use BDD here, because in contrast to BDDFeatureExpr BDD is never freed by GC and so we avoid redundant SAT checks.
+      */
     val cacheIsSatisfiable: WeakHashMap[(BDD, FeatureModel), Boolean] = WeakHashMap()
 }
 
@@ -131,8 +131,15 @@ class BDDFeatureExpr(private[featureexpr] val bdd: BDD) extends FeatureExpr {
 
     import CastHelper._
 
-    def or(that: FeatureExpr): FeatureExpr = FExprBuilder.or(this, asBDDFeatureExpr(that))
-    def and(that: FeatureExpr): FeatureExpr = FExprBuilder.and(this, asBDDFeatureExpr(that))
+    def or(that: FeatureExpr): FeatureExpr = {
+        if (that == FeatureExprFactory.True) FeatureExprFactory.True
+        else FExprBuilder.or(this, asBDDFeatureExpr(that))
+    }
+    def and(that: FeatureExpr): FeatureExpr = {
+        if (that == FeatureExprFactory.True) this
+        else if (that == FeatureExprFactory.False) FeatureExprFactory.False
+        else FExprBuilder.and(this, asBDDFeatureExpr(that))
+    }
     def not(): FeatureExpr = FExprBuilder.not(this)
 
     /**
@@ -222,7 +229,7 @@ class BDDFeatureExpr(private[featureexpr] val bdd: BDD) extends FeatureExpr {
         //combination with a small FeatureExpr feature model
         else if (fm.clauses.isEmpty) (bdd and fm.extraConstraints.bdd and fm.assumptions.bdd).satOne() != FExprBuilder.FALSE
         //combination with SAT
-        else FeatureExprHelper.cacheIsSatisfiable.getOrElseUpdate((this.bdd,fm),
+        else FeatureExprHelper.cacheIsSatisfiable.getOrElseUpdate((this.bdd, fm),
             SatSolver.isSatisfiable(fm, toDnfClauses(toScalaAllSat((bdd and fm.extraConstraints.bdd).not().allsat())), FExprBuilder.lookupFeatureName)
         )
     }
@@ -437,12 +444,12 @@ private[bdd] object FExprBuilder {
     //start with one, so we can distinguish -x and x for sat solving and tostring
     var bddFactory: BDDFactory = null
     try {
-        bddFactory = BDDFactory.init(bddValNum, bddCacheSize)
+        bddFactory = BDDFactory.init("JDD", bddValNum, bddCacheSize)
     } catch {
         case e: OutOfMemoryError =>
             println("running with low memory. consider increasing heap size.")
             bddValNum = 524288
-            bddFactory = BDDFactory.init(bddValNum, bddCacheSize)
+            bddFactory = BDDFactory.init("JDD", bddValNum, bddCacheSize)
     }
     bddFactory.setIncreaseFactor(2) //200% increase each time
     bddFactory.setMaxIncrease(0) //no upper limit on increase size

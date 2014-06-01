@@ -8,7 +8,7 @@ import de.fosd.typechef.featureexpr._
 import de.fosd.typechef.parser._
 import java.util.Collections
 
-object ParserBenchmark extends App {
+object ParserBenchmark extends App with TestHelper {
 
   val p = new CParser()
 
@@ -17,7 +17,7 @@ object ParserBenchmark extends App {
     if (inputStream == null && new File(fileName).exists)
       inputStream = new FileInputStream(new File(fileName))
     assertNotNull("file not found " + fileName, inputStream)
-    val in = CLexer.lexStream(inputStream, fileName, Collections.singletonList("testfiles/cgram/"), null)
+    val in = lexStream(inputStream, fileName, Collections.singletonList("testfiles/cgram/"), null)
     println(in.tokens.size)
     val result = p.phrase(p.translationUnit)(in, FeatureExprFactory.True)
     (result: @unchecked) match {

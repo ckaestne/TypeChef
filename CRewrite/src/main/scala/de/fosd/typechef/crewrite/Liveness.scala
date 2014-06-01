@@ -15,18 +15,18 @@ import de.fosd.typechef.typesystem.UseDeclMap
 // i  = ∅
 // E  = {FunctionDef} // see MonotoneFW
 // F  = flowR
-class Liveness(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) extends MonotoneFWId(env, udm, fm) with IntraCFG with UsedDefinedDeclaredVariables {
+class Liveness(f: FunctionDef, env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) extends MonotoneFWId(f, env, udm, fm) with IntraCFG with UsedDefinedDeclaredVariables {
 
     // returns all declared variables with their annotation
     val declaresVar: PartialFunction[(Any), L] = {
-        case a => addAnnotations(declares(a))
+        case a => addAnnotations(declares(a.asInstanceOf[AnyRef]))
     }
 
     def gen(a: AST): L = {
         addAnnotations(uses(a))
     }
 
-    def kill(a: AST):L = {
+    def kill(a: AST): L = {
         addAnnotations(defines(a))
     }
 
@@ -43,6 +43,8 @@ class Liveness(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) extends MonotoneF
     // page 5
     //  in(a) = gen(a) + (out(a) - kill(a))
     // out(a) = for s in succ(n) r = r + in(s); r
-    protected def incached(a: AST): L = f_lcached(a)
-    protected def outcached(a: AST): L = combinatorcached(a)
+
+    solve()
+
+    def isForward = false
 }

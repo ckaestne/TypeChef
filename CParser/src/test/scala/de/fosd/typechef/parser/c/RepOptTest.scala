@@ -8,11 +8,11 @@ import org.junit.Test
 import FeatureExprFactory._
 import de.fosd.typechef.conditional._
 
-class RepOptTest extends TestCase {
+class RepOptTest extends TestCase with TestHelper {
   val p = new CParser()
 
   def assertParseable(code: String, mainProduction: (TokenReader[AbstractToken, CTypeContext], FeatureExpr) => p.MultiParseResult[Any]) {
-    val actual = p.parseAny(code.stripMargin, mainProduction)
+    val actual = p.parseAny(lex(code.stripMargin), mainProduction)
     System.out.println(actual)
     (actual: @unchecked) match {
       case p.Success(ast, unparsed) => {
@@ -25,7 +25,7 @@ class RepOptTest extends TestCase {
   }
 
   def parseExtList(code: String): (List[Opt[ExternalDef]], TokenReader[AbstractToken, CTypeContext]) = {
-    val actual = p.parseAny(code.stripMargin, p.externalList)
+    val actual = p.parseAny(lex(code.stripMargin), p.externalList)
     (actual: @unchecked) match {
       case p.Success(ast, unparsed) => {
         (ast.asInstanceOf[List[Opt[ExternalDef]]], unparsed);
@@ -39,7 +39,7 @@ class RepOptTest extends TestCase {
   }
 
   def assertParseAnyResult(expected: Any, code: String, mainProduction: (TokenReader[AbstractToken, CTypeContext], FeatureExpr) => p.MultiParseResult[Any]) {
-    val actual = p.parseAny(code.stripMargin, mainProduction)
+    val actual = p.parseAny(lex(code.stripMargin), mainProduction)
     System.out.println(actual)
     (actual: @unchecked) match {
       case p.Success(ast, unparsed) => {
@@ -52,7 +52,7 @@ class RepOptTest extends TestCase {
   }
 
   def assertParseError(code: String, mainProduction: (TokenReader[AbstractToken, CTypeContext], FeatureExpr) => p.MultiParseResult[Any], expectErrorMsg: Boolean = false) {
-    val actual = p.parseAny(code.stripMargin, mainProduction)
+    val actual = p.parseAny(lex(code.stripMargin), mainProduction)
     System.out.println(actual)
     (actual: @unchecked) match {
       case p.Success(ast, unparsed) => {

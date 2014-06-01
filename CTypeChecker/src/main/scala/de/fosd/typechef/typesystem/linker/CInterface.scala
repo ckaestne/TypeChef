@@ -2,8 +2,36 @@ package de.fosd.typechef.typesystem.linker
 
 import de.fosd.typechef.featureexpr.FeatureExprFactory.{True, False}
 import de.fosd.typechef.featureexpr.{FeatureModel, FeatureExprFactory, FeatureExpr}
-import de.fosd.typechef.typesystem.CType
+import de.fosd.typechef.typesystem._
 import de.fosd.typechef.error.Position
+import de.fosd.typechef.typesystem.CSigned
+import de.fosd.typechef.typesystem.CInt
+
+
+/**
+ * linking can be strict or less strict on what it considers a match to
+ * an import.
+ *
+ * At the lowest level NAMEONLY, the linker checks only the names of symbols, not their types.
+ *
+ * At the highest level it expects that the signatures match exactly, including their types.
+ * Only few equivalence rules are applied by type normalization in the type system (e.g., int foo(void) == int foo()).
+ * Used pointers and structs must also match perfectly.
+ *
+ * At the medium level, which may be the most practical one, matches are determined (roughly) using
+ * coercion rules. Here "int foo(* struct x)" is compatible with "int foo(*void)" and
+ * "int foo(int)" is compatible with "int foo(short)"
+ *
+ * at less stricter comparisons, types and extraflags after merging are copied from one of
+ * the sources, but (pseudo-randomly) from the first import.
+ */
+sealed trait Strictness
+
+object LINK_STRICT extends Strictness
+
+object LINK_RELAXED extends Strictness
+
+object LINK_NAMEONLY extends Strictness
 
 /**
  * describes the linker interface for a file, i.e. all imported (and used)
@@ -49,50 +77,92 @@ case class CInterface(
      * removes imports that are available as exports in the same file
      * removes False imports
      *
-     * two elements are duplicate if they have the same name and type
+     * how to determine whether two elements are duplicate depends on the strictness level (see above)
      *
      * exports are not packed beyond removing False exports.
      * duplicate exports are used for error detection
      */
-    def pack: CInterface = if (isPacked) this
+    def pack(strictness: Strictness = LINK_STRICT): CInterface = if (isPacked) this
     else
         CInterface(featureModel, importedFeatures -- declaredFeatures, declaredFeatures,
-            packImports, packExports).setPacked
+            packImports(strictness), packExports).setPacked
 
     private var isPacked = false;
     private def setPacked() = {
         isPacked = true;
         this
     }
-    private def packImports: Seq[CSignature] = {
-        var importMap = Map[(String, CType, Set[CFlag]), (FeatureExpr, Seq[Position])]()
+
+    private def genComparisonKey(sig: CSignature, strictness: Strictness): Object = strictness match {
+        case LINK_STRICT => (sig.name, sig.ctype, sig.extraFlags)
+        case LINK_NAMEONLY => sig.name
+        case LINK_RELAXED => (sig.name, relaxType(sig.ctype))
+    }
+
+    private def packImports(strictness: Strictness = LINK_STRICT): Seq[CSignature] = {
+        var importMap = Map[Object, (CSignature, FeatureExpr, Seq[Position])]()
 
         //eliminate duplicates with a map
         for (imp <- imports if ((featureModel and imp.fexpr).isSatisfiable())) {
-            val key = (imp.name, imp.ctype, imp.extraFlags)
-            val old = importMap.getOrElse(key, (False, Seq()))
-            importMap = importMap + (key ->(old._1 or imp.fexpr, old._2 ++ imp.pos))
+            val key = genComparisonKey(imp, strictness)
+            val old = importMap.getOrElse(key, (imp, False, Seq()))
+            importMap = importMap + (key ->(old._1, old._2 or imp.fexpr, old._3 ++ imp.pos))
         }
         //eliminate imports that have corresponding exports
         for (exp <- exports) {
-            val key = (exp.name, exp.ctype, exp.extraFlags)
+            val key = genComparisonKey(exp, strictness)
             if (importMap.contains(key)) {
-                val (oldFexpr, oldPos) = importMap(key)
+                val (oldSig, oldFexpr, oldPos) = importMap(key)
                 val newFexpr = oldFexpr andNot exp.fexpr
                 if ((featureModel and newFexpr).isSatisfiable())
-                    importMap = importMap + (key ->(newFexpr, oldPos))
+                    importMap = importMap + (key ->(oldSig, newFexpr, oldPos))
                 else
                     importMap = importMap - key
             }
         }
 
 
-        val r = for ((k, v) <- importMap.iterator)
-        yield CSignature(k._1, k._2, v._1, v._2, k._3)
+        val r = for (v <- importMap.values)
+        yield CSignature(v._1.name, v._1.ctype, v._2, v._3, v._1.extraFlags)
         r.toSeq
     }
     private def packExports: Seq[CSignature] = exports.filter(_.fexpr.and(featureModel).isSatisfiable())
 
+
+    /**
+     * rewrites a type for relatex matching with LINK_RELAXED
+     *
+     * this makes a number of simplifications in types, including considering all
+     * integers and structs and pointers as equivalent
+     */
+    private def relaxType(ctype: CType): CType = ctype.atype match {
+        case CFunction(p, r) => CFunction(p.map(_relaxType), _relaxType(r))
+        case v => _relaxType(v)
+    }
+
+    private def _relaxType(ctype: CType): CType = ctype.atype match {
+        //consider all scalar types as equivalent
+        case c: CSignSpecifier => CSigned(CInt())
+        //consider all pointers and functions and arrays as equivalent
+        case c: CPointer => CPointer(CVoid())
+        case f: CFunction => CPointer(CVoid())
+        case f: CArray => CPointer(CVoid())
+        //consider all structs (not pointers to structs) as equivalent
+        case s: CStruct => CStruct("")
+        case s: CAnonymousStruct => CStruct("")
+        //void and ... remain unmodified
+        case v: CVoid => v
+        case v: CVarArgs => v
+        case v: CFloat => v
+        case v: CDouble => v
+        case v: CLongDouble => CDouble()
+        case v: CIgnore => v
+        case v: CUnknown => CIgnore()
+        case v: CZero => CPointer(CVoid())
+        case v: CBuiltinVaList => v
+        case v: CCompound => CPointer(CVoid())
+        case v: CBool => CSigned(CInt())
+    }
 
     /**
      * ensures a couple of invariants.
@@ -122,14 +192,14 @@ case class CInterface(
     }
 
 
-    def link(that: CInterface): CInterface =
+    def link(that: CInterface, strictness: Strictness = LINK_STRICT): CInterface =
         CInterface(
             this.featureModel and that.featureModel and inferConstraintsWith(that),
             this.importedFeatures ++ that.importedFeatures,
             this.declaredFeatures ++ that.declaredFeatures,
             this.imports ++ that.imports,
             this.exports ++ that.exports
-        ).pack
+        ).pack(strictness)
 
     /** links without proper checks and packing. only for debugging purposes **/
     def debug_join(that: CInterface): CInterface =
@@ -207,11 +277,11 @@ case class CInterface(
      * at least one variant). A complete and fully-configured module is the desired end
      * result when configuring a product line for a specific use case.
      */
-    def isComplete: Boolean = featureModel.isSatisfiable && pack.imports.isEmpty
+    def isComplete(strictness: Strictness = LINK_STRICT): Boolean = featureModel.isSatisfiable && pack(strictness).imports.isEmpty
 
-    def isFullyConfigured: Boolean =
-        pack.imports.forall(s => (featureModel implies s.fexpr).isTautology) &&
-            pack.exports.forall(s => (featureModel implies s.fexpr).isTautology)
+    def isFullyConfigured(strictness: Strictness = LINK_STRICT): Boolean =
+        pack(strictness).imports.forall(s => (featureModel implies s.fexpr).isTautology) &&
+            pack(strictness).exports.forall(s => (featureModel implies s.fexpr).isTautology)
 
     /**
      * we can use a global feature model to ensure that composing modules

@@ -10,6 +10,7 @@ import de.fosd.typechef.options.{FrontendOptionsWithConfigFiles, FrontendOptions
 import de.fosd.typechef.parser.c.CTypeContext
 import de.fosd.typechef.parser.c.TranslationUnit
 import de.fosd.typechef.featureexpr.FeatureExpr
+import java.util.zip.{GZIPInputStream, GZIPOutputStream}
 
 object Frontend extends EnforceTreeHelper {
 
@@ -25,15 +26,7 @@ object Frontend extends EnforceTreeHelper {
             }
 
             if (opt.isPrintVersion) {
-                var version = "development build"
-                try {
-                    val cl = Class.forName("de.fosd.typechef.Version")
-                    version = "version " + cl.newInstance().asInstanceOf[VersionInfo].getVersion
-                } catch {
-                    case e: ClassNotFoundException =>
-                }
-
-                println("TypeChef " + version)
+                println("TypeChef " + getVersion)
                 return
             }
         }
@@ -46,6 +39,18 @@ object Frontend extends EnforceTreeHelper {
         }
 
         processFile(opt)
+    }
+
+
+    def getVersion: String = {
+        var version = "development build"
+        try {
+            val cl = Class.forName("de.fosd.typechef.Version")
+            version = "version " + cl.newInstance().asInstanceOf[VersionInfo].getVersion
+        } catch {
+            case e: ClassNotFoundException =>
+        }
+        version
     }
 
     private class StopWatch {
@@ -92,12 +97,14 @@ object Frontend extends EnforceTreeHelper {
         val stopWatch = new StopWatch()
         stopWatch.start("loadFM")
 
-        val fm = opt.getLexerFeatureModel().and(opt.getLocalFeatureModel).and(opt.getFilePresenceCondition)
-        opt.setFeatureModel(fm) //otherwise the lexer does not get the updated feature model with file presence conditions
-        if (!opt.getFilePresenceCondition.isSatisfiable(fm)) {
+        val smallFM = opt.getSmallFeatureModel().and(opt.getLocalFeatureModel).and(opt.getFilePresenceCondition)
+        opt.setSmallFeatureModel(smallFM) //otherwise the lexer does not get the updated feature model with file presence conditions
+        if (!opt.getFilePresenceCondition.isSatisfiable(smallFM)) {
             println("file has contradictory presence condition. existing.") //otherwise this can lead to strange parser errors, because True is satisfiable, but anything else isn't
             return
         }
+        val fullFM = opt.getFullFeatureModel.and(opt.getLocalFeatureModel).and(opt.getFilePresenceCondition)
+        opt.setFullFeatureModel(fullFM) // should probably be fixed in how options are read
 
         var ast: TranslationUnit = null
         if (opt.reuseAST && opt.parse && new File(opt.getSerializedASTFilename).exists()) {
@@ -114,16 +121,20 @@ object Frontend extends EnforceTreeHelper {
 
         stopWatch.start("lexing")
         //no parsing if read serialized ast
-        val in = if (ast == null) lex(opt) else null
+        val in = if (ast == null) {
+            println("#lexing")
+            lex(opt)
+        } else null
 
 
         if (opt.parse) {
+            println("#parsing")
             stopWatch.start("parsing")
 
             if (ast == null) {
                 //no parsing and serialization if read serialized ast
-                val parserMain = new ParserMain(new CParser(fm))
-                ast = parserMain.parserMain(in, opt).asInstanceOf[TranslationUnit]
+                val parserMain = new ParserMain(new CParser(smallFM))
+                ast = parserMain.parserMain(in, opt, fullFM)
                 ast = prepareAST[TranslationUnit](ast)
 
                 if (ast != null && opt.serializeAST) {
@@ -134,25 +145,24 @@ object Frontend extends EnforceTreeHelper {
             }
 
             if (ast != null) {
-                val fm_ts = opt.getTypeSystemFeatureModel.and(opt.getLocalFeatureModel).and(opt.getFilePresenceCondition)
 
                 // some dataflow analyses require typing information
                 val ts = if (opt.typechecksa)
-                            new CTypeSystemFrontend(ast, fm_ts, opt) with CTypeCache with CDeclUse
+                            new CTypeSystemFrontend(ast, fullFM, opt) with CTypeCache with CDeclUse
                          else
-                            new CTypeSystemFrontend(ast, fm_ts, opt)
+                            new CTypeSystemFrontend(ast, fullFM, opt)
 
 
                 /** I did some experiments with the TypeChef FeatureModel of Linux, in case I need the routines again, they are saved here. */
                 //Debug_FeatureModelExperiments.experiment(fm_ts)
 
-                if (opt.typecheck || opt.writeInterface) {
+                if (opt.typecheck || opt.writeInterface || opt.typechecksa) {
                     //ProductGeneration.typecheckProducts(fm,fm_ts,ast,opt,
                     //logMessage=("Time for lexing(ms): " + (t2-t1) + "\nTime for parsing(ms): " + (t3-t2) + "\n"))
                     //ProductGeneration.estimateNumberOfVariants(ast, fm_ts)
 
                     stopWatch.start("typechecking")
-                    println("type checking.")
+                    println("#type checking")
                     ts.checkAST()
                     ts.errors.map(errorXML.renderTypeError)
                 }
@@ -166,16 +176,19 @@ object Frontend extends EnforceTreeHelper {
                         ts.debugInterface(interface, new File(opt.getDebugInterfaceFilename))
                 }
                 if (opt.dumpcfg) {
+                    println("#call graph")
                     stopWatch.start("dumpCFG")
 
-                    val cf = new CInterAnalysisFrontend(ast, fm_ts)
+                    //run without feature model, because otherwise too expensive runtimes in systems such as linux
+                    val cf = new CInterAnalysisFrontend(ast/*, fm_ts*/)
                     val writer = new CFGCSVWriter(new FileWriter(new File(opt.getCCFGFilename)))
                     val dotwriter = new DotGraph(new FileWriter(new File(opt.getCCFGDotFilename)))
                     cf.writeCFG(opt.getFile, new ComposedWriter(List(dotwriter, writer)))
                 }
 
                 if (opt.staticanalyses) {
-                    val sa = new CIntraAnalysisFrontend(ast, ts.asInstanceOf[CTypeSystemFrontend with CTypeCache with CDeclUse], fm_ts)
+                    println("#static analysis")
+                    val sa = new CIntraAnalysisFrontend(ast, ts.asInstanceOf[CTypeSystemFrontend with CTypeCache with CDeclUse], fullFM)
                     if (opt.warning_double_free) {
                         stopWatch.start("doublefree")
                         sa.doubleFree()
@@ -183,6 +196,10 @@ object Frontend extends EnforceTreeHelper {
                     if (opt.warning_uninitialized_memory) {
                         stopWatch.start("uninitializedmemory")
                         sa.uninitializedMemory()
+                    }
+                    if (opt.warning_case_termination) {
+                        stopWatch.start("casetermination")
+                        sa.caseTermination()
                     }
                     if (opt.warning_xfree) {
                         stopWatch.start("xfree")
@@ -218,19 +235,19 @@ object Frontend extends EnforceTreeHelper {
 
 
     def lex(opt: FrontendOptions): TokenReader[CToken, CTypeContext] = {
-        val tokens = new lexer.Main().run(opt, opt.parse)
-        val in = CLexer.prepareTokens(tokens)
+        val tokens = new lexer.LexerFrontend().run(opt, opt.parse)
+        val in = CLexerAdapter.prepareTokens(tokens)
         in
     }
 
     def serializeAST(ast: AST, filename: String) {
-        val fw = new ObjectOutputStream(new FileOutputStream(filename))
+        val fw = new ObjectOutputStream(new GZIPOutputStream(new FileOutputStream(filename)))
         fw.writeObject(ast)
         fw.close()
     }
 
     def loadSerializedAST(filename: String): TranslationUnit = try {
-        val fr = new ObjectInputStream(new FileInputStream(filename)) {
+        val fr = new ObjectInputStream(new GZIPInputStream(new FileInputStream(filename))) {
             override protected def resolveClass(desc: ObjectStreamClass) = { /*println(desc);*/ super.resolveClass(desc) }
         }
         val ast = fr.readObject().asInstanceOf[TranslationUnit]

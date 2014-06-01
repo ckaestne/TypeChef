@@ -112,10 +112,10 @@ trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTypi
 
     def wellformedC(structEnv: StructEnv, ptrEnv: PtrEnv, ctype: Conditional[CType]): Boolean = wellformed(structEnv, ptrEnv, ctype.map(_.atype))
 
-    def wellformed(structEnv: StructEnv, ptrEnv: PtrEnv, ctype: Conditional[AType]): Boolean =
-        ctype.simplify.forall(wellformed(structEnv, ptrEnv, _))
+    def wellformed(structEnv: StructEnv, ptrEnv: PtrEnv, atype: Conditional[AType]): Boolean =
+        atype.simplify.forall(wellformed(structEnv, ptrEnv, _))
 
-    def wellformed(structEnv: StructEnv, ptrEnv: PtrEnv, ctype: AType): Boolean = {
+    def wellformed(structEnv: StructEnv, ptrEnv: PtrEnv, atype: AType): Boolean = {
         val wf = wellformed(structEnv, ptrEnv, _: AType)
         def nonEmptyWellformedEnv(m: ConditionalTypeMap, name: Option[String]) =
             !m.isEmpty && m.allTypes.forall(t => {
@@ -123,7 +123,7 @@ trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTypi
             })
         def lastParam(p: Option[AType]) = p == None || p == Some(CVarArgs()) || wf(p.get)
         /*if (ctype.isObject) false
-        else*/ ctype match {
+        else*/ atype match {
             case CSigned(_) => true
             case CUnsigned(_) => true
             case CSignUnspecified(_) => true

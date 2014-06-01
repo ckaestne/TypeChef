@@ -978,6 +978,8 @@ abstract class MultiFeatureParser(val featureModel: FeatureModel = null, debugOu
 
         def mapfr[U](feature: FeatureExpr, f: (FeatureExpr, ParseResult[T]) => MultiParseResult[U]): MultiParseResult[U]
 
+        def mapr[U](f: ParseResult[T] => MultiParseResult[U]): MultiParseResult[U] = mapfr(FeatureExprFactory.True, (ctx, r) => f(r))
+
         /**
          * joins as far as possible. joins all successful ones but maintains partially successful results.
          * keeping partially unsucessful results is necessary to consider multiple branches for an alternative on ASTs
@@ -1012,6 +1014,10 @@ abstract class MultiFeatureParser(val featureModel: FeatureModel = null, debugOu
 
         //replace all failures by errors (non-backtracking!)
         def commit: MultiParseResult[T]
+
+        // removes branches from split parse results that are not reachable according to the feature model
+        def prune(fm: FeatureModel): MultiParseResult[T] = prune(True, fm)
+        private[MultiFeatureParser] def prune(ctx: FeatureExpr, fm: FeatureModel): MultiParseResult[T]
     }
 
     /**
@@ -1191,6 +1197,14 @@ abstract class MultiFeatureParser(val featureModel: FeatureModel = null, debugOu
 
         def commit: MultiParseResult[T] =
             SplittedParseResult(feature, resultA.commit, resultB.commit)
+
+        private[MultiFeatureParser] def prune(ctx: FeatureExpr, fm: FeatureModel): MultiParseResult[T] =
+            if ((ctx and feature).isContradiction(fm))
+                resultB.prune(ctx andNot feature, fm)
+            else if ((ctx andNot feature).isContradiction(fm))
+                resultA.prune(ctx and feature, fm)
+            else
+                SplittedParseResult(feature, resultA.prune(ctx and feature, fm), resultB.prune(ctx andNot feature, fm))
     }
 
     /**
@@ -1222,12 +1236,11 @@ abstract class MultiFeatureParser(val featureModel: FeatureModel = null, debugOu
         def joinNoSuccess() = this
 
         def toList(context: FeatureExpr) = List((context, this))
+
+        private[MultiFeatureParser] def prune(ctx: FeatureExpr, fm: FeatureModel): MultiParseResult[T] = this
     }
 
     abstract class NoSuccess(val msg: String, val nextInput: TokenReader[Elem, TypeContext], val innerErrors: List[NoSuccess]) extends ParseResult[Nothing](nextInput) {
-        if (!(lastNoSuccess != null && nextInput != null && nextInput.pos < lastNoSuccess.next.pos))
-            lastNoSuccess = this
-
         def map[U](f: Nothing => U) = this
 
         def mapf[U](inFeature: FeatureExpr, f: (FeatureExpr, Nothing) => U): MultiParseResult[U] = this
@@ -1313,17 +1326,6 @@ abstract class MultiFeatureParser(val featureModel: FeatureModel = null, debugOu
         def commit: MultiParseResult[T] = this
     }
 
-    /**
-     * LastNoSuccess remebers the last object of
-     * Failure or Error and can be used for error
-     * reporting (reporting the last-most error) in
-     * combinator phrase
-     *
-     * This is a hack using a singleton global variable.
-     * will not work correctly with multithreading,
-     * no guarantees given.
-     */
-    var lastNoSuccess: NoSuccess = null
 
     /** <p>
       * A parser generator delimiting whole phrases (i.e. programs).
@@ -1339,38 +1341,21 @@ abstract class MultiFeatureParser(val featureModel: FeatureModel = null, debugOu
       *         if <code>p</code> consumed all the input.
       */
     def phrase[T](p: MultiParser[T]) = new MultiParser[T] {
-        lastNoSuccess = null
 
         def apply(in: Input, fs: FeatureExpr) = {
             val result = p(in, fs)
 
-            result match {
-                case s@Success(out, in1) =>
-                    if (in1.atEnd)
-                        s
-                    else if (lastNoSuccess == null || lastNoSuccess.next.pos < in1.pos)
-                        Failure("end of input expected", in1, List())
-                    else
-                        lastNoSuccess
-                case x: NoSuccess =>
-                    if (lastNoSuccess != null)
-                        lastNoSuccess
-                    else
+            result.mapfr(fs, (feature, result) =>
+                result match {
+                    case s@Success(out, in1) =>
+                        if (in1.atEnd)
+                            s
+                        else
+                            Failure("end of input expected", in1, List())
+                    case x: NoSuccess =>
                         result
-                case x: SplittedParseResult[_] =>
-                    //cannot used lastNoSuccess on split results
-                    result.mapfr(fs, (feature, result) =>
-                        result match {
-                            case s@Success(out, in1) =>
-                                if (in1.atEnd)
-                                    s
-                                else
-                                    Failure("end of input expected", in1, List())
-                            case x: NoSuccess =>
-                                result
-                        }
-                    )
-            }
+                }
+            )
         }
     }
 

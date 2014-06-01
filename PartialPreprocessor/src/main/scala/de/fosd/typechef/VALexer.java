@@ -87,6 +87,8 @@ public interface VALexer {
 
     void setListener(PreprocessorListener preprocessorListener);
 
+    FeatureModel getFeatureModel();
+
 
     // debugging only
     void printSourceStack(PrintStream err);

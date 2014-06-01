@@ -1,5 +1,6 @@
 package de.fosd.typechef.options;
 
+import de.fosd.typechef.VALexer;
 import gnu.getopt.Getopt;
 import gnu.getopt.LongOpt;
 
@@ -176,6 +177,7 @@ public abstract class Options {
     public List<String> getFiles() {
         return files;
     }
+
 
     protected void checkFileExists(String file) throws OptionException {
         File f = new File(file);
