@@ -105,6 +105,40 @@ class DoubleFreeTest extends TestHelper with ShouldMatchers with CFGHelper {
                     """.stripMargin) should be(false)
     }
 
+    @Test def test_shadowing_linux() {
+        doubleFree( """
+              void* malloc(int i) { return ((void*)0); }
+              void kfree(void* p) { }
+              void foo() {
+                  int *a = malloc(2);
+                  if (a) {
+                    #ifdef A
+                    int *a = malloc(3);
+                    #endif
+                    kfree(a);
+                  }
+                  kfree(a);  // diagnostic
+              }
+                    """.stripMargin, "linux") should be(false)
+    }
+
+    @Test def test_shadowing_openssl() {
+        doubleFree( """
+              void* malloc(int i) { return ((void*)0); }
+              void CRYPTO_free(void* p) { }
+              void foo() {
+                  int *a = malloc(2);
+                  if (a) {
+                    #ifdef A
+                    int *a = malloc(3);
+                    #endif
+                    CRYPTO_free(a);
+                  }
+                  CRYPTO_free(a);  // diagnostic
+              }
+                    """.stripMargin, "openssl") should be(false)
+    }
+
     @Test def test_assign() {
         doubleFree( """
               void* malloc(int i) { return ((void*)0); }
