@@ -41,7 +41,8 @@ public interface ILexerOptions {
     boolean useXtcLexer();
 
 
-    FeatureModel getLexerFeatureModel();
+    FeatureModel getSmallFeatureModel();
+    FeatureModel getFullFeatureModel();
 
     PartialConfiguration getLexerPartialConfiguration();
 

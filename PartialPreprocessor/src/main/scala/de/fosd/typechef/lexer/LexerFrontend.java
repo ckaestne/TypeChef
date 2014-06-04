@@ -110,7 +110,7 @@ public class LexerFrontend {
     }
 
     public Conditional<LexerResult> run(VALexer.LexerFactory lexerFactory, ILexerOptions options, boolean returnTokenList) throws LexerException, IOException {
-        VALexer pp = lexerFactory.create(options.getLexerFeatureModel());
+        VALexer pp = lexerFactory.create(options.getSmallFeatureModel());
 
         for (Warning w : options.getWarnings())
             pp.addWarning(w);
@@ -212,7 +212,7 @@ public class LexerFrontend {
         }
 
         // creating conditional result by nesting the result with all the errors received so far
-        Conditional<LexerResult> result = createResult(listener.getLexerErrorList(), resultTokenList);
+        Conditional<LexerResult> result = createResult(listener.getLexerErrorList(), resultTokenList, options.getFullFeatureModel());
         if (crash != null)
             result = new One<LexerResult>(crash);
 
@@ -222,14 +222,15 @@ public class LexerFrontend {
         return result;
     }
 
-    private Conditional<LexerResult> createResult(List<PreprocessorListener.Pair<FeatureExpr, LexerError>> lexerErrorList, List<LexerToken> resultTokenList) {
+    private Conditional<LexerResult> createResult(List<PreprocessorListener.Pair<FeatureExpr, LexerError>> lexerErrorList, List<LexerToken> resultTokenList, FeatureModel fm) {
         Conditional<LexerResult> result = new One<LexerResult>(new LexerSuccess(resultTokenList));
 
         List<PreprocessorListener.Pair<FeatureExpr, LexerError>> errorList = new ArrayList<>(lexerErrorList);
         Collections.reverse(errorList);
-        for (PreprocessorListener.Pair<FeatureExpr, LexerError> error : errorList) {
-            result = new Choice<LexerResult>(error._1, new One<LexerResult>(error._2), result);
-        }
+        for (PreprocessorListener.Pair<FeatureExpr, LexerError> error : errorList)
+            if (error._1.isSatisfiable(fm)) {
+                result = new Choice<LexerResult>(error._1, new One<LexerResult>(error._2), result);
+            }
 
         return result;
     }
@@ -463,7 +464,11 @@ public class LexerFrontend {
         }
 
         @Override
-        public FeatureModel getLexerFeatureModel() {
+        public FeatureModel getSmallFeatureModel() {
+            return featureModel;
+        }
+        @Override
+        public FeatureModel getFullFeatureModel() {
             return featureModel;
         }
 
@@ -582,7 +587,11 @@ public class LexerFrontend {
         }
 
         @Override
-        public FeatureModel getLexerFeatureModel() {
+        public FeatureModel getSmallFeatureModel() {
+            return featureModel;
+        }
+        @Override
+        public FeatureModel getFullFeatureModel() {
             return featureModel;
         }
 

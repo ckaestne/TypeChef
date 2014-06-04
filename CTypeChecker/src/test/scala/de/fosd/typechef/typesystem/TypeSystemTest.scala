@@ -1109,5 +1109,23 @@ return 1;
                 """.stripMargin)
 
     }
+    ignore("enum scoping in struct") { // this problem occurs in one file in linux. not easy to fix
+        correct( """
+                   |struct A {
+                   |    enum C { AA, BB };
+                   |    int DD[AA]; //<-- AA was not in scope here
+                   |} D;
+                   |int x() {
+                   |    int i;
+                   |    for (i=0; i< AA; i++) ;
+                   |}
+                 """.stripMargin)
+        error( """
+                   |struct A {
+                   |    enum C { Ax, BB };
+                   |} D;
+                   |int x() { return AA; }
+                 """.stripMargin)
+    }
 }
 

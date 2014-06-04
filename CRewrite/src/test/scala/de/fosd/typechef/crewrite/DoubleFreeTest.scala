@@ -156,6 +156,7 @@ class DoubleFreeTest extends TestHelper with ShouldMatchers with CFGHelper {
         doubleFree( """
               void* malloc(int i) { return ((void*)0); }
               void free(void* p) { }
+
               int foo() {
                   int fd;
                   if (fd) {

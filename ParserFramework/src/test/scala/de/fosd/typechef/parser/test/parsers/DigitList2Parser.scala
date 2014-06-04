@@ -3,6 +3,7 @@ package de.fosd.typechef.parser.test.parsers
 import de.fosd.typechef.parser._
 import de.fosd.typechef.conditional._
 import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
+import scala.language.higherKinds
 
 case class DigitList2(list: List[Opt[Conditional[AST]]]) extends AST
 
