@@ -1,6 +1,5 @@
 package de.fosd.typechef.options;
 
-import de.fosd.typechef.VALexer;
 import de.fosd.typechef.error.Position;
 import de.fosd.typechef.featureexpr.FeatureExpr;
 import de.fosd.typechef.featureexpr.FeatureExprFactory$;
@@ -11,7 +10,6 @@ import gnu.getopt.LongOpt;
 import scala.Function3;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -29,6 +27,7 @@ public class FrontendOptions extends CAnalysisOptions implements ParserOptions {
             parserResults = true,
             writePI = false,
             printVersion = false;
+    public String caseStudy = "";
     protected File errorXMLFile = null;
     private final File _autoErrorXMLFile = new File(".");
     String outputStem = "";
@@ -49,6 +48,7 @@ public class FrontendOptions extends CAnalysisOptions implements ParserOptions {
     private final static char F_HIDEPARSERRESULTS = Options.genOptionId();
     private final static char F_BDD = Options.genOptionId();
     private final static char F_ERRORXML = Options.genOptionId();
+    private final static char F_CASESTUDY = Options.genOptionId();
     private static final char TY_VERSION = genOptionId();
     private static final char TY_HELP = genOptionId();
     private Function3<FeatureExpr, String, Position, Object> _renderParserError;
@@ -159,6 +159,8 @@ public class FrontendOptions extends CAnalysisOptions implements ParserOptions {
                 checkFileWritable(g.getOptarg());
                 errorXMLFile = new File(g.getOptarg());
             }
+        } else if (c == F_CASESTUDY) { // --casestudy=<name>
+            caseStudy = g.getOptarg();
         } else if (c == TY_VERSION) { // --version
             printVersion = true;
         } else if (c == TY_HELP) {//--help

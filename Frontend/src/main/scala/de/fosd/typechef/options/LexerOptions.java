@@ -31,6 +31,9 @@ public abstract class LexerOptions extends Options implements ILexerOptions {
     private static final char PP_NOSTDOUT = genOptionId();
     private final static char PP_XTC = genOptionId();
     private final static char PP_ADJUSTLINES = genOptionId();
+    private String prefix = "";
+
+    public String getPrefix() { return prefix; }
 
     @Override
     protected List<Options.OptionGroup> getOptionGroups() {
@@ -254,6 +257,7 @@ public abstract class LexerOptions extends Options implements ILexerOptions {
                     break;
                 case 'x':
                     result = result.setPrefixOnlyFilter(filter.substring(2));
+                    prefix = filter.substring(2);
                     break;
                 case '4':
                     result = result.setListFilter(filter.substring(2));

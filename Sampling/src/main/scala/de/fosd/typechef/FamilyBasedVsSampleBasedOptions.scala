@@ -8,12 +8,12 @@ import de.fosd.typechef.options.Options.OptionGroup
 
 class FamilyBasedVsSampleBasedOptions extends FrontendOptionsWithConfigFiles {
 
-    def analyze = singleConf || codeCoverage || codeCoverageNH || pairwise || family
+    def analyze = singleConf != "" || codeCoverage || codeCoverageNH || pairwise != "" || family
 
-    private[typechef] var singleConf: Boolean = false
+    private[typechef] var singleConf: String = ""
     private[typechef] var codeCoverage: Boolean = false
     private[typechef] var codeCoverageNH: Boolean = false
-    private[typechef] var pairwise: Boolean = false
+    private[typechef] var pairwise: String = ""
     private[typechef] var family: Boolean = false
     private[typechef] var errorDetection: Boolean = false
     private var rootFolder: String = ""
@@ -22,7 +22,6 @@ class FamilyBasedVsSampleBasedOptions extends FrontendOptionsWithConfigFiles {
     private final val F_CODECOVERAGE: Char = Options.genOptionId
     private final val F_CODECOVERAGENH: Char = Options.genOptionId
     private final val F_PAIRWISE: Char = Options.genOptionId
-    private final val F_ROOTFOLDER: Char = Options.genOptionId
     private final val F_FAMILY: Char = Options.genOptionId
     private final val F_ERRORDETECTION: Char = Options.genOptionId()
 
@@ -31,10 +30,7 @@ class FamilyBasedVsSampleBasedOptions extends FrontendOptionsWithConfigFiles {
 
         groups.add(
             new Options.OptionGroup("Sampling options", 1,
-                new Options.Option("rootfolder", LongOpt.REQUIRED_ARGUMENT, F_ROOTFOLDER,
-                    "rootfolder", "parent folder of case study"),
-
-                new Options.Option("singleconf", LongOpt.NO_ARGUMENT, F_SINGLECONF, null,
+                new Options.Option("singleconf", LongOpt.REQUIRED_ARGUMENT, F_SINGLECONF, "config",
                     "enable single config sampling; default is disabled"),
 
                 new Options.Option("codecoverage", LongOpt.NO_ARGUMENT, F_CODECOVERAGE, null,
@@ -43,7 +39,7 @@ class FamilyBasedVsSampleBasedOptions extends FrontendOptionsWithConfigFiles {
                 new Options.Option("codecoveragenh", LongOpt.NO_ARGUMENT, F_CODECOVERAGENH, null,
                     "enable code-coverage (without header files) sampling; default is disabled"),
 
-                new Options.Option("pairwise", LongOpt.NO_ARGUMENT, F_PAIRWISE, null,
+                new Options.Option("pairwise", LongOpt.REQUIRED_ARGUMENT, F_PAIRWISE, "config",
                     "enable pairwise sampling; default is disabled"),
 
                 new Options.Option("family", LongOpt.NO_ARGUMENT, F_FAMILY, null,
@@ -57,16 +53,12 @@ class FamilyBasedVsSampleBasedOptions extends FrontendOptionsWithConfigFiles {
     }
 
     protected override def interpretOption(c: Int, g: Getopt): Boolean = {
-        if (c == F_SINGLECONF) singleConf = true
+        if (c == F_SINGLECONF) singleConf = g.getOptarg
         else if (c == F_CODECOVERAGE) codeCoverage = true
         else if (c == F_CODECOVERAGENH) codeCoverageNH = true
-        else if (c == F_PAIRWISE) pairwise = true
+        else if (c == F_PAIRWISE) pairwise = g.getOptarg
         else if (c == F_FAMILY) family = true
         else if (c == F_ERRORDETECTION) errorDetection = true
-        else if (c == F_ROOTFOLDER) {
-            checkDirectoryExists(g.getOptarg)
-            rootFolder = g.getOptarg
-        }
         else {
             return super.interpretOption(c, g)
         }

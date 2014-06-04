@@ -188,7 +188,7 @@ object ConfigurationHandling {
 
     def buildConfigurationsSingleConf(tunit: TranslationUnit, ff: FileFeatures, fm: FeatureModel,
                                       opt: FamilyBasedVsSampleBasedOptions, configDir: File,
-                                      caseStudy: String, exTasks: List[Task]): (String, List[Task]) = {
+                                      exTasks: List[Task]): (String, List[Task]) = {
         var tasks: List[Task] = List()
         var log = ""
         var msg = ""
@@ -197,16 +197,7 @@ object ConfigurationHandling {
         if (exTasks.exists(_._1 == "singleconf")) {
             msg = "omitting sample-set generation (singleconf) because a serialized version was loaded"
         } else {
-            val configFile = if (caseStudy.equals("linux"))
-                opt.getRootFolder + "Linux_allyes_modified.config"
-            else if (caseStudy.equals("busybox"))
-                opt.getRootFolder + "BusyboxBigConfig.config"
-            else if (caseStudy.equals("openssl"))
-                opt.getRootFolder + "OpenSSL.config"
-            else if (caseStudy.equals("sqlite"))
-                opt.getRootFolder + "SQLite.config"
-            else
-                throw new Exception("unknown case Study, give linux, busybox, openssl, or sqlite")
+            val configFile = opt.singleConf
             val startTime = tb.getCurrentThreadCpuTime
 
             val (configs, logMsg) = ConfigurationHandling.loadConfigurationFromKconfigFile(ff, fm,
@@ -223,7 +214,7 @@ object ConfigurationHandling {
 
     def buildConfigurationsPairwise(tunit: TranslationUnit, ff: FileFeatures, fm: FeatureModel,
                                     opt: FamilyBasedVsSampleBasedOptions, configDir: File,
-                                    caseStudy: String, exTasks: List[Task]): (String, List[Task]) = {
+                                    exTasks: List[Task]): (String, List[Task]) = {
         var tasks: List[Task] = List()
         var log = ""
         var msg = ""
@@ -232,29 +223,9 @@ object ConfigurationHandling {
         if (exTasks.exists(_._1 == "pairwise")) {
             msg = "omitting sample set generation (pairwise) because a serialized version was loaded"
         } else {
-            var productsFile: File = null
-            var dimacsFM: File = null
-            var featurePrefix = ""
-            if (caseStudy == "linux") {
-                productsFile = new File(opt.getRootFolder + "TypeChef-LinuxAnalysis/linux_pairwise_configs.csv")
-                dimacsFM = new File(opt.getRootFolder + "TypeChef-LinuxAnalysis/2.6.33.3-2var.dimacs")
-                featurePrefix = "CONFIG_"
-            } else if (caseStudy == "busybox") {
-                productsFile = new File(opt.getRootFolder + "busybox_pairwise_configs.csv")
-                dimacsFM = new File(opt.getRootFolder + "busybox/featureModel.dimacs")
-                featurePrefix = "CONFIG_"
-            } else if (caseStudy == "openssl") {
-                productsFile = new File(opt.getRootFolder +
-                    "TypeChef-OpenSSLAnalysis/openssl-1.0.1c/openssl_pairwise_configs.csv")
-                dimacsFM = new File(opt.getRootFolder +
-                    "TypeChef-OpenSSLAnalysis/openssl-1.0.1c/openssl.dimacs")
-            } else if (caseStudy == "sqlite") {
-                productsFile = new File(opt.getRootFolder +
-                    "cRefactor-SQLiteEvaluation/sqlite_pairwise_configs.csv")
-                dimacsFM = new File(opt.getRootFolder + "cRefactor-SQLiteEvaluation/sqlite.dimacs")
-            } else {
-                throw new Exception("unknown case Study, give linux or busybox")
-            }
+            val productsFile: File = new File(opt.pairwise)
+            val dimacsFM: File = opt.getDimacsFile
+            val featurePrefix = opt.getPrefix
             val startTime = tb.getCurrentThreadCpuTime
             val (configs, logMsg) = ConfigurationHandling.loadConfigurationsFromCSVFile(productsFile, dimacsFM, ff,
                 fm, featurePrefix)
@@ -269,8 +240,7 @@ object ConfigurationHandling {
     }
 
     def buildConfigurationsCodeCoverageNH(tunit: TranslationUnit, ff: FileFeatures, fm: FeatureModel,
-                                          configDir: File, caseStudy: String, exTasks: List[Task])
-    : (String, List[Task]) = {
+                                          configDir: File, exTasks: List[Task]): (String, List[Task]) = {
         var tasks: List[Task] = List()
         var log = ""
         var msg = ""
@@ -294,31 +264,27 @@ object ConfigurationHandling {
     }
 
     def buildConfigurationsCodeCoverage(tunit: TranslationUnit, ff: FileFeatures, fm: FeatureModel,
-                                                configDir: File, caseStudy: String, exTasks: List[Task])
+                                        configDir: File, exTasks: List[Task])
     : (String, List[Task]) = {
         var tasks: List[Task] = List()
         var log = ""
         var msg = ""
         val tb = java.lang.management.ManagementFactory.getThreadMXBean
 
-        if (caseStudy != "linux") {
-            if (exTasks.exists(_._1 == "coverage")) {
-                msg = "omitting sample-set generation (code coverage) because a serialized version was loaded"
-            } else {
-                val startTime = tb.getCurrentThreadCpuTime
-                val (configs, logMsg) = codeCoverage(tunit, fm, ff, List(),
-                    preferDisabledFeatures = false, includeVariabilityFromHeaderFiles = true)
-                val endTime = tb.getCurrentThreadCpuTime
-
-                tasks :+= Pair("coverage", configs)
-                msg = "Time for config generation (coverage): " +
-                    ((endTime - startTime)/1000000) + " ms\n" + logMsg
-            }
-            println(msg)
-            log = log + msg + "\n"
+        if (exTasks.exists(_._1 == "coverage")) {
+            msg = "omitting sample-set generation (code coverage) because a serialized version was loaded"
         } else {
-            println("omit code coverage for case study linux; computation is too expensive!")
+            val startTime = tb.getCurrentThreadCpuTime
+            val (configs, logMsg) = codeCoverage(tunit, fm, ff, List(),
+                preferDisabledFeatures = false, includeVariabilityFromHeaderFiles = true)
+            val endTime = tb.getCurrentThreadCpuTime
+
+            tasks :+= Pair("coverage", configs)
+            msg = "Time for config generation (coverage): " +
+                ((endTime - startTime)/1000000) + " ms\n" + logMsg
         }
+        println(msg)
+        log = log + msg + "\n"
 
         (log, tasks)
     }

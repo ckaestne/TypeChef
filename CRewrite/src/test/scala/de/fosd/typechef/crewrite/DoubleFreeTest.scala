@@ -16,12 +16,12 @@ class DoubleFreeTest extends TestHelper with ShouldMatchers with CFGHelper {
         df.gen(a).map {case ((x, _), f) => (x, f)}
     }
 
-    def doubleFree(code: String): Boolean = {
+    def doubleFree(code: String, caseStudy: String = ""): Boolean = {
         val tunit = EnforceTreeHelper.prepareAST[TranslationUnit](parseTranslationUnit(code))
         val ts = new CTypeSystemFrontend(tunit) with CTypeCache with CDeclUse
         assert(ts.checkASTSilent, "typecheck fails!")
         val df = new CIntraAnalysisFrontend(tunit, ts)
-        df.doubleFree()
+        df.doubleFree(caseStudy)
     }
 
     @Test def test_free() {

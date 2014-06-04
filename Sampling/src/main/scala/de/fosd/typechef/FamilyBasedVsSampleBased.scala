@@ -49,8 +49,8 @@ object FamilyBasedVsSampleBased extends ASTNavigation with CFGHelper {
         }
 
         /** pairwise configurations */
-        if (opt.pairwise) {
-            val (plog, ptasks) = ConfigurationHandling.buildConfigurationsPairwise(tunit, ff, fm, opt, configdir, caseStudy, tasks)
+        if (opt.pairwise != "") {
+            val (plog, ptasks) = ConfigurationHandling.buildConfigurationsPairwise(tunit, ff, fm, opt, configdir, tasks)
             log = log + plog
             tasks ++= ptasks
         } else {
@@ -59,7 +59,7 @@ object FamilyBasedVsSampleBased extends ASTNavigation with CFGHelper {
 
         /** code coverage - no Header files */
         if (opt.codeCoverageNH) {
-            val (clog, ctasks) = ConfigurationHandling.buildConfigurationsCodeCoverageNH(tunit, ff, fm, configdir, caseStudy, tasks)
+            val (clog, ctasks) = ConfigurationHandling.buildConfigurationsCodeCoverageNH(tunit, ff, fm, configdir, tasks)
             log = log + clog
             tasks ++= ctasks
         } else {
@@ -68,7 +68,7 @@ object FamilyBasedVsSampleBased extends ASTNavigation with CFGHelper {
 
         /** code coverage - including Header files */
         if (opt.codeCoverage) {
-            val (clog, ctasks) = ConfigurationHandling.buildConfigurationsCodeCoverage(tunit, ff, fm, configdir, caseStudy, tasks)
+            val (clog, ctasks) = ConfigurationHandling.buildConfigurationsCodeCoverage(tunit, ff, fm, configdir, tasks)
             log = log + clog
             tasks ++= ctasks
         } else {
@@ -76,8 +76,8 @@ object FamilyBasedVsSampleBased extends ASTNavigation with CFGHelper {
         }
 
         /** singleconf */
-        if (opt.singleConf) {
-            val (flog, ftasks) = ConfigurationHandling.buildConfigurationsSingleConf(tunit, ff, fm, opt, configdir, caseStudy, tasks)
+        if (opt.singleConf != "") {
+            val (flog, ftasks) = ConfigurationHandling.buildConfigurationsSingleConf(tunit, ff, fm, opt, configdir, tasks)
             log = log + flog
             tasks ++= ftasks
         } else {
@@ -200,7 +200,7 @@ object FamilyBasedVsSampleBased extends ASTNavigation with CFGHelper {
         val outFilePrefix: String = fileID.substring(0, fileID.length - 2)
 
         sw.start("doublefree")
-        sa.doubleFree()
+        sa.doubleFree(opt.caseStudy)
         sw.start("uninitializedmemory")
         sa.uninitializedMemory()
         sw.start("casetermination")

@@ -185,7 +185,7 @@ object Frontend {
                     val sa = new CIntraAnalysisFrontend(ast, ts.asInstanceOf[CTypeSystemFrontend with CTypeCache with CDeclUse], fm_ts)
                     if (opt.warning_double_free) {
                         stopWatch.start("doublefree")
-                        sa.doubleFree()
+                        sa.doubleFree(opt.caseStudy)
                     }
                     if (opt.warning_uninitialized_memory) {
                         stopWatch.start("uninitializedmemory")

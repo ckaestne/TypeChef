@@ -10,6 +10,7 @@ import de.fosd.typechef.lexer.options.PartialConfigurationParser$;
 import gnu.getopt.Getopt;
 import gnu.getopt.LongOpt;
 
+import java.io.File;
 import java.util.List;
 
 /**
@@ -23,6 +24,7 @@ public abstract class FeatureModelOptions extends LexerOptions implements ILexer
     protected FeatureModel featureModel = null;
     protected FeatureModel featureModel_typeSystem = null;
     protected PartialConfiguration partialConfig = null;
+    private File fmDimacs = null;
 
 
     @Override
@@ -40,6 +42,8 @@ public abstract class FeatureModelOptions extends LexerOptions implements ILexer
             return FeatureExprLib.featureModelFactory().empty();
         return featureModel;
     }
+
+    public File getDimacsFile() { return fmDimacs; }
 
     private static final char FM_DIMACS = Options.genOptionId();
     private static final char FM_FEXPR = Options.genOptionId();
@@ -77,6 +81,7 @@ public abstract class FeatureModelOptions extends LexerOptions implements ILexer
             // case studies busybox and load a specialized feature model
             // all others load a standard feature model in which the prefix is set to "" (default is "CONFIG_"),
             // which is used in busybox and linux
+            fmDimacs = new File(g.getOptarg());
             if (g.getOptarg().contains("linux") || g.getOptarg().contains("busybox"))
                 featureModel = FeatureExprLib.featureModelFactory().createFromDimacsFile_2Var(g.getOptarg());
             else

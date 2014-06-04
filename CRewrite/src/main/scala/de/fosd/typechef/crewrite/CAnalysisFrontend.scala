@@ -126,16 +126,7 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
         err
     }
 
-    def doubleFree(): Boolean = {
-        val caseStudy = {
-            tunit.getFile match {
-                case None => ""
-                case Some(x) =>
-                    if (x.contains("linux")) "linux"
-                    else if (x.contains("openssl")) "openssl"
-                    else ""
-            }
-        }
+    def doubleFree(caseStudy: String): Boolean = {
 
         val err = fAnalyze.flatMap(doubleFree(_, caseStudy))
 
