@@ -221,7 +221,6 @@ object ConfigurationHandling {
             val productsFile: File = new File(opt.pairwise.get)
             val dimacsFM: File = opt.getDimacsFile
             val featurePrefix = opt.getPrefix
-            println("prefix: " + featurePrefix)
             val startTime = tb.getCurrentThreadCpuTime
             val (configs, logMsg) = ConfigurationHandling.loadConfigurationsFromCSVFile(productsFile, dimacsFM, ff,
                 fm, featurePrefix)
