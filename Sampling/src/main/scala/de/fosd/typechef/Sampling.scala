@@ -47,12 +47,14 @@ object Sampling {
         val errorXML = new ErrorXML(opt.getErrorXMLFile)
         opt.setRenderParserError(errorXML.renderParserError)
 
-        val fm = opt.getLexerFeatureModel.and(opt.getLocalFeatureModel).and(opt.getFilePresenceCondition)
-        opt.setFeatureModel(fm)
-        if (!opt.getFilePresenceCondition.isSatisfiable(fm)) {
+        val smallFM = opt.getSmallFeatureModel.and(opt.getLocalFeatureModel).and(opt.getFilePresenceCondition)
+        opt.setSmallFeatureModel(smallFM)
+        if (!opt.getFilePresenceCondition.isSatisfiable(smallFM)) {
             println("file has contradictory presence condition. existing.")
             return
         }
+        val fullFM = opt.getFullFeatureModel.and(opt.getLocalFeatureModel).and(opt.getFilePresenceCondition)
+        opt.setFullFeatureModel(fullFM)
 
         var ast: TranslationUnit = null
         if (opt.reuseAST && opt.parse && new File(opt.getSerializedASTFilename).exists()) {
@@ -68,8 +70,8 @@ object Sampling {
         } else {
             new lexer.LexerFrontend().run(opt, opt.parse)
             val in = lex(opt)
-            val parserMain = new ParserMain(new CParser(fm))
-            ast = parserMain.parserMain(in, opt).asInstanceOf[TranslationUnit]
+            val parserMain = new ParserMain(new CParser(smallFM))
+            ast = parserMain.parserMain(in, opt, fullFM)
 
             if (ast != null && opt.serializeAST) {
                 Frontend.serializeAST(ast, opt.getSerializedASTFilename)
@@ -77,13 +79,12 @@ object Sampling {
         }
 
         if (ast != null) {
-            val fm_ts = opt.getTypeSystemFeatureModel.and(opt.getLocalFeatureModel).and(opt.getFilePresenceCondition)
             val treeAst = EnforceTreeHelper.prepareAST[TranslationUnit](ast)
 
             if (opt.errorDetection)
-                FamilyBasedVsSampleBased.checkDFGErrorsAgainstSamplingConfigs(fm_ts, fm_ts, treeAst, opt, "")
+                FamilyBasedVsSampleBased.checkDFGErrorsAgainstSamplingConfigs(fullFM, fullFM, treeAst, opt, "")
             else if (opt.analyze)
-                FamilyBasedVsSampleBased.typecheckProducts(fm_ts, fm_ts, treeAst, opt, "")
+                FamilyBasedVsSampleBased.typecheckProducts(fullFM, fullFM, treeAst, opt, "")
         }
     }
 
