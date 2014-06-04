@@ -8,12 +8,12 @@ import de.fosd.typechef.options.Options.OptionGroup
 
 class FamilyBasedVsSampleBasedOptions extends FrontendOptionsWithConfigFiles {
 
-    def analyze = singleConf != "" || codeCoverage || codeCoverageNH || pairwise != "" || family
+    def analyze = singleConf.isDefined || codeCoverage || codeCoverageNH || pairwise.isDefined || family
 
-    private[typechef] var singleConf: String = ""
+    private[typechef] var singleConf: Option[String] = None
     private[typechef] var codeCoverage: Boolean = false
     private[typechef] var codeCoverageNH: Boolean = false
-    private[typechef] var pairwise: String = ""
+    private[typechef] var pairwise: Option[String] = None
     private[typechef] var family: Boolean = false
     private[typechef] var errorDetection: Boolean = false
     private var rootFolder: String = ""
@@ -53,10 +53,10 @@ class FamilyBasedVsSampleBasedOptions extends FrontendOptionsWithConfigFiles {
     }
 
     protected override def interpretOption(c: Int, g: Getopt): Boolean = {
-        if (c == F_SINGLECONF) singleConf = g.getOptarg
+        if (c == F_SINGLECONF) singleConf = Some(g.getOptarg)
         else if (c == F_CODECOVERAGE) codeCoverage = true
         else if (c == F_CODECOVERAGENH) codeCoverageNH = true
-        else if (c == F_PAIRWISE) pairwise = g.getOptarg
+        else if (c == F_PAIRWISE) pairwise = Some(g.getOptarg)
         else if (c == F_FAMILY) family = true
         else if (c == F_ERRORDETECTION) errorDetection = true
         else {

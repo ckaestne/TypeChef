@@ -10,9 +10,8 @@ import de.fosd.typechef.parser.c.{AST, TranslationUnit}
 import de.fosd.typechef.conditional._
 
 object ConfigurationHandling {
-    def loadConfigurationsFromCSVFile(csvFile: File, dimacsFile: File,
-                                      ff: FileFeatures, fm: FeatureModel, featureNamePrefix: String = ""):
-    (Set[SimpleConfiguration], String) = {
+    def loadConfigurationsFromCSVFile(csvFile: File, dimacsFile: File, ff: FileFeatures, fm: FeatureModel,
+                                      featureNamePrefix: String = ""): (Set[SimpleConfiguration], String) = {
         var res: Set[SimpleConfiguration] = Set()
 
         // determine the feature ids used by the sat solver from the dimacs file
@@ -187,8 +186,7 @@ object ConfigurationHandling {
 
 
     def buildConfigurationsSingleConf(tunit: TranslationUnit, ff: FileFeatures, fm: FeatureModel,
-                                      opt: FamilyBasedVsSampleBasedOptions, configDir: File,
-                                      exTasks: List[Task]): (String, List[Task]) = {
+                                      opt: FamilyBasedVsSampleBasedOptions, exTasks: List[Task]): (String, List[Task]) = {
         var tasks: List[Task] = List()
         var log = ""
         var msg = ""
@@ -197,11 +195,9 @@ object ConfigurationHandling {
         if (exTasks.exists(_._1 == "singleconf")) {
             msg = "omitting sample-set generation (singleconf) because a serialized version was loaded"
         } else {
-            val configFile = opt.singleConf
             val startTime = tb.getCurrentThreadCpuTime
-
             val (configs, logMsg) = ConfigurationHandling.loadConfigurationFromKconfigFile(ff, fm,
-                new File(configFile))
+                new File(opt.singleConf.get))
             val endTime = tb.getCurrentThreadCpuTime
 
             tasks :+= Pair("singleconf", configs)
@@ -213,8 +209,7 @@ object ConfigurationHandling {
     }
 
     def buildConfigurationsPairwise(tunit: TranslationUnit, ff: FileFeatures, fm: FeatureModel,
-                                    opt: FamilyBasedVsSampleBasedOptions, configDir: File,
-                                    exTasks: List[Task]): (String, List[Task]) = {
+                                    opt: FamilyBasedVsSampleBasedOptions, exTasks: List[Task]): (String, List[Task]) = {
         var tasks: List[Task] = List()
         var log = ""
         var msg = ""
@@ -223,9 +218,10 @@ object ConfigurationHandling {
         if (exTasks.exists(_._1 == "pairwise")) {
             msg = "omitting sample set generation (pairwise) because a serialized version was loaded"
         } else {
-            val productsFile: File = new File(opt.pairwise)
+            val productsFile: File = new File(opt.pairwise.get)
             val dimacsFM: File = opt.getDimacsFile
             val featurePrefix = opt.getPrefix
+            println("prefix: " + featurePrefix)
             val startTime = tb.getCurrentThreadCpuTime
             val (configs, logMsg) = ConfigurationHandling.loadConfigurationsFromCSVFile(productsFile, dimacsFM, ff,
                 fm, featurePrefix)
@@ -240,7 +236,7 @@ object ConfigurationHandling {
     }
 
     def buildConfigurationsCodeCoverageNH(tunit: TranslationUnit, ff: FileFeatures, fm: FeatureModel,
-                                          configDir: File, exTasks: List[Task]): (String, List[Task]) = {
+                                          exTasks: List[Task]): (String, List[Task]) = {
         var tasks: List[Task] = List()
         var log = ""
         var msg = ""
@@ -264,8 +260,7 @@ object ConfigurationHandling {
     }
 
     def buildConfigurationsCodeCoverage(tunit: TranslationUnit, ff: FileFeatures, fm: FeatureModel,
-                                        configDir: File, exTasks: List[Task])
-    : (String, List[Task]) = {
+                                        exTasks: List[Task]): (String, List[Task]) = {
         var tasks: List[Task] = List()
         var log = ""
         var msg = ""

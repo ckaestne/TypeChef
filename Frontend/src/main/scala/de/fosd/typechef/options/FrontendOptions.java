@@ -94,8 +94,10 @@ public class FrontendOptions extends CAnalysisOptions implements ParserOptions {
                         "Use BDD engine instead of SAT engine (provide as first parameter)."),
 
                 new Option("errorXML", LongOpt.OPTIONAL_ARGUMENT, F_ERRORXML, "file",
-                        "File to store syntax and type errors in XML format.")
+                        "File to store syntax and type errors in XML format."),
 
+                new Option("casestudy", LongOpt.REQUIRED_ARGUMENT, F_CASESTUDY, "file",
+                        "Enable analysis peculiarities (available for busybox and linux)")
         ));
         r.add(new OptionGroup("Parser options", 23,
                 new Option("hideparserresults", LongOpt.NO_ARGUMENT, F_HIDEPARSERRESULTS, null,

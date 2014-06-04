@@ -171,6 +171,7 @@ public abstract class LexerOptions extends Options implements ILexerOptions {
             macroFilter.add("P:" + g.getOptarg());
         } else if (c == 'x') {
             macroFilter.add("x:" + g.getOptarg());
+            prefix = g.getOptarg();
         } else if (c == PP_OPENFEAT) {   //--openFeat
             macroFilter.add("4:" + g.getOptarg());
         } else if (c == PP_IQUOTE) { // --iquote=
@@ -257,7 +258,6 @@ public abstract class LexerOptions extends Options implements ILexerOptions {
                     break;
                 case 'x':
                     result = result.setPrefixOnlyFilter(filter.substring(2));
-                    prefix = filter.substring(2);
                     break;
                 case '4':
                     result = result.setListFilter(filter.substring(2));

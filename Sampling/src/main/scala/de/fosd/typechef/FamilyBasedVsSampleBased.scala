@@ -28,8 +28,7 @@ object FamilyBasedVsSampleBased extends ASTNavigation with CFGHelper {
      * the respective generated configs
      */
     private def buildConfigurations(tunit: TranslationUnit, ff: FileFeatures, fm: FeatureModel,
-                                    opt: FamilyBasedVsSampleBasedOptions,
-                                    configdir: File, caseStudy: String): (String, List[Task]) = {
+                                    opt: FamilyBasedVsSampleBasedOptions, configdir: File): (String, List[Task]) = {
         var msg: String = ""
         var log: String = ""
         println("generating configurations.")
@@ -49,8 +48,8 @@ object FamilyBasedVsSampleBased extends ASTNavigation with CFGHelper {
         }
 
         /** pairwise configurations */
-        if (opt.pairwise != "") {
-            val (plog, ptasks) = ConfigurationHandling.buildConfigurationsPairwise(tunit, ff, fm, opt, configdir, tasks)
+        if (opt.pairwise.isDefined) {
+            val (plog, ptasks) = ConfigurationHandling.buildConfigurationsPairwise(tunit, ff, fm, opt, tasks)
             log = log + plog
             tasks ++= ptasks
         } else {
@@ -59,7 +58,7 @@ object FamilyBasedVsSampleBased extends ASTNavigation with CFGHelper {
 
         /** code coverage - no Header files */
         if (opt.codeCoverageNH) {
-            val (clog, ctasks) = ConfigurationHandling.buildConfigurationsCodeCoverageNH(tunit, ff, fm, configdir, tasks)
+            val (clog, ctasks) = ConfigurationHandling.buildConfigurationsCodeCoverageNH(tunit, ff, fm, tasks)
             log = log + clog
             tasks ++= ctasks
         } else {
@@ -68,7 +67,7 @@ object FamilyBasedVsSampleBased extends ASTNavigation with CFGHelper {
 
         /** code coverage - including Header files */
         if (opt.codeCoverage) {
-            val (clog, ctasks) = ConfigurationHandling.buildConfigurationsCodeCoverage(tunit, ff, fm, configdir, tasks)
+            val (clog, ctasks) = ConfigurationHandling.buildConfigurationsCodeCoverage(tunit, ff, fm, tasks)
             log = log + clog
             tasks ++= ctasks
         } else {
@@ -76,8 +75,8 @@ object FamilyBasedVsSampleBased extends ASTNavigation with CFGHelper {
         }
 
         /** singleconf */
-        if (opt.singleConf != "") {
-            val (flog, ftasks) = ConfigurationHandling.buildConfigurationsSingleConf(tunit, ff, fm, opt, configdir, tasks)
+        if (opt.singleConf.isDefined) {
+            val (flog, ftasks) = ConfigurationHandling.buildConfigurationsSingleConf(tunit, ff, fm, opt, tasks)
             log = log + flog
             tasks ++= ftasks
         } else {
@@ -121,28 +120,12 @@ object FamilyBasedVsSampleBased extends ASTNavigation with CFGHelper {
     private def initSampling(fm_scanner: FeatureModel, fm: FeatureModel, ast: TranslationUnit, ff: FileFeatures,
                              opt: FamilyBasedVsSampleBasedOptions, logMessage: String): (String, String, List[Task]) = {
         var caseStudy = ""
-        var thisFilePath: String = ""
-        val fileAbsPath = new File(new File(".").getAbsolutePath, opt.getFile).toString
-        if (fileAbsPath.contains("linux-2.6.33.3")) {
-            thisFilePath = fileAbsPath.substring(fileAbsPath.lastIndexOf("linux-2.6.33.3"))
-            caseStudy = "linux"
-        } else if (fileAbsPath.contains("busybox-1.18.5")) {
-            thisFilePath = fileAbsPath.substring(fileAbsPath.lastIndexOf("busybox-1.18.5"))
-            caseStudy = "busybox"
-        } else if (fileAbsPath.contains("openssl-1.0.1c")) {
-            thisFilePath = fileAbsPath.substring(fileAbsPath.lastIndexOf("openssl-1.0.1c"))
-            caseStudy = "openssl"
-        } else if (fileAbsPath.contains("SQLite")) {
-            thisFilePath = fileAbsPath
-            caseStudy = "sqlite"
-        } else {
-            thisFilePath = opt.getFile
-        }
+        var thisFilePath: String = opt.getFile
 
         val configSerializationDir = new File(thisFilePath.substring(0, thisFilePath.length - 2))
 
         val (configGenLog: String, typecheckingTasks: List[Task]) =
-            buildConfigurations(ast, ff, fm, opt, configSerializationDir, caseStudy)
+            buildConfigurations(ast, ff, fm, opt, configSerializationDir)
         ConfigurationHandling.saveSerializedConfigurations(typecheckingTasks,
             ff.features, configSerializationDir, opt.getFile)
         (configGenLog, thisFilePath, typecheckingTasks)
