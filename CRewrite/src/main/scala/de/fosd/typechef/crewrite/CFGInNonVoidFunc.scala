@@ -21,18 +21,17 @@ class CFGInNonVoidFunc(env: ASTEnv, ts: CTypeSystemFrontend) extends IntraCFG {
             litem match {
                 case Opt(_, ReturnStatement(_)) =>
                 // feature expr in Opt node is not necessarily complete
-                case o@Opt(_, x: AST) => {
+                case o@Opt(_, x: AST) =>
                     findPriorASTElem[ReturnStatement](x, env) match {
                         case Some(_) =>
-                        case None => {
+                        case None =>
                             val ftype = ConditionalLib.findSubtree[CType](env.featureExpr(x), ftypes)
                             ftype match {
-                                case One(CType(CFunction(_, CType(ret, _, _, _)), _, _, _)) if ! ret.isInstanceOf[CVoid] => res ::= o
+                                case One(CType(CFunction(_, CType(ret, _, _, _)), _, _, _))
+                                    if ! ret.isInstanceOf[CVoid] => res ::= o
                                 case _ =>
                             }
-                        }
                     }
-                }
             }
         }
 

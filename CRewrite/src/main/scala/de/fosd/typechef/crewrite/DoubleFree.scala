@@ -39,7 +39,8 @@ import de.fosd.typechef.crewrite.asthelper.{ASTEnv, ASTNavigation}
 // i  = ∅             // is empty because we are only interested in free/realloc and assignments
 // E  = {FunctionDef} // see MonotoneFW
 // F  = flow
-class DoubleFree(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: FeatureModel, f: FunctionDef, casestudy: String) extends MonotoneFWIdLab(env, dum, udm, fm, f) with IntraCFG with CFGHelper with ASTNavigation {
+class DoubleFree(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: FeatureModel, f: FunctionDef, casestudy: String)
+    extends MonotoneFWIdLab(env, dum, udm, fm, f) with IntraCFG with CFGHelper with ASTNavigation {
 
     val freecalls = {
         if (casestudy == "linux") List("free", "kfree")
@@ -92,7 +93,7 @@ class DoubleFree(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: FeatureModel
 
         val freedpointers = manytd(query {
             // realloc(*ptr, size) is used for reallocation of memory
-            case PostfixExpr(Id("realloc"), FunctionCall(l)) => {
+            case PostfixExpr(Id("realloc"), FunctionCall(l)) =>
                 // realloc has two arguments but more than two elements may be passed to
                 // the function. this is the case when elements form alternative groups, such as,
                 // realloc(#ifdef A aptr #else naptr endif, ...)
@@ -118,16 +119,15 @@ class DoubleFree(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: FeatureModel
 
                 }
 
-            }
+
             // calls to free or to derivatives of free
-            case PostfixExpr(Id(n), FunctionCall(l)) => {
+            case PostfixExpr(Id(n), FunctionCall(l)) =>
 
                 if (freecalls.contains(n)) {
                     for (e <- l.exprs) {
                         addFreeTarget(e.entry)
                     }
                 }
-            }
 
         })
 

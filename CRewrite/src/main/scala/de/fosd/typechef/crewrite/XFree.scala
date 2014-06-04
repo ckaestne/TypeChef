@@ -41,7 +41,7 @@ class XFree(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: FeatureModel, f: 
         var res = l
         val variables = manytd(query {
             case InitDeclaratorI(AtomicNamedDeclarator(_, i: Id, _), _, None) => res ++= fromCache(i)
-            case InitDeclaratorI(AtomicNamedDeclarator(_, i: Id, _), _, Some(initializer)) => {
+            case InitDeclaratorI(AtomicNamedDeclarator(_, i: Id, _), _, Some(initializer)) =>
                 val pmallocs = filterASTElems[PostfixExpr](initializer)
 
                 if (pmallocs.isEmpty) res ++= fromCache(i)
@@ -50,7 +50,6 @@ class XFree(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: FeatureModel, f: 
                         if (! env.featureExpr(m) equivalentTo env.featureExpr(i)) res ++= fromCache(i)
                     case _ =>
                 }
-            }
         })
 
         variables(a)
@@ -61,7 +60,7 @@ class XFree(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: FeatureModel, f: 
     def kill(a: AST): L = {
         var res = l
         val assignments = manytd(query {
-            case AssignExpr(target: Id, "=", source) => {
+            case AssignExpr(target: Id, "=", source) =>
                 val pmallocs = filterASTElems[PostfixExpr](source)
 
                 pmallocs.map {
@@ -69,7 +68,6 @@ class XFree(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: FeatureModel, f: 
                         if (! env.featureExpr(i) equivalentTo env.featureExpr(target)) res ++= fromCache(target, true)
                     case _ =>
                 }
-            }
         })
 
         assignments(a)
@@ -117,7 +115,7 @@ class XFree(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: FeatureModel, f: 
 
         val freedvariables = manytd(query {
             // realloc(*ptr, size) is used for reallocation of memory
-            case PostfixExpr(i@Id("realloc"), FunctionCall(l)) => {
+            case PostfixExpr(i@Id("realloc"), FunctionCall(l)) =>
                 // realloc has two arguments but more than two elements may be passed to
                 // the function. this is the case when elements form alternative groups, such as,
                 // realloc(#ifdef A aptr #else naptr endif, ...)
@@ -145,16 +143,14 @@ class XFree(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: FeatureModel, f: 
 
                 }
 
-            }
             // calls to free or to derivatives of free
-            case PostfixExpr(Id(n), FunctionCall(l)) => {
+            case PostfixExpr(Id(n), FunctionCall(l)) =>
 
                 if (freecalls.contains(n)) {
                     for (e <- l.exprs) {
                         addFreeTarget(e.entry)
                     }
                 }
-            }
 
         })
 
