@@ -40,7 +40,7 @@ class DanglingSwitchCode(env: ASTEnv, fm: FeatureModel) extends CFGHelper with C
                         res ::= oItem
                     else
                         workingList ++= succ(ds, env)
-                            .filter { x => isPartOf(x.entry, s) && x.feature.isSatisfiable(fm) }
+                            .filter { case Opt(feature, entry) => isPartOf(entry, s) && feature.isSatisfiable(fm) }
                 case _: AST => res ::= oItem
             }
         }

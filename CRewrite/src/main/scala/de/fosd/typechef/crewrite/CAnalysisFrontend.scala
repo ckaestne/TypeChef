@@ -300,7 +300,7 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
     }
 
     private def cfgInNonVoidFunc(fa: (FunctionDef, List[(AST, List[Opt[AST]])])): List[TypeChefError] = {
-        val cf = new CFGInNonVoidFunc(env, ts)
+        val cf = new CFGInNonVoidFunc(env, ts, fm)
 
         cf.cfgInNonVoidFunc(fa._1).map(
             e => new TypeChefError(Severity.Warning, e.feature,
@@ -323,7 +323,7 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
 
     private def caseTermination(fa: (FunctionDef, List[(AST, List[Opt[AST]])])): List[TypeChefError] = {
         val caseStmts = filterAllASTElems[CaseStatement](fa._1)
-        val ct = new CaseTermination(env)
+        val ct = new CaseTermination(env, fm)
 
         caseStmts.filterNot(ct.isTerminating).map {
             x => {

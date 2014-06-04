@@ -3,12 +3,13 @@ package de.fosd.typechef.crewrite
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.conditional.Opt
 import de.fosd.typechef.crewrite.asthelper.ASTEnv
+import de.fosd.typechef.featureexpr.{FeatureModel, FeatureExprFactory}
 
 // implements a simple analysis that checks whether a case statement associated with a statement
 // terminates under all conditions with a break statement
 // https://www.securecoding.cert.org/confluence/display/seccode/MSC17-C.+Finish+every+set+of+statements+associated+with+a+case+label+with+a+break+statement
 // MSC17-C
-class CaseTermination(env: ASTEnv) extends IntraCFG {
+class CaseTermination(env: ASTEnv, fm: FeatureModel = FeatureExprFactory.empty) extends IntraCFG {
     def isTerminating(c: CaseStatement): Boolean = {
         // get all successor elements of the case statement and filter other
         // case statements because case after case (fall through) is allowed
@@ -35,9 +36,9 @@ class CaseTermination(env: ASTEnv) extends IntraCFG {
 
                 curElem match {
                     case Opt(_, _: BreakStatement) =>
-                    case Opt(_, _: CaseStatement) => return false
-                    case Opt(_, _: DefaultStatement) => return false
-                    case Opt(_, s) => if (!isPartOf(s, switch))
+                    case Opt(f, _: CaseStatement) => if (f.isSatisfiable(fm)) return false
+                    case Opt(f, _: DefaultStatement) => if (f.isSatisfiable(fm)) return false
+                    case Opt(f, s) => if (!isPartOf(s, switch) && f.isSatisfiable(fm))
                                           return false
                                       else
                                           wList ++= succ(s, env)
