@@ -136,6 +136,7 @@ public abstract class FeatureModelOptions extends LexerOptions implements ILexer
 //            }
         } else if (c == FM_TSDIMACS) {
             checkFileExists(g.getOptarg());
+            fmDimacs = new File(g.getOptarg());
             fullFeatureModel = FeatureExprLib.featureModelFactory().createFromDimacsFile_2Var(g.getOptarg());
         } else if (c == FM_PARTIALCONFIG) {
             checkFileExists(g.getOptarg());
