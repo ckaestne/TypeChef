@@ -116,7 +116,6 @@ public abstract class FeatureModelOptions extends LexerOptions implements ILexer
             // case studies busybox and load a specialized feature model
             // all others load a standard feature model in which the prefix is set to "" (default is "CONFIG_"),
             // which is used in busybox and linux
-            fmDimacs = new File(g.getOptarg());
             if (g.getOptarg().contains("linux") || g.getOptarg().contains("busybox"))
                 smallFeatureModel = FeatureExprLib.featureModelFactory().createFromDimacsFile_2Var(g.getOptarg());
             else
