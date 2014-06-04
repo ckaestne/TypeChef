@@ -119,8 +119,7 @@ object FamilyBasedVsSampleBased extends ASTNavigation with CFGHelper {
 
     private def initSampling(fm_scanner: FeatureModel, fm: FeatureModel, ast: TranslationUnit, ff: FileFeatures,
                              opt: FamilyBasedVsSampleBasedOptions, logMessage: String): (String, String, List[Task]) = {
-        var caseStudy = ""
-        var thisFilePath: String = opt.getFile
+        val thisFilePath: String = opt.getFile
 
         val configSerializationDir = new File(thisFilePath.substring(0, thisFilePath.length - 2))
 
@@ -335,7 +334,6 @@ object FamilyBasedVsSampleBased extends ASTNavigation with CFGHelper {
         }
 
         val file: File = new File(fileID + "_" + tasks.map(_._1).mkString + ".vaareport")
-        file.getParentFile.mkdirs()
         val fw: FileWriter = new FileWriter(file)
         fw.write("File : " + fileID + "\n")
         fw.write("Features : " + ff.features.size + "\n")
