@@ -9,6 +9,7 @@ import de.fosd.typechef.lexer.options.PartialConfiguration;
 import de.fosd.typechef.lexer.options.PartialConfigurationParser$;
 import gnu.getopt.Getopt;
 import gnu.getopt.LongOpt;
+import scala.io.Source;
 
 import java.util.List;
 
@@ -113,9 +114,9 @@ public abstract class FeatureModelOptions extends LexerOptions implements ILexer
             // all others load a standard feature model in which the prefix is set to "" (default is "CONFIG_"),
             // which is used in busybox and linux
             if (g.getOptarg().contains("linux") || g.getOptarg().contains("busybox"))
-                smallFeatureModel = FeatureExprLib.featureModelFactory().createFromDimacsFile_2Var(g.getOptarg());
+                smallFeatureModel = FeatureExprLib.featureModelFactory().createFromDimacsFilePrefix(g.getOptarg(),"CONFIG_");
             else
-                smallFeatureModel = FeatureExprLib.featureModelFactory().createFromDimacsFile(g.getOptarg(), "");
+                smallFeatureModel = FeatureExprLib.featureModelFactory().createFromDimacsFilePrefix(g.getOptarg(),"");
         } else if (c == FM_FEXPR) {     //--featureModelFExpr
             checkFileExists(g.getOptarg());
             FeatureExpr f = new FeatureExprParserJava(FeatureExprLib.l()).parseFile(g.getOptarg());
@@ -131,7 +132,7 @@ public abstract class FeatureModelOptions extends LexerOptions implements ILexer
 //            }
         } else if (c == FM_TSDIMACS) {
             checkFileExists(g.getOptarg());
-            fullFeatureModel = FeatureExprLib.featureModelFactory().createFromDimacsFile_2Var(g.getOptarg());
+            fullFeatureModel = FeatureExprLib.featureModelFactory().createFromDimacsFilePrefix(g.getOptarg(),"CONFIG_");
         } else if (c == FM_PARTIALCONFIG) {
             checkFileExists(g.getOptarg());
             if (partialConfig != null)

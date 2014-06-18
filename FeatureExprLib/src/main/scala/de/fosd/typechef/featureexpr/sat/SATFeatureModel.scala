@@ -7,6 +7,7 @@ import java.net.URI
 import java.io.File
 import de.fosd.typechef.featureexpr.{FeatureModelFactory, FeatureExpr, FeatureModel}
 import java.io.FileWriter
+import scala.io.Source
 
 /**
  * the feature model is a special container for a single feature expression
@@ -177,69 +178,18 @@ object SATFeatureModel extends FeatureModelFactory {
     /**
      * load a standard Dimacs file as feature model
      */
-    def createFromDimacsFile(file: String, variablePrefix: String = "CONFIG_"): FeatureModel = {
-        var variables: Map[String, Int] = Map()
-        val clauses = new Vec[IVecInt]()
-        var maxId = 0
+    def createFromDimacsFile(file: Source, translateNames: String => String, autoAddVariables: Boolean): FeatureModel = {
+        val (variables, clauses, maxId) = loadDimacsData(file, translateNames, autoAddVariables)
+        val vecclauses = new Vec[IVecInt]()
 
-        for (line <- scala.io.Source.fromFile(file).getLines) {
-            if (line startsWith "c ") {
-                val entries = line.substring(2).split(" ")
-                val id = if (entries(0) endsWith "$")
-                    entries(0).substring(0, entries(0).length - 1).toInt
-                else
-                    entries(0).toInt
-                maxId = scala.math.max(id, maxId)
-                variables = variables.updated(variablePrefix + entries(1), id)
-            } else if ((line startsWith "p ") || (line.trim.size == 0)) {
-                //comment, do nothing
-            } else {
-                val vec = new VecInt()
-                for (literal <- line.split(" "))
-                    if (literal != "0")
-                        vec.push(literal.toInt)
-                clauses.push(vec)
-            }
-
+        for (clause <- clauses) {
+            val vec = new VecInt()
+            for (literal <- clause)
+                vec.push(literal)
+            vecclauses.push(vec)
         }
-        assert(maxId == variables.size, "largest variable id " + maxId + " differs from number of variables " + variables.size)
-        new SATFeatureModel(variables, clauses, maxId)
-    }
-    /**
-     * special reader for the -2var model used by the LinuxAnalysis tools from waterloo
-     */
-    def createFromDimacsFile_2Var(file: URI): SATFeatureModel = createFromDimacsFile_2Var(scala.io.Source.fromFile(file))
-    def createFromDimacsFile_2Var(file: String): SATFeatureModel = createFromDimacsFile_2Var(scala.io.Source.fromFile(file))
-    def createFromDimacsFile_2Var(source: scala.io.Source): SATFeatureModel = {
-        var variables: Map[String, Int] = Map()
-        val clauses = new Vec[IVecInt]()
-        var maxId = 0
 
-        for (line <- source.getLines) {
-            if (line startsWith "c ") {
-                val entries = line.substring(2).split(" ")
-                val id = if (entries(0) endsWith "$")
-                    entries(0).substring(0, entries(0).length - 1).toInt
-                else
-                    entries(0).toInt
-                maxId = scala.math.max(id, maxId)
-                val varname = "CONFIG_" + (/*if (entries(1).endsWith("_m")) entries(1).substring(0, entries(1).length - 2)+"_MODULE" else*/ entries(1))
-                if (variables contains varname)
-                    assert(false, "variable " + varname + " declared twice")
-                variables = variables.updated(varname, id)
-            } else if ((line startsWith "p ") || (line.trim.size == 0)) {
-                //comment, do nothing
-            } else {
-                val vec = new VecInt()
-                for (literal <- line.split(" "))
-                    if (literal != "0")
-                        vec.push(literal.toInt)
-                clauses.push(vec)
-            }
-
-        }
-        assert(maxId == variables.size, "largest variable id " + maxId + " differs from number of variables " + variables.size)
-        new SATFeatureModel(variables, clauses, maxId)
+        new SATFeatureModel(variables, vecclauses, maxId)
     }
 
 
