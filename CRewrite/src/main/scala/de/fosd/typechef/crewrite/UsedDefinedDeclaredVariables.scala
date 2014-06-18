@@ -48,7 +48,7 @@ trait UsedDefinedDeclaredVariables {
             case Declaration(_, init) => init.flatMap(uses)
             case InitDeclaratorI(_, _, Some(i)) => uses(i)
             case AtomicNamedDeclarator(_, id, _) => List(id)
-            case NestedNamedDeclarator(_, nestedDecl, _) => uses(nestedDecl)
+            case NestedNamedDeclarator(_, nestedDecl, _, _) => uses(nestedDecl)
             case Initializer(_, expr) => uses(expr)
             case i: Id => List(i)
             case FunctionCall(params) => params.exprs.map(_.entry).flatMap(uses)
