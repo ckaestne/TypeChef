@@ -38,7 +38,7 @@ class FeatureModelTest extends TestCase {
     val x = d("CONFIG_X")
 
     //A -> B, B->C
-    val fmDimacs = f.featureModelFactory.createFromDimacsFile_2Var(Source.fromURI(dimacsFile))
+    val fmDimacs = f.featureModelFactory.createFromDimacsFile(Source.fromURI(dimacsFile))
     val approx = (x implies b) and (a implies b)
     val fmApprox = f.featureModelFactory.create(approx)
 
