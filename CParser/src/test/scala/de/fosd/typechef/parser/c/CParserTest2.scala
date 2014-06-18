@@ -93,15 +93,15 @@ class CParserTest2 extends TestCase with TestHelper {
     }
 
     def testAsm {
-        assertParseable("asm ( \" \")", p.gnuAsmExpr);
-        assertParseable("asm volatile( \" \")", p.gnuAsmExpr);
-        assertParseable("asm volatile( \" \" : \" \" )", p.gnuAsmExpr);
-        assertParseable("asm volatile( \" \" : \" \"(1) )", p.gnuAsmExpr); // expr
-        assertParseable("asm volatile( \" \" : \" \", \" \" )", p.gnuAsmExpr); // list
-        assertParseable("asm volatile( \" \" : [x]\" \" )", p.gnuAsmExpr); // expr
+        assertParseable("asm ( \" \")", p.gnuAsmExprWithoutGoto);
+        assertParseable("asm volatile( \" \")", p.gnuAsmExprWithoutGoto);
+        assertParseable("asm volatile( \" \" : \" \" )", p.gnuAsmExprWithoutGoto);
+        assertParseable("asm volatile( \" \" : \" \"(1) )", p.gnuAsmExprWithoutGoto); // expr
+        assertParseable("asm volatile( \" \" : \" \", \" \" )", p.gnuAsmExprWithoutGoto); // list
+        assertParseable("asm volatile( \" \" : [x]\" \" )", p.gnuAsmExprWithoutGoto); // expr
 
-        assertParseable("asm volatile( \" \" : \" \"  : \" \" )", p.gnuAsmExpr);
-        assertParseable("asm volatile( \" \" : \" \"  : \" \": \" \" )", p.gnuAsmExpr);
+        assertParseable("asm volatile( \" \" : \" \"  : \" \" )", p.gnuAsmExprWithoutGoto);
+        assertParseable("asm volatile( \" \" : \" \"  : \" \": \" \" )", p.gnuAsmExprWithoutGoto);
     }
 
     def testTypeName {
