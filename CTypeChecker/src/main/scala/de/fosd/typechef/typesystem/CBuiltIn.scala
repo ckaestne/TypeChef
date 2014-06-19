@@ -34,7 +34,10 @@ trait CBuiltIn extends CEnv with CTypes with CDeclTyping {
             ("__builtin_va_start", One(CFunction(Seq(CBuiltinVaList(), CVarArgs()), CVoid()).toCType)), //ignore most of these...
             //            "__builtin_va_arg", One(CFunction(Seq(CIgnore(), CIgnore()), CIgnore())),//handled differently in parser
             ("__builtin_va_end", One(CFunction(Seq(CBuiltinVaList()), CVoid()).toCType)),
-            ("__builtin_va_copy", One(CFunction(Seq(CBuiltinVaList(), CBuiltinVaList()), CVoid()).toCType))
+            ("__builtin_va_copy", One(CFunction(Seq(CBuiltinVaList(), CBuiltinVaList()), CVoid()).toCType)),
+            ("__builtin_bswap16", One(CFunction(Seq(CUnsigned(CInt()).toCType), CUnsigned(CInt()).toCType).toCType)),
+            ("__builtin_bswap32", One(CFunction(Seq(CUnsigned(CInt()).toCType), CUnsigned(CInt()).toCType).toCType)),
+            ("__builtin_bswap64", One(CFunction(Seq(CUnsigned(CLongLong()).toCType), CUnsigned(CLongLong()).toCType).toCType))
         )).toList.map(x => (x._1, True, null, x._2, KDeclaration, 0, ExternalLinkage))
 
 
@@ -93,7 +96,6 @@ trait CBuiltIn extends CEnv with CTypes with CDeclTyping {
             add_pre_buffer("extern long __builtin_alpha_cmpbge(long, long);\n");
             add_pre_buffer("extern long __builtin_labs(long);\n");
             add_pre_buffer("extern double __builtin_fabs(double);\n");
-            add_pre_buffer("extern float __builtin_nanf (const char *str);\n");
 
             //	/* Add Blackfin-specific stuff */
             //	add_pre_buffer(
