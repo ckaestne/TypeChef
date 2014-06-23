@@ -4,7 +4,7 @@ import _root_.de.fosd.typechef.parser.c._
 import _root_.de.fosd.typechef.conditional._
 import _root_.de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
 
-trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTyping with CDeclUse /*with CBuiltIn*/ {
+trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTyping {
 
 
     /**
@@ -75,22 +75,62 @@ trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTypi
     def addStructDeclarationToEnv(specifier: Specifier, featureExpr: FeatureExpr, initEnv: Env, declareIncompleteTypes: Boolean): Env = specifier match {
         case e@StructOrUnionSpecifier(isUnion, Some(i@Id(name)), Some(attributes), _, _) => {
             //for parsing the inner members, the struct itself is available incomplete
+
+            val isAlreadyDefined = initEnv.structEnv.someDefinition(name, isUnion, featureExpr)
+            val isDefinedInImpliedContext = initEnv.structEnv.someImpliedDefinition(name, isUnion, featureExpr)
+            if (!isAlreadyDefined && isDefinedInImpliedContext) {
+                /**
+                 * CDeclUse:
+                 * Struct declaration to an existing struct forward declaration in a context where
+                 * Struct declaration context implies forward declaration context
+                 */
+                addStructRedeclaration(initEnv, i, featureExpr, isUnion)
+            }
+            if (!isAlreadyDefined) {
+                /**
+                 * CDeclUse:
+                 * Struct declaration
+                 */
+                addStructDefinition(i, initEnv, featureExpr)
+            }
             var env = initEnv.updateStructEnv(initEnv.structEnv.addIncomplete(i, isUnion, featureExpr, initEnv.scope))
-            addDefinition(i, env)
             attributes.foreach(x => addDefinition(x.entry, env))
             val members = parseStructMembers(attributes, featureExpr, env)
 
+            isDefinedInImpliedContext & isAlreadyDefined
             //collect inner struct declarations recursively
             env = addInnerStructDeclarationsToEnv(attributes, featureExpr, env)
+            if (isAlreadyDefined) {
+                /**
+                 * CDeclUse:
+                 * Struct redeclaration
+                 */
+                addStructRedeclaration(initEnv, i, featureExpr, isUnion)
+            }
             checkStructRedeclaration(name, isUnion, featureExpr, env.scope, env, e)
+
+
             env.updateStructEnv(env.structEnv.addComplete(i, isUnion, featureExpr, members, env.scope))
         }
         //incomplete struct
         case e@StructOrUnionSpecifier(isUnion, Some(i@Id(name)), None, _, _) => {
             //we only add an incomplete declaration in specific cases when a declaration does not have a declarator ("struct x;")
+            var env = initEnv.updateStructEnv(initEnv.structEnv.addIncomplete(i, isUnion, featureExpr, initEnv.scope))
+
             if (declareIncompleteTypes) {
-                var env = initEnv.updateStructEnv(initEnv.structEnv.addIncomplete(i, isUnion, featureExpr, initEnv.scope))
-                addDefinition(i, env)
+                if (initEnv.structEnv.someDefinition(name, isUnion, featureExpr)) {
+                    /**
+                     * CDeclUse:
+                     * Struct usage
+                     */
+                    addStructDeclUse(i, initEnv, isUnion, featureExpr)
+                } else {
+                    /**
+                     * CDeclUse:
+                     * Struct declaration
+                     */
+                    addStructDefinition(i, initEnv, featureExpr)
+                }
                 env
             } else {
                 addStructDeclUse(i, initEnv, isUnion, featureExpr)
@@ -164,6 +204,7 @@ trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTypi
                 val typeSpec = opt.entry
                 typeSpec match {
                     case EnumSpecifier(Some(i@Id(name)), l) if (isHeadless || !l.isEmpty) =>
+                        addDefinition(i, env, specFeature and featureExpr)
                         var ft = FeatureExprFactory.False
                         b.getOrElse(name, FeatureExprFactory.False) match {
                             case f: FeatureExpr => ft = f
@@ -177,7 +218,6 @@ trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTypi
                         )
 
                     case TypeDefTypeSpecifier(name) =>
-                        addTypeUse(name, env, featureExpr)
                         b
                     case _ => b
                 }

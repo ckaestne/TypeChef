@@ -20,6 +20,19 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
         getExprTypeRec(expr, featureExpr, env)
     }
 
+    private def getExpressions(stuff: Any, current: List[Expr] = List()): List[Expr] = {
+        stuff match {
+            case s: StringLit =>
+                current
+            case e: Expr =>
+                e :: current
+            case p: Product =>
+                p.productIterator.toList.flatMap(getExpressions(_, current))
+            case k =>
+                current
+        }
+    }
+
     def getExprTypeRec(expr: Expr, featureExpr: FeatureExpr, env: Env, recurse: Boolean = false): Conditional[CType] = {
         val et = getExprTypeRec(_: Expr, featureExpr, env, true)
         def etF(e: Expr, f: FeatureExpr, newEnv: Env = env) = getExprTypeRec(e, f, newEnv, true)
@@ -51,7 +64,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                         var ctype = env.varEnv(name)
 
                         ctype = markSecurityRelevantFunctions(name, ctype)
-
+                        // addUse(id, featureExpr, env)
                         ctype.mapf(featureExpr, {
                             (f, t) =>
                                 if (t.isUnknown && f.isSatisfiable()) {
@@ -123,9 +136,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                     //(a)b
                     case ce@CastExpr(targetTypeName, expr) =>
                         val targetTypes = getTypenameType(targetTypeName, featureExpr, env)
-                        for ((Opt(feat, entry: TypeDefTypeSpecifier)) <- targetTypeName.specifiers) {
-                            addTypeUse(entry.name, env, feat)
-                        }
+                        addUse(expr, featureExpr, env)
                         val sourceTypes = et(expr).map(_.toValue)
                         ConditionalLib.mapCombinationF(sourceTypes, targetTypes, featureExpr,
                             (fexpr: FeatureExpr, sourceType: CType, targetType: CType) => {
@@ -151,6 +162,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                         val providedParameterTypes: List[Opt[Conditional[CType]]] = parameterExprs.map({
                             case Opt(f, e) => Opt(f, etF(e, featureExpr and f, env.markSecurityRelevant(hasSecurityRelevantFunction, "sensitive function parameters")))
                         })
+                        parameterExprs.foreach(x => getExprTypeRec(x.entry, featureExpr.and(x.feature), env))
 
                         val providedParameterTypesExploded: Conditional[List[CType]] = ConditionalLib.explodeOptList(Conditional.flatten(providedParameterTypes))
                         ConditionalLib.mapCombinationF(functionType, providedParameterTypesExploded, featureExpr,
@@ -214,7 +226,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                                 val isPointerArith = (pointerArthOp(subExpr.op) || pointerArthAssignOp(subExpr.op)) && isPointer(ctype)
                                 val subExprType = etF(subExpr.e, fexpr, if (isPointerArith) env.markSecurityRelevant("array access/pointer arithmetic") else env)
 
-                                subExprType mapf (fexpr, (fexpr, subExprType) => operationType(subExpr.op, ctype, subExprType, ne, fexpr, env))
+                                subExprType mapf(fexpr, (fexpr, subExprType) => operationType(subExpr.op, ctype, subExprType, ne, fexpr, env))
                             }
                         )
                     //a[e]
@@ -298,8 +310,25 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                         t
 
                     case LcurlyInitializer(inits) => One(CCompound().toCType.toObj) //TODO more specific checks, currently just use CCompound which can be cast into any structure or array
-                    case GnuAsmExpr(_, _, _, _) => One(CIgnore()) //don't care about asm now
-                    case BuiltinOffsetof(_, _) => One(CSigned(CInt()))
+                    case GnuAsmExpr(_, _, _, stuff) =>
+                        val expressions = getExpressions(stuff)
+                        expressions.foreach(x => getExprTypeRec(x, featureExpr, env))
+                        One(CIgnore()) //don't care about asm now
+                    case BuiltinOffsetof(typename, offsetDesignators) =>
+                        typename.specifiers.foreach(x => {
+                            x match {
+                                case Opt(ft, TypeDefTypeSpecifier(name)) =>
+                                    addTypeUse(name, env, ft)
+                                case Opt(ft, StructOrUnionSpecifier(isUnion, Some(i: Id), _, _, _)) =>
+                                    offsetDesignators.foreach(x => x match {
+                                        case Opt(ft, OffsetofMemberDesignatorID(offsetId: Id)) =>
+                                            addStructUse(offsetId, ft, env, i.name, isUnion)
+                                    })
+                                    addStructDeclUse(i, env, isUnion, ft)
+                                case _ =>
+                            }
+                        })
+                        One(CSigned(CInt()))
                     case c: BuiltinTypesCompatible => One(CSigned(CInt())) //http://www.delorie.com/gnu/docs/gcc/gcc_81.html
                     case b@BuiltinVaArgs(expr, typename) =>
                         //check expr is of type va_list
@@ -505,7 +534,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                 addUse(i, featureExpr, env)
             case pd@PointerDerefExpr(i: Id) =>
                 // TODO: isUnion is set to true
-                addStructDeclUse(i, env, true, featureExpr)
+                addUse(i, featureExpr, env)
             case pd@PointerDerefExpr(NAryExpr(p, expr)) => addStructUsageFromSizeOfExprU(p, featureExpr, env)
             case pd@PointerDerefExpr(c: CastExpr) =>
                 getExprType(c, featureExpr, env)
