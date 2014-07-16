@@ -203,7 +203,7 @@ object Frontend {
                     }
                     if (opt.warning_xfree) {
                         stopWatch.start("xfree")
-                        sa.xfree()
+                        sa.xfree(opt.caseStudy)
                     }
                     if (opt.warning_dangling_switch_code) {
                         stopWatch.start("danglingswitchcode")

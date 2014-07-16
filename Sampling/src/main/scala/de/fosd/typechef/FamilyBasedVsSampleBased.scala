@@ -188,7 +188,7 @@ object FamilyBasedVsSampleBased extends ASTNavigation with CFGHelper {
         sw.start("casetermination")
         sa.caseTermination()
         sw.start("xfree")
-        sa.xfree()
+        sa.xfree(opt.caseStudy)
         sw.start("danglingswitchcode")
         sa.danglingSwitchCode()
         sw.start("cfginnonvoidfunc")
@@ -200,7 +200,7 @@ object FamilyBasedVsSampleBased extends ASTNavigation with CFGHelper {
         sw.start("done")
 
         val file: File = new File(outFilePrefix + ".errreport")
-        file.getParentFile.mkdirs()
+        file.getAbsoluteFile().getParentFile.mkdirs()
         val fw: FileWriter = new FileWriter(file)
         fw.write("File : " + fileID + "\n")
         fw.write("Features : " + ff.features.size + "\n")

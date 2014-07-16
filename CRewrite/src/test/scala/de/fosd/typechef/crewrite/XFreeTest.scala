@@ -23,7 +23,7 @@ class XFreeTest extends TestHelper with ShouldMatchers with CFGHelper {
         val ts = new CTypeSystemFrontend(tunit) with CTypeCache with CDeclUse
         assert(ts.checkASTSilent, "typecheck fails!")
         val xf = new CIntraAnalysisFrontend(tunit, ts)
-        xf.xfree()
+        xf.xfree("")
     }
 
     @Test def test_variables() {

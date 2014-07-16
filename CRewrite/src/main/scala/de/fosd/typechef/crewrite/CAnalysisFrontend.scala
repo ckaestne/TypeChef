@@ -214,8 +214,8 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
         err
     }
 
-    def xfree(): Boolean = {
-        val err = fAnalyze.flatMap(xfree)
+    def xfree(caseStudy: String): Boolean = {
+        val err = fAnalyze.flatMap(xfree(_, caseStudy))
 
         if (err.isEmpty) {
             println("No static allocated memory is freed!")
@@ -228,9 +228,9 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
     }
 
 
-    private def xfree(fa: (FunctionDef, List[(AST, List[Opt[AST]])])): List[TypeChefError] = {
+    private def xfree(fa: (FunctionDef, List[(AST, List[Opt[AST]])]), caseStudy: String): List[TypeChefError] = {
         var err: List[TypeChefError] = List()
-        val xf = new XFree(env, dum, udm, FeatureExprFactory.empty, fa._1, "")
+        val xf = new XFree(env, dum, udm, FeatureExprFactory.empty, fa._1, caseStudy)
         val nss = fa._2.map(_._1)
 
         for (s <- nss) {
