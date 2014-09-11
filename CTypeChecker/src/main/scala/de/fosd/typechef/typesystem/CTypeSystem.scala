@@ -19,7 +19,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
     def typecheckTranslationUnit(tunit: TranslationUnit, featureModel: FeatureExpr = FeatureExprFactory.True) {
         assert(tunit != null, "cannot type check Translation Unit, tunit is null")
         clearDeclUseMap()
-        checkTranslationUnit(tunit, featureModel, InitialEnv)
+        checkTranslationUnit(tunit, featureModel, initialEnv)
     }
 
     private[typesystem] def checkTranslationUnit(tunit: TranslationUnit, featureExpr: FeatureExpr, initialEnv: Env): Env = {
@@ -45,30 +45,6 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
             case fun@FunctionDef(specifiers, declarator, oldStyleParameters, stmt) =>
                 val (funType, newEnv) = checkFunction(fun, specifiers, declarator, oldStyleParameters, stmt, featureExpr, env)
                 typedFunction(fun, funType, featureExpr)
-                //stmt.innerStatements.foreach(x => addDecl(x.entry, newEnv))
-
-                declarator match {
-                    case AtomicNamedDeclarator(_, _, lst) =>
-                        lst.foreach(x => x.entry match {
-                            case DeclParameterDeclList(lst2) =>
-                                lst2.foreach(y => y.entry match {
-                                    case ParameterDeclarationD(lst3, _) =>
-                                        lst3.foreach(z => z.entry match {
-                                            case StructOrUnionSpecifier(isUnion, Some(i: Id), _) =>
-                                                addStructDeclUse(i, newEnv, isUnion, featureExpr)
-                                            case TypeDefTypeSpecifier(i: Id) =>
-                                            //addTypeUse(i, env, z.feature)
-                                            case EnumSpecifier(Some(i: Id), _) =>
-                                                addEnumUse(i, env, z.feature)
-                                            case _ =>
-                                        })
-                                    case _ =>
-                                })
-                            case _ =>
-                        })
-                    case _ =>
-                }
-                specifiers.foreach(x => addUse(x.entry, x.feature, newEnv))
                 newEnv
         }
     }
@@ -103,7 +79,6 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
 
         //add function type to environment for remaining code
         val newEnv = newEnvEnum.addVar(declarator.getName, featureExpr, f, funType, kind, newEnvEnum.scope, getLinkage(declarator.getName, true, specifiers, featureExpr, env, declarator))
-        addDecl(declarator, featureExpr, env, false)
         addJumpStatements(stmt)
 
         //check body (add parameters to environment)
@@ -111,6 +86,8 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
         getStmtType(stmt, featureExpr, innerEnv) //ignore changed environment, to enforce scoping!
         checkTypeFunction(specifiers, declarator, oldStyleParameters, featureExpr, env)
         addOldStyleParameters(oldStyleParameters, declarator, featureExpr, env)
+
+        addDecl(declarator, featureExpr, newEnv, false)
 
         //check actual return type against declared return type
         //TODO check that something was returned at all
@@ -219,8 +196,6 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
         checkArrayExpr(d, featureExpr, env: Env)
         checkTypeDeclaration(d, featureExpr, env)
 
-        addDecl(d, featureExpr, env)
-        //addDeclaration(d, featureExpr, env)
         env
     }
 
@@ -451,7 +426,8 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
                 })
             case SizeOfExprT(_) => One(VAnyInt())
             case SizeOfExprU(_) => One(VAnyInt())
-            case BuiltinOffsetof(_, _) => One(VAnyInt())
+            case BuiltinOffsetof(_, _) =>
+                One(VAnyInt())
 
             case _ => One(VUnknown())
         })
@@ -593,12 +569,12 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
 
     def checkTypeParam(declaration: ParameterDeclaration, expr: FeatureExpr, env: Env) {
         declaration match {
-            case PlainParameterDeclaration(specifiers) =>
+            case PlainParameterDeclaration(specifiers, _) =>
                 checkTypeSpecifiers(specifiers, expr, env)
-            case ParameterDeclarationD(specifiers, decl) =>
+            case ParameterDeclarationD(specifiers, decl, _) =>
                 checkTypeSpecifiers(specifiers, expr, env)
                 checkTypeDeclarator(decl, expr, env)
-            case ParameterDeclarationAD(specifiers, abstDecl) =>
+            case ParameterDeclarationAD(specifiers, abstDecl, _) =>
                 checkTypeSpecifiers(specifiers, expr, env)
                 checkTypeAbstractDeclarator(abstDecl, expr, env)
             case VarArgs() =>
@@ -622,10 +598,9 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
     private def checkTypeDeclarator(declarator: Declarator, expr: FeatureExpr, env: Env) {
         declarator match {
             case AtomicNamedDeclarator(pointers, name, extensions) =>
-                addDecl(name, expr, env)
                 checkTypePointers(pointers, expr, env)
                 checkTypeDeclaratorExtensions(extensions, expr, env)
-            case NestedNamedDeclarator(pointers, decl, extensions) =>
+            case NestedNamedDeclarator(pointers, decl, extensions, _) =>
                 checkTypePointers(pointers, expr, env)
                 checkTypeDeclaratorExtensions(extensions, expr, env)
                 checkTypeDeclarator(decl, expr, env)
@@ -639,7 +614,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
                 checkTypePointers(pointers, expr, env)
                 checkTypeDeclaratorExtensions(extensions, expr, env)
 
-            case NestedAbstractDeclarator(pointers, nestedDecl, extensions) =>
+            case NestedAbstractDeclarator(pointers, nestedDecl, extensions, _) =>
                 checkTypePointers(pointers, expr, env)
                 checkTypeDeclaratorExtensions(extensions, expr, env)
                 checkTypeAbstractDeclarator(nestedDecl, expr, env)
@@ -673,19 +648,28 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
     private def checkTypeSpecifier(specifier: Specifier, expr: FeatureExpr, env: Env) {
         specifier match {
             case TypeDefTypeSpecifier(name) =>
-                addTypeUse(name, env, expr)
+
+                /**
+                 * CDeclUse:
+                 * Add typdef usage to usages.
+                 */
                 val declExpr = env.typedefEnv.whenDefined(name.name)
                 if ((expr andNot declExpr).isSatisfiable())
                     reportTypeError(expr andNot declExpr, "Type " + name.name + " not defined. (defined only in context " + declExpr + ")", specifier, Severity.TypeLookupError)
 
             case EnumSpecifier(Some(id), None) =>
+
+                /**
+                 * CDeclUse:
+                 * Add enum usage to usages.
+                 */
                 addEnumUse(id, env, expr)
             // Not checking enums anymore, since they are only enforced by compilers in few cases (those cases are hard to distinguish, gcc is not very close to the standard here)
             //                val declExpr = env.enumEnv.getOrElse(id.name, FeatureExprFactory.False)
             //                if ((expr andNot declExpr).isSatisfiable)
             //                    reportTypeError(expr andNot declExpr, "Enum " + id.name + " not defined. (defined only in context " + declExpr + ")", specifier, Severity.TypeLookupError)
 
-            case StructOrUnionSpecifier(isUnion, Some(id), enumerators) =>
+            case StructOrUnionSpecifier(isUnion, Some(id), enumerators, _, _) =>
                 for (Opt(f, enumerator) <- enumerators.getOrElse(Nil))
                     checkTypeStructDeclaration(enumerator, expr and f, env)
             // checked at call site (when declaring a variable or calling a function)
@@ -693,7 +677,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
             //                if ((expr andNot declExpr).isSatisfiable)
             //                    reportTypeError(expr andNot declExpr, (if (isUnion) "Union " else "Struct ") + id.name + " not defined. (defined only in context " + declExpr + ")", specifier, Severity.TypeLookupError)
 
-            case StructOrUnionSpecifier(_, None, enumerators) =>
+            case StructOrUnionSpecifier(_, None, enumerators, _, _) =>
                 for (Opt(f, enumerator) <- enumerators.getOrElse(Nil))
                     checkTypeStructDeclaration(enumerator, expr and f, env)
 

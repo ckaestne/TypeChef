@@ -29,6 +29,18 @@ object PrettyPrinter {
 
     implicit def string(s: String): Doc = Text(s)
 
+    /**
+      * Determines whether doc has some content other than spaces.
+      */
+    def hasContent(doc: Doc): Boolean = {
+        doc match {
+            case Empty           => false
+            case Text(s: String) => !s.forall(_.isWhitespace)
+            case Cons(a, b)      => hasContent(a) || hasContent(b)
+            case _               => true
+        }
+    }
+
     val line = Line
     val space = Text(" ")
     var newLineForIfdefs = true
@@ -73,14 +85,6 @@ object PrettyPrinter {
         layoutW(prettyPrint(ast), writer)
         writer
     }
-
-    def printF(ast: AST, path: String, newLines: Boolean = true) = {
-        newLineForIfdefs = newLines
-        val writer = new FileWriter(path)
-        layoutW(prettyPrint(ast), writer)
-        writer.close()
-    }
-
 
     def ppConditional(e: Conditional[_], list_feature_expr: List[FeatureExpr]): Doc = e match {
         case One(c: AST) => prettyPrint(c, list_feature_expr)
@@ -137,15 +141,33 @@ object PrettyPrinter {
 
     }
 
+    private def optConditionalStr(e: Opt[String], list_feature_expr: List[FeatureExpr]): Doc = {
+        if (e.feature == FeatureExprFactory.True ||
+            list_feature_expr.foldLeft(FeatureExprFactory.True)(_ and _).implies(e.feature).isTautology())
+            e.entry
+        else if (newLineForIfdefs) {
+            line ~
+                "#if" ~~ e.feature.toTextExpr *
+                e.entry *
+                "#endif" ~
+                    line
+        } else {
+            "#if" ~~ e.feature.toTextExpr *
+                e.entry *
+                "#endif"
+        }
+
+    }
+
     def prettyPrint(ast: AST, list_feature_expr: List[FeatureExpr] = List(FeatureExprFactory.True)): Doc = {
         implicit def pretty(a: AST): Doc = prettyPrint(a, list_feature_expr)
         implicit def prettyOpt(a: Opt[AST]): Doc = optConditional(a, list_feature_expr)
         implicit def prettyCond(a: Conditional[_]): Doc = ppConditional(a, list_feature_expr)
-        implicit def prettyOptStr(a: Opt[String]): Doc = string(a.entry)
+        implicit def prettyOptStr(a: Opt[String]): Doc = optConditionalStr(a, list_feature_expr)
 
-        // this method separates Opt elements of an input list variability-aware
-        // problem is that when having for instance a function with one mandatory and one optional
-        // parameter, e.g.,
+        // Variability-aware version of sep. Annotates sep with an #ifdef computed from
+        // two Opt nodes of subsequent elements of l.
+        // e.g.,
         // void foo( int a
         // #ifdef B
         // , int B
@@ -154,8 +176,8 @@ object PrettyPrinter {
         // the standard sep function prints out the comma between both parameters without an
         // annotation. Further processing of the output will lead to an error.
         // This function prints out separated lists with annotated commas solving that problem.
-        def sepVaware(l: List[Opt[AST]], selem: String, breakselem: Doc = space) = {
-            var res: Doc = if (l.isEmpty) Empty else l.head
+        def sepVaware[T](l: List[Opt[T]], selem: String, toDoc: Opt[T] => Doc, breakselem: Doc = space) = {
+            var res: Doc = if (l.isEmpty) Empty else toDoc(l.head)
             var combCtx: FeatureExpr = if (l.isEmpty) FeatureExprFactory.True else l.head.feature
 
             for (celem <- l.drop(1)) {
@@ -163,19 +185,22 @@ object PrettyPrinter {
 
                 // separation element is never present
                 if (selemfexp.isContradiction())
-                    res = res ~ breakselem ~ prettyOpt(celem)
+                    res = res ~ breakselem ~ toDoc(celem)
 
                 // separation element is always present
                 else if (selemfexp.isTautology())
-                    res = res ~ selem ~ breakselem ~ prettyOpt(celem)
+                    res = res ~ selem ~ breakselem ~ toDoc(celem)
 
                 // separation element is sometimes present
                 else {
-                    res = res * "#if" ~~ selemfexp.toTextExpr * selem * "#endif" * prettyOpt(celem)
+                    if (hasContent(selem))
+                        res = res * "#if" ~~ selemfexp.toTextExpr * selem * "#endif" * toDoc(celem)
+                    else
+                        res = res * toDoc(celem)
                 }
 
                 // add current feature expression as it might influence the addition of selem for
-                // the remaint elements of the input list l
+                // the remaining elements of l
                 combCtx = combCtx.or(celem.feature)
             }
 
@@ -191,17 +216,93 @@ object PrettyPrinter {
             val r: Doc = if (l.isEmpty) Empty else l.head
             l.drop(1).foldLeft(r)(s(_, _))
         }
-        def commaSep(l: List[Opt[AST]]) = sep(l, _ ~ "," ~~ _)
-        def spaceSep(l: List[Opt[AST]]) = sep(l, _ ~~ _)
+        def commaSep(l: List[Opt[AST]]) = sepVaware(l, ",", prettyOpt)
+        def pointSep(l: List[Opt[AST]]) = sep(l, _ ~ "." ~ _)
+        def spaceSep(l: List[Opt[AST]]) = sepVaware(l, " ", prettyOpt)
         def opt(o: Option[AST]): Doc = if (o.isDefined) o.get else Empty
         def optExt(o: Option[AST], ext: (Doc) => Doc): Doc = if (o.isDefined) ext(o.get) else Empty
         def optCondExt(o: Option[Conditional[AST]], ext: (Doc) => Doc): Doc = if (o.isDefined) ext(o.get) else Empty
+
+        /**
+         * generate source code from AST element generated by statement
+         * opt(strOptExprPair ~ repOpt(COMMA ~> strOptExprPair))
+         * in the parser. E.g. de.fosd.typechef.parser.c.CParser#gnuAsmExprWithGoto() (and withoutGoto)
+         */
+        def handleOptExprPairGroup(value: Any): Doc = {
+            def handleOptExprPair(optExprPair: de.fosd.typechef.parser.~[Any, Any]): Doc = {
+                optExprPair match {
+                    case de.fosd.typechef.parser.~(de.fosd.typechef.parser.~(opt1, man2), opt2) =>
+                        (if (opt1 != None) "[" ~ prettyPrint(opt1.asInstanceOf[Some[AST]].get) ~ "]" else Empty) ~
+                            prettyPrint(man2.asInstanceOf[AST]) ~
+                            (if (opt2 != None) "(" ~ prettyPrint(opt2.asInstanceOf[Some[AST]].get) ~ ")" else Empty)
+                    case _ => sys.error("did not find a match for optional expression in GnuAsmExpr")
+                }
+            }
+            def addOptionalOptExprPairToDoc(doc: Doc, optExprPair: Opt[de.fosd.typechef.parser.~[Any, Any]]): Doc = {
+                val docForExprPair = handleOptExprPair(optExprPair.entry)
+                if (!hasContent(docForExprPair))
+                    doc
+                else {
+                    if (optExprPair.feature == FeatureExprFactory.True ||
+                        list_feature_expr.foldLeft(FeatureExprFactory.True)(_ and _).implies(optExprPair.feature).isTautology()) {
+                        doc ~ ", " ~ handleOptExprPair(optExprPair.entry)
+                    } else {
+                        if (newLineForIfdefs) {
+                            line ~
+                                doc * "#if" ~~ optExprPair.feature.toTextExpr *
+                                ", " ~ docForExprPair *
+                                "#endif" ~
+                                    line
+                        } else {
+
+                            doc * "#if" ~~ optExprPair.feature.toTextExpr *
+                                ", " ~ docForExprPair *
+                                "#endif"
+                        }
+                    }
+                }
+            }
+            value match {
+                case None => Empty
+                case Some(de.fosd.typechef.parser.~(mandatoryElement, optionalList)) =>
+                    (optionalList.asInstanceOf[List[Opt[de.fosd.typechef.parser.~[Any, Any]]]].
+                        foldLeft[Doc]
+                        (handleOptExprPair(mandatoryElement.asInstanceOf[de.fosd.typechef.parser.~[Any, Any]])) // initial element (the mandatory)
+                        (addOptionalOptExprPairToDoc)
+                        )
+                case _ => sys.error("did not find a match for optional expression in GnuAsmExpr")
+            }
+        }
+        /**
+         * generate source code from AST element generated by statement
+         * rep1Sep(stringConst | ID, COMMA)
+         * in the parser. E.g. de.fosd.typechef.parser.c.CParser#gnuAsmExprWithGoto() (and withoutGoto)
+         * value : Option[List[Opt[AST]]]
+         */
+        def handleIdOrStringGroup(value: Any): Doc = {
+            def addOptionalIdOrStringToDoc(a: Doc, b: Opt[AST]): Doc = {
+                val docb = prettyOpt(b)
+                if (docb == Empty)
+                    a
+                else
+                    a ~ ", " ~ b
+            }
+            value match {
+                case None => Empty
+                case Some(lst: List[Opt[AST]]) => (lst.drop(1).
+                    foldLeft[Doc]
+                    (prettyOpt(lst.head))
+                    (addOptionalIdOrStringToDoc)
+                    )
+                case _ => sys.error("did not find a match for optional expression in GnuAsmExpr")
+            }
+        }
 
         ast match {
             case TranslationUnit(ext) => sep(ext, _ * _)
             case Id(name) => name
             case Constant(v) => v
-            case StringLit(v) => seps(v, _ ~~ _)
+            case StringLit(v) => sepVaware(v, "", prettyOptStr)
             case SimplePostfixSuffix(t) => t
             case PointerPostfixSuffix(kind, id) => kind ~ id
             case FunctionCall(params) => "(" ~ params ~ ")"
@@ -220,7 +321,7 @@ object PrettyPrinter {
             case NArySubExpr(op: String, e: Expr) => op ~~ e
             case ConditionalExpr(condition: Expr, thenExpr, elseExpr: Expr) => "(" ~ condition ~~ "?" ~~ opt(thenExpr) ~~ ":" ~~ elseExpr ~ ")"
             case AssignExpr(target: Expr, operation: String, source: Expr) => "(" ~ target ~~ operation ~~ source ~ ")"
-            case ExprList(exprs) => sep(exprs, _ ~~ "," ~~ _)
+            case ExprList(exprs) => sepVaware(exprs, ",", prettyOpt)
 
             case CompoundStatement(innerStatements) =>
                 block(sep(innerStatements, _ * _))
@@ -274,7 +375,7 @@ object PrettyPrinter {
             case CompoundAttribute(inner) => "(" ~ sep(inner, _ ~ "," ~~ _) ~ ")"
 
             case Declaration(declSpecs, init) =>
-                sep(declSpecs, _ ~~ _) ~~ sepVaware(init, ",") ~ ";"
+                sep(declSpecs, _ ~~ _) ~~ sepVaware(init, ",", prettyOpt) ~ ";"
 
             case InitDeclaratorI(declarator, lst, Some(i)) =>
                 if (!lst.isEmpty) {
@@ -293,15 +394,15 @@ object PrettyPrinter {
             case AtomicNamedDeclarator(pointers, id, extensions) =>
                 sep(pointers, _ ~ _) ~ id ~ sep(extensions, _ ~ _)
 
-            case NestedNamedDeclarator(pointers, nestedDecl, extensions) =>
-                sep(pointers, _ ~ _) ~ "(" ~ nestedDecl ~ ")" ~ sep(extensions, _ ~ _)
+            case NestedNamedDeclarator(pointers, nestedDecl, extensions, attr) =>
+                sep(pointers, _ ~ _) ~ "(" ~ sep(attr, _ ~~ _) ~~ nestedDecl ~ ")" ~ sep(extensions, _ ~ _)
             case AtomicAbstractDeclarator(pointers, extensions) =>
                 sep(pointers, _ ~ _) ~ sep(extensions, _ ~ _)
-            case NestedAbstractDeclarator(pointers, nestedDecl, extensions) =>
-                sep(pointers, _ ~ _) ~ "(" ~ nestedDecl ~ ")" ~ sep(extensions, _ ~ _)
+            case NestedAbstractDeclarator(pointers, nestedDecl, extensions, attr) =>
+                sep(pointers, _ ~ _) ~ "(" ~ sep(attr, _ ~~ _) ~~ nestedDecl ~ ")" ~ sep(extensions, _ ~ _)
 
             case DeclIdentifierList(idList) => "(" ~ commaSep(idList) ~ ")"
-            case DeclParameterDeclList(parameterDecls) => "(" ~ sepVaware(parameterDecls, ",") ~ ")"
+            case DeclParameterDeclList(parameterDecls) => "(" ~ sepVaware(parameterDecls, ",", prettyOpt) ~ ")"
             case DeclArrayAccess(expr) => "[" ~ opt(expr) ~ "]"
             case Initializer(initializerElementLabel, expr: Expr) => opt(initializerElementLabel) ~~ expr
             case Pointer(specifier) =>
@@ -310,15 +411,16 @@ object PrettyPrinter {
                 } else {
                     "*" ~ spaceSep(specifier) ~ " "
                 }
-            case PlainParameterDeclaration(specifiers) => spaceSep(specifiers)
-            case ParameterDeclarationD(specifiers, decl) => spaceSep(specifiers) ~~ decl
-            case ParameterDeclarationAD(specifiers, decl) => spaceSep(specifiers) ~~ decl
+            case PlainParameterDeclaration(specifiers, attr) => spaceSep(specifiers) ~~ sep(attr, _ ~~ _)
+            case ParameterDeclarationD(specifiers, decl, attr) => spaceSep(specifiers) ~~ decl ~~ sep(attr, _ ~~ _)
+            case ParameterDeclarationAD(specifiers, decl, attr) => spaceSep(specifiers) ~~ decl ~~ sep(attr, _ ~~ _)
             case VarArgs() => "..."
-            case EnumSpecifier(id, Some(enums)) => "enum" ~~ opt(id) ~~ block(sepVaware(enums, ",", line))
+            case EnumSpecifier(id, Some(enums)) => "enum" ~~ opt(id) ~~ block(sepVaware(enums, ",", prettyOpt, line))
             case EnumSpecifier(Some(id), None) => "enum" ~~ id
             case Enumerator(id, Some(init)) => id ~~ "=" ~~ init
             case Enumerator(id, None) => id
-            case StructOrUnionSpecifier(isUnion, id, enumerators) => (if (isUnion) "union" else "struct") ~~ opt(id) ~~ (if (enumerators.isDefined) block(sep(enumerators.get, _ * _)) else Empty)
+            case StructOrUnionSpecifier(isUnion, id, enumerators, attr1, attr2) =>
+                (if (isUnion) "union" else "struct") ~~ sep(attr1, _ ~~ _) ~~ opt(id) ~~ (if (enumerators.isDefined) block(sep(enumerators.get, _ * _)) else Empty) ~~ sep(attr2, _ ~~ _)
             case StructDeclaration(qualifierList, declaratorList) => spaceSep(qualifierList) ~~ commaSep(declaratorList) ~ ";"
             case StructDeclarator(decl, initializer, attr) => decl ~ optExt(initializer, ":" ~~ _) ~~ spaceSep(attr)
             case StructInitializer(expr, attr) => ":" ~~ expr ~~ spaceSep(attr)
@@ -334,12 +436,31 @@ object PrettyPrinter {
             case LcurlyInitializer(inits) => "{" ~ commaSep(inits) ~ "}"
             case AlignOfExprT(typeName: TypeName) => "__alignof__(" ~ typeName ~ ")"
             case AlignOfExprU(expr: Expr) => "__alignof__" ~~ expr
-            case GnuAsmExpr(isVolatile: Boolean, isAuto, expr: StringLit, stuff: Any) =>
-                var ret = "asm" ~~ (if (isVolatile) "volatile " else "")
-                /*if(stuff.isInstanceOf[Some[AST]] || stuff.asInstanceOf[Some[AST]].isEmpty)
-                  ret = ret ~ "(" ~ expr ~~ ":" ~~ "" ~~ ")" //TODO: this is not correct: the "" should be replaced with the contents of stuff
-                else*/
-                ret = ret ~ "(" ~ expr ~ ")"
+            case GnuAsmExpr(isVolatile: Boolean, isGoto: Boolean, expr: StringLit, stuff) =>
+                val ret =
+                    stuff match {
+                        // cf. de.fosd.typechef.parser.c.CParser.gnuAsmExpr
+                        case Some(de.fosd.typechef.parser.~(
+                        part1,
+                        Some(de.fosd.typechef.parser.~(part21, part22)))) =>
+                            val docPart1: Doc = handleOptExprPairGroup(part1)
+                            val docPart21: Doc = handleOptExprPairGroup(part21)
+                            val docPart22: Doc = handleIdOrStringGroup(part22)
+                            val stuffDoc: Doc =
+                                (if (!isGoto) ":" else "::") ~
+                                    docPart1 ~
+                                    ":" ~ docPart21 ~ // it seems we can always add this colons (even if the following asm-element docPart21 is Empty)
+                                    (if (hasContent(docPart22)) ":" ~ docPart22 else Empty) // TypeChef parser complains if we add this colon when docPart22 is empty
+                            "asm " ~
+                                (if (isVolatile) "volatile " else "") ~
+                                (if (isGoto) "goto " else "") ~
+                                "(" ~ expr ~ stuffDoc ~ ")"
+                        case _ =>
+                            "asm " ~
+                                (if (isVolatile) "volatile " else "") ~
+                                (if (isGoto) "goto " else "") ~
+                                "(" ~ expr ~ ")"
+                    }
                 ret
             case RangeExpr(from: Expr, to: Expr) => from ~~ "..." ~~ to
             case TypeOfSpecifierT(typeName: TypeName) => "typeof(" ~ typeName ~ ")"
@@ -348,8 +469,8 @@ object PrettyPrinter {
             case InitializerDesignatorD(id: Id) => "." ~ id
             case InitializerDesignatorC(id: Id) => id ~ ":"
             case InitializerAssigment(desgs) => spaceSep(desgs) ~~ "="
-            case BuiltinOffsetof(typeName: TypeName, offsetofMemberDesignator) => "__builtin_offsetof(" ~ typeName ~ "," ~~ spaceSep(offsetofMemberDesignator) ~ ")"
-            case OffsetofMemberDesignatorID(id: Id) => "." ~ id
+            case BuiltinOffsetof(typeName: TypeName, offsetofMemberDesignator) => "__builtin_offsetof(" ~ typeName ~ "," ~~ pointSep(offsetofMemberDesignator) ~ ")"
+            case OffsetofMemberDesignatorID(id: Id) => id
             case OffsetofMemberDesignatorExpr(expr: Expr) => "[" ~ expr ~ "]"
             case BuiltinTypesCompatible(typeName1: TypeName, typeName2: TypeName) => "__builtin_types_compatible_p(" ~ typeName1 ~ "," ~~ typeName2 ~ ")"
             case BuiltinVaArgs(expr: Expr, typeName: TypeName) => "__builtin_va_arg(" ~ expr ~ "," ~~ typeName ~ ")"

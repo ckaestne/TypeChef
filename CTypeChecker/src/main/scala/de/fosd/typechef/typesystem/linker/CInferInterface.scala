@@ -117,9 +117,9 @@ trait CInferInterface extends CTypeSystem with InterfaceWriter {
         funType.simplify(featureExpr).mapf(featureExpr, {
             (fexpr, ctype) =>
                 if ((fexpr and exportCondition).isSatisfiable())
-                    exports = CSignature(fun.getName, ctype, fexpr and exportCondition, Seq(fun.getPositionFrom), getExtraFlags(fun, fexpr and exportCondition)) :: exports
+                    exports = CSignature(fun.getName, ctype, fexpr and exportCondition, Seq(fun.declarator.getId.getPositionFrom), getExtraFlags(fun, fexpr and exportCondition)) :: exports
                 if ((fexpr and staticCondition).isSatisfiable())
-                    staticFunctions = CSignature(fun.getName, ctype, fexpr and staticCondition, Seq(fun.getPositionFrom), getExtraFlags(fun, fexpr and staticCondition)) :: staticFunctions
+                    staticFunctions = CSignature(fun.getName, ctype, fexpr and staticCondition, Seq(fun.declarator.getId.getPositionFrom), getExtraFlags(fun, fexpr and staticCondition)) :: staticFunctions
         })
     }
 
