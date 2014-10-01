@@ -135,6 +135,26 @@ class BDDFeatureExpr(private[featureexpr] val bdd: BDD) extends FeatureExpr {
     }
 
     /**
+     * alternative implementation of issatisfiable that uses a different CNF conversion
+     * with more variables but possibly fewer clauses
+     *
+     * the difference is only relevant when dimacs-feature models are involved
+     */
+    def isSatisfiable2(f: FeatureModel): Boolean = {
+        val fm = asBDDFeatureModel(f)
+
+        if (bdd.isOne) true //assuming a valid feature model
+        else if (bdd.isZero) false
+        else if (fm == BDDNoFeatureModel || fm == null) bdd.satOne() != FExprBuilder.FALSE
+        //combination with a small FeatureExpr feature model
+        else if (fm.clauses.isEmpty) (bdd and fm.extraConstraints.bdd and fm.assumptions.bdd).satOne() != FExprBuilder.FALSE
+        //combination with SAT
+        else FeatureExprHelper.cacheIsSatisfiable.getOrElseUpdate((this.bdd, fm),
+            SatSolver.isSatisfiable(fm, toCNFClauses((bdd and fm.extraConstraints.bdd)), FExprBuilder.lookupFeatureName)
+        )
+    }
+
+    /**
      * Check structural equality, assuming that all component nodes have already been canonicalized.
      * The default implementation checks for pointer equality.
      */
@@ -227,15 +247,104 @@ class BDDFeatureExpr(private[featureexpr] val bdd: BDD) extends FeatureExpr {
     }
 
 
+    /**
+     * new (more efficient) translation to CNF that does not use allsat
+     *
+     * output clauses format with sets of variable ids (negative means negated)
+     *
+     * introduces 3 additional variables for every node in the BDD
+     */
+    private def toCNFClauses(topbdd: BDD): Iterator[Seq[Int]] = {
+        var maxId = FExprBuilder.maxFeatureId
+        def genId = { maxId += 1; maxId }
 
+        var result: List[Seq[Int]] = Nil
+        var bddIds: Map[BDD, Int] = Map()
+        var incomingEdges: Map[BDD, Set[Int]] = Map()
+        def addIncomingEdge(bdd: BDD, source: Int) {
+            incomingEdges += (bdd -> incomingEdges.getOrElse(bdd, Set()).+(source))
+        }
+
+        var bddsTodo: Set[BDD] = Set(topbdd)
+        var bddsDone: Set[BDD] = Set()
+
+        while (!bddsTodo.isEmpty) {
+            val bddnode = bddsTodo.head
+            bddsTodo = bddsTodo.tail
+            bddsDone += bddnode
+
+            //for each internal node, create three fresh SAT variables
+            val bddIn = genId
+
+            bddIds += (bdd -> bddIn)
+
+            if (!(bddnode.isOne || bddnode.isZero)) {
+                val bddTrue = genId
+                val bddFalse = genId
+                val bddFeature = bdd.`var`()
+                //bddTrue <=> bddIn and bdd.feature
+                // ( ==> (!bddTrue || bddIn) && (!bddTrue || bdd.feature) && (bddTrue || !bddIn || !bdd.feature)
+                result = Seq(-bddTrue, bddIn) :: Seq(-bddTrue, bddFeature) :: Seq(bddTrue, -bddIn, -bddFeature) :: result
+                //bddFalse <=> bddIn and !bdd.feature
+                result = Seq(-bddFalse, bddIn) :: Seq(-bddFalse, -bddFeature) :: Seq(bddFalse, -bddIn, bddFeature) :: result
+
+                addIncomingEdge(bddnode.low(), bddFalse)
+                addIncomingEdge(bddnode.high(), bddTrue)
+
+                if (!(bddsDone contains bddnode.low()))
+                    bddsTodo += bddnode.low()
+                if (!(bddsDone contains bddnode.high()))
+                    bddsTodo += bddnode.high()
+            }
+        }
+
+        for ((bddnode, incomingEdgeSet) <- incomingEdges) {
+            if (bdd.isOne) {
+                //require one of the incoming edges
+                result ::= incomingEdgeSet.toSeq
+            }
+            else if (bdd.isZero) {
+                //require no incoming edge
+                result ++= incomingEdgeSet.map(e => Seq(-e))
+            } else {
+                val bddIn = bddIds(bddnode)
+
+                //a bddnode with incomming edges from A, B, C (which are the extra variables representing true or false of a decision node)
+                //is encoded as
+                // bddIn <=> A or B or C
+                result ::= incomingEdgeSet.toSeq :+ (-bddIn)
+                for (edge <- incomingEdgeSet)
+                    result ::= Seq(bddIn, -edge)
+            }
+        }
+
+
+        result.iterator
+    }
 
 
     /**
      * helper function for statistics and such that determines which
      * features are involved in this feature expression
+     *
+     * new implementation without allsat
      */
-    private def collectDistinctFeatureIds: collection.immutable.Set[Int] =
-        bddAllSat.flatMap(clause => clause.zip(0 to (clause.length - 1)).filter(_._1 >= 0).map(_._2)).toSet
+    private def collectDistinctFeatureIds: collection.immutable.Set[Int] = {
+        var bddKnown: Set[BDD] = Set()
+        var bddTodo: Set[BDD] = Set(bdd)
+
+        while (!bddTodo.isEmpty) {
+            val bddnode = bddTodo.head
+            bddTodo = bddTodo.tail
+            bddKnown += bddnode
+
+            if (!(bddKnown contains bddnode.low()))
+                bddTodo += bddnode.low()
+            if (!(bddKnown contains bddnode.high()))
+                bddTodo += bddnode.high()
+        }
+        (bddKnown - FExprBuilder.TRUE - FExprBuilder.FALSE).map(_.`var`())
+    }
 
     def collectDistinctFeatures: Set[String] =
         collectDistinctFeatureIds.map(FExprBuilder lookupFeatureName _)
