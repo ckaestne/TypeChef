@@ -444,8 +444,8 @@ class CParserTest extends TestHelper {
                        "3:  mov %[fault],%[err] ; jmp 1b\n\t"
                        ".previous\n\t"
                        " .section __ex_table,\"a\"\n"
-                       : "c" (msr), [fault] "i" (-5));
-            """, p.asm_expr)
+                       : "c" (msr), [fault] "i" (-5))
+            """, p.expr)
     }
 
     @Test def testFunctionDef {
