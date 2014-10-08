@@ -302,6 +302,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                     case a:GnuAsmExpr =>
                         One(CIgnore()) //don't care about asm now
                     case BuiltinOffsetof(typename, offsetDesignators) =>
+                        // no type checking, but tracking of def-use relationship as far as reasonably possible
                         typename.specifiers.foreach(x => {
                             x match {
                                 case Opt(ft, TypeDefTypeSpecifier(name)) =>
@@ -310,6 +311,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                                     offsetDesignators.foreach(x => x match {
                                         case Opt(ft, OffsetofMemberDesignatorID(offsetId: Id)) =>
                                             addStructUse(offsetId, ft, env, i.name, isUnion)
+                                        case _ =>
                                     })
                                     addStructDeclUse(i, env, isUnion, ft)
                                 case _ =>
