@@ -74,7 +74,7 @@ case class Constant(value: String) extends PrimaryExpr
 
 case class StringLit(name: List[Opt[String]]) extends PrimaryExpr
 
-abstract class PostfixSuffix extends AST
+sealed abstract class PostfixSuffix extends AST
 
 case class SimplePostfixSuffix(t: String) extends PostfixSuffix
 
@@ -123,7 +123,7 @@ case class AssignExpr(target: Expr, operation: String, source: Expr) extends Exp
 case class ExprList(exprs: List[Opt[Expr]]) extends Expr
 
 //Statements
-abstract sealed class Statement extends AST
+sealed abstract class Statement extends AST
 
 case class CompoundStatement(innerStatements: List[Opt[Statement]]) extends Statement
 
@@ -157,19 +157,19 @@ case class ElifStatement(condition: Conditional[Expr], thenBranch: Conditional[S
 
 case class SwitchStatement(expr: Expr, s: Conditional[Statement]) extends Statement
 
-abstract sealed class CompoundDeclaration extends Statement with CFGStmt
+sealed abstract class CompoundDeclaration extends Statement with CFGStmt
 
 case class DeclarationStatement(decl: Declaration) extends CompoundDeclaration
 
 case class LocalLabelDeclaration(ids: List[Opt[Id]]) extends CompoundDeclaration
 
-abstract class Specifier() extends AST
+sealed abstract class Specifier() extends AST
 
-abstract sealed class TypeSpecifier() extends Specifier()
+sealed abstract class TypeSpecifier() extends Specifier()
 
-abstract sealed class PrimitiveTypeSpecifier() extends TypeSpecifier()
+sealed abstract class PrimitiveTypeSpecifier() extends TypeSpecifier()
 
-abstract sealed class OtherSpecifier() extends Specifier()
+sealed abstract class OtherSpecifier() extends Specifier()
 
 
 case class OtherPrimitiveTypeSpecifier(typeName: String) extends TypeSpecifier()
@@ -216,7 +216,7 @@ case class ThreadSpecifier() extends OtherSpecifier()
 case class StaticSpecifier() extends OtherSpecifier()
 
 
-abstract class Attribute() extends AST
+sealed abstract class Attribute() extends AST
 
 case class AtomicAttribute(n: String) extends Attribute
 
@@ -227,7 +227,7 @@ case class CompoundAttribute(inner: List[Opt[AttributeSequence]]) extends Attrib
 case class Declaration(declSpecs: List[Opt[Specifier]], init: List[Opt[InitDeclarator]]) extends ExternalDef with OldParameterDeclaration
 
 
-abstract class InitDeclarator(val declarator: Declarator, val attributes: List[Opt[AttributeSpecifier]]) extends AST {
+sealed abstract class InitDeclarator(val declarator: Declarator, val attributes: List[Opt[AttributeSpecifier]]) extends AST {
     def getId = declarator.getId
     def getName = declarator.getName
     def getExpr: Option[Expr]
@@ -310,7 +310,7 @@ case class Initializer(initializerElementLabel: Option[InitializerElementLabel],
 
 case class Pointer(specifier: List[Opt[Specifier]]) extends AST
 
-abstract class ParameterDeclaration(val specifiers: List[Opt[Specifier]]) extends AST
+sealed abstract class ParameterDeclaration(val specifiers: List[Opt[Specifier]]) extends AST
 
 case class PlainParameterDeclaration(override val specifiers: List[Opt[Specifier]], attr: List[Opt[AttributeSpecifier]]) extends ParameterDeclaration(specifiers)
 
@@ -359,7 +359,7 @@ case class TypeName(specifiers: List[Opt[Specifier]], decl: Option[AbstractDecla
 case class TranslationUnit(defs: List[Opt[ExternalDef]]) extends AST
 
 //GnuC stuff here:
-abstract class AttributeSpecifier() extends Specifier()
+sealed abstract class AttributeSpecifier() extends Specifier()
 
 case class GnuAttributeSpecifier(attributeList: List[Opt[AttributeSequence]]) extends AttributeSpecifier
 
@@ -381,7 +381,7 @@ case class TypeOfSpecifierT(typeName: TypeName) extends TypeSpecifier
 case class TypeOfSpecifierU(expr: Expr) extends TypeSpecifier
 
 
-abstract class InitializerElementLabel() extends AST
+sealed abstract class InitializerElementLabel() extends AST
 
 case class InitializerArrayDesignator(expr: Expr) extends InitializerElementLabel
 
@@ -394,7 +394,7 @@ case class InitializerAssigment(designators: List[Opt[InitializerElementLabel]])
 
 case class BuiltinOffsetof(typeName: TypeName, offsetofMemberDesignator: List[Opt[OffsetofMemberDesignator]]) extends PrimaryExpr
 
-abstract class OffsetofMemberDesignator() extends AST
+sealed abstract class OffsetofMemberDesignator() extends AST
 
 case class OffsetofMemberDesignatorID(id: Id) extends OffsetofMemberDesignator
 
