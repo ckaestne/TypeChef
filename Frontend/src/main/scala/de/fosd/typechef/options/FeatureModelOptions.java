@@ -15,8 +15,8 @@ import java.util.List;
 
 /**
  * TypeChef uses two different feature models for different purposes, a small and a full
- * feature model. The full feature model should contain all constraints of the small feature
- * model (fullFM => smallFM).
+ * feature model. In Linux smallFM = approx.fm and fullFM = dimacs file. The full feature
+ * model should contain all constraints of the small feature model (fullFM => smallFM).
  * <p/>
  * The key concern is performance since all SAT checks involving the feature model take
  * more time. There are generally three different ways to call the SAT solver then

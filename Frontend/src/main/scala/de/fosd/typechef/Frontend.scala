@@ -99,12 +99,12 @@ object Frontend extends EnforceTreeHelper {
 
         val smallFM = opt.getSmallFeatureModel().and(opt.getLocalFeatureModel).and(opt.getFilePresenceCondition)
         opt.setSmallFeatureModel(smallFM) //otherwise the lexer does not get the updated feature model with file presence conditions
-        if (!opt.getFilePresenceCondition.isSatisfiable(smallFM)) {
+        val fullFM = opt.getFullFeatureModel.and(opt.getLocalFeatureModel).and(opt.getFilePresenceCondition)
+        opt.setFullFeatureModel(fullFM) // should probably be fixed in how options are read
+        if (!opt.getFilePresenceCondition.isSatisfiable(fullFM)) {
             println("file has contradictory presence condition. existing.") //otherwise this can lead to strange parser errors, because True is satisfiable, but anything else isn't
             return
         }
-        val fullFM = opt.getFullFeatureModel.and(opt.getLocalFeatureModel).and(opt.getFilePresenceCondition)
-        opt.setFullFeatureModel(fullFM) // should probably be fixed in how options are read
 
         var ast: TranslationUnit = null
         if (opt.reuseAST && opt.parse && new File(opt.getSerializedASTFilename).exists()) {
