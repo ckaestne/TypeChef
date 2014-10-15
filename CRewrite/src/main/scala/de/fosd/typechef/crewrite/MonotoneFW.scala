@@ -253,11 +253,13 @@ sealed abstract class MonotoneFW[T](val f: FunctionDef, env: ASTEnv, val fm: Fea
                     fnew = diff(fnew, mapGenKillElements2MonotoneElements(k))
                     fnew = union(fnew, mapGenKillElements2MonotoneElements(g))
                 }
+2
+                val cchanged = cold != cnew
+                val fchanged = fold != fnew
 
-                changed |= cold.size < cnew.size
-                changed |= fold.size < fnew.size
+                changed |= cchanged | fchanged
 
-                memo.update(cfgstmt, ((cold.size < cnew.size, cnew), (fold.size < fnew.size, fnew)))
+                memo.update(cfgstmt, ((cchanged, cnew), (fchanged, fnew)))
             }
         } while (changed)
     }
