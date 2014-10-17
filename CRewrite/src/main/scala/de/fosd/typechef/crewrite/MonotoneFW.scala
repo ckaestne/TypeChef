@@ -242,11 +242,11 @@ sealed abstract class MonotoneFW[T](val f: FunctionDef, env: ASTEnv, val fm: Fea
                 var fnew = cnew
 
                 // point
-                // use size as indicator for knowledge gain
+                // use inequality as indicator for knowledge gain
                 // in the first iterations of the loop fnew is usually
                 // empty; to ensure that the transfer function is called
                 // at least once for cfgstmt we add fnew.size == 0
-                if (fnew.size == 0 || fold.size < fnew.size) {
+                if (fnew.size == 0 || fold != fnew) {
 
                     val g = gen(cfgstmt)
                     val k = kill(cfgstmt)
