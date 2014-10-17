@@ -81,7 +81,7 @@ class UninitializedMemoryTest extends TestHelper with ShouldMatchers with CFGHel
             int sign;
             get_sign(number, &sign);
             return (sign < 0); // diagnostic required
-        }""".stripMargin) should be(true)
+        }""".stripMargin) should be(false)
 
         uninitializedMemory( """
         int do_auth() { return 0; }
