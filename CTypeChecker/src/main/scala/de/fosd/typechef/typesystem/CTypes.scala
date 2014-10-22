@@ -155,35 +155,40 @@ sealed abstract class AType {
 
 
 case class CChar() extends CBasicType {
-    def <(that: CBasicType) = that == CLongLong() || that == CInt() || that == CLong()
+    def <(that: CBasicType) = that == CLongLong() || that == CInt() || that == CLong() || that == CInt128()
     override def toText = "char"
     def toXML = <char/>
 }
 
 case class CShort() extends CBasicType {
-    def <(that: CBasicType) = that == CLongLong() || that == CInt() || that == CLong()
+    def <(that: CBasicType) = that == CLongLong() || that == CInt() || that == CLong() || that == CInt128()
     override def toText = "short"
     def toXML = <short/>
 }
 
 case class CInt() extends CBasicType {
-    def <(that: CBasicType) = that == CLongLong() || that == CLong()
+    def <(that: CBasicType) = that == CLongLong() || that == CLong()  || that == CInt128()
     override def toText = "int"
     def toXML = <int/>
 }
 
 case class CLong() extends CBasicType {
-    def <(that: CBasicType) = that == CLongLong()
+    def <(that: CBasicType) = that == CLongLong() || that == CInt128()
     override def toText = "long"
     def toXML = <long/>
 }
 
 case class CLongLong() extends CBasicType {
-    def <(that: CBasicType) = false
+    def <(that: CBasicType) = that == CInt128()
     override def toText = "long long"
     def toXML = <longlong/>
 }
 
+case class CInt128() extends CBasicType {
+    def <(that: CBasicType) = false
+    override def toText = "__int128"
+    def toXML = <int128/>
+}
 
 case class CVoid() extends AType {
     override def toText = "void"
@@ -435,6 +440,7 @@ object CType {
         (node \ "short").map(x => result = CShort())
         (node \ "long").map(x => result = CLong())
         (node \ "longlong").map(x => result = CLongLong())
+        (node \ "int128").map(x => result = CInt128())
         result
     }
 
@@ -669,6 +675,7 @@ trait CTypes extends COptionProvider {
         if (isArithmetic(a) && isArithmetic(b)) {
             val priority = List[CType](
                 CLongDouble(), CDouble(), CFloat(),
+                CUnsigned(CInt128()), CSigned(CInt128()), CSignUnspecified(CInt128()),
                 CUnsigned(CLongLong()), CSigned(CLongLong()), CSignUnspecified(CLongLong()),
                 CUnsigned(CLong()), CSigned(CLong()), CSignUnspecified(CLong()),
                 CUnsigned(CInt()))

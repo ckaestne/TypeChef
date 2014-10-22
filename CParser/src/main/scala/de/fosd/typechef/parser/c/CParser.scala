@@ -30,7 +30,7 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = false) e
         "__complex__", "__const", "__const__", "__inline", "__inline__", "__restrict", "__restrict__",
         "__signed", "__signed__", "__typeof", "__typeof__", "__volatile", "__volatile__", "asm",
         "volatile", "typeof", "auto", "register", "typedef", "extern", "static", "inline",
-        "const", "volatile", "restrict", "char", "short", "int", "long", "float", "double",
+        "const", "volatile", "restrict", "char", "short", "int", "long", "__int128", "float", "double",
         "signed", "unsigned", "_Bool", "struct", "union", "enum", "if", "while", "do",
         "for", "goto", "continue", "break", "return", "case", "default", "else", "switch",
         "sizeof", "_Pragma", "__expectType", "__expectNotType", "__thread")
@@ -107,6 +107,7 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = false) e
         | (textToken("short") ^^^ ShortSpecifier())
         | (textToken("int") ^^^ IntSpecifier())
         | (textToken("long") ^^^ LongSpecifier())
+        | (textToken("__int128") ^^^ Int128Specifier())
         | (textToken("float") ^^^ FloatSpecifier())
         | (textToken("double") ^^^ DoubleSpecifier())
         | signed

@@ -353,6 +353,7 @@ object PrettyPrinter {
             case IntSpecifier() => "int"
             case FloatSpecifier() => "float"
             case LongSpecifier() => "long"
+            case Int128Specifier() => "__int128"
             case CharSpecifier() => "char"
             case DoubleSpecifier() => "double"
 

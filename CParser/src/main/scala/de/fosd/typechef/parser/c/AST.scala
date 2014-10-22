@@ -186,6 +186,8 @@ case class DoubleSpecifier() extends PrimitiveTypeSpecifier()
 
 case class LongSpecifier() extends PrimitiveTypeSpecifier()
 
+case class Int128Specifier() extends PrimitiveTypeSpecifier()
+
 case class CharSpecifier() extends PrimitiveTypeSpecifier()
 
 case class TypedefSpecifier() extends Specifier()
