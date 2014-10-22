@@ -451,14 +451,15 @@ private[bdd] object FExprBuilder {
     var bddVarNum = 100
     var maxFeatureId = 0
     //start with one, so we can distinguish -x and x for sat solving and tostring
+    System.setProperty("bdd", "j")
     var bddFactory: BDDFactory = null
     try {
-        bddFactory = BDDFactory.init("JDD", bddValNum, bddCacheSize)
+        bddFactory = BDDFactory.init("j", bddValNum, bddCacheSize)
     } catch {
         case e: OutOfMemoryError =>
             println("running with low memory. consider increasing heap size.")
             bddValNum = 524288
-            bddFactory = BDDFactory.init("JDD", bddValNum, bddCacheSize)
+            bddFactory = BDDFactory.init("j", bddValNum, bddCacheSize)
     }
     bddFactory.setIncreaseFactor(2) //200% increase each time
     bddFactory.setMaxIncrease(0) //no upper limit on increase size
