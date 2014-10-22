@@ -39,10 +39,10 @@ class FrontendOptionsWithConfigFiles extends FrontendOptions {
     def loadSettings(configPath: String) = {
         settings.load(new FileInputStream(configPath))
         preIncludeDirs = loadPropList("preIncludes") ++ preIncludeDirs
-        println("preIncludes: " + preIncludeDirs)
-        println("systemIncludes: " + systemIncludes)
+//        println("preIncludes: " + preIncludeDirs)
+//        println("systemIncludes: " + systemIncludes)
         postIncludeDirs = postIncludeDirs ++ loadPropList("postIncludes")
-        println("postIncludes: " + postIncludeDirs)
+//        println("postIncludes: " + postIncludeDirs)
     }
 
     override def parseOptions(args: Array[String]) = {

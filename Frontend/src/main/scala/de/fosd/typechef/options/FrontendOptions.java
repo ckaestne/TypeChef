@@ -29,6 +29,7 @@ public class FrontendOptions extends CAnalysisOptions implements ParserOptions {
             parserStatistics = false,
             parserResults = true,
             writePI = false,
+            printInclude = false,
             printVersion = false;
     protected File errorXMLFile = null;
     private final File _autoErrorXMLFile = new File(".");
@@ -49,6 +50,7 @@ public class FrontendOptions extends CAnalysisOptions implements ParserOptions {
     private final static char F_HIDEPARSERRESULTS = Options.genOptionId();
     private final static char F_BDD = Options.genOptionId();
     private final static char F_ERRORXML = Options.genOptionId();
+    private static final char TY_DEBUG_INCLUDES = genOptionId();
     private static final char TY_VERSION = genOptionId();
     private static final char TY_HELP = genOptionId();
     private Function3<FeatureExpr, String, Position, Object> _renderParserError;
@@ -102,6 +104,8 @@ public class FrontendOptions extends CAnalysisOptions implements ParserOptions {
                         "Print parser statistics.")
         ));
         r.add(new OptionGroup("Misc", 1000,
+                new Option("printIncludes", LongOpt.NO_ARGUMENT, TY_DEBUG_INCLUDES, null,
+                        "Prints gathered include information for debugging"),
                 new Option("version", LongOpt.NO_ARGUMENT, TY_VERSION, null,
                         "Prints version number"),
                 new Option("help", LongOpt.NO_ARGUMENT, TY_HELP, null,
@@ -155,6 +159,8 @@ public class FrontendOptions extends CAnalysisOptions implements ParserOptions {
                 checkFileWritable(g.getOptarg());
                 errorXMLFile = new File(g.getOptarg());
             }
+        } else if (c == TY_DEBUG_INCLUDES) { // --printInclude
+            printInclude = true;
         } else if (c == TY_VERSION) { // --version
             printVersion = true;
         } else if (c == TY_HELP) {//--help
@@ -268,6 +274,24 @@ public class FrontendOptions extends CAnalysisOptions implements ParserOptions {
     public boolean isPrintVersion() {
         return printVersion;
     }
+
+    public boolean isPrintIncludes() { return printInclude; }
+
+    public void printInclude() {
+        System.out.println("Included headers:");
+        for (String header: this.getIncludedHeaders()) {
+            System.out.println("  "+header);
+        }
+        System.out.println("System Include Paths:");
+        for (String dir: this.getIncludePaths()) {
+            System.out.println("  "+dir);
+        }
+        System.out.println("Quote Include Paths:");
+        for (String dir: this.getQuoteIncludePath()) {
+            System.out.println("  "+dir);
+        }
+    }
+
 
 }
 

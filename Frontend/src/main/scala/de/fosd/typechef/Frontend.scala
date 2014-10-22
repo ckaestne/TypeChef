@@ -29,6 +29,8 @@ object Frontend extends EnforceTreeHelper {
                 println("TypeChef " + getVersion)
                 return
             }
+            if (opt.isPrintIncludes)
+                opt.printInclude()
         }
 
         catch {
