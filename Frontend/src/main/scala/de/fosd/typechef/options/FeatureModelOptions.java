@@ -9,14 +9,14 @@ import de.fosd.typechef.lexer.options.PartialConfiguration;
 import de.fosd.typechef.lexer.options.PartialConfigurationParser$;
 import gnu.getopt.Getopt;
 import gnu.getopt.LongOpt;
+import scala.io.Source;
 
-import java.io.File;
 import java.util.List;
 
 /**
  * TypeChef uses two different feature models for different purposes, a small and a full
- * feature model. The full feature model should contain all constraints of the small feature
- * model (fullFM => smallFM).
+ * feature model. In Linux smallFM = approx.fm and fullFM = dimacs file. The full feature
+ * model should contain all constraints of the small feature model (fullFM => smallFM).
  * <p/>
  * The key concern is performance since all SAT checks involving the feature model take
  * more time. There are generally three different ways to call the SAT solver then
@@ -59,7 +59,6 @@ public abstract class FeatureModelOptions extends LexerOptions implements ILexer
     protected FeatureModel smallFeatureModel = null;
     protected FeatureModel fullFeatureModel = null;
     protected PartialConfiguration partialConfig = null;
-    private File fmDimacs = null;
 
 
     @Override
@@ -77,8 +76,6 @@ public abstract class FeatureModelOptions extends LexerOptions implements ILexer
             return FeatureExprLib.featureModelFactory().empty();
         return smallFeatureModel;
     }
-
-    public File getDimacsFile() { return fmDimacs; }
 
     private static final char FM_DIMACS = Options.genOptionId();
     private static final char FM_FEXPR = Options.genOptionId();
@@ -117,9 +114,9 @@ public abstract class FeatureModelOptions extends LexerOptions implements ILexer
             // all others load a standard feature model in which the prefix is set to "" (default is "CONFIG_"),
             // which is used in busybox and linux
             if (g.getOptarg().contains("linux") || g.getOptarg().contains("busybox"))
-                smallFeatureModel = FeatureExprLib.featureModelFactory().createFromDimacsFile_2Var(g.getOptarg());
+                smallFeatureModel = FeatureExprLib.featureModelFactory().createFromDimacsFilePrefix(g.getOptarg(),"CONFIG_");
             else
-                smallFeatureModel = FeatureExprLib.featureModelFactory().createFromDimacsFile(g.getOptarg(), "");
+                smallFeatureModel = FeatureExprLib.featureModelFactory().createFromDimacsFilePrefix(g.getOptarg(),"");
         } else if (c == FM_FEXPR) {     //--featureModelFExpr
             checkFileExists(g.getOptarg());
             FeatureExpr f = new FeatureExprParserJava(FeatureExprLib.l()).parseFile(g.getOptarg());
@@ -135,8 +132,7 @@ public abstract class FeatureModelOptions extends LexerOptions implements ILexer
 //            }
         } else if (c == FM_TSDIMACS) {
             checkFileExists(g.getOptarg());
-            fmDimacs = new File(g.getOptarg());
-            fullFeatureModel = FeatureExprLib.featureModelFactory().createFromDimacsFile_2Var(g.getOptarg());
+            fullFeatureModel = FeatureExprLib.featureModelFactory().createFromDimacsFilePrefix(g.getOptarg(),"CONFIG_");
         } else if (c == FM_PARTIALCONFIG) {
             checkFileExists(g.getOptarg());
             if (partialConfig != null)

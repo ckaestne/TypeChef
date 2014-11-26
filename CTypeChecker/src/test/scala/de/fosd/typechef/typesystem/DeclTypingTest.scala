@@ -50,6 +50,8 @@ class DeclTypingTest extends CTypeSystem with FunSuite with ShouldMatchers with 
         declT("unsigned long int a;") should be(CUnsigned(CLong()))
         declT("long a;") should be(CSigned(CLong()))
         declT("unsigned long a;") should be(CUnsigned(CLong()))
+        declT("__int128 a;") should be(CSigned(CInt128()))
+        declT("unsigned __int128 a;") should be(CUnsigned(CInt128()))
         declT("long long int a;") should be(CSigned(CLongLong()))
         declT("unsigned long long int a;") should be(CUnsigned(CLongLong()))
         declT("long long a;") should be(CSigned(CLongLong()))

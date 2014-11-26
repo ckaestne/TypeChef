@@ -145,11 +145,19 @@ trait CEnv {
         def getFields(name: String, isUnion: Boolean): Conditional[ConditionalTypeMap] = env.getOrElse((name, isUnion), One(incompleteTag)).map(_.fields)
         def someDefinition(name: String, isUnion: Boolean): Boolean = env contains(name, isUnion)
 
+        def someDefinition(name: String, isUnion: Boolean, feature: FeatureExpr): Boolean = {
+            (env contains(name, isUnion)) && env.get(name, isUnion).get.toList.exists(x => (x._1.equivalentTo(feature)) && (x._2.id != None))
+        }
+
+        def someImpliedDefinition(name: String, isUnion: Boolean, feature: FeatureExpr): Boolean = {
+            (env contains(name, isUnion)) && env.get(name, isUnion).get.toList.exists(x => (x._1.equivalentTo(FeatureExprFactory.True) || x._1.implies(feature).isTautology()) && (x._2.id != None))
+        }
+
         def getId(name: String, isUnion: Boolean): Conditional[Id] = {
             def extractId(entry: Conditional[StructTag]): Conditional[Id] = {
                 entry match {
                     case One(StructTag(_, _, _, Some(i: Id))) => One(i)
-                    case One(StructTag(_, _, _, None)) => One(null)
+                    case One(StructTag(_, _, _, _)) => One(null)
                     case Choice(ft, entry1, entry2) => Choice(ft, extractId(entry1), extractId(entry2))
                     case x => One(null)
                 }

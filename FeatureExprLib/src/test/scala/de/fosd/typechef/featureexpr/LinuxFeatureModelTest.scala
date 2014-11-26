@@ -12,12 +12,15 @@ import org.junit._
 import org.junit.Assert._
 import org.sat4j.minisat.SolverFactory
 import java.net.URI
+import scala.io.Source
+import de.fosd.typechef.featureexpr.bdd.BDDFeatureModel
 
 
 abstract class AbstractLinuxFeatureModelTest {
 
 
-    val dimacsFile = this.getClass.getResource("/2.6.33.3-2var.dimacs").toURI
+    val dimacsFile = this.getClass.getResource("/x86.dimacs").toURI
+//    val dimacsFile = this.getClass.getResource("/2.6.33.3-2var.dimacs").toURI
 
     def getFeatureExprFactory: AbstractFeatureExprFactory
     def getFeatureModel: FeatureModel
@@ -83,7 +86,7 @@ abstract class AbstractLinuxFeatureModelTest {
 }
 
 class BDDLinuxFeatureModelTest extends AbstractLinuxFeatureModelTest {
-    val featureModel = de.fosd.typechef.featureexpr.bdd.BDDFeatureModel.createFromDimacsFile_2Var(dimacsFile)
+    val featureModel:BDDFeatureModel = BDDFeatureModel.createFromDimacsFile(Source.fromURI(dimacsFile)).asInstanceOf[BDDFeatureModel]
     def getFeatureModel = featureModel
     def getFeatureExprFactory = FeatureExprFactory.bdd
 
@@ -140,7 +143,7 @@ class BDDLinuxFeatureModelTest extends AbstractLinuxFeatureModelTest {
 }
 
 class SATLinuxFeatureModelTest extends AbstractLinuxFeatureModelTest {
-    val featureModel = de.fosd.typechef.featureexpr.sat.SATFeatureModel.createFromDimacsFile_2Var(dimacsFile)
+    val featureModel = de.fosd.typechef.featureexpr.sat.SATFeatureModel.createFromDimacsFile(Source.fromURI(dimacsFile))
     def getFeatureModel = featureModel
     def getFeatureExprFactory = FeatureExprFactory.sat
 }

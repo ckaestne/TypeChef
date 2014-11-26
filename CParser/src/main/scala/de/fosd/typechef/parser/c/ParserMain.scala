@@ -12,7 +12,7 @@ import de.fosd.typechef.lexer.LexerFrontend
 object MyUtil {
     implicit def runnable(f: () => Unit): Runnable =
         new Runnable() {
-            def run() = f()
+            override def run() = f()
         }
 }
 //

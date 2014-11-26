@@ -1127,5 +1127,19 @@ return 1;
                    |int x() { return AA; }
                  """.stripMargin)
     }
+
+    test("asm statements") {
+        correct("""
+            void foo(){
+                 asm volatile("2: rdmsr ; xor %[err],%[err]\n"
+                       "1:\n\t"
+                       ".section .fixup,\"ax\"\n\t"
+                       "3:  mov %[fault],%[err] ; jmp 1b\n\t"
+                       ".previous\n\t"
+                       " .section __ex_table,\"a\"\n"
+                       : "c" (msr), [fault] "i" (-5));
+                       }
+                """        )
+    }
 }
 
