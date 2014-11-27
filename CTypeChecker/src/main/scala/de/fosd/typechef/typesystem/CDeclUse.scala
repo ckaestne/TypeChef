@@ -12,6 +12,8 @@ import java.util
 import scala.collection.mutable.ListBuffer
 import de.fosd.typechef.lexer.FeatureExprLib
 
+import scala.reflect.ClassTag
+
 
 /**
  * Wrapper case class for IdentityHashMap as java's IdentityHashMap allows get(Anyref)
@@ -441,6 +443,7 @@ trait CDeclUse extends CDeclUseInterface with CEnv with CEnvCache {
                                     }
                                 case _ =>
                             }
+                        case _ =>
                     })
                 case k =>
                     addUse(k, feature, env)
@@ -536,7 +539,7 @@ trait CDeclUse extends CDeclUseInterface with CEnv with CEnvCache {
 
     private def conditionalToTuple[T <: Any](cond: Conditional[T], fexp: FeatureExpr = FeatureExprFactory.True): List[(FeatureExpr, T)] = {
         cond match {
-            case One(a: T) => List((fexp, a))
+            case One(a) if a.isInstanceOf[T] => List((fexp, a))
             case Choice(ft, thenExpr, elseBranch) => conditionalToTuple(thenExpr, ft) ++ conditionalToTuple(elseBranch, ft.not())
             case _ => List()
         }
@@ -692,11 +695,11 @@ trait CDeclUse extends CDeclUseInterface with CEnv with CEnvCache {
     private def addGotoStatements(f: AST) {
         val labelMap: IdentityHashMap[Id, FeatureExpr] = new IdentityHashMap()
 
-        def get[T](a: Any)(implicit m: ClassManifest[T]): List[Opt[T]] = {
+        def get[T](a: Any)(implicit m: ClassTag[T]): List[Opt[T]] = {
             a match {
                 // TODO: Feature does not have to be true
-                case c: One[T] if (m.erasure.isInstance(c.value)) => List(Opt(FeatureExprFactory.True, c.value))
-                case o: Opt[T] if (m.erasure.isInstance(o.entry)) => List(o)
+                case c: One[T] if (m.runtimeClass.isInstance(c.value)) => List(Opt(FeatureExprFactory.True, c.value))
+                case o: Opt[T] if (m.runtimeClass.isInstance(o.entry)) => List(o)
                 case l: List[_] => l.flatMap(x => get[T](x))
                 case p: Product => p.productIterator.toList.flatMap(x => get[T](x))
                 case _ => List()
@@ -718,9 +721,9 @@ trait CDeclUse extends CDeclUseInterface with CEnv with CEnvCache {
 
     // method recursively filters all AST elements for a given type T
     // Copy / Pasted from ASTNavigation -> unable to include ASTNavigation because of dependencies
-    private def filterASTElements[T <: AST](a: Any)(implicit m: ClassManifest[T]): List[T] = {
+    private def filterASTElements[T <: AST](a: Any)(implicit m: ClassTag[T]): List[T] = {
         a match {
-            case p: Product if (m.erasure.isInstance(p)) => List(p.asInstanceOf[T])
+            case p: Product if (m.runtimeClass.isInstance(p)) => List(p.asInstanceOf[T])
             case l: List[_] => l.flatMap(filterASTElements[T])
             case p: Product => p.productIterator.toList.flatMap(filterASTElements[T])
             case _ => List()

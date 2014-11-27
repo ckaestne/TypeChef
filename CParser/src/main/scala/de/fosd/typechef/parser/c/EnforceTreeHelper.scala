@@ -58,8 +58,9 @@ trait EnforceTreeHelper {
         assert(ast != null, "ast should not be null")
 
         val removedead = manytd(rule {
-            case l: List[Opt[_]] => l.filter({
-                x => env.featureExpr(x).isSatisfiable()
+            case l: List[_] => l.filter({
+                case x: Opt[_] => env.featureExpr(x).isSatisfiable()
+                case _ => true
             })
         })
 
