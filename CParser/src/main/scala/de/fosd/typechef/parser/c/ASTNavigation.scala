@@ -3,6 +3,7 @@ package de.fosd.typechef.parser.c
 import de.fosd.typechef.conditional._
 import de.fosd.typechef.featureexpr.FeatureExpr
 import scala.annotation.tailrec
+import scala.reflect.ClassTag
 
 // simplified navigation support
 // reimplements basic navigation between AST nodes not affected by Opt and Choice nodes
@@ -120,9 +121,9 @@ trait ASTNavigation {
 
     // method recursively filters all AST elements for a given type
     // base case is the element of type T
-    def filterASTElems[T <: AST](a: Any)(implicit m: ClassManifest[T]): List[T] = {
+    def filterASTElems[T <: AST](a: Any)(implicit m: ClassTag[T]): List[T] = {
         a match {
-            case p: Product if (m.erasure.isInstance(p)) => List(p.asInstanceOf[T])
+            case p: Product if (m.runtimeClass.isInstance(p)) => List(p.asInstanceOf[T])
             case l: List[_] => l.flatMap(filterASTElems[T])
             case p: Product => p.productIterator.toList.flatMap(filterASTElems[T])
             case _ => List()
@@ -131,9 +132,9 @@ trait ASTNavigation {
 
     // method recursively filters all AST elements for a given type and feature expression
     // base case is the element of type T with feature expression ctx
-    def filterASTElems[T <: AST](a: Any, ctx: FeatureExpr, env: ASTEnv)(implicit m: ClassManifest[T]): List[T] = {
+    def filterASTElems[T <: AST](a: Any, ctx: FeatureExpr, env: ASTEnv)(implicit m: ClassTag[T]): List[T] = {
         a match {
-            case p: Product if (m.erasure.isInstance(p) && (env.featureExpr(p) implies ctx isSatisfiable())) => List(p.asInstanceOf[T])
+            case p: Product if (m.runtimeClass.isInstance(p) && (env.featureExpr(p) implies ctx isSatisfiable())) => List(p.asInstanceOf[T])
             case l: List[_] => l.flatMap(filterAllASTElems[T](_, ctx, env))
             case p: Product => p.productIterator.toList.flatMap(filterAllASTElems[T](_, ctx, env))
             case _ => List()
@@ -141,9 +142,9 @@ trait ASTNavigation {
     }
 
     // in contrast to filterASTElems, filterAllASTElems visits all elements of the tree-wise input structure
-    def filterAllASTElems[T <: AST](a: Any)(implicit m: ClassManifest[T]): List[T] = {
+    def filterAllASTElems[T <: AST](a: Any)(implicit m: ClassTag[T]): List[T] = {
         a match {
-            case p: Product if (m.erasure.isInstance(p)) => List(p.asInstanceOf[T]) ++
+            case p: Product if (m.runtimeClass.isInstance(p)) => List(p.asInstanceOf[T]) ++
                 p.productIterator.toList.flatMap(filterASTElems[T])
             case l: List[_] => l.flatMap(filterASTElems[T])
             case p: Product => p.productIterator.toList.flatMap(filterASTElems[T])
@@ -154,9 +155,9 @@ trait ASTNavigation {
     // in contrast to filterASTElems, filterAllASTElems visits all elements of the tree-wise input structure and
     // checks feature expressions also
     def filterAllASTElems[T <: AST](a: Any, ctx: FeatureExpr, env: ASTEnv)
-                                   (implicit m: ClassManifest[T]): List[T] = {
+                                   (implicit m: ClassTag[T]): List[T] = {
         a match {
-            case p: Product if (m.erasure.isInstance(p) && (env.featureExpr(p) implies ctx isSatisfiable())) => List(p.asInstanceOf[T]) ++
+            case p: Product if (m.runtimeClass.isInstance(p) && (env.featureExpr(p) implies ctx isSatisfiable())) => List(p.asInstanceOf[T]) ++
                 p.productIterator.toList.flatMap(filterAllASTElems[T](_, ctx, env))
             case l: List[_] => l.flatMap(filterAllASTElems[T](_, ctx, env))
             case p: Product => p.productIterator.toList.flatMap(filterAllASTElems[T](_, ctx, env))
@@ -165,18 +166,18 @@ trait ASTNavigation {
     }
 
     // go up the AST hierarchy and look for a specific AST element with type T
-    def findPriorASTElem[T <: AST](a: Product, env: ASTEnv)(implicit m: ClassManifest[T]): Option[T] = {
+    def findPriorASTElem[T <: AST](a: Product, env: ASTEnv)(implicit m: ClassTag[T]): Option[T] = {
         a match {
-            case x if (m.erasure.isInstance(x)) => Some(x.asInstanceOf[T])
+            case x if (m.runtimeClass.isInstance(x)) => Some(x.asInstanceOf[T])
             case x: Product => findPriorASTElem[T](parentAST(x, env), env)
             case null => None
         }
     }
 
     // go up the AST hierarchy and loog for specific AST elements with type T
-    def findPriorASTElems[T <: AST](a: Product, env: ASTEnv)(implicit m: ClassManifest[T]): List[T] = {
+    def findPriorASTElems[T <: AST](a: Product, env: ASTEnv)(implicit m: ClassTag[T]): List[T] = {
         a match {
-            case x if (m.erasure.isInstance(x)) => x.asInstanceOf[T] :: findPriorASTElems(parentAST(x, env), env)
+            case x if (m.runtimeClass.isInstance(x)) => x.asInstanceOf[T] :: findPriorASTElems(parentAST(x, env), env)
             case x: Product => findPriorASTElems(parentAST(x, env), env)
             case null => Nil
         }
