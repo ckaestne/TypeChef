@@ -289,10 +289,12 @@ object PrettyPrinter {
             }
             value match {
                 case None => Empty
-                case Some(lst: List[Opt[AST]]) => (lst.drop(1).
-                    foldLeft[Doc]
-                    (prettyOpt(lst.head))
-                    (addOptionalIdOrStringToDoc)
+                case Some(_lst) =>
+                    val lst=_lst.asInstanceOf[List[Opt[AST]]]
+                    (lst.drop(1).
+                        foldLeft[Doc]
+                        (prettyOpt(lst.head.asInstanceOf[Opt[AST]]))
+                        (addOptionalIdOrStringToDoc)
                     )
                 case _ => sys.error("did not find a match for optional expression in GnuAsmExpr")
             }
