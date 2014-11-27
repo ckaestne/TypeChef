@@ -399,8 +399,11 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable, VA
         if ("defined".equals(name))
             throw new LexerException("Cannot redefine name 'defined'", state
                     .getFullPresenceCondition());
+        if (this.getSource()!=null)
+            logAddMacro(name, feature, m, this.getSource());
         macros = macros.define(name, feature, m);
     }
+
 
     public void removeMacro(String name, FeatureExpr feature) {
         macros = macros.undefine(name, feature);

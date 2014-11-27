@@ -1,6 +1,7 @@
 package de.fosd.typechef.lexer;
 
 
+import de.fosd.typechef.featureexpr.FeatureExpr;
 import de.fosd.typechef.lexer.macrotable.MacroContext;
 
 import java.io.*;
@@ -27,6 +28,7 @@ public abstract class DebuggingPreprocessor {
     BufferedWriter debugFile;
     BufferedWriter debugSourceFile;
     String outputName;
+    StringBuffer macroLog = new StringBuffer();
 
     private String baseOutName() {
         if (outputName != null)
@@ -76,6 +78,11 @@ public abstract class DebuggingPreprocessor {
                 PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(
                         outName + ".macroDbg")));
                 getMacros().debugPrint(writer);
+                writer.close();
+
+                writer = new PrintWriter(new BufferedWriter(new FileWriter(
+                        outName + ".macroLog")));
+                writer.write(macroLog.toString());
                 writer.close();
             }
 
@@ -178,6 +185,19 @@ public abstract class DebuggingPreprocessor {
                     e.printStackTrace();
                 }
             }
+    }
+
+
+    protected void logAddMacro(String name, FeatureExpr feature, MacroData m, Source source) {
+        macroLog.append("#define ");
+        macroLog.append(name);
+        macroLog.append(" if ");
+        macroLog.append(feature);
+        macroLog.append(" at ");
+        macroLog.append(source.getName());
+        macroLog.append(":");
+        macroLog.append(source.getColumn());
+        macroLog.append("\n");
     }
 
 }
