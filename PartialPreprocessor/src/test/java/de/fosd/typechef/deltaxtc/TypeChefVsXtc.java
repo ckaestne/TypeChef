@@ -385,7 +385,7 @@ public class TypeChefVsXtc {
         BufferedReader checkFile = new BufferedReader(new InputStreamReader(
                 new ExtraLinebreakInputStream(inputStream)));
 
-
+        @SuppressWarnings("unchecked")
         List<Stream> lexers = LexerInterface.createLexer("", checkFile, getFile(filename), new LexerInterface.ExceptionErrorHandler(),
                 Collections.EMPTY_LIST, Collections.singletonList(getFile(filename).getParent()), Collections.EMPTY_LIST, null);
 
