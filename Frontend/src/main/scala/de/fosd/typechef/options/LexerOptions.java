@@ -306,7 +306,7 @@ public abstract class LexerOptions extends Options implements ILexerOptions {
 
     @Override
     public List<VALexer.LexerInput> getInput() {
-        List<VALexer.LexerInput> result = new ArrayList(files.size());
+        List<VALexer.LexerInput> result = new ArrayList<>(files.size());
         for (String file : files)
             result.add(
                     new VALexer.FileSource(new File(file)));
