@@ -1,6 +1,7 @@
 package de.fosd.typechef.crewrite
 
 import java.io.PrintWriter
+import scala.language.reflectiveCalls
 
 trait IOUtilities {
     // http://stackoverflow.com/questions/4604237/how-to-write-to-a-file-in-scala
