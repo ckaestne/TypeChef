@@ -35,7 +35,8 @@ object BuildSettings {
                     "-feature",
                     "-language:postfixOps",
                     "-language:higherkinds",
-                    "-language:implicitConversions"
+                    "-language:implicitConversions",
+                    "-Xfatal-warnings" // make sure we take warnings seriously
                 )
                 else Nil
         },
