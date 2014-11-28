@@ -2,5 +2,4 @@ language: scala
 scala:
   - 2.11.4
 script: java -Xms1536m -Xmx1536m -Xss30m -XX:MaxPermSize=384m -XX:ReservedCodeCacheSize=192m -jar sbt-launch.jar coverage test
-notifications:
-   email: false
+after_success: "sbt coveralls"

@@ -88,7 +88,8 @@ object BuildSettings {
                 </developers>,
 
         credentials += Credentials(Path.userHome / ".ivy2" / ".credentials")
-    )
+    ) ++
+     org.scoverage.coveralls.CoverallsPlugin.coverallsSettings
 }
 
 object ShellPrompt {
