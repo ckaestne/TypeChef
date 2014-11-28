@@ -25,7 +25,7 @@ object BuildSettings {
 
         testListeners <<= target.map(t => Seq(new eu.henkelmann.sbt.JUnitXmlTestsListener(t.getAbsolutePath))),
 
-        javacOptions ++= Seq("-Xlint:unchecked"),
+        javacOptions ++= Seq("-Xlint:unchecked", "-target", "1.7"),
         scalacOptions ++= Seq("-deprecation", "-unchecked", "-optimise"),
 
         // suppress feature warnings in Scala 2.10.x
