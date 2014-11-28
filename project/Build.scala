@@ -25,6 +25,7 @@ object BuildSettings {
 
         javacOptions ++= Seq("-Xlint:unchecked", "-target", "1.7"),
         scalacOptions ++= Seq("-deprecation", "-unchecked", "-optimise"),
+        testOptions += Tests.Argument(TestFrameworks.JUnit, "-q", "-v"),
 
         // suppress feature warnings in Scala 2.10.x
         // (we do not actually change the code to allow cross builds with prior scala versions)
@@ -119,7 +120,7 @@ object ShellPrompt {
 
 object Dependencies {
     val junit = "junit" % "junit" % "4.11" % "test"
-    val junitInterface = "com.novocode" % "junit-interface" % "0.10" % "test"
+    val junitInterface = "com.novocode" % "junit-interface" % "0.11" % "test"
     val scalacheck = "org.scalacheck" %% "scalacheck" % "1.12.0" % "test"
     val scalatest = "org.scalatest" %% "scalatest" % "2.2.1" % "test"
     val scalaparsercombinators = "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.2"
@@ -176,6 +177,7 @@ object TypeChef extends Build {
         parserexp,
         jcpp,
         cparser,
+        errorlib,
         ctypechecker,
         javaparser,
         crewrite,
