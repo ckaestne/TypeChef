@@ -1,17 +1,20 @@
-package de.fosd.typechef.jcpp;
+package de.fosd.typechef.xtc;
 
+import de.fosd.typechef.jcpp.AbstractCheckTests;
 import de.fosd.typechef.lexer.LexerException;
 import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
 
+//TODO write a proper differential testing infrastructure with gcc/cpp
+
 /**
- * test output with .check files
- *
- * @author kaestner
+ * equivalent tests to JcppFileTest, using the same infrastructure
  */
-public class JcppFileTest extends AbstractCheckTests {
+public class XtcFileTest extends AbstractCheckTests {
+
+    protected boolean useXtc() { return true; }
 
     @Test
     public void testNestingDead() throws LexerException, IOException {
@@ -38,13 +41,8 @@ public class JcppFileTest extends AbstractCheckTests {
         testFile("byteorder.h");
     }
 
-//	@Test
-//	@Ignore
-//	public void testIf() throws LexerException, IOException {
-//		testFile("if.h");
-//	}
 
-    @Test
+    @Test@Ignore("xtc bug!?")
     public void testAlternativeMacros() throws LexerException, IOException {
         testFile("macro2.c", true);
     }
@@ -59,7 +57,7 @@ public class JcppFileTest extends AbstractCheckTests {
         testFile("includeguards2.h");
     }
 
-    @Test
+    @Test@Ignore("not supposed to work")
     public void testDefDefined() throws LexerException, IOException {
         testFile("defdefined.c", true);
     }
@@ -107,7 +105,7 @@ public class JcppFileTest extends AbstractCheckTests {
         testFile("elifchain.c");
     }
 
-    @Test
+    @Test@Ignore("Termination bug in Xtc!?")
     public void testSelfDef() throws LexerException, IOException {
         testFile("selfdef.c");
     }
@@ -118,12 +116,12 @@ public class JcppFileTest extends AbstractCheckTests {
         testFile("non_tautologic.c");
     }
 
-    @Test
+    @Test@Ignore("Whitespace bug in Xtc!?")
     public void testVariadic() throws LexerException, IOException {
         testFile("variadic.c",true);
     }
 
-    @Test@Ignore("Bug: does not correctly throw partial error")
+    @Test
     public void testIncompMacroExp() throws LexerException, IOException {
         testFile("incompatibleMacroExp.c");
     }
@@ -164,7 +162,7 @@ public class JcppFileTest extends AbstractCheckTests {
         testFile("test_div_by_zero.c");
     }
 
-    @Test
+    @Test@Ignore("Evaluation order bug in Xtc")
     public void testDivByZero2() throws LexerException, IOException {
         testFile("test_div_by_zero2.c");
     }
@@ -205,7 +203,7 @@ public class JcppFileTest extends AbstractCheckTests {
         testFile("stringify.c");
     }
 
-    @Test
+    @Test@Ignore("Whitespace bug in Xtc!?")
     public void testAlternativeDifferentArities1() throws LexerException, IOException {
         testFile("alternDiffArities1.c",true,true);
     }
@@ -246,7 +244,8 @@ public class JcppFileTest extends AbstractCheckTests {
         testFile("linebreaks.c", false, true);
     }
 
-    @Test
+    //TODO investigate, lexer crashes
+    @Test@Ignore("Investigate: Lexer crashes")
     public void testLinebreaks2() throws LexerException, IOException {
         testFile("linebreaks2.c", false, true);
     }
@@ -267,7 +266,7 @@ public class JcppFileTest extends AbstractCheckTests {
         testFile("bnx.c", false, true);
     }
 
-    @Test@Ignore("whitespace bug")
+    @Test
     public void testVarargs() throws LexerException, IOException {
         testFile("varargs.c", false, true);
     }
