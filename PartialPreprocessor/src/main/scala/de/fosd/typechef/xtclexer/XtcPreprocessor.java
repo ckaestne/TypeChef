@@ -265,11 +265,11 @@ public class XtcPreprocessor implements VALexer {
                 if (sat[i] == 0 || sat[i] == 1) {
                     String fname = pc.getPCManager().vars.getName(i);
 
+                    FeatureExpr var;
                     if (fname.length() > 10 && fname.substring(0, 9).equals("(defined ") && fname.substring(fname.length() - 1).equals(")"))
-                        fname = fname.substring(9, fname.length() - 1);
+                        var = FeatureExprLib.l().createDefinedExternal(fname.substring(9, fname.length() - 1));
                     else
-                        fname = formulaToName(fname);
-                    FeatureExpr var = FeatureExprLib.l().createDefinedExternal(fname);
+                        var = new XtcFExprAnalyzer().resolveFExpr(fname);
                     if (sat[i] == 0) var = var.not();
 
                     innerResult = innerResult.and(var);
@@ -282,19 +282,6 @@ public class XtcPreprocessor implements VALexer {
 
     }
 
-    private static String formulaToName(String fname) {
-        String res = "_" + fname.replace(' ', '_').
-                replace(">=", "_ge_").replace("<=", "_le_").
-                replace(">", "_gt_").replace("<", "_lt_").
-                replace("=", "_eq_").
-                replace("<<", "_shiftleft_").replace(">>", "_shiftright_").
-                replace("(", "").replace(")", "").
-                replace("+", "_plus_").replace("-", "_minus_");
-
-        System.err.println("Warning: depending on external macro definition: " + fname + " -> " + res);
-
-        return res;  //To change body of created methods use File | Settings | File Templates.
-    }
 
     public static class XtcToken implements LexerToken {
 

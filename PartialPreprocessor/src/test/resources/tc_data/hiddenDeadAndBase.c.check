@@ -1,6 +1,4 @@
-+3 defined(sometimes)
+++3 sometimes
 ! tautology
 ! contr!
 +1 taut!
-+3 #if
-+3 #endif
