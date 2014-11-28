@@ -94,13 +94,15 @@ class SATFeatureModel(val variables: Map[String, Int], val clauses: IVec[IVecInt
 
         writeToFile(fileName, res)
     }
+
+    // $COVERAGE-OFF$
     def writeToDimacsFile(file: File) {
         var fw: FileWriter = null
         try {
             fw = new FileWriter(file);
             val vars: Array[(String, Int)] = new Array(variables.size)
             variables.copyToArray(vars)
-            def sortFunction(a: Pair[String, Int], b: Pair[String, Int]): Boolean = {
+            def sortFunction(a: (String, Int), b: (String, Int)): Boolean = {
                 a._2 < b._2
             }
             for ((varname, varid) <- vars.sortWith(sortFunction)) {
@@ -124,6 +126,7 @@ class SATFeatureModel(val variables: Map[String, Int], val clauses: IVec[IVecInt
             if (fw != null) fw.close()
         }
     }
+    // $COVERAGE-ON$
 }
 
 /**

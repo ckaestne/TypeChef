@@ -34,7 +34,7 @@ class SatSolver {
    * The return value is a Pair where the first element is a list of the feature names set to true.
    * The second element is a list of feature names set to false.
    */
-  def getSatAssignment(featureModel: SATFeatureModel, exprCNF: SATFeatureExpr): Option[Pair[List[String], List[String]]] = {
+  def getSatAssignment(featureModel: SATFeatureModel, exprCNF: SATFeatureExpr): Option[(List[String], List[String])] = {
     val solver =
       (if (CACHING && (nfm(featureModel) != SATNoFeatureModel))
         SatSolverCache.get(nfm(featureModel))
@@ -108,8 +108,8 @@ private class SatSolverImpl(featureModel: SATFeatureModel, isReused: Boolean) {
     if ((featureModel == SATNoFeatureModel) && (CNFHelper.isLiteralExternal(exprCNF))) {
       exprCNF match {
         //one of these cases has to match, because we have a literal expression
-        case x: DefinedExternal => lastModel = Pair(List(x.satName), List())
-        case Not(x: DefinedExternal) => lastModel = Pair(List(), List(x.satName))
+        case x: DefinedExternal => lastModel = (List(x.satName), List())
+        case Not(x: DefinedExternal) => lastModel = (List(), List(x.satName))
         case _ => sys.error("This really should not be possible")
       }
       return true
@@ -193,7 +193,7 @@ private class SatSolverImpl(featureModel: SATFeatureModel, isReused: Boolean) {
             else
               falseList ::= fName
           }
-          lastModel = Pair(trueList, falseList)
+          lastModel = (trueList, falseList)
         }
         if (PROFILING)
           print(result + ";")
@@ -213,10 +213,10 @@ private class SatSolverImpl(featureModel: SATFeatureModel, isReused: Boolean) {
    * This pair contains the model that was constructed during the last isSatisfiable call (if the result was true).
    * The first element contains the names of the features set to true, the second contains the names of the false features.
    */
-  var lastModel: Pair[List[String], List[String]] = null
+  var lastModel: (List[String], List[String]) = null
   // model that satisfies the FM (when a TRUE Expression is passed to the solver)
   // this is cached after first creation
-  var trueModel: Pair[List[String], List[String]] = null
+  var trueModel: (List[String], List[String]) = null
 
   def getLastModel() = lastModel
 }

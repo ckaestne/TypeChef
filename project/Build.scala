@@ -11,9 +11,10 @@ object BuildSettings {
 
     val buildOrganization = "de.fosd.typechef"
     val buildVersion = "0.3.7"
-    val buildScalaVersion = "2.10.4"
+    val buildScalaVersion = "2.11.4"
 
     val testEnvironment = Seq(junit, junitInterface, scalatest, scalacheck)
+    val scalaLibraries = Seq(scalaxml, scalaparsercombinators)
 
     val buildSettings = Defaults.defaultSettings ++ Seq(
         organization := buildOrganization,
@@ -45,7 +46,7 @@ object BuildSettings {
 
         conflictWarning := ConflictWarning.disable,
 
-        libraryDependencies ++= testEnvironment,
+        libraryDependencies ++= testEnvironment ++ scalaLibraries,
 
         parallelExecution := false, //run into memory problems on hudson otherwise
 
@@ -114,8 +115,10 @@ object ShellPrompt {
 object Dependencies {
     val junit = "junit" % "junit" % "4.11" % "test"
     val junitInterface = "com.novocode" % "junit-interface" % "0.10" % "test"
-    val scalacheck = "org.scalacheck" %% "scalacheck" % "1.10.0" % "test"
-    val scalatest = "org.scalatest" %% "scalatest" % "1.9.1" % "test"  
+    val scalacheck = "org.scalacheck" %% "scalacheck" % "1.12.0" % "test"
+    val scalatest = "org.scalatest" %% "scalatest" % "2.2.1" % "test"
+    val scalaparsercombinators = "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.2"
+    val scalaxml = "org.scala-lang.modules" %% "scala-xml" % "1.0.2"
 }
 
 object VersionGen {

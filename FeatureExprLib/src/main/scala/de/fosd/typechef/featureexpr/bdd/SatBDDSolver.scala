@@ -26,7 +26,7 @@ object SatSolver {
      */
     def getSatisfiableAssignmentFromStringSets(fm: BDDFeatureModel, interestingFeatures: Set[SingleFeatureExpr],
                                                defEnabledFeatures: Set[String], defDisabledFeatures: Set[String],
-                                               preferDisabledFeatures: Boolean): Option[Pair[List[SingleFeatureExpr], List[SingleFeatureExpr]]] = {
+                                               preferDisabledFeatures: Boolean): Option[(List[SingleFeatureExpr], List[SingleFeatureExpr])] = {
         val bddDNF = Set(
             (defEnabledFeatures.map(fm.variables(_)) ++ defDisabledFeatures.map(-fm.variables(_)))
                 .toSeq).iterator
@@ -37,7 +37,7 @@ object SatSolver {
         // the result will only contain interesting features. Even parts of this expression will be omitted if uninteresting.
         var remainingInterestingFeatures = interestingFeatures
         assignment match {
-            case Some(Pair(trueFeatures, falseFeatures)) => {
+            case Some((trueFeatures, falseFeatures)) => {
 
                 if (preferDisabledFeatures) {
                     var enabledFeatures: Set[SingleFeatureExpr] = Set()
@@ -94,7 +94,7 @@ object SatSolver {
      * The return value is a Pair where the first element is a list of the feature names set to true.
      * The second element is a list of feature names set to false.
      */
-    def getSatAssignment(featureModel: BDDFeatureModel, dnf: Iterator[Seq[Int]], lookupName: (Int) => String): Option[Pair[List[String], List[String]]] = {
+    def getSatAssignment(featureModel: BDDFeatureModel, dnf: Iterator[Seq[Int]], lookupName: (Int) => String): Option[(List[String], List[String])] = {
         val solver =
             (if (CACHING && (nfm(featureModel) != BDDNoFeatureModel))
                 SatSolverCache.get(nfm(featureModel))
@@ -211,7 +211,7 @@ class SatSolverImpl(featureModel: BDDFeatureModel) {
                     else
                         falseList ::= fName
                 }
-                lastModel = Pair(trueList, falseList)
+                lastModel = (trueList, falseList)
             }
 
             if (PROFILING)
@@ -238,7 +238,7 @@ class SatSolverImpl(featureModel: BDDFeatureModel) {
      * This pair contains the model that was constructed during the last isSatisfiable call (if the result was true).
      * The first element contains the names of the features set to true, the second contains the names of the false features.
      */
-    var lastModel: Pair[List[String], List[String]] = null
+    var lastModel: (List[String], List[String]) = null
 
     def getLastModel() = lastModel
 

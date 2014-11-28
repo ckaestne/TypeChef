@@ -65,12 +65,12 @@ class BDDFeatureExpr(private[featureexpr] val bdd: BDD) extends FeatureExpr {
     // Be careful if that changes, though.
     override def equiv(that: FeatureExpr) = FExprBuilder.biimp(this, asBDDFeatureExpr(that))
 
-    def getSatisfiableAssignment(featureModel: FeatureModel, interestingFeatures: Set[SingleFeatureExpr], preferDisabledFeatures: Boolean): Option[Pair[List[SingleFeatureExpr], List[SingleFeatureExpr]]] = {
+    def getSatisfiableAssignment(featureModel: FeatureModel, interestingFeatures: Set[SingleFeatureExpr], preferDisabledFeatures: Boolean): Option[(List[SingleFeatureExpr], List[SingleFeatureExpr])] = {
         val fm = asBDDFeatureModel(featureModel)
         // optimization: if the interestingFeatures-Set is empty and this FeatureExpression is TRUE, we will always return empty sets
         // here we assume that the featureModel is satisfiable (which is checked at FM-instantiation)
         if (this.bdd.equals(TRUE) && interestingFeatures.isEmpty) {
-            return Some(Pair(List(), List())) // is satisfiable, but no interesting features in solution
+            return Some((List(), List())) // is satisfiable, but no interesting features in solution
         }
         val bddDNF = toDnfClauses(toScalaAllSat((bdd and fm.extraConstraints.bdd).not().allsat()))
         // get one satisfying assignment (a list of features set to true, and a list of features set to false)
@@ -79,7 +79,7 @@ class BDDFeatureExpr(private[featureexpr] val bdd: BDD) extends FeatureExpr {
         // the result will only contain interesting features. Even parts of this expression will be omitted if uninteresting.
         var remainingInterestingFeatures = interestingFeatures
         assignment match {
-            case Some(Pair(trueFeatures, falseFeatures)) => {
+            case Some((trueFeatures, falseFeatures)) => {
                 if (preferDisabledFeatures) {
                     var enabledFeatures: Set[SingleFeatureExpr] = Set()
                     for (f <- trueFeatures) {
