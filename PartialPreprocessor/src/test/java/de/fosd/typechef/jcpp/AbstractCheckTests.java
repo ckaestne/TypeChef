@@ -195,6 +195,8 @@ public class AbstractCheckTests {
 //            pp.debugPreprocessorDone();
     }
 
+    protected boolean useXtc() { return false; }
+
     private Conditional<LexerFrontend.LexerResult> lex(VALexer.LexerInput source, boolean debug, final String folder, final boolean ignoreWarnings)
             throws LexerException, IOException {
         return new LexerFrontend().run(new LexerFrontend.DefaultLexerOptions(source, debug, null) {
@@ -221,6 +223,11 @@ public class AbstractCheckTests {
                 features.add(Feature.LINEMARKERS);
                 features.add(Feature.GNUCEXTENSIONS);
                 return features;
+            }
+
+            @Override
+            public boolean useXtcLexer() {
+                return useXtc();
             }
         }, true);
 
