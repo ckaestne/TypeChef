@@ -84,7 +84,7 @@ and several helper libraries.
 Installation and Usage
 ----------------------
 
-You can download a .jar file including all necessary libraries [TypeChef.jar](http://ckaestne.github.com/TypeChef/deploy/TypeChef-0.3.4.jar). Run as usual
+You can download a .jar file including all necessary libraries [TypeChef.jar](http://ckaestne.github.com/TypeChef/deploy/TypeChef-0.3.7.jar). Run as usual
 
     java -jar TypeChef.jar ...
 
@@ -92,7 +92,7 @@ TypeChef is also available as a [maven repository](http://search.maven.org/#sear
 With [sbt](http://code.google.com/p/simple-build-tool/) you can include TypeChef with the following line:
 
 ```scala
-libraryDependencies += "de.fosd.typechef" %% "frontend" % "0.3.4"
+libraryDependencies += "de.fosd.typechef" %% "frontend" % "0.3.7"
 ```
 
 There is an Eclipse plugin [Colligens](https://sites.google.com/a/ic.ufal.br/colligens/) available, developed and maintained at Universidade Federal de Alagoas and Universidade Federal de Campina Grande. The plugin is also integrated in [FeatureIDE](http://fosd.net/fide).
@@ -224,6 +224,10 @@ Finally, an early overview of the project with a very preliminary implementation
 Change Log
 -----------
 
+ * v0.3.7 (November 2014)
+   * Updated to Scala 2.11.4
+   * Lots of minor changes to type system and control flow graph
+   * Preparations to run on newer version of Linux
  * v0.3.4 (March 2013)
    * Updated to Scala 2.10.1
    * Various fixes and extensions to the type system (e.g., support for both styles of parameter declarations in C, better handling of ignored types, correct type for sizeOf)
