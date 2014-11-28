@@ -1,6 +1,6 @@
 rm Frontend/target/*.jar
 sbt assembly
-cp Frontend/target/*.jar deploy
+cp TypeChef*.jar deploy
 git checkout gh-pages
 git add deploy/*.jar
 git commit -m "deployed new .jar file"
