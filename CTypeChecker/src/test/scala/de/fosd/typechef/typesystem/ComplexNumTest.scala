@@ -1,10 +1,7 @@
 package de.fosd.typechef.typesystem
 
-import java.io.{FileNotFoundException, InputStream}
 import de.fosd.typechef.parser.c.{TestHelper, TranslationUnit}
-import org.junit.Test
-import org.scalatest.FunSuite
-import org.scalatest.matchers.ShouldMatchers
+import org.scalatest.{Matchers, FunSuite}
 
 /**
  * Created with IntelliJ IDEA.
@@ -13,7 +10,7 @@ import org.scalatest.matchers.ShouldMatchers
  * Time: 1:44 PM
  * To change this template use File | Settings | File Templates.
  */
-class ComplexNumTest extends FunSuite with ShouldMatchers with TestHelper {
+class ComplexNumTest extends FunSuite with Matchers with TestHelper {
 
     private def check(code: String, printAST: Boolean = false): Boolean = {
         println("checking " + code);
@@ -26,7 +23,7 @@ class ComplexNumTest extends FunSuite with ShouldMatchers with TestHelper {
     }
 
     test("complex numbers") {
-        expectResult(true) {
+        assertResult(true) {
             check( """extern long double cosl (long double __x) __attribute__ ((__nothrow__));
                      |extern long double sinl (long double __x) __attribute__ ((__nothrow__));
                      extern double exp (double __x) __attribute__ ((__nothrow__)); extern __typeof (exp) exp __asm__ ("" "__GI_exp") __attribute__ ((visibility ("hidden"),));

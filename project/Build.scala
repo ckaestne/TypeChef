@@ -2,8 +2,9 @@
 
 import java.text.SimpleDateFormat
 import java.util.Date
+
+import sbt.Keys._
 import sbt._
-import Keys._
 
 object BuildSettings {
 
@@ -16,7 +17,7 @@ object BuildSettings {
     val testEnvironment = Seq(junit, junitInterface, scalatest, scalacheck)
     val scalaLibraries = Seq(scalaxml, scalaparsercombinators)
 
-    val buildSettings = Defaults.defaultSettings ++ Seq(
+    val buildSettings = Defaults.coreDefaultSettings ++ Seq(
         organization := buildOrganization,
         version := buildVersion,
         scalaVersion := buildScalaVersion,
@@ -31,18 +32,15 @@ object BuildSettings {
         // (we do not actually change the code to allow cross builds with prior scala versions)
         scalacOptions <++= scalaVersion map {
             sv =>
-                if (sv startsWith "2.10") List(
+                if (sv startsWith "2.1") List(
                     "-Yinline-warnings",
                     "-feature",
                     "-language:postfixOps",
-                    "-language:higherkinds",
                     "-language:implicitConversions",
                     "-Xfatal-warnings" // make sure we take warnings seriously
                 )
                 else Nil
         },
-
-        //crossScalaVersions := Seq("2.9.1", "2.9.2", "2.10.4"),
 
         conflictWarning := ConflictWarning.disable,
 
@@ -129,7 +127,7 @@ object VersionGen {
         val versionGenClass = SettingKey[String]("version-gen-class")
     }
 
-    import VersionGenKeys._
+    import VersionGen.VersionGenKeys._
 
     lazy val settings = Seq(
         versionGenPackage <<= Keys.organization {

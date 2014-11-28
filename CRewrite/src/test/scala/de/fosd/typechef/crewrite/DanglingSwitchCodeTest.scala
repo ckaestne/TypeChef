@@ -1,11 +1,12 @@
 package de.fosd.typechef.crewrite
 
-import org.junit.Test
-import org.scalatest.matchers.ShouldMatchers
 import de.fosd.typechef.parser.c._
+import org.junit.Test
+import org.scalatest.Matchers
+
 import scala.Predef._
 
-class DanglingSwitchCodeTest extends TestHelper with ShouldMatchers with CFGHelper with EnforceTreeHelper {
+class DanglingSwitchCodeTest extends TestHelper with Matchers with CFGHelper with EnforceTreeHelper {
 
     def danglingSwitchCode(code: String): Boolean = {
         val tunit = prepareAST[TranslationUnit](parseTranslationUnit(code))

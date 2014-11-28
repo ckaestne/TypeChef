@@ -1,13 +1,12 @@
 package de.fosd.typechef.typesystem.linker
 
-import de.fosd.typechef.parser.c.TestHelper
-import java.io.{InputStream, FileNotFoundException}
-import de.fosd.typechef.featureexpr.FeatureExprFactory
-import org.scalatest.FunSuite
-import org.scalatest.matchers.ShouldMatchers
-import de.fosd.typechef.parser.c.TranslationUnit
+import java.io.{FileNotFoundException, InputStream}
 
-class InterfaceInferenceTest extends TestHelper with FunSuite with ShouldMatchers {
+import de.fosd.typechef.featureexpr.FeatureExprFactory
+import de.fosd.typechef.parser.c.{TestHelper, TranslationUnit}
+import org.scalatest.{FunSuite, Matchers}
+
+class InterfaceInferenceTest extends FunSuite with TestHelper with Matchers {
 
   val folder = "testfiles/"
 

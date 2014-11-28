@@ -1,12 +1,12 @@
 package de.fosd.typechef.crewrite
 
-import org.junit.Test
-import org.scalatest.matchers.ShouldMatchers
 import de.fosd.typechef.featureexpr.FeatureExprFactory
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.typesystem.{CDeclUse, CTypeCache, CTypeSystemFrontend}
+import org.junit.Test
+import org.scalatest.Matchers
 
-class DoubleFreeTest extends TestHelper with ShouldMatchers with CFGHelper with EnforceTreeHelper {
+class DoubleFreeTest extends TestHelper with Matchers with CFGHelper with EnforceTreeHelper {
 
     // check freed pointers
     private def getFreedMem(code: String) = {

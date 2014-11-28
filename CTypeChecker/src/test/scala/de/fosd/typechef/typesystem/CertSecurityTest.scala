@@ -1,17 +1,16 @@
 package de.fosd.typechef.typesystem
 
-import org.junit.runner.RunWith
-import org.scalatest.FunSuite
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.matchers.ShouldMatchers
-import de.fosd.typechef.parser.c._
 import de.fosd.typechef.featureexpr.FeatureExprFactory
+import de.fosd.typechef.parser.c._
+import org.junit.runner.RunWith
+import org.scalatest.{Matchers, FunSuite}
+import org.scalatest.junit.JUnitRunner
 
 /**
  * test for various CERT rules implemented in typechef
  */
 @RunWith(classOf[JUnitRunner])
-class CertSecurityTest extends FunSuite with ShouldMatchers with TestHelper {
+class CertSecurityTest extends FunSuite with Matchers with TestHelper {
 
     private def checkExpr(code: String, enableAnalysis: Boolean, printAST: Boolean = false): Boolean =
         check("void main() { " + code + "}", enableAnalysis, printAST)

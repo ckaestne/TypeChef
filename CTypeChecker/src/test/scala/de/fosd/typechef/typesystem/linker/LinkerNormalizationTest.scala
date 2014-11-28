@@ -1,15 +1,14 @@
 package de.fosd.typechef.typesystem.linker
 
-import org.junit.runner.RunWith
-import org.scalatest.FunSuite
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.matchers.ShouldMatchers
-import de.fosd.typechef.parser.c._
 import de.fosd.typechef.featureexpr.FeatureExprFactory.True
+import de.fosd.typechef.parser.c._
 import de.fosd.typechef.typesystem._
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
+import org.scalatest.{FunSuite, Matchers}
 
 @RunWith(classOf[JUnitRunner])
-class LinkerNormalizationTest extends FunSuite with ShouldMatchers with TestHelper {
+class LinkerNormalizationTest extends FunSuite with Matchers with TestHelper {
 
     private def link(a: CType, b: CType): CInterface = {
 

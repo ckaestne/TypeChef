@@ -1,16 +1,15 @@
 package de.fosd.typechef.typesystem
 
 
+import de.fosd.typechef.conditional._
+import de.fosd.typechef.featureexpr.FeatureExprFactory
+import de.fosd.typechef.parser.c.{Declaration, TestHelper}
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.matchers.ShouldMatchers
-import org.scalatest.FunSuite
-import de.fosd.typechef.conditional._
-import de.fosd.typechef.parser.c.{Declaration, TestHelper}
-import de.fosd.typechef.featureexpr.FeatureExprFactory
+import org.scalatest.{FunSuite, Matchers}
 
 @RunWith(classOf[JUnitRunner])
-class DeclTypingTest extends CTypeSystem with FunSuite with ShouldMatchers with TestHelper {
+class DeclTypingTest extends FunSuite with CTypeSystem with Matchers with TestHelper {
 
 
     private def declTL(code: String) = {

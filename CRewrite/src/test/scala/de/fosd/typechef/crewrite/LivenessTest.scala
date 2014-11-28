@@ -1,13 +1,13 @@
 package de.fosd.typechef.crewrite
 
-import org.junit.{Ignore, Test}
-import de.fosd.typechef.parser.c._
-import de.fosd.typechef.featureexpr.FeatureExprFactory
-import org.scalatest.matchers.ShouldMatchers
-import de.fosd.typechef.typesystem.{CDeclUse, CTypeSystemFrontend}
 import de.fosd.typechef.conditional.Opt
+import de.fosd.typechef.featureexpr.FeatureExprFactory
+import de.fosd.typechef.parser.c._
+import de.fosd.typechef.typesystem.{CDeclUse, CTypeSystemFrontend}
+import org.junit.{Ignore, Test}
+import org.scalatest.Matchers
 
-class LivenessTest extends EnforceTreeHelper with TestHelper with ShouldMatchers with IntraCFG with CFGHelper {
+class LivenessTest extends EnforceTreeHelper with TestHelper with Matchers with IntraCFG with CFGHelper {
 
     private def runExample(code: String) {
         val a = prepareAST[FunctionDef](parseFunctionDef(code))

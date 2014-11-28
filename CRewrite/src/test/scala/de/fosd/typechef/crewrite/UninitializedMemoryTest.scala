@@ -1,13 +1,13 @@
 package de.fosd.typechef.crewrite
 
-import org.junit.Test
-import org.scalatest.matchers.ShouldMatchers
+import de.fosd.typechef.conditional.Opt
 import de.fosd.typechef.featureexpr.FeatureExprFactory
 import de.fosd.typechef.parser.c._
-import de.fosd.typechef.typesystem.{CTypeCache, CDeclUse, CTypeSystemFrontend}
-import de.fosd.typechef.conditional.Opt
+import de.fosd.typechef.typesystem.{CDeclUse, CTypeCache, CTypeSystemFrontend}
+import org.junit.Test
+import org.scalatest.Matchers
 
-class UninitializedMemoryTest extends TestHelper with ShouldMatchers with CFGHelper with EnforceTreeHelper {
+class UninitializedMemoryTest extends TestHelper with Matchers with CFGHelper with EnforceTreeHelper {
 
     private def getKilledVariables(code: String) = {
         val a = parseFunctionDef(code)

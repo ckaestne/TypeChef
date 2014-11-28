@@ -1,14 +1,13 @@
 package de.fosd.typechef.typesystem
 
 
-import org.junit.runner.RunWith
-import org.scalatest.FunSuite
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.matchers.ShouldMatchers
 import de.fosd.typechef.parser.c._
+import org.junit.runner.RunWith
+import org.scalatest.{Matchers, FunSuite}
+import org.scalatest.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
-class TypeSignatureTest extends FunSuite with ShouldMatchers with TestHelper {
+class TypeSignatureTest extends FunSuite with Matchers with TestHelper {
 
     private def check(code: String, printAST: Boolean = false): Boolean = {
         println("checking " + code);
@@ -23,11 +22,11 @@ class TypeSignatureTest extends FunSuite with ShouldMatchers with TestHelper {
 
 
     test("typdef types") {
-        expectResult(true) {
+        assertResult(true) {
             check("typedef int a;\n" +
                 "void foo(){a b;}")
         }
-        expectResult(false) {
+        assertResult(false) {
             check("#ifdef X\n" +
                 "typedef int a;\n" +
                 "#endif\n" +

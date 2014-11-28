@@ -1,16 +1,15 @@
 package de.fosd.typechef.typesystem.linker
 
 
-import org.junit.runner.RunWith
-import org.scalatest.FunSuite
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.matchers.ShouldMatchers
+import de.fosd.typechef.featureexpr.FeatureExprFactory.{False, True}
 import de.fosd.typechef.parser.c._
-import de.fosd.typechef.featureexpr.FeatureExprFactory.{True, False}
-import de.fosd.typechef.typesystem.{CVoid, CFunction, CFloat}
+import de.fosd.typechef.typesystem.{CFloat, CFunction, CVoid}
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
+import org.scalatest.{FunSuite, Matchers}
 
 @RunWith(classOf[JUnitRunner])
-class LinkerTest extends FunSuite with ShouldMatchers with TestHelper {
+class LinkerTest extends FunSuite with Matchers with TestHelper {
 
     val tfun = CFunction(Seq(), CVoid()) // () -> void
     val tfun2 = CFunction(Seq(CFloat()), CVoid()) // float -> void

@@ -1,11 +1,11 @@
 package de.fosd.typechef.crewrite
 
-import org.junit.Test
-import org.scalatest.matchers.ShouldMatchers
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.typesystem.{CDeclUse, CTypeCache, CTypeSystemFrontend}
+import org.junit.Test
+import org.scalatest.Matchers
 
-class StdLibFuncReturnTest extends TestHelper with ShouldMatchers with CFGHelper with EnforceTreeHelper {
+class StdLibFuncReturnTest extends TestHelper with Matchers with CFGHelper with EnforceTreeHelper {
 
     def stdlibfuncreturn(code: String): Boolean = {
         val tunit = prepareAST[TranslationUnit](parseTranslationUnit(code))

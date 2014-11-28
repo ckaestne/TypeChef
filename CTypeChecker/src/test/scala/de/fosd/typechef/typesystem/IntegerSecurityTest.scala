@@ -1,14 +1,13 @@
 package de.fosd.typechef.typesystem
 
-import org.junit.runner.RunWith
-import org.scalatest.FunSuite
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.matchers.ShouldMatchers
-import de.fosd.typechef.parser.c._
 import de.fosd.typechef.featureexpr.FeatureExprFactory
+import de.fosd.typechef.parser.c._
+import org.junit.runner.RunWith
+import org.scalatest.{Matchers, FunSuite}
+import org.scalatest.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
-class IntegerSecurityTest extends FunSuite with ShouldMatchers with TestHelperTSConditional {
+class IntegerSecurityTest extends FunSuite with Matchers with TestHelperTSConditional {
 
 
     override protected def check(ast: TranslationUnit, enableAnalysis: Boolean): Boolean = {

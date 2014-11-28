@@ -1,12 +1,13 @@
 package de.fosd.typechef.crewrite
 
-import org.junit.Test
-import org.scalatest.matchers.ShouldMatchers
 import de.fosd.typechef.parser.c._
-import scala.Predef._
-import de.fosd.typechef.typesystem.{CTypeCache, CDeclUse, CTypeSystemFrontend}
+import de.fosd.typechef.typesystem.{CDeclUse, CTypeCache, CTypeSystemFrontend}
+import org.junit.Test
+import org.scalatest.Matchers
 
-class CFGInNonVoidFuncTest extends TestHelper with ShouldMatchers with CFGHelper with EnforceTreeHelper {
+import scala.Predef._
+
+class CFGInNonVoidFuncTest extends TestHelper with Matchers with CFGHelper with EnforceTreeHelper {
 
     def cfgInNonVoidFunc(code: String): Boolean = {
         val tunit = prepareAST[TranslationUnit](parseTranslationUnit(code))

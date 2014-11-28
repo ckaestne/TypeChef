@@ -1,16 +1,15 @@
 package de.fosd.typechef.parser.c
 
-import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.matchers.ShouldMatchers
-import de.fosd.typechef.featureexpr._
 import de.fosd.typechef.conditional._
 import de.fosd.typechef.featureexpr.FeatureExprFactory._
+import de.fosd.typechef.featureexpr._
 import org.junit.Ignore
-import org.scalatest.Suite
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
+import org.scalatest.{Matchers, Suite}
 
 @RunWith(classOf[JUnitRunner])
-class ASTNavigationTest extends ShouldMatchers with ASTNavigation with ConditionalNavigation with EnforceTreeHelper with TestHelper with Suite{
+class ASTNavigationTest extends Matchers with ASTNavigation with ConditionalNavigation with EnforceTreeHelper with TestHelper with Suite{
 
 
     val ast = getAST("void foo() {}" +

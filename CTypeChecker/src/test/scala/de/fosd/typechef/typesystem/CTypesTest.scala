@@ -1,17 +1,16 @@
 package de.fosd.typechef.typesystem
 
 
-import org.junit.runner.RunWith
-import org.scalatest.FunSuite
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.matchers.ShouldMatchers
-import de.fosd.typechef.parser.c._
 import de.fosd.typechef.conditional._
-import de.fosd.typechef.featureexpr.FeatureExprFactory.True
 import de.fosd.typechef.featureexpr.FeatureExprFactory
+import de.fosd.typechef.featureexpr.FeatureExprFactory.True
+import de.fosd.typechef.parser.c._
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
+import org.scalatest.{FunSuite, Matchers}
 
 @RunWith(classOf[JUnitRunner])
-class CTypesTest extends CTypeSystem with FunSuite with ShouldMatchers {
+class CTypesTest extends FunSuite with CTypeSystem with Matchers {
 
     test("wellformed types") {
         val sEnv: StructEnv = new StructEnv(Map(

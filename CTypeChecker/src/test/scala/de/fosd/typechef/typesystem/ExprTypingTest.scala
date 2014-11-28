@@ -1,16 +1,15 @@
 package de.fosd.typechef.typesystem
 
 
-import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.matchers.ShouldMatchers
-import org.scalatest.FunSuite
+import de.fosd.typechef.conditional._
 import de.fosd.typechef.featureexpr.FeatureExprFactory.True
 import de.fosd.typechef.parser.c.{Id, TestHelper}
-import de.fosd.typechef.conditional._
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
+import org.scalatest.{FunSuite, Matchers}
 
 @RunWith(classOf[JUnitRunner])
-class ExprTypingTest extends CTypeSystem with CEnv with FunSuite with ShouldMatchers with TestHelper {
+class ExprTypingTest extends FunSuite with CTypeSystem with CEnv with Matchers with TestHelper {
 
     val _i: Conditional[CType] = One(CSigned(CInt()))
     val _l: Conditional[CType] = One(CSigned(CLong()))

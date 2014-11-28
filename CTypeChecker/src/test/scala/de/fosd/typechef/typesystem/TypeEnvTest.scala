@@ -1,20 +1,18 @@
 package de.fosd.typechef.typesystem
 
 
-import org.junit.runner.RunWith
-import org.scalatest.FunSuite
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.matchers.ShouldMatchers
-import de.fosd.typechef.featureexpr.FeatureExprFactory.True
-import de.fosd.typechef.featureexpr.FeatureExprFactory.False
-import de.fosd.typechef.parser.c._
 import de.fosd.typechef.conditional._
 import de.fosd.typechef.featureexpr.FeatureExprFactory
+import de.fosd.typechef.featureexpr.FeatureExprFactory.{False, True}
+import de.fosd.typechef.parser.c._
+import org.junit.runner.RunWith
+import org.scalatest.{Matchers, FunSuite}
+import org.scalatest.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
-class TypeEnvTest extends FunSuite with ShouldMatchers with CTypeSystem with CEnvCache with CTypeCache with TestHelper {
+class TypeEnvTest extends FunSuite with Matchers with CTypeSystem with CEnvCache with CTypeCache with TestHelper {
 
-    import CType.makeCType
+    import de.fosd.typechef.typesystem.CType.makeCType
 
     val _l = OneT(CSigned(CLong()).toCType)
     val _i = OneT(CSigned(CInt()).toCType)
