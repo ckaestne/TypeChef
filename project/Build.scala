@@ -21,8 +21,6 @@ object BuildSettings {
         scalaVersion := buildScalaVersion,
         shellPrompt := ShellPrompt.buildShellPrompt,
 
-        testListeners <<= target.map(t => Seq(new eu.henkelmann.sbt.JUnitXmlTestsListener(t.getAbsolutePath))),
-
         javacOptions ++= Seq("-Xlint:unchecked", "-target", "1.7"),
         scalacOptions ++= Seq("-deprecation", "-unchecked", "-optimise"),
         testOptions += Tests.Argument(TestFrameworks.JUnit, "-q", "-v"),
