@@ -35,7 +35,7 @@ class CGramFilesTest extends TestCase with TestHelper {
   def checkPositionInformation(ast: Product): List[Product] = {
     assert(ast != null)
     var nodeswithoutposition: List[Product] = List()
-    val checkpos = everywherebu(query {
+    val checkpos = everywherebu(query[Product] {
       case a: AST => if (!a.hasPosition) nodeswithoutposition ::= a
     })
     checkpos(ast)

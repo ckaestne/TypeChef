@@ -57,7 +57,7 @@ class ReachingDefintions(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: Feat
 
         // all patterns where definitions can occur in the code
         // !! keep consistent with defines in UsedDefinedDeclaredVariables trait !!
-        val getdefs = manytd( query {
+        val getdefs = manytd( query[AST] {
             case AssignExpr(PointerDerefExpr(i: Id), "=", _) => add2Caches(i)
             case AssignExpr(i: Id, "=", _) => add2Caches(i)
             case InitDeclaratorI(AtomicNamedDeclarator(_, i: Id, _), _, _) => add2Caches(i)

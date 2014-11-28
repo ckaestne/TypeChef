@@ -34,7 +34,7 @@ class UninitializedMemory(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: Fea
         var res = l
         val funccalls = filterAllASTElems[PostfixExpr](a)
 
-        val filterids = manybu(query {
+        val filterids = manybu(query[AST] {
             // omit ids passed as a pointer to a function call
             case i: Id => if (findPriorASTElem[PointerCreationExpr](i, env).isDefined) resid = resid.filterNot(_.eq(i))
             // omit function-call identifiers
@@ -52,7 +52,7 @@ class UninitializedMemory(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: Fea
     // get all uninitialized variables
     def gen(a: AST): L = {
         var res = l
-        val uninitializedVariables = manybu(query {
+        val uninitializedVariables = manybu(query[AST] {
             case InitDeclaratorI(AtomicNamedDeclarator(_, i: Id, _), _, None) => res ++= fromCache(i)
         })
 
@@ -64,12 +64,12 @@ class UninitializedMemory(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: Fea
     def kill(a: AST): L = {
         var res = l
 
-        val assignments = manytd(query {
+        val assignments = manytd(query[AST] {
             case InitDeclaratorI(AtomicNamedDeclarator(_, i: Id, _), _, Some(_)) => res ++= fromCache(i, true)
             case AssignExpr(i: Id, "=", _) => res ++= fromCache(i, true)
         })
 
-        val pointerids = manytd(query {
+        val pointerids = manytd(query[AST] {
             case i: Id => if (findPriorASTElem[PointerCreationExpr](i, env).isDefined) res ++= fromCache(i, true)
         })
 

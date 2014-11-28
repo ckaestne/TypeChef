@@ -243,7 +243,7 @@ object TypeChef extends Build {
     def kiamaDependency(scalaVersion: String, testOnly: Boolean = false) = {
         val x = scalaVersion match {
             case "2.9.1" => "com.googlecode.kiama" %% "kiama" % "1.2.0"
-            case _ => "com.googlecode.kiama" %% "kiama" % "1.4.0"
+            case _ => "com.googlecode.kiama" %% "kiama" % "1.8.0"
         }
         if (testOnly) x % "test" else x
     }
