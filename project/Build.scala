@@ -14,8 +14,6 @@ object BuildSettings {
     val buildVersion = "0.3.7"
     val buildScalaVersion = "2.11.4"
 
-    val testEnvironment = Seq(junit, junitInterface, scalatest, scalacheck)
-    val scalaLibraries = Seq(scalaxml, scalaparsercombinators)
 
     val buildSettings = Defaults.coreDefaultSettings ++ Seq(
         organization := buildOrganization,
@@ -42,9 +40,18 @@ object BuildSettings {
                 else Nil
         },
 
+        crossScalaVersions := Seq("2.10.4", "2.11.4"),
+
         conflictWarning := ConflictWarning.disable,
 
-        libraryDependencies ++= testEnvironment ++ scalaLibraries,
+        libraryDependencies :=  {
+            CrossVersion.partialVersion(scalaVersion.value) match {
+                // if scala 2.11+ is used, add dependency on scala-xml module
+                case Some((2, scalaMajor)) if scalaMajor >= 11 =>
+                    libraryDependencies.value ++ testEnvironment ++ scala211Libraries
+                case _ => libraryDependencies.value ++ testEnvironment
+            }
+        },
 
         parallelExecution := false, //run into memory problems on hudson otherwise
 
@@ -117,6 +124,9 @@ object Dependencies {
     val scalatest = "org.scalatest" %% "scalatest" % "2.2.1" % "test"
     val scalaparsercombinators = "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.2"
     val scalaxml = "org.scala-lang.modules" %% "scala-xml" % "1.0.2"
+
+    val testEnvironment = Seq(junit, junitInterface, scalatest, scalacheck)
+    val scala211Libraries = Seq(scalaparsercombinators, scalaxml)
 }
 
 object VersionGen {
