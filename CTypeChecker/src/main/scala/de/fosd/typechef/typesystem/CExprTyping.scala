@@ -407,6 +407,11 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
             case (o, t1, t2) if (logicalOp(o) && isScalar(t1) && isScalar(t2)) => CSigned(CInt()) //spec
             case (o, t1, t2) if (assignOp(o) && type1.isObject && coerce(t1, t2)) => type2.toValue //TODO spec says return t1?
             case (o, t1, t2) if (pointerArthAssignOp(o) && type1.isObject && isPointer(t1) && isIntegral(t2)) => type1.toValue
+
+            //assigning incompatible pointer types to each other is a warning
+            case (op, t1, t2) if (compOp(op) && isPointer(t1) && isPointer(t2) && !coerce(t1, t2)) => CSigned(CInt()) //spec
+                reportTypeError(featureExpr, "incompatible pointer types " + type1 + " " + op + " " + type2, where, severity = Severity.Warning)
+                CSigned(CInt())
             case (o, t1, t2) =>
                 if (t1.isUnknown || t2.isUnknown)
                     CUnknown(t1 + " " + op + " " + t2)
