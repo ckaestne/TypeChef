@@ -23,7 +23,7 @@ class CTypeSystemFrontend(iast: TranslationUnit,
     override protected def opts: ICTypeSysOptions = options
 
     def prettyPrintType(ctype: Conditional[CType]): String =
-        Conditional.toOptList(ctype).map(o => o.condition.toString + ": \t" + o.entry).mkString("\n")
+        ConditionalLib.toOptList(ctype).map(o => o.condition.toString + ": \t" + o.entry).mkString("\n")
 
     var errors: List[TypeChefError] = List()
 

@@ -516,7 +516,7 @@ abstract class ConditionalCMap[T](protected val m: ConditionalMap[String, (AST, 
      *
      * returns only the type information, not the ast
      */
-    def getOrElse(name: String, errorType: T): Conditional[T] = Conditional.combine(getFullOrElse(name, (null, One(errorType))).map(_._2))
+    def getOrElse(name: String, errorType: T): Conditional[T] = ConditionalLib.combine(getFullOrElse(name, (null, One(errorType))).map(_._2))
 
     def getAstOrElse(name: String, errorNode: AST): Conditional[AST] = getFullOrElse(name, (errorNode, null)).map(_._1)
 

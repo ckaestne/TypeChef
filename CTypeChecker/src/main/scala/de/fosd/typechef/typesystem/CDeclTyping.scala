@@ -105,7 +105,7 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface with CDeclU
         val specifiersFiltered = filterDeadSpecifiers(specifiers, featureExpr)
         //unwrap variability
         val exploded: Conditional[List[Specifier]] = explodeOptList(specifiersFiltered)
-        Conditional.combine(exploded.vmap(featureExpr, (ctx, specList) => constructTypeOne(specList, ctx, env, locationForErrorMsg))) simplify (featureExpr)
+        ConditionalLib.combine(exploded.vmap(featureExpr, (ctx, specList) => constructTypeOne(specList, ctx, env, locationForErrorMsg))) simplify (featureExpr)
     }
 
 
@@ -477,7 +477,7 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface with CDeclU
                 Opt(f, getAbstractDeclaratorType(decl, constructType(specifiers, featureExpr and f, env, p), featureExpr and f, env))
             case VarArgs() => Opt(f, One(CVarArgs().toCType))
         }
-        Conditional.flatten(r)
+        ConditionalLib.flatten(r)
     }
 
     def addStructDeclarationToEnv(e: StructDeclaration, featureExpr: FeatureExpr, env: Env): Env;

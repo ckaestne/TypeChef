@@ -128,5 +128,29 @@ object ConditionalLib {
         case One(v) => if (v) True else False
         case Choice(f, a, b) => (f and isTrue(a)) or (f.not and isTrue(b))
     }
+
+
+    //collapse double conditionals Cond[Cond[T]] to Cond[T]
+    def combine[T](r: Conditional[Conditional[T]]): Conditional[T] = r match {
+        case One(t) => t
+        case Choice(e, a, b) => Choice(e, combine(a), combine(b))
+    }
+
+    //flatten optlists of conditionals into optlists without conditionals
+    def flatten[T](optList: List[Opt[Conditional[T]]]): List[Opt[T]] = {
+        var result: List[Opt[T]] = List()
+        for (e <- optList.reverse) {
+            e.entry match {
+                case Choice(f, a, b) =>
+                    result = flatten(List(Opt(e.condition and f, a))) ++ flatten(List(Opt(e.condition and (f.not), b))) ++ result;
+                case One(a) =>
+                    result = Opt(e.condition, a) :: result;
+            }
+        }
+        result
+    }
+    //old, only for compatibility
+    def toOptList[T](c: Conditional[T]): List[Opt[T]] = c.toOptList
+    def toList[T](c: Conditional[T]): List[(FeatureExpr, T)] = c.toList
 }
 

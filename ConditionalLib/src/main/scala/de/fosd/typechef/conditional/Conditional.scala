@@ -30,7 +30,7 @@ case class Opt[+T](val condition: FeatureExpr, val entry: T) {
 
     def map[U](f: T => U): Opt[U] = Opt(condition, f(entry))
 
-    @deprecated("feature is a misleading name, use .condition instead")
+    @deprecated("feature is a misleading name, use .condition instead", "0.4.0")
     def feature: FeatureExpr = condition
 }
 
@@ -79,17 +79,17 @@ abstract class Conditional[+T] extends Product {
      */
     def vflatMap[U](inFeature: FeatureExpr, f: (FeatureExpr, T) => Conditional[U]): Conditional[U]
 
-    @deprecated("mapf is misnamed and should be replaced by vmap")
+    @deprecated("mapf is misnamed and should be replaced by vmap", "0.4.0")
     def mapf = vmap _
-    @deprecated("mapr is misnamed and should be replaced by flatMap")
+    @deprecated("mapr is misnamed and should be replaced by flatMap", "0.4.0")
     def mapr = flatMap _
-    @deprecated("mapfr is misnamed and should be replaced by vflatMap")
+    @deprecated("mapfr is misnamed and should be replaced by vflatMap", "0.4.0")
     def mapfr = vflatMap _
 
 
     def forall(f: T => Boolean): Boolean
     def exists(f: T => Boolean): Boolean = !this.forall(!f(_))
-    def toOptList: List[Opt[T]] = Conditional.flatten(List(Opt(True, this)))
+    def toOptList: List[Opt[T]] = ConditionalLib.flatten(List(Opt(True, this)))
 
     /**
      * Function toList returns a list with all conditional values of this data structure,
@@ -140,28 +140,4 @@ case class One[+T](value: T) extends Conditional[T] {
     def forall(f: T => Boolean): Boolean = f(value)
 
     def when(f: T => Boolean): FeatureExpr = if (f(value)) True else False
-}
-
-object Conditional {
-    //collapse double conditionals Cond[Cond[T]] to Cond[T]
-    def combine[T](r: Conditional[Conditional[T]]): Conditional[T] = r match {
-        case One(t) => t
-        case Choice(e, a, b) => Choice(e, combine(a), combine(b))
-    }
-    //flatten optlists of conditionals into optlists without conditionals
-    def flatten[T](optList: List[Opt[Conditional[T]]]): List[Opt[T]] = {
-        var result: List[Opt[T]] = List()
-        for (e <- optList.reverse) {
-            e.entry match {
-                case Choice(f, a, b) =>
-                    result = flatten(List(Opt(e.condition and f, a))) ++ flatten(List(Opt(e.condition and (f.not), b))) ++ result;
-                case One(a) =>
-                    result = Opt(e.condition, a) :: result;
-            }
-        }
-        result
-    }
-    //old, only for compatibility
-    def toOptList[T](c: Conditional[T]): List[Opt[T]] = c.toOptList
-    def toList[T](c: Conditional[T]): List[(FeatureExpr, T)] = c.toList
 }

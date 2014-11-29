@@ -153,7 +153,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                         })
                         parameterExprs.foreach(x => getExprTypeRec(x.entry, featureExpr.and(x.condition), env))
 
-                        val providedParameterTypesExploded: Conditional[List[CType]] = ConditionalLib.explodeOptList(Conditional.flatten(providedParameterTypes))
+                        val providedParameterTypesExploded: Conditional[List[CType]] = ConditionalLib.explodeOptList(ConditionalLib.flatten(providedParameterTypes))
                         ConditionalLib.mapCombinationF(functionType, providedParameterTypesExploded, featureExpr,
                             (fexpr: FeatureExpr, funType: CType, paramTypes: List[CType]) =>
                                 funType.atype match {
