@@ -127,7 +127,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                         val targetTypes = getTypenameType(targetTypeName, featureExpr, env)
                         addUse(expr, featureExpr, env)
                         val sourceTypes = et(expr).map(_.toValue)
-                        ConditionalLib.mapCombinationF(sourceTypes, targetTypes, featureExpr,
+                        ConditionalLib.vmapCombinationOp(sourceTypes, targetTypes, featureExpr,
                             (fexpr: FeatureExpr, sourceType: CType, targetType: CType) => {
                                 if (opts.warning_const_assignment && sourceType.isConstant && !targetType.isConstant)
                                     reportTypeError(fexpr, "Do not cast away a const qualification '%s <- %s'; may result in undefined behavior".format(targetType.toText, sourceType.toText), ce, Severity.SecurityWarning, "const-cast")
@@ -154,7 +154,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                         parameterExprs.foreach(x => getExprTypeRec(x.entry, featureExpr.and(x.condition), env))
 
                         val providedParameterTypesExploded: Conditional[List[CType]] = ConditionalLib.explodeOptList(ConditionalLib.flatten(providedParameterTypes))
-                        ConditionalLib.mapCombinationF(functionType, providedParameterTypesExploded, featureExpr,
+                        ConditionalLib.vmapCombinationOp(functionType, providedParameterTypesExploded, featureExpr,
                             (fexpr: FeatureExpr, funType: CType, paramTypes: List[CType]) =>
                                 funType.atype match {
                                     case CPointer(CFunction(parameterTypes, retType)) => typeFunctionCall(expr, parameterTypes, retType, paramTypes, pe, fexpr, env)
@@ -167,7 +167,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
 
                     //a=b, a+=b, ...
                     case ae@AssignExpr(lexpr, op, rexpr) =>
-                        ConditionalLib.mapCombinationF(et(rexpr), et(lexpr), featureExpr,
+                        ConditionalLib.vmapCombinationOp(et(rexpr), et(lexpr), featureExpr,
                             (fexpr: FeatureExpr, rtype: CType, ltype: CType) => {
                                 //security check for integer overflows when operand is used in pointer arithmetic (ie. also array access)
                                 //checks expression again in a tighter context
@@ -346,7 +346,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
     private[typesystem] def analyzeExprBounds(expr: Conditional[Expr], context: FeatureExpr, env: Env): (FeatureExpr, FeatureExpr)
 
     private def getConditionalExprType(thenTypes: Conditional[CType], elseTypes: Conditional[CType], featureExpr: FeatureExpr, where: AST): Conditional[CType] =
-        ConditionalLib.mapCombinationF(thenTypes, elseTypes, featureExpr, (featureExpr: FeatureExpr, thenType: CType, elseType: CType) => {
+        ConditionalLib.vmapCombinationOp(thenTypes, elseTypes, featureExpr, (featureExpr: FeatureExpr, thenType: CType, elseType: CType) => {
             (thenType.atype, elseType.atype) match {
                 case (CPointer(CVoid()), CPointer(x)) => CPointer(x) //spec
                 case (CPointer(x), CPointer(CVoid())) => CPointer(x) //spec

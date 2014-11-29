@@ -100,7 +100,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
 
         val prevTypes: Conditional[(CType, DeclarationKind, Int, Linkage)] = env.varEnv.lookup(name)
 
-        ConditionalLib.mapCombinationF(ctype, prevTypes, fexpr, (f: FeatureExpr, newType: CType, prev: (CType, DeclarationKind, Int, Linkage)) => {
+        ConditionalLib.vmapCombinationOp(ctype, prevTypes, fexpr, (f: FeatureExpr, newType: CType, prev: (CType, DeclarationKind, Int, Linkage)) => {
             if (!isValidRedeclaration(normalize(newType), kind, env.scope, normalize(prev._1), prev._2, prev._3))
                 reportTypeError(f, "Invalid redeclaration/redefinition of " + name +
                     " (was: " + prev._1 + ":" + kind + ":" + env.scope +
@@ -163,7 +163,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
 
     private def checkInitializer(initExpr: Expr, expectedType: Conditional[CType], featureExpr: FeatureExpr, env: Env) {
         val foundType = getExprType(initExpr, featureExpr, env)
-        ConditionalLib.mapCombinationF(foundType, expectedType, featureExpr, {
+        ConditionalLib.vmapCombinationOp(foundType, expectedType, featureExpr, {
             (f, ft: CType, et: CType) => if (f.isSatisfiable() && !coerce(et, ft) && !ft.isUnknown)
                 issueTypeError(Severity.OtherError, f, "incorrect initializer type. expected " + et + " found " + ft, initExpr)
         })
@@ -303,7 +303,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
                                 issueTypeError(Severity.OtherError, featureExpr, "no return expression, expected type " + expectedReturnType, r)
                         case Some(expr) =>
                             val foundReturnType = getExprType(expr, featureExpr, env)
-                            ConditionalLib.mapCombinationF(expectedReturnType, foundReturnType, featureExpr,
+                            ConditionalLib.vmapCombinationOp(expectedReturnType, foundReturnType, featureExpr,
                                 (fexpr: FeatureExpr, etype: CType, ftype: CType) =>
                                     if (!coerce(etype, ftype) && !ftype.isUnknown)
                                         issueTypeError(Severity.OtherError, fexpr, "incorrect return type, expected " + etype + ", found " + ftype, expr))

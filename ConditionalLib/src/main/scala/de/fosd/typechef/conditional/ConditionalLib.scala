@@ -81,14 +81,6 @@ object ConditionalLib {
         vfoldRight[A, B](list.reverse, init, featureExpr, (o, b, a) => op(o, a, b))
 
 
-    @deprecated("renamed to vfoldRightS for consistency", "0.4.0")
-    def conditionalFoldRight = vfoldRightS _
-    @deprecated("renamed to vfoldRightR for consistency", "0.4.0")
-    def conditionalFoldRightR = vfoldRightR _
-    @deprecated("renamed to vfoldRight for consistency", "0.4.0")
-    def conditionalFoldRightFR = vfoldRight _
-    @deprecated("renamed to vfoldRight for consistency", "0.4.0")
-    def conditionalFoldLeftFR = vfoldLeft _
 
 
     def equals[T](a: Conditional[T], b: Conditional[T]): Boolean =
@@ -124,21 +116,30 @@ object ConditionalLib {
     def zip[A, B](a: Conditional[A], b: Conditional[B]): Conditional[(A, B)] =
         a.vflatMap(True, (feature, x) => zipSubcondition(feature, x, b))
 
-    private def zipSubcondition[A, B](context: FeatureExpr, entry: A, other: Conditional[B]): Conditional[(A, B)] =
-        findSubtree(context, other).map(otherEntry => (entry, otherEntry))
+    private def zipSubcondition[A, B](ctx: FeatureExpr, entry: A, other: Conditional[B]): Conditional[(A, B)] =
+        findSubtree(ctx, other).map(otherEntry => (entry, otherEntry))
 
 
     /**
-     * convenience function, zip two conditional values and map the result
+     * convenience function to map a function over all possible combinations of
+     * two conditional values
+     *
+     * uses a common flatmap-map combination
      */
     def mapCombination[A, B, C](a: Conditional[A], b: Conditional[B], f: (A, B) => C): Conditional[C] =
-        zip(a, b).simplify.map(x => f(x._1, x._2))
-    /**
-     * convenience function, zip two conditional values and map the result
-     */
-    def mapCombinationF[A, B, C](a: Conditional[A], b: Conditional[B], featureExpr: FeatureExpr, f: (FeatureExpr, A, B) => C): Conditional[C] =
-        zip(a, b).simplify(featureExpr).vmap(featureExpr, (fexpr, x) => f(fexpr, x._1, x._2))
+        a.flatMap(aa => b.map(bb => f(aa, bb)))
 
+    /**
+     * same as mapCombination, but additionally preserves a context during the computation
+     */
+    def vmapCombination[A, B, C](a: Conditional[A], b: Conditional[B], ctx: FeatureExpr, f: (FeatureExpr, A, B) => C): Conditional[C] =
+        a.vflatMap(ctx, (ctx, a) => b.vmap(ctx, (ctx, b)=> f(ctx, a, b)))
+
+    /**
+     * same as vmapCombination, but computes only feasible combinations
+     */
+    def vmapCombinationOp[A, B, C](a: Conditional[A], b: Conditional[B], ctx: FeatureExpr, f: (FeatureExpr, A, B) => C): Conditional[C] =
+        zip(a, b).simplify(ctx).vmap(ctx, (fexpr, x) => f(fexpr, x._1, x._2))
 
     /**
      * convenience function to add an element (e) with feature expression (f) to an conditional tree (t) with the initial
@@ -203,5 +204,18 @@ object ConditionalLib {
     //old, only for compatibility
     def toOptList[T](c: Conditional[T]): List[Opt[T]] = c.toOptList
     def toList[T](c: Conditional[T]): List[(FeatureExpr, T)] = c.toList
+
+
+
+    @deprecated("renamed to vfoldRightS for consistency", "0.4.0")
+    def conditionalFoldRight = vfoldRightS _
+    @deprecated("renamed to vfoldRightR for consistency", "0.4.0")
+    def conditionalFoldRightR = vfoldRightR _
+    @deprecated("renamed to vfoldRight for consistency", "0.4.0")
+    def conditionalFoldRightFR = vfoldRight _
+    @deprecated("renamed to vfoldRight for consistency", "0.4.0")
+    def conditionalFoldLeftFR = vfoldLeft _
+    @deprecated("renamed to vmapCombination for consistency", "0.4.0")
+    def mapCombinationF = vmapCombinationOp _
 }
 
