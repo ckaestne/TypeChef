@@ -249,10 +249,9 @@ class ConditionalTest {
     }
 
 
-    @Test def testIfTrue {
-        import ConditionalLib.isTrue
-        assertEquals(fa and fb, isTrue(Choice(fa, Choice(fb, One(true), One(false)), One(false))))
-        assertEquals(False, isTrue(Choice(fa, Choice(fb, One(false), One(false)), One(false))))
-        assertEquals((fa and fb) or (fa.not and fb.not), isTrue(Choice(fa, Choice(fb, One(true), One(false)), Choice(fb, One(false), One(true)))))
+    @Test def testWhenTrue {
+        assertEquals(fa and fb, (Choice(fa, Choice(fb, One(true), One(false)), One(false))).when(identity))
+        assertEquals(False, (Choice(fa, Choice(fb, One(false), One(false)), One(false))).when(identity))
+        assertEquals((fa and fb) or (fa.not and fb.not), (Choice(fa, Choice(fb, One(true), One(false)), Choice(fb, One(false), One(true)))).when(identity))
     }
 }

@@ -1,6 +1,6 @@
 package de.fosd.typechef.conditional
 
-import de.fosd.typechef.featureexpr.FeatureExprFactory.{False, True}
+import de.fosd.typechef.featureexpr.FeatureExprFactory.True
 import de.fosd.typechef.featureexpr.{FeatureExpr, FeatureExprFactory}
 
 /**
@@ -81,8 +81,7 @@ object ConditionalLib {
         vfoldRight[A, B](list.reverse, init, featureExpr, (o, b, a) => op(o, a, b))
 
 
-//    def equals[T](a: Conditional[T], b: Conditional[T]): Boolean = mapCombination(a, b, _ == _).forall(_)
-
+    //    def equals[T](a: Conditional[T], b: Conditional[T]): Boolean = mapCombination(a, b, _ == _).forall(_)
 
 
     /**
@@ -108,13 +107,13 @@ object ConditionalLib {
      * determines if two conditional values have equal value in all configurations
      */
     def equals[T](a: Conditional[T], b: Conditional[T]): Boolean =
-        mapCombination(a, b, (x: T, y: T) => x equals y).when(x=>x).isTautology()
+        mapCombination(a, b, (x: T, y: T) => x equals y).when(identity).isTautology()
     /**
      * alternative implementation with more satisifiability checks and potentially fewer
      * comparisons
      */
     def equalsOp[T](a: Conditional[T], b: Conditional[T]): Boolean =
-        mapCombinationOp(a, b, (x: T, y: T) => x equals y).forall(x=>x)
+        mapCombinationOp(a, b, (x: T, y: T) => x equals y).forall(identity)
 
 
     /**
@@ -132,7 +131,7 @@ object ConditionalLib {
      * but fewer computations may be performed, since infeasible combinations are skipped
      */
     def mapCombinationOp[A, B, C](a: Conditional[A], b: Conditional[B], f: (A, B) => C): Conditional[C] =
-        a.vflatMap(True, (ctx,aa) => b.simplify(ctx).map(bb => f(aa, bb)))
+        a.vflatMap(True, (ctx, aa) => b.simplify(ctx).map(bb => f(aa, bb)))
 
     /**
      * same as mapCombination, but additionally preserves a context during the computation
@@ -150,37 +149,17 @@ object ConditionalLib {
         explode(a, b).simplify(ctx).vmap(ctx, (fexpr, x) => f(fexpr, x._1, x._2))
 
 
-
-    // collects all leaves of the conditional tree
-    def leaves[T](t: Conditional[T]): List[T] = {
-        t match {
-            case One(value) => List(value)
-            case Choice(_, thenBranch, elseBranch) => leaves(thenBranch) ++ leaves(elseBranch)
-        }
-    }
-
-    // returns all elements of the tree as a list of tuples containing the collected feature expression and the leaves
-    def items[T](t: Conditional[T], ctx: FeatureExpr = FeatureExprFactory.True): List[(FeatureExpr, T)] = {
-        t match {
-            case One(value) => List((ctx, value))
-            case Choice(feature, thenBranch, elseBranch) =>
-                items(thenBranch, ctx and feature) ++ items(elseBranch, ctx and (feature.not()))
-        }
-    }
-
-    def isTrue(t: Conditional[Boolean]): FeatureExpr = t match {
-        case One(v) => if (v) True else False
-        case Choice(f, a, b) => (f and isTrue(a)) or (f.not and isTrue(b))
-    }
-
-
-    //collapse double conditionals Cond[Cond[T]] to Cond[T]
+    /**
+     * helper function to collapse double conditionals Cond[Cond[T]] to Cond[T]
+     */
     def combine[T](r: Conditional[Conditional[T]]): Conditional[T] = r match {
         case One(t) => t
         case Choice(e, a, b) => Choice(e, combine(a), combine(b))
     }
 
-    //flatten optlists of conditionals into optlists without conditionals
+    /**
+     * helper function to flatten optlists of conditionals into optlists without conditionals
+     */
     def flatten[T](optList: List[Opt[Conditional[T]]]): List[Opt[T]] = {
         var result: List[Opt[T]] = List()
         for (e <- optList.reverse) {
@@ -193,7 +172,6 @@ object ConditionalLib {
         }
         result
     }
-
 
 
     @deprecated("renamed to vfoldRightS for consistency", "0.4.0")
@@ -209,11 +187,24 @@ object ConditionalLib {
     @deprecated("use value.simplify(ctx) instead", "0.4.0")
     def findSubtree[T](ctx: FeatureExpr, value: Conditional[T]): Conditional[T] = value.simplify(ctx)
     @deprecated("misnamed, use mapCombinedOp instead", "0.4.0")
-    def compare[T, R](a: Conditional[T], b: Conditional[T], f: (T, T) => R): Conditional[R] = mapCombinationOp(a,b,f)
+    def compare[T, R](a: Conditional[T], b: Conditional[T], f: (T, T) => R): Conditional[R] = mapCombinationOp(a, b, f)
     @deprecated("only for backward compatibility", "0.4.0")
     def toOptList[T](c: Conditional[T]): List[Opt[T]] = c.toOptList
     @deprecated("only for backward compatibility", "0.4.0")
     def toList[T](c: Conditional[T]): List[(FeatureExpr, T)] = c.toList
+    @deprecated("misnamed, use value.when(identity) instead", "0.4.0")
+    def isTrue(t: Conditional[Boolean]): FeatureExpr = t.when(identity)
+    @deprecated("use value.toList instead", "0.4.0")
+    def items[T](t: Conditional[T], ctx: FeatureExpr = FeatureExprFactory.True): List[(FeatureExpr, T)] = t.toList.map(x => (x._1 and ctx, x._2))
+
+    @deprecated("use value.toList().map(_._1) instead", "0.4.0")
+    def leaves[T](t: Conditional[T]): List[T] = {
+        t match {
+            case One(value) => List(value)
+            case Choice(_, thenBranch, elseBranch) => leaves(thenBranch) ++ leaves(elseBranch)
+        }
+    }
+
     @deprecated("removed due to unclear specification", "0.4.0")
     def insert[T](t: Conditional[T], ctx: FeatureExpr, f: FeatureExpr, e: T): Conditional[T] = {
         t match {

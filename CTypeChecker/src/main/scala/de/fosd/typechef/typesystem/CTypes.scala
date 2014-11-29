@@ -494,8 +494,8 @@ class ConditionalVarEnv(m: ConditionalMap[String, (AST, Conditional[(CType, Decl
     def lookupType(name: String): Conditional[CType] = lookup(name).map(_._1)
     def lookupKind(name: String): Conditional[DeclarationKind] = lookup(name).map(_._2)
     def lookupScope(name: String): Conditional[Int] = lookup(name).map(_._3)
-    def lookupIsInternalLinkage(name: String): FeatureExpr = ConditionalLib.isTrue(lookup(name).map(_._4 == InternalLinkage))
-    def lookupIsExternalLinkage(name: String): FeatureExpr = ConditionalLib.isTrue(lookup(name).map(_._4 == ExternalLinkage))
+    def lookupIsInternalLinkage(name: String): FeatureExpr = (lookup(name).map(_._4 == InternalLinkage).when(identity))
+    def lookupIsExternalLinkage(name: String): FeatureExpr = (lookup(name).map(_._4 == ExternalLinkage).when(identity))
     def +(name: String, f: FeatureExpr, a: AST, t: Conditional[CType], kind: DeclarationKind, scope: Int, linkage: Linkage) = new ConditionalVarEnv(m.+(name, f, (a, t.map(x => (x, kind, scope, linkage)))))
     def +(name: String, f: FeatureExpr, a: AST, t: Conditional[CType], kind: DeclarationKind, scope: Int, linkage: Conditional[Linkage]) = new ConditionalVarEnv(m.+(name, f, (a, ConditionalLib.mapCombination(t, linkage, (x: CType, l: Linkage) => (x, kind, scope, l)))))
     def ++(v: Seq[(String, FeatureExpr, AST, Conditional[CType], DeclarationKind, Int, Linkage)]) =
