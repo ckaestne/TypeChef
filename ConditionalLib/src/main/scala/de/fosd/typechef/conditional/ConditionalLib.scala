@@ -1,44 +1,95 @@
 package de.fosd.typechef.conditional
 
-import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
-import FeatureExprFactory.{True, False}
+import de.fosd.typechef.featureexpr.FeatureExprFactory.{False, True}
+import de.fosd.typechef.featureexpr.{FeatureExpr, FeatureExprFactory}
 
 /**
  * maintains a map
  * a name may be mapped to alternative entries with different feature expressions
  */
 object ConditionalLib {
+
     /**
-     * explodes an optlist. use carefully, can be very expensive
+     * explodes a list of optional entries to choice of lists.
+     *
+     * use carefully, can be very expensive and can explode to huge choices
      */
     def explodeOptList[T](l: List[Opt[T]]): Conditional[List[T]] =
-        conditionalFoldRight(l, One(Nil), (e: T, list: List[T]) => e :: list)
+        vfoldRightS(l, One(Nil), (e: T, list: List[T]) => e :: list)
 
-
-    def conditionalFoldRight[A, B](list: List[Opt[A]], init: Conditional[B], op: (A, B) => B): Conditional[B] =
-        conditionalFoldRightR(list, init, (a: A, b: B) => One(op(a, b)))
 
     /**
-     * folds a conditional list. if an entry is optional, the result is split and the entry
-     * affects the result only partially
+     * conditional implementation of a fold operation on lists with optional entries.
+     *
+     * on optional elements in the list the computation is split (if necessary) and
+     * the result is computed separately under all possible contexts
+     *
+     * @param list a list of conditional values
+     * @param init an initial result value (conditional)
+     * @param op a function performing the operation
+     * @return the result of the fold
      */
-    def conditionalFoldRightR[A, B](list: List[Opt[A]], init: Conditional[B], op: (A, B) => Conditional[B]): Conditional[B] =
-        conditionalFoldRightFR(list, init, True, (f, a: A, b: B) => op(a, b))
+    def vfoldRightS[A, B](list: List[Opt[A]], init: Conditional[B], op: (A, B) => B): Conditional[B] =
+        vfoldRightR(list, init, (a: A, b: B) => One(op(a, b)))
 
-    def conditionalFoldRightFR[A, B](list: List[Opt[A]], init: Conditional[B], featureExpr: FeatureExpr, op: (FeatureExpr, A, B) => Conditional[B]): Conditional[B] =
+    /**
+     * conditional implementation of a fold operation on lists with optional entries.
+     *
+     * on optional elements in the list the computation is split (if necessary) and
+     * the result is computed separately under all possible contexts
+     *
+     * in contrast to foldRight, this version may introduce variation in a single implementation
+     *
+     * @param list a list of conditional values
+     * @param init an initial result value (conditional)
+     * @param op a function performing the operation
+     * @return the result of the fold
+     */
+    def vfoldRightR[A, B](list: List[Opt[A]], init: Conditional[B], op: (A, B) => Conditional[B]): Conditional[B] =
+        vfoldRight(list, init, True, (f, a: A, b: B) => op(a, b))
+
+    /**
+     * conditional implementation of a fold operation on lists with optional entries.
+     *
+     * on optional elements in the list the computation is split (if necessary) and
+     * the result is computed separately under all possible contexts
+     *
+     * in contrast to foldRight, this version may introduce variation in a single implementation and propagates 
+     * a variability context
+     *
+     * @param list a list of conditional values
+     * @param init an initial result value (conditional)
+     * @param op a function performing the operation
+     * @return the result of the fold
+     */
+    def vfoldRight[A, B](list: List[Opt[A]], init: Conditional[B], ctx: FeatureExpr, op: (FeatureExpr, A, B) => Conditional[B]): Conditional[B] =
         list.foldRight(init)(
             (next: Opt[A], intermediateResults: Conditional[B]) => {
-                intermediateResults.vflatMap(featureExpr,
+                intermediateResults.vflatMap(ctx,
                     (intermediateFeature, intermediateResult) =>
                         if ((intermediateFeature implies next.condition).isTautology) op(intermediateFeature, next.entry, intermediateResult)
                         else if ((intermediateFeature mex next.condition).isTautology) One(intermediateResult)
                         else Choice(next.condition, op(intermediateFeature and next.condition, next.entry, intermediateResult), One(intermediateResult))
-                ) simplify (featureExpr)
+                ) simplify (ctx)
             }
         )
 
-    def conditionalFoldLeftFR[A, B](list: List[Opt[A]], init: Conditional[B], featureExpr: FeatureExpr, op: (FeatureExpr, B, A) => Conditional[B]): Conditional[B] =
-        conditionalFoldRightFR[A, B](list.reverse, init, featureExpr, (o, b, a) => op(o, a, b))
+    /**
+     * conditional fold, see vfoldRight
+     */
+    def vfoldLeft[A, B](list: List[Opt[A]], init: Conditional[B], featureExpr: FeatureExpr, op: (FeatureExpr, B, A) => Conditional[B]): Conditional[B] =
+        vfoldRight[A, B](list.reverse, init, featureExpr, (o, b, a) => op(o, a, b))
+
+
+    @deprecated("renamed to vfoldRightS for consistency", "0.4.0")
+    def conditionalFoldRight = vfoldRightS _
+    @deprecated("renamed to vfoldRightR for consistency", "0.4.0")
+    def conditionalFoldRightR = vfoldRightR _
+    @deprecated("renamed to vfoldRight for consistency", "0.4.0")
+    def conditionalFoldRightFR = vfoldRight _
+    @deprecated("renamed to vfoldRight for consistency", "0.4.0")
+    def conditionalFoldLeftFR = vfoldLeft _
+
 
     def equals[T](a: Conditional[T], b: Conditional[T]): Boolean =
         compare(a, b, (x: T, y: T) => x equals y).simplify.forall(a => a)
@@ -62,7 +113,7 @@ object ConditionalLib {
      * or None if the list is empty
      */
     def lastEntry[T](list: List[Opt[T]]): Conditional[Option[T]] =
-        conditionalFoldRight(list, One(None), (e: T, result: Option[T]) => if (result.isDefined) result else Some(e)) simplify
+        vfoldRightS(list, One(None), (e: T, result: Option[T]) => if (result.isDefined) result else Some(e)) simplify
 
 
     /**

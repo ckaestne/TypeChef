@@ -209,7 +209,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                         })
                     //a+b
                     case ne@NAryExpr(expr, opList) =>
-                        ConditionalLib.conditionalFoldLeftFR(opList, et(expr), featureExpr,
+                        ConditionalLib.vfoldLeft(opList, et(expr), featureExpr,
                             (fexpr: FeatureExpr, ctype: CType, subExpr: NArySubExpr) => {
                                 //security check for integer overflows when operand is used in pointer arithmetic (ie. also array access)
                                 val isPointerArith = (pointerArthOp(subExpr.op) || pointerArthAssignOp(subExpr.op)) && isPointer(ctype)

@@ -24,10 +24,10 @@ class ConditionalTest {
     def testFold {
         assertEquals(
             Choice(fa, One("ab"), One("b")),
-            conditionalFoldRight(List(Opt(fa, "a"), Opt(True, "b")), One(""), (a: String, b: String) => a + b))
+            vfoldRightS(List(Opt(fa, "a"), Opt(True, "b")), One(""), (a: String, b: String) => a + b))
         assertEquals(
             Choice(fb, Choice(fa, One(7), One(5)), Choice(fa, One(3), One(1))),
-            conditionalFoldRight(List(Opt(fa, 2), Opt(True, 1), Opt(fb, 4)), One(0), (a: Int, b: Int) => a + b))
+            vfoldRightS(List(Opt(fa, 2), Opt(True, 1), Opt(fb, 4)), One(0), (a: Int, b: Int) => a + b))
     }
 
     @Test
@@ -36,16 +36,16 @@ class ConditionalTest {
 
         assertEquals(
             Choice(fa, One(1000), One(0)),
-            conditionalFoldRight(ol, One(0), (a: Int, b: Int) => a + b))
+            vfoldRightS(ol, One(0), (a: Int, b: Int) => a + b))
         assertEquals(
             Choice(fa, One(1000), One(1)),
-            conditionalFoldRight(ol, Choice(fa, One(0), One(1)), (a: Int, b: Int) => a + b))
+            vfoldRightS(ol, Choice(fa, One(0), One(1)), (a: Int, b: Int) => a + b))
 
         val vt = Choice(fa, One("X"), One("U"))
 
         assertEquals(
             vt,
-            conditionalFoldRightR(ol, vt, (oentry: Int, v: String) => vt map (ot => if (v == ot) "X" else "U")))
+            vfoldRightR(ol, vt, (oentry: Int, v: String) => vt map (ot => if (v == ot) "X" else "U")))
 
 
         assertEquals(
@@ -157,7 +157,7 @@ class ConditionalTest {
     @Test
     def testFoldCondition {
         val l = List(Opt(fa, 1), Opt(fa.not(), 2), Opt(fa.not(), 3))
-        val r = conditionalFoldRightFR(l, One("-"), True, (f: FeatureExpr, a: Int, b: String) => {
+        val r = vfoldRight(l, One("-"), True, (f: FeatureExpr, a: Int, b: String) => {
             assert(!f.isTautology());
             println(f + ", " + a + ", " + b);
             One(a.toString + b)
@@ -236,7 +236,7 @@ class ConditionalTest {
         var t1: Conditional[Set[String]] = One(Set())
 
         println(t1)
-        t1 = ConditionalLib.conditionalFoldRight[Set[String], Set[String]](List(Opt(fa.not, Set("c"))), t1, _ ++ _)
+        t1 = ConditionalLib.vfoldRightS[Set[String], Set[String]](List(Opt(fa.not, Set("c"))), t1, _ ++ _)
         println(t1)
     }
 

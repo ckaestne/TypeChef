@@ -439,7 +439,7 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface with CDeclU
     }
 
     private def decorateDeclaratorExt(t: Conditional[CType], extensions: List[Opt[DeclaratorExtension]], featureExpr: FeatureExpr, env: Env, oldStyleParameterTypes: ConditionalTypeMap = null): Conditional[CType] =
-        conditionalFoldRightFR(extensions.reverse, t, featureExpr,
+        vfoldRight(extensions.reverse, t, featureExpr,
             (fexpr: FeatureExpr, ext: DeclaratorExtension, rtype: CType) => ext match {
                 case o@DeclIdentifierList(idList) =>
                     if (!idList.isEmpty && oldStyleParameterTypes == null)
@@ -465,7 +465,7 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface with CDeclU
         )
 
     private def decorateDeclaratorPointer(t: Conditional[CType], pointers: List[Opt[Pointer]]): Conditional[CType] =
-        ConditionalLib.conditionalFoldRight(pointers, t, (a: Pointer, b: CType) => b.map(CPointer(_)))
+        ConditionalLib.vfoldRightS(pointers, t, (a: Pointer, b: CType) => b.map(CPointer(_)))
 
 
     private def getParameterTypes(parameterDecls: List[Opt[ParameterDeclaration]], featureExpr: FeatureExpr, env: Env): List[Opt[CType]] = {
