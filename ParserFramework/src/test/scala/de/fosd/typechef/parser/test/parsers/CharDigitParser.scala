@@ -5,7 +5,7 @@ import de.fosd.typechef.conditional._
 import scala.language.higherKinds
 
 
-class CharDigitParser extends MultiFeatureParser {
+class CharDigitParser extends ConditionalParser {
     type Elem = MyToken
     type TypeContext = Any
     type OptResult[T]

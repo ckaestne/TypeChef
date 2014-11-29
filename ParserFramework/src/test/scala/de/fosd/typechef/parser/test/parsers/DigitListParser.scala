@@ -6,7 +6,7 @@ import de.fosd.typechef.conditional._
 
 case class DigitList(list: List[Lit]) extends AST
 
-class DigitListParser extends MultiFeatureParser {
+class DigitListParser extends ConditionalParser {
     type Elem = MyToken
     type TypeContext = Any
 

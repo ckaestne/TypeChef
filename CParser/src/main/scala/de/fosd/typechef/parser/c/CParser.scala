@@ -14,7 +14,7 @@ import de.fosd.typechef.conditional.Opt
  * and Monty Zukowski (jamz@cdsnet.net) April 28, 1998
  */
 
-class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = false) extends MultiFeatureParser(featureModel, debugOutput) {
+class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = false) extends ConditionalParser(featureModel, debugOutput) {
     type Elem = CToken
     type AbstractToken = CToken
     type TypeContext = CTypeContext

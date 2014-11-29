@@ -55,7 +55,7 @@ object JoinAutoCheck extends Properties("MultiParseResult") {
 
     val jt = new JoinTest()
 
-    class JoinTest extends MultiFeatureParser {
+    class JoinTest extends ConditionalParser {
         type Elem = MyToken
         type TypeContext = Any
 

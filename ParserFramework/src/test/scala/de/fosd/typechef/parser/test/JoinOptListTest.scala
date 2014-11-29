@@ -7,7 +7,7 @@ import de.fosd.typechef.featureexpr.FeatureExprFactory._
 import de.fosd.typechef.parser.test.parsers._
 import de.fosd.typechef.conditional._
 
-class JoinOptListTest extends MultiFeatureParser {
+class JoinOptListTest extends ConditionalParser {
     type Elem = MyToken
     type TypeContext = Any
 

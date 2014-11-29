@@ -10,7 +10,7 @@ import de.fosd.typechef.conditional.{Opt, Conditional}
 // * which is again based on the publically available JavaCC grammar
 // */
 //
-class JavaParser extends MultiFeatureParser {
+class JavaParser extends ConditionalParser {
     type Elem = TokenWrapper
     type TypeContext = Null
 

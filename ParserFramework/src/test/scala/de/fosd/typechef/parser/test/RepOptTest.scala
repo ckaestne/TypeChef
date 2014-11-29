@@ -17,7 +17,7 @@ class RepOptTest extends TestCase with DigitListUtilities {
 
     case class AList(list: List[AST]) extends AST
 
-    class DigitList2Parser extends MultiFeatureParser {
+    class DigitList2Parser extends ConditionalParser {
         type Elem = MyToken
         type TypeContext = Any
 

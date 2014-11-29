@@ -4,7 +4,7 @@ import de.fosd.typechef.parser._
 import de.fosd.typechef.featureexpr.FeatureExprFactory
 import de.fosd.typechef.conditional._
 
-class MultiExpressionParser extends MultiFeatureParser {
+class MultiExpressionParser extends ConditionalParser {
     type Elem = MyToken
     type TypeContext = Any
 

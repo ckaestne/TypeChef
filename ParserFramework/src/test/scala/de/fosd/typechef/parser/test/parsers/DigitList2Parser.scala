@@ -7,7 +7,7 @@ import scala.language.higherKinds
 
 case class DigitList2(list: List[Opt[Conditional[AST]]]) extends AST
 
-abstract class DigitList2Parser extends MultiFeatureParser {
+abstract class DigitList2Parser extends ConditionalParser {
     type Elem = MyToken
     type TypeContext = Any
     type OptResult[T]
