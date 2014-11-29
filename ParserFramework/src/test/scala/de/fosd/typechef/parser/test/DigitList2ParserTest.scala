@@ -10,10 +10,10 @@ class DigitList2ParserTest extends TestCase with DigitListUtilities {
   val newParser = new DigitList2Parser() {
     type OptResult[T] = Opt[T]
 
-    def myRepOpt[T](p: => MultiParser[T], productionName: String): MultiParser[List[OptResult[T]]] =
+    def myRepOpt[T](p: => ConditionalParser[T], productionName: String): ConditionalParser[List[OptResult[T]]] =
       repOpt(p, "")
 
-    def digits: MultiParser[AST] =
+    def digits: ConditionalParser[AST] =
       myRepOpt(digitList | (digit ^^ {
         One(_)
       }), "digitList") ^^ ({

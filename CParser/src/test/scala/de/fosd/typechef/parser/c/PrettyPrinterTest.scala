@@ -252,12 +252,12 @@ class PrettyPrinterTest extends TestHelper {
         parsePrintParse("a,b,c+c/d|x", p.expr)
     }
 
-    private def parsePrintParse(code: String, production: p.MultiParser[AST]) {
+    private def parsePrintParse(code: String, production: p.ConditionalParser[AST]) {
         parsePrintParseCond(code, production ^^ {
             One(_)
         })
     }
-    private def parsePrintParseCond(code: String, production: p.MultiParser[Conditional[AST]]) {
+    private def parsePrintParseCond(code: String, production: p.ConditionalParser[Conditional[AST]]) {
 
         //parse
         val ast = parse(code, production)

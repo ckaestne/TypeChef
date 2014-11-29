@@ -4,13 +4,13 @@ import de.fosd.typechef.parser._
 import de.fosd.typechef.featureexpr.FeatureExprFactory
 import de.fosd.typechef.conditional._
 
-class MultiExpressionParser extends ConditionalParser {
+class MultiExpressionParser extends ConditionalParserLib {
     type Elem = MyToken
     type TypeContext = Any
 
     def parse(tokens: List[MyToken]): ParseResult[Conditional[AST]] = expr(new TokenReader[MyToken, TypeContext](tokens, 0, null, EofToken), FeatureExprFactory.True).expectOneResult
 
-    def expr: MultiParser[Conditional[AST]] = {
+    def expr: ConditionalParser[Conditional[AST]] = {
         val r = term ~ opt((t("+") | t("-")) ~ expr) ^^! ({
             case ~(f, Some(~(op, e))) if (op.text == "+") => One(Plus(f, e))
             case ~(f, Some(~(op, e))) if (op.text == "-") => One(Minus(f, e))
@@ -21,13 +21,13 @@ class MultiExpressionParser extends ConditionalParser {
     }
 
 
-    def term: MultiParser[Conditional[AST]] =
+    def term: ConditionalParser[Conditional[AST]] =
         (fact ~ ((t("*") ~! expr) ?) ^^! ({
             case ~(f, Some(~(m, e))) => One(Mul(f, e))
             case ~(f, None) => f
         })).map(ConditionalLib.combine(_))
 
-    def fact: MultiParser[Conditional[AST]] =
+    def fact: ConditionalParser[Conditional[AST]] =
         (digits ^^! ({
             t => Lit(t.text.toInt)
         })

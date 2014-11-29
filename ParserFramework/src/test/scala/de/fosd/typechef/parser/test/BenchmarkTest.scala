@@ -38,7 +38,7 @@ class BenchmarkTest extends TestCase with DigitListUtilities {
     //1 * (_ 2 + 3 )_
     @Test def testExpr2 = expectResult(List(t("1"), t("*"), t("(", f1), t("2"), t("+"), t("3"), t(")", f1)), 10, 0, 3, p.expr)
 
-    private def expectResult(l: List[MyToken], tokenCounter: Int, backtracking: Int, replicatedParsing: Int, parser: p.MultiParser[Any]) {
+    private def expectResult(l: List[MyToken], tokenCounter: Int, backtracking: Int, replicatedParsing: Int, parser: p.ConditionalParser[Any]) {
         val in = p.tr(l)
         println("----")
         println("tokens: " + l + " -- " + in.tokens.size)

@@ -12,13 +12,13 @@ class CParserTest extends TestHelper {
     val p = new CParser()
 
 
-    def assertParseResult(expected: AST, code: String, mainProduction: p.MultiParser[AST]) {
+    def assertParseResult(expected: AST, code: String, mainProduction: p.ConditionalParser[AST]) {
         assertParseResult(One(expected), code, mainProduction ^^ {
             One(_)
         })
     }
 
-    def assertParseResult(expected: Conditional[AST], code: String, mainProduction: p.MultiParser[Conditional[AST]]) {
+    def assertParseResult(expected: Conditional[AST], code: String, mainProduction: p.ConditionalParser[Conditional[AST]]) {
         val actual = p.parse(lex(code.stripMargin), mainProduction).expectOneResult
         System.out.println(actual)
         actual match {
@@ -34,13 +34,13 @@ class CParserTest extends TestHelper {
         }
     }
 
-    def assertParseResultL(expected: AST, code: String, productions: List[p.MultiParser[AST]]) {
+    def assertParseResultL(expected: AST, code: String, productions: List[p.ConditionalParser[AST]]) {
         assertParseResultL(One(expected), code, productions.map(_ ^^ {
             One(_)
         }))
     }
 
-    def assertParseResultL(expected: Conditional[AST], code: String, productions: List[p.MultiParser[Conditional[AST]]]) {
+    def assertParseResultL(expected: Conditional[AST], code: String, productions: List[p.ConditionalParser[Conditional[AST]]]) {
         for (production <- productions)
             assertParseResult(expected, code, production)
     }

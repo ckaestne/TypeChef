@@ -13,7 +13,7 @@ import scala.math._
  *
  * @author kaestner
  */
-abstract class ConditionalParser(val featureModel: FeatureModel = null, debugOutput: Boolean = false) {
+abstract class ConditionalParserLib(val featureModel: FeatureModel = null, debugOutput: Boolean = false) {
     type Elem <: AbstractToken
     type TypeContext
     type Input = TokenReader[Elem, TypeContext]
@@ -21,7 +21,7 @@ abstract class ConditionalParser(val featureModel: FeatureModel = null, debugOut
 
     val featureSolverCache = new FeatureSolverCache(featureModel)
 
-    class SeqParser[T, U](thisParser: => MultiParser[T], thatParser: => MultiParser[U]) extends MultiParser[~[T, U]] {
+    class SeqParser[T, U](thisParser: => ConditionalParser[T], thatParser: => ConditionalParser[U]) extends ConditionalParser[~[T, U]] {
         name = "~"
 
         def apply(in: Input, parserState: ParserState): MultiParseResult[~[T, U]] = {
@@ -34,14 +34,14 @@ abstract class ConditionalParser(val featureModel: FeatureModel = null, debugOut
         def b = thatParser
     }
 
-    class SeqCommitParser[T, U](thisParser: => MultiParser[T], thatParser: => MultiParser[U]) extends SeqParser[T, U](thisParser, thatParser) {
+    class SeqCommitParser[T, U](thisParser: => ConditionalParser[T], thatParser: => ConditionalParser[U]) extends SeqParser[T, U](thisParser, thatParser) {
         name = "~!"
 
         override def apply(in: Input, parserState: ParserState): MultiParseResult[~[T, U]] =
             thisParser(in, parserState).seq2(parserState, (next: Input, fs: FeatureExpr) => thatParser(next, fs).commit)
     }
 
-    class AltParser[T, U >: T](thisParser: => MultiParser[T], alternativeParser: => MultiParser[U]) extends MultiParser[U] {
+    class AltParser[T, U >: T](thisParser: => ConditionalParser[T], alternativeParser: => ConditionalParser[U]) extends ConditionalParser[U] {
         name = "|"
 
         def a = thisParser
@@ -53,7 +53,7 @@ abstract class ConditionalParser(val featureModel: FeatureModel = null, debugOut
         }
     }
 
-    class MapParser[T, U](thisParser: => MultiParser[T], f: T => U) extends MultiParser[U] {
+    class MapParser[T, U](thisParser: => ConditionalParser[T], f: T => U) extends ConditionalParser[U] {
         name = "map"
 
         def a = thisParser
@@ -62,7 +62,7 @@ abstract class ConditionalParser(val featureModel: FeatureModel = null, debugOut
             thisParser(in, feature).map(f)
     }
 
-    class MapWithPositionParser[T, U](thisParser: => MultiParser[T], f: T => U) extends MultiParser[U] {
+    class MapWithPositionParser[T, U](thisParser: => ConditionalParser[T], f: T => U) extends ConditionalParser[U] {
         name = "map"
 
         def a = thisParser
@@ -80,13 +80,13 @@ abstract class ConditionalParser(val featureModel: FeatureModel = null, debugOut
         }
     }
 
-    abstract class RepParser[T](thisParser: => MultiParser[T]) extends MultiParser[List[Opt[T]]] {
+    abstract class RepParser[T](thisParser: => ConditionalParser[T]) extends ConditionalParser[List[Opt[T]]] {
         def a = thisParser
 
         name = "*"
     }
 
-    class JoinParser[T](thisParser: => MultiParser[T]) extends MultiParser[Conditional[T]] {
+    class JoinParser[T](thisParser: => ConditionalParser[T]) extends ConditionalParser[Conditional[T]] {
         name = "!"
 
         def a = thisParser
@@ -95,15 +95,15 @@ abstract class ConditionalParser(val featureModel: FeatureModel = null, debugOut
             thisParser(in, feature).join(feature)
     }
 
-    abstract class AtomicParser[T](val kind: String) extends MultiParser[T] {
+    abstract class AtomicParser[T](val kind: String) extends ConditionalParser[T] {
         name = kind
     }
 
-    abstract class OtherParser[T](thisParser: => MultiParser[T]) extends MultiParser[T] {
+    abstract class OtherParser[T](thisParser: => ConditionalParser[T]) extends ConditionalParser[T] {
         def a = thisParser
     }
 
-    class OptParser[+T](thisParser: => MultiParser[T]) extends MultiParser[Option[T]] {
+    class OptParser[+T](thisParser: => ConditionalParser[T]) extends ConditionalParser[Option[T]] {
         name = "opt"
 
         def a = thisParser
@@ -113,7 +113,7 @@ abstract class ConditionalParser(val featureModel: FeatureModel = null, debugOut
     }
 
     //parser
-    abstract class MultiParser[+T] extends ((Input, ParserState) => MultiParseResult[T]) {
+    abstract class ConditionalParser[+T] extends ((Input, ParserState) => MultiParseResult[T]) {
         thisParser =>
         protected var name: String = ""
 
@@ -128,39 +128,39 @@ abstract class ConditionalParser(val featureModel: FeatureModel = null, debugOut
          * sequencing is difficult when each element can have multiple results for different features
          * tries to join split parsers as early as possible
          */
-        def ~[U](thatParser: => MultiParser[U]): MultiParser[~[T, U]] = new SeqParser(this, thatParser)
+        def ~[U](thatParser: => ConditionalParser[U]): ConditionalParser[~[T, U]] = new SeqParser(this, thatParser)
 
         /**
          * non-backtracking sequencing (replace failures by errors)
          */
-        def ~![U](thatParser: => MultiParser[U]): MultiParser[~[T, U]] = new SeqCommitParser(this, thatParser)
+        def ~![U](thatParser: => ConditionalParser[U]): ConditionalParser[~[T, U]] = new SeqCommitParser(this, thatParser)
 
         /** allows backtracking */
-        def ~~[U](thatParser: => MultiParser[U]): MultiParser[~[T, U]] = new SeqParser(this, thatParser)
+        def ~~[U](thatParser: => ConditionalParser[U]): ConditionalParser[~[T, U]] = new SeqParser(this, thatParser)
 
 
         /**
          * alternatives in the presence of multi-parsing
          * (no attempt to join yet)
          */
-        def |[U >: T](alternativeParser: => MultiParser[U]): MultiParser[U] = new AltParser(this, alternativeParser)
+        def |[U >: T](alternativeParser: => ConditionalParser[U]): ConditionalParser[U] = new AltParser(this, alternativeParser)
 
         /**
          * ^^ as in the original combinator parser framework
          */
-        def ^^[U](f: T => U): MultiParser[U] = mapWithPosition(f)
+        def ^^[U](f: T => U): ConditionalParser[U] = mapWithPosition(f)
 
-        def map[U](f: T => U): MultiParser[U] = new MapParser(this, f)
+        def map[U](f: T => U): ConditionalParser[U] = new MapParser(this, f)
 
-        def mapWithPosition[U](f: T => U): MultiParser[U] = new MapWithPositionParser(this, f)
+        def mapWithPosition[U](f: T => U): ConditionalParser[U] = new MapWithPositionParser(this, f)
 
         //replace on success
-        def ^^^[U](repl: U): MultiParser[U] = mapWithPosition(x => repl)
+        def ^^^[U](repl: U): ConditionalParser[U] = mapWithPosition(x => repl)
 
         /**
          * map and join ASTs (when possible)
          */
-        def ^^![U](f: T => U): MultiParser[Conditional[U]] =
+        def ^^![U](f: T => U): ConditionalParser[Conditional[U]] =
             this.mapWithPosition(f).join
 
         //        def ^^!![U](f: Conditional[T] => Conditional[U]): MultiParser[Conditional[U]] =
@@ -169,12 +169,12 @@ abstract class ConditionalParser(val featureModel: FeatureModel = null, debugOut
         /**
          * join parse results when possible
          */
-        def !(): MultiParser[Conditional[T]] = join.named("!")
+        def !(): ConditionalParser[Conditional[T]] = join.named("!")
 
-        def join: MultiParser[Conditional[T]] = new JoinParser(this)
+        def join: ConditionalParser[Conditional[T]] = new JoinParser(this)
 
-        def changeContext(contextModification: (T, FeatureExpr, TypeContext) => TypeContext): MultiParser[T] =
-            new MultiParser[T] {
+        def changeContext(contextModification: (T, FeatureExpr, TypeContext) => TypeContext): ConditionalParser[T] =
+            new ConditionalParser[T] {
                 def apply(in: Input, feature: FeatureExpr): MultiParseResult[T] =
                     thisParser(in, feature).changeContext(feature, contextModification)
             }.named("__context")
@@ -182,7 +182,7 @@ abstract class ConditionalParser(val featureModel: FeatureModel = null, debugOut
         /**
          * from original framework, sequence parsers, but drop first result
          */
-        def ~>[U](thatParser: => MultiParser[U]): MultiParser[U] = {
+        def ~>[U](thatParser: => ConditionalParser[U]): ConditionalParser[U] = {
             thisParser ~ thatParser ^^ {
                 (x: T ~ U) => x match {
                     case ~(a, b) => b
@@ -193,18 +193,18 @@ abstract class ConditionalParser(val featureModel: FeatureModel = null, debugOut
         /**
          * combines ~> and ~! (non backtracking and dropping first result)
          */
-        def ~!>[U](thatParser: => MultiParser[U]): MultiParser[U] = this ~! thatParser ^^ {
+        def ~!>[U](thatParser: => ConditionalParser[U]): ConditionalParser[U] = this ~! thatParser ^^ {
             case a ~ b => b
         }
 
-        def ~~>[U](thatParser: => MultiParser[U]): MultiParser[U] = this ~~ thatParser ^^ {
+        def ~~>[U](thatParser: => ConditionalParser[U]): ConditionalParser[U] = this ~~ thatParser ^^ {
             case a ~ b => b
         }
 
         /**
          * from original framework, sequence parsers, but drop last result
          */
-        def <~[U](thatParser: => MultiParser[U]): MultiParser[T] = {
+        def <~[U](thatParser: => ConditionalParser[U]): ConditionalParser[T] = {
             thisParser ~ thatParser ^^ {
                 (x: T ~ U) => x match {
                     case ~(a, b) => a
@@ -212,7 +212,7 @@ abstract class ConditionalParser(val featureModel: FeatureModel = null, debugOut
             }
         }.named("<~")
 
-        def <~~[U](thatParser: => MultiParser[U]): MultiParser[T] = {
+        def <~~[U](thatParser: => ConditionalParser[U]): ConditionalParser[T] = {
             thisParser ~~ thatParser ^^ {
                 (x: T ~ U) => x match {
                     case ~(a, b) => a
@@ -231,7 +231,7 @@ abstract class ConditionalParser(val featureModel: FeatureModel = null, debugOut
           *
           * @return chainl1(this, sep)
           */
-        def *[U >: T](sep: => MultiParser[(U, U) => U]) = repSep(this, sep)
+        def *[U >: T](sep: => ConditionalParser[(U, U) => U]) = repSep(this, sep)
 
         // TODO: improve precedence? a ~ b*(",") = a ~ (b*(","))  should be true
 
@@ -253,7 +253,7 @@ abstract class ConditionalParser(val featureModel: FeatureModel = null, debugOut
      * opt (and helper functions) as in the original combinator parser framework
      * (x)?
      */
-    def opt[T](p: => MultiParser[T]) = new OptParser[T](p)
+    def opt[T](p: => ConditionalParser[T]) = new OptParser[T](p)
 
 
     /**
@@ -262,7 +262,7 @@ abstract class ConditionalParser(val featureModel: FeatureModel = null, debugOut
      * @param p
      * @return
      */
-    def repRecursive[T](p: => MultiParser[T]): MultiParser[List[T]] =
+    def repRecursive[T](p: => ConditionalParser[T]): ConditionalParser[List[T]] =
         opt(p ~ repRecursive(p)) ^^ {
             case Some(~(x, list: List[_])) => List(x) ++ list
             case None => List()
@@ -278,7 +278,7 @@ abstract class ConditionalParser(val featureModel: FeatureModel = null, debugOut
      * @param p
      * @return
      */
-    def repPlain[T](p: => MultiParser[T]): MultiParser[List[T]] = new MultiParser[List[T]] {
+    def repPlain[T](p: => ConditionalParser[T]): ConditionalParser[List[T]] = new ConditionalParser[List[T]] {
 
         private case class Sealable[T](val isSealed: Boolean, val list: List[T])
 
@@ -399,7 +399,7 @@ abstract class ConditionalParser(val featureModel: FeatureModel = null, debugOut
      * @param p
      * @return
      */
-    def repOpt[T](p: => MultiParser[T], productionName: String = ""): MultiParser[List[Opt[T]]] = new RepParser[T](p) {
+    def repOpt[T](p: => ConditionalParser[T], productionName: String = ""): ConditionalParser[List[Opt[T]]] = new RepParser[T](p) {
 
         //sealable is only used to enforce correct propagation of token positions in joins (which might not be ensured with fails)
         private case class Sealable(isSealed: Boolean, resultList: List[Opt[T]])
@@ -544,7 +544,7 @@ abstract class ConditionalParser(val featureModel: FeatureModel = null, debugOut
      * repeated parsing, at least once (result may not be the empty list)
      * (x)+
      */
-    def rep1[T](p: => MultiParser[T]): MultiParser[List[Opt[T]]] =
+    def rep1[T](p: => ConditionalParser[T]): ConditionalParser[List[Opt[T]]] =
         p ~ repOpt(p) ^^ {
             case x ~ list => Opt(FeatureExprFactory.True, x) :: list
         }
@@ -552,7 +552,7 @@ abstract class ConditionalParser(val featureModel: FeatureModel = null, debugOut
     /**
      * returns failure when list is empty
      */
-    def nonEmpty[T](p: => MultiParser[List[T]]): MultiParser[List[T]] = new OtherParser[List[T]](p) {
+    def nonEmpty[T](p: => ConditionalParser[List[T]]): ConditionalParser[List[T]] = new OtherParser[List[T]](p) {
         def apply(in: Input, feature: FeatureExpr): MultiParseResult[List[T]] = {
             p(in, feature).seqAllSuccessful(feature,
                 (fs: FeatureExpr, x: Success[List[T]]) =>
@@ -569,7 +569,7 @@ abstract class ConditionalParser(val featureModel: FeatureModel = null, debugOut
      *
      * filter can be used to ignore certain kinds of elements. only elements that pass the filter are counted.
      */
-    def alwaysNonEmpty[T](p: => MultiParser[List[Opt[T]]], filterE: T => Boolean = (x: T) => true): MultiParser[List[Opt[T]]] = new OtherParser[List[Opt[T]]](p) {
+    def alwaysNonEmpty[T](p: => ConditionalParser[List[Opt[T]]], filterE: T => Boolean = (x: T) => true): ConditionalParser[List[Opt[T]]] = new OtherParser[List[Opt[T]]](p) {
         def apply(in: Input, feature: FeatureExpr): MultiParseResult[List[Opt[T]]] = {
             val t = p(in, feature)
             t.seqAllSuccessful(feature,
@@ -592,7 +592,7 @@ abstract class ConditionalParser(val featureModel: FeatureModel = null, debugOut
      * for the pattern
      * p ~ (separator ~ p)*
      */
-    def rep1Sep[T, U](p: => MultiParser[T], separator: => MultiParser[U]): MultiParser[List[Opt[T]]] =
+    def rep1Sep[T, U](p: => ConditionalParser[T], separator: => ConditionalParser[U]): ConditionalParser[List[Opt[T]]] =
         p ~ repOpt(separator ~> p) ^^ {
             case r ~ l => Opt(FeatureExprFactory.True, r) :: l
         }
@@ -603,23 +603,23 @@ abstract class ConditionalParser(val featureModel: FeatureModel = null, debugOut
      * for the pattern
      * [p ~ (separator ~ p)*]
      */
-    def repSep[T, U](p: => MultiParser[T], separator: => MultiParser[U]): MultiParser[List[Opt[T]]] = {
-        val r: MultiParser[List[Opt[T]]] = opt(rep1Sep(p, separator)) ^^ {
+    def repSep[T, U](p: => ConditionalParser[T], separator: => ConditionalParser[U]): ConditionalParser[List[Opt[T]]] = {
+        val r: ConditionalParser[List[Opt[T]]] = opt(rep1Sep(p, separator)) ^^ {
             case Some(l) => l;
             case None => List()
         }
-        val jr: MultiParser[Conditional[List[Opt[T]]]] = r.join
+        val jr: ConditionalParser[Conditional[List[Opt[T]]]] = r.join
         jr ^^ {
             _.flatten[List[Opt[T]]]((f, a, b) => joinOptLists(a, b, f))
         }
     }
 
     /** see repSepOptIntern, consumes tailing separator(!) **/
-    def repSepOpt[T](p: => MultiParser[T], separator: => MultiParser[Elem], productionName: String = ""): MultiParser[List[Opt[T]]] =
+    def repSepOpt[T](p: => ConditionalParser[T], separator: => ConditionalParser[Elem], productionName: String = ""): ConditionalParser[List[Opt[T]]] =
         repSepOptIntern(true, p, separator, productionName) ^^ (_._1)
 
     /** see repSepOptIntern, consumes tailing separator(!) **/
-    def rep1SepOpt[T](p: => MultiParser[T], separator: => MultiParser[Elem], productionName: String = ""): MultiParser[List[Opt[T]]] =
+    def rep1SepOpt[T](p: => ConditionalParser[T], separator: => ConditionalParser[Elem], productionName: String = ""): ConditionalParser[List[Opt[T]]] =
         repSepOptIntern(false, p, separator, productionName) ^^ (_._1)
 
 
@@ -640,7 +640,7 @@ abstract class ConditionalParser(val featureModel: FeatureModel = null, debugOut
      * do not use repSepOpt!
      *
      */
-    def repSepOptIntern[T](firstOptional: Boolean, p: => MultiParser[T], separator: => MultiParser[Elem], productionName: String = "") = new MultiParser[(List[Opt[T]], FeatureExpr)] {
+    def repSepOptIntern[T](firstOptional: Boolean, p: => ConditionalParser[T], separator: => ConditionalParser[Elem], productionName: String = "") = new ConditionalParser[(List[Opt[T]], FeatureExpr)] {
         thisParser =>
 
         //sealable is only used to enforce correct propagation of token positions in joins (which might not be ensured with fails)
@@ -808,7 +808,7 @@ abstract class ConditionalParser(val featureModel: FeatureModel = null, debugOut
     /**
      * replace optional list by (possibly empty) list
      */
-    def optList[T](p: => MultiParser[List[T]]): MultiParser[List[T]] =
+    def optList[T](p: => ConditionalParser[List[T]]): ConditionalParser[List[T]] =
         opt(p) ^^ {
             case Some(l) => l;
             case None => List()
@@ -817,7 +817,7 @@ abstract class ConditionalParser(val featureModel: FeatureModel = null, debugOut
     /**
      * represent optional element either by singleton list or by empty list
      */
-    def opt2List[T](p: => MultiParser[T]): MultiParser[List[T]] =
+    def opt2List[T](p: => ConditionalParser[T]): ConditionalParser[List[T]] =
         opt(p) ^^ {
             _.toList
         }
@@ -826,20 +826,20 @@ abstract class ConditionalParser(val featureModel: FeatureModel = null, debugOut
      * parses using p, but only returns either success or no-success and(!)
      * does not proceed the input stream (for successful entries)
      */
-    def lookahead[T](p: => MultiParser[T]): MultiParser[Any] = new MultiParser[Any] {
+    def lookahead[T](p: => ConditionalParser[T]): ConditionalParser[Any] = new ConditionalParser[Any] {
         def apply(in: Input, parserState: ParserState): MultiParseResult[Any] = {
             p(in, parserState).seqAllSuccessful(parserState,
                 (fs: FeatureExpr, x: Success[T]) => Success("lookahead", in))
         }
     }
 
-    def fail[T](msg: String): MultiParser[T] =
-        new MultiParser[T] {
+    def fail[T](msg: String): ConditionalParser[T] =
+        new ConditionalParser[T] {
             def apply(in: Input, fs: FeatureExpr) = Failure(msg, in, List())
         }
 
-    def failc[T](msg: String): MultiParser[Conditional[T]] =
-        new MultiParser[Conditional[T]] {
+    def failc[T](msg: String): ConditionalParser[Conditional[T]] =
+        new ConditionalParser[Conditional[T]] {
             def apply(in: Input, fs: FeatureExpr) = Failure(msg, in, List())
         }
 
@@ -848,8 +848,8 @@ abstract class ConditionalParser(val featureModel: FeatureModel = null, debugOut
             (in: Input, fs: FeatureExpr) => Success(v, in)
         }
 
-    def MultiParser[T](f: (Input, FeatureExpr) => MultiParseResult[T]): MultiParser[T] =
-        new MultiParser[T] {
+    def MultiParser[T](f: (Input, FeatureExpr) => MultiParseResult[T]): ConditionalParser[T] =
+        new ConditionalParser[T] {
             def apply(in: Input, fs: FeatureExpr) = f(in, fs)
         }
 
@@ -875,7 +875,7 @@ abstract class ConditionalParser(val featureModel: FeatureModel = null, debugOut
         }
     }.named("matchInput " + kind)
 
-    private val next: MultiParser[(Input, Elem)] = new MultiParser[(Input, Elem)] {
+    private val next: ConditionalParser[(Input, Elem)] = new ConditionalParser[(Input, Elem)] {
 
         var cache_in: Input = null
         var cache_ctx: FeatureExpr = null
@@ -997,7 +997,7 @@ abstract class ConditionalParser(val featureModel: FeatureModel = null, debugOut
 
         // removes branches from split parse results that are not reachable according to the feature model
         def prune(fm: FeatureModel): MultiParseResult[T] = prune(True, fm)
-        private[ConditionalParser] def prune(ctx: FeatureExpr, fm: FeatureModel): MultiParseResult[T]
+        private[ConditionalParserLib] def prune(ctx: FeatureExpr, fm: FeatureModel): MultiParseResult[T]
     }
 
     /**
@@ -1178,7 +1178,7 @@ abstract class ConditionalParser(val featureModel: FeatureModel = null, debugOut
         def commit: MultiParseResult[T] =
             SplittedParseResult(feature, resultA.commit, resultB.commit)
 
-        private[ConditionalParser] def prune(ctx: FeatureExpr, fm: FeatureModel): MultiParseResult[T] =
+        private[ConditionalParserLib] def prune(ctx: FeatureExpr, fm: FeatureModel): MultiParseResult[T] =
             if ((ctx and feature).isContradiction(fm))
                 resultB.prune(ctx andNot feature, fm)
             else if ((ctx andNot feature).isContradiction(fm))
@@ -1217,7 +1217,7 @@ abstract class ConditionalParser(val featureModel: FeatureModel = null, debugOut
 
         def toList(context: FeatureExpr) = List((context, this))
 
-        private[ConditionalParser] def prune(ctx: FeatureExpr, fm: FeatureModel): MultiParseResult[T] = this
+        private[ConditionalParserLib] def prune(ctx: FeatureExpr, fm: FeatureModel): MultiParseResult[T] = this
     }
 
     abstract class NoSuccess(val msg: String, val nextInput: TokenReader[Elem, TypeContext], val innerErrors: List[NoSuccess]) extends ParseResult[Nothing](nextInput) {
@@ -1320,7 +1320,7 @@ abstract class ConditionalParser(val featureModel: FeatureModel = null, debugOut
       * @return a parser that has the same result as `p', but that only succeeds
       *         if <code>p</code> consumed all the input.
       */
-    def phrase[T](p: MultiParser[T]) = new MultiParser[T] {
+    def phrase[T](p: ConditionalParser[T]) = new ConditionalParser[T] {
 
         def apply(in: Input, fs: FeatureExpr) = {
             val result = p(in, fs)

@@ -24,7 +24,7 @@ object GrammarAnalyzer {
 
     }
 
-    def analyze(c: p.MultiParser[Any], level: Int) {
+    def analyze(c: p.ConditionalParser[Any], level: Int) {
         println("  " * level + c)
         if (c.isInstanceOf[p.MapParser[_, _]]) {
             analyze(c.asInstanceOf[p.MapParser[Any, Any]].a, level + 1)
@@ -45,7 +45,7 @@ object GrammarAnalyzer {
         }
     }
 
-    def first(c: p.MultiParser[Any], known: Set[Object], level: Int): List[String] = {
+    def first(c: p.ConditionalParser[Any], known: Set[Object], level: Int): List[String] = {
         println("  " * level + c)
         if (c.isInstanceOf[p.AtomicParser[_]]) {
             return List(c.asInstanceOf[p.AtomicParser[Any]].kind)
