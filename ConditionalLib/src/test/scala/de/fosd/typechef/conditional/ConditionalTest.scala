@@ -209,26 +209,26 @@ class ConditionalTest {
         println(v3)
     }
 
-    @Test
-    def testConditionalInsert {
-        var t1: Conditional[String] = One("true")
-
-        t1 = ConditionalLib.insert(t1, FeatureExprFactory.True, fa, "a")
-        t1 = ConditionalLib.insert(t1, FeatureExprFactory.True, fa not(), "na")
-
-        var t2: Conditional[String] = One("true")
-        t2 = ConditionalLib.insert(t1, FeatureExprFactory.True, fa not(), "na")
-        t2 = ConditionalLib.insert(t1, FeatureExprFactory.True, fa, "a")
-
-        var t3: Conditional[String] = One("true")
-        t3 = ConditionalLib.insert(t3, FeatureExprFactory.True, fa, "a")
-        t3 = ConditionalLib.insert(t3, FeatureExprFactory.True, fa and fb, "ab")
-
-        println(t1)
-        println(t2)
-        println(t3)
-
-    }
+//    @Test
+//    def testConditionalInsert {
+//        var t1: Conditional[String] = One("true")
+//
+//        t1 = ConditionalLib.insert(t1, FeatureExprFactory.True, fa, "a")
+//        t1 = ConditionalLib.insert(t1, FeatureExprFactory.True, fa not(), "na")
+//
+//        var t2: Conditional[String] = One("true")
+//        t2 = ConditionalLib.insert(t1, FeatureExprFactory.True, fa not(), "na")
+//        t2 = ConditionalLib.insert(t1, FeatureExprFactory.True, fa, "a")
+//
+//        var t3: Conditional[String] = One("true")
+//        t3 = ConditionalLib.insert(t3, FeatureExprFactory.True, fa, "a")
+//        t3 = ConditionalLib.insert(t3, FeatureExprFactory.True, fa and fb, "ab")
+//
+//        println(t1)
+//        println(t2)
+//        println(t3)
+//
+//    }
 
     @Test
     def testConditionalSimplify {

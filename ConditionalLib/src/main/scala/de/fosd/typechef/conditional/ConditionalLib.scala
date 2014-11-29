@@ -149,23 +149,7 @@ object ConditionalLib {
     def vmapCombinationOp[A, B, C](a: Conditional[A], b: Conditional[B], ctx: FeatureExpr, f: (FeatureExpr, A, B) => C): Conditional[C] =
         explode(a, b).simplify(ctx).vmap(ctx, (fexpr, x) => f(fexpr, x._1, x._2))
 
-    /**
-     * convenience function to add an element (e) with feature expression (f) to an conditional tree (t) with the initial
-     * context (ctx)
-     */
-    def insert[T](t: Conditional[T], ctx: FeatureExpr, f: FeatureExpr, e: T): Conditional[T] = {
-        t match {
-            case o@One(value) => if ((f.isTautology()) || (ctx equivalentTo f)) One(e)
-            else
-            if (ctx isTautology()) Choice(f, One(e), o)
-            else Choice(ctx, o, One(e))
-            case Choice(feature, thenBranch, elseBranch) =>
-                if ((ctx and feature) and f isContradiction())
-                    Choice(feature, thenBranch, insert(elseBranch, ctx and (feature.not()), f, e))
-                else
-                    Choice(feature, insert(thenBranch, ctx and feature, f, e), elseBranch)
-        }
-    }
+
 
     // collects all leaves of the conditional tree
     def leaves[T](t: Conditional[T]): List[T] = {
@@ -230,5 +214,20 @@ object ConditionalLib {
     def toOptList[T](c: Conditional[T]): List[Opt[T]] = c.toOptList
     @deprecated("only for backward compatibility", "0.4.0")
     def toList[T](c: Conditional[T]): List[(FeatureExpr, T)] = c.toList
+    @deprecated("removed due to unclear specification", "0.4.0")
+    def insert[T](t: Conditional[T], ctx: FeatureExpr, f: FeatureExpr, e: T): Conditional[T] = {
+        t match {
+            case o@One(value) => if ((f.isTautology()) || (ctx equivalentTo f)) One(e)
+            else
+            if (ctx isTautology()) Choice(f, One(e), o)
+            else Choice(ctx, o, One(e))
+            case Choice(feature, thenBranch, elseBranch) =>
+                if ((ctx and feature) and f isContradiction())
+                    Choice(feature, thenBranch, insert(elseBranch, ctx and (feature.not()), f, e))
+                else
+                    Choice(feature, insert(thenBranch, ctx and feature, f, e), elseBranch)
+        }
+    }
+
 }
 
