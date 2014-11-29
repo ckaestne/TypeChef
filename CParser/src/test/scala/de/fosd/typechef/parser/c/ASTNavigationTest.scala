@@ -76,7 +76,7 @@ class ASTNavigationTest extends Matchers with ASTNavigation with ConditionalNavi
         val c4 = Choice(gc, stmt1, c3)
         val optc4 = Opt(gd, c4)
         val l = List[Opt[Statement]](optstmt0) ++
-            Conditional.flatten(List(optc4)) ++
+            ConditionalLib.flatten(List(optc4)) ++
             List[Opt[Statement]](optstmt6, optstmt7, optstmt8, optstmt9)
 
         val root = CompoundStatement(l)

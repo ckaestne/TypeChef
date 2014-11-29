@@ -68,10 +68,10 @@ class ConditionalTest {
     }
 
     @Test
-    def testFindSubtree {
-        assertEquals(One(1), findSubtree(fa, Choice(fa, One(1), One(2))))
-        assertEquals(One(2), findSubtree(fa.not, Choice(fa, One(1), One(2))))
-        assertEquals(Choice(fa, One(1), One(2)), findSubtree(fb, Choice(fa, One(1), One(2))))
+    def testSimplify {
+        assertEquals(One(1), Choice(fa, One(1), One(2)).simplify(fa))
+        assertEquals(One(2), Choice(fa, One(1), One(2)).simplify(fa.not))
+        assertEquals(Choice(fa, One(1), One(2)), Choice(fa, One(1), One(2)).simplify(fb))
     }
 
     @Test
@@ -84,24 +84,32 @@ class ConditionalTest {
     }
 
     @Test
-    def testCompare {
+    def testEqualsOp {
+        assert(ConditionalLib.equalsOp(One(1), One(1)))
+        assert(ConditionalLib.equalsOp(Choice(fa, One(1), One(2)), Choice(fa.not, One(2), One(1))))
+        assert(ConditionalLib.equalsOp(
+            Choice(fa, Choice(fb, One(1), One(2)), One(3)),
+            Choice(fb.not, Choice(fa, One(2), One(3)), Choice(fa, One(1), One(3)))))
+    }
+    @Test
+    def testMapCombinationOp {
         assertEquals(
             Choice(fa, One(true), One(false)),
-            compare(
+            mapCombinationOp(
                 Choice(fa, One(1), One(2)),
                 Choice(fa, One(1), One(3)),
                 (x: Int, y: Int) => x equals y
             ))
         assertEquals(
             One(true),
-            compare(
+            mapCombinationOp(
                 Choice(fa, Choice(fb, One(1), One(2)), One(3)),
                 Choice(fb.not, Choice(fa, One(2), One(3)), Choice(fa, One(1), One(3))),
                 (x: Int, y: Int) => x equals y
             ).simplify)
         assertEquals(
             Choice(fa, One(true), Choice(fb.not, One(false), One(true))),
-            compare(
+            mapCombinationOp(
                 Choice(fa, Choice(fb, One(1), One(2)), One(3)),
                 Choice(fb.not, Choice(fa, One(2), One(5)), Choice(fa, One(1), One(3))),
                 (x: Int, y: Int) => x equals y

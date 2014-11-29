@@ -44,12 +44,12 @@ class CharDigitParser extends MultiFeatureParser {
     def expr: MultiParser[Conditional[AST]] = (expr1 ~ opt(t("*") ~> expr) ^^! ({
         case ~(f, Some(e)) => One(Mul(f, e))
         case ~(f, None) => f
-    })).map(Conditional.combine(_))
+    })).map(ConditionalLib.combine(_))
 
     def expr1: MultiParser[Conditional[AST]] = (expr2 ~ opt(t("+") ~> expr) ^^! ({
         case ~(f, Some(e)) => One(Plus(f, e))
         case ~(f, None) => f
-    })).map(Conditional.combine(_))
+    })).map(ConditionalLib.combine(_))
 
     def expr2: MultiParser[Conditional[AST]] = t("(") ~> expr <~ t(")") | (digit.join)
 

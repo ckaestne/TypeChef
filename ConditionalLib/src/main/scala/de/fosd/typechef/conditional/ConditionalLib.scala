@@ -105,6 +105,19 @@ object ConditionalLib {
 
 
     /**
+     * determines if two conditional values have equal value in all configurations
+     */
+    def equals[T](a: Conditional[T], b: Conditional[T]): Boolean =
+        mapCombination(a, b, (x: T, y: T) => x equals y).when(x=>x).isTautology()
+    /**
+     * alternative implementation with more satisifiability checks and potentially fewer
+     * comparisons
+     */
+    def equalsOp[T](a: Conditional[T], b: Conditional[T]): Boolean =
+        mapCombinationOp(a, b, (x: T, y: T) => x equals y).forall(x=>x)
+
+
+    /**
      * convenience function to map a function over all possible combinations of
      * two conditional values
      *
@@ -213,8 +226,6 @@ object ConditionalLib {
     def findSubtree[T](ctx: FeatureExpr, value: Conditional[T]): Conditional[T] = value.simplify(ctx)
     @deprecated("misnamed, use mapCombinedOp instead", "0.4.0")
     def compare[T, R](a: Conditional[T], b: Conditional[T], f: (T, T) => R): Conditional[R] = mapCombinationOp(a,b,f)
-    @deprecated("unclear purpose, write specific implementation", "0.4.0")
-    def equals[T](a: Conditional[T], b: Conditional[T]): Boolean = mapCombinationOp(a, b, (x: T, y: T) => x equals y).simplify.forall(a => a)
     @deprecated("only for backward compatibility", "0.4.0")
     def toOptList[T](c: Conditional[T]): List[Opt[T]] = c.toOptList
     @deprecated("only for backward compatibility", "0.4.0")

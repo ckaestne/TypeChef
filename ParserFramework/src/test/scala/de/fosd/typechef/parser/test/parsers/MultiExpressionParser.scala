@@ -17,7 +17,7 @@ class MultiExpressionParser extends MultiFeatureParser {
             case ~(f, None) => f
             case _ => throw new Exception("unsupported match")
         })
-        r.map(Conditional.combine(_))
+        r.map(ConditionalLib.combine(_))
     }
 
 
@@ -25,7 +25,7 @@ class MultiExpressionParser extends MultiFeatureParser {
         (fact ~ ((t("*") ~! expr) ?) ^^! ({
             case ~(f, Some(~(m, e))) => One(Mul(f, e))
             case ~(f, None) => f
-        })).map(Conditional.combine(_))
+        })).map(ConditionalLib.combine(_))
 
     def fact: MultiParser[Conditional[AST]] =
         (digits ^^! ({
@@ -33,7 +33,7 @@ class MultiExpressionParser extends MultiFeatureParser {
         })
             | ((lookahead(t("(")) ~! (t("(") ~ expr ~ t(")"))) ^^! {
             case _ ~ (b1 ~ e ~ b2) => e
-        }).map(Conditional.combine(_))
+        }).map(ConditionalLib.combine(_))
             | failc("digit or '(' expected"))
 
 
