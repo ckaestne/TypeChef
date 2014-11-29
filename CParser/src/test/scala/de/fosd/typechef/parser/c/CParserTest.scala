@@ -1187,7 +1187,7 @@ void bar() {
         assert(f.isSatisfiable(), "False AST subtree: " + ast + " in " + orig)
         ast match {
             case Opt(g, e: Object) => assertNoDeadNodes(e, f and g, orig)
-            case c: Choice[_] => assertNoDeadNodes(c.thenBranch, f and c.feature, orig); assertNoDeadNodes(c.elseBranch, f andNot c.feature, orig)
+            case c: Choice[_] => assertNoDeadNodes(c.thenBranch, f and c.condition, orig); assertNoDeadNodes(c.elseBranch, f andNot c.condition, orig)
             case e: Product => for (c <- e.productIterator) assertNoDeadNodes(c, f, orig)
             case _ =>
         }

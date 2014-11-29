@@ -64,7 +64,7 @@ abstract class Conditional[+T] extends Product {
      * apply a function to every alternative value of a Conditional data structure, propagating
      * the current variability context in the process
      */
-    def vmap[U](inFeature: FeatureExpr, f: (FeatureExpr, T) => U): Conditional[U] = vflatMap(inFeature, (c, x) => One(f(c, x)))
+    def vmap[U](ctx: FeatureExpr, f: (FeatureExpr, T) => U): Conditional[U] = vflatMap(ctx, (c, x) => One(f(c, x)))
 
     /**
      * apply a function to every alternative value of a Conditional data structure;
@@ -77,7 +77,7 @@ abstract class Conditional[+T] extends Product {
      * the current variability context in the process;
      * may introduce new choices, results are merged into a new conditional
      */
-    def vflatMap[U](inFeature: FeatureExpr, f: (FeatureExpr, T) => Conditional[U]): Conditional[U]
+    def vflatMap[U](ctx: FeatureExpr, f: (FeatureExpr, T) => Conditional[U]): Conditional[U]
 
     @deprecated("mapf is misnamed and should be replaced by vmap", "0.4.0")
     def mapf = vmap _
@@ -103,40 +103,43 @@ abstract class Conditional[+T] extends Product {
     def when(f: T => Boolean): FeatureExpr
 }
 
-case class Choice[+T](feature: FeatureExpr, thenBranch: Conditional[T], elseBranch: Conditional[T]) extends Conditional[T] {
-    def flatten[U >: T](f: (FeatureExpr, U, U) => U): U = f(feature, thenBranch.flatten(f), elseBranch.flatten(f))
+case class Choice[+T](condition: FeatureExpr, thenBranch: Conditional[T], elseBranch: Conditional[T]) extends Conditional[T] {
+    def flatten[U >: T](f: (FeatureExpr, U, U) => U): U = f(condition, thenBranch.flatten(f), elseBranch.flatten(f))
     override def equals(x: Any) = x match {
-        case Choice(f, t, e) => f.equivalentTo(feature) && (thenBranch == t) && (elseBranch == e)
+        case Choice(f, t, e) => f.equivalentTo(condition) && (thenBranch == t) && (elseBranch == e)
         case _ => false
     }
     override def hashCode = thenBranch.hashCode + elseBranch.hashCode
-    protected[conditional] override def _simplify(context: FeatureExpr, fm: FeatureModel) = {
-        lazy val aa = thenBranch._simplify(context and feature, fm)
-        lazy val bb = elseBranch._simplify(context andNot feature, fm)
-        if ((context and feature).isContradiction(fm)) bb
-        else if ((context andNot feature).isContradiction(fm)) aa
+    protected[conditional] override def _simplify(ctx: FeatureExpr, fm: FeatureModel) = {
+        lazy val aa = thenBranch._simplify(ctx and condition, fm)
+        lazy val bb = elseBranch._simplify(ctx andNot condition, fm)
+        if ((ctx and condition).isContradiction(fm)) bb
+        else if ((ctx andNot condition).isContradiction(fm)) aa
         else if (aa == bb) aa
-        else Choice(feature, aa, bb)
+        else Choice(condition, aa, bb)
     }
 
     //flatMap could be implemented through vflatMap, but we prefer to save the operations on featureExpr if possible
     def flatMap[U](f: T => Conditional[U]): Conditional[U] =
-        Choice(feature, thenBranch flatMap f, elseBranch flatMap f)
-    def vflatMap[U](inFeature: FeatureExpr, f: (FeatureExpr, T) => Conditional[U]): Conditional[U] = {
-        val newResultA = thenBranch.vflatMap(inFeature and feature, f)
-        val newResultB = elseBranch.vflatMap(inFeature andNot feature, f)
-        Choice(feature, newResultA, newResultB)
+        Choice(condition, thenBranch flatMap f, elseBranch flatMap f)
+    def vflatMap[U](ctx: FeatureExpr, f: (FeatureExpr, T) => Conditional[U]): Conditional[U] = {
+        val newResultA = thenBranch.vflatMap(ctx and condition, f)
+        val newResultB = elseBranch.vflatMap(ctx andNot condition, f)
+        Choice(condition, newResultA, newResultB)
     }
     def forall(f: T => Boolean): Boolean = thenBranch.forall(f) && elseBranch.forall(f)
 
-    def when(f: T => Boolean): FeatureExpr = (thenBranch.when(f) and feature) or (elseBranch.when(f) andNot feature)
+    def when(f: T => Boolean): FeatureExpr = (thenBranch.when(f) and condition) or (elseBranch.when(f) andNot condition)
+
+    @deprecated("feature is a misleading name, use .condition instead", "0.4.0")
+    def feature: FeatureExpr = condition
 }
 
 case class One[+T](value: T) extends Conditional[T] {
     //override def toString = value.toString
     def flatten[U >: T](f: (FeatureExpr, U, U) => U): U = value
     def flatMap[U](f: T => Conditional[U]): Conditional[U] = f(value)
-    def vflatMap[U](inFeature: FeatureExpr, f: (FeatureExpr, T) => Conditional[U]): Conditional[U] = f(inFeature, value)
+    def vflatMap[U](ctx: FeatureExpr, f: (FeatureExpr, T) => Conditional[U]): Conditional[U] = f(ctx, value)
     def forall(f: T => Boolean): Boolean = f(value)
 
     def when(f: T => Boolean): FeatureExpr = if (f(value)) True else False

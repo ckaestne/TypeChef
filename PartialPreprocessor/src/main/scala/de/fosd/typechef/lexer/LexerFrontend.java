@@ -247,8 +247,8 @@ public class LexerFrontend {
             }
         } else if (result instanceof Choice) {
             Choice<LexerResult> choice = (Choice<LexerResult>) result;
-            return printLexingResult(choice.thenBranch(), feature.and(choice.feature())) + "\n" +
-                    printLexingResult(choice.elseBranch(), feature.andNot(choice.feature()));
+            return printLexingResult(choice.thenBranch(), feature.and(choice.condition())) + "\n" +
+                    printLexingResult(choice.elseBranch(), feature.andNot(choice.condition()));
 
         }
         throw new UnsupportedOperationException("cannot be called with this parameter " + result);
@@ -272,8 +272,8 @@ public class LexerFrontend {
         } else if (result instanceof Choice) {
             List<LexerToken> r = new ArrayList<>();
             Choice<LexerResult> choice = (Choice<LexerResult>) result;
-            r.addAll(conditionalResultToList(choice.thenBranch(), feature.and(choice.feature())));
-            r.addAll(conditionalResultToList(choice.elseBranch(), feature.andNot(choice.feature())));
+            r.addAll(conditionalResultToList(choice.thenBranch(), feature.and(choice.condition())));
+            r.addAll(conditionalResultToList(choice.elseBranch(), feature.andNot(choice.condition())));
             return r;
         }
         throw new UnsupportedOperationException("cannot be called with this parameter " + result);
@@ -289,8 +289,8 @@ public class LexerFrontend {
             }
         } else if (lexerResult instanceof Choice) {
             Choice<LexerResult> choice = (Choice<LexerResult>) lexerResult;
-            return getErrorCondition(choice.thenBranch()).and(choice.feature()).or(
-                    getErrorCondition(choice.elseBranch()).andNot(choice.feature())
+            return getErrorCondition(choice.thenBranch()).and(choice.condition()).or(
+                    getErrorCondition(choice.elseBranch()).andNot(choice.condition())
             );
         }
         throw new UnsupportedOperationException("cannot be called with this parameter " + lexerResult);
