@@ -55,7 +55,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
         val funType = getFunctionType(specifiers, declarator, oldStyleParam, featureExpr, env).simplify(featureExpr)
 
         //structs in signature defined?
-        funType.mapf(featureExpr, (f, t) => t.atype match {
+        funType.vmap(featureExpr, (f, t) => t.atype match {
             case CFunction(params, ret) =>
                 //structs in both return type and parameters must be complete
                 checkStructCompleteness(ret, f, env, declarator)
@@ -64,7 +64,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
                 issueTypeError(Severity.Crash, f, "not a function", declarator)
         })
 
-        val expectedReturnType: Conditional[CType] = funType.mapf(featureExpr, {
+        val expectedReturnType: Conditional[CType] = funType.vmap(featureExpr, {
             case (f, CType(CFunction(_, returnType), _, _, _)) => returnType
             case (f, other) => reportTypeError(f, "not a function type: " + other, declarator, Severity.Crash).toCType
         }).simplify(featureExpr)
@@ -220,13 +220,13 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
     def getStmtType(stmt: Statement, featureExpr: FeatureExpr, env: Env): (Conditional[CType], Env) = {
         def checkStmtF(stmt: Statement, newFeatureExpr: FeatureExpr, newEnv: Env = env) = getStmtType(stmt, newFeatureExpr, newEnv)
         def checkStmt(stmt: Statement) = checkStmtF(stmt, featureExpr)
-        def checkCStmtF(stmt: Conditional[Statement], newFeatureExpr: FeatureExpr, newEnv: Env = env) = stmt.mapf(newFeatureExpr, {
+        def checkCStmtF(stmt: Conditional[Statement], newFeatureExpr: FeatureExpr, newEnv: Env = env) = stmt.vmap(newFeatureExpr, {
             (f, t) => checkStmtF(t, f, newEnv)
         })
         def checkCStmt(stmt: Conditional[Statement], newEnv: Env = env) = checkCStmtF(stmt, featureExpr, newEnv)
         def checkOCStmt(stmt: Option[Conditional[Statement]], newEnv: Env = env) = stmt.map(s => checkCStmt(s, newEnv))
 
-        def expectCScalar(expr: Conditional[Expr], ctx: FeatureExpr = featureExpr) = expr.mapf(ctx, (f, e) => expectScalar(e, f))
+        def expectCScalar(expr: Conditional[Expr], ctx: FeatureExpr = featureExpr) = expr.vmap(ctx, (f, e) => expectScalar(e, f))
         def expectScalar(expr: Expr, ctx: FeatureExpr = featureExpr) = checkExprX(expr, isScalar, {
             c => "expected scalar, found " + c
         }, ctx)
@@ -263,7 +263,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
 
                 //return last type
                 val lastType: Conditional[Option[Conditional[CType]]] = ConditionalLib.lastEntry(typeOptList)
-                val t: Conditional[CType] = lastType.mapr({
+                val t: Conditional[CType] = lastType.flatMap({
                     case None => One(CVoid().toCType)
                     case Some(ctype) => ctype
                 }) simplify (featureExpr);
@@ -348,7 +348,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
     private def performExprCheck(expr: Expr, check: CType => Boolean, errorMsg: CType => String, context: FeatureExpr, env: Env): Conditional[CType] =
         if (context.isSatisfiable()) {
             val ct = getExprType(expr, context, env).simplify(context)
-            ct.mapf(context, {
+            ct.vmap(context, {
                 (f, c) =>
                     checkStructCompleteness(c, f, env, expr) // check struct completeness here, see issue #12
                     if (!check(c) && !c.isUnknown && !c.isIgnore) reportTypeError(f, errorMsg(c), expr) else c
@@ -392,7 +392,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
 
 
     private[typesystem] def evalExpr(expr: Conditional[Expr], context: FeatureExpr, env: Env): Conditional[VValue] =
-        expr mapr (e => e match {
+        expr flatMap (e => e match {
             case Constant(v) => try {
                 One(VInt(v.toInt))
             } catch {
@@ -400,7 +400,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
             }
             case Id(name) =>
                 val varDecl = env.varEnv.getAstOrElse(name, null)
-                varDecl mapfr(context, (f, v) => v match {
+                varDecl vflatMap(context, (f, v) => v match {
                     case Enumerator(Id(enumName), Some(initExpr)) if (name == enumName) =>
                         //TODO: env is not correct (currently dynamic scoping instead of lexical scoping), but we keep this as approximation here
                         evalExpr(One(initExpr), f, env)

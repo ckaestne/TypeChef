@@ -51,7 +51,7 @@ trait InterCFG extends IntraCFG {
             val fexpr = env.featureExpr(pf)
             val newresctx = getNewResCtx(oldres, ctx, fexpr)
             val targetFun = lookupFunctionDef(funName)
-            targetFun.mapf(fexpr, {
+            targetFun.vmap(fexpr, {
                 case (f, Some(target)) => res = (newresctx and f, f, target) :: res
                 case _ =>
             })

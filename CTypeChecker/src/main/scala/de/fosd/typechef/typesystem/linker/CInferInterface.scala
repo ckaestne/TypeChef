@@ -114,7 +114,7 @@ trait CInferInterface extends CTypeSystem with InterfaceWriter {
         val exportCondition = staticSpec.not andNot (externSpec and inlineSpec)
         val staticCondition = staticSpec andNot (externSpec and inlineSpec)
 
-        funType.simplify(featureExpr).mapf(featureExpr, {
+        funType.simplify(featureExpr).vmap(featureExpr, {
             (fexpr, ctype) =>
                 if ((fexpr and exportCondition).isSatisfiable())
                     exports = CSignature(fun.getName, ctype, fexpr and exportCondition, Seq(fun.declarator.getId.getPositionFrom), getExtraFlags(fun, fexpr and exportCondition)) :: exports
@@ -135,7 +135,7 @@ trait CInferInterface extends CTypeSystem with InterfaceWriter {
                 for ((fexpr, ctype) <- ctypes.toList) {
                     val localFexpr = fexpr and featureExpr andNot deadCondition
                     if (ctype.isFunction && (localFexpr isSatisfiable))
-                        isParameter(identifier.name, env).mapf(localFexpr,
+                        isParameter(identifier.name, env).vmap(localFexpr,
                             (f, e) => if (!e)
                                 imports = CSignature(identifier.name, ctype, f, Seq(identifier.getPositionFrom), Set()) :: imports
                         )

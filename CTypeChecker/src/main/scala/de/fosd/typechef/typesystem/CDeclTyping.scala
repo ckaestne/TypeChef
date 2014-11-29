@@ -105,7 +105,7 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface with CDeclU
         val specifiersFiltered = filterDeadSpecifiers(specifiers, featureExpr)
         //unwrap variability
         val exploded: Conditional[List[Specifier]] = explodeOptList(specifiersFiltered)
-        Conditional.combine(exploded.mapf(featureExpr, (ctx, specList) => constructTypeOne(specList, ctx, env, locationForErrorMsg))) simplify (featureExpr)
+        Conditional.combine(exploded.vmap(featureExpr, (ctx, specList) => constructTypeOne(specList, ctx, env, locationForErrorMsg))) simplify (featureExpr)
     }
 
 
@@ -159,7 +159,7 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface with CDeclU
                 val typedefEnvironment = env.typedefEnv
                 //typedef name can be shadowed by variable
                 val shadow = env.varEnv(typedefname).simplify(featureExpr)
-                types = types :+ shadow.mapfr(featureExpr, {
+                types = types :+ shadow.vflatMap(featureExpr, {
                     case (f, t) if t.isUnknown => //normal case: there is no variable by that name
                         if (typedefEnvironment contains typedefname) typedefEnvironment(typedefname)
                         else One(reportTypeError(f, "type not defined " + typedefname, e, Severity.Crash).toCType) //should not occur, because the parser should reject this already. exceptions could be caused by local type declarations
@@ -242,7 +242,7 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface with CDeclU
     private def noInitCheck = (a: Expr, b: Conditional[CType], c: FeatureExpr, d: Env) => {}
 
 
-    protected def checkStructCompletenessC(ctype: Conditional[CType], expr: FeatureExpr, env: Env, where: AST, checkedStructs: List[String] = Nil): Unit = ctype mapf(expr, {
+    protected def checkStructCompletenessC(ctype: Conditional[CType], expr: FeatureExpr, env: Env, where: AST, checkedStructs: List[String] = Nil): Unit = ctype vmap(expr, {
         (f, t) => checkStructCompleteness(t, f, env, where, checkedStructs)
     })
 

@@ -54,7 +54,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
 
                         ctype = markSecurityRelevantFunctions(name, ctype)
                         // addUse(id, featureExpr, env)
-                        ctype.mapf(featureExpr, {
+                        ctype.vmap(featureExpr, {
                             (f, t) =>
                                 if (t.isUnknown && f.isSatisfiable()) {
                                     val when = env.varEnv.whenDefined(name)
@@ -67,7 +67,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                         ctype.map(_.toObj)
                     //&a: create pointer
                     case pc@PointerCreationExpr(expr) =>
-                        et(expr).mapf(featureExpr, {
+                        et(expr).vmap(featureExpr, {
                             case (f, t) if t.isObject => t.map(CPointer(_))
                             case (f, t) if t.isFunction => t.map(CPointer(_))
                             case (f, e) =>
@@ -75,7 +75,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                         })
                     //*a: pointer dereferencing
                     case pd@PointerDerefExpr(expr) =>
-                        et(expr).mapf(featureExpr, (f, x) => x.map(_ match {
+                        et(expr).vmap(featureExpr, (f, x) => x.map(_ match {
                             case CPointer(s@CStruct(name, isUnion)) =>
                                 //dereferencing pointers to structures only for complete structures
                                 val whenComplete = env.structEnv.isComplete(name, isUnion)
@@ -93,11 +93,11 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                     case p@PostfixExpr(expr, PointerPostfixSuffix(".", i@Id(id))) =>
                         def lookup(fields: ConditionalTypeMap, fexpr: FeatureExpr): Conditional[CType] = {
                             val rt = fields.getOrElse(id, CUnknown("field not found: (" + expr + ")." + id + "; has " + fields))
-                            rt.mapf(fexpr, (f, t) => if (t.isUnknown && f.isSatisfiable()) issueTypeError(Severity.FieldLookupError, f, "unknown field " + id, i))
+                            rt.vmap(fexpr, (f, t) => if (t.isUnknown && f.isSatisfiable()) issueTypeError(Severity.FieldLookupError, f, "unknown field " + id, i))
                             rt
                         }
 
-                        et(expr).mapfr(featureExpr, {
+                        et(expr).vflatMap(featureExpr, {
                             case (f, CType(CAnonymousStruct(fields, _), true, _, _)) =>
                                 addAnonStructUse(i, fields)
                                 lookup(fields, f).map(_.toObj)
@@ -107,7 +107,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                                 addStructUse(i, featureExpr, env, s, isUnion)
                                 structEnvLookup(env.structEnv, s, isUnion, id, p, f).map(_.toObj)
                             case (f, CType(CStruct(s, isUnion), false, _, _)) =>
-                                structEnvLookup(env.structEnv, s, isUnion, id, p, f).mapf(f, {
+                                structEnvLookup(env.structEnv, s, isUnion, id, p, f).vmap(f, {
                                     case (f, e) if (arrayType(e)) =>
                                         reportTypeError(f, "expression " + p + " must not have array " + e, p)
                                     case (f, e) => e
@@ -201,7 +201,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
 
                         et(expr) map {
                             prepareArray
-                        } mapf(featureExpr, {
+                        } vmap(featureExpr, {
                             case (f, CObj(t)) if (isScalar(t)) => t //apparently ++ also works on arrays
                             case (f, CObj(CIgnore())) => CIgnore()
                             //TODO check?: not on function references
@@ -215,7 +215,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                                 val isPointerArith = (pointerArthOp(subExpr.op) || pointerArthAssignOp(subExpr.op)) && isPointer(ctype)
                                 val subExprType = etF(subExpr.e, fexpr, if (isPointerArith) env.markSecurityRelevant("array access/pointer arithmetic") else env)
 
-                                subExprType mapf(fexpr, (fexpr, subExprType) => operationType(subExpr.op, ctype, subExprType, ne, fexpr, env))
+                                subExprType vmap(fexpr, (fexpr, subExprType) => operationType(subExpr.op, ctype, subExprType, ne, fexpr, env))
                             }
                         )
                     //a[e]
@@ -248,18 +248,18 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                             kind match {
                                 //TODO complete list: __real__ __imag__
                                 //TODO promotions
-                                case "+" => exprType.mapf(featureExpr,
+                                case "+" => exprType.vmap(featureExpr,
                                     (fexpr, x) => if (isArithmetic(x) || x.isIgnore) promote(x) else reportTypeError(fexpr, "incorrect type, expected arithmetic, was " + x, ue))
                                 case "-" =>
                                     //check for integer overflow (+,~,! do not overflow)
                                     if (opts.warning_potential_integer_overflow && env.isSecurityRelevantLocation)
                                         issueTypeError(Severity.SecurityWarning, featureExpr, "Potential integer overflow in security relevant context (%s)".format(env.securityRelevantLocation.get), ue, "potential_integer_overflow")
 
-                                    exprType.mapf(featureExpr,
+                                    exprType.vmap(featureExpr,
                                         (fexpr, x) => if (isArithmetic(x) || x.isIgnore) promote(x) else reportTypeError(fexpr, "incorrect type, expected arithmetic, was " + x, ue))
-                                case "~" => exprType.mapf(featureExpr,
+                                case "~" => exprType.vmap(featureExpr,
                                     (fexpr, x) => if (isIntegral(x) || x.isIgnore) CSigned(CInt()) else reportTypeError(fexpr, "incorrect type, expected integer, was " + x, ue))
-                                case "!" => exprType.mapf(featureExpr,
+                                case "!" => exprType.vmap(featureExpr,
                                     (fexpr, x) => if (isScalar(x) || x.isIgnore) CSigned(CInt()) else reportTypeError(fexpr, "incorrect type, expected scalar, was " + x, ue))
                                 case "__real__" | "__imag__" => One(CIgnore().toCType.toObj)
                                 case _ => One(reportTypeError(featureExpr, "unknown unary operator " + kind + " (TODO)", ue))
@@ -270,7 +270,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                         //dead code detection, see CTypeSystem..IfStatement
                         val (contr, taut) = analyzeExprBounds(One(condition), featureExpr, env)
 
-                        et(condition) mapfr(featureExpr, {
+                        et(condition) vflatMap(featureExpr, {
                             (fexpr, conditionType) =>
                                 if (isScalar(conditionType))
                                     getConditionalExprType(etF(thenExpr.getOrElse(condition), fexpr, env.markDead(contr)), etF(elseExpr, fexpr, env.markDead(taut)), fexpr, ce)
@@ -290,7 +290,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
 
                         //return last type
                         val lastType: Conditional[Option[Conditional[CType]]] = ConditionalLib.lastEntry(typeOptList)
-                        val t: Conditional[CType] = lastType.mapr({
+                        val t: Conditional[CType] = lastType.flatMap({
                             case None => One(CVoid().toCType) //TODO what is the type of an empty ExprList?
                             case Some(ctype) => ctype
                         }) simplify (featureExpr);
@@ -321,7 +321,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                     case c: BuiltinTypesCompatible => One(CSigned(CInt())) //http://www.delorie.com/gnu/docs/gcc/gcc_81.html
                     case b@BuiltinVaArgs(expr, typename) =>
                         //check expr is of type va_list
-                        et(expr) mapfr(featureExpr, {
+                        et(expr) vflatMap(featureExpr, {
                             (fexpr, exprType) => if (exprType.atype != CBuiltinVaList())
                                 One(reportTypeError(fexpr, "invalid type of condition: " + exprType, b))
                             else One("all okay")
@@ -500,7 +500,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
         val struct: ConditionalTypeMap = strEnv.getFieldsMerged(structName, isUnion)
         val ctype = struct.getOrElse(fieldName, CUnknown("member " + fieldName + " unknown in " + structName))
 
-        ctype.mapf(featureExpr, {
+        ctype.vmap(featureExpr, {
             (f, t) => if (t.isUnknown && f.isSatisfiable()) issueTypeError(Severity.FieldLookupError, f, "member " + fieldName + " unknown in " + structName, astNode)
         })
 
@@ -540,7 +540,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
         val et = getExprTypeRec(_: Expr, featureExpr, env, true)
         a match {
             case p@PostfixExpr(expr, PointerPostfixSuffix(_, i@Id(id))) =>
-                et(expr).map(_.atype).mapfr(featureExpr, {
+                et(expr).map(_.atype).vflatMap(featureExpr, {
                     case (f, CAnonymousStruct(fields, _)) =>
                         addAnonStructUse(i, fields)
                         null

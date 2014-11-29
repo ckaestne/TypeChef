@@ -44,7 +44,7 @@ object CLexerAdapter {
      * errors are ignored
      */
     def prepareTokens(lexerResult: Conditional[LexerFrontend.LexerResult]): TokenReader[TokenWrapper, CTypeContext] = {
-        val tokens = lexerResult.mapf(True, {
+        val tokens = lexerResult.vmap(True, {
             case (f, s: LexerSuccess) => s.getTokens.map(t => {t.setFeature(t.getFeature and f); t})
             case _ => Nil
         }).flatten((f,a,b)=>a ++ b)

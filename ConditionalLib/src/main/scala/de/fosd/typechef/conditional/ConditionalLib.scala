@@ -28,7 +28,7 @@ object ConditionalLib {
     def conditionalFoldRightFR[A, B](list: List[Opt[A]], init: Conditional[B], featureExpr: FeatureExpr, op: (FeatureExpr, A, B) => Conditional[B]): Conditional[B] =
         list.foldRight(init)(
             (next: Opt[A], intermediateResults: Conditional[B]) => {
-                intermediateResults.mapfr(featureExpr,
+                intermediateResults.vflatMap(featureExpr,
                     (intermediateFeature, intermediateResult) =>
                         if ((intermediateFeature implies next.condition).isTautology) op(intermediateFeature, next.entry, intermediateResult)
                         else if ((intermediateFeature mex next.condition).isTautology) One(intermediateResult)
@@ -71,7 +71,7 @@ object ConditionalLib {
      * this explodes variability and may repeat values as needed
      */
     def zip[A, B](a: Conditional[A], b: Conditional[B]): Conditional[(A, B)] =
-        a.mapfr(True, (feature, x) => zipSubcondition(feature, x, b))
+        a.vflatMap(True, (feature, x) => zipSubcondition(feature, x, b))
 
     private def zipSubcondition[A, B](context: FeatureExpr, entry: A, other: Conditional[B]): Conditional[(A, B)] =
         findSubtree(context, other).map(otherEntry => (entry, otherEntry))
@@ -86,7 +86,7 @@ object ConditionalLib {
      * convenience function, zip two conditional values and map the result
      */
     def mapCombinationF[A, B, C](a: Conditional[A], b: Conditional[B], featureExpr: FeatureExpr, f: (FeatureExpr, A, B) => C): Conditional[C] =
-        zip(a, b).simplify(featureExpr).mapf(featureExpr, (fexpr, x) => f(fexpr, x._1, x._2))
+        zip(a, b).simplify(featureExpr).vmap(featureExpr, (fexpr, x) => f(fexpr, x._1, x._2))
 
 
     /**

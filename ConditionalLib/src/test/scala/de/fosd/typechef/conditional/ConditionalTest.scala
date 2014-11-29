@@ -15,8 +15,8 @@ class ConditionalTest {
     def testMap {
         assertEquals(One(1), One("a").map(_.length))
         assertEquals(Choice(fa, One(2), One(1)), Choice(fa, One("bb"), One("a")).map(_.length))
-        assertEquals(Choice(fa, One(2), One(1)), Choice(fa, One("bb"), One("a")).mapfr(True, (f, x) => One(x.length)))
-        assertEquals(Choice(fa, One(2), Choice(fb, One(3), One(5))), Choice(fa, One("bb"), One("a")).mapfr(True, (f, x) => if (f == fa) One(x.length) else Choice(fb, One(3), One(5))))
+        assertEquals(Choice(fa, One(2), One(1)), Choice(fa, One("bb"), One("a")).vflatMap(True, (f, x) => One(x.length)))
+        assertEquals(Choice(fa, One(2), Choice(fb, One(3), One(5))), Choice(fa, One("bb"), One("a")).vflatMap(True, (f, x) => if (f == fa) One(x.length) else Choice(fb, One(3), One(5))))
 
     }
 
@@ -189,7 +189,7 @@ class ConditionalTest {
     def testConditionalMapF {
         val v1: Choice[Set[Int]] = Choice(fa, One(Set(1, 2, 3)), One(Set(-1, -2, -3)))
         val v2: Choice[Set[Int]] = Choice(fa, One(Set(4, 5, 6)), One(Set()))
-        val v3 = v2.mapf[Set[Int]](
+        val v3 = v2.vmap[Set[Int]](
         fa, {
             (f, x) => if (fa equivalentTo f) x + 10 else x
         })
