@@ -88,7 +88,7 @@ abstract class Conditional[+T] extends Product {
 
 
     def forall(f: T => Boolean): Boolean
-    def exists(f: T => Boolean): Boolean = !this.forall(!f(_))
+    def exists(f: T => Boolean): Boolean
     def toOptList: List[Opt[T]] = ConditionalLib.flatten(List(Opt(True, this)))
 
     /**
@@ -96,6 +96,7 @@ abstract class Conditional[+T] extends Product {
      * each value with a corresponding condition
      */
     def toList: List[(FeatureExpr, T)] = this.toOptList.map(o => (o.condition, o.entry))
+    def toList(ctx: FeatureExpr): List[(FeatureExpr, T)] = this.toOptList.map(o => (o.condition and ctx, o.entry))
 
     /**
      * returns the condition when predicate f is true
@@ -129,6 +130,7 @@ case class Choice[+T](condition: FeatureExpr, thenBranch: Conditional[T], elseBr
         Choice(condition, newResultA, newResultB)
     }
     def forall(f: T => Boolean): Boolean = thenBranch.forall(f) && elseBranch.forall(f)
+    def exists(f: T => Boolean): Boolean = thenBranch.exists(f) || elseBranch.exists(f)
 
     def when(f: T => Boolean): FeatureExpr = (thenBranch.when(f) and condition) or (elseBranch.when(f) andNot condition)
 
@@ -142,6 +144,7 @@ case class One[+T](value: T) extends Conditional[T] {
     def flatMap[U](f: T => Conditional[U]): Conditional[U] = f(value)
     def vflatMap[U](ctx: FeatureExpr, f: (FeatureExpr, T) => Conditional[U]): Conditional[U] = f(ctx, value)
     def forall(f: T => Boolean): Boolean = f(value)
+    def exists(f: T => Boolean): Boolean = f(value)
 
     def when(f: T => Boolean): FeatureExpr = if (f(value)) True else False
 }

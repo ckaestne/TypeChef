@@ -1,7 +1,7 @@
 package de.fosd.typechef.parser
 
 import scala.math.min
-import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
+import de.fosd.typechef.featureexpr.{FeatureModel, FeatureExprFactory, FeatureExpr}
 import de.fosd.typechef.error.Position
 
 /**
@@ -54,9 +54,9 @@ class TokenReader[+T <: AbstractToken, U](val tokens: List[T], val offst: Int, v
         case _ => false
     }
 
-    def skipHidden(context: FeatureExpr, featureSolverCache: FeatureSolverCache): TokenReader[T, U] = {
+    def skipHidden(context: FeatureExpr, featureModel: FeatureModel): TokenReader[T, U] = {
         var result = this
-        while (!result.atEnd && featureSolverCache.mutuallyExclusive(context, result.first.getFeature))
+        while (!result.atEnd && (context mex result.first.getFeature).isTautology(featureModel))
             result = result.rest
         result
     }
