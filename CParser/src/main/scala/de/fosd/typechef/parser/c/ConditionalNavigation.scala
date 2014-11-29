@@ -10,7 +10,7 @@ trait ConditionalNavigation {
         val eparent = env.parent(e)
         eparent match {
             case o: Opt[_] => o
-            case c: Conditional[_] => ConditionalLib.toOptList(c).head
+            case c: Conditional[_] => c.toOptList.head
             case a: AST => parentOpt(a, env)
             case _ => null
         }

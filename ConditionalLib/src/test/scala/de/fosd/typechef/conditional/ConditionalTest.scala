@@ -127,27 +127,27 @@ class ConditionalTest {
     def testZip {
         assertEquals(
             One((1, "a")),
-            zip(One(1), One("a"))
+            explode(One(1), One("a"))
         )
         assertEquals(
             Choice(fa, One((1, "a")), One((2, "a"))),
-            zip(Choice(fa, One(1), One(2)), One("a"))
+            explode(Choice(fa, One(1), One(2)), One("a"))
         )
         assertEquals(
             Choice(fa, One((1, "a")), One((1, "b"))),
-            zip(One(1), Choice(fa, One("a"), One("b")))
+            explode(One(1), Choice(fa, One("a"), One("b")))
         )
         assertEquals(
             Choice(fa, One((1, "a")), One((2, "b"))),
-            zip(Choice(fa, One(1), One(2)), Choice(fa, One("a"), One("b")))
+            explode(Choice(fa, One(1), One(2)), Choice(fa, One("a"), One("b")))
         )
         assertEquals(
             Choice(fa, Choice(fb, One((1, "a")), One((1, "b"))), Choice(fb, One((2, "a")), One((2, "b")))),
-            zip(Choice(fa, One(1), One(2)), Choice(fb, One("a"), One("b")))
+            explode(Choice(fa, One(1), One(2)), Choice(fb, One("a"), One("b")))
         )
         assertEquals(
             Choice(fa, One((1, "a")), Choice(fa or fb, One((2, "a")), One((2, "b")))),
-            zip(Choice(fa, One(1), One(2)), Choice(fa or fb, One("a"), One("b")))
+            explode(Choice(fa, One(1), One(2)), Choice(fa or fb, One("a"), One("b")))
         )
 
 
@@ -194,7 +194,7 @@ class ConditionalTest {
             (f, x) => if (fa equivalentTo f) x + 10 else x
         })
 
-        println(ConditionalLib.zip(v1, v2))
+        println(ConditionalLib.explode(v1, v2))
         println(ConditionalLib.mapCombination[Set[Int], Set[Int], Set[Int]](v1, v2, {
             (x, y) => x ++ y
         }))

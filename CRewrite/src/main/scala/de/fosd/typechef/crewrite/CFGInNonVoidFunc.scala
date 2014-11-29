@@ -24,7 +24,7 @@ class CFGInNonVoidFunc(env: ASTEnv, ts: CTypeSystemFrontend) extends IntraCFG {
                     findPriorASTElem[ReturnStatement](x, env) match {
                         case Some(_) =>
                         case None => {
-                            val ftype = ConditionalLib.findSubtree[CType](env.featureExpr(x), ftypes)
+                            val ftype = ftypes.simplify(env.featureExpr(x))
                             ftype match {
                                 case One(CType(CFunction(_, CType(ret, _, _, _)), _, _, _)) if ! ret.isInstanceOf[CVoid] => res ::= o
                                 case _ =>

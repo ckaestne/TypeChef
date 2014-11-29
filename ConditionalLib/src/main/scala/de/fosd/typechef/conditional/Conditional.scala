@@ -116,6 +116,7 @@ case class Choice[+T](condition: FeatureExpr, thenBranch: Conditional[T], elseBr
         if ((ctx and condition).isContradiction(fm)) bb
         else if ((ctx andNot condition).isContradiction(fm)) aa
         else if (aa == bb) aa
+        else if ((thenBranch eq aa) && (elseBranch eq bb)) this //if both subtrees are unchanged, no need to create a new object
         else Choice(condition, aa, bb)
     }
 

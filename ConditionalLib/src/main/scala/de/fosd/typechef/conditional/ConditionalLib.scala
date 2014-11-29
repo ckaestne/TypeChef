@@ -81,23 +81,8 @@ object ConditionalLib {
         vfoldRight[A, B](list.reverse, init, featureExpr, (o, b, a) => op(o, a, b))
 
 
+//    def equals[T](a: Conditional[T], b: Conditional[T]): Boolean = mapCombination(a, b, _ == _).forall(_)
 
-
-    def equals[T](a: Conditional[T], b: Conditional[T]): Boolean =
-        compare(a, b, (x: T, y: T) => x equals y).simplify.forall(a => a)
-
-    def compare[T, R](a: Conditional[T], b: Conditional[T], f: (T, T) => R): Conditional[R] =
-        zip(a, b).map(x => f(x._1, x._2))
-
-    def findSubtree[T](context: FeatureExpr, tree: Conditional[T]): Conditional[T] = tree match {
-        case o@One(_) => o
-        case Choice(feature, a, b) =>
-            lazy val aa = findSubtree(context and feature, a)
-            lazy val bb = findSubtree(context andNot feature, b)
-            if ((context and feature).isContradiction()) bb
-            else if ((context andNot feature).isContradiction()) aa
-            else Choice(feature, aa, bb)
-    }
 
 
     /**
@@ -113,11 +98,10 @@ object ConditionalLib {
      *
      * this explodes variability and may repeat values as needed
      */
-    def zip[A, B](a: Conditional[A], b: Conditional[B]): Conditional[(A, B)] =
-        a.vflatMap(True, (feature, x) => zipSubcondition(feature, x, b))
+    def explode[A, B](a: Conditional[A], b: Conditional[B]): Conditional[(A, B)] = vexplode(True, a, b)
 
-    private def zipSubcondition[A, B](ctx: FeatureExpr, entry: A, other: Conditional[B]): Conditional[(A, B)] =
-        findSubtree(ctx, other).map(otherEntry => (entry, otherEntry))
+    def vexplode[A, B](ctx: FeatureExpr, a: Conditional[A], b: Conditional[B]): Conditional[(A, B)] =
+        a.vflatMap(ctx, (ctx, aa) => b.simplify(ctx).map(bb => (aa, bb)))
 
 
     /**
@@ -128,18 +112,29 @@ object ConditionalLib {
      */
     def mapCombination[A, B, C](a: Conditional[A], b: Conditional[B], f: (A, B) => C): Conditional[C] =
         a.flatMap(aa => b.map(bb => f(aa, bb)))
+    /**
+     * same as mapCombination, but additionally avoids (some) infeasible computations.
+     *
+     * since this involves satisifability checks, it may be more expensive than mapCombination
+     * but fewer computations may be performed, since infeasible combinations are skipped
+     */
+    def mapCombinationOp[A, B, C](a: Conditional[A], b: Conditional[B], f: (A, B) => C): Conditional[C] =
+        a.vflatMap(True, (ctx,aa) => b.simplify(ctx).map(bb => f(aa, bb)))
 
     /**
      * same as mapCombination, but additionally preserves a context during the computation
      */
     def vmapCombination[A, B, C](a: Conditional[A], b: Conditional[B], ctx: FeatureExpr, f: (FeatureExpr, A, B) => C): Conditional[C] =
-        a.vflatMap(ctx, (ctx, a) => b.vmap(ctx, (ctx, b)=> f(ctx, a, b)))
+        a.vflatMap(ctx, (ctx, a) => b.vmap(ctx, (ctx, b) => f(ctx, a, b)))
 
     /**
-     * same as vmapCombination, but computes only feasible combinations
+     * same as vmapCombination, but additionally avoids (some) infeasible computations.
+     *
+     * since this involves satisifability checks, it may be more expensive than vmapCombination
+     * but fewer computations may be performed, since infeasible combinations are skipped
      */
     def vmapCombinationOp[A, B, C](a: Conditional[A], b: Conditional[B], ctx: FeatureExpr, f: (FeatureExpr, A, B) => C): Conditional[C] =
-        zip(a, b).simplify(ctx).vmap(ctx, (fexpr, x) => f(fexpr, x._1, x._2))
+        explode(a, b).simplify(ctx).vmap(ctx, (fexpr, x) => f(fexpr, x._1, x._2))
 
     /**
      * convenience function to add an element (e) with feature expression (f) to an conditional tree (t) with the initial
@@ -201,9 +196,6 @@ object ConditionalLib {
         }
         result
     }
-    //old, only for compatibility
-    def toOptList[T](c: Conditional[T]): List[Opt[T]] = c.toOptList
-    def toList[T](c: Conditional[T]): List[(FeatureExpr, T)] = c.toList
 
 
 
@@ -217,5 +209,15 @@ object ConditionalLib {
     def conditionalFoldLeftFR = vfoldLeft _
     @deprecated("renamed to vmapCombination for consistency", "0.4.0")
     def mapCombinationF = vmapCombinationOp _
+    @deprecated("use value.simplify(ctx) instead", "0.4.0")
+    def findSubtree[T](ctx: FeatureExpr, value: Conditional[T]): Conditional[T] = value.simplify(ctx)
+    @deprecated("misnamed, use mapCombinedOp instead", "0.4.0")
+    def compare[T, R](a: Conditional[T], b: Conditional[T], f: (T, T) => R): Conditional[R] = mapCombinationOp(a,b,f)
+    @deprecated("unclear purpose, write specific implementation", "0.4.0")
+    def equals[T](a: Conditional[T], b: Conditional[T]): Boolean = mapCombinationOp(a, b, (x: T, y: T) => x equals y).simplify.forall(a => a)
+    @deprecated("only for backward compatibility", "0.4.0")
+    def toOptList[T](c: Conditional[T]): List[Opt[T]] = c.toOptList
+    @deprecated("only for backward compatibility", "0.4.0")
+    def toList[T](c: Conditional[T]): List[(FeatureExpr, T)] = c.toList
 }
 
