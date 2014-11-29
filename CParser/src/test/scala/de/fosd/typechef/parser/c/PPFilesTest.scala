@@ -60,7 +60,7 @@ class PPFilesTest extends TestHelper {
         parseFile("boa/ip.pi")
     }
 
-    @Test
+    @Test@Ignore("this tests needs a lot of stack space and will result in a stack overflow in kiama if not started with more memory")
     def testLineEditPi() {
         parseFile("other/lineedit.pi")
     }
