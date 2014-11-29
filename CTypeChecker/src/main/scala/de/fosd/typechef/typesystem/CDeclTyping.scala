@@ -98,7 +98,7 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface with CDeclU
      * remove when problem is fixed
      */
     protected def filterDeadSpecifiers[T](l: List[Opt[T]], ctx: FeatureExpr): List[Opt[T]] =
-        l.filter(o => ((o.feature) and ctx).isSatisfiable)
+        l.filter(o => ((o.condition) and ctx).isSatisfiable)
 
 
     def constructType(specifiers: List[Opt[Specifier]], featureExpr: FeatureExpr, env: Env, locationForErrorMsg: AST): Conditional[CType] = {
@@ -114,7 +114,7 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface with CDeclU
         specifiers.exists(isTransparentUnionAttribute(_, FeatureExprFactory.True))
 
     private def hasTransparentUnionAttributeOpt(specifiers: List[Opt[Specifier]]): Boolean =
-        specifiers.exists(o => isTransparentUnionAttribute(o.entry, o.feature))
+        specifiers.exists(o => isTransparentUnionAttribute(o.entry, o.condition))
 
     private def isTransparentUnionAttribute(specifier: Specifier, featureContext: FeatureExpr): Boolean =
         specifier match {
@@ -270,7 +270,7 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface with CDeclU
      * under which condition is modifier extern defined?
      */
     def getIsExtern(list: List[Opt[Specifier]]): FeatureExpr =
-        list.filter(_.entry == ExternSpecifier()).map(_.feature).fold(FeatureExprFactory.False)(_ or _)
+        list.filter(_.entry == ExternSpecifier()).map(_.condition).fold(FeatureExprFactory.False)(_ or _)
 
     /**
      * get a list of all declared variables from a declaration.
@@ -584,7 +584,7 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface with CDeclU
     protected def getStaticCondition(specifiers: List[Opt[Specifier]]): FeatureExpr = getSpecifierCondition(specifiers, StaticSpecifier())
     protected def getExternCondition(specifiers: List[Opt[Specifier]]): FeatureExpr = getSpecifierCondition(specifiers, ExternSpecifier())
     protected def getSpecifierCondition(specifiers: List[Opt[Specifier]], specifier: Specifier): FeatureExpr =
-        specifiers.filter(_.entry == specifier).foldLeft(FeatureExprFactory.False)((f, o) => f or o.feature)
+        specifiers.filter(_.entry == specifier).foldLeft(FeatureExprFactory.False)((f, o) => f or o.condition)
 
     /**
      * linkage depends on previous identifiers in scope, on the scope (file level or not) and the specifiers

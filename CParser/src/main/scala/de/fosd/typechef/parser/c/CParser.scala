@@ -585,7 +585,7 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = false) e
     def stringConst: MultiParser[StringLit] =
         (rep1(token("string literal", _.isString))
             ^^ {
-            (list: List[Opt[AbstractToken]]) => StringLit(list.map(o => Opt(o.feature, o.entry.getText)))
+            (list: List[Opt[AbstractToken]]) => StringLit(list.map(o => Opt(o.condition, o.entry.getText)))
         })
 
     def numConst: MultiParser[Constant] =

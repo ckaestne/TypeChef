@@ -14,8 +14,8 @@ object ProductDerivation extends EnforceTreeHelper {
                 var res: List[Opt[_]] = List()
                 // use l.reverse here to omit later reverse on res or use += or ++= in the thenBranch
                 for (o <- l.reverse.asInstanceOf[List[Opt[_]]])
-                    if (o.feature.evaluate(selectedFeatures)) {
-                        res ::= o.copy(feature = FeatureExprFactory.True)
+                    if (o.condition.evaluate(selectedFeatures)) {
+                        res ::= o.copy(condition = FeatureExprFactory.True)
                     }
                 res
             }

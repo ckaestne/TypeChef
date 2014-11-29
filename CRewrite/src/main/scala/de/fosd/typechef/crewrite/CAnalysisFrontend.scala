@@ -36,7 +36,7 @@ class CInterAnalysisFrontend(tunit: TranslationUnit, fm: FeatureModel = FeatureE
 
         for (f <- fdefs) {
             writer.writeMethodGraph(getAllSucc(f, env).map {
-                x => (x._1, x._2.distinct.filter { y => y.feature.isSatisfiable(fm)}) // filter duplicates and wrong succs
+                x => (x._1, x._2.distinct.filter { y => y.condition.isSatisfiable(fm)}) // filter duplicates and wrong succs
             }, lookupFExpr, f.declarator.getName)
         }
         writer.writeFooter()
@@ -292,7 +292,7 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
 
         ss.flatMap(s => {
             ds.danglingSwitchCode(s).map(e => {
-                new TypeChefError(Severity.Warning, e.feature, "warning: switch statement has dangling code ", e.entry, "")
+                new TypeChefError(Severity.Warning, e.condition, "warning: switch statement has dangling code ", e.entry, "")
             })
 
         })
@@ -315,7 +315,7 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
         val cf = new CFGInNonVoidFunc(env, ts)
 
         cf.cfgInNonVoidFunc(fa._1).map(
-            e => new TypeChefError(Severity.Warning, e.feature, "Control flow of non-void function ends here!", e.entry, "")
+            e => new TypeChefError(Severity.Warning, e.condition, "Control flow of non-void function ends here!", e.entry, "")
         )
     }
 

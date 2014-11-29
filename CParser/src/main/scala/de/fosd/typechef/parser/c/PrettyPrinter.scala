@@ -124,35 +124,35 @@ object PrettyPrinter {
     }
 
     private def optConditional(e: Opt[AST], list_feature_expr: List[FeatureExpr]): Doc = {
-        if (e.feature == FeatureExprFactory.True ||
-            list_feature_expr.foldLeft(FeatureExprFactory.True)(_ and _).implies(e.feature).isTautology())
+        if (e.condition == FeatureExprFactory.True ||
+            list_feature_expr.foldLeft(FeatureExprFactory.True)(_ and _).implies(e.condition).isTautology())
             prettyPrint(e.entry, list_feature_expr)
         else if (newLineForIfdefs) {
             line ~
-                "#if" ~~ e.feature.toTextExpr *
-                prettyPrint(e.entry, e.feature :: list_feature_expr) *
+                "#if" ~~ e.condition.toTextExpr *
+                prettyPrint(e.entry, e.condition :: list_feature_expr) *
                 "#endif" ~
                     line
         } else {
-            "#if" ~~ e.feature.toTextExpr *
-                prettyPrint(e.entry, e.feature :: list_feature_expr) *
+            "#if" ~~ e.condition.toTextExpr *
+                prettyPrint(e.entry, e.condition :: list_feature_expr) *
                 "#endif"
         }
 
     }
 
     private def optConditionalStr(e: Opt[String], list_feature_expr: List[FeatureExpr]): Doc = {
-        if (e.feature == FeatureExprFactory.True ||
-            list_feature_expr.foldLeft(FeatureExprFactory.True)(_ and _).implies(e.feature).isTautology())
+        if (e.condition == FeatureExprFactory.True ||
+            list_feature_expr.foldLeft(FeatureExprFactory.True)(_ and _).implies(e.condition).isTautology())
             e.entry
         else if (newLineForIfdefs) {
             line ~
-                "#if" ~~ e.feature.toTextExpr *
+                "#if" ~~ e.condition.toTextExpr *
                 e.entry *
                 "#endif" ~
                     line
         } else {
-            "#if" ~~ e.feature.toTextExpr *
+            "#if" ~~ e.condition.toTextExpr *
                 e.entry *
                 "#endif"
         }
@@ -178,10 +178,10 @@ object PrettyPrinter {
         // This function prints out separated lists with annotated commas solving that problem.
         def sepVaware[T](l: List[Opt[T]], selem: String, toDoc: Opt[T] => Doc, breakselem: Doc = space) = {
             var res: Doc = if (l.isEmpty) Empty else toDoc(l.head)
-            var combCtx: FeatureExpr = if (l.isEmpty) FeatureExprFactory.True else l.head.feature
+            var combCtx: FeatureExpr = if (l.isEmpty) FeatureExprFactory.True else l.head.condition
 
             for (celem <- l.drop(1)) {
-                val selemfexp = combCtx.and(celem.feature)
+                val selemfexp = combCtx.and(celem.condition)
 
                 // separation element is never present
                 if (selemfexp.isContradiction())
@@ -201,7 +201,7 @@ object PrettyPrinter {
 
                 // add current feature expression as it might influence the addition of selem for
                 // the remaining elements of l
-                combCtx = combCtx.or(celem.feature)
+                combCtx = combCtx.or(celem.condition)
             }
 
             res
@@ -243,19 +243,19 @@ object PrettyPrinter {
                 if (!hasContent(docForExprPair))
                     doc
                 else {
-                    if (optExprPair.feature == FeatureExprFactory.True ||
-                        list_feature_expr.foldLeft(FeatureExprFactory.True)(_ and _).implies(optExprPair.feature).isTautology()) {
+                    if (optExprPair.condition == FeatureExprFactory.True ||
+                        list_feature_expr.foldLeft(FeatureExprFactory.True)(_ and _).implies(optExprPair.condition).isTautology()) {
                         doc ~ ", " ~ handleOptExprPair(optExprPair.entry)
                     } else {
                         if (newLineForIfdefs) {
                             line ~
-                                doc * "#if" ~~ optExprPair.feature.toTextExpr *
+                                doc * "#if" ~~ optExprPair.condition.toTextExpr *
                                 ", " ~ docForExprPair *
                                 "#endif" ~
                                     line
                         } else {
 
-                            doc * "#if" ~~ optExprPair.feature.toTextExpr *
+                            doc * "#if" ~~ optExprPair.condition.toTextExpr *
                                 ", " ~ docForExprPair *
                                 "#endif"
                         }

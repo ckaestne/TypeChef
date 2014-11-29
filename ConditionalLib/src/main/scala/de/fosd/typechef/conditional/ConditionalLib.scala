@@ -30,9 +30,9 @@ object ConditionalLib {
             (next: Opt[A], intermediateResults: Conditional[B]) => {
                 intermediateResults.mapfr(featureExpr,
                     (intermediateFeature, intermediateResult) =>
-                        if ((intermediateFeature implies next.feature).isTautology) op(intermediateFeature, next.entry, intermediateResult)
-                        else if ((intermediateFeature mex next.feature).isTautology) One(intermediateResult)
-                        else Choice(next.feature, op(intermediateFeature and next.feature, next.entry, intermediateResult), One(intermediateResult))
+                        if ((intermediateFeature implies next.condition).isTautology) op(intermediateFeature, next.entry, intermediateResult)
+                        else if ((intermediateFeature mex next.condition).isTautology) One(intermediateResult)
+                        else Choice(next.condition, op(intermediateFeature and next.condition, next.entry, intermediateResult), One(intermediateResult))
                 ) simplify (featureExpr)
             }
         )

@@ -360,19 +360,19 @@ abstract class MultiFeatureParser(val featureModel: FeatureModel = null, debugOu
                 //                assert((a.head.feature and feature).isSatisfiable(featureModel))
                 //                assert((b.head.feature andNot feature).isSatisfiable(featureModel))
 
-                val newCondition = (a.head.feature and feature) or (b.head.feature andNot feature)
+                val newCondition = (a.head.condition and feature) or (b.head.condition andNot feature)
                 if (newCondition.isSatisfiable(featureModel))
                     result = Opt(newCondition, a.head.entry) :: result
                 a = a.tail
                 b = b.tail
             } else if (a.size > b.size) {
                 //                assert((a.head.feature and feature).isSatisfiable(featureModel))
-                if ((a.head.feature and feature).isSatisfiable(featureModel))
+                if ((a.head.condition and feature).isSatisfiable(featureModel))
                     result = a.head.and(feature) :: result
                 a = a.tail
             } else {
                 //                assert((b.head.feature andNot feature).isSatisfiable(featureModel))
-                if ((b.head.feature andNot feature).isSatisfiable(featureModel))
+                if ((b.head.condition andNot feature).isSatisfiable(featureModel))
                     result = b.head.andNot(feature) :: result
                 b = b.tail
             }
@@ -573,7 +573,7 @@ abstract class MultiFeatureParser(val featureModel: FeatureModel = null, debugOu
             val t = p(in, feature)
             t.seqAllSuccessful(feature,
                 (fs: FeatureExpr, x: Success[List[Opt[T]]]) => {
-                    val nonEmptyCondition = x.result.filter(x => filterE(x.entry)).map(_.feature).foldLeft(FeatureExprFactory.False)(_ or _)
+                    val nonEmptyCondition = x.result.filter(x => filterE(x.entry)).map(_.condition).foldLeft(FeatureExprFactory.False)(_ or _)
                     def error = Failure("empty list", x.nextInput, List())
                     if ((fs implies nonEmptyCondition).isTautology())
                         x
@@ -708,7 +708,7 @@ abstract class MultiFeatureParser(val featureModel: FeatureModel = null, debugOu
                             //try performance heuristic A first
                             applyStrategyA(x.nextInput, fs) match {
                                 case Some((result, next)) =>
-                                    Success(Sealable(false, result :: x.result.resultList, x.result.freeSeparator andNot (result.feature)), next)
+                                    Success(Sealable(false, result :: x.result.resultList, x.result.freeSeparator andNot (result.condition)), next)
                                 case None =>
                                     //default case, use normal mechanism
                                     // extend unsealed lists with the next result (if there is no next result, seal the list)

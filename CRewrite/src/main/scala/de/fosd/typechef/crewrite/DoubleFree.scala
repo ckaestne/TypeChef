@@ -99,7 +99,7 @@ class DoubleFree(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: FeatureModel
                 // form alternative groups. if so we look for Ids in each
                 // of the alternative elements. if not we stop, because then we encounter
                 // a size element.
-                var actx = List(l.exprs.head.feature)
+                var actx = List(l.exprs.head.condition)
                 var finished = false
 
                 for (ni <- filterAllASTElems[Id](l.exprs.head.entry)) res ++= fromCache(ni)
@@ -108,9 +108,9 @@ class DoubleFree(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: FeatureModel
                     if (actx.reduce(_ or _) isTautology fm)
                         finished = true
 
-                    if (!finished && actx.forall(_ and ce.feature isContradiction fm)) {
+                    if (!finished && actx.forall(_ and ce.condition isContradiction fm)) {
                         for (ni <- filterAllASTElems[Id](ce.entry)) res ++= fromCache(ni)
-                        actx ::= ce.feature
+                        actx ::= ce.condition
                     } else {
                         finished = true
                     }

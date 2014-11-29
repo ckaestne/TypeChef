@@ -529,7 +529,7 @@ trait CDeclUse extends CDeclUseInterface with CEnv with CEnvCache {
 
         for (Opt(f, osp) <- oldStyleParameters) {
             osp match {
-                case d: Declaration => d.init.foreach(decl => addOldStyleParameterDeclarator(decl.entry.getId, decl.feature, env))
+                case d: Declaration => d.init.foreach(decl => addOldStyleParameterDeclarator(decl.entry.getId, decl.condition, env))
                 case VarArgs() =>
                 case x =>
             }
@@ -708,12 +708,12 @@ trait CDeclUse extends CDeclUseInterface with CEnv with CEnvCache {
 
         get[LabelStatement](f).foreach(label => {
             putToDeclUseMap(label.entry.id)
-            labelMap.put(label.entry.id, label.feature)
+            labelMap.put(label.entry.id, label.condition)
         })
         get[GotoStatement](f).foreach(goto =>
             goto.entry.target match {
                 case usage@Id(name) => labelMap.keySet().toArray.foreach(declaration =>
-                    if (declaration.asInstanceOf[Id].name.equals(name) && (goto.feature.equivalentTo(FeatureExprFactory.True) || labelMap.get(declaration).implies(goto.feature).isTautology))
+                    if (declaration.asInstanceOf[Id].name.equals(name) && (goto.condition.equivalentTo(FeatureExprFactory.True) || labelMap.get(declaration).implies(goto.condition).isTautology))
                         addToDeclUseMap(declaration.asInstanceOf[Id], usage))
                 case k => logger.error("Missing GotoStatement: " + k)
             })

@@ -12,7 +12,7 @@ class RepOptTest extends TestCase with DigitListUtilities {
     import de.fosd.typechef.featureexpr.FeatureExpr
 
     case class DList(list: List[Opt[Conditional[AST]]]) extends AST {
-        override def toString(): String = list.map(o => o.entry + " - " + o.feature).mkString("[", "\n", "]")
+        override def toString(): String = list.map(o => o.entry + " - " + o.condition).mkString("[", "\n", "]")
     }
 
     case class AList(list: List[AST]) extends AST

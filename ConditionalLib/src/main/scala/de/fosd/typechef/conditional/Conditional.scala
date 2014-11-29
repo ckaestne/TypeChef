@@ -4,18 +4,34 @@ import de.fosd.typechef.featureexpr.{FeatureModel, FeatureExprFactory, FeatureEx
 import FeatureExprFactory.{True, False}
 
 
-case class Opt[+T](val feature: FeatureExpr, val entry: T) {
+case class Opt[+T](val condition: FeatureExpr, val entry: T) {
+
+    /**
+     * compares two optional entry. they are only considered equal if their features are identical (not equivalent).
+     * this choice was made for performance reasons; use isEquivalent instead if equivalent formulas are considered equal
+     */
     override def equals(x: Any) = x match {
-        //XXX: use feature equality instead of equivalence for performance! this may not always be what is expected.
-        case Opt(f, e) => (f == feature) && (entry == e)
+        case Opt(f, e) => (f == condition) && (entry == e)
         case _ => false
     }
+
+    /**
+     * alternative version of equals, that considers equivalences among conditions.
+     * may require a SAT solver
+     */
+    def equivalentTo(that: Any) = that match {
+        case Opt(f, e) => f.equivalentTo(condition) && (entry == e)
+        case _ => false
+    }
+
     //helper function
-    def and(f: FeatureExpr) = if (f == null) this else new Opt(feature.and(f), entry)
-    def andNot(f: FeatureExpr) = if (f == null) this else new Opt(feature.and(f.not), entry)
-    def map[U](f: T => U): Opt[U] = Opt(feature, f(entry))
-    // jl: overriding Opt always causes trouble when looking at the output of AST directly should not be here!
-    //override def toString = if (feature == FeatureExpr.True) entry.toString else "Opt(" + feature + "," + entry + ")"
+    def and(f: FeatureExpr) = if (f == null) this else new Opt(condition.and(f), entry)
+    def andNot(f: FeatureExpr) = if (f == null) this else new Opt(condition.and(f.not), entry)
+
+    def map[U](f: T => U): Opt[U] = Opt(condition, f(entry))
+
+    @deprecated("feature is a misleading name, use .condition instead")
+    def feature: FeatureExpr = condition
 }
 
 //Conditional is either Choice or One
@@ -36,7 +52,7 @@ abstract class Conditional[+T] extends Product {
     def forall(f: T => Boolean): Boolean
     def exists(f: T => Boolean): Boolean = !this.forall(!f(_))
     def toOptList: List[Opt[T]] = Conditional.flatten(List(Opt(True, this)))
-    def toList: List[(FeatureExpr, T)] = this.toOptList.map(o => (o.feature, o.entry))
+    def toList: List[(FeatureExpr, T)] = this.toOptList.map(o => (o.condition, o.entry))
 
     //returns the condition when predicate f is true
     def when(f: T => Boolean): FeatureExpr
@@ -89,9 +105,9 @@ object Conditional {
         for (e <- optList.reverse) {
             e.entry match {
                 case Choice(f, a, b) =>
-                    result = flatten(List(Opt(e.feature and f, a))) ++ flatten(List(Opt(e.feature and (f.not), b))) ++ result;
+                    result = flatten(List(Opt(e.condition and f, a))) ++ flatten(List(Opt(e.condition and (f.not), b))) ++ result;
                 case One(a) =>
-                    result = Opt(e.feature, a) :: result;
+                    result = Opt(e.condition, a) :: result;
             }
         }
         result

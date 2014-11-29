@@ -28,7 +28,7 @@ trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTypi
                     param match {
                         case PlainParameterDeclaration(specifiers, _) =>
                             //having int foo(void) is Ok, but for everything else we expect named parameters
-                            val onlyVoid = !specifiers.exists(spec => (spec.feature and f).isSatisfiable() && spec.entry != VoidSpecifier())
+                            val onlyVoid = !specifiers.exists(spec => (spec.condition and f).isSatisfiable() && spec.entry != VoidSpecifier())
                             assertTypeSystemConstraint(onlyVoid, featureExpr and extensionFeature and paramFeature, "no name, old parameter style?", param) //TODO
                         case ParameterDeclarationD(specifiers, decl, _) =>
                             result = ((decl.getName, f, decl, getDeclarationType(specifiers, decl, f, env))) :: result
@@ -200,7 +200,7 @@ trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTypi
     def addEnumDeclarationToEnv(specifiers: List[Opt[Specifier]], featureExpr: FeatureExpr, env: Env, isHeadless: Boolean): EnumEnv = {
         specifiers.foldRight(env.enumEnv)({
             (opt, b) => {
-                val specFeature = opt.feature
+                val specFeature = opt.condition
                 val typeSpec = opt.entry
                 typeSpec match {
                     case EnumSpecifier(Some(i@Id(name)), l) if (isHeadless || !l.isEmpty) =>
@@ -214,7 +214,7 @@ trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTypi
                     //recurse into structs
                     case StructOrUnionSpecifier(_, _, fields, _, _) =>
                         fields.getOrElse(Nil).foldRight(b)(
-                            (optField, b) => addEnumDeclarationToEnv(optField.entry.qualifierList, featureExpr and specFeature and optField.feature, env.updateEnumEnv(b), optField.entry.declaratorList.isEmpty)
+                            (optField, b) => addEnumDeclarationToEnv(optField.entry.qualifierList, featureExpr and specFeature and optField.condition, env.updateEnumEnv(b), optField.entry.declaratorList.isEmpty)
                         )
 
                     case TypeDefTypeSpecifier(name) =>
