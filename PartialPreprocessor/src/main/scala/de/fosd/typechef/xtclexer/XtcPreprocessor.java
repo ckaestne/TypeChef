@@ -163,10 +163,10 @@ public class XtcPreprocessor implements VALexer {
     }
 
 
-    List<Stream> lexers = null;
+    List<Iterator<Syntax>> lexers = null;
     Stack<FeatureExpr> stack;
 
-    private List<Stream> getCurrentLexer() throws FileNotFoundException {
+    private List<Iterator<Syntax>> getCurrentLexer() throws FileNotFoundException {
         if (lexers == null) {
             assert (file == null) == (fileReader == null) : "no file given";
 
@@ -182,8 +182,8 @@ public class XtcPreprocessor implements VALexer {
 
     @Override
     public LexerToken getNextToken() throws IOException {
-        Stream lexer = getCurrentLexer().get(0);
-        Syntax s = lexer.scan();
+        Iterator<Syntax> lexer = getCurrentLexer().get(0);
+        Syntax s = lexer.next();
         while (s.kind() != Syntax.Kind.EOF) {
             if (s.kind() == Syntax.Kind.CONDITIONAL) {
                 Syntax.Conditional c = s.toConditional();
@@ -211,7 +211,7 @@ public class XtcPreprocessor implements VALexer {
                     return new XtcToken(s, stack.peek());
             }
 
-            s = lexer.scan();
+            s = lexer.next();
         }
         getCurrentLexer().remove(0);
         if (getCurrentLexer().isEmpty())
