@@ -277,4 +277,9 @@ public class JcppFileTest extends AbstractCheckTests {
         testFile("conditionalerror.c");
     }
 
+    @Test
+    public void testSimpleCompare() throws LexerException, IOException {
+        testFile("simplecompare.c");
+    }
+
 }

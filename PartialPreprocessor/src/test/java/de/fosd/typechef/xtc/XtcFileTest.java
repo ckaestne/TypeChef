@@ -276,4 +276,10 @@ public class XtcFileTest extends AbstractCheckTests {
         testFile("conditionalerror.c");
     }
 
+
+    @Test
+    public void testSimpleCompare() throws LexerException, IOException {
+        testFile("simplecompare.c");
+    }
+
 }
