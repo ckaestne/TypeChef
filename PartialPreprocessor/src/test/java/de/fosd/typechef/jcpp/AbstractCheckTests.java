@@ -196,7 +196,7 @@ public class AbstractCheckTests {
 
                 containsErrorCheck = true;
                 Assert.assertTrue(
-                        "Expected error IF " + expectedErrorCondition + ", but preprocessing succeeded unless " + errorCondition,
+                        "Expected error IF " + expectedErrorCondition + ", but preprocessing succeeded IF " + errorCondition.not(),
                         errorCondition.equivalentTo(expectedErrorCondition));
             }
             if (line.trim().equals("print")) {

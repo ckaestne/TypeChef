@@ -1,12 +1,10 @@
-package de.fosd.typechef.xtc
+package de.fosd.typechef.lexer.xtc
 
 import de.fosd.typechef.featureexpr.{FeatureExpr, FeatureExprFactory}
 import de.fosd.typechef.xtclexer.XtcFExprAnalyzer
 import org.junit.{Assert, Test}
 
-/**
- * Created by ckaestne on 11/28/14.
- */
+
 class XtcFExprAnalyzerTest {
 
     private def assertExpr(s: String, f: FeatureExpr): Unit = {

@@ -172,7 +172,7 @@ public class XtcFileTest extends AbstractCheckTests {
         testFile("test_div_by_zero3.c");
     }
 
-    @Test
+    @Test@Ignore("division by zero reported in all configurations, xtc bug")
     public void testDivByZero4() throws LexerException, IOException {
         testFile("test_div_by_zero4.c",true);
     }
