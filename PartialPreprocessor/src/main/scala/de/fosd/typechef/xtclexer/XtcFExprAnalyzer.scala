@@ -17,7 +17,7 @@ class XtcFExprAnalyzer {
         val parseResult = p.parse(p.phrase(p.expr), xtcCondition)
         parseResult match {
             case p.Success(r: Expr, _) => r.toFExpr
-            case p.NoSuccess(msg, _) => throw new RuntimeException(s"parsing error: $msg when parsing $xtcCondition")
+            case p.NoSuccess(msg, _) => throw new RuntimeException(s"parsing error: $msg when parsing feature name $xtcCondition produced by xtc")
         }
 
     }
@@ -25,14 +25,18 @@ class XtcFExprAnalyzer {
     private class XtcExprParser extends RegexParsers {
         override type Elem = Char
 
-        def expr: Parser[Expr] = feature | ite | comp | lit
+        def expr: Parser[Expr] = feature | ite | comp | lit | featurename
         def feature: Parser[Expr] = "(" ~ "defined" ~> fid <~ ")" ^^ Feature
-        def lit: Parser[Expr] = """[0-9]*""".r ^^ Lit
+        def lit: Parser[Expr] = """[0-9]+""".r ^^ Lit
         def ite: Parser[Expr] = "(" ~> expr ~ "?" ~ expr ~ ":" ~ expr <~ ")" ^^ { case i ~ _ ~ t ~ _ ~ e => ITE(i, t, e)}
         def comp: Parser[Expr] = "(" ~> expr ~ ops ~ expr <~ ")" ^^ { case l ~ op ~ r => Comp(l, op, r)}
         def ops = "==" | "!=" | ">=" | "<=" | ">" | "<" | "<<" | ">>" | "+" | "-" | "*" | "/"
+        def featurename: Parser[Expr] = fid ^^ { f=>
+            System.err.println(s"found $f expected literal. assuming 0")
+            Lit("0")
+        }
 
-        def fid = """[A-Za-z0-9]*""".r
+        def fid = """[A-Za-z0-9_]+""".r
 
     }
 

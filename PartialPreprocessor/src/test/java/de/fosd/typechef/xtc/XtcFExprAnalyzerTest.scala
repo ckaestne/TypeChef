@@ -19,4 +19,10 @@ class XtcFExprAnalyzerTest {
         assertExpr(" (((defined X)?3:0) == 3)", d("X"))
     }
 
+    @Test def testInvalid: Unit = {
+        //should produce a warning and substitute constant by 0
+        assertExpr("BLK_MAX_CDB", FeatureExprFactory.False)
+        assertExpr("(16 > BLK_MAX_CDB)", FeatureExprFactory.True)
+    }
+
 }
