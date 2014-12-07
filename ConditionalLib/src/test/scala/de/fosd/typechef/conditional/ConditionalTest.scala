@@ -20,6 +20,8 @@ class ConditionalTest {
 
     }
 
+
+
     @Test
     def testFold {
         assertEquals(
@@ -164,15 +166,19 @@ class ConditionalTest {
 
     @Test
     def testFoldCondition {
-        val l = List(Opt(fa, 1), Opt(fa.not(), 2), Opt(fa.not(), 3))
-        val r = vfoldRight(l, One("-"), True, (f: FeatureExpr, a: Int, b: String) => {
+        val list = List(Opt(fa, 1), Opt(fa.not(), 2), Opt(fa.not(), 3))
+        val r = vfoldRight(list, One("-"), True, (f: FeatureExpr, a: Int, b: String) => {
             assert(!f.isTautology());
-            println(f + ", " + a + ", " + b);
             One(a.toString + b)
         })
-        println(r)
-
         assertEquals(Choice(fa.not, One("23-"), One("1-")), r)
+
+
+        val l = vfoldLeft(list, One("-"), True, (f: FeatureExpr, b: String, a: Int) => {
+            assert(!f.isTautology());
+            One(a.toString + b)
+        })
+        assertEquals(Choice(fa, One("1-"), One("32-")), l)
     }
 
     @Test
@@ -254,4 +260,52 @@ class ConditionalTest {
         assertEquals(False, (Choice(fa, Choice(fb, One(false), One(false)), One(false))).when(identity))
         assertEquals((fa and fb) or (fa.not and fb.not), (Choice(fa, Choice(fb, One(true), One(false)), Choice(fb, One(false), One(true)))).when(identity))
     }
+
+    @Test def testEquality {
+        assertEquals(One(1), One(1))
+        assertNotEquals(One(1), One(2))
+        assertEquals(Choice(fa, One(1), One(2)), Choice(fa, One(1), One(2)))
+        assertNotEquals(Choice(fa, One(1), One(2)), Choice(fa, One(1), One(3)))
+        assertNotEquals(Choice(fa, One(1), One(2)), Choice(fb, One(1), One(2)))
+
+        assertEquals(Opt(fa, 1), Opt(fa, 1))
+        assertNotEquals(Opt(fa, 2), Opt(fa, 1))
+        assertNotEquals(Opt(fa.not, 1), Opt(fa, 1))
+        assertTrue(Opt(fa equiv fb, 1) equivalentTo  Opt(fb equiv fa, 1))
+    }
+
+    @Test def testOpt: Unit = {
+        assertEquals(Opt(fa and fb, 1), Opt(fa, 1) and fb)
+        assertEquals(Opt(fa , 1), Opt(fa, 1) and null)
+        assertEquals(Opt(fa andNot fb, 1), Opt(fa, 1) andNot fb)
+        assertEquals(Opt(fa , 1), Opt(fa, 1) andNot null)
+        assertEquals(Opt(fa, 2), Opt(fa, 1).map(_+1))
+    }
+    @Test def testExists {
+        assertEquals(true, Choice(fa, One(1), One(2)).exists(_ > 1))
+        assertEquals(false, Choice(fa, One(1), One(2)).exists(_ > 2))
+    }
+    @Test def testFlatten {
+        assertEquals(6, Choice(fa, One(1), Choice(fb, One(2),One(3))).flatten((f,a,b)=>a+b))
+    }
+
+    @Test def testToList {
+        assertEquals(List((fa, 1), (fa.not and fb, 2), (fa.not andNot fb, 3)), Choice(fa, One(1), Choice(fb, One(2),One(3))).toList)
+        assertEquals(List(Opt(fa, 1), Opt(fa.not and fb, 2), Opt(fa.not andNot fb, 3)), Choice(fa, One(1), Choice(fb, One(2),One(3))).toOptList)
+    }
+
+    @Test def testCombine {
+        assertEquals(One(1), ConditionalLib.combine(One(One(1))))
+        assertEquals(Choice(fa, One(1), One(2)), ConditionalLib.combine(One(Choice(fa, One(1), One(2)))))
+        assertEquals(Choice(fa, One(1), One(2)), ConditionalLib.combine(Choice(fa, One(One(1)), One(One(2)))))
+        assertEquals(Choice(fb, Choice(fa, One(1), One(2)), Choice(fa, One(1), One(3))), ConditionalLib.combine(Choice(fb, One(Choice(fa, One(1), One(2))), One(Choice(fa, One(1), One(3))))))
+    }
+
+
+    @Test def testFlatten2 {
+        assertEquals(List(Opt(True, 1), Opt(fb and fa, 2), Opt(fb andNot fa, 3)),
+            ConditionalLib.flatten(List(Opt(True, One(1)), Opt(fb, Choice(fa, One(2), One(3))))))
+    }
+
+
 }

@@ -164,7 +164,7 @@ object ConditionalLib {
      */
     def flatten[T](optList: List[Opt[Conditional[T]]]): List[Opt[T]] = {
         var result: ListBuffer[Opt[T]] = ListBuffer()
-        for (Opt(f, e) <- optList.reverse) {
+        for (Opt(f, e) <- optList) {
             result ++= e._toList(f).map(x => Opt(x._1, x._2))
         }
         result.toList
