@@ -1,10 +1,10 @@
 package de.fosd.typechef.typesystem
 
 
-import _root_.de.fosd.typechef.parser.c._
-import _root_.de.fosd.typechef.conditional._
-import _root_.de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
+import de.fosd.typechef.conditional._
 import de.fosd.typechef.error._
+import de.fosd.typechef.featureexpr.{FeatureExpr, FeatureExprFactory}
+import de.fosd.typechef.parser.c._
 
 /**
  * typing C expressions
@@ -19,7 +19,6 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
     def getExprType(expr: Expr, featureExpr: FeatureExpr, env: Env): Conditional[CType] = {
         getExprTypeRec(expr, featureExpr, env)
     }
-
 
 
     def getExprTypeRec(expr: Expr, featureExpr: FeatureExpr, env: Env, recurse: Boolean = false): Conditional[CType] = {
@@ -151,7 +150,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                         val providedParameterTypes: List[Opt[Conditional[CType]]] = parameterExprs.map({
                             case Opt(f, e) => Opt(f, etF(e, featureExpr and f, env.markSecurityRelevant(hasSecurityRelevantFunction, "sensitive function parameters")))
                         })
-                        parameterExprs.foreach(x => getExprTypeRec(x.entry, featureExpr.and(x.condition), env))
+                        //                        parameterExprs.foreach(x => getExprTypeRec(x.entry, featureExpr.and(x.condition), env)) // redundant to previous statement
 
                         val providedParameterTypesExploded: Conditional[List[CType]] = ConditionalLib.explodeOptList(ConditionalLib.flatten(providedParameterTypes))
                         ConditionalLib.vmapCombinationOp(functionType, providedParameterTypesExploded, featureExpr,
@@ -299,24 +298,11 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                         t
 
                     case LcurlyInitializer(inits) => One(CCompound().toCType.toObj) //TODO more specific checks, currently just use CCompound which can be cast into any structure or array
-                    case a:GnuAsmExpr =>
+                    case a: GnuAsmExpr =>
                         One(CIgnore()) //don't care about asm now
                     case BuiltinOffsetof(typename, offsetDesignators) =>
                         // no type checking, but tracking of def-use relationship as far as reasonably possible
-                        typename.specifiers.foreach(x => {
-                            x match {
-                                case Opt(ft, TypeDefTypeSpecifier(name)) =>
-                                    addTypeUse(name, env, ft)
-                                case Opt(ft, StructOrUnionSpecifier(isUnion, Some(i: Id), _, _, _)) =>
-                                    offsetDesignators.foreach(x => x match {
-                                        case Opt(ft, OffsetofMemberDesignatorID(offsetId: Id)) =>
-                                            addStructUse(offsetId, ft, env, i.name, isUnion)
-                                        case _ =>
-                                    })
-                                    addStructDeclUse(i, env, isUnion, ft)
-                                case _ =>
-                            }
-                        })
+                        addTypenameUse(typename, offsetDesignators, env)
                         One(CSigned(CInt()))
                     case c: BuiltinTypesCompatible => One(CSigned(CInt())) //http://www.delorie.com/gnu/docs/gcc/gcc_81.html
                     case b@BuiltinVaArgs(expr, typename) =>
@@ -563,6 +549,26 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
             case _ =>
         }
     }
+
+
+    /**
+     * helper function for CDeclUse
+     */
+    def addTypenameUse(typename: TypeName, offsetDesignators: List[Opt[OffsetofMemberDesignator]], env: Env) =
+        typename.specifiers.foreach(x => {
+            x match {
+                case Opt(ft, TypeDefTypeSpecifier(name)) =>
+                    addTypeUse(name, env, ft)
+                case Opt(ft, StructOrUnionSpecifier(isUnion, Some(i: Id), _, _, _)) =>
+                    offsetDesignators.foreach(x => x match {
+                        case Opt(ft, OffsetofMemberDesignatorID(offsetId: Id)) =>
+                            addStructUse(offsetId, ft, env, i.name, isUnion)
+                        case _ =>
+                    })
+                    addStructDeclUse(i, env, isUnion, ft)
+                case _ =>
+            }
+        })
 
 
     /**

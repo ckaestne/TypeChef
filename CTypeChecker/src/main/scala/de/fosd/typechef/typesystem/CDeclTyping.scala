@@ -1,53 +1,11 @@
 package de.fosd.typechef.typesystem
 
 
-import de.fosd.typechef.conditional._
-import ConditionalLib._
-import _root_.de.fosd.typechef.parser.c._
-import _root_.de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
-import de.fosd.typechef.parser.c.AttributeSequence
-import de.fosd.typechef.parser.c.PlainParameterDeclaration
-import de.fosd.typechef.parser.c.UnsignedSpecifier
-import de.fosd.typechef.parser.c.EnumSpecifier
-import de.fosd.typechef.parser.c.VarArgs
-import scala.Some
-import de.fosd.typechef.parser.c.TypeDefTypeSpecifier
-import de.fosd.typechef.parser.c.VoidSpecifier
-import de.fosd.typechef.parser.c.DoubleSpecifier
-import de.fosd.typechef.conditional.One
-import de.fosd.typechef.parser.c.DeclParameterDeclList
-import de.fosd.typechef.parser.c.Pointer
-import de.fosd.typechef.parser.c.CharSpecifier
-import de.fosd.typechef.parser.c.Id
-import de.fosd.typechef.parser.c.ShortSpecifier
-import de.fosd.typechef.conditional.Opt
-import de.fosd.typechef.parser.c.TypeOfSpecifierU
-import de.fosd.typechef.parser.c.LongSpecifier
-import de.fosd.typechef.parser.c.GnuAttributeSpecifier
-import de.fosd.typechef.parser.c.StructInitializer
-import de.fosd.typechef.parser.c.ParameterDeclarationAD
-import de.fosd.typechef.parser.c.StructDeclarator
-import de.fosd.typechef.parser.c.TypedefSpecifier
-import de.fosd.typechef.parser.c.AtomicNamedDeclarator
-import de.fosd.typechef.parser.c.OtherPrimitiveTypeSpecifier
-import de.fosd.typechef.parser.c.StructOrUnionSpecifier
-import de.fosd.typechef.parser.c.ExternSpecifier
-import de.fosd.typechef.conditional.Choice
-import de.fosd.typechef.parser.c.AtomicAttribute
-import de.fosd.typechef.parser.c.DeclArrayAccess
-import de.fosd.typechef.parser.c.Declaration
-import de.fosd.typechef.parser.c.NestedAbstractDeclarator
-import de.fosd.typechef.parser.c.DeclIdentifierList
-import de.fosd.typechef.parser.c.TypeOfSpecifierT
-import de.fosd.typechef.parser.c.SignedSpecifier
-import de.fosd.typechef.parser.c.StructDeclaration
-import de.fosd.typechef.parser.c.IntSpecifier
-import de.fosd.typechef.parser.c.ParameterDeclarationD
-import de.fosd.typechef.parser.c.TypeName
-import de.fosd.typechef.parser.c.AtomicAbstractDeclarator
-import de.fosd.typechef.parser.c.NestedNamedDeclarator
-import de.fosd.typechef.parser.c.FloatSpecifier
+import _root_.de.fosd.typechef.featureexpr.{FeatureExpr, FeatureExprFactory}
+import de.fosd.typechef.conditional.ConditionalLib._
+import de.fosd.typechef.conditional.{Choice, One, Opt, _}
 import de.fosd.typechef.error._
+import de.fosd.typechef.parser.c.{AtomicAbstractDeclarator, AtomicAttribute, AtomicNamedDeclarator, AttributeSequence, CharSpecifier, DeclArrayAccess, DeclIdentifierList, DeclParameterDeclList, Declaration, DoubleSpecifier, EnumSpecifier, ExternSpecifier, FloatSpecifier, GnuAttributeSpecifier, Id, IntSpecifier, LongSpecifier, NestedAbstractDeclarator, NestedNamedDeclarator, OtherPrimitiveTypeSpecifier, ParameterDeclarationAD, ParameterDeclarationD, PlainParameterDeclaration, Pointer, ShortSpecifier, SignedSpecifier, StructDeclaration, StructDeclarator, StructInitializer, StructOrUnionSpecifier, TypeDefTypeSpecifier, TypeName, TypeOfSpecifierT, TypeOfSpecifierU, TypedefSpecifier, UnsignedSpecifier, VarArgs, VoidSpecifier, _}
 
 /**
  * parsing types from declarations (top level declarations, parameters, etc)
@@ -150,12 +108,9 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface with CDeclU
                 else
                     types = types :+ One(CAnonymousStruct(parseStructMembers(members.getOrElse(Nil), featureExpr, env), isUnion).toCType)
             case e@TypeDefTypeSpecifier(i@Id(typedefname)) => {
-
-                /**
-                 * CDeclUse:
-                 * Add typedef usage to usages.
-                 */
+                // CDeclUse: Add typedef usage to usages.
                 addTypeUse(i, env, featureExpr)
+
                 val typedefEnvironment = env.typedefEnv
                 //typedef name can be shadowed by variable
                 val shadow = env.varEnv(typedefname).simplify(featureExpr)
@@ -205,7 +160,7 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface with CDeclU
             types = types :+ One(CDouble().toCType)
         if (has(FloatSpecifier()))
             types = types :+ One(CFloat().toCType)
-        if ((isSigned || isUnsigned || has(IntSpecifier())) && !has(ShortSpecifier()) && !has(LongSpecifier())  && !has(Int128Specifier()) && !has(CharSpecifier()))
+        if ((isSigned || isUnsigned || has(IntSpecifier())) && !has(ShortSpecifier()) && !has(LongSpecifier()) && !has(Int128Specifier()) && !has(CharSpecifier()))
             types = types :+ sign(CInt())
         if (has(OtherPrimitiveTypeSpecifier("_Bool")))
             types = types :+ One(CBool().toCType)
@@ -348,24 +303,13 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface with CDeclU
             case EnumSpecifier(optId, Some(enums)) =>
                 for (Opt(f2, enum) <- enums) {
                     enum.assignment.map(checkEnumInitializer(_, f and f2 and featureExpr, localEnv))
-
-                    /**
-                     * CDeclUse:
-                     * Add enum member Ids to Declarations
-                     */
-                    addDefinition(enum.id, env, f and f2 and featureExpr)
+                    addDefinition(enum.id, env, f and f2 and featureExpr) // CDeclUse: Add enum member Ids to Declarations
                     localEnv = localEnv.addVar(enum.id.name, featureExpr and f and f2, enum, One(CSigned(CInt()).toCType), KEnumVar, env.scope, One(NoLinkage))
                     result = (enum.id.name, featureExpr and f and f2, enum, One(CSigned(CInt()).toCType), KEnumVar, One(NoLinkage)) :: result
                 }
             //recurse into structs
             case EnumSpecifier(Some(i: Id), None) =>
-
-                /**
-                 * CDeclUse:
-                 * Add enum usage to usages
-                 */
-                addEnumUse(i, env, featureExpr)
-                result
+                addEnumUse(i, env, featureExpr) // CDeclUse: Add enum usage to usages
             case StructOrUnionSpecifier(_, _, fields, _, _) =>
                 for (Opt(f2, structDeclaration) <- fields.getOrElse(Nil))
                     result = result ++ enumDeclarations(structDeclaration.qualifierList, featureExpr and f and f2, structDeclaration, env)

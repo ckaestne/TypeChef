@@ -1,8 +1,8 @@
 package de.fosd.typechef.typesystem
 
-import _root_.de.fosd.typechef.featureexpr._
-import _root_.de.fosd.typechef.conditional._
-import _root_.de.fosd.typechef.parser.c._
+import de.fosd.typechef.conditional._
+import de.fosd.typechef.featureexpr._
+import de.fosd.typechef.parser.c._
 import de.fosd.typechef.error._
 
 /**
@@ -648,22 +648,12 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
     private def checkTypeSpecifier(specifier: Specifier, expr: FeatureExpr, env: Env) {
         specifier match {
             case TypeDefTypeSpecifier(name) =>
-
-                /**
-                 * CDeclUse:
-                 * Add typdef usage to usages.
-                 */
                 val declExpr = env.typedefEnv.whenDefined(name.name)
                 if ((expr andNot declExpr).isSatisfiable())
                     reportTypeError(expr andNot declExpr, "Type " + name.name + " not defined. (defined only in context " + declExpr + ")", specifier, Severity.TypeLookupError)
 
             case EnumSpecifier(Some(id), None) =>
-
-                /**
-                 * CDeclUse:
-                 * Add enum usage to usages.
-                 */
-                addEnumUse(id, env, expr)
+                addEnumUse(id, env, expr) //CDeclUse: Add enum usage to usages.
             // Not checking enums anymore, since they are only enforced by compilers in few cases (those cases are hard to distinguish, gcc is not very close to the standard here)
             //                val declExpr = env.enumEnv.getOrElse(id.name, FeatureExprFactory.False)
             //                if ((expr andNot declExpr).isSatisfiable)
