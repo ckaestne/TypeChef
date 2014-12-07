@@ -1,8 +1,8 @@
 package de.fosd.typechef.typesystem
 
-import _root_.de.fosd.typechef.parser.c._
-import _root_.de.fosd.typechef.conditional._
-import _root_.de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
+import de.fosd.typechef.conditional._
+import de.fosd.typechef.featureexpr.{FeatureExpr, FeatureExprFactory}
+import de.fosd.typechef.parser.c._
 
 trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTyping {
 
@@ -74,39 +74,23 @@ trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTypi
 
     def addStructDeclarationToEnv(specifier: Specifier, featureExpr: FeatureExpr, initEnv: Env, declareIncompleteTypes: Boolean): Env = specifier match {
         case e@StructOrUnionSpecifier(isUnion, Some(i@Id(name)), Some(attributes), _, _) => {
-            //for parsing the inner members, the struct itself is available incomplete
+            /**
+             * CDeclUse:
+             * Struct declaration to an existing struct forward declaration in a context where
+             * Struct declaration context implies forward declaration context
+             */
+            val isAlreadyDefined = initEnv.structEnv.whenHasDefinitionWithId(name, isUnion)
+            addStructRedeclaration(initEnv, i, featureExpr and isAlreadyDefined, isUnion)
+            addStructDefinition(i, initEnv, featureExpr andNot isAlreadyDefined) //CDeclUse: Struct declaration
 
-            val isAlreadyDefined = initEnv.structEnv.someDefinition(name, isUnion, featureExpr)
-            val isDefinedInImpliedContext = initEnv.structEnv.someImpliedDefinition(name, isUnion, featureExpr)
-            if (!isAlreadyDefined && isDefinedInImpliedContext) {
-                /**
-                 * CDeclUse:
-                 * Struct declaration to an existing struct forward declaration in a context where
-                 * Struct declaration context implies forward declaration context
-                 */
-                addStructRedeclaration(initEnv, i, featureExpr, isUnion)
-            }
-            if (!isAlreadyDefined) {
-                /**
-                 * CDeclUse:
-                 * Struct declaration
-                 */
-                addStructDefinition(i, initEnv, featureExpr)
-            }
+            //for parsing the inner members, the struct itself is available incomplete
             var env = initEnv.updateStructEnv(initEnv.structEnv.addIncomplete(i, isUnion, featureExpr, initEnv.scope))
             attributes.foreach(x => addDefinition(x.entry, env))
             val members = parseStructMembers(attributes, featureExpr, env)
 
-            isDefinedInImpliedContext & isAlreadyDefined
             //collect inner struct declarations recursively
             env = addInnerStructDeclarationsToEnv(attributes, featureExpr, env)
-            if (isAlreadyDefined) {
-                /**
-                 * CDeclUse:
-                 * Struct redeclaration
-                 */
-                addStructRedeclaration(initEnv, i, featureExpr, isUnion)
-            }
+            addStructRedeclaration(initEnv, i, featureExpr and isAlreadyDefined, isUnion) //CDeclUse: Struct redeclaration
             checkStructRedeclaration(name, isUnion, featureExpr, env.scope, env, e)
 
 
@@ -118,19 +102,10 @@ trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTypi
             var env = initEnv.updateStructEnv(initEnv.structEnv.addIncomplete(i, isUnion, featureExpr, initEnv.scope))
 
             if (declareIncompleteTypes) {
-                if (initEnv.structEnv.someDefinition(name, isUnion, featureExpr)) {
-                    /**
-                     * CDeclUse:
-                     * Struct usage
-                     */
-                    addStructDeclUse(i, initEnv, isUnion, featureExpr)
-                } else {
-                    /**
-                     * CDeclUse:
-                     * Struct declaration
-                     */
-                    addStructDefinition(i, initEnv, featureExpr)
-                }
+                //CDeclUse: Struct usage and declaration
+                val isAlreadyDefined = initEnv.structEnv.whenHasDefinitionWithId(name, isUnion)
+                addStructDeclUse(i, initEnv, isUnion, featureExpr and isAlreadyDefined)
+                addStructDefinition(i, initEnv, featureExpr andNot isAlreadyDefined)
                 env
             } else {
                 addStructDeclUse(i, initEnv, isUnion, featureExpr)
