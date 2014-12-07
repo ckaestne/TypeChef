@@ -146,11 +146,11 @@ trait CEnv {
         def someDefinition(name: String, isUnion: Boolean): Boolean = env contains(name, isUnion)
 
         def someDefinition(name: String, isUnion: Boolean, feature: FeatureExpr): Boolean = {
-            (env contains(name, isUnion)) && env.get(name, isUnion).get.toList.exists(x => (x._1.equivalentTo(feature)) && (x._2.id != None))
+            (env contains(name, isUnion)) && env(name, isUnion).toList.exists(x => (x._1.equivalentTo(feature)) && (x._2.id != None))
         }
 
         def someImpliedDefinition(name: String, isUnion: Boolean, feature: FeatureExpr): Boolean = {
-            (env contains(name, isUnion)) && env.get(name, isUnion).get.toList.exists(x => (x._1.equivalentTo(FeatureExprFactory.True) || x._1.implies(feature).isTautology()) && (x._2.id != None))
+            (env contains(name, isUnion)) && env(name, isUnion).toList.exists(x => (x._1.equivalentTo(FeatureExprFactory.True) || x._1.implies(feature).isTautology()) && (x._2.id != None))
         }
 
         def getId(name: String, isUnion: Boolean): Conditional[Id] = {
