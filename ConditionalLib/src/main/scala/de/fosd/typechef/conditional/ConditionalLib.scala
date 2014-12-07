@@ -3,6 +3,8 @@ package de.fosd.typechef.conditional
 import de.fosd.typechef.featureexpr.FeatureExprFactory.True
 import de.fosd.typechef.featureexpr.{FeatureExpr, FeatureExprFactory}
 
+import scala.collection.mutable.ListBuffer
+
 /**
  * maintains a map
  * a name may be mapped to alternative entries with different feature expressions
@@ -161,16 +163,11 @@ object ConditionalLib {
      * helper function to flatten optlists of conditionals into optlists without conditionals
      */
     def flatten[T](optList: List[Opt[Conditional[T]]]): List[Opt[T]] = {
-        var result: List[Opt[T]] = List()
-        for (e <- optList.reverse) {
-            e.entry match {
-                case Choice(f, a, b) =>
-                    result = flatten(List(Opt(e.condition and f, a))) ++ flatten(List(Opt(e.condition and (f.not), b))) ++ result;
-                case One(a) =>
-                    result = Opt(e.condition, a) :: result;
-            }
+        var result: ListBuffer[Opt[T]] = ListBuffer()
+        for (Opt(f, e) <- optList.reverse) {
+            result ++= e._toList(f).map(x => Opt(x._1, x._2))
         }
-        result
+        result.toList
     }
 
 
