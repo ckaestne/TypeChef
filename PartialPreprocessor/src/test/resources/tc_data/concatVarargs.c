@@ -1,6 +1,6 @@
-#ifndef pr_fmt
+//#ifndef pr_fmt
 #define pr_fmt(fmt) fmt
-#endif
+//#endif
 
 //From Linux 2.6.33.3, include/net/ip_vs.h:
 #define __KERNEL__
