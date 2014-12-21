@@ -1,33 +1,34 @@
-package de.fosd.typechef.lexer.macrotable
+package de.fosd.typechef.lexer
 
-import java.net.URL
+import java.io.{File, FileInputStream}
 import java.util.Collections
 
 import de.fosd.typechef.VALexer
+import de.fosd.typechef.VALexer.StreamSource
 import de.fosd.typechef.conditional.Conditional
-import de.fosd.typechef.lexer.{Feature, LexerFrontend}
+import de.fosd.typechef.lexer.macrotable.MacroFilter
 
 
 trait LexerHelper {
     import scala.collection.JavaConversions._
 
-    protected def lex(uri: URL,
-                      folder: String,
+    protected def lex(file: File,
+                      incDir: File,
                       debug: Boolean = false,
                       ignoreWarnings: Boolean = true,
                       definedMacros: Map[String, String] = Map(),
                       undefMacros: Set[String] = Set()
                          ): Conditional[LexerFrontend.LexerResult] =
-        lex(new VALexer.StreamSource(uri.openStream(), uri.getFile), debug, getClass.getResource("/" + folder).toURI.getPath, ignoreWarnings, definedMacros, undefMacros)
+        lex(new StreamSource(new FileInputStream(file),file.getAbsolutePath), debug, incDir, ignoreWarnings, definedMacros, undefMacros)
 
-    protected def lex(source: VALexer.LexerInput, debug: Boolean, folder: String, ignoreWarnings: Boolean,
+    protected def lex(source: VALexer.LexerInput, debug: Boolean, folder: File, ignoreWarnings: Boolean,
                       definedMacros: Map[String, String], undefMacros: Set[String]): Conditional[LexerFrontend.LexerResult] = {
         return new LexerFrontend().run(new LexerFrontend.DefaultLexerOptions(source, debug, null) {
             override def isReturnLanguageTokensOnly: Boolean = {
                 return false
             }
             override def getIncludePaths: java.util.List[String] = {
-                return Collections.singletonList(folder)
+                return Collections.singletonList(folder.getAbsolutePath)
             }
             override def isHandleWarningsAsErrors: Boolean = {
                 return !ignoreWarnings
@@ -56,5 +57,4 @@ trait LexerHelper {
     }
     protected def useXtc(): Boolean
     protected def useMacroFilter: MacroFilter = return new MacroFilter
-    protected def getFolder(): String = "tc_data"
 }
