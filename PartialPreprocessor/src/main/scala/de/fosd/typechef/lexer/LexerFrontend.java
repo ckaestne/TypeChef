@@ -95,6 +95,11 @@ public class LexerFrontend {
         public String getPositionStr() {
             return getFile() + ":" + getLine() + ":" + getColumn();
         }
+
+        @Override
+        public String toString() {
+            return "Lexer Error: "+getMessage();
+        }
     }
 
 

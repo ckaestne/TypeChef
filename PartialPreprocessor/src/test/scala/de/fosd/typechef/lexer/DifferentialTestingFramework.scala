@@ -36,7 +36,7 @@ trait DifferentialTestingFramework extends LexerHelper {
 
         status(s"lexing all configurations for $file")
         val vresult = lex(file, inclDirectory, debug, ignoreWarnings)
-        assert(expectTotalFailure(fileContent) || hasSuccess(vresult), "parsing failed in all configurations")
+        assert(expectTotalFailure(fileContent) || hasSuccess(vresult), "parsing failed in all configurations: "+vresult)
         val features = getFeatures(initFeatures, vresult)
         val maxFeatures = 8
         if (features.size > maxFeatures)

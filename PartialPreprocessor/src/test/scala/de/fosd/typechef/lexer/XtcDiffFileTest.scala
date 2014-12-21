@@ -65,5 +65,4 @@ class XtcDiffFileTest extends FunSuite with DifferentialTestingFramework {
             testFile(file)
         }
 
-    test("a"){testFile("nesting/m.c")}
 }
