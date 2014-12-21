@@ -6,7 +6,7 @@ import org.scalatest.FunSuite
 
 class XtcDiffFileTest extends FunSuite with DifferentialTestingFramework {
     override protected def useXtc(): Boolean = true
-    override protected def status(s: String) = info(s)
+    override protected def status(s: String) = info(s+" /xtc")
 
     val dir = new File(getClass.getResource("/tc_data").toURI)
     private def testFile(s: String): Unit = analyzeFile(new File(dir, s), dir)
