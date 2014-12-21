@@ -60,7 +60,7 @@ class JcppDiffFileTest extends FunSuite with DifferentialTestingFramework {
           |expandWithinExpand.c, throws conditional error where cpp works without complaints
         """.stripMargin.split("\\n").filter(_.trim.nonEmpty).map(l => {
             val p = l.indexOf(",");
-            (l.take(p).trim, l.drop(p).trim)
+            (l.take(p).trim, l.drop(p+1).trim)
         })
 
 

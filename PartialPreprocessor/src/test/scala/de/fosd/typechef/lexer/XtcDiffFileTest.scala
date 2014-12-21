@@ -51,7 +51,7 @@ class XtcDiffFileTest extends FunSuite with DifferentialTestingFramework {
           |ifcondition.c, unclear problem, va-lexing works, but lexing single configuration produces incorrect result
         """.stripMargin.split("\\n").filter(_.trim.nonEmpty).map(l => {
             val p = l.indexOf(",");
-            (l.take(p).trim, l.drop(p).trim)
+            (l.take(p).trim, l.drop(p+1).trim)
         })
 
 
