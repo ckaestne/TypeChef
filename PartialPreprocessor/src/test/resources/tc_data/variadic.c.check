@@ -1,2 +1,0 @@
-+1 fprintf (stderr, "%s:%d: ", input_file, lineno)
-+1 noprintf ("%s:%d: ", input_file, lineno)

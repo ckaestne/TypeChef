@@ -1,4 +1,0 @@
-print
-T CC1 with defined(X)
-T CC2 with !defined(X)
-! dead code
