@@ -137,7 +137,7 @@ trait DifferentialTestingFramework extends LexerHelper {
 
         val cppcmd = "cpp"
 
-        val cmd = cppcmd +" -I \""+folder.getAbsolutePath+"\" \""+file.getAbsolutePath + "\" " + definedMacros.map(v => "-D" + v._1 + "=" + v._2).mkString(" ") + " " + undefMacros.map("-U" + _).mkString(" ")
+        val cmd = cppcmd +" -I "+folder.getAbsolutePath+" "+file.getAbsolutePath + " " + definedMacros.map(v => "-D" + v._1 + "=" + v._2).mkString(" ") + " " + undefMacros.map("-U" + _).mkString(" ")
 
         var msg = ""
 //        println(cmd)
