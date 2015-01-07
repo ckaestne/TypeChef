@@ -8,7 +8,6 @@ import java.util.Collections
 import de.fosd.typechef.error.Position
 import de.fosd.typechef.conditional.{Choice, Opt}
 import de.fosd.typechef.lexer.LexerFrontend
-import sun.org.mozilla.javascript.Context
 
 object MyUtil {
     implicit def runnable(f: () => Unit): Runnable =
