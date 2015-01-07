@@ -12,6 +12,7 @@ import de.fosd.typechef.error.Position
  */
 
 trait ParserOptions {
+    def simplifyPresenceConditions : Boolean
     def printParserResult: Boolean
     def printParserStatistics: Boolean
 
@@ -23,10 +24,12 @@ trait ParserOptions {
 object DefaultParserOptions extends ParserOptions {
     def printParserResult = true
     def printParserStatistics = true
+    def simplifyPresenceConditions = false
 }
 
 
 object SilentParserOptions extends ParserOptions {
     def printParserResult = false
     def printParserStatistics = false
+    def simplifyPresenceConditions = false
 }

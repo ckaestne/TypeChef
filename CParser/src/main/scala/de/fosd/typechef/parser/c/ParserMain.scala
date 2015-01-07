@@ -6,8 +6,9 @@ import java.io.{FileWriter, File}
 import FeatureExprFactory.True
 import java.util.Collections
 import de.fosd.typechef.error.Position
-import de.fosd.typechef.conditional.Opt
+import de.fosd.typechef.conditional.{Choice, Opt}
 import de.fosd.typechef.lexer.LexerFrontend
+import sun.org.mozilla.javascript.Context
 
 object MyUtil {
     implicit def runnable(f: () => Unit): Runnable =
@@ -99,7 +100,51 @@ class ParserMain(p: CParser) {
 
 
         //return null (if parsing failed in all branches) or a single AST combining all parse results
-        mergeResultsIntoSingleAST(ctx, result)
+        val ast = mergeResultsIntoSingleAST(ctx, result)
+        if (parserOptions.simplifyPresenceConditions) {
+            if (FeatureExprFactory.default == FeatureExprFactory.bdd) {
+                simplifyPresenceConditions(ast, FeatureExprFactory.True)
+            } else {
+                print("\"-bdd\" option required to simplify AST presence conditions.\n")
+            }
+        }
+        ast
+    }
+    def simplifyPresenceConditions(p : Any, context: FeatureExpr) {
+        if (p.isInstanceOf[Product])
+            for ( i <- (0 to p.asInstanceOf[Product].productArity-1)) {
+                p.asInstanceOf[Product].productElement(i) match {
+                    case l: List[_] => {
+                        for (elem <- l) {
+                            if (elem.isInstanceOf[Opt[_]] ) {
+                                val o = elem.asInstanceOf[Opt[_]]
+                                val pc: FeatureExpr = o.condition
+                                if (!pc.isContradiction()) {
+                                    if (!pc.isTautology()) {
+                                        val newcontext = context.and(o.condition)
+                                        o.condition = o.condition.simplify(context)
+                                        simplifyPresenceConditions(o, newcontext)
+                                    } else {
+                                        // pc is no contradiction, but it is a tautology
+                                        simplifyPresenceConditions(o, context)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    case choiceNode@Choice(feature, thenBranch, elseBranch) => {
+                        val pc:FeatureExpr = feature
+                        if (! pc.isContradiction() && ! pc.isTautology())
+                            choiceNode.condition = choiceNode.condition.simplify(context)
+                        if (! pc.isContradiction())
+                            simplifyPresenceConditions(thenBranch,context.and(feature.and(context)))
+                        if (! pc.isTautology())
+                            simplifyPresenceConditions(elseBranch,context.and(feature.not().and(context)))
+                    }
+                    case d:Product => simplifyPresenceConditions(d,context)
+                    case d => //println("an unknown value "+d)
+                }
+            }
     }
 
     /**
