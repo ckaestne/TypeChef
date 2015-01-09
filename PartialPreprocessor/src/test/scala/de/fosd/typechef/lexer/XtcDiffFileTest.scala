@@ -13,7 +13,8 @@ class XtcDiffFileTest extends FunSuite with DifferentialTestingFramework {
 
 
     val filesToTest =
-        """alternDiffArities1.c  ifdefnumeric.c          numbers.c
+        """counter.c
+           alternDiffArities1.c  ifdefnumeric.c          numbers.c
                alternDiffArities2.c  in1.c                   out1.c
                alternativedef.c      in2.c                   selfdef.c
                beispielJoerg.c       includeguards.c         simplecompare.c
