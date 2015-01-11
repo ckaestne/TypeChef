@@ -6,7 +6,7 @@ import org.scalatest.FunSuite
 
 class XtcDiffFileTest extends FunSuite with DifferentialTestingFramework {
     override protected def useXtc(): Boolean = true
-    override protected def status(s: String) = info(s+" /xtc")
+    override protected def status(s: String) = info(s + " /xtc")
 
     val dir = new File(getClass.getResource("/tc_data").toURI)
     private def testFile(s: String): Unit = analyzeFile(new File(dir, s), dir)
@@ -46,23 +46,23 @@ class XtcDiffFileTest extends FunSuite with DifferentialTestingFramework {
     val ignoredFiles =
         """linebreaks.c, line breaks not implemented
           |test_div_by_zero2.c, incorrect evaluation order
-          |linebreaks2.c, warning in cpp failes in xtc
+          |linebreaks2.c, warning in cpp fails in xtc
           |filebasefile.c, test compares file paths in different formats
           |filebasefileheader.h, test compares file paths in different formats
           |ifcondition.c, unclear problem, va-lexing works, but lexing single configuration produces incorrect result
         """.stripMargin.split("\\n").filter(_.trim.nonEmpty).map(l => {
             val p = l.indexOf(",");
-            (l.take(p).trim, l.drop(p+1).trim)
+            (l.take(p).trim, l.drop(p + 1).trim)
         })
 
 
     for ((file, reason) <- ignoredFiles)
-        ignore(s"ignoring $file due to lexer bug: $reason") {
+        ignore(file.replace('.', '_') + " - ignored due to lexer bug: " + reason) {
             testFile(file)
         }
 
     for (file <- filesToTest)
-        test(s"differential testing of $file") {
+        test(file.replace('.', '_') + " - differential testing") {
             testFile(file)
         }
 
