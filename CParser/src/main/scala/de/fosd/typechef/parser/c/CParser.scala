@@ -415,7 +415,7 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = false) e
         }
 
     def castExpr: MultiParser[Expr] =
-        LPAREN ~~ typeName ~~ RPAREN ~~ (castExpr | lcurlyInitializer) ^^ {
+        LPAREN ~~ typeName ~~ RPAREN ~~ castExpr ^^ {
             case _ ~ t ~ _ ~ e => CastExpr(t, e)
         } | unaryExpr
 
@@ -542,6 +542,14 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = false) e
             c => SimplePostfixSuffix(c.getText)
         })
     )
+
+    //see ISO 9899:1999 6.5.2
+    //postfix-expression:
+    //  ...
+    //  ( type-name ) { initializer-list }
+    //  ( type-name ) { initializer-list , }
+    private def castAndInitializer = (LPAREN ~> typeName <~ RPAREN) ~ lcurlyInitializer  ^^ { case tn~init => CastExpr(tn, init) }
+
     //
     def functionCall: MultiParser[FunctionCall] =
         LPAREN ~> opt(argExprList) <~ RPAREN ^^ {
@@ -550,7 +558,8 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = false) e
         }
     //XXX allows trailing comma after argument list
 
-    def primaryExpr: MultiParser[Expr] = (textToken("__builtin_offsetof") ~ LPAREN ~! typeName ~ COMMA ~ offsetofMemberDesignator ~ RPAREN ^^ {
+    def primaryExpr: MultiParser[Expr] = castAndInitializer |
+        (textToken("__builtin_offsetof") ~ LPAREN ~! typeName ~ COMMA ~ offsetofMemberDesignator ~ RPAREN ^^ {
         case _ ~ _ ~ tn ~ _ ~ d ~ _ => BuiltinOffsetof(tn, d)
     }
         | (textToken("__builtin_types_compatible_p") ~ LPAREN ~ typeName ~ COMMA ~ typeName ~ RPAREN ^^ {
