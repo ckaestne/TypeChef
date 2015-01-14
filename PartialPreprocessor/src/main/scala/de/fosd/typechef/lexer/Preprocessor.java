@@ -316,7 +316,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable, VA
 
     protected void error(int line, int column, String msg)
             throws LexerException {
-        error(line,column, msg, null);
+        error(line, column, msg, null);
     }
     /**
      * Handles an error.
@@ -327,11 +327,11 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable, VA
     protected void error(int line, int column, String msg, FeatureExpr pc)
             throws LexerException {
 
-        if (pc ==null)
-            pc =  state.getFullPresenceCondition();
+        if (pc == null)
+            pc = state.getFullPresenceCondition();
         if (listener != null)
             listener.handleError(sourceManager.getSource().getName(), line, column, msg,
-                   pc);
+                    pc);
         else
             throw new LexerException("Error at " + line + ":" + column + ": "
                     + msg, pc);
@@ -355,9 +355,11 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable, VA
      * If a PreprocessorListener is installed, it receives the warning.
      * Otherwise, an exception is thrown.
      */
-    protected void warning(int line, int column, String msg)
+    protected void warning(int line, int column, String msg, FeatureExpr fexpr)
             throws LexerException {
-        FeatureExpr fexpr =  state.getFullPresenceCondition();
+        if (fexpr == null)
+            fexpr = FeatureExprLib.True();
+        fexpr = fexpr.and(state.getFullPresenceCondition());
         if (warnings.contains(Warning.ERROR))
             error(line, column, msg);
         else if (listener != null)
@@ -377,7 +379,11 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable, VA
      * @see #warning(int, int, String)
      */
     protected void warning(Token tok, String msg) throws LexerException {
-        warning(tok.getLine(), tok.getColumn(), msg);
+        warning(tok, msg, null);
+    }
+
+    protected void warning(Token tok, String msg, FeatureExpr fexpr) throws LexerException {
+        warning(tok.getLine(), tok.getColumn(), msg, fexpr);
     }
 
     /**
@@ -399,7 +405,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable, VA
         if ("defined".equals(name))
             throw new LexerException("Cannot redefine name 'defined'", state
                     .getFullPresenceCondition());
-        if (this.getSource()!=null)
+        if (this.getSource() != null)
             logAddMacro(name, feature, m, this.getSource());
         macros = macros.define(name, feature, m);
     }
@@ -899,7 +905,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable, VA
                 }
             } catch (ParseParamException e) {
                 e.printStackTrace();
-                warning(e.tok, e.errorMsg);
+                warning(e.tok, e.errorMsg, null);
                 return false;
             }
         }
@@ -1114,7 +1120,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable, VA
                     + " has " + expansion.getArgCount()
                     + " parameters (variadic: " + expansion.isVariadic() + ") for expansion under condition "
                     + macroExpansion.getFeature() + " but given " + args.size()
-                    + " args");
+                    + " args", macroExpansion.getFeature());
             return args;
         } else {
             return args;
@@ -1235,7 +1241,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable, VA
             warning(origInvokeTok,
                     "inline expansion of macro " + macroName
                             + " is not exaustive. assuming 0 for "
-                            + commonCondition.not());
+                            + commonCondition.not(), commonCondition.not());
             resultList.add(new UnnumberedUnexpandingTokenStreamSource(
                     Collections.singletonList(OutputHelper.zero())));
         }
@@ -1626,7 +1632,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable, VA
                         case EOF:
                             break HEADER;
                         default:
-                            warning(tok, "Unexpected token on #" + "include line");
+                            warning(tok, "Unexpected token on #" + "include line", null);
                             return source_skipline(false);
                     }
                 }

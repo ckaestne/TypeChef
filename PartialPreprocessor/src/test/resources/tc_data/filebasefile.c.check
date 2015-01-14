@@ -1,5 +1,0 @@
-print
-+1 tc_data/filebasefile.c":a
-+1 tc_data/filebasefile.c":b
-+1 tc_data/filebasefile.c":d
-+1 filebasefileheader.h":c

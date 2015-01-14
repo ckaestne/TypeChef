@@ -1,5 +1,0 @@
-print
-T CC1 with defined(X)
-T CC2 with defined(X)
-T CC3 with ((defined (__GNU_LIBRARY__) && defined (__USE_GNU)) || (!defined (__GNU_LIBRARY__) && !defined (__STRICT_ANSI__)))
-! dead code

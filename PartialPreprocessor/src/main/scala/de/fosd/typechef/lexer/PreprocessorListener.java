@@ -135,7 +135,7 @@ public class PreprocessorListener {
     /**
      * ordered list of errors occurring in the lexer and their conditions
      */
-    private final List<Pair<FeatureExpr, LexerFrontend.LexerError>> errorList = new ArrayList<>();
+    private final List<Pair<FeatureExpr, LexerFrontend.LexerError>> errorList = new ArrayList<Pair<FeatureExpr, LexerFrontend.LexerError>>();
 
     public FeatureExpr getInvalidConfigurations() {
         return invalidConfigurations;

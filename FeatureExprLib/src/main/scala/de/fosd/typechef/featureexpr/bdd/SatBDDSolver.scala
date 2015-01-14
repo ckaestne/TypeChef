@@ -132,9 +132,9 @@ class SatSolverImpl(featureModel: BDDFeatureModel) {
     val PROFILING = false
 
     /** init / constructor */
-    val solver = SolverFactory.newDefault();
-    //        solver.setTimeoutMs(1000);
-    solver.setTimeoutOnConflicts(100000)
+    val solver = SolverFactory.newDefault()
+    solver.setTimeoutMs(10000)
+//    solver.setTimeoutOnConflicts(100000)
 
     solver.addAllClauses(featureModel.clauses)
     var uniqueFlagIds: Map[String, Int] = featureModel.variables

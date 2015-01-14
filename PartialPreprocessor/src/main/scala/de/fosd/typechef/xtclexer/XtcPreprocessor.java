@@ -170,7 +170,7 @@ public class XtcPreprocessor implements VALexer {
         if (lexers == null) {
             assert (file == null) == (fileReader == null) : "no file given";
 
-            if (file != null)
+            if (file != null && file.getParentFile()!=null)
                 I.add(file.getParentFile().getAbsolutePath());
             lexers = LexerInterface.createLexer(commandLine.toString(), fileReader, file, exceptionErrorHandler, iquIncludes, I, sysIncludes, macroFilter);
             stack = new Stack<FeatureExpr>();

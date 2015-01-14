@@ -88,6 +88,7 @@ abstract class Conditional[+T] extends Product {
 
 
     def forall(f: T => Boolean): Boolean
+    def foreach[U](f: T => U): Unit
     def exists(f: T => Boolean): Boolean = !this.forall(!f(_))
     def toOptList: List[Opt[T]] = this.toList.map(o => Opt(o._1, o._2))
 
@@ -102,6 +103,18 @@ abstract class Conditional[+T] extends Product {
      * returns the condition when predicate f is true
      */
     def when(f: T => Boolean): FeatureExpr
+
+    /**
+     * given a configuration, returns the corresponding value for that configuration
+     *
+     * evaluates the conditions in choices for a given feature selection
+     * (all features not provided are assumed deselected)
+     * selectedFeatures provided as a list of names (how they would be created
+     * with createDefinedExternal)
+     *
+     * @see FeatureExpr.evaluate
+     */
+    def select(selectedFeatures: Set[String]): T
 }
 
 case class Choice[+T](condition: FeatureExpr, thenBranch: Conditional[T], elseBranch: Conditional[T]) extends Conditional[T] {
@@ -130,10 +143,14 @@ case class Choice[+T](condition: FeatureExpr, thenBranch: Conditional[T], elseBr
         Choice(condition, newResultA, newResultB)
     }
     def forall(f: T => Boolean): Boolean = thenBranch.forall(f) && elseBranch.forall(f)
-
+    def foreach[U](f: T => U): Unit = { thenBranch.foreach(f); elseBranch.foreach(f) }
     def when(f: T => Boolean): FeatureExpr = (thenBranch.when(f) and condition) or (elseBranch.when(f) andNot condition)
 
     override protected[conditional] def _toList(ctx: FeatureExpr): List[(FeatureExpr, T)] = thenBranch._toList(ctx and condition) ::: elseBranch._toList(ctx andNot condition)
+
+    def select(selectedFeatures: Set[String]): T =
+        if (condition.evaluate(selectedFeatures)) thenBranch.select(selectedFeatures)
+        else elseBranch.select(selectedFeatures)
 
 
     @deprecated("feature is a misleading name, use .condition instead", "0.4.0")
@@ -146,8 +163,10 @@ case class One[+T](value: T) extends Conditional[T] {
     def flatMap[U](f: T => Conditional[U]): Conditional[U] = f(value)
     def vflatMap[U](ctx: FeatureExpr, f: (FeatureExpr, T) => Conditional[U]): Conditional[U] = f(ctx, value)
     def forall(f: T => Boolean): Boolean = f(value)
+    def foreach[U](f: T => U): Unit = f(value)
 
     def when(f: T => Boolean): FeatureExpr = if (f(value)) True else False
 
     override protected[conditional] def _toList(ctx: FeatureExpr): List[(FeatureExpr, T)] = (ctx, value) :: Nil
+    def select(selectedFeatures: Set[String]): T = value
 }

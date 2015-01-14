@@ -1173,6 +1173,16 @@ void bar() {
     }
 
     @Test
+    def test_nouveaudrivers {
+        assertParseableAST(
+            """
+              |struct nouveau_oclass *
+              |nv04_instmem_oclass = &(struct nouveau_instmem_impl) {}.base;
+            """.stripMargin, p.translationUnit)
+    }
+
+
+    @Test
     def test_forunsigned {
         //based on a problem in uclibc; only working with a newer C standard C99 or GNUC99
         //        assertParseableAST("""for (unsigned int t = 0; t < 16; ++t);""".stripMargin , p.statement)

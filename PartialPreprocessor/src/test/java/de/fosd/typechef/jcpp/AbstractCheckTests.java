@@ -240,7 +240,7 @@ public class AbstractCheckTests {
 
             @Override
             public Set<Feature> getFeatures() {
-                Set<Feature> features = new HashSet<>();
+                Set<Feature> features = new HashSet<Feature>();
                 features.add(Feature.DIGRAPHS);
                 features.add(Feature.TRIGRAPHS);
                 features.add(Feature.LINEMARKERS);

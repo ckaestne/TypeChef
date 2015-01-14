@@ -1,5 +1,0 @@
-T printxa with defined(A) || defined(XA)
-T printxb with (defined(B) || defined(XB)) && (defined(XB) || !(defined(A)))
-T printxc with (defined(C) || defined(XC)) && (defined(XC) || !(defined(A))) && (defined(XC) || !(defined(B)))
-T printxd with (defined(XD) || !(defined(C))) && (defined(XD) || !(defined(A))) && (defined(XD) || !(defined(B)))
-T printglobal with (defined(A) || defined(GLOBAL) || defined(B) || defined(C))

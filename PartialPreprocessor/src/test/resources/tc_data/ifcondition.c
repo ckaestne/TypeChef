@@ -12,7 +12,7 @@
 
 #endif
 
-#if VAL == 3
+#if VAL != 3
 
   _X is defined CC2
 
@@ -24,6 +24,3 @@
 
 
 
-#if defined (__GNU_LIBRARY__) ? defined (__USE_GNU) : !defined (__STRICT_ANSI__)
-  other condition CC3
-#endif

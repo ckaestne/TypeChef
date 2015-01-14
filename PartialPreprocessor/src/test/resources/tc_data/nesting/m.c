@@ -10,7 +10,9 @@
 #include <nesting/hh1.h>
 
 #ifdef X
-x ist definiert
+x is defined
 #endif
 
-X
+xx
+
+

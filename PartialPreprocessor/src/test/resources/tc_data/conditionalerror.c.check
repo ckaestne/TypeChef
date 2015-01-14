@@ -1,6 +1,0 @@
-error A || B
-T outa with !(A||B)
-T oute with !(A||B)
-T outc with !(A||B)
-T outb with 0
-T outd with 0

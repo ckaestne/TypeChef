@@ -2,12 +2,12 @@
 #define X a
 
 #ifdef X
-    X should always be defined
+    x should always be defined
 	#undef X
 #endif
 
 #ifdef X
-    X should not be defined
+    x should not be defined
 #endif
 
 #ifdef A
@@ -19,5 +19,5 @@
 #endif
 
 #ifdef X
-	X should only be defined if A and not B
+	x should only be defined if <a> and not <b>
 #endif
