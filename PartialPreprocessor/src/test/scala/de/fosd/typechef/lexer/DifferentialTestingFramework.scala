@@ -57,7 +57,7 @@ trait DifferentialTestingFramework extends LexerHelper {
             assert(result.isInstanceOf[One[_]], "received conditional result when executing a single configuration??")
             val tokens = getTokensFromResult(result.asInstanceOf[One[LexerResult]].value)
 
-            compareTokenLists(configuredvtokens, tokens, config)
+            compareTokenLists(configuredvtokens, tokens, config, false)
 
             //compare against CPP
             status(s"comparing against cpp, configuration $config")
@@ -65,7 +65,7 @@ trait DifferentialTestingFramework extends LexerHelper {
             assert(cppresult.isInstanceOf[One[_]], "received conditional result when executing a single configuration??")
             val cpptokens = getTokensFromResult(cppresult.asInstanceOf[One[LexerResult]].value)
 
-            compareTokenLists(configuredvtokens, cpptokens, config)
+            compareTokenLists(configuredvtokens, cpptokens, config, true)
         }
 
     }
@@ -101,10 +101,11 @@ trait DifferentialTestingFramework extends LexerHelper {
             result.asInstanceOf[LexerSuccess].getTokens.toList.filter(_.isLanguageToken)
         else List()
 
-    def compareTokenLists(vlist: List[LexerToken], alist: List[LexerToken], config: Set[SingleFeatureExpr]): Unit = {
+    def compareTokenLists(vlist: List[LexerToken], alist: List[LexerToken], config: Set[SingleFeatureExpr], withCPP: Boolean): Unit = {
+        val msgWithCPP = if (withCPP) "(cpp)" else "(typechef)"
         lazy val msg = s" in config $config.\n" +
             s"variability-aware lexing: $vlist\n" +
-            s"lexing specific config:    $alist"
+            s"lexing specific config $msgWithCPP: $alist"
         assert(vlist.length == alist.length, "preprocessor produces output of different length" + msg)
 
         (vlist zip alist).foreach(
