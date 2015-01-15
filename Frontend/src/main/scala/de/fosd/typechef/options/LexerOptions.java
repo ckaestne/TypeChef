@@ -335,4 +335,9 @@ public abstract class LexerOptions extends Options implements ILexerOptions {
         return false;
     }
 
+    @Override
+    public boolean printLexerErrorsToStdErr() {
+        return true;
+    }
+
 }
