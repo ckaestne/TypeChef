@@ -58,7 +58,7 @@ trait DifferentialTestingFramework extends LexerHelper {
 
             //compare against CPP
             status(s"comparing against cpp, configuration $config")
-            val cppresult = /*tryAgainIfEmpty(*/() => lexcpp(file, inclDirectory, debug, ignoreWarnings, config.map(f => (f.feature -> "1")).toMap, (features -- config).map(_.feature))
+            val cppresult: Conditional[LexerFrontend.LexerResult] = /*tryAgainIfEmpty(() => */lexcpp(file, inclDirectory, debug, ignoreWarnings, config.map(f => (f.feature -> "1")).toMap, (features -- config).map(_.feature))
             assert(cppresult.isInstanceOf[One[_]], "received conditional result when executing a single configuration??")
             val cpptokens = getTokensFromResult(cppresult.asInstanceOf[One[LexerResult]].value)
 
