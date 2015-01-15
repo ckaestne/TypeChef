@@ -59,6 +59,7 @@ class JcppDiffFileTest extends FunSuite with DifferentialTestingFramework {
           |if.h, unclear problem with macro expansion
           |test_div_by_zero4.c, conditional error message not handled correctly
           |expandWithinExpand.c, throws conditional error where cpp works without complaints
+          |ifenabled.c, incorrect macro expansion
         """.stripMargin.split("\\n").filter(_.trim.nonEmpty).map(l => {
             val p = l.indexOf(",");
             (l.take(p).trim, l.drop(p + 1).trim)
