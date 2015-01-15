@@ -3,7 +3,7 @@ package de.fosd.typechef.typesystem
 import _root_.de.fosd.typechef.conditional._
 import _root_.de.fosd.typechef.featureexpr.FeatureExprFactory._
 import _root_.de.fosd.typechef.parser.c._
-import org.scalatest.{Matchers, FunSuite}
+import org.scalatest.{FunSuite, Matchers}
 
 /**
  * structs are complicated:
@@ -34,13 +34,15 @@ import org.scalatest.{Matchers, FunSuite}
 class StructTest extends FunSuite with CEnv with Matchers with TestHelper {
 
     private def check(code: String, printAST: Boolean = false): Boolean = {
-        println("checking " + code);
+        //        println("checking " + code);
         if (printAST) println("AST: " + getAST(code));
         check(getAST(code));
     }
     private def check(ast: TranslationUnit): Boolean = {
         assert(ast != null, "void ast");
-        new CTypeSystemFrontend(ast).checkAST()
+        val ts = new CTypeSystemFrontend(ast)
+        ts.isSilent = true
+        ts.checkAST()
     }
 
     test("StructEnv behavior") {
@@ -48,23 +50,23 @@ class StructTest extends FunSuite with CEnv with Matchers with TestHelper {
         env.isComplete("a", true) should be(False)
 
         //struct a;
-    env = env.addIncomplete(Id("a"), true, True, 1)
+        env = env.addIncomplete(Id("a"), true, True, 1)
         env.isComplete("a", true) should be(False)
 
         //struct a {double x;} //same scope should make it complete
-    env = env.addComplete(Id("a"), true, True, new ConditionalTypeMap() +("x", True, null, One(CDouble())), 1)
+        env = env.addComplete(Id("a"), true, True, new ConditionalTypeMap() +("x", True, null, One(CDouble())), 1)
         env.isComplete("a", true) should be(True)
 
         //struct a; // in same scope should not affect result
-    env = env.addIncomplete(Id("a"), true, True, 1)
+        env = env.addIncomplete(Id("a"), true, True, 1)
         env.isComplete("a", true) should be(True)
 
         //struct a; // in higher scope should replace
-    env = env.addIncomplete(Id("a"), true, fa, 2)
+        env = env.addIncomplete(Id("a"), true, fa, 2)
         env.isComplete("a", true) should be(fa.not)
 
         //struct a{double x; double y;};
-    env = env.addComplete(Id("a"), true, fa, new ConditionalTypeMap() +("x", True, null, One(CDouble())) +("y", True, null, One(CDouble())), 2)
+        env = env.addComplete(Id("a"), true, fa, new ConditionalTypeMap() +("x", True, null, One(CDouble())) +("y", True, null, One(CDouble())), 2)
         env.isComplete("a", true) should be(True)
 
         val fields = env.getFieldsMerged("a", true)
