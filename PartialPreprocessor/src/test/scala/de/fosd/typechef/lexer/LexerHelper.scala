@@ -53,6 +53,9 @@ trait LexerHelper {
             override def getUndefMacros: java.util.Set[String] = {
                 return undefMacros
             }
+            override def printLexerErrorsToStdErr: Boolean = {
+                return false
+            }
         }, true)
     }
     protected def useXtc(): Boolean

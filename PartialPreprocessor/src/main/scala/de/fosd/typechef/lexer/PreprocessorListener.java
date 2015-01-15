@@ -68,9 +68,10 @@ public class PreprocessorListener {
     }
 
     protected void print(String msg, Level level) {
-        Preprocessor.logger.log(level, msg);
-        if (options.printLexerErrorsToStdErr())
+        if (options.printLexerErrorsToStdErr()) {
+            Preprocessor.logger.log(level, msg);
             System.err.println(msg);
+        }
     }
 
     /**

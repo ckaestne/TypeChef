@@ -204,8 +204,8 @@ public class LexerFrontend {
                 }
             }
         } catch (Throwable e) {
-            Preprocessor.logger.severe(e.toString());
             if (options.printLexerErrorsToStdErr()) {
+                Preprocessor.logger.severe(e.toString());
                 e.printStackTrace(System.err);
                 pp.printSourceStack(System.err);
             }
