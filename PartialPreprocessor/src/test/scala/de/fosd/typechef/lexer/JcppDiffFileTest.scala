@@ -6,7 +6,7 @@ import org.scalatest.FunSuite
 
 class JcppDiffFileTest extends FunSuite with DifferentialTestingFramework {
     override protected def useXtc(): Boolean = false
-    override protected def status(s: String) = info(s+" /jcpp")
+    override protected def status(s: String) = info(s + " /jcpp")
 
     val dir = new File(getClass.getResource("/tc_data").toURI)
     private def testFile(s: String): Unit = analyzeFile(new File(dir, s), dir)
@@ -61,17 +61,17 @@ class JcppDiffFileTest extends FunSuite with DifferentialTestingFramework {
           |expandWithinExpand.c, throws conditional error where cpp works without complaints
         """.stripMargin.split("\\n").filter(_.trim.nonEmpty).map(l => {
             val p = l.indexOf(",");
-            (l.take(p).trim, l.drop(p+1).trim)
+            (l.take(p).trim, l.drop(p + 1).trim)
         })
 
 
     for ((file, reason) <- ignoredFiles)
-        ignore(s"ignoring $file due to lexer bug: $reason") {
+        ignore("ignoring " + file.replace(".", "_") + " due to lexer bug: " + reason) {
             testFile(file)
         }
 
     for (file <- filesToTest)
-        test(s"differential testing of $file") {
+        test(file.replace(".", "_") + " - differential testing") {
             testFile(file)
         }
 
