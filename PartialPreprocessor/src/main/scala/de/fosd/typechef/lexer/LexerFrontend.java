@@ -205,8 +205,10 @@ public class LexerFrontend {
             }
         } catch (Throwable e) {
             Preprocessor.logger.severe(e.toString());
-            e.printStackTrace(System.err);
-            pp.printSourceStack(System.err);
+            if (options.printLexerErrorsToStdErr()) {
+                e.printStackTrace(System.err);
+                pp.printSourceStack(System.err);
+            }
             crash = new LexerError(e.toString(), "", -1, -1);
         } finally {
             pp.debugPreprocessorDone();
@@ -464,6 +466,11 @@ public class LexerFrontend {
         }
 
         @Override
+        public boolean printLexerErrorsToStdErr() {
+            return true;
+        }
+
+        @Override
         public boolean useXtcLexer() {
             return false;
         }
@@ -583,6 +590,11 @@ public class LexerFrontend {
 
         @Override
         public boolean isLexPrintToStdout() {
+            return false;
+        }
+
+        @Override
+        public boolean printLexerErrorsToStdErr() {
             return false;
         }
 
