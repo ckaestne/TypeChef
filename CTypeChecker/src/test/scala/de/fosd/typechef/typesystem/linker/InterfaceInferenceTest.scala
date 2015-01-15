@@ -28,7 +28,7 @@ class InterfaceInferenceTest extends FunSuite with TestHelper with Matchers {
 
   val ast = parse("mini.pi")
   val interface = new CInferInterface {}.inferInterface(ast)
-  println(interface)
+//  println(interface)
 
 
   test("find imported function") {

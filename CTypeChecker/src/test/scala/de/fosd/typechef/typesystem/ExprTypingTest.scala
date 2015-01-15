@@ -28,7 +28,7 @@ class ExprTypingTest extends FunSuite with CTypeSystem with CEnv with Matchers w
         val ast = parseExpr(code)
         val env = EmptyEnv.updateVarEnv(varCtx).updateStructEnv(astructEnv)
         val r = getExprType(ast, True, env)
-        println(ast + " --> " + r)
+//        println(ast + " --> " + r)
         r
     }
 

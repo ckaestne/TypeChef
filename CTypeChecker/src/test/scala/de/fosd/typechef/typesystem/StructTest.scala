@@ -31,19 +31,9 @@ import org.scalatest.{FunSuite, Matchers}
  *
  */
 
-class StructTest extends FunSuite with CEnv with Matchers with TestHelper {
+class StructTest extends FunSuite with CEnv with Matchers with TestHelperTS {
 
-    private def check(code: String, printAST: Boolean = false): Boolean = {
-        //        println("checking " + code);
-        if (printAST) println("AST: " + getAST(code));
-        check(getAST(code));
-    }
-    private def check(ast: TranslationUnit): Boolean = {
-        assert(ast != null, "void ast");
-        val ts = new CTypeSystemFrontend(ast)
-        ts.isSilent = true
-        ts.checkAST()
-    }
+
 
     test("StructEnv behavior") {
         var env = new StructEnv()

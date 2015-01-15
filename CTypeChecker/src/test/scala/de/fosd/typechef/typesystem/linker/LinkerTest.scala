@@ -82,7 +82,7 @@ class LinkerTest extends FunSuite with Matchers with TestHelper {
 
         (idb isCompatibleTo iinmem) should be(true)
         (iperist isCompatibleTo iinmem) should be(false)
-        println((iperist.conditional(fa) link iinmem))
+//        println((iperist.conditional(fa) link iinmem))
         ((iperist.conditional(fa) link iinmem).featureModel implies fa.not).isTautology should be(true)
         (iperist.conditional(fa) isCompatibleTo iinmem.conditional(fb)) should be(true)
         (idb link iinmem).isComplete() should be(true)
@@ -93,7 +93,7 @@ class LinkerTest extends FunSuite with Matchers with TestHelper {
 
         ifull.isComplete() should be(true)
         ifull.isFullyConfigured() should be(false)
-        println(ifull)
+//        println(ifull)
     }
 
     test("module compatibility") {

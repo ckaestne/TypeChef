@@ -17,7 +17,7 @@ class IntegerSecurityTest extends FunSuite with Matchers with TestHelperTSCondit
                 override def warning_potential_integer_overflow = true
                 override def warning_implicit_coercion = true
             } else new LinuxDefaultOptions {})
-        frontend.checkAST(false)
+        frontend.makeSilent().checkAST(false)
     }
 
 

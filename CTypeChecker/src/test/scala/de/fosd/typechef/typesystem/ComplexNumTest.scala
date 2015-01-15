@@ -10,17 +10,9 @@ import org.scalatest.{Matchers, FunSuite}
  * Time: 1:44 PM
  * To change this template use File | Settings | File Templates.
  */
-class ComplexNumTest extends FunSuite with Matchers with TestHelper {
+class ComplexNumTest extends FunSuite with Matchers with TestHelperTS {
 
-    private def check(code: String, printAST: Boolean = false): Boolean = {
-        println("checking " + code);
-        if (printAST) println("AST: " + getAST(code));
-        check(getAST(code));
-    }
-    private def check(ast: TranslationUnit): Boolean = {
-        assert(ast != null, "void ast");
-        new CTypeSystemFrontend(ast).checkAST()
-    }
+
 
     test("complex numbers") {
         assertResult(true) {

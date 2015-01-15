@@ -15,7 +15,7 @@ class DeclTypingTest extends FunSuite with CTypeSystem with Matchers with TestHe
     private def declTL(code: String) = {
         val ast: Declaration = parseDecl(code)
         val r = getDeclaredVariables(ast, FeatureExprFactory.True, EmptyEnv)._2.map(e => (e._1, e._4))
-        println(r)
+//        println(r)
         r
     }
 

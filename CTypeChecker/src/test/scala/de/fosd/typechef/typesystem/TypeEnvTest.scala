@@ -92,7 +92,7 @@ class TypeEnvTest extends FunSuite with Matchers with CTypeSystem with CEnvCache
         firstname should be(OneT(CPointer(CChar()).toCType))
 
         val envvar = lookupEnv(lastDecl).varEnv
-        println("test: " + envvar.getAstOrElse("i", null))
+//        println("test: " + envvar.getAstOrElse("i", null))
 
     }
 
@@ -123,7 +123,7 @@ class TypeEnvTest extends FunSuite with Matchers with CTypeSystem with CEnvCache
         val lastStmt = fundef.stmt.asInstanceOf[CompoundStatement].innerStatements.last.entry
         val env = lookupEnv(lastStmt).varEnv
 
-        println(env)
+//        println(env)
 
         env("inner") should be(_i)
         env("foo") should be(OneT(CDouble()))
@@ -180,7 +180,7 @@ class TypeEnvTest extends FunSuite with Matchers with CTypeSystem with CEnvCache
             mymyint inner;
                                 """))
         val typedefs = lookupEnv(ast.defs.last.entry).typedefEnv
-        println(typedefs)
+//        println(typedefs)
         //expect no exception due to cyclic dependencies anymore
     }
 
@@ -225,8 +225,8 @@ class TypeEnvTest extends FunSuite with Matchers with CTypeSystem with CEnvCache
                                 """))
         val fundef = ast.defs.last.entry.asInstanceOf[FunctionDef]
         val env = lookupEnv(fundef.stmt.asInstanceOf[CompoundStatement].innerStatements.last.entry).varEnv
-        println(fundef.stmt.asInstanceOf[CompoundStatement].innerStatements)
-        println(env)
+//        println(fundef.stmt.asInstanceOf[CompoundStatement].innerStatements)
+//        println(env)
         env("v") match {
             case One(CType(CPointer(CAnonymousStruct(_, _)), _, _, _)) =>
             case e => fail(e.toString)
@@ -259,7 +259,7 @@ class TypeEnvTest extends FunSuite with Matchers with CTypeSystem with CEnvCache
             return 0;
           }""")
         val env = lookupEnv(ast.defs.last.entry).varEnv
-        println(env)
+//        println(env)
         env("foo") match {
             case One(CType(CAnonymousStruct(members, false), _, _, _)) =>
                 members("b3") should be(_i)
@@ -291,7 +291,7 @@ class TypeEnvTest extends FunSuite with Matchers with CTypeSystem with CEnvCache
                                  |int x;
                                """.stripMargin)
         val env = lookupEnv(ast.defs.last.entry).varEnv
-        println(env)
+//        println(env)
         env("a") match {
             case One(CType(CAnonymousStruct(members, false), _, _, _)) =>
                 members("a") should be(_i)
@@ -317,7 +317,7 @@ class TypeEnvTest extends FunSuite with Matchers with CTypeSystem with CEnvCache
                                   |int x;
                                 """.stripMargin)
         val env2 = lookupEnv(ast2.defs.last.entry).structEnv
-        println(env2)
+//        println(env2)
         val fields = env2.getFieldsMerged("xx", false)
         fields("a") should be(_i)
         fields("b") should be(_i)
@@ -341,7 +341,7 @@ class TypeEnvTest extends FunSuite with Matchers with CTypeSystem with CEnvCache
                                   |int x;
                                 """.stripMargin)
         val env2 = lookupEnv(ast2.defs.last.entry).structEnv
-        println(env2)
+//        println(env2)
         val fields = env2.getFieldsMerged("xx", false)
         fields("a") should be(_i)
         fields("c") should be(_i)
@@ -360,7 +360,7 @@ class TypeEnvTest extends FunSuite with Matchers with CTypeSystem with CEnvCache
 
         val tdenv = lookupEnv(fundef).typedefEnv
 
-        println(tdenv)
+//        println(tdenv)
 
         assert(wellformedC(null, null, tdenv("a")))
         assert(wellformedC(null, null, tdenv("b")))
@@ -385,7 +385,7 @@ class TypeEnvTest extends FunSuite with Matchers with CTypeSystem with CEnvCache
         val tdenv = lookupEnv(fundef).typedefEnv
         val env = lookupEnv(fundef).varEnv
 
-        println("tdenv: " + tdenv)
+//        println("tdenv: " + tdenv)
 
         env("v") should be(Choice(fx.not(), _l, _i))
         env("w") should equal(env("v"))
@@ -498,11 +498,11 @@ class TypeEnvTest extends FunSuite with Matchers with CTypeSystem with CEnvCache
             void foo() {}
                                 """))
 
-        println(ast)
+//        println(ast)
 
         val structenv: StructEnv = lookupEnv(ast.defs.last.entry).structEnv
 
-        println(structenv)
+//        println(structenv)
 
         structenv.isComplete("s1", false) should be(True)
         structenv.isComplete("s2", false) should be(fx)
@@ -628,11 +628,11 @@ class TypeEnvTest extends FunSuite with Matchers with CTypeSystem with CEnvCache
 
         val senv = lookupEnv(exprStmt.expr).structEnv
         senv.getFieldsMerged("mtab_list", false) should not be (null)
-        println(senv.getFieldsMerged("mtab_list", false))
+//        println(senv.getFieldsMerged("mtab_list", false))
 
-        println(exprStmt)
+//        println(exprStmt)
         val et = lookupExprType(exprStmt.expr)
-        println(et)
+//        println(et)
         et should be(OneT(CPointer(CSignUnspecified(CChar())).toCType.toObj))
 
     }
@@ -668,17 +668,17 @@ class TypeEnvTest extends FunSuite with Matchers with CTypeSystem with CEnvCache
 
         val senv = lookupEnv(exprStmt.expr).structEnv
         senv.getFieldsMerged("volume_descriptor", false) should not be (null)
-        println(senv.getFieldsMerged("volume_descriptor", false))
+//        println(senv.getFieldsMerged("volume_descriptor", false))
         senv.getFieldsMerged("descriptor_tag", false) should not be (null)
-        println(senv.getFieldsMerged("descriptor_tag", false))
+//        println(senv.getFieldsMerged("descriptor_tag", false))
         senv.getFieldsMerged("X", false) should not be (null)
-        println(senv.getFieldsMerged("X", false))
+//        println(senv.getFieldsMerged("X", false))
         senv.getFieldsMerged("Y", false) should not be (null)
-        println(senv.getFieldsMerged("Y", false))
+//        println(senv.getFieldsMerged("Y", false))
 
-        println(exprStmt)
+//        println(exprStmt)
         val et = lookupExprType(exprStmt.expr)
-        println(et)
+//        println(et)
         et should be(OneT(CFloat().toCType.toObj))
 
     }

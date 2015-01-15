@@ -6,18 +6,7 @@ import org.scalatest.{Matchers, FunSuite}
 import org.scalatest.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
-class RedeclarationTest extends FunSuite with Matchers with TestHelper {
-
-    private def check(code: String, printAST: Boolean = false): Boolean = {
-        println("checking " + code);
-        if (printAST) println("AST: " + getAST(code));
-        check(getAST(code));
-    }
-
-    private def check(ast: TranslationUnit): Boolean = {
-        assert(ast != null, "void ast");
-        new CTypeSystemFrontend(ast).checkAST()
-    }
+class RedeclarationTest extends FunSuite with Matchers with TestHelperTS {
 
 
     test("function declaration redeclaration") {

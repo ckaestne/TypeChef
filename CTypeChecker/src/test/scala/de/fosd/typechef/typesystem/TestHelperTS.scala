@@ -5,13 +5,14 @@ import de.fosd.typechef.parser.c.{TranslationUnit, TestHelper}
 
 trait TestHelperTS extends TestHelper {
     protected def check(code: String, printAST: Boolean = false): Boolean = {
-        println("checking " + code);
-        if (printAST) println("AST: " + getAST(code));
+//        println("checking " + code);
+        if (printAST)
+            println("AST: " + getAST(code));
         check(getAST(code));
     }
     protected def check(ast: TranslationUnit): Boolean = {
         assert(ast != null, "void ast");
-        new CTypeSystemFrontend(ast).checkAST()
+        new CTypeSystemFrontend(ast).makeSilent().checkAST()
     }
     private def checkExpr(code: String, printAST: Boolean = false): Boolean =
         check("void main() { " + code + "}", printAST)
@@ -39,7 +40,8 @@ trait TestHelperTSConditional extends TestHelper {
 
     private def check(code: String, enableAnalysis: Boolean, printAST: Boolean = false): Boolean = {
         println("checking " + code);
-        if (printAST) println("AST: " + getAST(code));
+        if (printAST)
+            println("AST: " + getAST(code));
         check(getAST(code), enableAnalysis);
     }
     protected def check(ast: TranslationUnit, enableAnalysis: Boolean): Boolean

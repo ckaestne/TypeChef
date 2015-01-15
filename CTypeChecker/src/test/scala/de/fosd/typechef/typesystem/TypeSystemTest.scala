@@ -7,20 +7,8 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.{FunSuite, Matchers}
 
 @RunWith(classOf[JUnitRunner])
-class TypeSystemTest extends FunSuite with Matchers with TestHelper {
+class TypeSystemTest extends FunSuite with Matchers with TestHelperTS {
 
-    private def check(code: String, printAST: Boolean = false): Boolean = {
-        println("checking " + code);
-        if (printAST) println("AST: " + getAST(code));
-        check(getAST(code));
-    }
-    private def check(ast: TranslationUnit): Boolean = {
-        assert(ast != null, "void ast");
-        new CTypeSystemFrontend(ast).checkAST()
-    }
-
-    protected def correct(code: String) = assertResult(true) {check(code)}
-    protected def error(code: String) = assertResult(false) {check(code)}
 
     test("typecheck simple translation unit") {
         assertResult(true) {
@@ -223,7 +211,7 @@ return 1;
                 typedef int xx __attribute__((__may_alias__));
                 xx c;
             }
-                   """, true)
+                   """)
         }
 
 

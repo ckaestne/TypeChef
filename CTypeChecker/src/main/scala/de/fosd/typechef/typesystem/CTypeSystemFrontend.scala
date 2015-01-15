@@ -28,6 +28,7 @@ class CTypeSystemFrontend(iast: TranslationUnit,
     var errors: List[TypeChefError] = List()
 
     var isSilent = false
+    def makeSilent() = { isSilent=true; this }
 
     val DEBUG_PRINT = false
 

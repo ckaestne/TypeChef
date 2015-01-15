@@ -11,7 +11,7 @@ class SparseFileTest extends TestHelper {
 
     val folder = "sparse/"
     private def checkSparse(filename: String) {
-        println("==========")
+//        println("==========")
         def stream = getClass.getResourceAsStream("/" + folder + filename)
         var inputStream: InputStream = stream
         if (inputStream == null) {
@@ -50,7 +50,7 @@ class SparseFileTest extends TestHelper {
     private def check(ast: TranslationUnit, featureModel: FeatureModel): Boolean =
         new CTypeSystemFrontend(ast, featureModel) {
             override def checkingExternal(externalDef: ExternalDef) {}
-        }.checkAST()
+        }.makeSilent().checkAST()
 
     private def readSparseInfo(file: InputStream, filename: String) = {
         val lines = scala.io.Source.fromInputStream(file).getLines().toList

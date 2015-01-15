@@ -43,7 +43,7 @@ class InterfaceInferenceDeadCodeDetectionTest extends TestHelper {
   def testDeadCodeDetection {
     val ast = parse("deadcode.pi")
     val interface = new CInferInterface {}.inferInterface(ast)
-    println(interface)
+//    println(interface)
     checkSerialization(interface)
 
     def whenImported(s: String): FeatureExpr = interface.imports.filter(_.name == s).map(_.fexpr).fold(False)(_ or _)
