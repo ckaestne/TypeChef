@@ -123,7 +123,7 @@ class ParserMain(p: CParser) {
                 case l: List[_] =>
                     l.flatMap(x => x match {
                         case o@Opt(ft: FeatureExpr, entry) =>
-                            if (ft.mex(currentContext).isTautology()) {
+                            if (!ft.and(currentContext).isSatisfiable()) {
                                 // current context makes ft impossible (-> ft == false and we can omit the node)
                                 List()
                                     } else {
