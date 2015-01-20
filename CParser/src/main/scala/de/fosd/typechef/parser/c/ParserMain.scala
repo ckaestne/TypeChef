@@ -10,7 +10,6 @@ import de.fosd.typechef.conditional.{One, Choice, Opt}
 import de.fosd.typechef.lexer.LexerFrontend
 import org.kiama.rewriting.Rewriter._
 import org.kiama.rewriting.Strategy
-import sun.org.mozilla.javascript.Context
 
 object MyUtil {
     implicit def runnable(f: () => Unit): Runnable =
@@ -127,9 +126,9 @@ class ParserMain(p: CParser) {
                             if (ft.mex(currentContext).isTautology()) {
                                 // current context makes ft impossible (-> ft == false and we can omit the node)
                                 List()
-                            } else {
+                                    } else {
                                 List(traverseASTrecursive(Opt(ft.simplify(currentContext), entry), ft.and(currentContext)))
-                            }
+                                    }
                     })
                 case c@Choice(ft, thenBranch, elseBranch) =>
                     val newChoiceFeature = ft.simplify(astEnv.featureExpr(c))
@@ -141,8 +140,8 @@ class ParserMain(p: CParser) {
                     t
                 case k =>
                     k.get.asInstanceOf[T]
-            }
-        }
+                                }
+                            }
         traverseASTrecursive(ast, ctx)
     }
 
