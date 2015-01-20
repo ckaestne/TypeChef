@@ -4,7 +4,7 @@ import de.fosd.typechef.featureexpr.FeatureExprFactory.{False, True}
 import de.fosd.typechef.featureexpr.{FeatureExpr, FeatureExprFactory, FeatureModel}
 
 
-case class Opt[+T](var condition: FeatureExpr, val entry: T) {
+case class Opt[+T](val condition: FeatureExpr, val entry: T) {
 
     /**
      * compares two optional entry. they are only considered equal if their features are identical (not equivalent).
@@ -117,7 +117,7 @@ abstract class Conditional[+T] extends Product {
     def select(selectedFeatures: Set[String]): T
 }
 
-case class Choice[+T](var condition: FeatureExpr, thenBranch: Conditional[T], elseBranch: Conditional[T]) extends Conditional[T] {
+case class Choice[+T](val condition: FeatureExpr, thenBranch: Conditional[T], elseBranch: Conditional[T]) extends Conditional[T] {
     def flatten[U >: T](f: (FeatureExpr, U, U) => U): U = f(condition, thenBranch.flatten(f), elseBranch.flatten(f))
     override def equals(x: Any) = x match {
         case Choice(f, t, e) => f.equivalentTo(condition) && (thenBranch == t) && (elseBranch == e)

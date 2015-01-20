@@ -266,7 +266,6 @@ public class FrontendOptions extends CAnalysisOptions implements ParserOptions {
     }
 
 
-    @Override
     public boolean simplifyPresenceConditions() {
         return simplifyPresenceConditions;
     }
