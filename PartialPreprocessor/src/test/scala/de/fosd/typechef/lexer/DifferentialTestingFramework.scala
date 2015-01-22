@@ -133,7 +133,7 @@ trait DifferentialTestingFramework extends LexerHelper {
                 if (r.asInstanceOf[LexerSuccess].getTokens.toList.filter(_.isLanguageToken).isEmpty)
                     failed = true
             if (failed)
-                return tryAgainIfEmpty(cmd, nrTries)
+                return tryAgainIfEmpty(cmd, nrTries-1)
         }
         return result
     }
