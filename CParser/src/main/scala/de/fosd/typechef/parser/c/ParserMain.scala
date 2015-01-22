@@ -109,6 +109,7 @@ class ParserMain(p: CParser) {
                 print("\"-bdd\" option required to simplify AST presence conditions.\n")
             }
         }
+
         ast
     }
     /**
@@ -131,8 +132,11 @@ class ParserMain(p: CParser) {
                                     }
                     })
                 case c@Choice(ft, thenBranch, elseBranch) =>
-                    val newChoiceFeature = ft.simplify(astEnv.featureExpr(c))
-                    val result = Choice(newChoiceFeature, thenBranch, elseBranch)
+                    val ctx = astEnv.featureExpr(c)
+                    val newChoiceFeature = ft.simplify(ctx)
+                    val result = Choice(newChoiceFeature,
+                        traverseASTrecursive(thenBranch,ctx.and(newChoiceFeature)) ,
+                        traverseASTrecursive(elseBranch,ctx.and(newChoiceFeature.not)))
                     result
             })
             r(t) match {
