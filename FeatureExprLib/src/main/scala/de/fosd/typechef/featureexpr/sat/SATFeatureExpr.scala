@@ -77,6 +77,9 @@ sealed abstract class SATFeatureExpr extends FeatureExpr {
     def notS(): SATFeatureExpr = FExprBuilder.not(this)
     def not(): SATFeatureExpr = notS()
 
+    // we dont have a good implementation in SAT, and a satisfies the contract
+    def simplify(b:FeatureExpr): SATFeatureExpr = this
+
     override def unique(feature: SingleFeatureExpr): FeatureExpr = substitute(feature, False) xor substitute(feature, True)
 
     def substitute(feature: SingleFeatureExpr, replacement: SATFeatureExpr): SATFeatureExpr
