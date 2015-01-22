@@ -149,7 +149,7 @@ trait DifferentialTestingFramework extends LexerHelper {
         var msg = ""
         //        println(cmd)
         val isSuccess = cmd #> output ! ProcessLogger(l => msg = msg + "\n" + l)
-        System.err.println("msg ("+isSuccess+", "+file.getName+"): "+msg+"\nout: "+output.toByteArray)
+        System.err.println("msg ("+isSuccess+", "+file.getName+"): "+msg+"\nout: "+output.toString)
         if (isSuccess != 0) {
             System.err.println(msg)
             return One(new LexerError(s"cpp execution failed with value $isSuccess: $msg", "", 0, 0))
