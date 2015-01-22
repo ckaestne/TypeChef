@@ -58,7 +58,7 @@ trait DifferentialTestingFramework extends LexerHelper {
 
             //compare against CPP
             status(s"comparing against cpp, configuration $config")
-            val cppresult: Conditional[LexerFrontend.LexerResult] = /*tryAgainIfEmpty(() => */lexcpp(file, inclDirectory, debug, ignoreWarnings, config.map(f => (f.feature -> "1")).toMap, (features -- config).map(_.feature))
+            val cppresult: Conditional[LexerFrontend.LexerResult] = tryAgainIfEmpty(() => lexcpp(file, inclDirectory, debug, ignoreWarnings, config.map(f => (f.feature -> "1")).toMap, (features -- config).map(_.feature)), 3)
             assert(cppresult.isInstanceOf[One[_]], "received conditional result when executing a single configuration??")
             val cpptokens = getTokensFromResult(cppresult.asInstanceOf[One[LexerResult]].value)
 
@@ -124,11 +124,19 @@ trait DifferentialTestingFramework extends LexerHelper {
     protected def status(s: String) = {}
 
 
-//    protected def tryAgainIfEmpty(cmd: () => Conditional[LexerFrontend.LexerResult]): Conditional[LexerFrontend.LexerResult] = {
-//        val result = cmd()
-//        val r = result.asInstanceOf[One[LexerResult]].value
-//        if (result.for)
-//    }
+    protected def tryAgainIfEmpty(cmd: () => Conditional[LexerFrontend.LexerResult], nrTries: Int): Conditional[LexerFrontend.LexerResult] = {
+        val result = cmd()
+        if (nrTries > 1) {
+            val r = result.asInstanceOf[One[LexerResult]].value
+            var failed = false
+            if (r.isInstanceOf[LexerSuccess])
+                if (r.asInstanceOf[LexerSuccess].getTokens.toList.filter(_.isLanguageToken).isEmpty)
+                    failed = true
+            if (failed)
+                return tryAgainIfEmpty(cmd, nrTries)
+        }
+        return result
+    }
 
     protected def lexcpp(file: File,
                          folder: File,
@@ -147,9 +155,7 @@ trait DifferentialTestingFramework extends LexerHelper {
         val cmd = cppcmd + " -I " + folder.getAbsolutePath + " " + file.getAbsolutePath + " " + definedMacros.map(v => "-D" + v._1 + "=" + v._2).mkString(" ") + " " + undefMacros.map("-U" + _).mkString(" ")
 
         var msg = ""
-        //        println(cmd)
         val isSuccess = cmd #> output ! ProcessLogger(l => msg = msg + "\n" + l)
-        System.err.println("msg ("+isSuccess+", "+file.getName+"): "+msg+"\nout: "+output.toString)
         if (isSuccess != 0) {
             System.err.println(msg)
             return One(new LexerError(s"cpp execution failed with value $isSuccess: $msg", "", 0, 0))
