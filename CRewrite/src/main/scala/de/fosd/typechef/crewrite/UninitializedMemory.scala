@@ -85,7 +85,6 @@ class UninitializedMemory(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: Fea
     protected def b = l
     protected def combinationOperator(l1: L, l2: L) = union(l1, l2)
 
-    protected def isForward = true
-
-    solve()
+    protected def infunction(a: AST): L = combinator(a)
+    protected def outfunction(a: AST): L = f_l(a)
 }

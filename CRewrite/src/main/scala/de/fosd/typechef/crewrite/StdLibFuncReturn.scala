@@ -137,7 +137,8 @@ sealed abstract class StdLibFuncReturn(env: ASTEnv, dum: DeclUseMap, udm: UseDec
     protected def b = l
     protected def combinationOperator(l1: L, l2: L) = union(l1, l2)
 
-    protected def isForward = true
+    protected def infunction(a: AST): L = combinator(a)
+    protected def outfunction(a: AST): L = f_l(a)
 }
 
 class StdLibFuncReturn_Null(env: ASTEnv, dum: UseDeclMap, udm: UseDeclMap, fm: FeatureModel, f: FunctionDef) extends StdLibFuncReturn(env, dum, udm, fm, f) {
@@ -181,8 +182,6 @@ class StdLibFuncReturn_Null(env: ASTEnv, dum: UseDeclMap, udm: UseDeclMap, fm: F
         // ((void*)0)
         CastExpr(TypeName(List(Opt(FeatureExprFactory.True, VoidSpecifier())),
             Some(AtomicAbstractDeclarator(List(Opt(FeatureExprFactory.True, Pointer(List()))),List()))),Constant("0")))
-
-    solve()
 }
 
 class StdLibFuncReturn_EOF(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: FeatureModel, f: FunctionDef) extends StdLibFuncReturn(env, dum, udm, fm, f) {
@@ -225,7 +224,5 @@ class StdLibFuncReturn_EOF(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: Fe
     )
 
     val errorreturn = List(Constant("-1")) // EOF, EOF (negative)
-
-    solve()
 }
 
