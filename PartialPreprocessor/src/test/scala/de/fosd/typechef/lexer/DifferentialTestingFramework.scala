@@ -1,13 +1,11 @@
 package de.fosd.typechef.lexer
 
 import java.io._
-import java.net.URL
 
 import de.fosd.typechef.conditional.{Conditional, One}
 import de.fosd.typechef.featureexpr.{FeatureExprFactory, SingleFeatureExpr}
 import de.fosd.typechef.lexer.LexerFrontend.{LexerError, LexerResult, LexerSuccess}
 import de.fosd.typechef.{LexerToken, VALexer}
-import org.junit.Assert
 
 /**
  * differential testing compares the output of the jcpp/xtc preprocessor with
@@ -26,9 +24,8 @@ trait DifferentialTestingFramework extends LexerHelper {
     import scala.collection.JavaConversions._
 
 
-
     def analyzeFile(file: File, inclDirectory: File, debug: Boolean = false, ignoreWarnings: Boolean = false): Unit = {
-        assert(file!=null && file.exists(), s"file not found: $file")
+        assert(file != null && file.exists(), s"file not found: $file")
         val fileContent = getFileContent(file)
 
         val initFeatures: Set[SingleFeatureExpr] = getInitFeatures(fileContent)
@@ -36,7 +33,7 @@ trait DifferentialTestingFramework extends LexerHelper {
 
         status(s"lexing all configurations for $file")
         val vresult = lex(file, inclDirectory, debug, ignoreWarnings)
-        assert(expectTotalFailure(fileContent) || hasSuccess(vresult), "parsing failed in all configurations: "+vresult)
+        assert(expectTotalFailure(fileContent) || hasSuccess(vresult), "parsing failed in all configurations: " + vresult)
         val features = getFeatures(initFeatures, vresult)
         val maxFeatures = 8
         if (features.size > maxFeatures)
@@ -61,7 +58,7 @@ trait DifferentialTestingFramework extends LexerHelper {
 
             //compare against CPP
             status(s"comparing against cpp, configuration $config")
-            val cppresult = lexcpp(file, inclDirectory, debug, ignoreWarnings, config.map(f => (f.feature -> "1")).toMap, (features -- config).map(_.feature))
+            val cppresult: Conditional[LexerFrontend.LexerResult] = tryAgainIfEmpty(() => lexcpp(file, inclDirectory, debug, ignoreWarnings, config.map(f => (f.feature -> "1")).toMap, (features -- config).map(_.feature)), 3)
             assert(cppresult.isInstanceOf[One[_]], "received conditional result when executing a single configuration??")
             val cpptokens = getTokensFromResult(cppresult.asInstanceOf[One[LexerResult]].value)
 
@@ -99,7 +96,9 @@ trait DifferentialTestingFramework extends LexerHelper {
     def getTokensFromResult(result: LexerResult): List[LexerToken] =
         if (result.isInstanceOf[LexerSuccess])
             result.asInstanceOf[LexerSuccess].getTokens.toList.filter(_.isLanguageToken)
-        else List()
+        else {
+            List()
+        }
 
     def compareTokenLists(vlist: List[LexerToken], alist: List[LexerToken], config: Set[SingleFeatureExpr], withCPP: Boolean): Unit = {
         val msgWithCPP = if (withCPP) "(cpp)" else "(typechef)"
@@ -124,6 +123,20 @@ trait DifferentialTestingFramework extends LexerHelper {
     protected def status(s: String) = {}
 
 
+    protected def tryAgainIfEmpty(cmd: () => Conditional[LexerFrontend.LexerResult], nrTries: Int): Conditional[LexerFrontend.LexerResult] = {
+        val result = cmd()
+        if (nrTries > 1) {
+            val r = result.asInstanceOf[One[LexerResult]].value
+            var failed = false
+            if (r.isInstanceOf[LexerSuccess])
+                if (r.asInstanceOf[LexerSuccess].getTokens.toList.filter(_.isLanguageToken).isEmpty)
+                    failed = true
+            if (failed)
+                return tryAgainIfEmpty(cmd, nrTries-1)
+        }
+        return result
+    }
+
     protected def lexcpp(file: File,
                          folder: File,
                          debug: Boolean = false,
@@ -138,10 +151,9 @@ trait DifferentialTestingFramework extends LexerHelper {
 
         val cppcmd = "cpp"
 
-        val cmd = cppcmd +" -I "+folder.getAbsolutePath+" "+file.getAbsolutePath + " " + definedMacros.map(v => "-D" + v._1 + "=" + v._2).mkString(" ") + " " + undefMacros.map("-U" + _).mkString(" ")
+        val cmd = cppcmd + " -I " + folder.getAbsolutePath + " " + file.getAbsolutePath + " " + definedMacros.map(v => "-D" + v._1 + "=" + v._2).mkString(" ") + " " + undefMacros.map("-U" + _).mkString(" ")
 
         var msg = ""
-//        println(cmd)
         val isSuccess = cmd #> output ! ProcessLogger(l => msg = msg + "\n" + l)
         if (isSuccess != 0) {
             System.err.println(msg)
