@@ -2,7 +2,7 @@ package de.fosd.typechef.crewrite
 
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.typesystem.{DeclUseMap, UseDeclMap}
-import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureModel, FeatureExpr}
+import de.fosd.typechef.featureexpr.{FeatureModel, FeatureExpr}
 import de.fosd.typechef.conditional.Opt
 
 // this abstract class provides a standard implementation of
@@ -125,23 +125,7 @@ sealed abstract class MonotoneFW[T](val f: FunctionDef, env: ASTEnv, val fm: Fea
         for ((e, fexp) <- l2) {
             curl.get(e) match {
                 case None =>
-                case Some(x) => {
-                    curl = curl + ((e, x and fexp.not))
-                }
-            }
-        }
-        curl
-    }
-
-    protected def intersection(l1: L, l2: L): L = {
-        var curl = l1
-        val k1 = l1.keySet
-        val k2 = l2.keySet
-        curl --= ((k1 union k2) diff (k1 intersect k2))
-        for ((e, fexp) <- l2) {
-            curl.get(e) match {
-                case None =>
-                case Some(x) => curl = curl + ((e, x and fexp))
+                case Some(x) => curl = curl + ((e, x and fexp.not))
             }
         }
         curl
@@ -221,11 +205,12 @@ sealed abstract class MonotoneFW[T](val f: FunctionDef, env: ASTEnv, val fm: Fea
     // this does not allow to selectively compute dataflow properties for a single cfgstmt.
     // TODO should be fixed with an improved version using kiama's attribute grammars.
     def solve(): Unit = {
-        if (f == null) return
+        if (f == null)
+            return
 
         // initialize solution
         val flow = if (isForward) getAllPred(f, env)
-        else getAllSucc(f, env)
+                   else getAllSucc(f, env)
         for (cfgstmt <- flow map { _._1 })
             memo.update(cfgstmt, ((true, l), (true, l)))
 
@@ -243,25 +228,24 @@ sealed abstract class MonotoneFW[T](val f: FunctionDef, env: ASTEnv, val fm: Fea
                 for (Opt(feature, entry) <- fl) {
                     entry match {
                         case _: FunctionDef =>
-                        case _ => {
+                        case _ =>
                             val (update, i) = memo.lookup(entry).get._2
 
                             if (update) {
                                 val x = updateFeatureExprOfMonotoneElements(i, feature)
                                 cnew = combinationOperator(cnew, x)
                             }
-                        }
                     }
                 }
 
                 var fnew = cnew
 
                 // point
-                // use size as indicator for knowledge gain
+                // use inequality as indicator for knowledge gain
                 // in the first iterations of the loop fnew is usually
                 // empty; to ensure that the transfer function is called
                 // at least once for cfgstmt we add fnew.size == 0
-                if (fnew.size == 0 || fold.size < fnew.size) {
+                if (fnew.size == 0 || fold != fnew) {
 
                     val g = gen(cfgstmt)
                     val k = kill(cfgstmt)
@@ -269,10 +253,12 @@ sealed abstract class MonotoneFW[T](val f: FunctionDef, env: ASTEnv, val fm: Fea
                     fnew = union(fnew, mapGenKillElements2MonotoneElements(g))
                 }
 
-                changed |= cold.size < cnew.size
-                changed |= fold.size < fnew.size
+                val cchanged = cold != cnew
+                val fchanged = fold != fnew
 
-                memo.update(cfgstmt, ((cold.size < cnew.size, cnew), (fold.size < fnew.size, fnew)))
+                changed |= cchanged | fchanged
+
+                memo.update(cfgstmt, ((cchanged, cnew), (fchanged, fnew)))
             }
         } while (changed)
     }
