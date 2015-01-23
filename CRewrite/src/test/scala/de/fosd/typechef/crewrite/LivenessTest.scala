@@ -598,7 +598,7 @@ void test1(int *code,
             """.stripMargin)
     }
 
-    @Ignore def test_longsatformulas3() {
+    @Ignore("requires bdd (sat is default) for efficient computation.") def test_longsatformulas3() {
         runExample(
             """
               void foo() {
