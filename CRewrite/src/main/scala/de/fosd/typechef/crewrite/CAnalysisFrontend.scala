@@ -74,11 +74,9 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
     private def deadStore(fa: (FunctionDef, List[(AST, List[Opt[AST]])])): List[TypeChefError] = {
         var err: List[TypeChefError] = List()
 
-        val df = new Liveness(fa._1, env, udm, FeatureExprFactory.empty)
+        val df = new Liveness(env, udm, FeatureExprFactory.empty)
 
         val nss = fa._2.map(_._1)
-
-        println("analyzing " + fa._1.getName + " with " + nss.size + " cfg stmts and " + fa._2.map(_._2.size).sum + " succs")
 
         for (s <- nss) {
             for ((i, fi) <- df.kill(s)) {
@@ -147,7 +145,7 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
     private def doubleFree(fa: (FunctionDef, List[(AST, List[Opt[AST]])]), casestudy: String): List[TypeChefError] = {
         var err: List[TypeChefError] = List()
 
-        val df = new DoubleFree(env, dum, udm, FeatureExprFactory.empty, fa._1, casestudy)
+        val df = new DoubleFree(env, dum, udm, FeatureExprFactory.empty, casestudy)
 
         val nss = fa._2.map(_._1).filterNot(x => x.isInstanceOf[FunctionDef])
 
@@ -195,7 +193,7 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
     private def uninitializedMemory(fa: (FunctionDef, List[(AST, List[Opt[AST]])])): List[TypeChefError] = {
         var err: List[TypeChefError] = List()
 
-        val um = new UninitializedMemory(env, dum, udm, FeatureExprFactory.empty, fa._1)
+        val um = new UninitializedMemory(env, dum, udm, FeatureExprFactory.empty)
         val nss = fa._2.map(_._1).filterNot(x => x.isInstanceOf[FunctionDef])
 
         for (s <- nss) {
@@ -243,7 +241,7 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
     private def xfree(fa: (FunctionDef, List[(AST, List[Opt[AST]])])): List[TypeChefError] = {
         var err: List[TypeChefError] = List()
 
-        val xf = new XFree(env, dum, udm, FeatureExprFactory.empty, fa._1, "")
+        val xf = new XFree(env, dum, udm, FeatureExprFactory.empty, "")
         val nss = fa._2.map(_._1).filterNot(x => x.isInstanceOf[FunctionDef])
 
         for (s <- nss) {
@@ -361,9 +359,9 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
     private def stdLibFuncReturn(fa: (FunctionDef, List[(AST, List[Opt[AST]])])): List[TypeChefError] = {
         var err: List[TypeChefError] = List()
         val cl: List[StdLibFuncReturn] = List(
-            //new StdLibFuncReturn_EOF(env, dum, udm, fm, fa._1),
+            //new StdLibFuncReturn_EOF(env, dum, udm, fm),
 
-            new StdLibFuncReturn_Null(env, dum, udm, FeatureExprFactory.empty, fa._1)
+            new StdLibFuncReturn_Null(env, dum, udm, FeatureExprFactory.empty)
         )
 
         for ((s, _) <- fa._2) {

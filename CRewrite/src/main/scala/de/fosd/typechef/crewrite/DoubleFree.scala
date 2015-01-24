@@ -38,7 +38,7 @@ import de.fosd.typechef.featureexpr.FeatureModel
 // i  = ∅             // is empty because we are only interested in free/realloc and assignments
 // E  = {FunctionDef} // see MonotoneFW
 // F  = flow
-class DoubleFree(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: FeatureModel, f: FunctionDef, casestudy: String) extends MonotoneFWIdLab(env, dum, udm, fm, f) with IntraCFG with CFGHelper with ASTNavigation {
+class DoubleFree(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: FeatureModel, casestudy: String) extends MonotoneFWIdLab(env, dum, udm, fm) with IntraCFG with CFGHelper with ASTNavigation {
 
     val freecalls = {
         if (casestudy == "linux") List("free", "kfree")
