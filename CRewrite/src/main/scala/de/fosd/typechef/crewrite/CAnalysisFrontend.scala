@@ -7,7 +7,6 @@ import de.fosd.typechef.parser.c._
 import de.fosd.typechef.typesystem._
 import de.fosd.typechef.error.{Severity, TypeChefError}
 import de.fosd.typechef.parser.c.SwitchStatement
-import scala.Some
 import de.fosd.typechef.parser.c.FunctionDef
 import de.fosd.typechef.parser.c.TranslationUnit
 import de.fosd.typechef.conditional.Opt
@@ -29,7 +28,7 @@ class CInterAnalysisFrontend(tunit: TranslationUnit, fm: FeatureModel = FeatureE
 
         def lookupFExpr(e: AST): FeatureExpr = e match {
             case o if env.isKnown(o) => env.featureExpr(o)
-            case e: ExternalDef => externalDefFExprs.get(e).getOrElse(FeatureExprFactory.True)
+            case e: ExternalDef => externalDefFExprs.getOrElse(e, FeatureExprFactory.True)
             case _ => FeatureExprFactory.True
         }
 
@@ -52,6 +51,11 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
 
     private lazy val udm = ts.getUseDeclMap
     private lazy val dum = ts.getDeclUseMap
+
+    private def getDecls(key: Id): List[Id] = {
+        if (! udm.containsKey(key)) List(key)
+        else udm.get(key).filter { d => env.featureExpr(d) and env.featureExpr(key) isSatisfiable fm }
+    }
 
     private val fanalyze = fdefs.map {
         x => (x, getAllSucc(x, env).filterNot { x => x._1.isInstanceOf[FunctionDef] } )
@@ -87,20 +91,14 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
                 if (dum.containsKey(i) && dum.get(i).size > 0) {}
                 else out.find { case (t, _) => t == i } match {
                     case None => {
-                        var idecls = udm.get(i)
-                        if (idecls == null)
-                            idecls = List(i)
+                        var idecls = getDecls(i)
                         if (idecls.exists(isPartOf(_, fa._1)))
                             err ::= new TypeChefError(Severity.Warning, fi, "warning: Variable " + i.name + " is a dead store!", i, "")
                     }
                     case Some((x, z)) => {
                         if (! z.isTautology(fm)) {
-                            var xdecls = udm.get(x)
-                            if (xdecls == null)
-                                xdecls = List(x)
-                            var idecls = udm.get(i)
-                            if (idecls == null)
-                                idecls = List(i)
+                            var xdecls = getDecls(x)
+                            var idecls = getDecls(i)
                             for (ei <- idecls) {
                                 // with isPartOf we reduce the number of false positives, since we only check local variables and function parameters.
                                 // an assignment to a global variable might be used in another function
@@ -159,12 +157,8 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
                     case None =>
                     case Some(((x, _), _)) => {
                         if (h.isSatisfiable(fm)) {
-                            var xdecls = udm.get(x)
-                            if (xdecls == null)
-                                xdecls = List(x)
-                            var idecls = udm.get(i)
-                            if (idecls == null)
-                                idecls = List(i)
+                            var xdecls = getDecls(x)
+                            var idecls = getDecls(i)
                             for (ei <- idecls)
                                 if (xdecls.exists(_.eq(ei)))
                                     err ::= new TypeChefError(Severity.Warning, h, "warning: Variable " + x.name + " is freed multiple times!", x, "")
@@ -206,12 +200,8 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
                         case None =>
                         case Some(((x, _), _)) => {
                             if (h.isSatisfiable(fm)) {
-                                var xdecls = udm.get(x)
-                                if (xdecls == null)
-                                    xdecls = List(x)
-                                var idecls = udm.get(i)
-                                if (idecls == null)
-                                    idecls = List(i)
+                                var xdecls = getDecls(x)
+                                var idecls = getDecls(i)
                                 for (ei <- idecls)
                                     if (xdecls.exists(_.eq(ei)))
                                         err ::= new TypeChefError(Severity.Warning, h, "warning: Variable " + x.name + " is used uninitialized!", x, "")
@@ -254,10 +244,8 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
                         case None =>
                         case Some(x) => {
                             if (h.isSatisfiable(fm)) {
-                                val xdecls = udm.get(x)
-                                var idecls = udm.get(i)
-                                if (idecls == null)
-                                    idecls = List(i)
+                                val xdecls = getDecls(x)
+                                var idecls = getDecls(i)
                                 for (ei <- idecls)
                                     if (xdecls.exists(_.eq(ei)))
                                         err ::= new TypeChefError(Severity.Warning, h, "warning: Variable " + x.name + " is freed although not dynamically allocted!", x, "")
@@ -386,12 +374,8 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
                         case None =>
                         case Some((k@(x, _), _)) => {
                             if (fi.isSatisfiable(fm)) {
-                                var xdecls = udm.get(x)
-                                if (xdecls == null)
-                                    xdecls = List(x)
-                                var edecls = udm.get(e)
-                                if (edecls == null)
-                                    edecls = List(e)
+                                var xdecls = getDecls(x)
+                                var edecls = getDecls(e)
 
                                 for (ee <- edecls) {
                                     val kills = cle.kill(s)
