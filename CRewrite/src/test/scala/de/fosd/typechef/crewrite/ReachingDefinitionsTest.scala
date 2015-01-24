@@ -19,7 +19,7 @@ class ReachingDefinitionsTest extends TestHelper with Matchers with IntraCFG wit
         assert(ts.checkASTSilent, "typecheck fails!")
         val udm = ts.getUseDeclMap
         val dum = ts.getDeclUseMap
-        val rd = new ReachingDefintions(env, dum, udm, FeatureExprFactory.empty, a)
+        val rd = new ReachingDefinitions(env, dum, udm, FeatureExprFactory.empty, a)
 
         for (s <- ss) {
             println(PrettyPrinter.print(s) + "  gen: " + rd.gen(s) + "   kill: " + rd.kill(s) +
