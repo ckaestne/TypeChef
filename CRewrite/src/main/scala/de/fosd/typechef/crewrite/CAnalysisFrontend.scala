@@ -248,7 +248,7 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
                                 var idecls = getDecls(i)
                                 for (ei <- idecls)
                                     if (xdecls.exists(_.eq(ei)))
-                                        err ::= new TypeChefError(Severity.Warning, h, "warning: Variable " + x.name + " is freed although not dynamically allocted!", x, "")
+                                        err ::= new TypeChefError(Severity.Warning, h, "warning: Variable " + x.name + " is freed although not dynamically allocated!", x, "")
                             }
                         }
                     }
@@ -369,7 +369,6 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
                 val g = cle.getUsedVariables(s)
                 val in = cle.in(s)
                 for (((e, _), fi) <- in) {
-                    println("s", PrettyPrinter.print(s), "in", in, "g", g, "u", cle.uses(s))
                     g.find { case ((t, _), _) => t == e } match {
                         case None =>
                         case Some((k@(x, _), _)) => {
