@@ -21,7 +21,7 @@ object BuildSettings {
         scalaVersion := buildScalaVersion,
         shellPrompt := ShellPrompt.buildShellPrompt,
 
-        javacOptions ++= Seq("-Xlint:unchecked", "-target", "1.7"),
+        javacOptions ++= Seq("-Xlint:unchecked", "-target", "1.7", "-source", "1.7"),
         scalacOptions ++= Seq("-deprecation", "-unchecked", "-optimise", "-target:jvm-1.7"),
         testOptions += Tests.Argument(TestFrameworks.JUnit, "-q", "-v"),
 
