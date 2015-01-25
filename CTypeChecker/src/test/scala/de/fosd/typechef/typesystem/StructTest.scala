@@ -601,4 +601,18 @@ struct reiserfs_sb_info {
 
     }
 
+    test("incomplete structs and scopes") {
+        assertResult(true) {
+            check( """
+                     |struct structname { int fieldname; };
+                     |
+                     |int main() {
+                     |        struct structname varname;
+                     |        varname.fieldname = 2;
+                     |        return b.fieldname;
+                     |}
+                   """.stripMargin)
+        }
+    }
+
 }
