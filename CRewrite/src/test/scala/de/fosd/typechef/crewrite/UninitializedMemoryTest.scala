@@ -15,7 +15,7 @@ class UninitializedMemoryTest extends TestHelper with Matchers with CFGHelper wi
         assert(ts.checkASTSilent, "typecheck fails!")
         val dum = ts.getDeclUseMap
         val udm = ts.getUseDeclMap
-        val um = new UninitializedMemory(CASTEnv.createASTEnv(a), dum, udm, FeatureExprFactory.empty, a)
+        val um = new UninitializedMemory(CASTEnv.createASTEnv(a), dum, udm, FeatureExprFactory.empty)
         um.kill(a).map {case ((x, _), f) => (x, f)}
     }
 
@@ -25,7 +25,7 @@ class UninitializedMemoryTest extends TestHelper with Matchers with CFGHelper wi
         assert(ts.checkASTSilent, "typecheck fails!")
         val dum = ts.getDeclUseMap
         val udm = ts.getUseDeclMap
-        val um = new UninitializedMemory(CASTEnv.createASTEnv(a), dum, udm, FeatureExprFactory.empty, a)
+        val um = new UninitializedMemory(CASTEnv.createASTEnv(a), dum, udm, FeatureExprFactory.empty)
         um.gen(a).map {case ((x, _), f) => (x, f)}
     }
 
