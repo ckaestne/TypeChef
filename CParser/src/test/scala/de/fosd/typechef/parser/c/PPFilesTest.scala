@@ -27,6 +27,7 @@ class PPFilesTest extends TestHelper {
             case p.SplittedParseResult(f,a,b) =>
                 printResult(a, fexpr and f)
                 printResult(b, fexpr andNot f)
+                Assert.fail("Unexpected split parse result")
         }
         printResult(result, FeatureExprFactory.True)
 
