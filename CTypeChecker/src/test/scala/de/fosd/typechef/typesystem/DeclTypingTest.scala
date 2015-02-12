@@ -144,4 +144,10 @@ class DeclTypingTest extends FunSuite with CTypeSystem with Matchers with TestHe
                 Choice(fx, One(CPointer(CSigned(CLong()))), One(CSigned(CLong())))))
     }
 
+    val ui = CUnsigned(CInt()).toCType
+    test("attributes") {
+        declTL("unsigned int a, __attribute__((unused)) b;") should be(List(("a", One(ui)), ("b", One(ui))))
+
+    }
+
 }
