@@ -42,6 +42,7 @@ class ExprTypingTest extends FunSuite with CTypeSystem with CEnv with Matchers w
     val varCtx: VarTypingContext =
         new VarTypingContext() ++ (Seq(
             ("a", True, CDouble()),
+            ("u", True, CUnsigned(CInt())),
             ("i", True, CSigned(CInt())),
             ("ca", fa, CDouble()),
             ("v", True, CVoid()),
@@ -114,6 +115,7 @@ class ExprTypingTest extends FunSuite with CTypeSystem with CEnv with Matchers w
         expr("(double)3") should be(CDouble().toCType)
         expr("(void*)foo") should be(CPointer(CVoid()).toCType)
         expr("(int(*)())foo") should be(CPointer(CFunction(List(), CSigned(CInt()))).toCType)
+        expr("(struct str)u") should be(CStruct("str").toCType)
     }
 
 
