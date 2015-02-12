@@ -601,7 +601,7 @@ struct reiserfs_sb_info {
 
     }
 
-    test("incomplete structs and scopes") {
+    test("structs and scopes") {
         assertResult(true) {
             check( """
                      |struct structname { int fieldname; };
@@ -609,9 +609,9 @@ struct reiserfs_sb_info {
                      |int main() {
                      |        struct structname varname;
                      |        varname.fieldname = 2;
-                     |        return b.fieldname;
+                     |        return varname.fieldname;
                      |}
-                   """.stripMargin)
+                   """.stripMargin, true)
         }
     }
 
