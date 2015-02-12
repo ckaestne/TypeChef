@@ -41,7 +41,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                         if (opts.warning_long_designator && v.lastOption.map(_ == 'l').getOrElse(false))
                             reportTypeError(featureExpr, "Use \"L,\" not \"l,\" to indicate a long value", c, Severity.SecurityWarning, "long-designator")
 
-                        if (v == "0" || v == "'\\0'") One(CZero())
+                        if (v == "0" || v == "'\\0'" || isHexNull(v)) One(CZero())
                         else
                         if (v.head == '\'') One(CSignUnspecified(CChar()))
                         else
@@ -587,6 +587,13 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
         else ctype
 
     }
+
+    val HexNull = "0x0+".r
+    private def isHexNull(s:String) = s match {
+        case HexNull() => true
+        case _ => false
+    }
+
 
 
 }

@@ -75,6 +75,7 @@ class ExprTypingTest extends FunSuite with CTypeSystem with CEnv with Matchers w
     test("primitives and pointers") {
         expr("0") should be(CZero().toCType)
         expr("'\\0'") should be(CZero().toCType)
+        expr("0x0000") should be(CZero().toCType)
         expr("1") should be(CSigned(CInt()).toCType)
         expr("blub") should be(CUnknown().toCType)
         expr("a") should be(CDouble().toCType.toObj)
