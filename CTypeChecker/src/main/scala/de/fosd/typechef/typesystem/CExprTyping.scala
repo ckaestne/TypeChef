@@ -134,6 +134,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                                 if (targetType == CVoid().toCType ||
                                     isPointer(targetType) ||
                                     (isScalar(sourceType) && isScalar(targetType))) targetType
+                                else if (targetType.atype == sourceType.atype) targetType // casting to the same type is fine
                                 else if (isStruct(targetType) && isScalar(sourceType)) targetType // the compiler doesn't seem to mind casts from int to struct
                                 else if (isScalar(targetType) && isPointer(normalize(sourceType))) targetType //cast from pointer to long is valid
                                 else if (isCompound(sourceType) && (isStruct(targetType) || isArray(targetType))) targetType.toObj //workaround for array/struct initializers

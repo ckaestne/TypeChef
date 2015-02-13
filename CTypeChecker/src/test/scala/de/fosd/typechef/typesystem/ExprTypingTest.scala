@@ -117,6 +117,8 @@ class ExprTypingTest extends FunSuite with CTypeSystem with CEnv with Matchers w
         expr("(void*)foo") should be(CPointer(CVoid()).toCType)
         expr("(int(*)())foo") should be(CPointer(CFunction(List(), CSigned(CInt()))).toCType)
         expr("(struct str)u") should be(CStruct("str").toCType)
+        expr("(struct str)s") should be(CStruct("str").toCType)
+        expr("(struct b)s") should be(CUnknown().toCType)
     }
 
 
