@@ -148,10 +148,10 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = false) e
 
     private def structOrUnionSpecifierBody: MultiParser[(Option[Id], Option[List[Opt[StructDeclaration]]], List[Opt[AttributeSpecifier]])] =
     // XXX: PG: SEMI after LCURLY????
-        (ID ~~ LCURLY ~! (opt(SEMI) ~ structDeclarationList0 ~ RCURLY) ~ repOpt(attributeDecl) ^^ {
+        (ID ~~ LCURLY ~! (repOpt(SEMI) ~ structDeclarationList0 ~ RCURLY) ~ repOpt(attributeDecl) ^^ {
             case id ~ _ ~ (_ ~ list ~ _) ~ attr => (Some(id), Some(list), attr)
         }) |
-            (LCURLY ~ opt(SEMI) ~ structDeclarationList0 ~ RCURLY ~ repOpt(attributeDecl) ^^ {
+            (LCURLY ~ repOpt(SEMI) ~ structDeclarationList0 ~ RCURLY ~ repOpt(attributeDecl) ^^ {
                 case _ ~ _ ~ list ~ _ ~ attr => (None, Some(list), attr)
             }) |
             (ID ^^ {
