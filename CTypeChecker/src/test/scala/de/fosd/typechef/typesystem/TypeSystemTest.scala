@@ -1128,5 +1128,36 @@ return 1;
                        }
                 """        )
     }
+
+    test("valid and invalid return types") {
+        correct("""
+            typedef void VOID;
+            VOID foo(){}
+              """        )
+        error("""
+            #ifdef X
+                 typedef void VOID;
+            #endif
+            VOID foo(){}
+                """        )
+        correct("""
+            typedef void VOID;
+            VOID foo(){ return; }
+                """        )
+        correct("""
+            #ifdef X
+                 typedef void VOID;
+            #else
+                 typedef int VOID;
+            #endif
+            VOID foo(){
+            #ifdef X
+              return;
+            #else
+              return 1;
+            #endif
+            }
+              """        )
+    }
 }
 

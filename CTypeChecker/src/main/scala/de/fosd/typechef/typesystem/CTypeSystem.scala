@@ -299,8 +299,8 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
                     mexpr match {
 
                         case None =>
-                            if (expectedReturnType map (_.atype == CVoid()) exists (!_))
-                                issueTypeError(Severity.OtherError, featureExpr, "no return expression, expected type " + expectedReturnType, r)
+                            val errorCondition = (expectedReturnType map (_.atype == CVoid())).when(!_)
+                            issueTypeError(Severity.OtherError, featureExpr and errorCondition, "no return expression, expected type " + expectedReturnType, r)
                         case Some(expr) =>
                             val foundReturnType = getExprType(expr, featureExpr, env)
                             ConditionalLib.vmapCombinationOp(expectedReturnType, foundReturnType, featureExpr,
