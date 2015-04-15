@@ -86,9 +86,18 @@ class RedeclarationTest extends FunSuite with Matchers with TestHelperTS {
             check("int foo();" +
                 "int foo() {}")
         }
+        assertResult(true) {
+            check("extern int foo();" +
+                "int foo() {}")
+        }
         assertResult(false) {
             check("int foo(int p);" +
                 "int foo() {}")
+        }
+        assertResult(false) {
+            check("enum x { a, b }; " +
+                "int foo(int p);" +
+                "int foo(enum x y) {}")
         }
         assertResult(false) {
             //actually just a warning in GCC

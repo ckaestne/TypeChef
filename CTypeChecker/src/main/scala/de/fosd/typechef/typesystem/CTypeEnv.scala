@@ -98,14 +98,14 @@ trait CTypeEnv extends CTypes with CTypeSystemInterface with CEnv with CDeclTypi
         }
         //incomplete struct
         case e@StructOrUnionSpecifier(isUnion, Some(i@Id(name)), None, _, _) => {
-            //we only add an incomplete declaration in specific cases when a declaration does not have a declarator ("struct x;")
-            var env = initEnv.updateStructEnv(initEnv.structEnv.addIncomplete(i, isUnion, featureExpr, initEnv.scope))
-
             if (declareIncompleteTypes) {
                 //CDeclUse: Struct usage and declaration
                 val isAlreadyDefined = initEnv.structEnv.whenHasDefinitionWithId(name, isUnion)
                 addStructDeclUse(i, initEnv, isUnion, featureExpr and isAlreadyDefined)
                 addStructDefinition(i, initEnv, featureExpr andNot isAlreadyDefined)
+
+                //we only add an incomplete declaration in specific cases when a declaration does not have a declarator ("struct x;")
+                var env = initEnv.updateStructEnv(initEnv.structEnv.addIncomplete(i, isUnion, featureExpr, initEnv.scope))
                 env
             } else {
                 addStructDeclUse(i, initEnv, isUnion, featureExpr)

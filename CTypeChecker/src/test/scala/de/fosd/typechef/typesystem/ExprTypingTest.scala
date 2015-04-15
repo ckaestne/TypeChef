@@ -42,6 +42,7 @@ class ExprTypingTest extends FunSuite with CTypeSystem with CEnv with Matchers w
     val varCtx: VarTypingContext =
         new VarTypingContext() ++ (Seq(
             ("a", True, CDouble()),
+            ("u", True, CUnsigned(CInt())),
             ("i", True, CSigned(CInt())),
             ("ca", fa, CDouble()),
             ("v", True, CVoid()),
@@ -74,6 +75,7 @@ class ExprTypingTest extends FunSuite with CTypeSystem with CEnv with Matchers w
     test("primitives and pointers") {
         expr("0") should be(CZero().toCType)
         expr("'\\0'") should be(CZero().toCType)
+        expr("0x0000") should be(CZero().toCType)
         expr("1") should be(CSigned(CInt()).toCType)
         expr("blub") should be(CUnknown().toCType)
         expr("a") should be(CDouble().toCType.toObj)
@@ -114,6 +116,9 @@ class ExprTypingTest extends FunSuite with CTypeSystem with CEnv with Matchers w
         expr("(double)3") should be(CDouble().toCType)
         expr("(void*)foo") should be(CPointer(CVoid()).toCType)
         expr("(int(*)())foo") should be(CPointer(CFunction(List(), CSigned(CInt()))).toCType)
+        expr("(struct str)u") should be(CStruct("str").toCType)
+        expr("(struct str)s") should be(CStruct("str").toCType)
+        expr("(struct b)s") should be(CUnknown().toCType)
     }
 
 

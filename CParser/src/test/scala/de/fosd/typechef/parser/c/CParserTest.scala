@@ -432,6 +432,9 @@ class CParserTest extends TestHelper {
         assertParseable("struct a{ void x; int x:3+2,z:3;}", p.structOrUnionSpecifier)
         assertParseable("struct {  }", p.structOrUnionSpecifier)
         assertParseError("struct { void x }", p.structOrUnionSpecifier)
+        assertParseable("struct { void x; ; }", p.structOrUnionSpecifier)
+        assertParseable("struct { ; }", p.structOrUnionSpecifier)
+        assertParseable("struct { ; ; }", p.structOrUnionSpecifier)
     }
 
     @Test def testAsmExpr {

@@ -148,10 +148,10 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = false) e
 
     private def structOrUnionSpecifierBody: MultiParser[(Option[Id], Option[List[Opt[StructDeclaration]]], List[Opt[AttributeSpecifier]])] =
     // XXX: PG: SEMI after LCURLY????
-        (ID ~~ LCURLY ~! (opt(SEMI) ~ structDeclarationList0 ~ RCURLY) ~ repOpt(attributeDecl) ^^ {
+        (ID ~~ LCURLY ~! (repOpt(SEMI) ~ structDeclarationList0 ~ RCURLY) ~ repOpt(attributeDecl) ^^ {
             case id ~ _ ~ (_ ~ list ~ _) ~ attr => (Some(id), Some(list), attr)
         }) |
-            (LCURLY ~ opt(SEMI) ~ structDeclarationList0 ~ RCURLY ~ repOpt(attributeDecl) ^^ {
+            (LCURLY ~ repOpt(SEMI) ~ structDeclarationList0 ~ RCURLY ~ repOpt(attributeDecl) ^^ {
                 case _ ~ _ ~ list ~ _ ~ attr => (None, Some(list), attr)
             }) |
             (ID ^^ {
@@ -210,10 +210,10 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = false) e
     //consumes trailing comma <~ opt(COMMA)
 
     def initDecl: MultiParser[InitDeclarator] =
-        declarator ~ repOpt(attributeDecl) ~ opt((ASSIGN ~> initializer) | (COLON ~> expr)) ^^ {
-            case d ~ attr ~ Some(i: Initializer) => InitDeclaratorI(d, attr, Some(i));
-            case d ~ attr ~ Some(e: Expr) => InitDeclaratorE(d, attr, e);
-            case d ~ attr ~ None => InitDeclaratorI(d, attr, None);
+        repOpt(attributeDecl) ~ declarator ~ repOpt(attributeDecl) ~ opt((ASSIGN ~> initializer) | (COLON ~> expr)) ^^ {
+            case attr1 ~ d ~ attr2 ~ Some(i: Initializer) => InitDeclaratorI(d, attr1 ++ attr2, Some(i));
+            case attr1 ~ d ~ attr2 ~ Some(e: Expr) => InitDeclaratorE(d, attr1 ++ attr2, e);
+            case attr1 ~ d ~ attr2 ~ None => InitDeclaratorI(d, attr1 ++ attr2, None);
         }
 
     def pointerGroup0: MultiParser[List[Opt[Pointer]]] =
