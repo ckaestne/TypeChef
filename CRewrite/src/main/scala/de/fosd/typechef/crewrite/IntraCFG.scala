@@ -157,13 +157,13 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
     }
 
     // determine context of new element based on the current result
-    // the context is the not of all elements (or-d) together combined with the context of the source elemente
+    // the context is the not of all elements (or-d) together combined with the context of the source element
     // (ctx) and the context of the current element (curctx)
     private[crewrite] def getNewResCtx(curres: CFGRes, ctx: FeatureExpr, curctx: FeatureExpr) = {
         curres.map(_._1).fold(FeatureExprFactory.False)(_ or _).not() and ctx and curctx
     }
 
-    // checks reference equality of e in a given struture t (either product or list)
+    // checks reference equality of e in a given structure t (either product or list)
     protected def isPartOf(subterm: Product, term: Any): Boolean = {
         term match {
             case _: Product if subterm.asInstanceOf[AnyRef].eq(term.asInstanceOf[AnyRef]) => true
