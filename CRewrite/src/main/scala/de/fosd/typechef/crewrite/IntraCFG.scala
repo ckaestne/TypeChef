@@ -780,11 +780,7 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
 
                     case t: Expr => followSucc(t, ctx, oldres, env)
                     case t: ReturnStatement => getReturnStatementSucc(t, ctx, oldres, env)
-                    case t: Statement => {
-                        var res = getStmtSucc(t, ctx, oldres, env)
-                        res = findMethodCalls(t, env, oldres, ctx, res)
-                        res
-                    }
+                    case t: Statement => getStmtSucc(t, ctx, oldres, env)
 
                     //ChK: deactivate conditional expressions for now, since they do not contain variability and are
                     //not fully implemented anyway
@@ -798,7 +794,10 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
                     //            }
                     //          }
 
-                    case t: FunctionDef => oldres ++ List((env.featureExpr(t), env.featureExpr(t), t))
+                    case t: FunctionDef =>
+                        val fPC = env.featureExpr(t)
+                        val compCtx = getNewResCtx(oldres, ctx, fPC)
+                        oldres ++ List((compCtx, fPC, t))
                     case _ => List()
                 }
             }
