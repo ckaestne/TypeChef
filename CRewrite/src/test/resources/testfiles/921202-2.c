@@ -1,6 +1,6 @@
 f(x, c)
 {
-  for (;;)
+  for (;1;)
     {
       if (x << c) break;
       x++;

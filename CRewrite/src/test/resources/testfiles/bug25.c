@@ -1,5 +1,5 @@
 int tr_main(void) {
-for (; ; ) {
+for (;1;) {
 if (x) {
 if (out_index) {
 xwrite(1 , str2 , out_index);

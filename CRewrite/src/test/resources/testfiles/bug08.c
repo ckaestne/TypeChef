@@ -1,3 +1,3 @@
 void foo() {
-    for(;;);
+    for(;1;);
 }

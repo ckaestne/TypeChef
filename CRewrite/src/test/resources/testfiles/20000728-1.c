@@ -6,7 +6,7 @@ int foo(void)
 {
   struct clock clock_old = {0, 0};
 
-  for (;;) {
+  for (;1;) {
     long foo;
 
     if (foo == clock_old.sec && 0 == clock_old.usec);
