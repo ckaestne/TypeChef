@@ -79,6 +79,44 @@ abstract class MultiFeatureParser(val featureModel: FeatureModel = null, debugOu
         }
     }
 
+
+    /**
+     * an Ambiguity parser may match multiple parsers. It returns all successful parse results in an
+     * ambiguity node.
+     *
+     * In contrast to GLR parsing or the ifdef functionalities of TypeChef, the ambiguity functionality
+     * is very limited. It can only accept multiple parsers if they consume the same number of tokens.
+     * If they consume different tokens, this parser behaves like an AltParser returning the first
+     * matching result
+     */
+    class AmbiguityParser[T](p1: => MultiParser[T], p2: => MultiParser[T]) extends MultiParser[Ambiguity[T]] {
+        name = "Ambiguity"
+
+        def apply(in: Input, parserState: ParserState): MultiParseResult[Ambiguity[T]] = {
+            val r1: MultiParseResult[T] =p1(in, parserState)
+            val r2: MultiParseResult[T] =p2(in, parserState)
+
+            r1.mapfr[Ambiguity[T]](parserState, (f, r1)=>
+                r2.mapfr[Ambiguity[T]](f, (f, r2)=>
+                    (r1, r2) match {
+                        case (Success(t1,n1), Success(t2,n2)) =>
+                            //only ambiguity of both at same position, otherwise return return only first
+                            if (n1.offset==n2.offset)
+                                Success(new Ambiguity[T](List[T](t1, t2)), n1)
+                            else
+                                Success(new Ambiguity[T](List[T](t1)), n1)
+                        case (Success(t,n), NoSuccess(_,_,_)) =>
+                            Success(new Ambiguity[T](List[T](t)),n)
+                        case (NoSuccess(_,_,_), Success(t,n)) =>
+                            Success(new Ambiguity[T](List[T](t)),n)
+                        case (n@NoSuccess(_,_,_),_) => n
+                    })
+            )
+        }
+    }
+    def ambig[T](p1: => MultiParser[T], p2: => MultiParser[T]) = new AmbiguityParser[T](p1,p2)
+
+
     abstract class RepParser[T](thisParser: => MultiParser[T]) extends MultiParser[List[Opt[T]]] {
         def a = thisParser
 
@@ -1344,4 +1382,10 @@ abstract class MultiFeatureParser(val featureModel: FeatureModel = null, debugOu
 
 case class ~[+a, +b](_1: a, _2: b) {
     override def toString = "(" + _1 + "~" + _2 + ")"
+}
+
+class Ambiguity[T](val entries: List[T]) {
+    override def toString =
+        if (entries.size == 1) entries.head.toString
+        else entries.mkString("Ambiguity(",",",")")
 }

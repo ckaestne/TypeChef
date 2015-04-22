@@ -127,14 +127,14 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = false) e
         ) <~ RPAREN))
 
     //TODO need to split when conditionally defined as typedef
-    def typedefName =
-        tokenWithContext("type",
-            (token, featureContext, typeContext) =>
-                isIdentifier(token) && (predefinedTypedefs.contains(token.getText) || typeContext.knowsType(token.getText, featureContext, featureModel))) ^^ {
-            t => Id(t.getText)
-        } ^^ {
-            TypeDefTypeSpecifier(_)
-        }
+    def typedefName = ID ^^ {TypeDefTypeSpecifier(_)}
+//        tokenWithContext("type",
+//            (token, featureContext, typeContext) =>
+//                isIdentifier(token) && (predefinedTypedefs.contains(token.getText) || typeContext.knowsType(token.getText, featureContext, featureModel))) ^^ {
+//            t => Id(t.getText)
+//        } ^^ {
+//            TypeDefTypeSpecifier(_)
+//        }
     def notypedefName =
         tokenWithContext("notype",
             (token, featureContext, typeContext) => isIdentifier(token) && !predefinedTypedefs.contains(token.getText) && !typeContext.knowsType(token.getText, featureContext, featureModel)) ^^ {
@@ -306,8 +306,8 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = false) e
 
     //    private def compoundStatementCond: MultiParser[Conditional[CompoundStatement]] = compoundStatement ^^ {One(_)}
 
-    def statementList: MultiParser[List[Opt[Statement]]] =
-        repOpt(compoundDeclaration | statement, "statement") ^^ ConditionalLib.flatten
+    def statementList: MultiParser[List[Opt[Ambiguity[Conditional[Statement]]]]] =
+        repOpt(ambig(compoundDeclaration, statement), "statement") //^^ ConditionalLib.flatten
 
     def statement: MultiParser[Conditional[Statement]] = (SEMI ^^ {
         _ => EmptyStatement()

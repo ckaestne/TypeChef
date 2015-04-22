@@ -2,6 +2,7 @@ package de.fosd.typechef.parser.c
 
 import de.fosd.typechef.conditional._
 import de.fosd.typechef.error.{WithPosition, Position}
+import de.fosd.typechef.parser.Ambiguity
 
 /**
  * AST for C
@@ -125,7 +126,7 @@ case class ExprList(exprs: List[Opt[Expr]]) extends Expr
 //Statements
 sealed abstract class Statement extends AST
 
-case class CompoundStatement(innerStatements: List[Opt[Statement]]) extends Statement
+case class CompoundStatement(innerStatements: List[Opt[Ambiguity[Conditional[Statement]]]]) extends Statement
 
 case class EmptyStatement() extends Statement with CFGStmt
 

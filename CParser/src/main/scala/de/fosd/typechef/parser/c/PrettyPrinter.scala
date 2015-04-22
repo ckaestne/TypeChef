@@ -326,7 +326,8 @@ object PrettyPrinter {
             case ExprList(exprs) => sepVaware(exprs, ",", prettyOpt)
 
             case CompoundStatement(innerStatements) =>
-                block(sep(innerStatements, _ * _))
+//                block(sep(innerStatements, _ * _))
+                ""
             case EmptyStatement() => ";"
             case ExprStatement(expr: Expr) => expr ~ ";"
             case WhileStatement(expr: Expr, s) => "while (" ~ expr ~ ")" ~~ s
