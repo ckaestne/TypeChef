@@ -123,5 +123,16 @@ class UninitializedMemoryTest extends TestHelper with Matchers with CFGHelper wi
             #endif
             close(fd);
         }""".stripMargin) should be(false)
+
+        uninitializedMemory( """
+        int foo() {
+          int i;
+            #if definedEx(A)
+            for ((i = 0); 1; i++) {}
+            #endif
+            #if !definedEx(A)
+            for ((i = 5); 1; i++) {}
+            #endif
+        }""".stripMargin) should be(true)
     }
 }
