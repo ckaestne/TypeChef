@@ -96,7 +96,7 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
                             err ::= new TypeChefError(Severity.Warning, fi, "warning: Variable " + i.name + " is a dead store!", i, "")
                     }
                     case Some((x, z)) => {
-                        if (! z.isTautology(fm)) {
+                        if (fi.and(z.not()).isSatisfiable(fm)) {
                             var xdecls = getDecls(x)
                             var idecls = getDecls(i)
                             for (ei <- idecls) {
