@@ -1,12 +1,13 @@
 package de.fosd.typechef.crewrite
 
+import scala.reflect.ClassTag
+import scala.reflect.runtime.universe.{typeOf, TypeTag}
+
 import org.kiama.attribution.Attribution._
 
 import de.fosd.typechef.conditional._
 import de.fosd.typechef.parser.c._
 import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
-
-import scala.reflect.ClassTag
 
 // implements intraprocedural conditional control flow (cfg) on top of
 // the typechef infrastructure
@@ -997,7 +998,7 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
             a match {
                 case t: BreakStatement =>
                     val tfexp = env.featureExpr(t)
-                    if (!((tfexp and ctx).isContradiction())) List((tfexp, tfexp, t)) else List()
+                    if (!(tfexp and ctx).isContradiction()) List((tfexp, tfexp, t)) else List()
                 case _: SwitchStatement => List()
                 case _: ForStatement => List()
                 case _: WhileStatement => List()
@@ -1010,34 +1011,25 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
         filterBreakStatementsHelper(c)
     }
 
-    private def filterCFGStatementsUpTo[T <: CFGStmt](s: Conditional[Statement], stopElems: CFGStmt => Boolean, ctx: FeatureExpr, env: ASTEnv)(implicit tag: ClassTag[T]): CFGRes = {
-        def filterRecursive(a: Any): CFGRes = {
-            a match {
-                case e: CFGStmt if stopElems(e) => List()
-                case t if tag.runtimeClass.isInstance(t) => val tfexp = env.featureExpr(t)
-                    if (!(tfexp and ctx).isContradiction())
-                        List((tfexp, tfexp, t.asInstanceOf[T]))
-                    else
-                        List()
-                case l: List[_] => l.flatMap(filterRecursive)
-                case x: Product => x.productIterator.toList.flatMap(filterRecursive)
-                case _ => List()
-            }
-        }
-        filterRecursive(s)
-    }
-
     // this method filters ContinueStatements
     // according to [2]: A continue statement shall appear only in or as a
     // loop body
     // use this method only with the loop body!
     private def filterContinueStatements(c: Conditional[Statement], ctx: FeatureExpr, env: ASTEnv): CFGRes = {
-        filterCFGStatementsUpTo[ContinueStatement](c, (x: CFGStmt) => x match {
-            case _: ForStatement => true
-            case _: WhileStatement => true
-            case _: DoStatement => true
-            case _ => false
-        }, ctx, env)
+        def filterContinueStatementsHelper(a: Any): CFGRes = {
+            a match {
+                case t: ContinueStatement =>
+                    val tfexp = env.featureExpr(t)
+                    if (!(tfexp and ctx).isContradiction()) List((tfexp, tfexp, t)) else List()
+                case _: ForStatement => List()
+                case _: WhileStatement => List()
+                case _: DoStatement => List()
+                case l: List[_] => l.flatMap(filterContinueStatementsHelper)
+                case x: Product => x.productIterator.toList.flatMap(filterContinueStatementsHelper)
+                case _ => List()
+            }
+        }
+        filterContinueStatementsHelper(c)
     }
 
     // this method filters all CaseStatements
@@ -1046,7 +1038,7 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
             a match {
                 case t@CaseStatement(_) =>
                     val tfexp = env.featureExpr(t)
-                    if (!((tfexp and ctx).isContradiction())) List((tfexp, tfexp, t)) else List()
+                    if (!(tfexp and ctx).isContradiction()) List((tfexp, tfexp, t)) else List()
                 case _: SwitchStatement => List()
                 case l: List[_] => l.flatMap(filterCaseStatementsHelper)
                 case x: Product => x.productIterator.toList.flatMap(filterCaseStatementsHelper)
@@ -1063,7 +1055,7 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
                 case t@ReturnStatement(Some(c: CompoundStatementExpr)) => getExprPred(c, ctx, oldres, env)
                 case t@ReturnStatement(_) =>
                     val tfexp = env.featureExpr(t)
-                    if (!((tfexp and ctx).isContradiction())) List((tfexp, tfexp, t)) else List()
+                    if (!(tfexp and ctx).isContradiction()) List((tfexp, tfexp, t)) else List()
                 case _: NestedFunctionDef => List()
                 case l: List[_] => l.flatMap(filterReturnStatementsHelper)
                 case x: Product => x.productIterator.toList.flatMap(filterReturnStatementsHelper)
@@ -1081,7 +1073,7 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
                 case _: SwitchStatement => List()
                 case t: DefaultStatement =>
                     val tfexp = env.featureExpr(t)
-                    if (!((tfexp and ctx).isContradiction())) List((tfexp, tfexp, t)) else List()
+                    if (!(tfexp and ctx).isContradiction()) List((tfexp, tfexp, t)) else List()
                 case l: List[_] => l.flatMap(filterDefaultStatementsHelper)
                 case x: Product => x.productIterator.toList.flatMap(filterDefaultStatementsHelper)
                 case _ => List()
