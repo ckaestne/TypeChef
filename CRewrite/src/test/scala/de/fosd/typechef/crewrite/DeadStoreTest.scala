@@ -32,11 +32,11 @@ class DeadStoreTest extends TestHelper with Matchers with CFGHelper with Enforce
         deadstore(
             """
               void foo(int x, int y) {
-                  int z;
-                  int i = 300;
-                  while (i-- > 0) {
-                      z = x + y;  // dead store
+                  int i = 0;
+                  while (i < 10) {
+                      i++;  // dead store
                   }
+                  ;
               }
             """.stripMargin) should be(false)
     }

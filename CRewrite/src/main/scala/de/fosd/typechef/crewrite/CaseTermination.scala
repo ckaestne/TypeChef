@@ -12,7 +12,7 @@ class CaseTermination(env: ASTEnv) extends IntraCFG {
         // get all successor elements of the case statement
         // and filter out other case statements, as fall through (case after case)
         // is allowed in this analysis
-        var wlist: List[Opt[AST]] = succ(c, env).filterNot({
+        var wlist: List[Opt[AST]] = succ(env)(c).filterNot({
             case Opt(_, _: CaseStatement) => true
             case _ => false
         })
@@ -22,7 +22,7 @@ class CaseTermination(env: ASTEnv) extends IntraCFG {
 
         // determine starting from the case statement that all successor elements will finally
         // come through a break statement
-        while (wlist.size > 0) {
+        while (wlist.nonEmpty) {
             val curelem = wlist.head
             wlist = wlist.tail
 
@@ -31,7 +31,7 @@ class CaseTermination(env: ASTEnv) extends IntraCFG {
                 case Opt(_, _: CaseStatement) => return false
                 case Opt(_, _: DefaultStatement) => return false
                 case Opt(_, s) => if (!isPartOf(s, switch)) return false
-                                  else wlist ++= succ(s, env)
+                                  else wlist ++= succ(env)(s)
 
             }
         }

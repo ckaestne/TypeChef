@@ -1,8 +1,6 @@
 package de.fosd.typechef.crewrite
 
 import de.fosd.typechef.parser.c.{ASTEnv, AST}
-import de.fosd.typechef.featureexpr.FeatureModel
-import de.fosd.typechef.conditional.Opt
 
 trait CFGHelper extends IntraCFG {
 
@@ -13,12 +11,12 @@ trait CFGHelper extends IntraCFG {
         var d = List[AST]()
         var c: AST = null
 
-        while (!s.isEmpty) {
+        while (s.nonEmpty) {
             c = s.head
             s = s.drop(1)
 
-            if (d.filter(_.eq(c)).isEmpty) {
-                r = (c, succ(c, env)) :: r
+            if (!d.exists(_.eq(c))) {
+                r = (c, succ(env)(c)) :: r
                 s = s ++ r.head._2.map(x => x.entry)
                 d = d ++ List(c)
             }
@@ -33,12 +31,12 @@ trait CFGHelper extends IntraCFG {
         var d = List[AST]()
         var c: AST = null
 
-        while (!s.isEmpty) {
+        while (s.nonEmpty) {
             c = s.head
             s = s.drop(1)
 
-            if (d.filter(_.eq(c)).isEmpty) {
-                r = (c, pred(c, env)) :: r
+            if (!d.exists(_.eq(c))) {
+                r = (c, pred(env)(c)) :: r
                 s = s ++ r.head._2.map(x => x.entry)
                 d = d ++ List(c)
             }

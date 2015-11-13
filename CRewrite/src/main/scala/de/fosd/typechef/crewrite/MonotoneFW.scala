@@ -159,8 +159,8 @@ sealed abstract class MonotoneFW[T](env: ASTEnv, val fm: FeatureModel) extends I
     //           result elements flow from successor to predecessor
     // we don't reverse the order here but keep the names for flow and flowR consistent with the book
     protected def F(e: AST): CFG
-    protected def flow(e: AST): CFG = pred(e, env)
-    protected def flowR(e: AST): CFG = succ(e, env)
+    protected def flow(e: AST): CFG = pred(env)(e)
+    protected def flowR(e: AST): CFG = succ(env)(e)
 
     // we compute the flow on the fly and FunctionDef represents our only element in E (extremal labels),
     // i.e., FunctionDef is the "last" and the "first" element (label) in flow resp. flowR (see F definition)
@@ -360,8 +360,7 @@ class IdentityHashMapCache[A] {
     def update(k: Any, v: A) { cache.put(k, v) }
     def lookup(k: Any): Option[A] = {
         val v = cache.get(k)
-        if (v != null) Some(v)
-        else None
+        Option(v)
     }
     def keySet = cache.keySet()
 }
