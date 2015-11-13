@@ -1,7 +1,6 @@
 package de.fosd.typechef.crewrite
 
 import de.fosd.typechef.parser.c._
-import de.fosd.typechef.featureexpr.FeatureModel
 import de.fosd.typechef.conditional.Opt
 
 // implements a simple analysis that checks whether a switch statement has
@@ -13,7 +12,7 @@ class DanglingSwitchCode(env: ASTEnv) extends IntraCFG {
         // get all successor elements of all expressions in the switch statement
         // SwitchStatement(expr, ...) and filter out other case statements, as fall through (case after case)
         // is allowed in this analysis
-        val exprsuccs = succ(s, env).flatMap({ x => succ(x.entry, env) })
+        val exprsuccs = succ(env)(s).flatMap({ x => succ(env)(x.entry) })
         val wlist: List[Opt[AST]] = exprsuccs.filterNot({
             case Opt(_, _: CaseStatement) => true
             case Opt(_, _: DefaultStatement) => true
