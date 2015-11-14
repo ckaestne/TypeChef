@@ -11,7 +11,7 @@ class DoubleFreeTest extends TestHelper with Matchers with CFGHelper with Enforc
     // check freed pointers
     private def getFreedMem(code: String) = {
         val a = parseFunctionDef(code)
-        val df = new DoubleFree(CASTEnv.createASTEnv(a), null, null, null, a, "")
+        val df = new DoubleFree(CASTEnv.createASTEnv(a), null, null, null, "")
         df.gen(a).map {case ((x, _), f) => (x, f)}
     }
 

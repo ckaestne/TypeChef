@@ -41,7 +41,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                         if (opts.warning_long_designator && v.lastOption.map(_ == 'l').getOrElse(false))
                             reportTypeError(featureExpr, "Use \"L,\" not \"l,\" to indicate a long value", c, Severity.SecurityWarning, "long-designator")
 
-                        if (v == "0" || v == "'\\0'") One(CZero())
+                        if (v == "0" || v == "'\\0'" || isHexNull(v)) One(CZero())
                         else
                         if (v.head == '\'') One(CSignUnspecified(CChar()))
                         else
@@ -116,7 +116,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                         })
                     //e->n (by rewrite to *e.n)
                     case p@PostfixExpr(expr, PointerPostfixSuffix("->", i@Id(id))) =>
-                        val newExpr = PostfixExpr(PointerDerefExpr(expr), PointerPostfixSuffix(".", i))
+                        val newExpr = PostfixExpr(PointerDerefExpr(expr).setPositionRange(p), PointerPostfixSuffix(".", i).setPositionRange(p)).setPositionRange(p)
                         newExpr.setPositionRange(p.getPositionFrom, p.getPositionTo) //enable line reporting in error messages
                         newExpr.p.setPositionRange(expr.getPositionFrom, expr.getPositionTo) //enable line reporting in error messages
                         newExpr.s.setPositionRange(i.getPositionFrom, i.getPositionTo) //enable line reporting in error messages
@@ -134,6 +134,8 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                                 if (targetType == CVoid().toCType ||
                                     isPointer(targetType) ||
                                     (isScalar(sourceType) && isScalar(targetType))) targetType
+                                else if (targetType.atype == sourceType.atype) targetType // casting to the same type is fine
+                                else if (isStruct(targetType) && isScalar(sourceType)) targetType // the compiler doesn't seem to mind casts from int to struct
                                 else if (isScalar(targetType) && isPointer(normalize(sourceType))) targetType //cast from pointer to long is valid
                                 else if (isCompound(sourceType) && (isStruct(targetType) || isArray(targetType))) targetType.toObj //workaround for array/struct initializers
                                 else if (sourceType.isIgnore || targetType.isIgnore || sourceType.isUnknown || targetType.isUnknown) targetType
@@ -586,6 +588,13 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
         else ctype
 
     }
+
+    val HexNull = "0x0+".r
+    private def isHexNull(s:String) = s match {
+        case HexNull() => true
+        case _ => false
+    }
+
 
 
 }

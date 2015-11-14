@@ -5,7 +5,7 @@ f (char *p)
   c = *++p;
   if (c != ' ')
     return 0;
-  for (;;)
+  for (;1;)
     {
       c = *p;
       if (g (c))

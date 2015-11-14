@@ -1,8 +1,8 @@
 package de.fosd.typechef.parser.c
 
-import org.kiama.rewriting.Rewriter._
-import de.fosd.typechef.conditional.{Opt, One}
+import de.fosd.typechef.conditional.{One, Opt}
 import de.fosd.typechef.error.WithPosition
+import org.kiama.rewriting.Rewriter._
 
 
 /**
@@ -22,9 +22,10 @@ trait EnforceTreeHelper {
         if (source.isInstanceOf[WithPosition])
             target.asInstanceOf[WithPosition].range = source.asInstanceOf[WithPosition].range
 
-        //        assert(source.children.size==target.children.size,"cloned tree should match exactly the original")
+        assert(source.productArity == target.productArity, "cloned tree should match exactly the original")
         for ((c1, c2) <- source.productIterator.zip(target.productIterator)) {
-            if (!c1.isInstanceOf[Product] || !c2.isInstanceOf[Product])
+            assert(c1.getClass == c2.getClass, "cloned tree should match exactly the original, typewise")
+            if (c1.isInstanceOf[Product] && c2.isInstanceOf[Product])
                 copyPositions(c1.asInstanceOf[Product], c2.asInstanceOf[Product])
         }
     }
@@ -37,11 +38,11 @@ trait EnforceTreeHelper {
         assert(ast != null, "ast should not be null")
 
         val clone = everywherebu(rule[Product] {
-            // function to add a break expression to infinite loops: "for (;;) {}" and "for (;;) ;"
-            // reason is: for (;;) is the only infinite loop without explicit break statement,
-            // so if we omit CompoundStatement in succ pred determination, we need an expression
-            // so that succ(e) -> e and pred(e) is e
-            // we add a Constant("1") at the break
+            //            // function to add a break expression to infinite loops: "for (;;) {}" and "for (;;) ;"
+            //            // reason is: for (;;) is the only infinite loop without explicit break statement,
+            //            // so if we omit CompoundStatement in succ pred determination, we need an expression
+            //            // so that succ(e) -> e and pred(e) is e
+            //            // we add a Constant("1") at the break
             case ForStatement(None, None, None, One(CompoundStatement(List()))) =>
                 ForStatement(None, Some(Constant("1")), None, One(CompoundStatement(List())))
             case n: AST => n.clone()
@@ -89,7 +90,7 @@ trait EnforceTreeHelper {
     }
 
     // filter AST nodes that do not have position information
-    def checkPositionInformation[T <: Product](ast: T): List[AST] = {
+    def getNodesWithoutPositionInformation[T <: Product](ast: T): List[AST] = {
         assert(ast != null, "ast should not be null")
         var nodeswithoutposition: List[AST] = List()
 
@@ -101,4 +102,12 @@ trait EnforceTreeHelper {
 
         nodeswithoutposition
     }
+
+    def checkPositionInformation(ast: Product) {
+        var nodeswithoutposition: List[Product] = getNodesWithoutPositionInformation(ast)
+        assert(nodeswithoutposition.size <= 1,
+            "AST nodes with empty position information found (" + nodeswithoutposition.size + "): " +
+                nodeswithoutposition.take(3).map(_.toString.take(200)).mkString("\n"))
+    }
+
 }

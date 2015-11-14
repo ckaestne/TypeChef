@@ -41,6 +41,7 @@ class XtcDiffFileTest extends FunSuite with DifferentialTestingFramework {
                macrofilter/test.c
                nesting/termination.c
                nesting/m.c
+               ifenabled.c
         """.split("\\ +").map(_.trim).filter(_.nonEmpty)
 
     val ignoredFiles =

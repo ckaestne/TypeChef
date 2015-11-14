@@ -42,6 +42,8 @@ class BDDFeatureExpr(private[featureexpr] val bdd: BDD) extends FeatureExpr {
     }
     def not(): FeatureExpr = FExprBuilder.not(this)
 
+    def simplify(b:FeatureExpr) : FeatureExpr = new BDDFeatureExpr(this.bdd.simplify(asBDDFeatureExpr(b).bdd))
+
     /**
      * frees the space occupied by this bdd in the bdd library.
      * This is done without any safety-measures!

@@ -21,8 +21,8 @@ object BuildSettings {
         scalaVersion := buildScalaVersion,
         shellPrompt := ShellPrompt.buildShellPrompt,
 
-        javacOptions ++= Seq("-Xlint:unchecked", "-target", "1.7"),
-        scalacOptions ++= Seq("-deprecation", "-unchecked", "-optimise"),
+        javacOptions ++= Seq("-Xlint:unchecked", "-target", "1.7", "-source", "1.7"),
+        scalacOptions ++= Seq("-deprecation", "-unchecked", "-optimise", "-target:jvm-1.7"),
         testOptions += Tests.Argument(TestFrameworks.JUnit, "-q", "-v"),
 
         // suppress feature warnings in Scala 2.10.x
@@ -88,8 +88,7 @@ object BuildSettings {
                 </developers>,
 
         credentials += Credentials(Path.userHome / ".ivy2" / ".credentials")
-    ) ++
-     org.scoverage.coveralls.CoverallsPlugin.coverallsSettings
+    ) 
 }
 
 object ShellPrompt {
@@ -102,7 +101,7 @@ object ShellPrompt {
 
     val current = """\*\s+(\w+)""".r
 
-    def gitBranches = ("git branch --no-color" lines_! devnull mkString)
+    def gitBranches = (("git branch --no-color" lines_! devnull).mkString)
 
     val buildShellPrompt = {
         (state: State) => {

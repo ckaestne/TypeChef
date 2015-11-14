@@ -6,18 +6,7 @@ import org.scalatest.{Matchers, FunSuite}
 import org.scalatest.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
-class RedeclarationTest extends FunSuite with Matchers with TestHelper {
-
-    private def check(code: String, printAST: Boolean = false): Boolean = {
-        println("checking " + code);
-        if (printAST) println("AST: " + getAST(code));
-        check(getAST(code));
-    }
-
-    private def check(ast: TranslationUnit): Boolean = {
-        assert(ast != null, "void ast");
-        new CTypeSystemFrontend(ast).checkAST()
-    }
+class RedeclarationTest extends FunSuite with Matchers with TestHelperTS {
 
 
     test("function declaration redeclaration") {
@@ -97,9 +86,18 @@ class RedeclarationTest extends FunSuite with Matchers with TestHelper {
             check("int foo();" +
                 "int foo() {}")
         }
+        assertResult(true) {
+            check("extern int foo();" +
+                "int foo() {}")
+        }
         assertResult(false) {
             check("int foo(int p);" +
                 "int foo() {}")
+        }
+        assertResult(false) {
+            check("enum x { a, b }; " +
+                "int foo(int p);" +
+                "int foo(enum x y) {}")
         }
         assertResult(false) {
             //actually just a warning in GCC

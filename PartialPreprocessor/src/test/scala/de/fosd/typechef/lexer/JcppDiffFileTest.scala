@@ -6,7 +6,7 @@ import org.scalatest.FunSuite
 
 class JcppDiffFileTest extends FunSuite with DifferentialTestingFramework {
     override protected def useXtc(): Boolean = false
-    override protected def status(s: String) = info(s+" /jcpp")
+    override protected def status(s: String) = info(s + " /jcpp")
 
     val dir = new File(getClass.getResource("/tc_data").toURI)
     private def testFile(s: String): Unit = analyzeFile(new File(dir, s), dir)
@@ -59,9 +59,10 @@ class JcppDiffFileTest extends FunSuite with DifferentialTestingFramework {
           |if.h, unclear problem with macro expansion
           |test_div_by_zero4.c, conditional error message not handled correctly
           |expandWithinExpand.c, throws conditional error where cpp works without complaints
+          |ifenabled.c, incorrect macro expansion
         """.stripMargin.split("\\n").filter(_.trim.nonEmpty).map(l => {
             val p = l.indexOf(",");
-            (l.take(p).trim, l.drop(p+1).trim)
+            (l.take(p).trim, l.drop(p + 1).trim)
         })
 
 

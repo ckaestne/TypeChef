@@ -118,9 +118,12 @@ trait CEnv {
             //overwrites complete tags in lower scopes, but has no effects otherwise
             val name = id.name
             val key = (name, isUnion)
+            val newTag = StructTag(false, emptyFields, scope, Some(id))
             val prevTag: Conditional[StructTag] = env.getOrElse(key, One(incompleteTag))
-            val newTag: Conditional[StructTag] = Choice(condition, One(StructTag(false, emptyFields, scope, Some(id))), One(incompleteTag))
-            val result = ConditionalLib.mapCombination(prevTag, newTag, (p: StructTag, n: StructTag) => if (n.scope > p.scope) n else p)
+            val result = prevTag.flatMap(p =>
+                if (scope > p.scope) Choice(condition, One(newTag), One(p))
+                else One(p)
+            ).simplify
             new StructEnv(env + (key -> result))
         }
 

@@ -38,6 +38,8 @@ public interface ILexerOptions {
 
     boolean isLexPrintToStdout();
 
+    boolean printLexerErrorsToStdErr();
+
     boolean useXtcLexer();
 
 

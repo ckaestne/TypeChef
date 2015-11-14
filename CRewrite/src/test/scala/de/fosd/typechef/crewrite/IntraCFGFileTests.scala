@@ -2705,4 +2705,8 @@ class IntraCFGFileTests extends TestHelper with EnforceTreeHelper with IntraCFG 
     @Ignore def test_bug82() {
         assert(checkCFG("bug82.c") == false)
     }
+
+    @Test def test_bug83(): Unit = {
+        assert(checkCFG("bug83.c").unary_!)
+    }
 }

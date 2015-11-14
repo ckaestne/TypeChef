@@ -5,9 +5,11 @@ import de.fosd.typechef.parser._
 import java.io.{FileWriter, File}
 import FeatureExprFactory.True
 import java.util.Collections
-import de.fosd.typechef.error.Position
-import de.fosd.typechef.conditional.Opt
+import de.fosd.typechef.error.{WithPosition, Position}
+import de.fosd.typechef.conditional.{One, Choice, Opt}
 import de.fosd.typechef.lexer.LexerFrontend
+import org.kiama.rewriting.Rewriter._
+import org.kiama.rewriting.Strategy
 
 object MyUtil {
     implicit def runnable(f: () => Unit): Runnable =
@@ -99,7 +101,52 @@ class ParserMain(p: CParser) {
 
 
         //return null (if parsing failed in all branches) or a single AST combining all parse results
-        mergeResultsIntoSingleAST(ctx, result)
+        val ast = mergeResultsIntoSingleAST(ctx, result)
+        if (parserOptions.simplifyPresenceConditions) {
+            if (FeatureExprFactory.default == FeatureExprFactory.bdd) {
+                return simplifyPresenceConditions(ast, FeatureExprFactory.True)
+            } else {
+                print("\"-bdd\" option required to simplify AST presence conditions.\n")
+            }
+        }
+
+        ast
+    }
+    /**
+     * Simplifies presence conditions on ast nodes in the AST.
+     * AST is not changed but a new AST with changed pcs is returned. Positions are copied.
+     * This method is based on Florian Garbe's method prepareASTforIfdef in de.fosd.typechef.cifdeftoif.IfdefToIf in the Hercules fork of TypeChef.
+     */
+    def simplifyPresenceConditions(ast: TranslationUnit, ctx: FeatureExpr = FeatureExprFactory.True): TranslationUnit = {
+        val astEnv = de.fosd.typechef.parser.c.CASTEnv.createASTEnv(ast)
+        def traverseASTrecursive[T <: Product](t: T, currentContext: FeatureExpr = FeatureExprFactory.True): T = {
+            val r = alltd(rule[Any] {
+                case l: List[_] =>
+                    l.flatMap(x => x match {
+                        case o@Opt(ft: FeatureExpr, entry) =>
+                            if (!ft.and(currentContext).isSatisfiable()) {
+                                // current context makes ft impossible (-> ft == false and we can omit the node)
+                                List()
+                                    } else {
+                                List(traverseASTrecursive(Opt(ft.simplify(currentContext), entry), ft.and(currentContext)))
+                                    }
+                    })
+                case c@Choice(ft, thenBranch, elseBranch) =>
+                    val ctx = astEnv.featureExpr(c)
+                    val newChoiceFeature = ft.simplify(ctx)
+                    val result = Choice(newChoiceFeature,
+                        traverseASTrecursive(thenBranch,ctx.and(newChoiceFeature)) ,
+                        traverseASTrecursive(elseBranch,ctx.and(newChoiceFeature.not)))
+                    result
+            })
+            r(t) match {
+                case None =>
+                    t
+                case k =>
+                    k.get.asInstanceOf[T]
+                                }
+                            }
+        traverseASTrecursive(ast, ctx)
     }
 
     /**

@@ -56,7 +56,7 @@ object WebFrontend {
         if (ast != null) {
             val ts = new CTypeSystemFrontend(ast.asInstanceOf[TranslationUnit]) with CInferInterface
             println("<h2>Type checking</h2><pre name='tsoutput'>")
-            ts.checkAST()
+            ts.checkAST(printResults = true)
             println("</pre>")
             println("<h2>Module interface</h2><div class='output'><pre name='interface'>")
             println(ts.getInferredInterface().toString)

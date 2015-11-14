@@ -1,10 +1,10 @@
 package de.fosd.typechef.typesystem
 
-import de.fosd.typechef.parser.c._
-import de.fosd.typechef.featureexpr._
 import de.fosd.typechef.conditional._
-import linker.CInferInterface
 import de.fosd.typechef.error._
+import de.fosd.typechef.featureexpr._
+import de.fosd.typechef.parser.c._
+import de.fosd.typechef.typesystem.linker.CInferInterface
 
 /**
  * checks an AST (from CParser) for type errors (especially dangling references)
@@ -28,6 +28,7 @@ class CTypeSystemFrontend(iast: TranslationUnit,
     var errors: List[TypeChefError] = List()
 
     var isSilent = false
+    def makeSilent() = { isSilent=true; this }
 
     val DEBUG_PRINT = false
 
@@ -46,13 +47,13 @@ class CTypeSystemFrontend(iast: TranslationUnit,
     }
 
     override def issueTypeError(severity: Severity.Severity, condition: FeatureExpr, msg: String, where: AST, severityExtra: String = "") {
-    	//first check without feature model for performance reasons
+        //first check without feature model for performance reasons
         if (condition.isSatisfiable() && condition.isSatisfiable(featureModel)) {
             val e = new TypeChefError(severity, condition, msg, where, severityExtra)
             errors = e :: errors
             if (!isSilent) {
-            	println("  - " + e)
-        	}
+                println("  - " + e)
+            }
         }
     }
 
@@ -61,18 +62,19 @@ class CTypeSystemFrontend(iast: TranslationUnit,
      * Returns true iff no errors were found.
      * @return
      */
-    def checkAST(ignoreWarnings: Boolean = true): Boolean = {
+    def checkAST(ignoreWarnings: Boolean = true, printResults: Boolean = false): Boolean = {
 
         errors = List() // clear error list
         typecheckTranslationUnit(iast)
         val merrors = if (ignoreWarnings)
             errors.filterNot(Set(Severity.Warning, Severity.SecurityWarning) contains _.severity)
         else errors
-        if (merrors.isEmpty)
-            println("No type errors found.")
-        else {
-            println("Found " + merrors.size + " type errors: ")
-        }
+        if (printResults)
+            if (merrors.isEmpty)
+                println("No type errors found.")
+            else {
+                println("Found " + merrors.size + " type errors: ")
+            }
         //println("\n")
         merrors.isEmpty
     }

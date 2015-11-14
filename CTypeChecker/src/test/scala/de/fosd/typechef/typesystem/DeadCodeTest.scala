@@ -14,7 +14,7 @@ class DeadCodeTest extends FunSuite with CTypeSystem with Matchers with TestHelp
 
     def e(s: String) = {
         val r = parseExpr(s)
-        println(r)
+//        println(r)
         r
     }
     def evalExpr(s: String): Conditional[VValue] = evalExpr(One(e(s.replace("[[", "\n#ifdef A\n").replace("][", "\n#else\n").replace("]]", "\n#endif\n"))), True, EmptyEnv)

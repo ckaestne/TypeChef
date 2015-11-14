@@ -138,6 +138,7 @@ object Frontend extends EnforceTreeHelper {
                 val parserMain = new ParserMain(new CParser(smallFM))
                 ast = parserMain.parserMain(in, opt, fullFM)
                 ast = prepareAST[TranslationUnit](ast)
+                // checkPositionInformation(ast)
 
                 if (ast != null && opt.serializeAST) {
                     stopWatch.start("serialize")
@@ -165,7 +166,7 @@ object Frontend extends EnforceTreeHelper {
 
                     stopWatch.start("typechecking")
                     println("#type checking")
-                    ts.checkAST()
+                    ts.checkAST(printResults = true)
                     ts.errors.map(errorXML.renderTypeError)
                 }
                 if (opt.writeInterface) {

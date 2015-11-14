@@ -40,7 +40,7 @@ class InterfaceSerializationTest extends TestHelper {
   def testMini {
     val ast = parse("mini.pi")
     val interface = new CInferInterface {}.inferInterface(ast)
-    println(interface)
+//    println(interface)
     checkSerialization(interface)
   }
 
@@ -48,7 +48,7 @@ class InterfaceSerializationTest extends TestHelper {
   def testBoa {
     val ast = parse("boa.pi")
     val interface = new CInferInterface {}.inferInterface(ast)
-    println(interface)
+//    println(interface)
     checkSerialization(interface)
   }
 
@@ -56,7 +56,7 @@ class InterfaceSerializationTest extends TestHelper {
   def testAr {
     val ast = parse("ar.pi")
     val interface = new CInferInterface {}.inferInterface(ast)
-    println(interface)
+//    println(interface)
     checkSerialization(interface)
   }
 
@@ -65,7 +65,7 @@ class InterfaceSerializationTest extends TestHelper {
   def testDeadCodeDetection {
     val ast = parse("deadcode.pi")
     val interface = new CInferInterface {}.inferInterface(ast)
-    println(interface)
+//    println(interface)
     checkSerialization(interface)
   }
 

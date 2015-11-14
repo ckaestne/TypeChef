@@ -38,7 +38,7 @@ trait CFGWriter {
 
             // iterate successors and add edges
             for (Opt(f, succ) <- csuccs) {
-                writeNodeOnce(succ, ()=>lookupFExpr(o), containerName)
+                writeNodeOnce(succ, ()=>lookupFExpr(succ), containerName)
 
                 writeEdge(o, succ, f)
             }

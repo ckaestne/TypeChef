@@ -68,6 +68,7 @@ public abstract class FeatureModelOptions extends LexerOptions implements ILexer
     protected PartialConfiguration partialConfig = null;
     protected String dimacsPrefix = "CONFIG_";
     private FeatureExpr smallFeatureModelExpr = null;
+    private boolean dimacsModelLoaded = false;
 
 
     @Override
@@ -109,7 +110,7 @@ public abstract class FeatureModelOptions extends LexerOptions implements ILexer
                 new Option("partialConfiguration", LongOpt.REQUIRED_ARGUMENT, FM_PARTIALCONFIG, "file",
                         "Loads a partial configuration to the type-system feature model (file with #define and #undef lines)."),
                 new Option("dimacsFeaturePrefix", LongOpt.REQUIRED_ARGUMENT, FM_DIMACS_PREFIX, "prefix",
-                        "Prefix that is added to all names in the dimacs file loaded after this option (default: CONFIG_).")
+                        "Prefix that is added to all names in the dimacs file loaded after this option (default: CONFIG_). Use two double-quotes (\"\") as an empty prefix.")
         ));
 
         return r;
@@ -124,12 +125,14 @@ public abstract class FeatureModelOptions extends LexerOptions implements ILexer
             if (fullFeatureModel != null)
                 throw new OptionException("cannot load feature model " + filename + " from dimacs file. A feature model was already loaded.");
             fullFeatureModel = FeatureExprLib.featureModelFactory().createFromDimacsFilePrefix(filename, dimacsPrefix);
+            dimacsModelLoaded = true;
         } else if (c == FM_DIMACS_SMALL) {       //--smallFeatureModelDimacs
             String filename = g.getOptarg();
             checkFileExists(filename);
             if (smallFeatureModel != null)
                 throw new OptionException("cannot load feature model " + filename + " from dimacs file. A feature model was already loaded.");
             smallFeatureModel = FeatureExprLib.featureModelFactory().createFromDimacsFilePrefix(filename, dimacsPrefix);
+            dimacsModelLoaded = true;
         } else if (c == FM_FEXPR) {     //--featureModelFExpr
             checkFileExists(g.getOptarg());
             FeatureExpr f = new FeatureExprParserJava(FeatureExprLib.l()).parseFile(g.getOptarg());
@@ -158,6 +161,24 @@ public abstract class FeatureModelOptions extends LexerOptions implements ILexer
                 fullFeatureModel = fullFeatureModel.assumeTrue(featureName);
             for (String featureName : partialConfig.getUndefinedFeatures())
                 fullFeatureModel = fullFeatureModel.assumeFalse(featureName);
+        } else if (c == FM_DIMACS_PREFIX) {    //--dimacsFeaturePrefix
+            String prefix = g.getOptarg();
+
+            // if any dimacs model was already loaded, the prefix is useless
+            if ((fullFeatureModel != null || smallFeatureModel !=null) && dimacsModelLoaded)
+                throw new OptionException("--dimacsFeaturePrefix given after --featureModelDimacs! this way, the feature model is not loaded the right way.");
+
+            if (prefix.startsWith("--"))
+                throw new OptionException("cannot set prefix \"" + prefix + "\" as dimacs-feature prefix due to invalid first characters.\n" +
+                        "probably, you gave no argument in the first place, use \"\" to have an empty string as prefix.");
+
+            // catch 'wrong' empty string
+            if (prefix.startsWith("''")) {
+                System.err.println("WARNING: You supplied '' as dimacs prefix. Reset as \"\" to ensure empty string as prefix.");
+                prefix = "";
+            }
+
+            dimacsPrefix = prefix;
         } else
             return super.interpretOption(c, g);
         return true;

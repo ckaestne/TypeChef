@@ -129,6 +129,7 @@ private object SatSolverCache {
 
 class SatSolverImpl(featureModel: BDDFeatureModel) {
     assert(featureModel != null)
+    val PROFILING = false
 
     /** init / constructor */
     val solver = SolverFactory.newDefault()
@@ -146,12 +147,12 @@ class SatSolverImpl(featureModel: BDDFeatureModel) {
     def isSatisfiable(dnf: Iterator[Seq[Int]], lookupName: (Int) => String): Boolean = {
         this.lastModel = null // remove model from last satisfiability check
 
-        val PROFILING = false
 
         val startTime = System.currentTimeMillis();
 
+        val dnfl = dnf.toList
         if (PROFILING)
-            print("<SAT " + dnf.length + "; ")
+            print("<SAT " + dnfl.length + "; ")
 
         val startTimeSAT = System.currentTimeMillis();
         var constraintGroup: List[IConstr] = Nil
@@ -167,10 +168,9 @@ class SatSolverImpl(featureModel: BDDFeatureModel) {
                 }
             }
 
-            val dfnl = dnf.toList
 
             try {
-                for (clause <- dfnl) {
+                for (clause <- dnfl) {
                     val clauseArray: Array[Int] = new Array(clause.size)
                     var i = 0
                     for (literal <- clause) {
@@ -245,6 +245,8 @@ class SatSolverImpl(featureModel: BDDFeatureModel) {
     var invalid: Boolean = false
 
     def invalidateCache() {
+        if (PROFILING)
+            println("<invalidating SAT cache>")
         invalid = true
     }
 }

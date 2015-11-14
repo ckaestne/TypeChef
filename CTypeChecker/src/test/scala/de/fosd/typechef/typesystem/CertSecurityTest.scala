@@ -16,8 +16,9 @@ class CertSecurityTest extends FunSuite with Matchers with TestHelper {
         check("void main() { " + code + "}", enableAnalysis, printAST)
 
     private def check(code: String, enableAnalysis: Boolean, printAST: Boolean = false): Boolean = {
-        println("checking " + code);
-        if (printAST) println("AST: " + getAST(code));
+//        println("checking " + code);
+        if (printAST)
+            println("AST: " + getAST(code));
         check(getAST(code), enableAnalysis);
     }
     private def check(ast: TranslationUnit, enableAnalysis: Boolean): Boolean = {
@@ -31,7 +32,7 @@ class CertSecurityTest extends FunSuite with Matchers with TestHelper {
                 override def warning_const_assignment = true
                 override def warning_character_signed = true
             } else LinuxDefaultOptions
-        ).checkAST(false)
+        ).makeSilent().checkAST(false)
     }
 
     def correct(code: String) {

@@ -15,7 +15,7 @@ class DeclTypingTest extends FunSuite with CTypeSystem with Matchers with TestHe
     private def declTL(code: String) = {
         val ast: Declaration = parseDecl(code)
         val r = getDeclaredVariables(ast, FeatureExprFactory.True, EmptyEnv)._2.map(e => (e._1, e._4))
-        println(r)
+//        println(r)
         r
     }
 
@@ -142,6 +142,12 @@ class DeclTypingTest extends FunSuite with CTypeSystem with Matchers with TestHe
         declCT("long \n#ifdef X\n*\n#endif\n#ifdef Y\n*\n#endif\n a;") should be(
             Choice(fy, Choice(fx, One(CPointer(CPointer(CSigned(CLong())))), One(CPointer(CSigned(CLong())))),
                 Choice(fx, One(CPointer(CSigned(CLong()))), One(CSigned(CLong())))))
+    }
+
+    val ui = CUnsigned(CInt()).toCType
+    test("attributes") {
+        declTL("unsigned int a, __attribute__((unused)) b;") should be(List(("a", One(ui)), ("b", One(ui))))
+
     }
 
 }

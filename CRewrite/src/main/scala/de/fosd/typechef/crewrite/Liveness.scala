@@ -15,7 +15,7 @@ import de.fosd.typechef.typesystem.UseDeclMap
 // i  = ∅
 // E  = {FunctionDef} // see MonotoneFW
 // F  = flowR
-class Liveness(f: FunctionDef, env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) extends MonotoneFWId(f, env, udm, fm) with IntraCFG with UsedDefinedDeclaredVariables {
+class Liveness(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) extends MonotoneFWId(env, udm, fm) with IntraCFG with UsedDefinedDeclaredVariables {
 
     // returns all declared variables with their annotation
     val declaresVar: PartialFunction[(Any), L] = {
@@ -43,8 +43,6 @@ class Liveness(f: FunctionDef, env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) e
     // page 5
     //  in(a) = gen(a) + (out(a) - kill(a))
     // out(a) = for s in succ(n) r = r + in(s); r
-
-    solve()
-
-    def isForward = false
+    protected def infunction(a: AST): L = f_l(a)
+    protected def outfunction(a: AST): L = combinator(a)
 }

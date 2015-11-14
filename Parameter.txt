@@ -25,6 +25,7 @@ Parameters:
   Parser options
     --hideparserresults            Do not show parser results.
     --parserstatistics             Print parser statistics.
+    --simplifyPresenceConditions   Simplify presence conditions after parsing.
 
   Preprocessor configuration
     --define=name[=definition] (-D)
@@ -63,26 +64,28 @@ Parameters:
                                     * volatile: Issue security warning on referencing a volatile object using a nonvolatile value (undefined behavior)
                                     * const: Issue security warning on assigning to const value or casting away const qualification (undefined behavior)
                                     * char: Issue warning when converting between 'char' types of different signness (unintended effects)
-                                   (Analyses with * are activated by default).
-    --no-analysis (-a)             Disables ALL analyses.
-    --static-analysis=type (-S)    Enables the static-analysis class: 
                                     * doublefree: Issue a warning when dynamically allocated memory is freed multiple times
                                     * xfree: Issue a warning when trying to free memory that was not allocated dynamically
                                     * uninitializedmemory: Issue a warning when the value of a non-initialized variable is used
-                                    * caseterminiation: Issue a warning when statements following a case block within a switch aren't terminated using a break statement
+                                    * casetermination: Issue a warning when statements following a case block within a switch aren't terminated using a break statement
                                     * danglingswitchcode: Issue a warning when code in a switch statement doesn't occur within the control flow of a case or default statement
+                                    * cfginnonvoidfunction: Issue a warning when control flow in non-void function reaches no return statement
+                                    * checkstdlibfuncreturn: Issue a warning when the return value of a standard library function is not check for its error values
+                                    * deadstore: Issue a warning when values stored to variables are never read afterwards
                                    (Analyses with * are activated by default).
-    --no-static-analysis (-s)      Disables ALL analyses.
+    --no-analysis (-a)             Disables ALL analyses.
 
   Feature models
     --featureModelDimacs=file      Dimacs file describing a feature model.
     --featureModelFExpr=file       File in FExpr format describing a feature model.
-    --typeSystemFeatureModelDimacs=file
-                                   Distinct feature model for the type system.
+    --smallFeatureModelDimacs=file Dimacs file describing a feature model.
+    --smallFeatureModelFExpr=file  File in FExpr format describing a feature model.
     --partialConfiguration=file    Loads a partial configuration to the type-system feature model (file with #define and #undef lines).
+    --dimacsFeaturePrefix=prefix   Prefix that is added to all names in the dimacs file loaded after this option (default: CONFIG_). Use two double-quotes ("") as an empty prefix.
 
   Misc
+    --printIncludes                Prints gathered include information for debugging
     --version                      Prints version number
     --help                         Displays help and usage information.
 
-TypeChef version 0.3.5_20130711170744
+TypeChef version 0.4.0_20150528094755
