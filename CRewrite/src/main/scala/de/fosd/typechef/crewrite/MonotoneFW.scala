@@ -82,8 +82,8 @@ sealed abstract class MonotoneFW[T](env: ASTEnv, val fm: FeatureModel) extends I
     protected def t2T(i: T): T
 
     // map given elements from gen/kill to those elements maintained by the framework
-    protected def mapGenKillElements2MonotoneElements(s: L): L
-    private def updateFeatureExprOfMonotoneElements(s: L, f: FeatureExpr): L = {
+    protected def toMonotone(s: L): L
+    private def updateFExps(s: L, f: FeatureExpr): L = {
         var res = l
 
         for ((x, of) <- s)
@@ -206,9 +206,8 @@ sealed abstract class MonotoneFW[T](env: ASTEnv, val fm: FeatureModel) extends I
     protected val combinator: AST => L = {
         circular[AST, L](b) {
             case _: E => i
-            case a =>
-                val fl = F(a)
-                fl.foldLeft[L](b)((r: L, s: Opt[AST]) => combinationOperator(r, updateFeatureExprOfMonotoneElements(point(s.entry), s.condition)))
+            case a => F(a).foldLeft[L](b)(
+                (r: L, s: Opt[AST]) => combinationOperator(r, updateFExps(point(s.entry), s.condition)))
         }
     }
 
@@ -217,9 +216,9 @@ sealed abstract class MonotoneFW[T](env: ASTEnv, val fm: FeatureModel) extends I
             case _: E => i
             case a =>
                 var res = combinator(a)
-                res = diff(res, mapGenKillElements2MonotoneElements(kill(a)))
+                res = diff(res, toMonotone(kill(a)))
 
-                res = union(res, mapGenKillElements2MonotoneElements(gen(a)))
+                res = union(res, toMonotone(gen(a)))
                 res
         }
     }
@@ -284,7 +283,7 @@ abstract class MonotoneFWId(env: ASTEnv, udm: UseDeclMap, fm: FeatureModel) exte
         }
     }
 
-    protected def mapGenKillElements2MonotoneElements(s: L): L = {
+    protected def toMonotone(s: L): L = {
         var res = l
 
         for ((x, f) <- s)
@@ -314,7 +313,7 @@ abstract class MonotoneFWIdLab(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm
 
     protected def t2SetT(i: PGT) = Set(getFreshDefinition(i))
 
-    protected def mapGenKillElements2MonotoneElements(s: L): L = {
+    protected def toMonotone(s: L): L = {
         // we traverse the input so all elements from s are added
         // to our internal cache t2FreshT
         for ((x, _) <- s)
