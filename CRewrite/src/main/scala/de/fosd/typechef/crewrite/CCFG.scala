@@ -27,10 +27,8 @@ trait CCFG extends ASTNavigation with ConditionalNavigation {
 
                     l.foreach {
                         x =>
-
-                            if (ctx and env.featureExpr(x) isContradiction())
-                                {}
-                            else if (!isComplete(ctx)(r)) {
+                            if ((ctx and env.featureExpr(x) isSatisfiable())
+                                && !isComplete(ctx)(r)) {
                                 r = basicSucc(env, r, ctx)(x.entry)
                                 // filter elements with an equivalent annotation
                                 .foldLeft(List(): CFGStmts){
@@ -40,7 +38,8 @@ trait CCFG extends ASTNavigation with ConditionalNavigation {
                                         else
                                             ul ++ List(nee)
                                 }
-                                // filter unsatisfiable control-flow paths, i.e., feature expression is contradiction
+                                // filter unsatisfiable control-flow paths,
+                                // i.e., feature expression is contradiction
                                 .filter{ o => o.condition and ctx isSatisfiable() }
                                 r
                             }
