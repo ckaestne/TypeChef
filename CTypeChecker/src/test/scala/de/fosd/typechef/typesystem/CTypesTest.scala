@@ -84,23 +84,23 @@ class CTypesTest extends FunSuite with CTypeSystem with Matchers {
         }) should be(Choice(fx, One(CUnsigned(CChar())), Choice(fx.not, One(CFloat()), One(CUnknown("")))))
     }
 
-    test("coersion") {
-        coerce(CDouble(), CInt().toCType) should be(true)
-        coerce(CUnsigned(CInt()), CInt().toCType) should be(true)
-        coerce(CStruct("a"), CInt().toCType) should be(false)
-        coerce(CPointer(CStruct("a")), CPointer(CVoid())) should be(true)
+    test("coercion") {
+        coerce(CDouble(), CInt().toCType).isDefined should be(true)
+        coerce(CUnsigned(CInt()), CInt().toCType).isDefined should be(true)
+        coerce(CStruct("a"), CInt().toCType).isDefined should be(false)
+        coerce(CPointer(CStruct("a")), CPointer(CVoid())).isDefined should be(true)
 
-        coerce(CPointer(CVoid()), CPointer(CFunction(List(), CSigned(CInt())))) should be(true)
-        coerce(CPointer(CFunction(List(), CSigned(CInt()))), CPointer(CVoid())) should be(true)
+        coerce(CPointer(CVoid()), CPointer(CFunction(List(), CSigned(CInt())))).isDefined should be(true)
+        coerce(CPointer(CFunction(List(), CSigned(CInt()))), CPointer(CVoid())).isDefined should be(true)
 
-        coerce(CPointer(CFunction(Seq(), CVoid())), CFunction(Seq(), CVoid())) should be(true)
-        coerce(CFunction(Seq(), CVoid()), CPointer(CFunction(Seq(), CVoid()))) should be(true)
-        coerce(CPointer(CPointer(CPointer(CFunction(Seq(), CVoid())))), CFunction(Seq(), CVoid())) should be(true)
+        coerce(CPointer(CFunction(Seq(), CVoid())), CFunction(Seq(), CVoid())).isDefined should be(true)
+        coerce(CFunction(Seq(), CVoid()), CPointer(CFunction(Seq(), CVoid()))).isDefined should be(true)
+        coerce(CPointer(CPointer(CPointer(CFunction(Seq(), CVoid())))), CFunction(Seq(), CVoid())).isDefined should be(true)
 
-        coerce(CFunction(Seq(CDouble()), CVoid()), CFunction(Seq(CIgnore()), CVoid())) should be(true)
-        coerce(CFunction(Seq(CDouble()), CVoid()), CFunction(Seq(CDouble()), CIgnore())) should be(true)
+        coerce(CFunction(Seq(CDouble()), CVoid()), CFunction(Seq(CIgnore()), CVoid())).isDefined should be(true)
+        coerce(CFunction(Seq(CDouble()), CVoid()), CFunction(Seq(CDouble()), CIgnore())).isDefined should be(true)
 
-        coerce(CPointer(CZero()), CPointer(CSigned(CInt()))) should be(true)
+        coerce(CPointer(CZero()), CPointer(CSigned(CInt()))).isDefined should be(true)
     }
 
 }

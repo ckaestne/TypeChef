@@ -164,7 +164,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
     private def checkInitializer(initExpr: Expr, expectedType: Conditional[CType], featureExpr: FeatureExpr, env: Env) {
         val foundType = getExprType(initExpr, featureExpr, env)
         ConditionalLib.vmapCombinationOp(foundType, expectedType, featureExpr, {
-            (f, ft: CType, et: CType) => if (f.isSatisfiable() && !coerce(et, ft) && !ft.isUnknown)
+            (f, ft: CType, et: CType) => if (f.isSatisfiable() && !(coerce(et, ft)==Some("")) && !ft.isUnknown)
                 issueTypeError(Severity.OtherError, f, "incorrect initializer type. expected " + et + " found " + ft, initExpr)
         })
     }
@@ -305,7 +305,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
                             val foundReturnType = getExprType(expr, featureExpr, env)
                             ConditionalLib.vmapCombinationOp(expectedReturnType, foundReturnType, featureExpr,
                                 (fexpr: FeatureExpr, etype: CType, ftype: CType) =>
-                                    if (!coerce(etype, ftype) && !ftype.isUnknown)
+                                    if (!coerce(etype, ftype).isDefined && !ftype.isUnknown)
                                         issueTypeError(Severity.OtherError, fexpr, "incorrect return type, expected " + etype + ", found " + ftype, expr))
                     }
                 }

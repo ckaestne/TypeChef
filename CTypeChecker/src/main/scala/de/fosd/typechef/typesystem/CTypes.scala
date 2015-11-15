@@ -701,45 +701,53 @@ trait CTypes extends COptionProvider {
       * determines whether types are compatible in assignements etc
       *
       * for "a=b;" with a:type1 and b:type2
+      *
+      * returns None if there is an error, Some("") if it passes
+      * and Some(msg) if there is a warning
       */
-    def coerce(expectedType: CType, foundType: CType): Boolean = {
+    def coerce(expectedType: CType, foundType: CType): Option[String] = {
+        lazy val success = Some("")
+        lazy val error = None
+
         val t1 = normalize(expectedType).atype
         val t2 = normalize(foundType).atype
         def pointerCompat(a: AType): Boolean = a == CVoid() || a == CZero() || a == CIgnore()
         //either void pointer?
-        if ((expectedType.atype == CPointer(CVoid())) || (foundType.atype == CPointer(CVoid()))) return true;
-        ((t1, t2) match {
+        if ((expectedType.atype == CPointer(CVoid())) || (foundType.atype == CPointer(CVoid()))) return success
+        (t1, t2) match {
             //void pointer are compatible to all other pointers and to functions (or only pointers to functions??)
-            case (CPointer(a), CPointer(b)) if (pointerCompat(a) || pointerCompat(b)) => return true
-            case (CPointer(a: CSignSpecifier), CPointer(b: CSignSpecifier)) if (!opts.warning_pointer_sign && (a.basicType == b.basicType)) => return true
+            case (CPointer(a), CPointer(b)) if pointerCompat(a) || pointerCompat(b) => return success
+            case (CPointer(a: CSignSpecifier), CPointer(b: CSignSpecifier)) if !opts.warning_pointer_sign && (a.basicType == b.basicType) => return success
             //CCompound can be assigned to arrays and structs
-            case (CPointer(_) /*incl array*/ , CCompound()) => return true
-            case (CStruct(_, _), CCompound()) => return true
-            case (CAnonymousStruct(_, _), CCompound()) => return true
-            case (a, CCompound()) if (isScalar(a)) => return true //works for literals as well
+            case (CPointer(_) /*incl array*/ , CCompound()) => return success
+            case (CStruct(_, _), CCompound()) => return success
+            case (CAnonymousStruct(_, _), CCompound()) => return success
+            case (a, CCompound()) if isScalar(a) => return success //works for literals as well
             case _ =>
-        })
+        }
 
         //not same but compatible functions (e.g. ignored parameters)
-        if (funCompatible(t1, t2)) return true;
+        if (funCompatible(t1, t2)) return success
 
         //same?
-        if (t1 == t2) return true;
+        if (t1 == t2) return success
 
         //ignore?
-        if ((t1 == CIgnore()) || (t2 == CIgnore())) return true
+        if ((t1 == CIgnore()) || (t2 == CIgnore())) return success
 
         //assignment pointer = 0
-        if (isPointer(t1) && isZero(t2)) return true
-        if (isPointer(t2) && isZero(t1)) return true
+        if (isPointer(t1) && isZero(t2)) return success
+        if (isPointer(t2) && isZero(t1)) return success
 
         //arithmetic operation?
-        if (isArithmetic(t1) && isArithmetic(t2)) return true
+        if (isArithmetic(t1) && isArithmetic(t2)) return success
 
         //_Bool = any scala value
-        if (t1 == CBool() && isScalar(t2)) return true
+        if (t1 == CBool() && isScalar(t2)) return success
 
-        false
+        if (isIntegral(t1) && isPointer(t2)) return Some("assignment makes integer from pointer without a cast")
+
+        error
     }
 
     /**
@@ -754,7 +762,7 @@ trait CTypes extends COptionProvider {
     private def funCompatible(t1: AType, t2: AType): Boolean = (t1, t2) match {
         case (CPointer(p1), CPointer(p2)) => funCompatible(p1, p2)
         case (CFunction(plist1, ret1), CFunction(plist2, ret2)) =>
-            coerce(ret1, ret2) && (plist1.size == plist2.size) && (plist1 zip plist2).forall(x => coerce(x._1, x._2))
+            coerce(ret1, ret2)==Some("") && (plist1.size == plist2.size) && (plist1 zip plist2).forall(x => coerce(x._1, x._2)==Some(""))
         case _ => false
     }
 
