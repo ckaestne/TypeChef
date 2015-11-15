@@ -10,26 +10,6 @@ trait CCFG extends ASTNavigation with ConditionalNavigation {
 
     type CFGStmts = List[Opt[CFGStmt]]
 
-    // determine recursively all succs check
-    def getAllSucc(i: AST, env: ASTEnv) = {
-        var r = List[(AST, CFG)]()
-        var s = List(i)
-        var d = List[AST]()
-        var c: AST = null
-
-        while (s.nonEmpty) {
-            c = s.head
-            s = s.drop(1)
-
-            if (!d.exists(_.eq(c))) {
-                r = (c, succ(env)(c)) :: r
-                s = s ++ r.head._2.map(x => x.entry)
-                d = d ++ List(c)
-            }
-        }
-        r
-    }
-
     private lazy val stmtSucc: Tuple3[ASTEnv, CFGStmts, FeatureExpr] => Statement => CFGStmts = {
         paramAttr {
             case x@(env, res, ctx) =>
