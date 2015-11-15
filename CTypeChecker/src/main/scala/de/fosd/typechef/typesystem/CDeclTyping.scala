@@ -268,6 +268,9 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface with CDeclU
                     else
                         renv = env.addCompletenessCheck(checkCompleteness)
 
+                    ctype.vmap(f, (f, ct)=>
+                        if (isVoid(ct)) issueTypeError(Severity.OtherError, f, "variable or field declared void", decl)
+                    )
 
                     (init.declarator.getName, featureExpr and f, init, ctype, declKind, linkage)
                 }
