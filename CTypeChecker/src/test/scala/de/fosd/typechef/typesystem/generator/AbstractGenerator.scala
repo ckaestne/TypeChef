@@ -64,13 +64,10 @@ trait AbstractGenerator {
         testFileWriter.write(
             """package de.fosd.typechef.typesystem.generated
               |
-              |import org.junit.runner.RunWith
-              |import org.scalatest.{Matchers, FunSuite}
-              |import org.scalatest.junit.JUnitRunner
+              |import org.junit._
               |import de.fosd.typechef.typesystem._
               |
-              |@RunWith(classOf[JUnitRunner])
-              |class $className extends FunSuite with Matchers with TestHelperTS {
+              |class $className extends TestHelperTS {
               |
               | """.stripMargin.replace("$className", className))
 
@@ -110,7 +107,7 @@ trait AbstractGenerator {
     }
 
     def writeTest(testFileWriter: FileWriter, c: Config, testBody: String, msg: String, exitcode: Int): Unit = {
-        val s = "   test(\"generated test " + c + "\") {\n"
+        val s = "   @Test def test_" + c + "() {\n"
         testFileWriter.write(s)
         if (msg.nonEmpty)
             testFileWriter.write("        /* gcc reports:\n" +

@@ -131,14 +131,20 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                                 if (opts.warning_const_assignment && sourceType.isConstant && !targetType.isConstant)
                                     reportTypeError(fexpr, "Do not cast away a const qualification '%s <- %s'; may result in undefined behavior".format(targetType.toText, sourceType.toText), ce, Severity.SecurityWarning, "const-cast")
 
-                                if (targetType == CVoid().toCType ||
-                                    isPointer(targetType) ||
-                                    (isScalar(sourceType) && isScalar(targetType))) targetType
-                                else if (targetType.atype == sourceType.atype) targetType // casting to the same type is fine
-                                else if (isStruct(targetType) && isScalar(sourceType)) targetType // the compiler doesn't seem to mind casts from int to struct
-                                else if (isScalar(targetType) && isPointer(normalize(sourceType))) targetType //cast from pointer to long is valid
-                                else if (isCompound(sourceType) && (isStruct(targetType) || isArray(targetType))) targetType.toObj //workaround for array/struct initializers
+                                if (targetType == CVoid().toCType) targetType
                                 else if (sourceType.isIgnore || targetType.isIgnore || sourceType.isUnknown || targetType.isUnknown) targetType
+                                else if (isAnonymousStruct(targetType)) //apparently cannot even cast an anonymous struct to itself
+                                    reportTypeError(fexpr, "conversion to non-scalar type requested (" + sourceType + " to " + targetType+")", ce)
+                                else if (isIntegral(sourceType) && isPointer(targetType)) targetType
+                                else if (isPointer(sourceType) && isPointer(targetType)) targetType
+                                else if (isFunction(sourceType) && isPointer(targetType)) targetType
+                                else if (isIntegral(sourceType) && isScalar(targetType)) targetType
+                                else if (isArithmetic(sourceType) && isArithmetic(targetType)) targetType
+                                else if (targetType.atype == sourceType.atype) targetType // casting to the same type is fine
+                                else if (isIntegral(targetType) && isPointer(normalize(sourceType))) targetType //cast from pointer to long is valid
+                                else if (isCompound(sourceType) && (isStruct(targetType) || isArray(targetType))) targetType.toObj //workaround for array/struct initializers
+                                else if (isStruct(targetType))    //int -> struct is error // more specific error message
+                                    reportTypeError(fexpr, "conversion to non-scalar type requested (" + sourceType + " to " + targetType+")", ce)
                                 else
                                     reportTypeError(fexpr, "incorrect cast from " + sourceType + " to " + targetType, ce)
                             })
