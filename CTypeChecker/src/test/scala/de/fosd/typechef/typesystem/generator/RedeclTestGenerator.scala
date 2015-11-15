@@ -11,16 +11,37 @@ package de.fosd.typechef.typesystem.generator
   */
 object RedeclTestGenerator extends App with AbstractGenerator {
 
-    override def configSpace = List(Opt(5), Opt(5), Opt(10), Opt(10), Opt(10), Opt(10), Opt(2), Opt(2), Opt(2))
+    override def configSpace = List(Opt(3), Opt(3), Opt(11), Opt(10), Opt(11), Opt(10), Opt(2), Opt(2), Opt(2))
 
 
     override protected def gccParam: List[String] = "-Wall" :: super.gccParam
 
-    val STRUCT = 3
-    val ASTRUCT = 4
+//    val STRUCT = 3
+//    val ASTRUCT = 4
     val DEF = 1
     val DECL = 0
     var VAR = 2
+
+    /**
+      * Function?
+      *   - Body?
+      *   - Vary return type?
+      *       Pairs
+      *
+      *
+      *
+      *
+      */
+
+//    var configSpace =
+//      All(
+//        All(
+//            Choice("fun vs var"),
+//            Choice("body/initializer?")
+//        )
+//        Either("var return type"
+
+
 
     def _firstDeclKind(c: Config): Int = c.vals(0)
 
@@ -38,7 +59,7 @@ object RedeclTestGenerator extends App with AbstractGenerator {
 
     def _renamedParam(c: Config): Boolean = c.vals(7) > 0
 
-    def _call(c: Config): Boolean = c.vals(8) > 0
+    def _call(c: Config): Boolean = (c.vals(8) > 0) && ((_firstDeclKind(c)!=VAR) || (_secondDeclKind(c)!=VAR))
 
     override def genTest(c: Config): List[String] = {
 
@@ -54,24 +75,24 @@ object RedeclTestGenerator extends App with AbstractGenerator {
         val first = genDecl(_firstDeclKind(c), _firstReturnType(c), _firstParamType(c), false, false)
         val second = genDecl(_secondDeclKind(c), _secondReturnType(c), _secondParamType(c), _extraParam(c), _renamedParam(c))
 
-        val main = "int main() {" + (if (_call(c)) "foo(0);" else "") + "}"
+        val main = "int main() {" + (if (_call(c)) "foo(0);" else "") + " return 0; }"
 
-        var t = first + "\n                " + second + "\n                " + main
+        var t = "                "+first + "\n                " + second + "\n                " + main
 
         List(addStructs(t))
     }
 
     def genDecl(declKind: Int, returnType: Int, paramType: Int, extraParam: Boolean, renamedParam: Boolean) = {
         var result = ""
-        if (declKind == STRUCT || declKind == ASTRUCT)
-            result += "struct"
-        else
+//        if (declKind == STRUCT || declKind == ASTRUCT)
+//            result += "struct"
+//        else
             result += genType(returnType)
         result += " foo"
         if (declKind == DECL || declKind == DEF)
             result += "(" + genParam(paramType, extraParam, renamedParam).mkString(", ") + ")"
-        if (declKind == STRUCT)
-            result += "{" + genParam(paramType, extraParam, renamedParam).mkString("", "; ", ";") + "}"
+//        if (declKind == STRUCT)
+//            result += "{" + genParam(paramType, extraParam, renamedParam).mkString("", "; ", ";") + "}"
 
         if (declKind == DEF) result += " {}"
         result += ";"
@@ -86,13 +107,14 @@ object RedeclTestGenerator extends App with AbstractGenerator {
         case 0 => "int"
         case 1 => "long"
         case 2 => "double"
-        case 3 => "void"
+        case 3 => "int*"
         case 4 => "struct { int a; }"
         case 5 => "struct S"
         case 6 => "struct T"
         case 7 => "const int"
         case 8 => "volatile int"
-        case 9 => "int*"
+        case 9 => "struct_anonymous"
+        case 10 => "void"
     }
 
     generate("GeneratedRedeclTests", pairwiseConfigs ++ pairwiseRandConfigs)

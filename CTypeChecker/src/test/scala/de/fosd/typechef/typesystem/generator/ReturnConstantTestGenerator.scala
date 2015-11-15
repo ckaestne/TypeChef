@@ -36,6 +36,7 @@ object ReturnConstantTestGenerator extends App with AbstractGenerator {
           |int *
           |const int *
           |volatile int *
+          |void
         """.stripMargin.split("\n").map(_.trim).filter(_.nonEmpty)
     def constants =
         """0
@@ -57,25 +58,29 @@ object ReturnConstantTestGenerator extends App with AbstractGenerator {
     val configSpace = List(Opt(types.size), Opt(constants.size))
     override protected def considerWarnings: Boolean = true
 
-
-    override def ignoredTests:Map[String,String]=super.ignoredTests ++ Map("conf11_7" -> "handling of string literals (array with fixed length) is not precise enough")
+    var _ignoredTests = Map("conf11_7" -> "handling of string literals (array with fixed length) is not precise enough")
+    override def ignoredTests:Map[String,String]=super.ignoredTests ++ _ignoredTests
 
     def genTest(c: Config): List[String] = {
         val t1 = types(c.vals(0))
         val c1 = constants(c.vals(1))
-        var t =
+        val t =
             s"              $t1 x() { return $c1; }"
 
-        var u =
+        val u =
             s"              $t1 x() {\n" +
                 s"                $t1 a = $c1;\n" +
                 "                return a;\n" +
                 "              }"
 
+        val v =
+            s"              $t1 x; $t1 y = $c1;"
+
+
         if (c1 startsWith "{")
-            List(addStructs(u))
+            List(addStructs(u), addStructs(v))
         else
-            List(addStructs(t), addStructs(u))
+            List(addStructs(t), addStructs(u), addStructs(v))
     }
 
 

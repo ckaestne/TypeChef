@@ -1,7 +1,7 @@
 package de.fosd.typechef.typesystem
 
-import de.fosd.typechef.featureexpr.FeatureExpr
 import de.fosd.typechef.conditional._
+import de.fosd.typechef.featureexpr.FeatureExpr
 import de.fosd.typechef.parser.c.AST
 
 /**
@@ -110,6 +110,14 @@ case class CType(
         this.atype == that.atype &&
             this.isConstant == that.isConstant
 
+  /**
+      * compares ATypes and const and volatile flag only
+      */
+    def equalsWithConstAndVolatile(that: CType) =
+        this.atype == that.atype &&
+            this.isConstant == that.isConstant &&
+            this.isVolatile == that.isVolatile
+
 
     override def hashCode() = atype.hashCode()
 
@@ -130,7 +138,7 @@ case class CType(
 
 }
 
-import CType.makeCType
+import de.fosd.typechef.typesystem.CType.makeCType
 
 sealed abstract class CBasicType {
     def <(that: CBasicType): Boolean
@@ -359,14 +367,11 @@ object CFunction {
       * normalize CFunction types on creation
       *
       * following ISO C standard  ISO/IEC 9899:1999 Chapter 6.7.5.3
-      * -> unnamed void parameter as only parameter => empty parameter list
+      * -> unnamed void parameter as only parameter => empty parameter list (handled elsewhere)
       * -> translate array parameter into pointer
       * -> translate function parameter into pointer to function
       */
     def normalizeFunctionParameters(param: Seq[CType]): Seq[CType] =
-        if (param.size == 1 && param.head.atype == CVoid())
-            Nil
-        else
             param.map(_.map({
                 case CArray(t, l) => CPointer(t)
                 case f: CFunction => CPointer(f)

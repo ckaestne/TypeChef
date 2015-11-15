@@ -268,15 +268,15 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface with CDeclU
                     else
                         renv = env.addCompletenessCheck(checkCompleteness)
 
-                    ctype.vmap(f, (f, ct)=>
-                        if (isVoid(ct)) issueTypeError(Severity.OtherError, f, "variable or field declared void", decl)
-                    )
+                    checkVoidVariable(ctype, f, decl) // is this a void variable?
+                    checkVoidParameter(ctype, f, decl) // is this a function with void parameters?
 
                     (init.declarator.getName, featureExpr and f, init, ctype, declKind, linkage)
                 }
             }
         (renv, enumDecl ++ varDecl)
     }
+
 
     //replace union types by CIgnore if attribute transparent_union is set
     private def filterTransparentUnion(t: Conditional[CType], attributes: List[Opt[AttributeSpecifier]]) =
@@ -398,9 +398,12 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface with CDeclU
                         ConditionalLib.explodeOptList(parameterTypes)
                     paramLists.map(param => CFunction(param, rtype).toCType)
                 case DeclParameterDeclList(parameterDecls) =>
-                    val paramLists: Conditional[List[CType]] =
+                    val paramLists: Conditional[List[(CType,Boolean)]] =
                         ConditionalLib.explodeOptList(getParameterTypes(parameterDecls, fexpr, env))
-                    paramLists.map(param => CFunction(param, rtype).toCType)
+                    //ISO/IEC 9899:1999 Chapter 6.7.5.3: unnamed void parameter as only parameter => empty parameter list
+                    val cleanedParamLists = paramLists.map(param => if (param.size==1 && !param.head._2 && isVoid(param.head._1)) Nil else param)
+
+                    cleanedParamLists.map(param => CFunction(param.map(_._1), rtype).toCType)
                 case DeclArrayAccess(expr) =>
                     expr match {
                         case Some(expr: Expr) =>
@@ -415,14 +418,14 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface with CDeclU
         ConditionalLib.vfoldRightS(pointers, t, (a: Pointer, b: CType) => b.map(CPointer(_)))
 
 
-    private def getParameterTypes(parameterDecls: List[Opt[ParameterDeclaration]], featureExpr: FeatureExpr, env: Env): List[Opt[CType]] = {
-        val r: List[Opt[Conditional[CType]]] = for (Opt(f, param) <- parameterDecls) yield param match {
-            case p@PlainParameterDeclaration(specifiers, _) => Opt(f, constructType(specifiers, featureExpr and f, env, p))
+    private def getParameterTypes(parameterDecls: List[Opt[ParameterDeclaration]], featureExpr: FeatureExpr, env: Env): List[Opt[(CType,Boolean/*hasName?*/)]] = {
+        val r: List[Opt[Conditional[(CType,Boolean)]]] = for (Opt(f, param) <- parameterDecls) yield param match {
+            case p@PlainParameterDeclaration(specifiers, _) => Opt(f, constructType(specifiers, featureExpr and f, env, p).map((_, false)))
             case p@ParameterDeclarationD(specifiers, decl, _) =>
-                Opt(f, getDeclaratorType(decl, constructType(specifiers, featureExpr and f, env, p), featureExpr and f, env))
+                Opt(f, getDeclaratorType(decl, constructType(specifiers, featureExpr and f, env, p), featureExpr and f, env).map((_, true)))
             case p@ParameterDeclarationAD(specifiers, decl, _) =>
-                Opt(f, getAbstractDeclaratorType(decl, constructType(specifiers, featureExpr and f, env, p), featureExpr and f, env))
-            case VarArgs() => Opt(f, One(CVarArgs().toCType))
+                Opt(f, getAbstractDeclaratorType(decl, constructType(specifiers, featureExpr and f, env, p), featureExpr and f, env).map((_, true)))
+            case VarArgs() => Opt(f, One(CVarArgs().toCType).map((_, false)))
         }
         ConditionalLib.flatten(r)
     }
@@ -447,6 +450,7 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface with CDeclU
                         val isFunction = ctype.when(_.isFunction)
                         if ((fexpr and isFunction).isSatisfiable())
                             reportTypeError(fexpr and isFunction, "member " + decl.getName + " must not have function type", decl, Severity.OtherError)
+                        checkVoidVariable(ctype, fexpr, decl)
 
                         result = result +(decl.getName, fexpr, decl, ctype)
                     case StructInitializer(expr, _) => //TODO check: ignored for now, does not have a name, seems not addressable. occurs for example in struct timex in async.i test
@@ -571,4 +575,16 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface with CDeclU
         newLinkage
     }
 
+    protected def checkVoidVariable(ctype: Conditional[CType], f: FeatureExpr, decl: AST): Conditional[Unit] = {
+        ctype.vmap(f, (f, ct) =>
+            if (isVoid(ct)) issueTypeError(Severity.OtherError, f, "variable or field declared void", decl)
+        )
+    }
+
+    protected def checkVoidParameter(ctype: Conditional[CType], ctx: FeatureExpr, decl: AST) = ctype.vmap(ctx, (ctx, ctype)=>ctype.atype match {
+        case CFunction(param,_) =>
+            if (param.exists(isVoid(_)))
+                issueTypeError(Severity.Warning, ctx, "parameter has void type", decl)
+        case _ =>
+    })
 }

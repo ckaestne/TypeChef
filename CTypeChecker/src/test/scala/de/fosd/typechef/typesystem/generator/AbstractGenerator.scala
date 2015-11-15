@@ -71,6 +71,7 @@ trait AbstractGenerator {
               |import org.junit._
               |import de.fosd.typechef.typesystem._
               |
+              |/** generated tests! do not modify! */
               |class $className extends TestHelperTS {
               |
               | """.stripMargin.replace("$className", className))
@@ -106,6 +107,7 @@ trait AbstractGenerator {
                 val exitcode = s"gcc $gccp -c $file" ! log
 
                 println(c + ": " + exitcode)
+                msg = msg.replace(file, "test.c")
 
                 writeTest(testFileWriter, c, testBody, msg, exitcode)
                 fileAddr.deleteOnExit()

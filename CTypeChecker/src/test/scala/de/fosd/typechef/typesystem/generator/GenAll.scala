@@ -9,4 +9,6 @@ object GenAll extends App {
     CoerceTestGenerator.main(args)
     CastTestGenerator.main(args)
     ReturnConstantTestGenerator.main(args)
+    VarDeclTestGenerator.main(args)
+    VarInitializerTestGenerator.main(args)
 }

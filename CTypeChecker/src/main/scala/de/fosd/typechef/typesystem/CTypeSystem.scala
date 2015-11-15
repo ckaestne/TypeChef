@@ -1,9 +1,9 @@
 package de.fosd.typechef.typesystem
 
 import de.fosd.typechef.conditional._
+import de.fosd.typechef.error._
 import de.fosd.typechef.featureexpr._
 import de.fosd.typechef.parser.c._
-import de.fosd.typechef.error._
 
 /**
  * checks an AST (from CParser) for type errors (especially dangling references)
@@ -50,6 +50,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
     }
 
 
+
     private def checkFunction(f: CDef, specifiers: List[Opt[Specifier]], declarator: Declarator, oldStyleParameters: List[Opt[OldParameterDeclaration]], stmt: CompoundStatement, featureExpr: FeatureExpr, env: Env): (Conditional[CType], Env) = {
         val oldStyleParam = getOldStyleParameters(oldStyleParameters, featureExpr, env)
         val funType = getFunctionType(specifiers, declarator, oldStyleParam, featureExpr, env).simplify(featureExpr)
@@ -71,6 +72,8 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
 
         val kind = KDefinition
 
+        checkVoidParameter(funType, featureExpr, f)
+
         //redeclaration?
         checkRedeclaration(declarator.getName, funType, featureExpr, env, declarator, kind)
 
@@ -82,7 +85,9 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
         addJumpStatements(stmt)
 
         //check body (add parameters to environment)
-        val innerEnv = newEnv.addVars(parameterTypes(declarator, featureExpr, newEnv.incScope(), oldStyleParam), KParameter, newEnv.scope + 1, NoLinkage).setExpectedReturnType(expectedReturnType)
+        val params = parameterTypes(declarator, featureExpr, newEnv.incScope(), oldStyleParam)
+        params.map(p=> checkVoidVariable(p._4, p._2, p._3))
+        val innerEnv = newEnv.addVars(params, KParameter, newEnv.scope + 1, NoLinkage).setExpectedReturnType(expectedReturnType)
         getStmtType(stmt, featureExpr, innerEnv) //ignore changed environment, to enforce scoping!
         checkTypeFunction(specifiers, declarator, oldStyleParameters, featureExpr, env)
         addOldStyleParameters(oldStyleParameters, declarator, featureExpr, env)
@@ -140,14 +145,17 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
         //for now, simple approximation here: if either the old or the new variable is not initialized, we are fine (that does not account for internal linkage etc but okay)
         //global variables
         if (newScope == 0 && prevScope == 0 && (newKind == KDeclaration || prevKind == KDeclaration)) {
-            //valid if exact same type (except for volatile and object status)
-            return newType equalsWithConst prevType
+            //valid if exact same type (except for object status)
+            return newType equalsWithConstAndVolatile prevType
         }
 
         //local variables (scope>0) may never be redeclared
         //function definitions may never be redeclared
         false
     }
+
+
+
 
     private def isEqualOrIgnore(a: CType, b: CType): Boolean =
         (a == b) || a.isIgnore || b.isIgnore
