@@ -12,6 +12,7 @@ package de.fosd.typechef.typesystem.generator
 object AddExprTestGenerator extends App with AbstractGenerator {
 
     def types = CastTestGenerator.types
+    override def considerWarnings= true
 
     val configSpace = List(Opt(types.size), Opt(types.size))
 
