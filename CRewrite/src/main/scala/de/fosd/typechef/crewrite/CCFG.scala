@@ -285,10 +285,11 @@ trait CCFG extends ASTNavigation with ConditionalNavigation {
                                 case Opt(_, ElifStatement(c, _)) =>
                                     val re = condExprSucc(x)(c)
 
-                                    re.filter { n => getUnsatisfiedCtx(r).and(n.condition).isSatisfiable() } foreach {
+                                    re.filter {
+                                        n => getUnsatisfiedCtx(r).and(n.condition).isSatisfiable()
+                                    } foreach {
                                         n => r ++= List(n)
                                     }
-                                case _ => assert(assertion = true, message = "expected elif statement")
                             }
 
                             if (!isComplete(ctx)(r)) {
@@ -306,10 +307,11 @@ trait CCFG extends ASTNavigation with ConditionalNavigation {
                                 case Opt(_, ElifStatement(c, _)) =>
                                     val re = condExprSucc(x)(c)
 
-                                    re.filter { n => getUnsatisfiedCtx(r).and(n.condition).isSatisfiable() } foreach {
+                                    re.filter {
+                                        n => getUnsatisfiedCtx(r).and(n.condition).isSatisfiable()
+                                    } foreach {
                                         n => r ++= List(n)
                                     }
-                                case _ => assert(assertion = true, message = "expected elif statement")
                             }
 
                             if (!isComplete(ctx)(r)) {
