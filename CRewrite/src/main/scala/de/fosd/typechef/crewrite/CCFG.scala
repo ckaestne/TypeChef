@@ -217,8 +217,10 @@ trait CCFG extends ASTNavigation with ConditionalNavigation {
                     parentAST(se, env) match {
                         // loops
                         case ForStatement(Some(expr1), expr2, _, s) if isPartOf(se)(expr1) =>
-                            if (expr2.isDefined) exprSucc(x)(expr2.get)
-                            else condStmtSucc(x)(s)
+                            if (expr2.isDefined)
+                                exprSucc(x)(expr2.get)
+                            else
+                                condStmtSucc(x)(s)
                         case e@ForStatement(_, Some(expr2), expr3, s) if isPartOf(se)(expr2) =>
                             val rt = succFollowing(x)(e)
                             val rs = condStmtSucc(x)(s)
@@ -231,19 +233,26 @@ trait CCFG extends ASTNavigation with ConditionalNavigation {
                                 rt ++ rs ++ re
                             } else rt ++ rs
                         case ForStatement(_, expr2, Some(expr3), s) if isPartOf(se)(expr3) =>
-                            if (expr2.isDefined) exprSucc(x)(expr2.get)
-                            else condStmtSucc(x)(s)
+                            if (expr2.isDefined)
+                                exprSucc(x)(expr2.get)
+                            else
+                                condStmtSucc(x)(s)
                         case ForStatement(_, expr2, expr3, s) if isPartOf(se)(s) =>
-                            if (expr3.isDefined) exprSucc(x)(expr3.get)
-                            else if (expr2.isDefined) exprSucc(x)(expr2.get)
-                            else condStmtSucc(x)(s)
+                            if (expr3.isDefined)
+                                exprSucc(x)(expr3.get)
+                            else if (expr2.isDefined)
+                                exprSucc(x)(expr2.get)
+                            else
+                                condStmtSucc(x)(s)
 
                         case e@WhileStatement(expr, s) if isPartOf(se)(expr) =>
                             val rs = condStmtSucc(x)(s)
                             val rt = succFollowing(x)(e)
                             val re =
-                                if (!isComplete(ctx)(rs)) exprSucc(x)(expr)
-                                else List()
+                                if (!isComplete(ctx)(rs))
+                                    exprSucc(x)(expr)
+                                else
+                                    List()
                             rs ++ re ++ rt
                         case WhileStatement(expr, _) =>
                             exprSucc(x)(expr)
@@ -252,8 +261,10 @@ trait CCFG extends ASTNavigation with ConditionalNavigation {
                             val rs = condStmtSucc(x)(s)
                             val rt = succFollowing(x)(e)
                             val re =
-                                if (!isComplete(ctx)(rs)) exprSucc(x)(expr)
-                                else List()
+                                if (!isComplete(ctx)(rs))
+                                    exprSucc(x)(expr)
+                                else
+                                    List()
                             rs ++ re ++ rt
                         case DoStatement(expr, s) =>
                             exprSucc(x)(expr)
@@ -275,8 +286,10 @@ trait CCFG extends ASTNavigation with ConditionalNavigation {
                             }
 
                             if (!isComplete(ctx)(r)) {
-                                if (elseBranch.isDefined) r ++= condStmtSucc(x)(elseBranch.get)
-                                else r = succFollowing(env, r, ctx)(e)
+                                if (elseBranch.isDefined)
+                                    r ++= condStmtSucc(x)(elseBranch.get)
+                                else
+                                    r = succFollowing(env, r, ctx)(e)
                             }
                             r ++ condStmtSucc(x)(thenBranch)
 
