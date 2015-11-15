@@ -63,7 +63,7 @@ object ReturnConstantTestGenerator extends App with AbstractGenerator {
 
     def genTest(c: Config): List[String] = {
         val t1 = types(c.vals(0))
-        val c1 = constants(c.vals(1))
+        val c1 = constants(c.vals(1)).replace("---","")
         val t =
             s"              $t1 x() { return $c1; }"
 
@@ -73,14 +73,12 @@ object ReturnConstantTestGenerator extends App with AbstractGenerator {
                 "                return a;\n" +
                 "              }"
 
-        val v =
-            s"              $t1 x; $t1 y = $c1;"
-
-
-        if (c1 startsWith "{")
-            List(addStructs(u), addStructs(v))
+        if (c1=="")
+            List(addStructs(t))
+        else if (c1 startsWith "{")
+            List(addStructs(u))
         else
-            List(addStructs(t), addStructs(u), addStructs(v))
+            List(addStructs(t), addStructs(u))
     }
 
 

@@ -46,12 +46,12 @@ class LinkerNormalizationTest extends FunSuite with Matchers with TestHelper {
             LINK_STRICT
         )
 
-        //void parameter
-        assertEqualAfterNormalization(
-            CFunction(Seq(CVoid()), CVoid()),
-            CFunction(Seq(), CVoid()),
-            LINK_STRICT
-        )
+//        //void parameter
+//        assertEqualAfterNormalization(
+//            CFunction(Seq(CVoid()), CVoid()),
+//            CFunction(Seq(), CVoid()),
+//            LINK_STRICT
+//        )
 
         //array vs pointer
         assertEqualAfterNormalization(

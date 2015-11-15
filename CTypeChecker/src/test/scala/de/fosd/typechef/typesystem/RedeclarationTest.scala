@@ -1,9 +1,8 @@
 package de.fosd.typechef.typesystem
 
-import de.fosd.typechef.parser.c._
 import org.junit.runner.RunWith
-import org.scalatest.{Matchers, FunSuite}
 import org.scalatest.junit.JUnitRunner
+import org.scalatest.{FunSuite, Matchers}
 
 @RunWith(classOf[JUnitRunner])
 class RedeclarationTest extends FunSuite with Matchers with TestHelperTS {
@@ -14,7 +13,7 @@ class RedeclarationTest extends FunSuite with Matchers with TestHelperTS {
             check("int foo();\n" +
                 "int foo();")
         }
-        //more parameters are ok, but last declaration is important
+        //more parameters are ok if first was empty (not void), but last declaration is important
         assertResult(true) {
             check("int foo();\n" +
                 "int foo(int a);" +

@@ -6,8 +6,8 @@ import de.fosd.typechef.featureexpr.FeatureExprFactory
 import de.fosd.typechef.featureexpr.FeatureExprFactory.{False, True}
 import de.fosd.typechef.parser.c._
 import org.junit.runner.RunWith
-import org.scalatest.{Matchers, FunSuite}
 import org.scalatest.junit.JUnitRunner
+import org.scalatest.{FunSuite, Matchers}
 
 @RunWith(classOf[JUnitRunner])
 class TypeEnvTest extends FunSuite with Matchers with CTypeSystem with CEnvCache with CTypeCache with TestHelper {
@@ -109,7 +109,7 @@ class TypeEnvTest extends FunSuite with Matchers with CTypeSystem with CEnvCache
         env("acc") should be(OneT(CStruct("account")))
         env("main") should be(OneT(CFunction(Seq(CDouble()), CVoid())))
 
-        env("i") should be(OneT(CFunction(Seq(CDouble(), CPointer(CFunction(Seq(CVoid()), CVoid()))), CSigned(CInt()))))
+        env("i") should be(OneT(CFunction(Seq(CDouble(), CPointer(CFunction(Seq(), CVoid()))), CSigned(CInt()))))
         env("inner") should be(OneT(CDouble()))
     }
 
@@ -130,7 +130,7 @@ class TypeEnvTest extends FunSuite with Matchers with CTypeSystem with CEnvCache
 
         //parameters should be in scope
         env("param") should be(OneT(CDouble()))
-        env("param2") should be(OneT(CPointer(CFunction(Seq(CVoid()), CVoid()))))
+        env("param2") should be(OneT(CPointer(CFunction(Seq(), CVoid()))))
 
         //nested functions should be in scope
         env("square") should be(OneT(CFunction(List(CDouble()), CDouble())))
@@ -153,7 +153,6 @@ class TypeEnvTest extends FunSuite with Matchers with CTypeSystem with CEnvCache
         val typedefs = lookupEnv(lastDecl).typedefEnv
 
         typedefs("myint") should be(_i)
-        typedefs("mystr") should be(OneT(CAnonymousStruct(-1, new ConditionalTypeMap() +("x", True, AtomicNamedDeclarator(List(), Id("x"), List()), OneT(CDouble())))))
         typedefs("myunsign") should be(OneT(CUnsigned(CInt())))
 
         //typedef is not a declaration
@@ -161,7 +160,6 @@ class TypeEnvTest extends FunSuite with Matchers with CTypeSystem with CEnvCache
         env.contains("mystr") should be(false)
 
         env("myintvar") should be(_i)
-        env("mystrvar") should be(OneT(CPointer(CAnonymousStruct(-1, new ConditionalTypeMap() +("x", True, AtomicNamedDeclarator(List(), Id("x"), List()), OneT(CDouble()))))))
         env("mypairvar") should be(OneT(CStruct("pair")))
 
         //structure definitons should be recognized despite typedefs

@@ -1,7 +1,7 @@
 package de.fosd.typechef.typesystem.generated
 
-import de.fosd.typechef.typesystem._
 import org.junit._
+import de.fosd.typechef.typesystem._
 
 /** generated tests! do not modify! */
 class GeneratedReturnConstantTests extends TestHelperTS {
@@ -16,9 +16,6 @@ class GeneratedReturnConstantTests extends TestHelperTS {
                 return a;
               }
                 """)
-        correct("""
-              char x; char y = 0;
-                """)
    }
 
 
@@ -31,9 +28,6 @@ class GeneratedReturnConstantTests extends TestHelperTS {
                 char a = 1;
                 return a;
               }
-                """)
-        correct("""
-              char x; char y = 1;
                 """)
    }
 
@@ -48,9 +42,6 @@ class GeneratedReturnConstantTests extends TestHelperTS {
                 return a;
               }
                 """)
-        correct("""
-              char x; char y = -1;
-                """)
    }
 
 
@@ -63,9 +54,6 @@ class GeneratedReturnConstantTests extends TestHelperTS {
                 char a = 1l;
                 return a;
               }
-                """)
-        correct("""
-              char x; char y = 1l;
                 """)
    }
 
@@ -80,9 +68,6 @@ class GeneratedReturnConstantTests extends TestHelperTS {
                 return a;
               }
                 """)
-        correct("""
-              char x; char y = 0xa4;
-                """)
    }
 
 
@@ -95,9 +80,6 @@ class GeneratedReturnConstantTests extends TestHelperTS {
                 char a = 0.2;
                 return a;
               }
-                """)
-        correct("""
-              char x; char y = 0.2;
                 """)
    }
 
@@ -126,18 +108,6 @@ test.c:2:26: warning: initialization makes integer from pointer without a cast
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:32: warning: initialization makes integer from pointer without a cast
-               char x; char y = "0.2";
-                                ^
-test.c:1:15: error: initializer element is not computable at load time
-               char x; char y = "0.2";
-               ^
-
-        */
-        error("""
-              char x; char y = "0.2";
-                """)
    }
 
 
@@ -165,18 +135,6 @@ test.c:2:26: warning: initialization makes integer from pointer without a cast
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:32: warning: initialization makes integer from pointer without a cast
-               char x; char y = &"foo";
-                                ^
-test.c:1:15: error: initializer element is not computable at load time
-               char x; char y = &"foo";
-               ^
-
-        */
-        error("""
-              char x; char y = &"foo";
-                """)
    }
 
 
@@ -189,15 +147,6 @@ test.c:1:15: error: initializer element is not computable at load time
                 char a = *"foo";
                 return a;
               }
-                """)
-        /* gcc reports:
-test.c:1:15: error: initializer element is not constant
-               char x; char y = *"foo";
-               ^
-
-        */
-        error("""
-              char x; char y = *"foo";
                 """)
    }
 
@@ -226,15 +175,6 @@ test.c:2:26: error: lvalue required as unary '&' operand
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:32: error: lvalue required as unary '&' operand
-               char x; char y = &1;
-                                ^
-
-        */
-        error("""
-              char x; char y = &1;
-                """)
    }
 
 
@@ -247,9 +187,6 @@ test.c:1:32: error: lvalue required as unary '&' operand
                 signed char a = 0;
                 return a;
               }
-                """)
-        correct("""
-              signed char x; signed char y = 0;
                 """)
    }
 
@@ -264,9 +201,6 @@ test.c:1:32: error: lvalue required as unary '&' operand
                 return a;
               }
                 """)
-        correct("""
-              signed char x; signed char y = 1;
-                """)
    }
 
 
@@ -279,9 +213,6 @@ test.c:1:32: error: lvalue required as unary '&' operand
                 signed char a = -1;
                 return a;
               }
-                """)
-        correct("""
-              signed char x; signed char y = -1;
                 """)
    }
 
@@ -296,9 +227,6 @@ test.c:1:32: error: lvalue required as unary '&' operand
                 return a;
               }
                 """)
-        correct("""
-              signed char x; signed char y = 1l;
-                """)
    }
 
 
@@ -312,9 +240,6 @@ test.c:1:32: error: lvalue required as unary '&' operand
                 return a;
               }
                 """)
-        correct("""
-              signed char x; signed char y = 0xa4;
-                """)
    }
 
 
@@ -327,9 +252,6 @@ test.c:1:32: error: lvalue required as unary '&' operand
                 signed char a = 0.2;
                 return a;
               }
-                """)
-        correct("""
-              signed char x; signed char y = 0.2;
                 """)
    }
 
@@ -358,18 +280,6 @@ test.c:2:33: warning: initialization makes integer from pointer without a cast
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:46: warning: initialization makes integer from pointer without a cast
-               signed char x; signed char y = "0.2";
-                                              ^
-test.c:1:15: error: initializer element is not computable at load time
-               signed char x; signed char y = "0.2";
-               ^
-
-        */
-        error("""
-              signed char x; signed char y = "0.2";
-                """)
    }
 
 
@@ -397,18 +307,6 @@ test.c:2:33: warning: initialization makes integer from pointer without a cast
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:46: warning: initialization makes integer from pointer without a cast
-               signed char x; signed char y = &"foo";
-                                              ^
-test.c:1:15: error: initializer element is not computable at load time
-               signed char x; signed char y = &"foo";
-               ^
-
-        */
-        error("""
-              signed char x; signed char y = &"foo";
-                """)
    }
 
 
@@ -421,15 +319,6 @@ test.c:1:15: error: initializer element is not computable at load time
                 signed char a = *"foo";
                 return a;
               }
-                """)
-        /* gcc reports:
-test.c:1:15: error: initializer element is not constant
-               signed char x; signed char y = *"foo";
-               ^
-
-        */
-        error("""
-              signed char x; signed char y = *"foo";
                 """)
    }
 
@@ -458,15 +347,6 @@ test.c:2:33: error: lvalue required as unary '&' operand
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:46: error: lvalue required as unary '&' operand
-               signed char x; signed char y = &1;
-                                              ^
-
-        */
-        error("""
-              signed char x; signed char y = &1;
-                """)
    }
 
 
@@ -479,9 +359,6 @@ test.c:1:46: error: lvalue required as unary '&' operand
                 unsigned char a = 0;
                 return a;
               }
-                """)
-        correct("""
-              unsigned char x; unsigned char y = 0;
                 """)
    }
 
@@ -496,9 +373,6 @@ test.c:1:46: error: lvalue required as unary '&' operand
                 return a;
               }
                 """)
-        correct("""
-              unsigned char x; unsigned char y = 1;
-                """)
    }
 
 
@@ -511,9 +385,6 @@ test.c:1:46: error: lvalue required as unary '&' operand
                 unsigned char a = -1;
                 return a;
               }
-                """)
-        correct("""
-              unsigned char x; unsigned char y = -1;
                 """)
    }
 
@@ -528,9 +399,6 @@ test.c:1:46: error: lvalue required as unary '&' operand
                 return a;
               }
                 """)
-        correct("""
-              unsigned char x; unsigned char y = 1l;
-                """)
    }
 
 
@@ -544,9 +412,6 @@ test.c:1:46: error: lvalue required as unary '&' operand
                 return a;
               }
                 """)
-        correct("""
-              unsigned char x; unsigned char y = 0xa4;
-                """)
    }
 
 
@@ -559,9 +424,6 @@ test.c:1:46: error: lvalue required as unary '&' operand
                 unsigned char a = 0.2;
                 return a;
               }
-                """)
-        correct("""
-              unsigned char x; unsigned char y = 0.2;
                 """)
    }
 
@@ -590,18 +452,6 @@ test.c:2:35: warning: initialization makes integer from pointer without a cast
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:50: warning: initialization makes integer from pointer without a cast
-               unsigned char x; unsigned char y = "0.2";
-                                                  ^
-test.c:1:15: error: initializer element is not computable at load time
-               unsigned char x; unsigned char y = "0.2";
-               ^
-
-        */
-        error("""
-              unsigned char x; unsigned char y = "0.2";
-                """)
    }
 
 
@@ -629,18 +479,6 @@ test.c:2:35: warning: initialization makes integer from pointer without a cast
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:50: warning: initialization makes integer from pointer without a cast
-               unsigned char x; unsigned char y = &"foo";
-                                                  ^
-test.c:1:15: error: initializer element is not computable at load time
-               unsigned char x; unsigned char y = &"foo";
-               ^
-
-        */
-        error("""
-              unsigned char x; unsigned char y = &"foo";
-                """)
    }
 
 
@@ -653,15 +491,6 @@ test.c:1:15: error: initializer element is not computable at load time
                 unsigned char a = *"foo";
                 return a;
               }
-                """)
-        /* gcc reports:
-test.c:1:15: error: initializer element is not constant
-               unsigned char x; unsigned char y = *"foo";
-               ^
-
-        */
-        error("""
-              unsigned char x; unsigned char y = *"foo";
                 """)
    }
 
@@ -690,15 +519,6 @@ test.c:2:35: error: lvalue required as unary '&' operand
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:50: error: lvalue required as unary '&' operand
-               unsigned char x; unsigned char y = &1;
-                                                  ^
-
-        */
-        error("""
-              unsigned char x; unsigned char y = &1;
-                """)
    }
 
 
@@ -711,9 +531,6 @@ test.c:1:50: error: lvalue required as unary '&' operand
                 unsigned int a = 0;
                 return a;
               }
-                """)
-        correct("""
-              unsigned int x; unsigned int y = 0;
                 """)
    }
 
@@ -728,9 +545,6 @@ test.c:1:50: error: lvalue required as unary '&' operand
                 return a;
               }
                 """)
-        correct("""
-              unsigned int x; unsigned int y = 1;
-                """)
    }
 
 
@@ -743,9 +557,6 @@ test.c:1:50: error: lvalue required as unary '&' operand
                 unsigned int a = -1;
                 return a;
               }
-                """)
-        correct("""
-              unsigned int x; unsigned int y = -1;
                 """)
    }
 
@@ -760,9 +571,6 @@ test.c:1:50: error: lvalue required as unary '&' operand
                 return a;
               }
                 """)
-        correct("""
-              unsigned int x; unsigned int y = 1l;
-                """)
    }
 
 
@@ -776,9 +584,6 @@ test.c:1:50: error: lvalue required as unary '&' operand
                 return a;
               }
                 """)
-        correct("""
-              unsigned int x; unsigned int y = 0xa4;
-                """)
    }
 
 
@@ -791,9 +596,6 @@ test.c:1:50: error: lvalue required as unary '&' operand
                 unsigned int a = 0.2;
                 return a;
               }
-                """)
-        correct("""
-              unsigned int x; unsigned int y = 0.2;
                 """)
    }
 
@@ -822,18 +624,6 @@ test.c:2:34: warning: initialization makes integer from pointer without a cast
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:48: warning: initialization makes integer from pointer without a cast
-               unsigned int x; unsigned int y = "0.2";
-                                                ^
-test.c:1:15: error: initializer element is not computable at load time
-               unsigned int x; unsigned int y = "0.2";
-               ^
-
-        */
-        error("""
-              unsigned int x; unsigned int y = "0.2";
-                """)
    }
 
 
@@ -861,18 +651,6 @@ test.c:2:34: warning: initialization makes integer from pointer without a cast
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:48: warning: initialization makes integer from pointer without a cast
-               unsigned int x; unsigned int y = &"foo";
-                                                ^
-test.c:1:15: error: initializer element is not computable at load time
-               unsigned int x; unsigned int y = &"foo";
-               ^
-
-        */
-        error("""
-              unsigned int x; unsigned int y = &"foo";
-                """)
    }
 
 
@@ -885,15 +663,6 @@ test.c:1:15: error: initializer element is not computable at load time
                 unsigned int a = *"foo";
                 return a;
               }
-                """)
-        /* gcc reports:
-test.c:1:15: error: initializer element is not constant
-               unsigned int x; unsigned int y = *"foo";
-               ^
-
-        */
-        error("""
-              unsigned int x; unsigned int y = *"foo";
                 """)
    }
 
@@ -922,15 +691,6 @@ test.c:2:34: error: lvalue required as unary '&' operand
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:48: error: lvalue required as unary '&' operand
-               unsigned int x; unsigned int y = &1;
-                                                ^
-
-        */
-        error("""
-              unsigned int x; unsigned int y = &1;
-                """)
    }
 
 
@@ -943,9 +703,6 @@ test.c:1:48: error: lvalue required as unary '&' operand
                 signed int a = 0;
                 return a;
               }
-                """)
-        correct("""
-              signed int x; signed int y = 0;
                 """)
    }
 
@@ -960,9 +717,6 @@ test.c:1:48: error: lvalue required as unary '&' operand
                 return a;
               }
                 """)
-        correct("""
-              signed int x; signed int y = 1;
-                """)
    }
 
 
@@ -975,9 +729,6 @@ test.c:1:48: error: lvalue required as unary '&' operand
                 signed int a = -1;
                 return a;
               }
-                """)
-        correct("""
-              signed int x; signed int y = -1;
                 """)
    }
 
@@ -992,9 +743,6 @@ test.c:1:48: error: lvalue required as unary '&' operand
                 return a;
               }
                 """)
-        correct("""
-              signed int x; signed int y = 1l;
-                """)
    }
 
 
@@ -1008,9 +756,6 @@ test.c:1:48: error: lvalue required as unary '&' operand
                 return a;
               }
                 """)
-        correct("""
-              signed int x; signed int y = 0xa4;
-                """)
    }
 
 
@@ -1023,9 +768,6 @@ test.c:1:48: error: lvalue required as unary '&' operand
                 signed int a = 0.2;
                 return a;
               }
-                """)
-        correct("""
-              signed int x; signed int y = 0.2;
                 """)
    }
 
@@ -1054,18 +796,6 @@ test.c:2:32: warning: initialization makes integer from pointer without a cast
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:44: warning: initialization makes integer from pointer without a cast
-               signed int x; signed int y = "0.2";
-                                            ^
-test.c:1:15: error: initializer element is not computable at load time
-               signed int x; signed int y = "0.2";
-               ^
-
-        */
-        error("""
-              signed int x; signed int y = "0.2";
-                """)
    }
 
 
@@ -1093,18 +823,6 @@ test.c:2:32: warning: initialization makes integer from pointer without a cast
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:44: warning: initialization makes integer from pointer without a cast
-               signed int x; signed int y = &"foo";
-                                            ^
-test.c:1:15: error: initializer element is not computable at load time
-               signed int x; signed int y = &"foo";
-               ^
-
-        */
-        error("""
-              signed int x; signed int y = &"foo";
-                """)
    }
 
 
@@ -1117,15 +835,6 @@ test.c:1:15: error: initializer element is not computable at load time
                 signed int a = *"foo";
                 return a;
               }
-                """)
-        /* gcc reports:
-test.c:1:15: error: initializer element is not constant
-               signed int x; signed int y = *"foo";
-               ^
-
-        */
-        error("""
-              signed int x; signed int y = *"foo";
                 """)
    }
 
@@ -1154,15 +863,6 @@ test.c:2:32: error: lvalue required as unary '&' operand
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:44: error: lvalue required as unary '&' operand
-               signed int x; signed int y = &1;
-                                            ^
-
-        */
-        error("""
-              signed int x; signed int y = &1;
-                """)
    }
 
 
@@ -1175,9 +875,6 @@ test.c:1:44: error: lvalue required as unary '&' operand
                 long a = 0;
                 return a;
               }
-                """)
-        correct("""
-              long x; long y = 0;
                 """)
    }
 
@@ -1192,9 +889,6 @@ test.c:1:44: error: lvalue required as unary '&' operand
                 return a;
               }
                 """)
-        correct("""
-              long x; long y = 1;
-                """)
    }
 
 
@@ -1207,9 +901,6 @@ test.c:1:44: error: lvalue required as unary '&' operand
                 long a = -1;
                 return a;
               }
-                """)
-        correct("""
-              long x; long y = -1;
                 """)
    }
 
@@ -1224,9 +915,6 @@ test.c:1:44: error: lvalue required as unary '&' operand
                 return a;
               }
                 """)
-        correct("""
-              long x; long y = 1l;
-                """)
    }
 
 
@@ -1240,9 +928,6 @@ test.c:1:44: error: lvalue required as unary '&' operand
                 return a;
               }
                 """)
-        correct("""
-              long x; long y = 0xa4;
-                """)
    }
 
 
@@ -1255,9 +940,6 @@ test.c:1:44: error: lvalue required as unary '&' operand
                 long a = 0.2;
                 return a;
               }
-                """)
-        correct("""
-              long x; long y = 0.2;
                 """)
    }
 
@@ -1286,18 +968,6 @@ test.c:2:26: warning: initialization makes integer from pointer without a cast
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:32: warning: initialization makes integer from pointer without a cast
-               long x; long y = "0.2";
-                                ^
-test.c:1:15: error: initializer element is not computable at load time
-               long x; long y = "0.2";
-               ^
-
-        */
-        error("""
-              long x; long y = "0.2";
-                """)
    }
 
 
@@ -1325,18 +995,6 @@ test.c:2:26: warning: initialization makes integer from pointer without a cast
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:32: warning: initialization makes integer from pointer without a cast
-               long x; long y = &"foo";
-                                ^
-test.c:1:15: error: initializer element is not computable at load time
-               long x; long y = &"foo";
-               ^
-
-        */
-        error("""
-              long x; long y = &"foo";
-                """)
    }
 
 
@@ -1349,15 +1007,6 @@ test.c:1:15: error: initializer element is not computable at load time
                 long a = *"foo";
                 return a;
               }
-                """)
-        /* gcc reports:
-test.c:1:15: error: initializer element is not constant
-               long x; long y = *"foo";
-               ^
-
-        */
-        error("""
-              long x; long y = *"foo";
                 """)
    }
 
@@ -1386,15 +1035,6 @@ test.c:2:26: error: lvalue required as unary '&' operand
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:32: error: lvalue required as unary '&' operand
-               long x; long y = &1;
-                                ^
-
-        */
-        error("""
-              long x; long y = &1;
-                """)
    }
 
 
@@ -1407,9 +1047,6 @@ test.c:1:32: error: lvalue required as unary '&' operand
                 double a = 0;
                 return a;
               }
-                """)
-        correct("""
-              double x; double y = 0;
                 """)
    }
 
@@ -1424,9 +1061,6 @@ test.c:1:32: error: lvalue required as unary '&' operand
                 return a;
               }
                 """)
-        correct("""
-              double x; double y = 1;
-                """)
    }
 
 
@@ -1439,9 +1073,6 @@ test.c:1:32: error: lvalue required as unary '&' operand
                 double a = -1;
                 return a;
               }
-                """)
-        correct("""
-              double x; double y = -1;
                 """)
    }
 
@@ -1456,9 +1087,6 @@ test.c:1:32: error: lvalue required as unary '&' operand
                 return a;
               }
                 """)
-        correct("""
-              double x; double y = 1l;
-                """)
    }
 
 
@@ -1472,9 +1100,6 @@ test.c:1:32: error: lvalue required as unary '&' operand
                 return a;
               }
                 """)
-        correct("""
-              double x; double y = 0xa4;
-                """)
    }
 
 
@@ -1487,9 +1112,6 @@ test.c:1:32: error: lvalue required as unary '&' operand
                 double a = 0.2;
                 return a;
               }
-                """)
-        correct("""
-              double x; double y = 0.2;
                 """)
    }
 
@@ -1518,15 +1140,6 @@ test.c:2:28: error: incompatible types when initializing type 'double' using typ
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:36: error: incompatible types when initializing type 'double' using type 'char *'
-               double x; double y = "0.2";
-                                    ^
-
-        */
-        error("""
-              double x; double y = "0.2";
-                """)
    }
 
 
@@ -1554,15 +1167,6 @@ test.c:2:28: error: incompatible types when initializing type 'double' using typ
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:36: error: incompatible types when initializing type 'double' using type 'char (*)[4]'
-               double x; double y = &"foo";
-                                    ^
-
-        */
-        error("""
-              double x; double y = &"foo";
-                """)
    }
 
 
@@ -1575,15 +1179,6 @@ test.c:1:36: error: incompatible types when initializing type 'double' using typ
                 double a = *"foo";
                 return a;
               }
-                """)
-        /* gcc reports:
-test.c:1:15: error: initializer element is not constant
-               double x; double y = *"foo";
-               ^
-
-        */
-        error("""
-              double x; double y = *"foo";
                 """)
    }
 
@@ -1612,15 +1207,6 @@ test.c:2:28: error: lvalue required as unary '&' operand
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:36: error: lvalue required as unary '&' operand
-               double x; double y = &1;
-                                    ^
-
-        */
-        error("""
-              double x; double y = &1;
-                """)
    }
 
 
@@ -1633,9 +1219,6 @@ test.c:1:36: error: lvalue required as unary '&' operand
                 int * a = 0;
                 return a;
               }
-                """)
-        correct("""
-              int * x; int * y = 0;
                 """)
    }
 
@@ -1664,15 +1247,6 @@ test.c:2:27: warning: initialization makes pointer from integer without a cast
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:34: warning: initialization makes pointer from integer without a cast
-               int * x; int * y = 1;
-                                  ^
-
-        */
-        warning("""
-              int * x; int * y = 1;
-                """)
    }
 
 
@@ -1699,15 +1273,6 @@ test.c:2:27: warning: initialization makes pointer from integer without a cast
                 int * a = -1;
                 return a;
               }
-                """)
-        /* gcc reports:
-test.c:1:34: warning: initialization makes pointer from integer without a cast
-               int * x; int * y = -1;
-                                  ^
-
-        */
-        warning("""
-              int * x; int * y = -1;
                 """)
    }
 
@@ -1736,15 +1301,6 @@ test.c:2:27: warning: initialization makes pointer from integer without a cast
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:34: warning: initialization makes pointer from integer without a cast
-               int * x; int * y = 1l;
-                                  ^
-
-        */
-        warning("""
-              int * x; int * y = 1l;
-                """)
    }
 
 
@@ -1771,15 +1327,6 @@ test.c:2:27: warning: initialization makes pointer from integer without a cast
                 int * a = 0xa4;
                 return a;
               }
-                """)
-        /* gcc reports:
-test.c:1:34: warning: initialization makes pointer from integer without a cast
-               int * x; int * y = 0xa4;
-                                  ^
-
-        */
-        warning("""
-              int * x; int * y = 0xa4;
                 """)
    }
 
@@ -1808,15 +1355,6 @@ test.c:2:27: error: incompatible types when initializing type 'int *' using type
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:34: error: incompatible types when initializing type 'int *' using type 'double'
-               int * x; int * y = 0.2;
-                                  ^
-
-        */
-        error("""
-              int * x; int * y = 0.2;
-                """)
    }
 
 
@@ -1843,15 +1381,6 @@ test.c:2:27: warning: initialization from incompatible pointer type
                 int * a = "0.2";
                 return a;
               }
-                """)
-        /* gcc reports:
-test.c:1:34: warning: initialization from incompatible pointer type
-               int * x; int * y = "0.2";
-                                  ^
-
-        */
-        warning("""
-              int * x; int * y = "0.2";
                 """)
    }
 
@@ -1880,15 +1409,6 @@ test.c:2:27: warning: initialization from incompatible pointer type
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:34: warning: initialization from incompatible pointer type
-               int * x; int * y = &"foo";
-                                  ^
-
-        */
-        warning("""
-              int * x; int * y = &"foo";
-                """)
    }
 
 
@@ -1915,18 +1435,6 @@ test.c:2:27: warning: initialization makes pointer from integer without a cast
                 int * a = *"foo";
                 return a;
               }
-                """)
-        /* gcc reports:
-test.c:1:34: warning: initialization makes pointer from integer without a cast
-               int * x; int * y = *"foo";
-                                  ^
-test.c:1:15: error: initializer element is not constant
-               int * x; int * y = *"foo";
-               ^
-
-        */
-        error("""
-              int * x; int * y = *"foo";
                 """)
    }
 
@@ -1955,15 +1463,6 @@ test.c:2:27: error: lvalue required as unary '&' operand
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:34: error: lvalue required as unary '&' operand
-               int * x; int * y = &1;
-                                  ^
-
-        */
-        error("""
-              int * x; int * y = &1;
-                """)
    }
 
 
@@ -1976,9 +1475,6 @@ test.c:1:34: error: lvalue required as unary '&' operand
                 char * a = 0;
                 return a;
               }
-                """)
-        correct("""
-              char * x; char * y = 0;
                 """)
    }
 
@@ -2007,15 +1503,6 @@ test.c:2:28: warning: initialization makes pointer from integer without a cast
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:36: warning: initialization makes pointer from integer without a cast
-               char * x; char * y = 1;
-                                    ^
-
-        */
-        warning("""
-              char * x; char * y = 1;
-                """)
    }
 
 
@@ -2042,15 +1529,6 @@ test.c:2:28: warning: initialization makes pointer from integer without a cast
                 char * a = -1;
                 return a;
               }
-                """)
-        /* gcc reports:
-test.c:1:36: warning: initialization makes pointer from integer without a cast
-               char * x; char * y = -1;
-                                    ^
-
-        */
-        warning("""
-              char * x; char * y = -1;
                 """)
    }
 
@@ -2079,15 +1557,6 @@ test.c:2:28: warning: initialization makes pointer from integer without a cast
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:36: warning: initialization makes pointer from integer without a cast
-               char * x; char * y = 1l;
-                                    ^
-
-        */
-        warning("""
-              char * x; char * y = 1l;
-                """)
    }
 
 
@@ -2114,15 +1583,6 @@ test.c:2:28: warning: initialization makes pointer from integer without a cast
                 char * a = 0xa4;
                 return a;
               }
-                """)
-        /* gcc reports:
-test.c:1:36: warning: initialization makes pointer from integer without a cast
-               char * x; char * y = 0xa4;
-                                    ^
-
-        */
-        warning("""
-              char * x; char * y = 0xa4;
                 """)
    }
 
@@ -2151,15 +1611,6 @@ test.c:2:28: error: incompatible types when initializing type 'char *' using typ
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:36: error: incompatible types when initializing type 'char *' using type 'double'
-               char * x; char * y = 0.2;
-                                    ^
-
-        */
-        error("""
-              char * x; char * y = 0.2;
-                """)
    }
 
 
@@ -2172,9 +1623,6 @@ test.c:1:36: error: incompatible types when initializing type 'char *' using typ
                 char * a = "0.2";
                 return a;
               }
-                """)
-        correct("""
-              char * x; char * y = "0.2";
                 """)
    }
 
@@ -2203,15 +1651,6 @@ test.c:2:28: warning: initialization from incompatible pointer type
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:36: warning: initialization from incompatible pointer type
-               char * x; char * y = &"foo";
-                                    ^
-
-        */
-        warning("""
-              char * x; char * y = &"foo";
-                """)
    }
 
 
@@ -2238,18 +1677,6 @@ test.c:2:28: warning: initialization makes pointer from integer without a cast
                 char * a = *"foo";
                 return a;
               }
-                """)
-        /* gcc reports:
-test.c:1:36: warning: initialization makes pointer from integer without a cast
-               char * x; char * y = *"foo";
-                                    ^
-test.c:1:15: error: initializer element is not constant
-               char * x; char * y = *"foo";
-               ^
-
-        */
-        error("""
-              char * x; char * y = *"foo";
                 """)
    }
 
@@ -2278,15 +1705,6 @@ test.c:2:28: error: lvalue required as unary '&' operand
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:36: error: lvalue required as unary '&' operand
-               char * x; char * y = &1;
-                                    ^
-
-        */
-        error("""
-              char * x; char * y = &1;
-                """)
    }
 
 
@@ -2299,9 +1717,6 @@ test.c:1:36: error: lvalue required as unary '&' operand
                 signed char * a = 0;
                 return a;
               }
-                """)
-        correct("""
-              signed char * x; signed char * y = 0;
                 """)
    }
 
@@ -2330,15 +1745,6 @@ test.c:2:35: warning: initialization makes pointer from integer without a cast
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:50: warning: initialization makes pointer from integer without a cast
-               signed char * x; signed char * y = 1;
-                                                  ^
-
-        */
-        warning("""
-              signed char * x; signed char * y = 1;
-                """)
    }
 
 
@@ -2365,15 +1771,6 @@ test.c:2:35: warning: initialization makes pointer from integer without a cast
                 signed char * a = -1;
                 return a;
               }
-                """)
-        /* gcc reports:
-test.c:1:50: warning: initialization makes pointer from integer without a cast
-               signed char * x; signed char * y = -1;
-                                                  ^
-
-        */
-        warning("""
-              signed char * x; signed char * y = -1;
                 """)
    }
 
@@ -2402,15 +1799,6 @@ test.c:2:35: warning: initialization makes pointer from integer without a cast
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:50: warning: initialization makes pointer from integer without a cast
-               signed char * x; signed char * y = 1l;
-                                                  ^
-
-        */
-        warning("""
-              signed char * x; signed char * y = 1l;
-                """)
    }
 
 
@@ -2437,15 +1825,6 @@ test.c:2:35: warning: initialization makes pointer from integer without a cast
                 signed char * a = 0xa4;
                 return a;
               }
-                """)
-        /* gcc reports:
-test.c:1:50: warning: initialization makes pointer from integer without a cast
-               signed char * x; signed char * y = 0xa4;
-                                                  ^
-
-        */
-        warning("""
-              signed char * x; signed char * y = 0xa4;
                 """)
    }
 
@@ -2474,15 +1853,6 @@ test.c:2:35: error: incompatible types when initializing type 'signed char *' us
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:50: error: incompatible types when initializing type 'signed char *' using type 'double'
-               signed char * x; signed char * y = 0.2;
-                                                  ^
-
-        */
-        error("""
-              signed char * x; signed char * y = 0.2;
-                """)
    }
 
 
@@ -2495,9 +1865,6 @@ test.c:1:50: error: incompatible types when initializing type 'signed char *' us
                 signed char * a = "0.2";
                 return a;
               }
-                """)
-        correct("""
-              signed char * x; signed char * y = "0.2";
                 """)
    }
 
@@ -2526,15 +1893,6 @@ test.c:2:35: warning: initialization from incompatible pointer type
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:50: warning: initialization from incompatible pointer type
-               signed char * x; signed char * y = &"foo";
-                                                  ^
-
-        */
-        warning("""
-              signed char * x; signed char * y = &"foo";
-                """)
    }
 
 
@@ -2561,18 +1919,6 @@ test.c:2:35: warning: initialization makes pointer from integer without a cast
                 signed char * a = *"foo";
                 return a;
               }
-                """)
-        /* gcc reports:
-test.c:1:50: warning: initialization makes pointer from integer without a cast
-               signed char * x; signed char * y = *"foo";
-                                                  ^
-test.c:1:15: error: initializer element is not constant
-               signed char * x; signed char * y = *"foo";
-               ^
-
-        */
-        error("""
-              signed char * x; signed char * y = *"foo";
                 """)
    }
 
@@ -2601,15 +1947,6 @@ test.c:2:35: error: lvalue required as unary '&' operand
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:50: error: lvalue required as unary '&' operand
-               signed char * x; signed char * y = &1;
-                                                  ^
-
-        */
-        error("""
-              signed char * x; signed char * y = &1;
-                """)
    }
 
 
@@ -2622,9 +1959,6 @@ test.c:1:50: error: lvalue required as unary '&' operand
                 unsigned char * a = 0;
                 return a;
               }
-                """)
-        correct("""
-              unsigned char * x; unsigned char * y = 0;
                 """)
    }
 
@@ -2653,15 +1987,6 @@ test.c:2:37: warning: initialization makes pointer from integer without a cast
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:54: warning: initialization makes pointer from integer without a cast
-               unsigned char * x; unsigned char * y = 1;
-                                                      ^
-
-        */
-        warning("""
-              unsigned char * x; unsigned char * y = 1;
-                """)
    }
 
 
@@ -2688,15 +2013,6 @@ test.c:2:37: warning: initialization makes pointer from integer without a cast
                 unsigned char * a = -1;
                 return a;
               }
-                """)
-        /* gcc reports:
-test.c:1:54: warning: initialization makes pointer from integer without a cast
-               unsigned char * x; unsigned char * y = -1;
-                                                      ^
-
-        */
-        warning("""
-              unsigned char * x; unsigned char * y = -1;
                 """)
    }
 
@@ -2725,15 +2041,6 @@ test.c:2:37: warning: initialization makes pointer from integer without a cast
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:54: warning: initialization makes pointer from integer without a cast
-               unsigned char * x; unsigned char * y = 1l;
-                                                      ^
-
-        */
-        warning("""
-              unsigned char * x; unsigned char * y = 1l;
-                """)
    }
 
 
@@ -2760,15 +2067,6 @@ test.c:2:37: warning: initialization makes pointer from integer without a cast
                 unsigned char * a = 0xa4;
                 return a;
               }
-                """)
-        /* gcc reports:
-test.c:1:54: warning: initialization makes pointer from integer without a cast
-               unsigned char * x; unsigned char * y = 0xa4;
-                                                      ^
-
-        */
-        warning("""
-              unsigned char * x; unsigned char * y = 0xa4;
                 """)
    }
 
@@ -2797,15 +2095,6 @@ test.c:2:37: error: incompatible types when initializing type 'unsigned char *' 
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:54: error: incompatible types when initializing type 'unsigned char *' using type 'double'
-               unsigned char * x; unsigned char * y = 0.2;
-                                                      ^
-
-        */
-        error("""
-              unsigned char * x; unsigned char * y = 0.2;
-                """)
    }
 
 
@@ -2818,9 +2107,6 @@ test.c:1:54: error: incompatible types when initializing type 'unsigned char *' 
                 unsigned char * a = "0.2";
                 return a;
               }
-                """)
-        correct("""
-              unsigned char * x; unsigned char * y = "0.2";
                 """)
    }
 
@@ -2849,15 +2135,6 @@ test.c:2:37: warning: initialization from incompatible pointer type
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:54: warning: initialization from incompatible pointer type
-               unsigned char * x; unsigned char * y = &"foo";
-                                                      ^
-
-        */
-        warning("""
-              unsigned char * x; unsigned char * y = &"foo";
-                """)
    }
 
 
@@ -2884,18 +2161,6 @@ test.c:2:37: warning: initialization makes pointer from integer without a cast
                 unsigned char * a = *"foo";
                 return a;
               }
-                """)
-        /* gcc reports:
-test.c:1:54: warning: initialization makes pointer from integer without a cast
-               unsigned char * x; unsigned char * y = *"foo";
-                                                      ^
-test.c:1:15: error: initializer element is not constant
-               unsigned char * x; unsigned char * y = *"foo";
-               ^
-
-        */
-        error("""
-              unsigned char * x; unsigned char * y = *"foo";
                 """)
    }
 
@@ -2924,15 +2189,6 @@ test.c:2:37: error: lvalue required as unary '&' operand
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:54: error: lvalue required as unary '&' operand
-               unsigned char * x; unsigned char * y = &1;
-                                                      ^
-
-        */
-        error("""
-              unsigned char * x; unsigned char * y = &1;
-                """)
    }
 
 
@@ -2945,9 +2201,6 @@ test.c:1:54: error: lvalue required as unary '&' operand
                 char ** a = 0;
                 return a;
               }
-                """)
-        correct("""
-              char ** x; char ** y = 0;
                 """)
    }
 
@@ -2976,15 +2229,6 @@ test.c:2:29: warning: initialization makes pointer from integer without a cast
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:38: warning: initialization makes pointer from integer without a cast
-               char ** x; char ** y = 1;
-                                      ^
-
-        */
-        warning("""
-              char ** x; char ** y = 1;
-                """)
    }
 
 
@@ -3011,15 +2255,6 @@ test.c:2:29: warning: initialization makes pointer from integer without a cast
                 char ** a = -1;
                 return a;
               }
-                """)
-        /* gcc reports:
-test.c:1:38: warning: initialization makes pointer from integer without a cast
-               char ** x; char ** y = -1;
-                                      ^
-
-        */
-        warning("""
-              char ** x; char ** y = -1;
                 """)
    }
 
@@ -3048,15 +2283,6 @@ test.c:2:29: warning: initialization makes pointer from integer without a cast
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:38: warning: initialization makes pointer from integer without a cast
-               char ** x; char ** y = 1l;
-                                      ^
-
-        */
-        warning("""
-              char ** x; char ** y = 1l;
-                """)
    }
 
 
@@ -3083,15 +2309,6 @@ test.c:2:29: warning: initialization makes pointer from integer without a cast
                 char ** a = 0xa4;
                 return a;
               }
-                """)
-        /* gcc reports:
-test.c:1:38: warning: initialization makes pointer from integer without a cast
-               char ** x; char ** y = 0xa4;
-                                      ^
-
-        */
-        warning("""
-              char ** x; char ** y = 0xa4;
                 """)
    }
 
@@ -3120,15 +2337,6 @@ test.c:2:29: error: incompatible types when initializing type 'char **' using ty
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:38: error: incompatible types when initializing type 'char **' using type 'double'
-               char ** x; char ** y = 0.2;
-                                      ^
-
-        */
-        error("""
-              char ** x; char ** y = 0.2;
-                """)
    }
 
 
@@ -3155,15 +2363,6 @@ test.c:2:29: warning: initialization from incompatible pointer type
                 char ** a = "0.2";
                 return a;
               }
-                """)
-        /* gcc reports:
-test.c:1:38: warning: initialization from incompatible pointer type
-               char ** x; char ** y = "0.2";
-                                      ^
-
-        */
-        warning("""
-              char ** x; char ** y = "0.2";
                 """)
    }
 
@@ -3193,15 +2392,6 @@ test.c:2:29: warning: initialization from incompatible pointer type
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:38: warning: initialization from incompatible pointer type
-               char ** x; char ** y = &"foo";
-                                      ^
-
-        */
-        warning("""
-              char ** x; char ** y = &"foo";
-                """)
    }
 
 
@@ -3228,18 +2418,6 @@ test.c:2:29: warning: initialization makes pointer from integer without a cast
                 char ** a = *"foo";
                 return a;
               }
-                """)
-        /* gcc reports:
-test.c:1:38: warning: initialization makes pointer from integer without a cast
-               char ** x; char ** y = *"foo";
-                                      ^
-test.c:1:15: error: initializer element is not constant
-               char ** x; char ** y = *"foo";
-               ^
-
-        */
-        error("""
-              char ** x; char ** y = *"foo";
                 """)
    }
 
@@ -3268,15 +2446,6 @@ test.c:2:29: error: lvalue required as unary '&' operand
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:38: error: lvalue required as unary '&' operand
-               char ** x; char ** y = &1;
-                                      ^
-
-        */
-        error("""
-              char ** x; char ** y = &1;
-                """)
    }
 
 
@@ -3289,9 +2458,6 @@ test.c:1:38: error: lvalue required as unary '&' operand
                 unsigned char ** a = 0;
                 return a;
               }
-                """)
-        correct("""
-              unsigned char ** x; unsigned char ** y = 0;
                 """)
    }
 
@@ -3320,15 +2486,6 @@ test.c:2:38: warning: initialization makes pointer from integer without a cast
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:56: warning: initialization makes pointer from integer without a cast
-               unsigned char ** x; unsigned char ** y = 1;
-                                                        ^
-
-        */
-        warning("""
-              unsigned char ** x; unsigned char ** y = 1;
-                """)
    }
 
 
@@ -3355,15 +2512,6 @@ test.c:2:38: warning: initialization makes pointer from integer without a cast
                 unsigned char ** a = -1;
                 return a;
               }
-                """)
-        /* gcc reports:
-test.c:1:56: warning: initialization makes pointer from integer without a cast
-               unsigned char ** x; unsigned char ** y = -1;
-                                                        ^
-
-        */
-        warning("""
-              unsigned char ** x; unsigned char ** y = -1;
                 """)
    }
 
@@ -3392,15 +2540,6 @@ test.c:2:38: warning: initialization makes pointer from integer without a cast
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:56: warning: initialization makes pointer from integer without a cast
-               unsigned char ** x; unsigned char ** y = 1l;
-                                                        ^
-
-        */
-        warning("""
-              unsigned char ** x; unsigned char ** y = 1l;
-                """)
    }
 
 
@@ -3427,15 +2566,6 @@ test.c:2:38: warning: initialization makes pointer from integer without a cast
                 unsigned char ** a = 0xa4;
                 return a;
               }
-                """)
-        /* gcc reports:
-test.c:1:56: warning: initialization makes pointer from integer without a cast
-               unsigned char ** x; unsigned char ** y = 0xa4;
-                                                        ^
-
-        */
-        warning("""
-              unsigned char ** x; unsigned char ** y = 0xa4;
                 """)
    }
 
@@ -3464,15 +2594,6 @@ test.c:2:38: error: incompatible types when initializing type 'unsigned char **'
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:56: error: incompatible types when initializing type 'unsigned char **' using type 'double'
-               unsigned char ** x; unsigned char ** y = 0.2;
-                                                        ^
-
-        */
-        error("""
-              unsigned char ** x; unsigned char ** y = 0.2;
-                """)
    }
 
 
@@ -3499,15 +2620,6 @@ test.c:2:38: warning: initialization from incompatible pointer type
                 unsigned char ** a = "0.2";
                 return a;
               }
-                """)
-        /* gcc reports:
-test.c:1:56: warning: initialization from incompatible pointer type
-               unsigned char ** x; unsigned char ** y = "0.2";
-                                                        ^
-
-        */
-        warning("""
-              unsigned char ** x; unsigned char ** y = "0.2";
                 """)
    }
 
@@ -3536,15 +2648,6 @@ test.c:2:38: warning: initialization from incompatible pointer type
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:56: warning: initialization from incompatible pointer type
-               unsigned char ** x; unsigned char ** y = &"foo";
-                                                        ^
-
-        */
-        warning("""
-              unsigned char ** x; unsigned char ** y = &"foo";
-                """)
    }
 
 
@@ -3571,18 +2674,6 @@ test.c:2:38: warning: initialization makes pointer from integer without a cast
                 unsigned char ** a = *"foo";
                 return a;
               }
-                """)
-        /* gcc reports:
-test.c:1:56: warning: initialization makes pointer from integer without a cast
-               unsigned char ** x; unsigned char ** y = *"foo";
-                                                        ^
-test.c:1:15: error: initializer element is not constant
-               unsigned char ** x; unsigned char ** y = *"foo";
-               ^
-
-        */
-        error("""
-              unsigned char ** x; unsigned char ** y = *"foo";
                 """)
    }
 
@@ -3611,15 +2702,6 @@ test.c:2:38: error: lvalue required as unary '&' operand
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:56: error: lvalue required as unary '&' operand
-               unsigned char ** x; unsigned char ** y = &1;
-                                                        ^
-
-        */
-        error("""
-              unsigned char ** x; unsigned char ** y = &1;
-                """)
    }
 
 
@@ -3632,9 +2714,6 @@ test.c:1:56: error: lvalue required as unary '&' operand
                 signed char ** a = 0;
                 return a;
               }
-                """)
-        correct("""
-              signed char ** x; signed char ** y = 0;
                 """)
    }
 
@@ -3663,15 +2742,6 @@ test.c:2:36: warning: initialization makes pointer from integer without a cast
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:52: warning: initialization makes pointer from integer without a cast
-               signed char ** x; signed char ** y = 1;
-                                                    ^
-
-        */
-        warning("""
-              signed char ** x; signed char ** y = 1;
-                """)
    }
 
 
@@ -3698,15 +2768,6 @@ test.c:2:36: warning: initialization makes pointer from integer without a cast
                 signed char ** a = -1;
                 return a;
               }
-                """)
-        /* gcc reports:
-test.c:1:52: warning: initialization makes pointer from integer without a cast
-               signed char ** x; signed char ** y = -1;
-                                                    ^
-
-        */
-        warning("""
-              signed char ** x; signed char ** y = -1;
                 """)
    }
 
@@ -3735,15 +2796,6 @@ test.c:2:36: warning: initialization makes pointer from integer without a cast
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:52: warning: initialization makes pointer from integer without a cast
-               signed char ** x; signed char ** y = 1l;
-                                                    ^
-
-        */
-        warning("""
-              signed char ** x; signed char ** y = 1l;
-                """)
    }
 
 
@@ -3770,15 +2822,6 @@ test.c:2:36: warning: initialization makes pointer from integer without a cast
                 signed char ** a = 0xa4;
                 return a;
               }
-                """)
-        /* gcc reports:
-test.c:1:52: warning: initialization makes pointer from integer without a cast
-               signed char ** x; signed char ** y = 0xa4;
-                                                    ^
-
-        */
-        warning("""
-              signed char ** x; signed char ** y = 0xa4;
                 """)
    }
 
@@ -3807,15 +2850,6 @@ test.c:2:36: error: incompatible types when initializing type 'signed char **' u
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:52: error: incompatible types when initializing type 'signed char **' using type 'double'
-               signed char ** x; signed char ** y = 0.2;
-                                                    ^
-
-        */
-        error("""
-              signed char ** x; signed char ** y = 0.2;
-                """)
    }
 
 
@@ -3842,15 +2876,6 @@ test.c:2:36: warning: initialization from incompatible pointer type
                 signed char ** a = "0.2";
                 return a;
               }
-                """)
-        /* gcc reports:
-test.c:1:52: warning: initialization from incompatible pointer type
-               signed char ** x; signed char ** y = "0.2";
-                                                    ^
-
-        */
-        warning("""
-              signed char ** x; signed char ** y = "0.2";
                 """)
    }
 
@@ -3879,15 +2904,6 @@ test.c:2:36: warning: initialization from incompatible pointer type
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:52: warning: initialization from incompatible pointer type
-               signed char ** x; signed char ** y = &"foo";
-                                                    ^
-
-        */
-        warning("""
-              signed char ** x; signed char ** y = &"foo";
-                """)
    }
 
 
@@ -3914,18 +2930,6 @@ test.c:2:36: warning: initialization makes pointer from integer without a cast
                 signed char ** a = *"foo";
                 return a;
               }
-                """)
-        /* gcc reports:
-test.c:1:52: warning: initialization makes pointer from integer without a cast
-               signed char ** x; signed char ** y = *"foo";
-                                                    ^
-test.c:1:15: error: initializer element is not constant
-               signed char ** x; signed char ** y = *"foo";
-               ^
-
-        */
-        error("""
-              signed char ** x; signed char ** y = *"foo";
                 """)
    }
 
@@ -3954,15 +2958,6 @@ test.c:2:36: error: lvalue required as unary '&' operand
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:52: error: lvalue required as unary '&' operand
-               signed char ** x; signed char ** y = &1;
-                                                    ^
-
-        */
-        error("""
-              signed char ** x; signed char ** y = &1;
-                """)
    }
 
 
@@ -3975,9 +2970,6 @@ test.c:1:52: error: lvalue required as unary '&' operand
                 double * a = 0;
                 return a;
               }
-                """)
-        correct("""
-              double * x; double * y = 0;
                 """)
    }
 
@@ -4006,15 +2998,6 @@ test.c:2:30: warning: initialization makes pointer from integer without a cast
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:40: warning: initialization makes pointer from integer without a cast
-               double * x; double * y = 1;
-                                        ^
-
-        */
-        warning("""
-              double * x; double * y = 1;
-                """)
    }
 
 
@@ -4041,15 +3024,6 @@ test.c:2:30: warning: initialization makes pointer from integer without a cast
                 double * a = -1;
                 return a;
               }
-                """)
-        /* gcc reports:
-test.c:1:40: warning: initialization makes pointer from integer without a cast
-               double * x; double * y = -1;
-                                        ^
-
-        */
-        warning("""
-              double * x; double * y = -1;
                 """)
    }
 
@@ -4078,15 +3052,6 @@ test.c:2:30: warning: initialization makes pointer from integer without a cast
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:40: warning: initialization makes pointer from integer without a cast
-               double * x; double * y = 1l;
-                                        ^
-
-        */
-        warning("""
-              double * x; double * y = 1l;
-                """)
    }
 
 
@@ -4113,15 +3078,6 @@ test.c:2:30: warning: initialization makes pointer from integer without a cast
                 double * a = 0xa4;
                 return a;
               }
-                """)
-        /* gcc reports:
-test.c:1:40: warning: initialization makes pointer from integer without a cast
-               double * x; double * y = 0xa4;
-                                        ^
-
-        */
-        warning("""
-              double * x; double * y = 0xa4;
                 """)
    }
 
@@ -4150,15 +3106,6 @@ test.c:2:30: error: incompatible types when initializing type 'double *' using t
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:40: error: incompatible types when initializing type 'double *' using type 'double'
-               double * x; double * y = 0.2;
-                                        ^
-
-        */
-        error("""
-              double * x; double * y = 0.2;
-                """)
    }
 
 
@@ -4185,15 +3132,6 @@ test.c:2:30: warning: initialization from incompatible pointer type
                 double * a = "0.2";
                 return a;
               }
-                """)
-        /* gcc reports:
-test.c:1:40: warning: initialization from incompatible pointer type
-               double * x; double * y = "0.2";
-                                        ^
-
-        */
-        warning("""
-              double * x; double * y = "0.2";
                 """)
    }
 
@@ -4222,15 +3160,6 @@ test.c:2:30: warning: initialization from incompatible pointer type
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:40: warning: initialization from incompatible pointer type
-               double * x; double * y = &"foo";
-                                        ^
-
-        */
-        warning("""
-              double * x; double * y = &"foo";
-                """)
    }
 
 
@@ -4258,18 +3187,6 @@ test.c:2:30: warning: initialization makes pointer from integer without a cast
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:40: warning: initialization makes pointer from integer without a cast
-               double * x; double * y = *"foo";
-                                        ^
-test.c:1:15: error: initializer element is not constant
-               double * x; double * y = *"foo";
-               ^
-
-        */
-        error("""
-              double * x; double * y = *"foo";
-                """)
    }
 
 
@@ -4296,15 +3213,6 @@ test.c:2:30: error: lvalue required as unary '&' operand
                 double * a = &1;
                 return a;
               }
-                """)
-        /* gcc reports:
-test.c:1:40: error: lvalue required as unary '&' operand
-               double * x; double * y = &1;
-                                        ^
-
-        */
-        error("""
-              double * x; double * y = &1;
                 """)
    }
 
@@ -4337,17 +3245,6 @@ test.c:4:24: error: invalid initializer
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:3:34: error: invalid initializer
-               struct S x; struct S y = 0;
-                                  ^
-
-        */
-        error("""
-              struct S { int x; int y; };
-
-              struct S x; struct S y = 0;
-                """)
    }
 
 
@@ -4378,17 +3275,6 @@ test.c:4:24: error: invalid initializer
                 struct S a = 1;
                 return a;
               }
-                """)
-        /* gcc reports:
-test.c:3:34: error: invalid initializer
-               struct S x; struct S y = 1;
-                                  ^
-
-        */
-        error("""
-              struct S { int x; int y; };
-
-              struct S x; struct S y = 1;
                 """)
    }
 
@@ -4421,17 +3307,6 @@ test.c:4:24: error: invalid initializer
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:3:34: error: invalid initializer
-               struct S x; struct S y = -1;
-                                  ^
-
-        */
-        error("""
-              struct S { int x; int y; };
-
-              struct S x; struct S y = -1;
-                """)
    }
 
 
@@ -4462,17 +3337,6 @@ test.c:4:24: error: invalid initializer
                 struct S a = 1l;
                 return a;
               }
-                """)
-        /* gcc reports:
-test.c:3:34: error: invalid initializer
-               struct S x; struct S y = 1l;
-                                  ^
-
-        */
-        error("""
-              struct S { int x; int y; };
-
-              struct S x; struct S y = 1l;
                 """)
    }
 
@@ -4505,17 +3369,6 @@ test.c:4:24: error: invalid initializer
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:3:34: error: invalid initializer
-               struct S x; struct S y = 0xa4;
-                                  ^
-
-        */
-        error("""
-              struct S { int x; int y; };
-
-              struct S x; struct S y = 0xa4;
-                """)
    }
 
 
@@ -4546,17 +3399,6 @@ test.c:4:24: error: invalid initializer
                 struct S a = 0.2;
                 return a;
               }
-                """)
-        /* gcc reports:
-test.c:3:34: error: invalid initializer
-               struct S x; struct S y = 0.2;
-                                  ^
-
-        */
-        error("""
-              struct S { int x; int y; };
-
-              struct S x; struct S y = 0.2;
                 """)
    }
 
@@ -4589,17 +3431,6 @@ test.c:4:24: error: invalid initializer
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:3:34: error: invalid initializer
-               struct S x; struct S y = "0.2";
-                                  ^
-
-        */
-        error("""
-              struct S { int x; int y; };
-
-              struct S x; struct S y = "0.2";
-                """)
    }
 
 
@@ -4630,17 +3461,6 @@ test.c:4:24: error: invalid initializer
                 struct S a = &"foo";
                 return a;
               }
-                """)
-        /* gcc reports:
-test.c:3:34: error: invalid initializer
-               struct S x; struct S y = &"foo";
-                                  ^
-
-        */
-        error("""
-              struct S { int x; int y; };
-
-              struct S x; struct S y = &"foo";
                 """)
    }
 
@@ -4673,17 +3493,6 @@ test.c:4:24: error: invalid initializer
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:3:34: error: invalid initializer
-               struct S x; struct S y = *"foo";
-                                  ^
-
-        */
-        error("""
-              struct S { int x; int y; };
-
-              struct S x; struct S y = *"foo";
-                """)
    }
 
 
@@ -4715,17 +3524,6 @@ test.c:4:30: error: lvalue required as unary '&' operand
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:3:40: error: lvalue required as unary '&' operand
-               struct S x; struct S y = &1;
-                                        ^
-
-        */
-        error("""
-              struct S { int x; int y; };
-
-              struct S x; struct S y = &1;
-                """)
    }
 
 
@@ -4755,15 +3553,6 @@ test.c:3:17: error: incompatible types when returning type 'struct <anonymous>' 
                 struct { float b; } a = 0;
                 return a;
               }
-                """)
-        /* gcc reports:
-test.c:1:45: error: invalid initializer
-               struct { float b; } x; struct { float b; } y = 0;
-                                             ^
-
-        */
-        error("""
-              struct { float b; } x; struct { float b; } y = 0;
                 """)
    }
 
@@ -4795,15 +3584,6 @@ test.c:3:17: error: incompatible types when returning type 'struct <anonymous>' 
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:45: error: invalid initializer
-               struct { float b; } x; struct { float b; } y = 1;
-                                             ^
-
-        */
-        error("""
-              struct { float b; } x; struct { float b; } y = 1;
-                """)
    }
 
 
@@ -4833,15 +3613,6 @@ test.c:3:17: error: incompatible types when returning type 'struct <anonymous>' 
                 struct { float b; } a = -1;
                 return a;
               }
-                """)
-        /* gcc reports:
-test.c:1:45: error: invalid initializer
-               struct { float b; } x; struct { float b; } y = -1;
-                                             ^
-
-        */
-        error("""
-              struct { float b; } x; struct { float b; } y = -1;
                 """)
    }
 
@@ -4873,15 +3644,6 @@ test.c:3:17: error: incompatible types when returning type 'struct <anonymous>' 
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:45: error: invalid initializer
-               struct { float b; } x; struct { float b; } y = 1l;
-                                             ^
-
-        */
-        error("""
-              struct { float b; } x; struct { float b; } y = 1l;
-                """)
    }
 
 
@@ -4911,15 +3673,6 @@ test.c:3:17: error: incompatible types when returning type 'struct <anonymous>' 
                 struct { float b; } a = 0xa4;
                 return a;
               }
-                """)
-        /* gcc reports:
-test.c:1:45: error: invalid initializer
-               struct { float b; } x; struct { float b; } y = 0xa4;
-                                             ^
-
-        */
-        error("""
-              struct { float b; } x; struct { float b; } y = 0xa4;
                 """)
    }
 
@@ -4951,15 +3704,6 @@ test.c:3:17: error: incompatible types when returning type 'struct <anonymous>' 
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:45: error: invalid initializer
-               struct { float b; } x; struct { float b; } y = 0.2;
-                                             ^
-
-        */
-        error("""
-              struct { float b; } x; struct { float b; } y = 0.2;
-                """)
    }
 
 
@@ -4989,15 +3733,6 @@ test.c:3:17: error: incompatible types when returning type 'struct <anonymous>' 
                 struct { float b; } a = "0.2";
                 return a;
               }
-                """)
-        /* gcc reports:
-test.c:1:45: error: invalid initializer
-               struct { float b; } x; struct { float b; } y = "0.2";
-                                             ^
-
-        */
-        error("""
-              struct { float b; } x; struct { float b; } y = "0.2";
                 """)
    }
 
@@ -5029,15 +3764,6 @@ test.c:3:17: error: incompatible types when returning type 'struct <anonymous>' 
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:45: error: invalid initializer
-               struct { float b; } x; struct { float b; } y = &"foo";
-                                             ^
-
-        */
-        error("""
-              struct { float b; } x; struct { float b; } y = &"foo";
-                """)
    }
 
 
@@ -5067,15 +3793,6 @@ test.c:3:17: error: incompatible types when returning type 'struct <anonymous>' 
                 struct { float b; } a = *"foo";
                 return a;
               }
-                """)
-        /* gcc reports:
-test.c:1:45: error: invalid initializer
-               struct { float b; } x; struct { float b; } y = *"foo";
-                                             ^
-
-        */
-        error("""
-              struct { float b; } x; struct { float b; } y = *"foo";
                 """)
    }
 
@@ -5107,15 +3824,6 @@ test.c:3:17: error: incompatible types when returning type 'struct <anonymous>' 
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:62: error: lvalue required as unary '&' operand
-               struct { float b; } x; struct { float b; } y = &1;
-                                                              ^
-
-        */
-        error("""
-              struct { float b; } x; struct { float b; } y = &1;
-                """)
    }
 
 
@@ -5128,9 +3836,6 @@ test.c:1:62: error: lvalue required as unary '&' operand
                 volatile int a = 0;
                 return a;
               }
-                """)
-        correct("""
-              volatile int x; volatile int y = 0;
                 """)
    }
 
@@ -5145,9 +3850,6 @@ test.c:1:62: error: lvalue required as unary '&' operand
                 return a;
               }
                 """)
-        correct("""
-              volatile int x; volatile int y = 1;
-                """)
    }
 
 
@@ -5160,9 +3862,6 @@ test.c:1:62: error: lvalue required as unary '&' operand
                 volatile int a = -1;
                 return a;
               }
-                """)
-        correct("""
-              volatile int x; volatile int y = -1;
                 """)
    }
 
@@ -5177,9 +3876,6 @@ test.c:1:62: error: lvalue required as unary '&' operand
                 return a;
               }
                 """)
-        correct("""
-              volatile int x; volatile int y = 1l;
-                """)
    }
 
 
@@ -5193,9 +3889,6 @@ test.c:1:62: error: lvalue required as unary '&' operand
                 return a;
               }
                 """)
-        correct("""
-              volatile int x; volatile int y = 0xa4;
-                """)
    }
 
 
@@ -5208,9 +3901,6 @@ test.c:1:62: error: lvalue required as unary '&' operand
                 volatile int a = 0.2;
                 return a;
               }
-                """)
-        correct("""
-              volatile int x; volatile int y = 0.2;
                 """)
    }
 
@@ -5239,18 +3929,6 @@ test.c:2:34: warning: initialization makes integer from pointer without a cast
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:48: warning: initialization makes integer from pointer without a cast
-               volatile int x; volatile int y = "0.2";
-                                                ^
-test.c:1:15: error: initializer element is not computable at load time
-               volatile int x; volatile int y = "0.2";
-               ^
-
-        */
-        error("""
-              volatile int x; volatile int y = "0.2";
-                """)
    }
 
 
@@ -5278,18 +3956,6 @@ test.c:2:34: warning: initialization makes integer from pointer without a cast
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:48: warning: initialization makes integer from pointer without a cast
-               volatile int x; volatile int y = &"foo";
-                                                ^
-test.c:1:15: error: initializer element is not computable at load time
-               volatile int x; volatile int y = &"foo";
-               ^
-
-        */
-        error("""
-              volatile int x; volatile int y = &"foo";
-                """)
    }
 
 
@@ -5302,15 +3968,6 @@ test.c:1:15: error: initializer element is not computable at load time
                 volatile int a = *"foo";
                 return a;
               }
-                """)
-        /* gcc reports:
-test.c:1:15: error: initializer element is not constant
-               volatile int x; volatile int y = *"foo";
-               ^
-
-        */
-        error("""
-              volatile int x; volatile int y = *"foo";
                 """)
    }
 
@@ -5339,15 +3996,6 @@ test.c:2:34: error: lvalue required as unary '&' operand
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:48: error: lvalue required as unary '&' operand
-               volatile int x; volatile int y = &1;
-                                                ^
-
-        */
-        error("""
-              volatile int x; volatile int y = &1;
-                """)
    }
 
 
@@ -5360,9 +4008,6 @@ test.c:1:48: error: lvalue required as unary '&' operand
                 const int a = 0;
                 return a;
               }
-                """)
-        correct("""
-              const int x; const int y = 0;
                 """)
    }
 
@@ -5377,9 +4022,6 @@ test.c:1:48: error: lvalue required as unary '&' operand
                 return a;
               }
                 """)
-        correct("""
-              const int x; const int y = 1;
-                """)
    }
 
 
@@ -5392,9 +4034,6 @@ test.c:1:48: error: lvalue required as unary '&' operand
                 const int a = -1;
                 return a;
               }
-                """)
-        correct("""
-              const int x; const int y = -1;
                 """)
    }
 
@@ -5409,9 +4048,6 @@ test.c:1:48: error: lvalue required as unary '&' operand
                 return a;
               }
                 """)
-        correct("""
-              const int x; const int y = 1l;
-                """)
    }
 
 
@@ -5425,9 +4061,6 @@ test.c:1:48: error: lvalue required as unary '&' operand
                 return a;
               }
                 """)
-        correct("""
-              const int x; const int y = 0xa4;
-                """)
    }
 
 
@@ -5440,9 +4073,6 @@ test.c:1:48: error: lvalue required as unary '&' operand
                 const int a = 0.2;
                 return a;
               }
-                """)
-        correct("""
-              const int x; const int y = 0.2;
                 """)
    }
 
@@ -5471,18 +4101,6 @@ test.c:2:31: warning: initialization makes integer from pointer without a cast
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:42: warning: initialization makes integer from pointer without a cast
-               const int x; const int y = "0.2";
-                                          ^
-test.c:1:15: error: initializer element is not computable at load time
-               const int x; const int y = "0.2";
-               ^
-
-        */
-        error("""
-              const int x; const int y = "0.2";
-                """)
    }
 
 
@@ -5510,18 +4128,6 @@ test.c:2:31: warning: initialization makes integer from pointer without a cast
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:42: warning: initialization makes integer from pointer without a cast
-               const int x; const int y = &"foo";
-                                          ^
-test.c:1:15: error: initializer element is not computable at load time
-               const int x; const int y = &"foo";
-               ^
-
-        */
-        error("""
-              const int x; const int y = &"foo";
-                """)
    }
 
 
@@ -5534,15 +4140,6 @@ test.c:1:15: error: initializer element is not computable at load time
                 const int a = *"foo";
                 return a;
               }
-                """)
-        /* gcc reports:
-test.c:1:15: error: initializer element is not constant
-               const int x; const int y = *"foo";
-               ^
-
-        */
-        error("""
-              const int x; const int y = *"foo";
                 """)
    }
 
@@ -5571,15 +4168,6 @@ test.c:2:31: error: lvalue required as unary '&' operand
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:42: error: lvalue required as unary '&' operand
-               const int x; const int y = &1;
-                                          ^
-
-        */
-        error("""
-              const int x; const int y = &1;
-                """)
    }
 
 
@@ -5592,9 +4180,6 @@ test.c:1:42: error: lvalue required as unary '&' operand
                 const double a = 0;
                 return a;
               }
-                """)
-        correct("""
-              const double x; const double y = 0;
                 """)
    }
 
@@ -5609,9 +4194,6 @@ test.c:1:42: error: lvalue required as unary '&' operand
                 return a;
               }
                 """)
-        correct("""
-              const double x; const double y = 1;
-                """)
    }
 
 
@@ -5624,9 +4206,6 @@ test.c:1:42: error: lvalue required as unary '&' operand
                 const double a = -1;
                 return a;
               }
-                """)
-        correct("""
-              const double x; const double y = -1;
                 """)
    }
 
@@ -5641,9 +4220,6 @@ test.c:1:42: error: lvalue required as unary '&' operand
                 return a;
               }
                 """)
-        correct("""
-              const double x; const double y = 1l;
-                """)
    }
 
 
@@ -5657,9 +4233,6 @@ test.c:1:42: error: lvalue required as unary '&' operand
                 return a;
               }
                 """)
-        correct("""
-              const double x; const double y = 0xa4;
-                """)
    }
 
 
@@ -5672,9 +4245,6 @@ test.c:1:42: error: lvalue required as unary '&' operand
                 const double a = 0.2;
                 return a;
               }
-                """)
-        correct("""
-              const double x; const double y = 0.2;
                 """)
    }
 
@@ -5703,15 +4273,6 @@ test.c:2:34: error: incompatible types when initializing type 'double' using typ
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:48: error: incompatible types when initializing type 'double' using type 'char *'
-               const double x; const double y = "0.2";
-                                                ^
-
-        */
-        error("""
-              const double x; const double y = "0.2";
-                """)
    }
 
 
@@ -5739,15 +4300,6 @@ test.c:2:34: error: incompatible types when initializing type 'double' using typ
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:48: error: incompatible types when initializing type 'double' using type 'char (*)[4]'
-               const double x; const double y = &"foo";
-                                                ^
-
-        */
-        error("""
-              const double x; const double y = &"foo";
-                """)
    }
 
 
@@ -5760,15 +4312,6 @@ test.c:1:48: error: incompatible types when initializing type 'double' using typ
                 const double a = *"foo";
                 return a;
               }
-                """)
-        /* gcc reports:
-test.c:1:15: error: initializer element is not constant
-               const double x; const double y = *"foo";
-               ^
-
-        */
-        error("""
-              const double x; const double y = *"foo";
                 """)
    }
 
@@ -5797,15 +4340,6 @@ test.c:2:34: error: lvalue required as unary '&' operand
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:48: error: lvalue required as unary '&' operand
-               const double x; const double y = &1;
-                                                ^
-
-        */
-        error("""
-              const double x; const double y = &1;
-                """)
    }
 
 
@@ -5818,9 +4352,6 @@ test.c:1:48: error: lvalue required as unary '&' operand
                 volatile double a = 0;
                 return a;
               }
-                """)
-        correct("""
-              volatile double x; volatile double y = 0;
                 """)
    }
 
@@ -5835,9 +4366,6 @@ test.c:1:48: error: lvalue required as unary '&' operand
                 return a;
               }
                 """)
-        correct("""
-              volatile double x; volatile double y = 1;
-                """)
    }
 
 
@@ -5850,9 +4378,6 @@ test.c:1:48: error: lvalue required as unary '&' operand
                 volatile double a = -1;
                 return a;
               }
-                """)
-        correct("""
-              volatile double x; volatile double y = -1;
                 """)
    }
 
@@ -5867,9 +4392,6 @@ test.c:1:48: error: lvalue required as unary '&' operand
                 return a;
               }
                 """)
-        correct("""
-              volatile double x; volatile double y = 1l;
-                """)
    }
 
 
@@ -5883,9 +4405,6 @@ test.c:1:48: error: lvalue required as unary '&' operand
                 return a;
               }
                 """)
-        correct("""
-              volatile double x; volatile double y = 0xa4;
-                """)
    }
 
 
@@ -5898,9 +4417,6 @@ test.c:1:48: error: lvalue required as unary '&' operand
                 volatile double a = 0.2;
                 return a;
               }
-                """)
-        correct("""
-              volatile double x; volatile double y = 0.2;
                 """)
    }
 
@@ -5929,15 +4445,6 @@ test.c:2:37: error: incompatible types when initializing type 'double' using typ
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:54: error: incompatible types when initializing type 'double' using type 'char *'
-               volatile double x; volatile double y = "0.2";
-                                                      ^
-
-        */
-        error("""
-              volatile double x; volatile double y = "0.2";
-                """)
    }
 
 
@@ -5965,15 +4472,6 @@ test.c:2:37: error: incompatible types when initializing type 'double' using typ
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:54: error: incompatible types when initializing type 'double' using type 'char (*)[4]'
-               volatile double x; volatile double y = &"foo";
-                                                      ^
-
-        */
-        error("""
-              volatile double x; volatile double y = &"foo";
-                """)
    }
 
 
@@ -5986,15 +4484,6 @@ test.c:1:54: error: incompatible types when initializing type 'double' using typ
                 volatile double a = *"foo";
                 return a;
               }
-                """)
-        /* gcc reports:
-test.c:1:15: error: initializer element is not constant
-               volatile double x; volatile double y = *"foo";
-               ^
-
-        */
-        error("""
-              volatile double x; volatile double y = *"foo";
                 """)
    }
 
@@ -6023,15 +4512,6 @@ test.c:2:37: error: lvalue required as unary '&' operand
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:54: error: lvalue required as unary '&' operand
-               volatile double x; volatile double y = &1;
-                                                      ^
-
-        */
-        error("""
-              volatile double x; volatile double y = &1;
-                """)
    }
 
 
@@ -6044,9 +4524,6 @@ test.c:1:54: error: lvalue required as unary '&' operand
                 int * a = 0;
                 return a;
               }
-                """)
-        correct("""
-              int * x; int * y = 0;
                 """)
    }
 
@@ -6075,15 +4552,6 @@ test.c:2:27: warning: initialization makes pointer from integer without a cast
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:34: warning: initialization makes pointer from integer without a cast
-               int * x; int * y = 1;
-                                  ^
-
-        */
-        warning("""
-              int * x; int * y = 1;
-                """)
    }
 
 
@@ -6110,15 +4578,6 @@ test.c:2:27: warning: initialization makes pointer from integer without a cast
                 int * a = -1;
                 return a;
               }
-                """)
-        /* gcc reports:
-test.c:1:34: warning: initialization makes pointer from integer without a cast
-               int * x; int * y = -1;
-                                  ^
-
-        */
-        warning("""
-              int * x; int * y = -1;
                 """)
    }
 
@@ -6147,15 +4606,6 @@ test.c:2:27: warning: initialization makes pointer from integer without a cast
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:34: warning: initialization makes pointer from integer without a cast
-               int * x; int * y = 1l;
-                                  ^
-
-        */
-        warning("""
-              int * x; int * y = 1l;
-                """)
    }
 
 
@@ -6182,15 +4632,6 @@ test.c:2:27: warning: initialization makes pointer from integer without a cast
                 int * a = 0xa4;
                 return a;
               }
-                """)
-        /* gcc reports:
-test.c:1:34: warning: initialization makes pointer from integer without a cast
-               int * x; int * y = 0xa4;
-                                  ^
-
-        */
-        warning("""
-              int * x; int * y = 0xa4;
                 """)
    }
 
@@ -6219,15 +4660,6 @@ test.c:2:27: error: incompatible types when initializing type 'int *' using type
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:34: error: incompatible types when initializing type 'int *' using type 'double'
-               int * x; int * y = 0.2;
-                                  ^
-
-        */
-        error("""
-              int * x; int * y = 0.2;
-                """)
    }
 
 
@@ -6254,15 +4686,6 @@ test.c:2:27: warning: initialization from incompatible pointer type
                 int * a = "0.2";
                 return a;
               }
-                """)
-        /* gcc reports:
-test.c:1:34: warning: initialization from incompatible pointer type
-               int * x; int * y = "0.2";
-                                  ^
-
-        */
-        warning("""
-              int * x; int * y = "0.2";
                 """)
    }
 
@@ -6291,15 +4714,6 @@ test.c:2:27: warning: initialization from incompatible pointer type
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:34: warning: initialization from incompatible pointer type
-               int * x; int * y = &"foo";
-                                  ^
-
-        */
-        warning("""
-              int * x; int * y = &"foo";
-                """)
    }
 
 
@@ -6326,18 +4740,6 @@ test.c:2:27: warning: initialization makes pointer from integer without a cast
                 int * a = *"foo";
                 return a;
               }
-                """)
-        /* gcc reports:
-test.c:1:34: warning: initialization makes pointer from integer without a cast
-               int * x; int * y = *"foo";
-                                  ^
-test.c:1:15: error: initializer element is not constant
-               int * x; int * y = *"foo";
-               ^
-
-        */
-        error("""
-              int * x; int * y = *"foo";
                 """)
    }
 
@@ -6366,15 +4768,6 @@ test.c:2:27: error: lvalue required as unary '&' operand
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:34: error: lvalue required as unary '&' operand
-               int * x; int * y = &1;
-                                  ^
-
-        */
-        error("""
-              int * x; int * y = &1;
-                """)
    }
 
 
@@ -6387,9 +4780,6 @@ test.c:1:34: error: lvalue required as unary '&' operand
                 const int * a = 0;
                 return a;
               }
-                """)
-        correct("""
-              const int * x; const int * y = 0;
                 """)
    }
 
@@ -6418,15 +4808,6 @@ test.c:2:33: warning: initialization makes pointer from integer without a cast
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:46: warning: initialization makes pointer from integer without a cast
-               const int * x; const int * y = 1;
-                                              ^
-
-        */
-        warning("""
-              const int * x; const int * y = 1;
-                """)
    }
 
 
@@ -6453,15 +4834,6 @@ test.c:2:33: warning: initialization makes pointer from integer without a cast
                 const int * a = -1;
                 return a;
               }
-                """)
-        /* gcc reports:
-test.c:1:46: warning: initialization makes pointer from integer without a cast
-               const int * x; const int * y = -1;
-                                              ^
-
-        */
-        warning("""
-              const int * x; const int * y = -1;
                 """)
    }
 
@@ -6490,15 +4862,6 @@ test.c:2:33: warning: initialization makes pointer from integer without a cast
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:46: warning: initialization makes pointer from integer without a cast
-               const int * x; const int * y = 1l;
-                                              ^
-
-        */
-        warning("""
-              const int * x; const int * y = 1l;
-                """)
    }
 
 
@@ -6525,15 +4888,6 @@ test.c:2:33: warning: initialization makes pointer from integer without a cast
                 const int * a = 0xa4;
                 return a;
               }
-                """)
-        /* gcc reports:
-test.c:1:46: warning: initialization makes pointer from integer without a cast
-               const int * x; const int * y = 0xa4;
-                                              ^
-
-        */
-        warning("""
-              const int * x; const int * y = 0xa4;
                 """)
    }
 
@@ -6562,15 +4916,6 @@ test.c:2:33: error: incompatible types when initializing type 'const int *' usin
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:46: error: incompatible types when initializing type 'const int *' using type 'double'
-               const int * x; const int * y = 0.2;
-                                              ^
-
-        */
-        error("""
-              const int * x; const int * y = 0.2;
-                """)
    }
 
 
@@ -6597,15 +4942,6 @@ test.c:2:33: warning: initialization from incompatible pointer type
                 const int * a = "0.2";
                 return a;
               }
-                """)
-        /* gcc reports:
-test.c:1:46: warning: initialization from incompatible pointer type
-               const int * x; const int * y = "0.2";
-                                              ^
-
-        */
-        warning("""
-              const int * x; const int * y = "0.2";
                 """)
    }
 
@@ -6634,15 +4970,6 @@ test.c:2:33: warning: initialization from incompatible pointer type
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:46: warning: initialization from incompatible pointer type
-               const int * x; const int * y = &"foo";
-                                              ^
-
-        */
-        warning("""
-              const int * x; const int * y = &"foo";
-                """)
    }
 
 
@@ -6669,18 +4996,6 @@ test.c:2:33: warning: initialization makes pointer from integer without a cast
                 const int * a = *"foo";
                 return a;
               }
-                """)
-        /* gcc reports:
-test.c:1:46: warning: initialization makes pointer from integer without a cast
-               const int * x; const int * y = *"foo";
-                                              ^
-test.c:1:15: error: initializer element is not constant
-               const int * x; const int * y = *"foo";
-               ^
-
-        */
-        error("""
-              const int * x; const int * y = *"foo";
                 """)
    }
 
@@ -6709,15 +5024,6 @@ test.c:2:33: error: lvalue required as unary '&' operand
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:46: error: lvalue required as unary '&' operand
-               const int * x; const int * y = &1;
-                                              ^
-
-        */
-        error("""
-              const int * x; const int * y = &1;
-                """)
    }
 
 
@@ -6730,9 +5036,6 @@ test.c:1:46: error: lvalue required as unary '&' operand
                 volatile int * a = 0;
                 return a;
               }
-                """)
-        correct("""
-              volatile int * x; volatile int * y = 0;
                 """)
    }
 
@@ -6761,15 +5064,6 @@ test.c:2:36: warning: initialization makes pointer from integer without a cast
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:52: warning: initialization makes pointer from integer without a cast
-               volatile int * x; volatile int * y = 1;
-                                                    ^
-
-        */
-        warning("""
-              volatile int * x; volatile int * y = 1;
-                """)
    }
 
 
@@ -6796,15 +5090,6 @@ test.c:2:36: warning: initialization makes pointer from integer without a cast
                 volatile int * a = -1;
                 return a;
               }
-                """)
-        /* gcc reports:
-test.c:1:52: warning: initialization makes pointer from integer without a cast
-               volatile int * x; volatile int * y = -1;
-                                                    ^
-
-        */
-        warning("""
-              volatile int * x; volatile int * y = -1;
                 """)
    }
 
@@ -6833,15 +5118,6 @@ test.c:2:36: warning: initialization makes pointer from integer without a cast
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:52: warning: initialization makes pointer from integer without a cast
-               volatile int * x; volatile int * y = 1l;
-                                                    ^
-
-        */
-        warning("""
-              volatile int * x; volatile int * y = 1l;
-                """)
    }
 
 
@@ -6868,15 +5144,6 @@ test.c:2:36: warning: initialization makes pointer from integer without a cast
                 volatile int * a = 0xa4;
                 return a;
               }
-                """)
-        /* gcc reports:
-test.c:1:52: warning: initialization makes pointer from integer without a cast
-               volatile int * x; volatile int * y = 0xa4;
-                                                    ^
-
-        */
-        warning("""
-              volatile int * x; volatile int * y = 0xa4;
                 """)
    }
 
@@ -6905,15 +5172,6 @@ test.c:2:36: error: incompatible types when initializing type 'volatile int *' u
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:52: error: incompatible types when initializing type 'volatile int *' using type 'double'
-               volatile int * x; volatile int * y = 0.2;
-                                                    ^
-
-        */
-        error("""
-              volatile int * x; volatile int * y = 0.2;
-                """)
    }
 
 
@@ -6940,15 +5198,6 @@ test.c:2:36: warning: initialization from incompatible pointer type
                 volatile int * a = "0.2";
                 return a;
               }
-                """)
-        /* gcc reports:
-test.c:1:52: warning: initialization from incompatible pointer type
-               volatile int * x; volatile int * y = "0.2";
-                                                    ^
-
-        */
-        warning("""
-              volatile int * x; volatile int * y = "0.2";
                 """)
    }
 
@@ -6977,15 +5226,6 @@ test.c:2:36: warning: initialization from incompatible pointer type
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:52: warning: initialization from incompatible pointer type
-               volatile int * x; volatile int * y = &"foo";
-                                                    ^
-
-        */
-        warning("""
-              volatile int * x; volatile int * y = &"foo";
-                """)
    }
 
 
@@ -7013,18 +5253,6 @@ test.c:2:36: warning: initialization makes pointer from integer without a cast
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:52: warning: initialization makes pointer from integer without a cast
-               volatile int * x; volatile int * y = *"foo";
-                                                    ^
-test.c:1:15: error: initializer element is not constant
-               volatile int * x; volatile int * y = *"foo";
-               ^
-
-        */
-        error("""
-              volatile int * x; volatile int * y = *"foo";
-                """)
    }
 
 
@@ -7051,15 +5279,6 @@ test.c:2:36: error: lvalue required as unary '&' operand
                 volatile int * a = &1;
                 return a;
               }
-                """)
-        /* gcc reports:
-test.c:1:52: error: lvalue required as unary '&' operand
-               volatile int * x; volatile int * y = &1;
-                                                    ^
-
-        */
-        error("""
-              volatile int * x; volatile int * y = &1;
                 """)
    }
 
@@ -7091,15 +5310,6 @@ test.c:3:17: warning: 'return' with a value, in function returning void
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:15: error: variable 'y' has initializer but incomplete type
-               void x; void y = 0;
-               ^
-
-        */
-        error("""
-              void x; void y = 0;
-                """)
    }
 
 
@@ -7129,15 +5339,6 @@ test.c:3:17: warning: 'return' with a value, in function returning void
                 void a = 1;
                 return a;
               }
-                """)
-        /* gcc reports:
-test.c:1:15: error: variable 'y' has initializer but incomplete type
-               void x; void y = 1;
-               ^
-
-        */
-        error("""
-              void x; void y = 1;
                 """)
    }
 
@@ -7169,15 +5370,6 @@ test.c:3:17: warning: 'return' with a value, in function returning void
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:15: error: variable 'y' has initializer but incomplete type
-               void x; void y = -1;
-               ^
-
-        */
-        error("""
-              void x; void y = -1;
-                """)
    }
 
 
@@ -7207,15 +5399,6 @@ test.c:3:17: warning: 'return' with a value, in function returning void
                 void a = 1l;
                 return a;
               }
-                """)
-        /* gcc reports:
-test.c:1:15: error: variable 'y' has initializer but incomplete type
-               void x; void y = 1l;
-               ^
-
-        */
-        error("""
-              void x; void y = 1l;
                 """)
    }
 
@@ -7247,15 +5430,6 @@ test.c:3:17: warning: 'return' with a value, in function returning void
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:15: error: variable 'y' has initializer but incomplete type
-               void x; void y = 0xa4;
-               ^
-
-        */
-        error("""
-              void x; void y = 0xa4;
-                """)
    }
 
 
@@ -7285,15 +5459,6 @@ test.c:3:17: warning: 'return' with a value, in function returning void
                 void a = 0.2;
                 return a;
               }
-                """)
-        /* gcc reports:
-test.c:1:15: error: variable 'y' has initializer but incomplete type
-               void x; void y = 0.2;
-               ^
-
-        */
-        error("""
-              void x; void y = 0.2;
                 """)
    }
 
@@ -7328,15 +5493,6 @@ test.c:3:17: warning: 'return' with a value, in function returning void
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:15: error: variable 'y' has initializer but incomplete type
-               void x; void y = "0.2";
-               ^
-
-        */
-        error("""
-              void x; void y = "0.2";
-                """)
    }
 
 
@@ -7370,15 +5526,6 @@ test.c:3:17: warning: 'return' with a value, in function returning void
                 return a;
               }
                 """)
-        /* gcc reports:
-test.c:1:15: error: variable 'y' has initializer but incomplete type
-               void x; void y = &"foo";
-               ^
-
-        */
-        error("""
-              void x; void y = &"foo";
-                """)
    }
 
 
@@ -7408,15 +5555,6 @@ test.c:3:17: warning: 'return' with a value, in function returning void
                 void a = *"foo";
                 return a;
               }
-                """)
-        /* gcc reports:
-test.c:1:15: error: variable 'y' has initializer but incomplete type
-               void x; void y = *"foo";
-               ^
-
-        */
-        error("""
-              void x; void y = *"foo";
                 """)
    }
 
@@ -7453,18 +5591,6 @@ test.c:3:17: warning: 'return' with a value, in function returning void
                 void a = &1;
                 return a;
               }
-                """)
-        /* gcc reports:
-test.c:1:15: error: variable 'y' has initializer but incomplete type
-               void x; void y = &1;
-               ^
-test.c:1:32: error: lvalue required as unary '&' operand
-               void x; void y = &1;
-                                ^
-
-        */
-        error("""
-              void x; void y = &1;
                 """)
    }
 

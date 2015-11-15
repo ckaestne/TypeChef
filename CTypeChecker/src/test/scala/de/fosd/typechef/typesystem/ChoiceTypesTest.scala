@@ -5,8 +5,8 @@ import de.fosd.typechef.conditional._
 import de.fosd.typechef.featureexpr.FeatureExprFactory
 import de.fosd.typechef.parser.c.TestHelper
 import org.junit.runner.RunWith
-import org.scalatest.{Matchers, FunSuite}
 import org.scalatest.junit.JUnitRunner
+import org.scalatest.{FunSuite, Matchers}
 
 @RunWith(classOf[JUnitRunner])
 class ChoiceTypesTest extends FunSuite with Matchers with CTypeSystem with CEnvCache with TestHelper {
@@ -61,7 +61,7 @@ inline
 }""")
         val env = checkTranslationUnit(ast, FeatureExprFactory.True, EmptyEnv).varEnv
 //        println(env)
-        env("__rcu_read_lock_bh").map(_.atype) should be(One(CFunction(List(CVoid()), CVoid())))
+        env("__rcu_read_lock_bh").map(_.atype) should be(One(CFunction(List(), CVoid())))
     }
 
 

@@ -16,7 +16,7 @@ trait AbstractGenerator {
 
     protected def gccParam: List[String] = Nil
     protected def considerWarnings: Boolean = false
-    protected def ignoredTests:Map[String,String]=Map()
+    protected def ignoredTests: Map[String, String] = Map()
 
     case class Config(vals: List[Int]) {
         override def toString = vals.mkString("conf", "_", "")
@@ -82,13 +82,10 @@ trait AbstractGenerator {
              if !testedConfigs.contains(c)) {
             testedConfigs += c
 
-            if (ignoredTests contains c.toString)
-                testFileWriter.write("   @Ignore(\""+ignoredTests(c.toString)+"\")\n")
-            val s = "   @Test def test_" + c + "() {\n"
-            testFileWriter.write(s)
 
 
             val testBodies = genTest(c)
+            var tests = ""
             for (testBody <- testBodies) {
                 val fileAddr = File.createTempFile(c.toString, ".c")
                 val file = fileAddr.getAbsolutePath
@@ -109,31 +106,38 @@ trait AbstractGenerator {
                 println(c + ": " + exitcode)
                 msg = msg.replace(file, "test.c")
 
-                writeTest(testFileWriter, c, testBody, msg, exitcode)
+                tests += writeTest(c, testBody, msg, exitcode)
                 fileAddr.deleteOnExit()
             }
 
-            testFileWriter.write( "   }\n\n\n")
+            if (ignoredTests contains c.toString)
+                testFileWriter.write("   @Ignore(\"" + ignoredTests(c.toString) + "\")\n")
+            val s = "   @Test def test_" + c + "() {\n"
+            testFileWriter.write(s)
+            testFileWriter.write(tests)
+            testFileWriter.write("   }\n\n\n")
         }
-        println("generated "+testedConfigs.size+" tests")
+        println("generated " + testedConfigs.size + " tests")
 
         testFileWriter.write("\n\n}")
         testFileWriter.close()
 
     }
 
-    def writeTest(testFileWriter: FileWriter, c: Config, testBody: String, msg: String, exitcode: Int): Unit = {
+    def writeTest(c: Config, testBody: String, msg: String, exitcode: Int): String = {
+        var result = ""
         if (msg.nonEmpty)
-            testFileWriter.write("        /* gcc reports:\n" +
-                msg + "\n        */\n")
+            result += "        /* gcc reports:\n" +
+                msg + "\n        */\n"
 
 
         var isWarning = msg contains "warning: "
-        testFileWriter.write(
-            "        " + (if (exitcode > 0) "error" else if (isWarning && considerWarnings) "warning" else "correct") +
-                "(\"\"\"\n" + testBody + "\n" +
-                "                \"\"\")\n"
-               )
+
+        result += "        " + (if (exitcode > 0) "error" else if (isWarning && considerWarnings) "warning" else "correct") +
+            "(\"\"\"\n" + testBody + "\n" +
+            "                \"\"\")\n"
+
+        result
     }
 
 

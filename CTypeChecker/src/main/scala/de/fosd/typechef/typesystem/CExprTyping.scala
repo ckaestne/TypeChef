@@ -236,7 +236,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                         val newExpr = PointerDerefExpr(createSum(expr, idx)).setPositionRange(p)
                         et(newExpr)
                     //"a"
-                    case StringLit(v) => One(CType(CArray(CSignUnspecified(CChar()),-1),true,false,false))
+                    case StringLit(v) => One(CType(CPointer(CSignUnspecified(CChar())),true,false,false))
                     //++a, --a
                     case p@UnaryExpr(_, expr) =>
                         val newExpr = AssignExpr(expr, "+=", Constant("1").setPositionRange(p)).setPositionRange(p)

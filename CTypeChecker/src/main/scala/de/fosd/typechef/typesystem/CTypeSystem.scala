@@ -130,7 +130,8 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
             //two prototypes
             case (CPointer(CFunction(newParam, newRet)), CPointer(CFunction(prevParam, prevRet))) if newKind == KDeclaration && prevKind == KDeclaration =>
                 //must have same return type and same parameters (for common parameters)
-                return (newRet equalsWithConst prevRet) && newParam.length==prevParam.length && newParam.zip(prevParam).forall(x => x._1 == x._2)
+                //exception: may redefine function that was previously declared without parameters (technically also without an unnamed void parameter, but we cannot distinguish this here)
+                return (newRet equalsWithConst prevRet) && (newParam.length==prevParam.length || prevParam.length==0) && newParam.zip(prevParam).forall(x => x._1 == x._2)
 
             //function overriding a prototype or vice versa
             case (CPointer(CFunction(newParam, newRet)), CPointer(CFunction(prevParam, prevRet))) if (newKind == KDefinition && prevKind == KDeclaration) || (newKind == KDeclaration && prevKind == KDefinition) =>
@@ -319,9 +320,11 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
                                 (fexpr: FeatureExpr, etype: CType, ftype: CType) => {
                                     val c=coerce(etype, ftype)
                                     if (c.isDefined && c.get.nonEmpty  && !ftype.isUnknown)
-                                        reportTypeError(fexpr, c.get + " (" + etype + " <-" + ftype + ")", expr, severity = Severity.Warning)
+                                        reportTypeError(fexpr, c.get + " (" + etype.toText + " <-" + ftype.toText + ")", expr, severity = Severity.Warning)
                                     if (!c.isDefined && !ftype.isUnknown)
-                                        issueTypeError(Severity.OtherError, fexpr, "incorrect return type, expected " + etype + ", found " + ftype, expr)
+                                        if (isVoid(etype))
+                                            issueTypeError(Severity.Warning, fexpr, "'return' with a value, in function returning void", expr)
+                                        else issueTypeError(Severity.OtherError, fexpr, "incorrect return type, expected " + etype.toText + ", found " + ftype.toText, expr)
                                 })
                     }
                 }
