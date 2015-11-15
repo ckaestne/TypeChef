@@ -3,8 +3,8 @@ package de.fosd.typechef.typesystem
 import de.fosd.typechef.featureexpr.FeatureExprFactory
 import de.fosd.typechef.parser.c._
 import org.junit.runner.RunWith
-import org.scalatest.{Matchers, FunSuite}
 import org.scalatest.junit.JUnitRunner
+import org.scalatest.{FunSuite, Matchers}
 
 /**
  * test for various CERT rules implemented in typechef
@@ -32,7 +32,7 @@ class CertSecurityTest extends FunSuite with Matchers with TestHelper {
                 override def warning_const_assignment = true
                 override def warning_character_signed = true
             } else LinuxDefaultOptions
-        ).makeSilent().checkAST(false)
+        ).makeSilent().checkAST(false) == CheckResult.Correct
     }
 
     def correct(code: String) {
