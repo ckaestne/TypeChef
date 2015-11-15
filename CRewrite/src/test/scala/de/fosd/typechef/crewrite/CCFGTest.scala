@@ -53,7 +53,7 @@ class CCFGTest extends TestHelper with Matchers with CCFG with EnforceTreeHelper
                 b;
                 #endif
               }
-              c;
+              return c;
               }
                     """.stripMargin) should be(true)
     }
