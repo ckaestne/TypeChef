@@ -1,7 +1,5 @@
 package de.fosd.typechef.typesystem.generator
 
-import java.io.File
-
 /**
   * there are too many cases and the declaration isn't understandable.
   *
@@ -60,11 +58,7 @@ object RedeclTestGenerator extends App with AbstractGenerator {
 
         var t = first + "\n                " + second + "\n                " + main
 
-        if (t contains "struct S")
-            t = "              struct S { int x; int y; };\n\n" + t
-        if (t contains "struct T")
-            t = "              struct T { int x; int y; int z; };\n\n" + t
-        List(t)
+        List(addStructs(t))
     }
 
     def genDecl(declKind: Int, returnType: Int, paramType: Int, extraParam: Boolean, renamedParam: Boolean) = {

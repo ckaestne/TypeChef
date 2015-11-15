@@ -106,7 +106,7 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface with CDeclU
                 if (hasTransparentUnionAttribute(specifiers))
                     types = types :+ One(CIgnore().toCType) //ignore transparent union for now
                 else
-                    types = types :+ One(CAnonymousStruct(parseStructMembers(members.getOrElse(Nil), featureExpr, env), isUnion).toCType)
+                    types = types :+ One(CAnonymousStruct(AnonymousStructUniqueIdGen.gen, parseStructMembers(members.getOrElse(Nil), featureExpr, env), isUnion).toCType)
             case e@TypeDefTypeSpecifier(i@Id(typedefname)) => {
                 // CDeclUse: Add typedef usage to usages.
                 addTypeUse(i, env, featureExpr)
@@ -215,7 +215,7 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface with CDeclU
                     (if ((expr and declExpr).isSatisfiable()) " (complete only in context " + declExpr + ")" else "")
                 reportTypeError(expr andNot declExpr, msg, where, Severity.TypeLookupError)
             }
-        case CAnonymousStruct(fields, _) => //check fields
+        case CAnonymousStruct(_, fields, _) => //check fields
             val fieldTypes = fields.keys.map(k => fields.getOrElse(k, CUnknown()))
             fieldTypes.map(ct => checkStructCompletenessC(ct, expr, env, where, checkedStructs))
         case CPointer(_) => // do not check internals of pointers. pointers may point to incomplete structs
@@ -282,7 +282,7 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface with CDeclU
                 if (hasTransparentUnionAttributeOpt(attributes))
                     CIgnore()
                 else x
-            case x@CAnonymousStruct(_, true) =>
+            case x@CAnonymousStruct(_, _, true) =>
                 if (hasTransparentUnionAttributeOpt(attributes))
                     CIgnore()
                 else x
@@ -454,7 +454,7 @@ trait CDeclTyping extends CTypes with CEnv with CTypeSystemInterface with CDeclU
                 def inlineAnonymousStructs(t: Conditional[CType]) {
                     t match {
                         case Choice(f, x, y) => inlineAnonymousStructs(x); inlineAnonymousStructs(y)
-                        case One(CType(CAnonymousStruct(fields, _), _, _, _)) => result = result ++ fields
+                        case One(CType(CAnonymousStruct(_, fields, _), _, _, _)) => result = result ++ fields
                         //                case CStruct(name, _) => //TODO inline as well
                         case e => //don't care about other types
                     }

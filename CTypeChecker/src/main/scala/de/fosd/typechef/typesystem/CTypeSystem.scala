@@ -157,7 +157,7 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
         case CPointer(p) => containsIgnore(p)
         case CArray(p, _) => containsIgnore(p)
         case CFunction(p, r) => containsIgnore(r) || p.exists(containsIgnore(_))
-        case CAnonymousStruct(f, _) => f.allTypes.exists(_.exists(containsIgnore(_)))
+        case CAnonymousStruct(_, f, _) => f.allTypes.exists(_.exists(containsIgnore(_)))
         case _ => false
     })
 
@@ -308,9 +308,13 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
                         case Some(expr) =>
                             val foundReturnType = getExprType(expr, featureExpr, env)
                             ConditionalLib.vmapCombinationOp(expectedReturnType, foundReturnType, featureExpr,
-                                (fexpr: FeatureExpr, etype: CType, ftype: CType) =>
-                                    if (!coerce(etype, ftype).isDefined && !ftype.isUnknown)
-                                        issueTypeError(Severity.OtherError, fexpr, "incorrect return type, expected " + etype + ", found " + ftype, expr))
+                                (fexpr: FeatureExpr, etype: CType, ftype: CType) => {
+                                    val c=coerce(etype, ftype)
+                                    if (c.isDefined && c.get.nonEmpty  && !ftype.isUnknown)
+                                        reportTypeError(fexpr, c.get + " (" + etype + " <-" + ftype + ")", expr, severity = Severity.Warning)
+                                    if (!c.isDefined && !ftype.isUnknown)
+                                        issueTypeError(Severity.OtherError, fexpr, "incorrect return type, expected " + etype + ", found " + ftype, expr)
+                                })
                     }
                 }
                 nop

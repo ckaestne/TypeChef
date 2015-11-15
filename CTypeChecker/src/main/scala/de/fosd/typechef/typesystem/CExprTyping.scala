@@ -42,10 +42,9 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                             reportTypeError(featureExpr, "Use \"L,\" not \"l,\" to indicate a long value", c, Severity.SecurityWarning, "long-designator")
 
                         if (v == "0" || v == "'\\0'" || isHexNull(v)) One(CZero())
-                        else
-                        if (v.head == '\'') One(CSignUnspecified(CChar()))
-                        else
-                        if (v.last.toUpper == 'L') One(CSigned(CLong()))
+                        else if (v.head == '\'') One(CSignUnspecified(CChar()))
+                        else if (v.last.toUpper == 'L') One(CSigned(CLong()))
+                        else if (v.contains(".")) One(CDouble())
                         else One(CSigned(CInt()))
                     //variable or function ref
                     case id@Id(name) =>
@@ -97,10 +96,10 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                         }
 
                         et(expr).vflatMap(featureExpr, {
-                            case (f, CType(CAnonymousStruct(fields, _), true, _, _)) =>
+                            case (f, CType(CAnonymousStruct(_, fields, _), true, _, _)) =>
                                 addAnonStructUse(i, fields)
                                 lookup(fields, f).map(_.toObj)
-                            case (f, CType(CAnonymousStruct(fields, _), false, _, _)) =>
+                            case (f, CType(CAnonymousStruct(_, fields, _), false, _, _)) =>
                                 lookup(fields, f)
                             case (f, CType(CStruct(s, isUnion), true, _, _)) =>
                                 addStructUse(i, featureExpr, env, s, isUnion)
@@ -133,7 +132,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
 
                                 if (targetType == CVoid().toCType) targetType
                                 else if (sourceType.isIgnore || targetType.isIgnore || sourceType.isUnknown || targetType.isUnknown) targetType
-                                else if (isAnonymousStruct(targetType)) //apparently cannot even cast an anonymous struct to itself
+                                else if (isAnonymousStruct(targetType) && sourceType.atype!=targetType.atype) //cannot even cast an anonymous struct to itself unless it is from the same (typedef) definition
                                     reportTypeError(fexpr, "conversion to non-scalar type requested (" + sourceType + " to " + targetType+")", ce)
                                 else if (isIntegral(sourceType) && isPointer(targetType)) targetType
                                 else if (isPointer(sourceType) && isPointer(targetType)) targetType
@@ -237,7 +236,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                         val newExpr = PointerDerefExpr(createSum(expr, idx)).setPositionRange(p)
                         et(newExpr)
                     //"a"
-                    case StringLit(_) => One(CPointer(CSignUnspecified(CChar()))) //unspecified sign according to Paolo
+                    case StringLit(v) => One(CType(CArray(CSignUnspecified(CChar()),-1),true,false,false))
                     //++a, --a
                     case p@UnaryExpr(_, expr) =>
                         val newExpr = AssignExpr(expr, "+=", Constant("1").setPositionRange(p)).setPositionRange(p)
@@ -546,7 +545,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
         a match {
             case p@PostfixExpr(expr, PointerPostfixSuffix(_, i@Id(id))) =>
                 et(expr).map(_.atype).vflatMap(featureExpr, {
-                    case (f, CAnonymousStruct(fields, _)) =>
+                    case (f, CAnonymousStruct(_, fields, _)) =>
                         addAnonStructUse(i, fields)
                         null
                     case (f, CStruct(s, isUnion)) =>

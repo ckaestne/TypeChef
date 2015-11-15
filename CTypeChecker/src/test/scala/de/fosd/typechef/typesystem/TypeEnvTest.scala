@@ -153,7 +153,7 @@ class TypeEnvTest extends FunSuite with Matchers with CTypeSystem with CEnvCache
         val typedefs = lookupEnv(lastDecl).typedefEnv
 
         typedefs("myint") should be(_i)
-        typedefs("mystr") should be(OneT(CAnonymousStruct(new ConditionalTypeMap() +("x", True, AtomicNamedDeclarator(List(), Id("x"), List()), OneT(CDouble())))))
+        typedefs("mystr") should be(OneT(CAnonymousStruct(-1, new ConditionalTypeMap() +("x", True, AtomicNamedDeclarator(List(), Id("x"), List()), OneT(CDouble())))))
         typedefs("myunsign") should be(OneT(CUnsigned(CInt())))
 
         //typedef is not a declaration
@@ -161,7 +161,7 @@ class TypeEnvTest extends FunSuite with Matchers with CTypeSystem with CEnvCache
         env.contains("mystr") should be(false)
 
         env("myintvar") should be(_i)
-        env("mystrvar") should be(OneT(CPointer(CAnonymousStruct(new ConditionalTypeMap() +("x", True, AtomicNamedDeclarator(List(), Id("x"), List()), OneT(CDouble()))))))
+        env("mystrvar") should be(OneT(CPointer(CAnonymousStruct(-1, new ConditionalTypeMap() +("x", True, AtomicNamedDeclarator(List(), Id("x"), List()), OneT(CDouble()))))))
         env("mypairvar") should be(OneT(CStruct("pair")))
 
         //structure definitons should be recognized despite typedefs
@@ -228,7 +228,7 @@ class TypeEnvTest extends FunSuite with Matchers with CTypeSystem with CEnvCache
 //        println(fundef.stmt.asInstanceOf[CompoundStatement].innerStatements)
 //        println(env)
         env("v") match {
-            case One(CType(CPointer(CAnonymousStruct(_, _)), _, _, _)) =>
+            case One(CType(CPointer(CAnonymousStruct(_, _, _)), _, _, _)) =>
             case e => fail(e.toString)
         }
     }
@@ -261,7 +261,7 @@ class TypeEnvTest extends FunSuite with Matchers with CTypeSystem with CEnvCache
         val env = lookupEnv(ast.defs.last.entry).varEnv
 //        println(env)
         env("foo") match {
-            case One(CType(CAnonymousStruct(members, false), _, _, _)) =>
+            case One(CType(CAnonymousStruct(_, members, false), _, _, _)) =>
                 members("b3") should be(_i)
                 members("b1") should be(_i)
                 members("b2") should be(_i)
@@ -293,7 +293,7 @@ class TypeEnvTest extends FunSuite with Matchers with CTypeSystem with CEnvCache
         val env = lookupEnv(ast.defs.last.entry).varEnv
 //        println(env)
         env("a") match {
-            case One(CType(CAnonymousStruct(members, false), _, _, _)) =>
+            case One(CType(CAnonymousStruct(_, members, false), _, _, _)) =>
                 members("a") should be(_i)
                 members("b") should be(_i)
                 members("c") should be(_i)
@@ -544,7 +544,7 @@ class TypeEnvTest extends FunSuite with Matchers with CTypeSystem with CEnvCache
 
         //anonymous struct
         venv("vs4") match {
-            case One(CType(CAnonymousStruct(fields, false), _, _, _)) =>
+            case One(CType(CAnonymousStruct(_, fields, false), _, _, _)) =>
                 fields("a") should be(_i)
                 fields("b") should be(Choice(fy, _i, OneT(CUndefined)))
             case e => fail("vs4 illtyped: " + e)

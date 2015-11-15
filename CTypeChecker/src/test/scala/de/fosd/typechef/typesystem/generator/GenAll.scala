@@ -8,4 +8,5 @@ object GenAll extends App {
     RedeclTestGenerator.main(args)
     CoerceTestGenerator.main(args)
     CastTestGenerator.main(args)
+    ReturnConstantTestGenerator.main(args)
 }

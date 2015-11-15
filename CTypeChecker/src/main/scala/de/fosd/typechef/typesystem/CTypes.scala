@@ -327,7 +327,12 @@ case class CStruct(s: String, isUnion: Boolean = false) extends AType {
     </struct>
 }
 
-case class CAnonymousStruct(fields: ConditionalTypeMap, isUnion: Boolean = false) extends AType {
+object AnonymousStructUniqueIdGen {
+    var id=0
+    def gen = { id+=1; id }
+}
+
+case class CAnonymousStruct(uniqueId:Int, fields: ConditionalTypeMap, isUnion: Boolean = false) extends AType {
     override def toText = (if (isUnion) "union " else "struct ") + "{" + fields + "}"
 
     def toXML = <astruct isUnion={isUnion.toString}>
@@ -484,7 +489,7 @@ object CType {
         (node \ "pointer").map(x => result = CPointer(fromXMLAType(x)))
         (node \ "array").map(x => result = CArray(fromXMLAType(x), x.attribute("length").get.head.text.toInt))
         (node \ "struct").map(x => result = CStruct(x.text.trim, x.attribute("isUnion").get.head.text.toBoolean))
-        (node \ "astruct").map(x => result = CAnonymousStruct(new ConditionalTypeMap(), x.attribute("isUnion").get.head.text.toBoolean)) //TODO
+        (node \ "astruct").map(x => result = CAnonymousStruct(AnonymousStructUniqueIdGen.gen, new ConditionalTypeMap(), x.attribute("isUnion").get.head.text.toBoolean)) //TODO
         (node \ "function").map(x => result = CFunction(
             (x \ "param").map(fromXML(_)),
             fromXML((x \ "ret").head)
@@ -689,8 +694,9 @@ trait CTypes extends COptionProvider {
         case _ => false
     })
 
+
     def isAnonymousStruct(t: CType): Boolean = t.atype match {
-        case CAnonymousStruct(_, _) => true
+        case CAnonymousStruct(_, _, _) => true
         case _ => false
     }
 
@@ -724,8 +730,9 @@ trait CTypes extends COptionProvider {
             //CCompound can be assigned to arrays and structs
             case (CPointer(_) /*incl array*/ , CCompound()) => return success
             case (CStruct(_, _), CCompound()) => return success
-            case (CAnonymousStruct(_, _), CAnonymousStruct(_,_)) => return error
-            case (CAnonymousStruct(_, _), CCompound()) => return success
+            case (CAnonymousStruct(id1, _, _), CAnonymousStruct(id2, _, _)) if (id1==id2) => return success
+            case (CAnonymousStruct(id1, _, _), CAnonymousStruct(id2, _, _)) if (id1!=id2) => return error
+            case (CAnonymousStruct(_, _, _), CCompound()) => return success
             case (a, CCompound()) if isScalar(a) => return success //works for literals as well
             case _ =>
         }

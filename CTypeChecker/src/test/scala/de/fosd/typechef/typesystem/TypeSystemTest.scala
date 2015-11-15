@@ -100,27 +100,13 @@ return 1;
     }
 
     test("typecheck return statements") {
-        assertResult(true) {
-            check("void foo(){ return; }")
-        }
-        assertResult(false) {
-            check("void foo(){ return 1; }")
-        }
-        assertResult(true) {
-            check("int foo(){ return 1; }")
-        }
-        assertResult(false) {
-            check("int * foo(){ return \"abc\"; }")
-        }
-        assertResult(true) {
-            check("int * foo(){ return 0; }")
-        }
-        assertResult(false) {
-            check("int * foo(){ return 1; }") //warning
-        }
-        assertResult(false) {
-            check("int foo(){ return; }")
-        }
+        correct("void foo(){ return; }")
+        error("void foo(){ return 1; }")
+        correct("int foo(){ return 1; }")
+        warning("int * foo(){ return \"abc\"; }") //warning
+        correct("int * foo(){ return 0; }")
+        warning("int * foo(){ return 1; }") //warning
+        error("int foo(){ return; }")
     }
 
     test("increment on array") {
@@ -360,11 +346,8 @@ return 1;
                 }
                    """)
         }
-        assertResult(true) {
-            check( """
-                        char x[]=__PRETTY_FUNCTION__;
-                   """)
-        }
+        correct( """  const char *x = __PRETTY_FUNCTION__; """)
+
         assertResult(true) {
             check( """
                 typedef __builtin_va_list __gnuc_va_list;

@@ -1,5 +1,6 @@
 package de.fosd.typechef.typesystem
 
+import de.fosd.typechef.error.Severity
 import de.fosd.typechef.featureexpr.FeatureExprFactory
 import de.fosd.typechef.parser.c._
 import org.junit.runner.RunWith
@@ -32,7 +33,7 @@ class CertSecurityTest extends FunSuite with Matchers with TestHelper {
                 override def warning_const_assignment = true
                 override def warning_character_signed = true
             } else LinuxDefaultOptions
-        ).makeSilent().checkAST(false).isEmpty
+        ).makeSilent().checkAST(false).filterNot(_.severity==Severity.Warning).isEmpty
     }
 
     def correct(code: String) {

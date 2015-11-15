@@ -31,7 +31,8 @@ trait TestHelperTS extends TestHelper {
 
     def correct(code: String) {
         val r = _check(code)
-        assert(r.isEmpty, "False positive (expected correct code, but found error): \n" + r.mkString("\n"))
+        assert(r.filterNot(_.isWarning).isEmpty, "False positive (expected correct code, but found error): \n" + r.mkString("\n"))
+        assert(r.filter(_.isWarning).isEmpty, "False positive warning (expected correct code, but found warning): \n" + r.mkString("\n"))
     }
 
     def error(code: String) {

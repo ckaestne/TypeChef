@@ -16,6 +16,7 @@ trait AbstractGenerator {
 
     protected def gccParam: List[String] = Nil
     protected def considerWarnings: Boolean = false
+    protected def ignoredTests:Map[String,String]=Map()
 
     case class Config(vals: List[Int]) {
         override def toString = vals.mkString("conf", "_", "")
@@ -80,6 +81,8 @@ trait AbstractGenerator {
              if !testedConfigs.contains(c)) {
             testedConfigs += c
 
+            if (ignoredTests contains c.toString)
+                testFileWriter.write("   @Ignore(\""+ignoredTests(c.toString)+"\")\n")
             val s = "   @Test def test_" + c + "() {\n"
             testFileWriter.write(s)
 
@@ -129,5 +132,17 @@ trait AbstractGenerator {
                 "(\"\"\"\n" + testBody + "\n" +
                 "                \"\"\")\n"
                )
+    }
+
+
+    protected def addStructs(m: String): String = {
+        var t = m
+        if (t contains "struct S")
+            t = "              struct S { int x; int y; };\n\n" + t
+        if (t contains "struct T")
+            t = "              struct T { int x; int y; int z; };\n\n" + t
+        if (t contains "struct_anonymous")
+            t = "              typedef struct { int x; } struct_anonymous;\n\n" + t
+        t
     }
 }

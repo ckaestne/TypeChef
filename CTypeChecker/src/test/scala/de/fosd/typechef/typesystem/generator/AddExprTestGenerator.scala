@@ -11,60 +11,49 @@ package de.fosd.typechef.typesystem.generator
   */
 object AddExprTestGenerator extends App with AbstractGenerator {
 
-    def types =
-        """char
-          |signed char
-          |unsigned char
-          |signed short int
-          |unsigned short int
-          |unsigned int
-          |signed int
-          |signed long
-          |signed long long int
-          |unsigned long
-          |unsigned long long
-          |float
-          |double
-          |long double
-          |struct S
-          |struct T
-          |struct { int a; }
-          |struct { float b; }
-          |int *
-          |long *
-          |double *
-          |volatile int
-          |const int
-          |void
-          |void *
-        """.stripMargin.split("\n").map(_.trim).filter(_.nonEmpty)
+    def types = CastTestGenerator.types
 
-    val configSpace = List(Opt(types.size), Opt(types.size), Opt(types.size))
+    val configSpace = List(Opt(types.size), Opt(types.size))
+
+
+
 
 
     def genTest(c: Config): List[String] = {
         val t1 = genType(c.vals(0))
         val t2 = genType(c.vals(1))
-        val t3 = genType(c.vals(2))
         var t = s"              $t1 foo();\n" +
             s"              $t2 bar();\n" +
-            s"              $t3 x() {\n" +
+            s"              $t2 x() {\n" +
             s"                $t1 a = foo();\n" +
             s"                $t2 b = bar();\n" +
-            s"                $t3 c = a + b;\n" +
+            s"                $t2 c = a + b;\n" +
             "                return c;\n" +
             "              }"
 
-        if (t contains "struct S")
-            t = "              struct S { int x; int y; };\n\n" + t
-        if (t contains "struct T")
-            t = "              struct T { int x; int y; int z; };\n\n" + t
-        List(t)
+        var u = s"              $t1 foo();\n" +
+            s"              $t2 bar();\n" +
+            s"              $t1 x() {\n" +
+            s"                $t1 a = foo();\n" +
+            s"                $t2 b = bar();\n" +
+            s"                $t1 c = a + b;\n" +
+            "                return c;\n" +
+            "              }"
+
+        var v = s"              $t1 foo();\n" +
+            s"              $t2 x() {\n" +
+            s"                $t1 a = foo();\n" +
+            s"                $t1 b = foo();\n" +
+            s"                $t2 c = a + b;\n" +
+            "                return c;\n" +
+            "              }"
+
+        List(addStructs(t), addStructs(u), addStructs(v))
     }
 
 
     def genType(t: Int) = types(t)
 
-    generate("GeneratedAddExprTests", pairwiseRandConfigs)
+    generate("GeneratedAddExprTests", bruteforceConfigs)
 
 }

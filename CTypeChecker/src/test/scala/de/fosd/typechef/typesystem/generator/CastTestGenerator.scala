@@ -22,10 +22,12 @@ object CastTestGenerator extends App with AbstractGenerator {
           |double
           |long double
           |int *
-          |long *
+          |int **
+          |char *
           |double *
           |struct S
           |struct T
+          |struct_anonymous
           |struct { int a; }
           |struct { float b; }
           |volatile int
@@ -51,11 +53,7 @@ object CastTestGenerator extends App with AbstractGenerator {
             "                return a;\n" +
             "              }"
 
-        if (t contains "struct S")
-            t = "              struct S { int x; int y; };\n\n" + t
-        if (t contains "struct T")
-            t = "              struct T { int x; int y; int z; };\n\n" + t
-        List(t)
+        List(addStructs(t))
     }
 
 

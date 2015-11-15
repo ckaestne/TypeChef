@@ -1,12 +1,5 @@
 package de.fosd.typechef.typesystem.generator
 
-import java.io.{File, FileWriter}
-
-import de.fosd.typechef.typesystem.generator.RedeclTestGenerator._
-
-import scala.sys.process._
-import scala.util.Random
-
 /**
   * there are too many cases and the declaration isn't understandable.
   *
@@ -42,17 +35,7 @@ object CoerceTestGenerator extends App with AbstractGenerator {
             s"                $t2 b = foo();\n" +
             "              }"
 
-        if (t contains "struct S")
-            t = "              struct S { int x; int y; };\n\n" + t
-        if (t contains "struct T")
-            t = "              struct T { int x; int y; int z; };\n\n" + t
-        if (u contains "struct S")
-            u = "              struct S { int x; int y; };\n\n" + u
-        if (u contains "struct T")
-            u = "              struct T { int x; int y; int z; };\n\n" + u
-
-
-        List(t, u)
+        List(addStructs(t),addStructs(u))
     }
 
 
