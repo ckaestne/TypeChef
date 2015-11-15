@@ -144,6 +144,9 @@ trait CCFG extends ASTNavigation with ConditionalNavigation {
                 case SwitchStatement(expr, _) =>
                     exprSucc(x)(expr)
 
+                case ReturnStatement(Some(expr)) =>
+                    exprSucc(x)(expr)
+
                 case e: CFGStmt =>
                     val c = env.featureExpr(e)
                     if (c and ctx isSatisfiable()) {
@@ -313,6 +316,9 @@ trait CCFG extends ASTNavigation with ConditionalNavigation {
                                 succFollowing(env, r, ctx)(e)
                             else
                                 r
+
+                        case e: ReturnStatement =>
+                            retuStmtSucc(x)(e)
 
                         case e: FunctionDef =>
                             val c = env.featureExpr(e)
