@@ -6,6 +6,8 @@ import de.fosd.typechef.parser.c._
 
 import org.kiama.attribution.Attribution._
 
+import scala.annotation.tailrec
+
 trait CCFG extends ASTNavigation with ConditionalNavigation {
 
     type CFGStmts = List[Opt[CFGStmt]]
@@ -15,7 +17,13 @@ trait CCFG extends ASTNavigation with ConditionalNavigation {
             case x@(env, res, ctx) =>
                 s =>
                     val sn = nextASTElems(s, env).map(parentOpt(_, env)).asInstanceOf[List[Opt[Statement]]].tail
-                    compStmtSucc(x)((parentAST(s, env).asInstanceOf[CompoundStatement], sn))
+                    val c = parentAST(s, env).asInstanceOf[CompoundStatement]
+                    val r = compStmtSucc(x)(c, sn)
+
+                    if (!isComplete(ctx)(r))
+                        succFollowing(env, r, ctx)(c)
+                    else
+                        r
         }
     }
 
@@ -65,7 +73,10 @@ trait CCFG extends ASTNavigation with ConditionalNavigation {
     private lazy val condExprSucc: Tuple3[ASTEnv, CFGStmts, FeatureExpr] => Conditional[Expr] => CFGStmts = {
         paramAttr {
             case x@(env, res, ctx) => {
-                case _ => List()
+                case One(value) => exprSucc(x)(value)
+                case Choice(_, thenBranch, elseBranch) =>
+                    condExprSucc(x)(thenBranch) ++
+                        condExprSucc(x)(elseBranch)
             }
         }
     }
@@ -142,6 +153,8 @@ trait CCFG extends ASTNavigation with ConditionalNavigation {
                     condExprSucc(x)(condition)
                 case SwitchStatement(expr, _) =>
                     exprSucc(x)(expr)
+                case GotoStatement(target) =>
+                    exprSucc(x)(target)
 
                 case ReturnStatement(Some(expr)) =>
                     exprSucc(x)(expr)
@@ -155,7 +168,7 @@ trait CCFG extends ASTNavigation with ConditionalNavigation {
                         else
                             res
                     } else
-                    res
+                        res
             }
         }
 
@@ -166,9 +179,11 @@ trait CCFG extends ASTNavigation with ConditionalNavigation {
                 case e@CompoundStatement(innerStatements) =>
                     var r = res
                     innerStatements.takeWhile {
-                        case _ => !isComplete(ctx)(r)
+                        case _ =>
+                            !isComplete(ctx)(r)
                     }.foreach {
-                        case Opt(_, a) => r = basicSucc(env, r, ctx)(a)
+                        case Opt(_, a) =>
+                            r = basicSucc(env, r, ctx)(a)
                     }
 
                     if (!isComplete(ctx)(r))
@@ -205,6 +220,29 @@ trait CCFG extends ASTNavigation with ConditionalNavigation {
                 res =>
                     res.map(_.condition).fold(FeatureExprFactory.False)(_ or _) equivalentTo ctx
             }
+        }
+    }
+
+    @tailrec
+    private def getContinueStmtContext(a: Product, env: ASTEnv): Option[Statement] = {
+        parentAST(a, env) match {
+            case t: ForStatement => Some(t)
+            case t: WhileStatement => Some(t)
+            case t: DoStatement => Some(t)
+            case null => None
+            case p: Product => getContinueStmtContext(p, env)
+        }
+    }
+
+    @tailrec
+    private def getBreakStmtContext(a: Product, env: ASTEnv): Option[Statement] = {
+        parentAST(a, env) match {
+            case t: ForStatement => Some(t)
+            case t: WhileStatement => Some(t)
+            case t: DoStatement => Some(t)
+            case t: SwitchStatement => Some(t)
+            case null => None
+            case p: Product => getBreakStmtContext(p, env)
         }
     }
 
@@ -256,6 +294,32 @@ trait CCFG extends ASTNavigation with ConditionalNavigation {
                             rs ++ re ++ rt
                         case WhileStatement(expr, _) =>
                             exprSucc(x)(expr)
+                        case e: BreakStatement =>
+                            getBreakStmtContext(e, env) match {
+                                case None =>
+                                    assert(assertion = false, "break statement should always occur within a for, do-while, or while statement")
+                                    res
+                                case Some(ls) =>
+                                    stmtSucc(x)(ls)
+                            }
+                        case e: ContinueStatement =>
+                            getContinueStmtContext(e, env) match {
+                                case None =>
+                                    assert(assertion = false, "continue statement should always occur within a for, do-while, or while statement")
+                                    res
+                                case Some(ForStatement(_, expr2, expr3, s)) =>
+                                    if (expr3.isDefined)
+                                        exprSucc(x)(expr3.get)
+                                    else if (expr2.isDefined)
+                                        exprSucc(x)(expr2.get)
+                                    else
+                                        condStmtSucc(x)(s)
+                                case Some(WhileStatement(expr, _)) =>
+                                    exprSucc(x)(expr)
+                                case Some(DoStatement(expr, _)) =>
+                                    exprSucc(x)(expr)
+                                case _ => List()
+                            }
 
                         case e@DoStatement(expr, s) if isPartOf(se)(expr) =>
                             val rs = condStmtSucc(x)(s)
@@ -292,7 +356,9 @@ trait CCFG extends ASTNavigation with ConditionalNavigation {
                                     r = succFollowing(env, r, ctx)(e)
                             }
                             r ++ condStmtSucc(x)(thenBranch)
-
+                        // part of then branch, elifs, or else branch
+                        case e@IfStatement(_, _, _, _) =>
+                            stmtSucc(x)(e)
                         // condition of the elif statement
                         case e@ElifStatement(condition, thenBranch) if isPartOf(se)(condition) =>
                             var r = res

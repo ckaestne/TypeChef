@@ -45,15 +45,28 @@ class CCFGTest extends TestHelper with Matchers with CCFG with EnforceTreeHelper
         true
     }
 
+    @Test def test_fdef2() {
+        cfgtest( """
+              void foo() {
+                if (a) { b; }
+                else if (c) { d; }
+                else { e; }
+              }
+                 """.stripMargin) should be(true)
+    }
+
     @Test def test_fdef() {
         cfgtest( """
               void foo() {
-              while (a) {
+                #ifdef A
+                a;
+                #endif
                 #ifdef B
                 b;
                 #endif
-              }
-              return c;
+                #ifdef A
+                c;
+                #endif
               }
                     """.stripMargin) should be(true)
     }
