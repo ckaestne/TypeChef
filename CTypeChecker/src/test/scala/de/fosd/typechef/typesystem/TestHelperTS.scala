@@ -19,16 +19,16 @@ trait TestHelperTS extends TestHelper {
 
 
     def correct(code: String) {
-        assert(check(code), "Expected correct code, but found error")
+        assert(check(code), "False positive (expected correct code, but found error)")
     }
     def error(code: String) {
-        assert(!check(code), "Expected error, but found none")
+        assert(!check(code), "False negative (expected error, but found none)")
     }
     def correctExpr(code: String) {
-        assert(checkExpr(code), "Expected correct code, but found error")
+        assert(checkExpr(code), "False positive (expected correct code, but found error)")
     }
     def errorExpr(code: String) {
-        assert(!checkExpr(code), "Expected error, but found none")
+        assert(!checkExpr(code), "False negative (expected error, but found none)")
     }
 }
 
