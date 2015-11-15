@@ -75,7 +75,7 @@ class CTypeSystemFrontend(iast: TranslationUnit,
       * Returns true iff no errors were found.
       * @return
       */
-    def checkAST(ignoreWarnings: Boolean = true, printResults: Boolean = false): CheckResult.CheckResult = {
+    def checkAST(ignoreWarnings: Boolean = true, printResults: Boolean = false): List[TypeChefError] = {
 
         errors = List() // clear error list
         typecheckTranslationUnit(iast)
@@ -90,7 +90,7 @@ class CTypeSystemFrontend(iast: TranslationUnit,
             }
         //println("\n")
 
-        getCheckResult(errors)
+        errors
     }
 
     //does not support separate reporting of warnings for backward compatibility
@@ -101,16 +101,7 @@ class CTypeSystemFrontend(iast: TranslationUnit,
         errors.isEmpty
     }
 
-    private def getCheckResult(errors: List[TypeChefError]): CheckResult.CheckResult =
-        if (errors.isEmpty) CheckResult.Correct
-        else if (errors.filterNot(Set(Severity.Warning, Severity.SecurityWarning) contains _.severity).nonEmpty) CheckResult.Error
-        else CheckResult.Warning
 
 }
 
-object CheckResult extends Enumeration {
-    type CheckResult = Value
-    val Correct = Value("No errors or warnings found")
-    val Error = Value("At least one error found")
-    val Warning = Value("No error found, but warnings found")
-}
+

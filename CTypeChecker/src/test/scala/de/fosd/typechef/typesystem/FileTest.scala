@@ -22,7 +22,7 @@ class FileTest extends TestHelper {
         println("done. (" + (System.currentTimeMillis - parsed) + ")")
         r
     }
-    private def check(ast: TranslationUnit, featureModel: FeatureModel): Boolean = new CTypeSystemFrontend(ast, featureModel).checkAST() == CheckResult.Correct
+    private def check(ast: TranslationUnit, featureModel: FeatureModel): Boolean = new CTypeSystemFrontend(ast, featureModel).checkAST().isEmpty
 
     private def d(n: String) = FeatureExprFactory.createDefinedExternal(n)
 

@@ -50,7 +50,7 @@ class SparseFileTest extends TestHelper {
     private def check(ast: TranslationUnit, featureModel: FeatureModel): Boolean =
         new CTypeSystemFrontend(ast, featureModel) {
             override def checkingExternal(externalDef: ExternalDef) {}
-        }.makeSilent().checkAST() == CheckResult.Correct
+        }.makeSilent().checkAST().isEmpty
 
     private def readSparseInfo(file: InputStream, filename: String) = {
         val lines = scala.io.Source.fromInputStream(file).getLines().toList

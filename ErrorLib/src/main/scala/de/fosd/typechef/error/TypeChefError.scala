@@ -16,4 +16,5 @@ class TypeChefError(
             (if (where == null) "" else where.getPositionFrom + "--" + where.getPositionTo) + "\n\t" + msg
 
 
+    def isWarning = Set(Severity.Warning, Severity.SecurityWarning) contains severity
 }

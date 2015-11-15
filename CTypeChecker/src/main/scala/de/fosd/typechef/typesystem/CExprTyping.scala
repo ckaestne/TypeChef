@@ -186,13 +186,17 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                                     reportTypeError(fexpr, "Cannot assign to const '%s'; undefined behavior".format(ltype.toText), ae, Severity.SecurityWarning, "const_assignment")
 
                                 val opType = operationType(op, ltype, rtype, ae, fexpr, env)
+
+                                if (ltype.isConstant && isArithmetic(ltype) && isScalar(opType))
+                                    reportTypeError(fexpr, "assignment of read-only variable", ae)
+
                                 ltype match {
-                                    case CType(t, true, _, _) if coerce(t, opType).isDefined =>
+                                    case CType(t, true, _, _) if coerce(ltype, opType).isDefined =>
                                         if (opts.warning_implicit_coercion && isForcedCoercion(ltype.atype, rtype.atype))
                                             reportTypeError(fexpr, "Implicit coercion of integer types (%s <- %s), consider a cast".format(ltype.toText, rtype.toText), ae, Severity.SecurityWarning, "implicit_coercion")
                                         if (opts.warning_character_signed && isCharSignCoercion(ltype.atype, rtype.atype))
                                             reportTypeError(fexpr, "Incompatible character types '%s <- %s'; consider a cast".format(ltype.toText, rtype.toText), expr, Severity.SecurityWarning, "char_signness")
-                                        val warning = coerce(t, opType).get
+                                        val warning = coerce(ltype, opType).get
                                         if (warning.nonEmpty)
                                             reportTypeError(fexpr, warning + " (" + ltype + " " + op + " " + rtype + ")", ae, severity = Severity.Warning)
 

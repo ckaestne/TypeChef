@@ -14,6 +14,8 @@ class GeneratedCastTests extends TestHelperTS {
               }
                 """)
    }
+
+
    @Test def test_conf0_1() {
         correct("""
               char foo();
@@ -23,6 +25,8 @@ class GeneratedCastTests extends TestHelperTS {
               }
                 """)
    }
+
+
    @Test def test_conf0_2() {
         correct("""
               char foo();
@@ -32,6 +36,8 @@ class GeneratedCastTests extends TestHelperTS {
               }
                 """)
    }
+
+
    @Test def test_conf0_3() {
         correct("""
               char foo();
@@ -41,6 +47,8 @@ class GeneratedCastTests extends TestHelperTS {
               }
                 """)
    }
+
+
    @Test def test_conf0_4() {
         correct("""
               char foo();
@@ -50,6 +58,8 @@ class GeneratedCastTests extends TestHelperTS {
               }
                 """)
    }
+
+
    @Test def test_conf0_5() {
         correct("""
               char foo();
@@ -59,6 +69,8 @@ class GeneratedCastTests extends TestHelperTS {
               }
                 """)
    }
+
+
    @Test def test_conf0_6() {
         correct("""
               char foo();
@@ -68,6 +80,8 @@ class GeneratedCastTests extends TestHelperTS {
               }
                 """)
    }
+
+
    @Test def test_conf0_7() {
         correct("""
               char foo();
@@ -77,6 +91,8 @@ class GeneratedCastTests extends TestHelperTS {
               }
                 """)
    }
+
+
    @Test def test_conf0_8() {
         correct("""
               char foo();
@@ -86,10 +102,12 @@ class GeneratedCastTests extends TestHelperTS {
               }
                 """)
    }
+
+
    @Test def test_conf0_9() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf0_9727111082082633436.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf0_9727111082082633436.c:3:27: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
+C:\Users\ckaestne\AppData\Local\Temp\conf0_94765824219190310498.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf0_94765824219190310498.c:3:27: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
                  int * a = (int *) foo();
                            ^
 
@@ -102,10 +120,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf0_9727111082082633436.c:3:27: warning: 
               }
                 """)
    }
+
+
    @Test def test_conf0_10() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf0_10529997063484067307.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf0_10529997063484067307.c:3:28: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
+C:\Users\ckaestne\AppData\Local\Temp\conf0_107048058756408515291.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf0_107048058756408515291.c:3:28: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
                  long * a = (long *) foo();
                             ^
 
@@ -118,10 +138,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf0_10529997063484067307.c:3:28: warning:
               }
                 """)
    }
+
+
    @Test def test_conf0_11() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf0_111722503998958267763.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf0_111722503998958267763.c:3:30: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
+C:\Users\ckaestne\AppData\Local\Temp\conf0_111201693299011265779.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf0_111201693299011265779.c:3:30: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
                  double * a = (double *) foo();
                               ^
 
@@ -134,10 +156,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf0_111722503998958267763.c:3:30: warning
               }
                 """)
    }
+
+
    @Test def test_conf0_12() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf0_12670461492777272574.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf0_12670461492777272574.c:5:38: error: conversion to non-scalar type requested
+C:\Users\ckaestne\AppData\Local\Temp\conf0_124451230552420165533.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf0_124451230552420165533.c:5:38: error: conversion to non-scalar type requested
                  struct S a = (struct S) foo();
                                       ^
 
@@ -152,10 +176,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf0_12670461492777272574.c:5:38: error: c
               }
                 """)
    }
+
+
    @Test def test_conf0_13() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf0_13781519648619151301.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf0_13781519648619151301.c:5:38: error: conversion to non-scalar type requested
+C:\Users\ckaestne\AppData\Local\Temp\conf0_13530879374834803647.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf0_13530879374834803647.c:5:38: error: conversion to non-scalar type requested
                  struct T a = (struct T) foo();
                                       ^
 
@@ -170,16 +196,18 @@ C:\Users\ckaestne\AppData\Local\Temp\conf0_13781519648619151301.c:5:38: error: c
               }
                 """)
    }
+
+
    @Test def test_conf0_14() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf0_143188772987652735163.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf0_143188772987652735163.c:3:47: error: conversion to non-scalar type requested
+C:\Users\ckaestne\AppData\Local\Temp\conf0_144521293126970453294.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf0_144521293126970453294.c:3:47: error: conversion to non-scalar type requested
                  struct { int a; } a = (struct { int a; }) foo();
                                                ^
-C:\Users\ckaestne\AppData\Local\Temp\conf0_143188772987652735163.c:4:17: error: incompatible types when returning type 'struct <anonymous>' but 'struct <anonymous>' was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf0_144521293126970453294.c:4:17: error: incompatible types when returning type 'struct <anonymous>' but 'struct <anonymous>' was expected
                  return a;
                  ^
-C:\Users\ckaestne\AppData\Local\Temp\conf0_143188772987652735163.c:5:15: warning: control reaches end of non-void function [-Wreturn-type]
+C:\Users\ckaestne\AppData\Local\Temp\conf0_144521293126970453294.c:5:15: warning: control reaches end of non-void function [-Wreturn-type]
                }
                ^
 
@@ -192,16 +220,18 @@ C:\Users\ckaestne\AppData\Local\Temp\conf0_143188772987652735163.c:5:15: warning
               }
                 """)
    }
+
+
    @Test def test_conf0_15() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf0_154515363552402485526.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf0_154515363552402485526.c:3:49: error: conversion to non-scalar type requested
+C:\Users\ckaestne\AppData\Local\Temp\conf0_156681839173724548603.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf0_156681839173724548603.c:3:49: error: conversion to non-scalar type requested
                  struct { float b; } a = (struct { float b; }) foo();
                                                  ^
-C:\Users\ckaestne\AppData\Local\Temp\conf0_154515363552402485526.c:4:17: error: incompatible types when returning type 'struct <anonymous>' but 'struct <anonymous>' was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf0_156681839173724548603.c:4:17: error: incompatible types when returning type 'struct <anonymous>' but 'struct <anonymous>' was expected
                  return a;
                  ^
-C:\Users\ckaestne\AppData\Local\Temp\conf0_154515363552402485526.c:5:15: warning: control reaches end of non-void function [-Wreturn-type]
+C:\Users\ckaestne\AppData\Local\Temp\conf0_156681839173724548603.c:5:15: warning: control reaches end of non-void function [-Wreturn-type]
                }
                ^
 
@@ -214,6 +244,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf0_154515363552402485526.c:5:15: warning
               }
                 """)
    }
+
+
    @Test def test_conf0_16() {
         correct("""
               char foo();
@@ -223,6 +255,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf0_154515363552402485526.c:5:15: warning
               }
                 """)
    }
+
+
    @Test def test_conf0_17() {
         correct("""
               char foo();
@@ -232,10 +266,34 @@ C:\Users\ckaestne\AppData\Local\Temp\conf0_154515363552402485526.c:5:15: warning
               }
                 """)
    }
+
+
    @Test def test_conf0_18() {
+        correct("""
+              char foo();
+              const double bar() {
+                const double a = (const double) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf0_19() {
+        correct("""
+              char foo();
+              volatile double bar() {
+                volatile double a = (volatile double) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf0_20() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf0_18622506657500466778.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf0_18622506657500466778.c:3:27: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
+C:\Users\ckaestne\AppData\Local\Temp\conf0_203638473156235961863.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf0_203638473156235961863.c:3:27: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
                  int * a = (int *) foo();
                            ^
 
@@ -248,10 +306,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf0_18622506657500466778.c:3:27: warning:
               }
                 """)
    }
-   @Test def test_conf0_19() {
+
+
+   @Test def test_conf0_21() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf0_197814001517744705870.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf0_197814001517744705870.c:3:33: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
+C:\Users\ckaestne\AppData\Local\Temp\conf0_212355293911759693894.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf0_212355293911759693894.c:3:33: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
                  const int * a = (const int *) foo();
                                  ^
 
@@ -264,10 +324,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf0_197814001517744705870.c:3:33: warning
               }
                 """)
    }
-   @Test def test_conf0_20() {
+
+
+   @Test def test_conf0_22() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf0_208499167570601307520.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf0_208499167570601307520.c:3:36: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
+C:\Users\ckaestne\AppData\Local\Temp\conf0_225166629856954726927.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf0_225166629856954726927.c:3:36: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
                  volatile int * a = (volatile int *) foo();
                                     ^
 
@@ -280,6 +342,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf0_208499167570601307520.c:3:36: warning
               }
                 """)
    }
+
+
    @Test def test_conf1_0() {
         correct("""
               signed char foo();
@@ -289,6 +353,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf0_208499167570601307520.c:3:36: warning
               }
                 """)
    }
+
+
    @Test def test_conf1_1() {
         correct("""
               signed char foo();
@@ -298,6 +364,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf0_208499167570601307520.c:3:36: warning
               }
                 """)
    }
+
+
    @Test def test_conf1_2() {
         correct("""
               signed char foo();
@@ -307,6 +375,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf0_208499167570601307520.c:3:36: warning
               }
                 """)
    }
+
+
    @Test def test_conf1_3() {
         correct("""
               signed char foo();
@@ -316,6 +386,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf0_208499167570601307520.c:3:36: warning
               }
                 """)
    }
+
+
    @Test def test_conf1_4() {
         correct("""
               signed char foo();
@@ -325,6 +397,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf0_208499167570601307520.c:3:36: warning
               }
                 """)
    }
+
+
    @Test def test_conf1_5() {
         correct("""
               signed char foo();
@@ -334,6 +408,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf0_208499167570601307520.c:3:36: warning
               }
                 """)
    }
+
+
    @Test def test_conf1_6() {
         correct("""
               signed char foo();
@@ -343,6 +419,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf0_208499167570601307520.c:3:36: warning
               }
                 """)
    }
+
+
    @Test def test_conf1_7() {
         correct("""
               signed char foo();
@@ -352,6 +430,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf0_208499167570601307520.c:3:36: warning
               }
                 """)
    }
+
+
    @Test def test_conf1_8() {
         correct("""
               signed char foo();
@@ -361,10 +441,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf0_208499167570601307520.c:3:36: warning
               }
                 """)
    }
+
+
    @Test def test_conf1_9() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf1_94574522823208891629.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf1_94574522823208891629.c:3:27: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
+C:\Users\ckaestne\AppData\Local\Temp\conf1_92832209837391162962.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf1_92832209837391162962.c:3:27: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
                  int * a = (int *) foo();
                            ^
 
@@ -377,10 +459,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf1_94574522823208891629.c:3:27: warning:
               }
                 """)
    }
+
+
    @Test def test_conf1_10() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf1_107916400921733543392.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf1_107916400921733543392.c:3:28: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
+C:\Users\ckaestne\AppData\Local\Temp\conf1_101889285833541876311.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf1_101889285833541876311.c:3:28: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
                  long * a = (long *) foo();
                             ^
 
@@ -393,10 +477,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf1_107916400921733543392.c:3:28: warning
               }
                 """)
    }
+
+
    @Test def test_conf1_11() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf1_113255844448652038076.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf1_113255844448652038076.c:3:30: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
+C:\Users\ckaestne\AppData\Local\Temp\conf1_117225697151534765297.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf1_117225697151534765297.c:3:30: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
                  double * a = (double *) foo();
                               ^
 
@@ -409,10 +495,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf1_113255844448652038076.c:3:30: warning
               }
                 """)
    }
+
+
    @Test def test_conf1_12() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf1_12947431291418845524.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf1_12947431291418845524.c:5:38: error: conversion to non-scalar type requested
+C:\Users\ckaestne\AppData\Local\Temp\conf1_124893218341567999575.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf1_124893218341567999575.c:5:38: error: conversion to non-scalar type requested
                  struct S a = (struct S) foo();
                                       ^
 
@@ -427,10 +515,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf1_12947431291418845524.c:5:38: error: c
               }
                 """)
    }
+
+
    @Test def test_conf1_13() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf1_136614454512062263397.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf1_136614454512062263397.c:5:38: error: conversion to non-scalar type requested
+C:\Users\ckaestne\AppData\Local\Temp\conf1_136059182304879913521.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf1_136059182304879913521.c:5:38: error: conversion to non-scalar type requested
                  struct T a = (struct T) foo();
                                       ^
 
@@ -445,16 +535,18 @@ C:\Users\ckaestne\AppData\Local\Temp\conf1_136614454512062263397.c:5:38: error: 
               }
                 """)
    }
+
+
    @Test def test_conf1_14() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf1_145158864717859883630.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf1_145158864717859883630.c:3:47: error: conversion to non-scalar type requested
+C:\Users\ckaestne\AppData\Local\Temp\conf1_148995050353468660518.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf1_148995050353468660518.c:3:47: error: conversion to non-scalar type requested
                  struct { int a; } a = (struct { int a; }) foo();
                                                ^
-C:\Users\ckaestne\AppData\Local\Temp\conf1_145158864717859883630.c:4:17: error: incompatible types when returning type 'struct <anonymous>' but 'struct <anonymous>' was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf1_148995050353468660518.c:4:17: error: incompatible types when returning type 'struct <anonymous>' but 'struct <anonymous>' was expected
                  return a;
                  ^
-C:\Users\ckaestne\AppData\Local\Temp\conf1_145158864717859883630.c:5:15: warning: control reaches end of non-void function [-Wreturn-type]
+C:\Users\ckaestne\AppData\Local\Temp\conf1_148995050353468660518.c:5:15: warning: control reaches end of non-void function [-Wreturn-type]
                }
                ^
 
@@ -467,16 +559,18 @@ C:\Users\ckaestne\AppData\Local\Temp\conf1_145158864717859883630.c:5:15: warning
               }
                 """)
    }
+
+
    @Test def test_conf1_15() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf1_159058493645192672957.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf1_159058493645192672957.c:3:49: error: conversion to non-scalar type requested
+C:\Users\ckaestne\AppData\Local\Temp\conf1_155013680924097610805.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf1_155013680924097610805.c:3:49: error: conversion to non-scalar type requested
                  struct { float b; } a = (struct { float b; }) foo();
                                                  ^
-C:\Users\ckaestne\AppData\Local\Temp\conf1_159058493645192672957.c:4:17: error: incompatible types when returning type 'struct <anonymous>' but 'struct <anonymous>' was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf1_155013680924097610805.c:4:17: error: incompatible types when returning type 'struct <anonymous>' but 'struct <anonymous>' was expected
                  return a;
                  ^
-C:\Users\ckaestne\AppData\Local\Temp\conf1_159058493645192672957.c:5:15: warning: control reaches end of non-void function [-Wreturn-type]
+C:\Users\ckaestne\AppData\Local\Temp\conf1_155013680924097610805.c:5:15: warning: control reaches end of non-void function [-Wreturn-type]
                }
                ^
 
@@ -489,6 +583,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf1_159058493645192672957.c:5:15: warning
               }
                 """)
    }
+
+
    @Test def test_conf1_16() {
         correct("""
               signed char foo();
@@ -498,6 +594,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf1_159058493645192672957.c:5:15: warning
               }
                 """)
    }
+
+
    @Test def test_conf1_17() {
         correct("""
               signed char foo();
@@ -507,10 +605,34 @@ C:\Users\ckaestne\AppData\Local\Temp\conf1_159058493645192672957.c:5:15: warning
               }
                 """)
    }
+
+
    @Test def test_conf1_18() {
+        correct("""
+              signed char foo();
+              const double bar() {
+                const double a = (const double) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf1_19() {
+        correct("""
+              signed char foo();
+              volatile double bar() {
+                volatile double a = (volatile double) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf1_20() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf1_183629812281876956022.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf1_183629812281876956022.c:3:27: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
+C:\Users\ckaestne\AppData\Local\Temp\conf1_204789233252832438146.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf1_204789233252832438146.c:3:27: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
                  int * a = (int *) foo();
                            ^
 
@@ -523,10 +645,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf1_183629812281876956022.c:3:27: warning
               }
                 """)
    }
-   @Test def test_conf1_19() {
+
+
+   @Test def test_conf1_21() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf1_192020363644285420526.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf1_192020363644285420526.c:3:33: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
+C:\Users\ckaestne\AppData\Local\Temp\conf1_213080355837227564266.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf1_213080355837227564266.c:3:33: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
                  const int * a = (const int *) foo();
                                  ^
 
@@ -539,10 +663,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf1_192020363644285420526.c:3:33: warning
               }
                 """)
    }
-   @Test def test_conf1_20() {
+
+
+   @Test def test_conf1_22() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf1_203522156739920944251.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf1_203522156739920944251.c:3:36: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
+C:\Users\ckaestne\AppData\Local\Temp\conf1_222503353880443869569.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf1_222503353880443869569.c:3:36: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
                  volatile int * a = (volatile int *) foo();
                                     ^
 
@@ -555,6 +681,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf1_203522156739920944251.c:3:36: warning
               }
                 """)
    }
+
+
    @Test def test_conf2_0() {
         correct("""
               unsigned char foo();
@@ -564,6 +692,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf1_203522156739920944251.c:3:36: warning
               }
                 """)
    }
+
+
    @Test def test_conf2_1() {
         correct("""
               unsigned char foo();
@@ -573,6 +703,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf1_203522156739920944251.c:3:36: warning
               }
                 """)
    }
+
+
    @Test def test_conf2_2() {
         correct("""
               unsigned char foo();
@@ -582,6 +714,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf1_203522156739920944251.c:3:36: warning
               }
                 """)
    }
+
+
    @Test def test_conf2_3() {
         correct("""
               unsigned char foo();
@@ -591,6 +725,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf1_203522156739920944251.c:3:36: warning
               }
                 """)
    }
+
+
    @Test def test_conf2_4() {
         correct("""
               unsigned char foo();
@@ -600,6 +736,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf1_203522156739920944251.c:3:36: warning
               }
                 """)
    }
+
+
    @Test def test_conf2_5() {
         correct("""
               unsigned char foo();
@@ -609,6 +747,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf1_203522156739920944251.c:3:36: warning
               }
                 """)
    }
+
+
    @Test def test_conf2_6() {
         correct("""
               unsigned char foo();
@@ -618,6 +758,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf1_203522156739920944251.c:3:36: warning
               }
                 """)
    }
+
+
    @Test def test_conf2_7() {
         correct("""
               unsigned char foo();
@@ -627,6 +769,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf1_203522156739920944251.c:3:36: warning
               }
                 """)
    }
+
+
    @Test def test_conf2_8() {
         correct("""
               unsigned char foo();
@@ -636,10 +780,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf1_203522156739920944251.c:3:36: warning
               }
                 """)
    }
+
+
    @Test def test_conf2_9() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf2_9958015461513285670.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf2_9958015461513285670.c:3:27: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
+C:\Users\ckaestne\AppData\Local\Temp\conf2_95962966725225804259.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf2_95962966725225804259.c:3:27: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
                  int * a = (int *) foo();
                            ^
 
@@ -652,10 +798,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf2_9958015461513285670.c:3:27: warning: 
               }
                 """)
    }
+
+
    @Test def test_conf2_10() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf2_10649287723574460298.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf2_10649287723574460298.c:3:28: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
+C:\Users\ckaestne\AppData\Local\Temp\conf2_10826756404328452214.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf2_10826756404328452214.c:3:28: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
                  long * a = (long *) foo();
                             ^
 
@@ -668,10 +816,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf2_10649287723574460298.c:3:28: warning:
               }
                 """)
    }
+
+
    @Test def test_conf2_11() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf2_111895052979802282166.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf2_111895052979802282166.c:3:30: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
+C:\Users\ckaestne\AppData\Local\Temp\conf2_111520151175757755544.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf2_111520151175757755544.c:3:30: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
                  double * a = (double *) foo();
                               ^
 
@@ -684,10 +834,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf2_111895052979802282166.c:3:30: warning
               }
                 """)
    }
+
+
    @Test def test_conf2_12() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf2_12670184503517797776.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf2_12670184503517797776.c:5:38: error: conversion to non-scalar type requested
+C:\Users\ckaestne\AppData\Local\Temp\conf2_128227948754345353646.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf2_128227948754345353646.c:5:38: error: conversion to non-scalar type requested
                  struct S a = (struct S) foo();
                                       ^
 
@@ -702,10 +854,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf2_12670184503517797776.c:5:38: error: c
               }
                 """)
    }
+
+
    @Test def test_conf2_13() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf2_138951807578066538530.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf2_138951807578066538530.c:5:38: error: conversion to non-scalar type requested
+C:\Users\ckaestne\AppData\Local\Temp\conf2_136403643634365748801.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf2_136403643634365748801.c:5:38: error: conversion to non-scalar type requested
                  struct T a = (struct T) foo();
                                       ^
 
@@ -720,16 +874,18 @@ C:\Users\ckaestne\AppData\Local\Temp\conf2_138951807578066538530.c:5:38: error: 
               }
                 """)
    }
+
+
    @Test def test_conf2_14() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf2_148377835834622224906.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf2_148377835834622224906.c:3:47: error: conversion to non-scalar type requested
+C:\Users\ckaestne\AppData\Local\Temp\conf2_148647939720997560249.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf2_148647939720997560249.c:3:47: error: conversion to non-scalar type requested
                  struct { int a; } a = (struct { int a; }) foo();
                                                ^
-C:\Users\ckaestne\AppData\Local\Temp\conf2_148377835834622224906.c:4:17: error: incompatible types when returning type 'struct <anonymous>' but 'struct <anonymous>' was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf2_148647939720997560249.c:4:17: error: incompatible types when returning type 'struct <anonymous>' but 'struct <anonymous>' was expected
                  return a;
                  ^
-C:\Users\ckaestne\AppData\Local\Temp\conf2_148377835834622224906.c:5:15: warning: control reaches end of non-void function [-Wreturn-type]
+C:\Users\ckaestne\AppData\Local\Temp\conf2_148647939720997560249.c:5:15: warning: control reaches end of non-void function [-Wreturn-type]
                }
                ^
 
@@ -742,16 +898,18 @@ C:\Users\ckaestne\AppData\Local\Temp\conf2_148377835834622224906.c:5:15: warning
               }
                 """)
    }
+
+
    @Test def test_conf2_15() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf2_154416858209783920067.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf2_154416858209783920067.c:3:49: error: conversion to non-scalar type requested
+C:\Users\ckaestne\AppData\Local\Temp\conf2_152028203642219579604.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf2_152028203642219579604.c:3:49: error: conversion to non-scalar type requested
                  struct { float b; } a = (struct { float b; }) foo();
                                                  ^
-C:\Users\ckaestne\AppData\Local\Temp\conf2_154416858209783920067.c:4:17: error: incompatible types when returning type 'struct <anonymous>' but 'struct <anonymous>' was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf2_152028203642219579604.c:4:17: error: incompatible types when returning type 'struct <anonymous>' but 'struct <anonymous>' was expected
                  return a;
                  ^
-C:\Users\ckaestne\AppData\Local\Temp\conf2_154416858209783920067.c:5:15: warning: control reaches end of non-void function [-Wreturn-type]
+C:\Users\ckaestne\AppData\Local\Temp\conf2_152028203642219579604.c:5:15: warning: control reaches end of non-void function [-Wreturn-type]
                }
                ^
 
@@ -764,6 +922,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf2_154416858209783920067.c:5:15: warning
               }
                 """)
    }
+
+
    @Test def test_conf2_16() {
         correct("""
               unsigned char foo();
@@ -773,6 +933,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf2_154416858209783920067.c:5:15: warning
               }
                 """)
    }
+
+
    @Test def test_conf2_17() {
         correct("""
               unsigned char foo();
@@ -782,10 +944,34 @@ C:\Users\ckaestne\AppData\Local\Temp\conf2_154416858209783920067.c:5:15: warning
               }
                 """)
    }
+
+
    @Test def test_conf2_18() {
+        correct("""
+              unsigned char foo();
+              const double bar() {
+                const double a = (const double) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf2_19() {
+        correct("""
+              unsigned char foo();
+              volatile double bar() {
+                volatile double a = (volatile double) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf2_20() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf2_184316585277188472030.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf2_184316585277188472030.c:3:27: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
+C:\Users\ckaestne\AppData\Local\Temp\conf2_208434715232373742186.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf2_208434715232373742186.c:3:27: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
                  int * a = (int *) foo();
                            ^
 
@@ -798,10 +984,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf2_184316585277188472030.c:3:27: warning
               }
                 """)
    }
-   @Test def test_conf2_19() {
+
+
+   @Test def test_conf2_21() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf2_198093110091943622277.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf2_198093110091943622277.c:3:33: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
+C:\Users\ckaestne\AppData\Local\Temp\conf2_218049593456852090627.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf2_218049593456852090627.c:3:33: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
                  const int * a = (const int *) foo();
                                  ^
 
@@ -814,10 +1002,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf2_198093110091943622277.c:3:33: warning
               }
                 """)
    }
-   @Test def test_conf2_20() {
+
+
+   @Test def test_conf2_22() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf2_205268189713734113600.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf2_205268189713734113600.c:3:36: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
+C:\Users\ckaestne\AppData\Local\Temp\conf2_225177834376188252489.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf2_225177834376188252489.c:3:36: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
                  volatile int * a = (volatile int *) foo();
                                     ^
 
@@ -830,6 +1020,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf2_205268189713734113600.c:3:36: warning
               }
                 """)
    }
+
+
    @Test def test_conf3_0() {
         correct("""
               unsigned int foo();
@@ -839,6 +1031,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf2_205268189713734113600.c:3:36: warning
               }
                 """)
    }
+
+
    @Test def test_conf3_1() {
         correct("""
               unsigned int foo();
@@ -848,6 +1042,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf2_205268189713734113600.c:3:36: warning
               }
                 """)
    }
+
+
    @Test def test_conf3_2() {
         correct("""
               unsigned int foo();
@@ -857,6 +1053,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf2_205268189713734113600.c:3:36: warning
               }
                 """)
    }
+
+
    @Test def test_conf3_3() {
         correct("""
               unsigned int foo();
@@ -866,6 +1064,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf2_205268189713734113600.c:3:36: warning
               }
                 """)
    }
+
+
    @Test def test_conf3_4() {
         correct("""
               unsigned int foo();
@@ -875,6 +1075,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf2_205268189713734113600.c:3:36: warning
               }
                 """)
    }
+
+
    @Test def test_conf3_5() {
         correct("""
               unsigned int foo();
@@ -884,6 +1086,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf2_205268189713734113600.c:3:36: warning
               }
                 """)
    }
+
+
    @Test def test_conf3_6() {
         correct("""
               unsigned int foo();
@@ -893,6 +1097,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf2_205268189713734113600.c:3:36: warning
               }
                 """)
    }
+
+
    @Test def test_conf3_7() {
         correct("""
               unsigned int foo();
@@ -902,6 +1108,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf2_205268189713734113600.c:3:36: warning
               }
                 """)
    }
+
+
    @Test def test_conf3_8() {
         correct("""
               unsigned int foo();
@@ -911,10 +1119,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf2_205268189713734113600.c:3:36: warning
               }
                 """)
    }
+
+
    @Test def test_conf3_9() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf3_97139255897363876234.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf3_97139255897363876234.c:3:27: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
+C:\Users\ckaestne\AppData\Local\Temp\conf3_92320900133994196123.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf3_92320900133994196123.c:3:27: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
                  int * a = (int *) foo();
                            ^
 
@@ -927,10 +1137,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf3_97139255897363876234.c:3:27: warning:
               }
                 """)
    }
+
+
    @Test def test_conf3_10() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf3_109053637849451025353.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf3_109053637849451025353.c:3:28: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
+C:\Users\ckaestne\AppData\Local\Temp\conf3_102482329759343070434.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf3_102482329759343070434.c:3:28: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
                  long * a = (long *) foo();
                             ^
 
@@ -943,10 +1155,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf3_109053637849451025353.c:3:28: warning
               }
                 """)
    }
+
+
    @Test def test_conf3_11() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf3_114290113155805586114.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf3_114290113155805586114.c:3:30: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
+C:\Users\ckaestne\AppData\Local\Temp\conf3_111072775872001683779.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf3_111072775872001683779.c:3:30: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
                  double * a = (double *) foo();
                               ^
 
@@ -959,10 +1173,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf3_114290113155805586114.c:3:30: warning
               }
                 """)
    }
+
+
    @Test def test_conf3_12() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf3_121830834745722806003.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf3_121830834745722806003.c:5:38: error: conversion to non-scalar type requested
+C:\Users\ckaestne\AppData\Local\Temp\conf3_124844410840926808008.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf3_124844410840926808008.c:5:38: error: conversion to non-scalar type requested
                  struct S a = (struct S) foo();
                                       ^
 
@@ -977,10 +1193,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf3_121830834745722806003.c:5:38: error: 
               }
                 """)
    }
+
+
    @Test def test_conf3_13() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf3_132326674415009764085.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf3_132326674415009764085.c:5:38: error: conversion to non-scalar type requested
+C:\Users\ckaestne\AppData\Local\Temp\conf3_134661951404993854856.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf3_134661951404993854856.c:5:38: error: conversion to non-scalar type requested
                  struct T a = (struct T) foo();
                                       ^
 
@@ -995,16 +1213,18 @@ C:\Users\ckaestne\AppData\Local\Temp\conf3_132326674415009764085.c:5:38: error: 
               }
                 """)
    }
+
+
    @Test def test_conf3_14() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf3_141298084166251175938.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf3_141298084166251175938.c:3:47: error: conversion to non-scalar type requested
+C:\Users\ckaestne\AppData\Local\Temp\conf3_142680758652806702706.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf3_142680758652806702706.c:3:47: error: conversion to non-scalar type requested
                  struct { int a; } a = (struct { int a; }) foo();
                                                ^
-C:\Users\ckaestne\AppData\Local\Temp\conf3_141298084166251175938.c:4:17: error: incompatible types when returning type 'struct <anonymous>' but 'struct <anonymous>' was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf3_142680758652806702706.c:4:17: error: incompatible types when returning type 'struct <anonymous>' but 'struct <anonymous>' was expected
                  return a;
                  ^
-C:\Users\ckaestne\AppData\Local\Temp\conf3_141298084166251175938.c:5:15: warning: control reaches end of non-void function [-Wreturn-type]
+C:\Users\ckaestne\AppData\Local\Temp\conf3_142680758652806702706.c:5:15: warning: control reaches end of non-void function [-Wreturn-type]
                }
                ^
 
@@ -1017,16 +1237,18 @@ C:\Users\ckaestne\AppData\Local\Temp\conf3_141298084166251175938.c:5:15: warning
               }
                 """)
    }
+
+
    @Test def test_conf3_15() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf3_154392216077819881468.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf3_154392216077819881468.c:3:49: error: conversion to non-scalar type requested
+C:\Users\ckaestne\AppData\Local\Temp\conf3_151247190376100511087.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf3_151247190376100511087.c:3:49: error: conversion to non-scalar type requested
                  struct { float b; } a = (struct { float b; }) foo();
                                                  ^
-C:\Users\ckaestne\AppData\Local\Temp\conf3_154392216077819881468.c:4:17: error: incompatible types when returning type 'struct <anonymous>' but 'struct <anonymous>' was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf3_151247190376100511087.c:4:17: error: incompatible types when returning type 'struct <anonymous>' but 'struct <anonymous>' was expected
                  return a;
                  ^
-C:\Users\ckaestne\AppData\Local\Temp\conf3_154392216077819881468.c:5:15: warning: control reaches end of non-void function [-Wreturn-type]
+C:\Users\ckaestne\AppData\Local\Temp\conf3_151247190376100511087.c:5:15: warning: control reaches end of non-void function [-Wreturn-type]
                }
                ^
 
@@ -1039,6 +1261,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf3_154392216077819881468.c:5:15: warning
               }
                 """)
    }
+
+
    @Test def test_conf3_16() {
         correct("""
               unsigned int foo();
@@ -1048,6 +1272,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf3_154392216077819881468.c:5:15: warning
               }
                 """)
    }
+
+
    @Test def test_conf3_17() {
         correct("""
               unsigned int foo();
@@ -1057,10 +1283,34 @@ C:\Users\ckaestne\AppData\Local\Temp\conf3_154392216077819881468.c:5:15: warning
               }
                 """)
    }
+
+
    @Test def test_conf3_18() {
+        correct("""
+              unsigned int foo();
+              const double bar() {
+                const double a = (const double) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf3_19() {
+        correct("""
+              unsigned int foo();
+              volatile double bar() {
+                volatile double a = (volatile double) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf3_20() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf3_182672842051847458499.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf3_182672842051847458499.c:3:27: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
+C:\Users\ckaestne\AppData\Local\Temp\conf3_206208511677904881628.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf3_206208511677904881628.c:3:27: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
                  int * a = (int *) foo();
                            ^
 
@@ -1073,10 +1323,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf3_182672842051847458499.c:3:27: warning
               }
                 """)
    }
-   @Test def test_conf3_19() {
+
+
+   @Test def test_conf3_21() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf3_193621209749396149290.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf3_193621209749396149290.c:3:33: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
+C:\Users\ckaestne\AppData\Local\Temp\conf3_213549181937188929502.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf3_213549181937188929502.c:3:33: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
                  const int * a = (const int *) foo();
                                  ^
 
@@ -1089,10 +1341,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf3_193621209749396149290.c:3:33: warning
               }
                 """)
    }
-   @Test def test_conf3_20() {
+
+
+   @Test def test_conf3_22() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf3_202290562006335334313.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf3_202290562006335334313.c:3:36: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
+C:\Users\ckaestne\AppData\Local\Temp\conf3_223255329730086019632.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf3_223255329730086019632.c:3:36: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
                  volatile int * a = (volatile int *) foo();
                                     ^
 
@@ -1105,6 +1359,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf3_202290562006335334313.c:3:36: warning
               }
                 """)
    }
+
+
    @Test def test_conf4_0() {
         correct("""
               signed int foo();
@@ -1114,6 +1370,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf3_202290562006335334313.c:3:36: warning
               }
                 """)
    }
+
+
    @Test def test_conf4_1() {
         correct("""
               signed int foo();
@@ -1123,6 +1381,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf3_202290562006335334313.c:3:36: warning
               }
                 """)
    }
+
+
    @Test def test_conf4_2() {
         correct("""
               signed int foo();
@@ -1132,6 +1392,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf3_202290562006335334313.c:3:36: warning
               }
                 """)
    }
+
+
    @Test def test_conf4_3() {
         correct("""
               signed int foo();
@@ -1141,6 +1403,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf3_202290562006335334313.c:3:36: warning
               }
                 """)
    }
+
+
    @Test def test_conf4_4() {
         correct("""
               signed int foo();
@@ -1150,6 +1414,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf3_202290562006335334313.c:3:36: warning
               }
                 """)
    }
+
+
    @Test def test_conf4_5() {
         correct("""
               signed int foo();
@@ -1159,6 +1425,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf3_202290562006335334313.c:3:36: warning
               }
                 """)
    }
+
+
    @Test def test_conf4_6() {
         correct("""
               signed int foo();
@@ -1168,6 +1436,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf3_202290562006335334313.c:3:36: warning
               }
                 """)
    }
+
+
    @Test def test_conf4_7() {
         correct("""
               signed int foo();
@@ -1177,6 +1447,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf3_202290562006335334313.c:3:36: warning
               }
                 """)
    }
+
+
    @Test def test_conf4_8() {
         correct("""
               signed int foo();
@@ -1186,10 +1458,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf3_202290562006335334313.c:3:36: warning
               }
                 """)
    }
+
+
    @Test def test_conf4_9() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf4_92767975008551974694.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf4_92767975008551974694.c:3:27: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
+C:\Users\ckaestne\AppData\Local\Temp\conf4_91766657195988210925.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf4_91766657195988210925.c:3:27: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
                  int * a = (int *) foo();
                            ^
 
@@ -1202,10 +1476,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf4_92767975008551974694.c:3:27: warning:
               }
                 """)
    }
+
+
    @Test def test_conf4_10() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf4_105267961650781460376.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf4_105267961650781460376.c:3:28: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
+C:\Users\ckaestne\AppData\Local\Temp\conf4_101895969746776891131.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf4_101895969746776891131.c:3:28: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
                  long * a = (long *) foo();
                             ^
 
@@ -1218,10 +1494,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf4_105267961650781460376.c:3:28: warning
               }
                 """)
    }
+
+
    @Test def test_conf4_11() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf4_114925561170812410356.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf4_114925561170812410356.c:3:30: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
+C:\Users\ckaestne\AppData\Local\Temp\conf4_118512949911635354332.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf4_118512949911635354332.c:3:30: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
                  double * a = (double *) foo();
                               ^
 
@@ -1234,10 +1512,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf4_114925561170812410356.c:3:30: warning
               }
                 """)
    }
+
+
    @Test def test_conf4_12() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf4_121566212662085059765.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf4_121566212662085059765.c:5:38: error: conversion to non-scalar type requested
+C:\Users\ckaestne\AppData\Local\Temp\conf4_124703727607498442673.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf4_124703727607498442673.c:5:38: error: conversion to non-scalar type requested
                  struct S a = (struct S) foo();
                                       ^
 
@@ -1252,10 +1532,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf4_121566212662085059765.c:5:38: error: 
               }
                 """)
    }
+
+
    @Test def test_conf4_13() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf4_131391321267403336163.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf4_131391321267403336163.c:5:38: error: conversion to non-scalar type requested
+C:\Users\ckaestne\AppData\Local\Temp\conf4_135969584194927344495.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf4_135969584194927344495.c:5:38: error: conversion to non-scalar type requested
                  struct T a = (struct T) foo();
                                       ^
 
@@ -1270,16 +1552,18 @@ C:\Users\ckaestne\AppData\Local\Temp\conf4_131391321267403336163.c:5:38: error: 
               }
                 """)
    }
+
+
    @Test def test_conf4_14() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf4_144486342403622855925.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf4_144486342403622855925.c:3:47: error: conversion to non-scalar type requested
+C:\Users\ckaestne\AppData\Local\Temp\conf4_143385925513863226011.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf4_143385925513863226011.c:3:47: error: conversion to non-scalar type requested
                  struct { int a; } a = (struct { int a; }) foo();
                                                ^
-C:\Users\ckaestne\AppData\Local\Temp\conf4_144486342403622855925.c:4:17: error: incompatible types when returning type 'struct <anonymous>' but 'struct <anonymous>' was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf4_143385925513863226011.c:4:17: error: incompatible types when returning type 'struct <anonymous>' but 'struct <anonymous>' was expected
                  return a;
                  ^
-C:\Users\ckaestne\AppData\Local\Temp\conf4_144486342403622855925.c:5:15: warning: control reaches end of non-void function [-Wreturn-type]
+C:\Users\ckaestne\AppData\Local\Temp\conf4_143385925513863226011.c:5:15: warning: control reaches end of non-void function [-Wreturn-type]
                }
                ^
 
@@ -1292,16 +1576,18 @@ C:\Users\ckaestne\AppData\Local\Temp\conf4_144486342403622855925.c:5:15: warning
               }
                 """)
    }
+
+
    @Test def test_conf4_15() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf4_151203263258591880292.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf4_151203263258591880292.c:3:49: error: conversion to non-scalar type requested
+C:\Users\ckaestne\AppData\Local\Temp\conf4_151133584547326393338.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf4_151133584547326393338.c:3:49: error: conversion to non-scalar type requested
                  struct { float b; } a = (struct { float b; }) foo();
                                                  ^
-C:\Users\ckaestne\AppData\Local\Temp\conf4_151203263258591880292.c:4:17: error: incompatible types when returning type 'struct <anonymous>' but 'struct <anonymous>' was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf4_151133584547326393338.c:4:17: error: incompatible types when returning type 'struct <anonymous>' but 'struct <anonymous>' was expected
                  return a;
                  ^
-C:\Users\ckaestne\AppData\Local\Temp\conf4_151203263258591880292.c:5:15: warning: control reaches end of non-void function [-Wreturn-type]
+C:\Users\ckaestne\AppData\Local\Temp\conf4_151133584547326393338.c:5:15: warning: control reaches end of non-void function [-Wreturn-type]
                }
                ^
 
@@ -1314,6 +1600,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf4_151203263258591880292.c:5:15: warning
               }
                 """)
    }
+
+
    @Test def test_conf4_16() {
         correct("""
               signed int foo();
@@ -1323,6 +1611,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf4_151203263258591880292.c:5:15: warning
               }
                 """)
    }
+
+
    @Test def test_conf4_17() {
         correct("""
               signed int foo();
@@ -1332,10 +1622,34 @@ C:\Users\ckaestne\AppData\Local\Temp\conf4_151203263258591880292.c:5:15: warning
               }
                 """)
    }
+
+
    @Test def test_conf4_18() {
+        correct("""
+              signed int foo();
+              const double bar() {
+                const double a = (const double) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf4_19() {
+        correct("""
+              signed int foo();
+              volatile double bar() {
+                volatile double a = (volatile double) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf4_20() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf4_181789484913012808176.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf4_181789484913012808176.c:3:27: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
+C:\Users\ckaestne\AppData\Local\Temp\conf4_203713087576493853760.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf4_203713087576493853760.c:3:27: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
                  int * a = (int *) foo();
                            ^
 
@@ -1348,10 +1662,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf4_181789484913012808176.c:3:27: warning
               }
                 """)
    }
-   @Test def test_conf4_19() {
+
+
+   @Test def test_conf4_21() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf4_198072017841656734294.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf4_198072017841656734294.c:3:33: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
+C:\Users\ckaestne\AppData\Local\Temp\conf4_215902607069912362563.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf4_215902607069912362563.c:3:33: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
                  const int * a = (const int *) foo();
                                  ^
 
@@ -1364,10 +1680,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf4_198072017841656734294.c:3:33: warning
               }
                 """)
    }
-   @Test def test_conf4_20() {
+
+
+   @Test def test_conf4_22() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf4_201314520318174545609.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf4_201314520318174545609.c:3:36: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
+C:\Users\ckaestne\AppData\Local\Temp\conf4_222226768943129310.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf4_222226768943129310.c:3:36: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
                  volatile int * a = (volatile int *) foo();
                                     ^
 
@@ -1380,6 +1698,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf4_201314520318174545609.c:3:36: warning
               }
                 """)
    }
+
+
    @Test def test_conf5_0() {
         correct("""
               long foo();
@@ -1389,6 +1709,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf4_201314520318174545609.c:3:36: warning
               }
                 """)
    }
+
+
    @Test def test_conf5_1() {
         correct("""
               long foo();
@@ -1398,6 +1720,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf4_201314520318174545609.c:3:36: warning
               }
                 """)
    }
+
+
    @Test def test_conf5_2() {
         correct("""
               long foo();
@@ -1407,6 +1731,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf4_201314520318174545609.c:3:36: warning
               }
                 """)
    }
+
+
    @Test def test_conf5_3() {
         correct("""
               long foo();
@@ -1416,6 +1742,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf4_201314520318174545609.c:3:36: warning
               }
                 """)
    }
+
+
    @Test def test_conf5_4() {
         correct("""
               long foo();
@@ -1425,6 +1753,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf4_201314520318174545609.c:3:36: warning
               }
                 """)
    }
+
+
    @Test def test_conf5_5() {
         correct("""
               long foo();
@@ -1434,6 +1764,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf4_201314520318174545609.c:3:36: warning
               }
                 """)
    }
+
+
    @Test def test_conf5_6() {
         correct("""
               long foo();
@@ -1443,6 +1775,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf4_201314520318174545609.c:3:36: warning
               }
                 """)
    }
+
+
    @Test def test_conf5_7() {
         correct("""
               long foo();
@@ -1452,6 +1786,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf4_201314520318174545609.c:3:36: warning
               }
                 """)
    }
+
+
    @Test def test_conf5_8() {
         correct("""
               long foo();
@@ -1461,10 +1797,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf4_201314520318174545609.c:3:36: warning
               }
                 """)
    }
+
+
    @Test def test_conf5_9() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf5_91797191562693148186.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf5_91797191562693148186.c:3:27: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
+C:\Users\ckaestne\AppData\Local\Temp\conf5_98973506818828898438.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf5_98973506818828898438.c:3:27: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
                  int * a = (int *) foo();
                            ^
 
@@ -1477,10 +1815,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf5_91797191562693148186.c:3:27: warning:
               }
                 """)
    }
+
+
    @Test def test_conf5_10() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf5_104117476140279064149.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf5_104117476140279064149.c:3:28: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
+C:\Users\ckaestne\AppData\Local\Temp\conf5_104475086661508743544.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf5_104475086661508743544.c:3:28: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
                  long * a = (long *) foo();
                             ^
 
@@ -1493,10 +1833,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf5_104117476140279064149.c:3:28: warning
               }
                 """)
    }
+
+
    @Test def test_conf5_11() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf5_116133840405322207233.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf5_116133840405322207233.c:3:30: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
+C:\Users\ckaestne\AppData\Local\Temp\conf5_113684688079510984085.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf5_113684688079510984085.c:3:30: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
                  double * a = (double *) foo();
                               ^
 
@@ -1509,10 +1851,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf5_116133840405322207233.c:3:30: warning
               }
                 """)
    }
+
+
    @Test def test_conf5_12() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf5_122361506874396131513.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf5_122361506874396131513.c:5:38: error: conversion to non-scalar type requested
+C:\Users\ckaestne\AppData\Local\Temp\conf5_127131280170169223799.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf5_127131280170169223799.c:5:38: error: conversion to non-scalar type requested
                  struct S a = (struct S) foo();
                                       ^
 
@@ -1527,10 +1871,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf5_122361506874396131513.c:5:38: error: 
               }
                 """)
    }
+
+
    @Test def test_conf5_13() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf5_133071318758292032103.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf5_133071318758292032103.c:5:38: error: conversion to non-scalar type requested
+C:\Users\ckaestne\AppData\Local\Temp\conf5_131669915840286979702.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf5_131669915840286979702.c:5:38: error: conversion to non-scalar type requested
                  struct T a = (struct T) foo();
                                       ^
 
@@ -1545,16 +1891,18 @@ C:\Users\ckaestne\AppData\Local\Temp\conf5_133071318758292032103.c:5:38: error: 
               }
                 """)
    }
+
+
    @Test def test_conf5_14() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf5_143921853377500059364.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf5_143921853377500059364.c:3:47: error: conversion to non-scalar type requested
+C:\Users\ckaestne\AppData\Local\Temp\conf5_144703421189417854417.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf5_144703421189417854417.c:3:47: error: conversion to non-scalar type requested
                  struct { int a; } a = (struct { int a; }) foo();
                                                ^
-C:\Users\ckaestne\AppData\Local\Temp\conf5_143921853377500059364.c:4:17: error: incompatible types when returning type 'struct <anonymous>' but 'struct <anonymous>' was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf5_144703421189417854417.c:4:17: error: incompatible types when returning type 'struct <anonymous>' but 'struct <anonymous>' was expected
                  return a;
                  ^
-C:\Users\ckaestne\AppData\Local\Temp\conf5_143921853377500059364.c:5:15: warning: control reaches end of non-void function [-Wreturn-type]
+C:\Users\ckaestne\AppData\Local\Temp\conf5_144703421189417854417.c:5:15: warning: control reaches end of non-void function [-Wreturn-type]
                }
                ^
 
@@ -1567,16 +1915,18 @@ C:\Users\ckaestne\AppData\Local\Temp\conf5_143921853377500059364.c:5:15: warning
               }
                 """)
    }
+
+
    @Test def test_conf5_15() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf5_155428696224017926277.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf5_155428696224017926277.c:3:49: error: conversion to non-scalar type requested
+C:\Users\ckaestne\AppData\Local\Temp\conf5_152241818048194027425.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf5_152241818048194027425.c:3:49: error: conversion to non-scalar type requested
                  struct { float b; } a = (struct { float b; }) foo();
                                                  ^
-C:\Users\ckaestne\AppData\Local\Temp\conf5_155428696224017926277.c:4:17: error: incompatible types when returning type 'struct <anonymous>' but 'struct <anonymous>' was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf5_152241818048194027425.c:4:17: error: incompatible types when returning type 'struct <anonymous>' but 'struct <anonymous>' was expected
                  return a;
                  ^
-C:\Users\ckaestne\AppData\Local\Temp\conf5_155428696224017926277.c:5:15: warning: control reaches end of non-void function [-Wreturn-type]
+C:\Users\ckaestne\AppData\Local\Temp\conf5_152241818048194027425.c:5:15: warning: control reaches end of non-void function [-Wreturn-type]
                }
                ^
 
@@ -1589,6 +1939,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf5_155428696224017926277.c:5:15: warning
               }
                 """)
    }
+
+
    @Test def test_conf5_16() {
         correct("""
               long foo();
@@ -1598,6 +1950,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf5_155428696224017926277.c:5:15: warning
               }
                 """)
    }
+
+
    @Test def test_conf5_17() {
         correct("""
               long foo();
@@ -1607,10 +1961,34 @@ C:\Users\ckaestne\AppData\Local\Temp\conf5_155428696224017926277.c:5:15: warning
               }
                 """)
    }
+
+
    @Test def test_conf5_18() {
+        correct("""
+              long foo();
+              const double bar() {
+                const double a = (const double) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf5_19() {
+        correct("""
+              long foo();
+              volatile double bar() {
+                volatile double a = (volatile double) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf5_20() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf5_187345996100831527717.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf5_187345996100831527717.c:3:27: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
+C:\Users\ckaestne\AppData\Local\Temp\conf5_205095555559046683526.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf5_205095555559046683526.c:3:27: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
                  int * a = (int *) foo();
                            ^
 
@@ -1623,10 +2001,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf5_187345996100831527717.c:3:27: warning
               }
                 """)
    }
-   @Test def test_conf5_19() {
+
+
+   @Test def test_conf5_21() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf5_198014898517797887911.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf5_198014898517797887911.c:3:33: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
+C:\Users\ckaestne\AppData\Local\Temp\conf5_211316775503521150866.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf5_211316775503521150866.c:3:33: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
                  const int * a = (const int *) foo();
                                  ^
 
@@ -1639,10 +2019,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf5_198014898517797887911.c:3:33: warning
               }
                 """)
    }
-   @Test def test_conf5_20() {
+
+
+   @Test def test_conf5_22() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf5_20937518216816236223.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf5_20937518216816236223.c:3:36: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
+C:\Users\ckaestne\AppData\Local\Temp\conf5_225024534586900927309.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf5_225024534586900927309.c:3:36: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
                  volatile int * a = (volatile int *) foo();
                                     ^
 
@@ -1655,6 +2037,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf5_20937518216816236223.c:3:36: warning:
               }
                 """)
    }
+
+
    @Test def test_conf6_0() {
         correct("""
               float foo();
@@ -1664,6 +2048,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf5_20937518216816236223.c:3:36: warning:
               }
                 """)
    }
+
+
    @Test def test_conf6_1() {
         correct("""
               float foo();
@@ -1673,6 +2059,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf5_20937518216816236223.c:3:36: warning:
               }
                 """)
    }
+
+
    @Test def test_conf6_2() {
         correct("""
               float foo();
@@ -1682,6 +2070,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf5_20937518216816236223.c:3:36: warning:
               }
                 """)
    }
+
+
    @Test def test_conf6_3() {
         correct("""
               float foo();
@@ -1691,6 +2081,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf5_20937518216816236223.c:3:36: warning:
               }
                 """)
    }
+
+
    @Test def test_conf6_4() {
         correct("""
               float foo();
@@ -1700,6 +2092,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf5_20937518216816236223.c:3:36: warning:
               }
                 """)
    }
+
+
    @Test def test_conf6_5() {
         correct("""
               float foo();
@@ -1709,6 +2103,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf5_20937518216816236223.c:3:36: warning:
               }
                 """)
    }
+
+
    @Test def test_conf6_6() {
         correct("""
               float foo();
@@ -1718,6 +2114,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf5_20937518216816236223.c:3:36: warning:
               }
                 """)
    }
+
+
    @Test def test_conf6_7() {
         correct("""
               float foo();
@@ -1727,6 +2125,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf5_20937518216816236223.c:3:36: warning:
               }
                 """)
    }
+
+
    @Test def test_conf6_8() {
         correct("""
               float foo();
@@ -1736,10 +2136,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf5_20937518216816236223.c:3:36: warning:
               }
                 """)
    }
+
+
    @Test def test_conf6_9() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf6_97218347949394619014.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf6_97218347949394619014.c:3:17: error: cannot convert to a pointer type
+C:\Users\ckaestne\AppData\Local\Temp\conf6_97142623796900236139.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf6_97142623796900236139.c:3:17: error: cannot convert to a pointer type
                  int * a = (int *) foo();
                  ^
 
@@ -1752,10 +2154,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf6_97218347949394619014.c:3:17: error: c
               }
                 """)
    }
+
+
    @Test def test_conf6_10() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf6_108616117779783087990.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf6_108616117779783087990.c:3:17: error: cannot convert to a pointer type
+C:\Users\ckaestne\AppData\Local\Temp\conf6_107130194554076877803.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf6_107130194554076877803.c:3:17: error: cannot convert to a pointer type
                  long * a = (long *) foo();
                  ^
 
@@ -1768,10 +2172,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf6_108616117779783087990.c:3:17: error: 
               }
                 """)
    }
+
+
    @Test def test_conf6_11() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf6_117770129186292683544.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf6_117770129186292683544.c:3:17: error: cannot convert to a pointer type
+C:\Users\ckaestne\AppData\Local\Temp\conf6_114077235262067695046.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf6_114077235262067695046.c:3:17: error: cannot convert to a pointer type
                  double * a = (double *) foo();
                  ^
 
@@ -1784,10 +2190,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf6_117770129186292683544.c:3:17: error: 
               }
                 """)
    }
+
+
    @Test def test_conf6_12() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf6_12960495824964896361.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf6_12960495824964896361.c:5:38: error: conversion to non-scalar type requested
+C:\Users\ckaestne\AppData\Local\Temp\conf6_121885814111955920545.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf6_121885814111955920545.c:5:38: error: conversion to non-scalar type requested
                  struct S a = (struct S) foo();
                                       ^
 
@@ -1802,10 +2210,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf6_12960495824964896361.c:5:38: error: c
               }
                 """)
    }
+
+
    @Test def test_conf6_13() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf6_13214967938814295388.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf6_13214967938814295388.c:5:38: error: conversion to non-scalar type requested
+C:\Users\ckaestne\AppData\Local\Temp\conf6_134712948061319567068.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf6_134712948061319567068.c:5:38: error: conversion to non-scalar type requested
                  struct T a = (struct T) foo();
                                       ^
 
@@ -1820,16 +2230,18 @@ C:\Users\ckaestne\AppData\Local\Temp\conf6_13214967938814295388.c:5:38: error: c
               }
                 """)
    }
+
+
    @Test def test_conf6_14() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf6_141193787770189365584.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf6_141193787770189365584.c:3:47: error: conversion to non-scalar type requested
+C:\Users\ckaestne\AppData\Local\Temp\conf6_142615938530407156607.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf6_142615938530407156607.c:3:47: error: conversion to non-scalar type requested
                  struct { int a; } a = (struct { int a; }) foo();
                                                ^
-C:\Users\ckaestne\AppData\Local\Temp\conf6_141193787770189365584.c:4:17: error: incompatible types when returning type 'struct <anonymous>' but 'struct <anonymous>' was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf6_142615938530407156607.c:4:17: error: incompatible types when returning type 'struct <anonymous>' but 'struct <anonymous>' was expected
                  return a;
                  ^
-C:\Users\ckaestne\AppData\Local\Temp\conf6_141193787770189365584.c:5:15: warning: control reaches end of non-void function [-Wreturn-type]
+C:\Users\ckaestne\AppData\Local\Temp\conf6_142615938530407156607.c:5:15: warning: control reaches end of non-void function [-Wreturn-type]
                }
                ^
 
@@ -1842,16 +2254,18 @@ C:\Users\ckaestne\AppData\Local\Temp\conf6_141193787770189365584.c:5:15: warning
               }
                 """)
    }
+
+
    @Test def test_conf6_15() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf6_156736290617236140408.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf6_156736290617236140408.c:3:49: error: conversion to non-scalar type requested
+C:\Users\ckaestne\AppData\Local\Temp\conf6_158051799602762779602.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf6_158051799602762779602.c:3:49: error: conversion to non-scalar type requested
                  struct { float b; } a = (struct { float b; }) foo();
                                                  ^
-C:\Users\ckaestne\AppData\Local\Temp\conf6_156736290617236140408.c:4:17: error: incompatible types when returning type 'struct <anonymous>' but 'struct <anonymous>' was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf6_158051799602762779602.c:4:17: error: incompatible types when returning type 'struct <anonymous>' but 'struct <anonymous>' was expected
                  return a;
                  ^
-C:\Users\ckaestne\AppData\Local\Temp\conf6_156736290617236140408.c:5:15: warning: control reaches end of non-void function [-Wreturn-type]
+C:\Users\ckaestne\AppData\Local\Temp\conf6_158051799602762779602.c:5:15: warning: control reaches end of non-void function [-Wreturn-type]
                }
                ^
 
@@ -1864,6 +2278,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf6_156736290617236140408.c:5:15: warning
               }
                 """)
    }
+
+
    @Test def test_conf6_16() {
         correct("""
               float foo();
@@ -1873,6 +2289,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf6_156736290617236140408.c:5:15: warning
               }
                 """)
    }
+
+
    @Test def test_conf6_17() {
         correct("""
               float foo();
@@ -1882,10 +2300,34 @@ C:\Users\ckaestne\AppData\Local\Temp\conf6_156736290617236140408.c:5:15: warning
               }
                 """)
    }
+
+
    @Test def test_conf6_18() {
+        correct("""
+              float foo();
+              const double bar() {
+                const double a = (const double) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf6_19() {
+        correct("""
+              float foo();
+              volatile double bar() {
+                volatile double a = (volatile double) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf6_20() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf6_183049685017708012869.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf6_183049685017708012869.c:3:17: error: cannot convert to a pointer type
+C:\Users\ckaestne\AppData\Local\Temp\conf6_203254951004963965156.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf6_203254951004963965156.c:3:17: error: cannot convert to a pointer type
                  int * a = (int *) foo();
                  ^
 
@@ -1898,10 +2340,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf6_183049685017708012869.c:3:17: error: 
               }
                 """)
    }
-   @Test def test_conf6_19() {
+
+
+   @Test def test_conf6_21() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf6_197620111734117420839.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf6_197620111734117420839.c:3:17: error: cannot convert to a pointer type
+C:\Users\ckaestne\AppData\Local\Temp\conf6_21817316529972227850.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf6_21817316529972227850.c:3:17: error: cannot convert to a pointer type
                  const int * a = (const int *) foo();
                  ^
 
@@ -1914,10 +2358,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf6_197620111734117420839.c:3:17: error: 
               }
                 """)
    }
-   @Test def test_conf6_20() {
+
+
+   @Test def test_conf6_22() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf6_206320279537384783977.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf6_206320279537384783977.c:3:17: error: cannot convert to a pointer type
+C:\Users\ckaestne\AppData\Local\Temp\conf6_221493299295517274071.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf6_221493299295517274071.c:3:17: error: cannot convert to a pointer type
                  volatile int * a = (volatile int *) foo();
                  ^
 
@@ -1930,6 +2376,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf6_206320279537384783977.c:3:17: error: 
               }
                 """)
    }
+
+
    @Test def test_conf7_0() {
         correct("""
               double foo();
@@ -1939,6 +2387,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf6_206320279537384783977.c:3:17: error: 
               }
                 """)
    }
+
+
    @Test def test_conf7_1() {
         correct("""
               double foo();
@@ -1948,6 +2398,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf6_206320279537384783977.c:3:17: error: 
               }
                 """)
    }
+
+
    @Test def test_conf7_2() {
         correct("""
               double foo();
@@ -1957,6 +2409,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf6_206320279537384783977.c:3:17: error: 
               }
                 """)
    }
+
+
    @Test def test_conf7_3() {
         correct("""
               double foo();
@@ -1966,6 +2420,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf6_206320279537384783977.c:3:17: error: 
               }
                 """)
    }
+
+
    @Test def test_conf7_4() {
         correct("""
               double foo();
@@ -1975,6 +2431,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf6_206320279537384783977.c:3:17: error: 
               }
                 """)
    }
+
+
    @Test def test_conf7_5() {
         correct("""
               double foo();
@@ -1984,6 +2442,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf6_206320279537384783977.c:3:17: error: 
               }
                 """)
    }
+
+
    @Test def test_conf7_6() {
         correct("""
               double foo();
@@ -1993,6 +2453,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf6_206320279537384783977.c:3:17: error: 
               }
                 """)
    }
+
+
    @Test def test_conf7_7() {
         correct("""
               double foo();
@@ -2002,6 +2464,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf6_206320279537384783977.c:3:17: error: 
               }
                 """)
    }
+
+
    @Test def test_conf7_8() {
         correct("""
               double foo();
@@ -2011,10 +2475,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf6_206320279537384783977.c:3:17: error: 
               }
                 """)
    }
+
+
    @Test def test_conf7_9() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf7_92614408134246883822.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf7_92614408134246883822.c:3:17: error: cannot convert to a pointer type
+C:\Users\ckaestne\AppData\Local\Temp\conf7_94282276500831406471.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf7_94282276500831406471.c:3:17: error: cannot convert to a pointer type
                  int * a = (int *) foo();
                  ^
 
@@ -2027,10 +2493,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf7_92614408134246883822.c:3:17: error: c
               }
                 """)
    }
+
+
    @Test def test_conf7_10() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf7_107759228590848520253.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf7_107759228590848520253.c:3:17: error: cannot convert to a pointer type
+C:\Users\ckaestne\AppData\Local\Temp\conf7_104639865781580233930.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf7_104639865781580233930.c:3:17: error: cannot convert to a pointer type
                  long * a = (long *) foo();
                  ^
 
@@ -2043,10 +2511,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf7_107759228590848520253.c:3:17: error: 
               }
                 """)
    }
+
+
    @Test def test_conf7_11() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf7_11224644591649930450.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf7_11224644591649930450.c:3:17: error: cannot convert to a pointer type
+C:\Users\ckaestne\AppData\Local\Temp\conf7_117771201838214295320.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf7_117771201838214295320.c:3:17: error: cannot convert to a pointer type
                  double * a = (double *) foo();
                  ^
 
@@ -2059,10 +2529,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf7_11224644591649930450.c:3:17: error: c
               }
                 """)
    }
+
+
    @Test def test_conf7_12() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf7_124170763884065818746.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf7_124170763884065818746.c:5:38: error: conversion to non-scalar type requested
+C:\Users\ckaestne\AppData\Local\Temp\conf7_121831497836022983415.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf7_121831497836022983415.c:5:38: error: conversion to non-scalar type requested
                  struct S a = (struct S) foo();
                                       ^
 
@@ -2077,10 +2549,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf7_124170763884065818746.c:5:38: error: 
               }
                 """)
    }
+
+
    @Test def test_conf7_13() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf7_133710064899856634165.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf7_133710064899856634165.c:5:38: error: conversion to non-scalar type requested
+C:\Users\ckaestne\AppData\Local\Temp\conf7_139065912431621350501.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf7_139065912431621350501.c:5:38: error: conversion to non-scalar type requested
                  struct T a = (struct T) foo();
                                       ^
 
@@ -2095,16 +2569,18 @@ C:\Users\ckaestne\AppData\Local\Temp\conf7_133710064899856634165.c:5:38: error: 
               }
                 """)
    }
+
+
    @Test def test_conf7_14() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf7_146975171644350741302.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf7_146975171644350741302.c:3:47: error: conversion to non-scalar type requested
+C:\Users\ckaestne\AppData\Local\Temp\conf7_148651241093705324214.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf7_148651241093705324214.c:3:47: error: conversion to non-scalar type requested
                  struct { int a; } a = (struct { int a; }) foo();
                                                ^
-C:\Users\ckaestne\AppData\Local\Temp\conf7_146975171644350741302.c:4:17: error: incompatible types when returning type 'struct <anonymous>' but 'struct <anonymous>' was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf7_148651241093705324214.c:4:17: error: incompatible types when returning type 'struct <anonymous>' but 'struct <anonymous>' was expected
                  return a;
                  ^
-C:\Users\ckaestne\AppData\Local\Temp\conf7_146975171644350741302.c:5:15: warning: control reaches end of non-void function [-Wreturn-type]
+C:\Users\ckaestne\AppData\Local\Temp\conf7_148651241093705324214.c:5:15: warning: control reaches end of non-void function [-Wreturn-type]
                }
                ^
 
@@ -2117,16 +2593,18 @@ C:\Users\ckaestne\AppData\Local\Temp\conf7_146975171644350741302.c:5:15: warning
               }
                 """)
    }
+
+
    @Test def test_conf7_15() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf7_15155081527116217306.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf7_15155081527116217306.c:3:49: error: conversion to non-scalar type requested
+C:\Users\ckaestne\AppData\Local\Temp\conf7_154997668883122903038.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf7_154997668883122903038.c:3:49: error: conversion to non-scalar type requested
                  struct { float b; } a = (struct { float b; }) foo();
                                                  ^
-C:\Users\ckaestne\AppData\Local\Temp\conf7_15155081527116217306.c:4:17: error: incompatible types when returning type 'struct <anonymous>' but 'struct <anonymous>' was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf7_154997668883122903038.c:4:17: error: incompatible types when returning type 'struct <anonymous>' but 'struct <anonymous>' was expected
                  return a;
                  ^
-C:\Users\ckaestne\AppData\Local\Temp\conf7_15155081527116217306.c:5:15: warning: control reaches end of non-void function [-Wreturn-type]
+C:\Users\ckaestne\AppData\Local\Temp\conf7_154997668883122903038.c:5:15: warning: control reaches end of non-void function [-Wreturn-type]
                }
                ^
 
@@ -2139,6 +2617,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf7_15155081527116217306.c:5:15: warning:
               }
                 """)
    }
+
+
    @Test def test_conf7_16() {
         correct("""
               double foo();
@@ -2148,6 +2628,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf7_15155081527116217306.c:5:15: warning:
               }
                 """)
    }
+
+
    @Test def test_conf7_17() {
         correct("""
               double foo();
@@ -2157,10 +2639,34 @@ C:\Users\ckaestne\AppData\Local\Temp\conf7_15155081527116217306.c:5:15: warning:
               }
                 """)
    }
+
+
    @Test def test_conf7_18() {
+        correct("""
+              double foo();
+              const double bar() {
+                const double a = (const double) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf7_19() {
+        correct("""
+              double foo();
+              volatile double bar() {
+                volatile double a = (volatile double) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf7_20() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf7_186508023403824131037.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf7_186508023403824131037.c:3:17: error: cannot convert to a pointer type
+C:\Users\ckaestne\AppData\Local\Temp\conf7_204516534278302822259.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf7_204516534278302822259.c:3:17: error: cannot convert to a pointer type
                  int * a = (int *) foo();
                  ^
 
@@ -2173,10 +2679,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf7_186508023403824131037.c:3:17: error: 
               }
                 """)
    }
-   @Test def test_conf7_19() {
+
+
+   @Test def test_conf7_21() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf7_198154526281421216531.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf7_198154526281421216531.c:3:17: error: cannot convert to a pointer type
+C:\Users\ckaestne\AppData\Local\Temp\conf7_217613649339519378748.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf7_217613649339519378748.c:3:17: error: cannot convert to a pointer type
                  const int * a = (const int *) foo();
                  ^
 
@@ -2189,10 +2697,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf7_198154526281421216531.c:3:17: error: 
               }
                 """)
    }
-   @Test def test_conf7_20() {
+
+
+   @Test def test_conf7_22() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf7_203865807885599524159.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf7_203865807885599524159.c:3:17: error: cannot convert to a pointer type
+C:\Users\ckaestne\AppData\Local\Temp\conf7_226155357828233391049.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf7_226155357828233391049.c:3:17: error: cannot convert to a pointer type
                  volatile int * a = (volatile int *) foo();
                  ^
 
@@ -2205,6 +2715,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf7_203865807885599524159.c:3:17: error: 
               }
                 """)
    }
+
+
    @Test def test_conf8_0() {
         correct("""
               long double foo();
@@ -2214,6 +2726,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf7_203865807885599524159.c:3:17: error: 
               }
                 """)
    }
+
+
    @Test def test_conf8_1() {
         correct("""
               long double foo();
@@ -2223,6 +2737,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf7_203865807885599524159.c:3:17: error: 
               }
                 """)
    }
+
+
    @Test def test_conf8_2() {
         correct("""
               long double foo();
@@ -2232,6 +2748,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf7_203865807885599524159.c:3:17: error: 
               }
                 """)
    }
+
+
    @Test def test_conf8_3() {
         correct("""
               long double foo();
@@ -2241,6 +2759,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf7_203865807885599524159.c:3:17: error: 
               }
                 """)
    }
+
+
    @Test def test_conf8_4() {
         correct("""
               long double foo();
@@ -2250,6 +2770,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf7_203865807885599524159.c:3:17: error: 
               }
                 """)
    }
+
+
    @Test def test_conf8_5() {
         correct("""
               long double foo();
@@ -2259,6 +2781,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf7_203865807885599524159.c:3:17: error: 
               }
                 """)
    }
+
+
    @Test def test_conf8_6() {
         correct("""
               long double foo();
@@ -2268,6 +2792,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf7_203865807885599524159.c:3:17: error: 
               }
                 """)
    }
+
+
    @Test def test_conf8_7() {
         correct("""
               long double foo();
@@ -2277,6 +2803,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf7_203865807885599524159.c:3:17: error: 
               }
                 """)
    }
+
+
    @Test def test_conf8_8() {
         correct("""
               long double foo();
@@ -2286,10 +2814,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf7_203865807885599524159.c:3:17: error: 
               }
                 """)
    }
+
+
    @Test def test_conf8_9() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf8_9556929454884362419.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf8_9556929454884362419.c:3:17: error: cannot convert to a pointer type
+C:\Users\ckaestne\AppData\Local\Temp\conf8_93946045322206870921.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf8_93946045322206870921.c:3:17: error: cannot convert to a pointer type
                  int * a = (int *) foo();
                  ^
 
@@ -2302,10 +2832,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf8_9556929454884362419.c:3:17: error: ca
               }
                 """)
    }
+
+
    @Test def test_conf8_10() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf8_107352357556706362110.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf8_107352357556706362110.c:3:17: error: cannot convert to a pointer type
+C:\Users\ckaestne\AppData\Local\Temp\conf8_105073335391329809726.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf8_105073335391329809726.c:3:17: error: cannot convert to a pointer type
                  long * a = (long *) foo();
                  ^
 
@@ -2318,10 +2850,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf8_107352357556706362110.c:3:17: error: 
               }
                 """)
    }
+
+
    @Test def test_conf8_11() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf8_112890628310497101792.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf8_112890628310497101792.c:3:17: error: cannot convert to a pointer type
+C:\Users\ckaestne\AppData\Local\Temp\conf8_116853328252256941653.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf8_116853328252256941653.c:3:17: error: cannot convert to a pointer type
                  double * a = (double *) foo();
                  ^
 
@@ -2334,10 +2868,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf8_112890628310497101792.c:3:17: error: 
               }
                 """)
    }
+
+
    @Test def test_conf8_12() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf8_128914216285165492316.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf8_128914216285165492316.c:5:38: error: conversion to non-scalar type requested
+C:\Users\ckaestne\AppData\Local\Temp\conf8_124538733169941644964.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf8_124538733169941644964.c:5:38: error: conversion to non-scalar type requested
                  struct S a = (struct S) foo();
                                       ^
 
@@ -2352,10 +2888,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf8_128914216285165492316.c:5:38: error: 
               }
                 """)
    }
+
+
    @Test def test_conf8_13() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf8_138334126387575490267.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf8_138334126387575490267.c:5:38: error: conversion to non-scalar type requested
+C:\Users\ckaestne\AppData\Local\Temp\conf8_138273056437440789598.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf8_138273056437440789598.c:5:38: error: conversion to non-scalar type requested
                  struct T a = (struct T) foo();
                                       ^
 
@@ -2370,16 +2908,18 @@ C:\Users\ckaestne\AppData\Local\Temp\conf8_138334126387575490267.c:5:38: error: 
               }
                 """)
    }
+
+
    @Test def test_conf8_14() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf8_147835558387184972052.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf8_147835558387184972052.c:3:47: error: conversion to non-scalar type requested
+C:\Users\ckaestne\AppData\Local\Temp\conf8_147646634272388950445.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf8_147646634272388950445.c:3:47: error: conversion to non-scalar type requested
                  struct { int a; } a = (struct { int a; }) foo();
                                                ^
-C:\Users\ckaestne\AppData\Local\Temp\conf8_147835558387184972052.c:4:17: error: incompatible types when returning type 'struct <anonymous>' but 'struct <anonymous>' was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf8_147646634272388950445.c:4:17: error: incompatible types when returning type 'struct <anonymous>' but 'struct <anonymous>' was expected
                  return a;
                  ^
-C:\Users\ckaestne\AppData\Local\Temp\conf8_147835558387184972052.c:5:15: warning: control reaches end of non-void function [-Wreturn-type]
+C:\Users\ckaestne\AppData\Local\Temp\conf8_147646634272388950445.c:5:15: warning: control reaches end of non-void function [-Wreturn-type]
                }
                ^
 
@@ -2392,16 +2932,18 @@ C:\Users\ckaestne\AppData\Local\Temp\conf8_147835558387184972052.c:5:15: warning
               }
                 """)
    }
+
+
    @Test def test_conf8_15() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf8_157741786011442734549.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf8_157741786011442734549.c:3:49: error: conversion to non-scalar type requested
+C:\Users\ckaestne\AppData\Local\Temp\conf8_15489726402284420898.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf8_15489726402284420898.c:3:49: error: conversion to non-scalar type requested
                  struct { float b; } a = (struct { float b; }) foo();
                                                  ^
-C:\Users\ckaestne\AppData\Local\Temp\conf8_157741786011442734549.c:4:17: error: incompatible types when returning type 'struct <anonymous>' but 'struct <anonymous>' was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf8_15489726402284420898.c:4:17: error: incompatible types when returning type 'struct <anonymous>' but 'struct <anonymous>' was expected
                  return a;
                  ^
-C:\Users\ckaestne\AppData\Local\Temp\conf8_157741786011442734549.c:5:15: warning: control reaches end of non-void function [-Wreturn-type]
+C:\Users\ckaestne\AppData\Local\Temp\conf8_15489726402284420898.c:5:15: warning: control reaches end of non-void function [-Wreturn-type]
                }
                ^
 
@@ -2414,6 +2956,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf8_157741786011442734549.c:5:15: warning
               }
                 """)
    }
+
+
    @Test def test_conf8_16() {
         correct("""
               long double foo();
@@ -2423,6 +2967,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf8_157741786011442734549.c:5:15: warning
               }
                 """)
    }
+
+
    @Test def test_conf8_17() {
         correct("""
               long double foo();
@@ -2432,10 +2978,34 @@ C:\Users\ckaestne\AppData\Local\Temp\conf8_157741786011442734549.c:5:15: warning
               }
                 """)
    }
+
+
    @Test def test_conf8_18() {
+        correct("""
+              long double foo();
+              const double bar() {
+                const double a = (const double) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf8_19() {
+        correct("""
+              long double foo();
+              volatile double bar() {
+                volatile double a = (volatile double) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf8_20() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf8_183850990473797059294.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf8_183850990473797059294.c:3:17: error: cannot convert to a pointer type
+C:\Users\ckaestne\AppData\Local\Temp\conf8_206947173639480338013.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf8_206947173639480338013.c:3:17: error: cannot convert to a pointer type
                  int * a = (int *) foo();
                  ^
 
@@ -2448,10 +3018,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf8_183850990473797059294.c:3:17: error: 
               }
                 """)
    }
-   @Test def test_conf8_19() {
+
+
+   @Test def test_conf8_21() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf8_19323185918542982011.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf8_19323185918542982011.c:3:17: error: cannot convert to a pointer type
+C:\Users\ckaestne\AppData\Local\Temp\conf8_218774520021182433636.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf8_218774520021182433636.c:3:17: error: cannot convert to a pointer type
                  const int * a = (const int *) foo();
                  ^
 
@@ -2464,10 +3036,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf8_19323185918542982011.c:3:17: error: c
               }
                 """)
    }
-   @Test def test_conf8_20() {
+
+
+   @Test def test_conf8_22() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf8_20658381504597390648.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf8_20658381504597390648.c:3:17: error: cannot convert to a pointer type
+C:\Users\ckaestne\AppData\Local\Temp\conf8_228646852989128165908.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf8_228646852989128165908.c:3:17: error: cannot convert to a pointer type
                  volatile int * a = (volatile int *) foo();
                  ^
 
@@ -2480,10 +3054,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf8_20658381504597390648.c:3:17: error: c
               }
                 """)
    }
+
+
    @Test def test_conf9_0() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf9_08226840579207891042.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf9_08226840579207891042.c:3:26: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
+C:\Users\ckaestne\AppData\Local\Temp\conf9_0225771869668179889.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf9_0225771869668179889.c:3:26: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
                  char a = (char) foo();
                           ^
 
@@ -2496,10 +3072,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf9_08226840579207891042.c:3:26: warning:
               }
                 """)
    }
+
+
    @Test def test_conf9_1() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf9_15968775224454300638.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf9_15968775224454300638.c:3:33: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
+C:\Users\ckaestne\AppData\Local\Temp\conf9_14066703366251085878.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf9_14066703366251085878.c:3:33: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
                  signed char a = (signed char) foo();
                                  ^
 
@@ -2512,10 +3090,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf9_15968775224454300638.c:3:33: warning:
               }
                 """)
    }
+
+
    @Test def test_conf9_2() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf9_25743023479575965738.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf9_25743023479575965738.c:3:35: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
+C:\Users\ckaestne\AppData\Local\Temp\conf9_26017540179120616641.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf9_26017540179120616641.c:3:35: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
                  unsigned char a = (unsigned char) foo();
                                    ^
 
@@ -2528,10 +3108,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf9_25743023479575965738.c:3:35: warning:
               }
                 """)
    }
+
+
    @Test def test_conf9_3() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf9_32894181305604990534.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf9_32894181305604990534.c:3:34: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
+C:\Users\ckaestne\AppData\Local\Temp\conf9_35368684828958500429.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf9_35368684828958500429.c:3:34: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
                  unsigned int a = (unsigned int) foo();
                                   ^
 
@@ -2544,10 +3126,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf9_32894181305604990534.c:3:34: warning:
               }
                 """)
    }
+
+
    @Test def test_conf9_4() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf9_48633435510624816350.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf9_48633435510624816350.c:3:32: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
+C:\Users\ckaestne\AppData\Local\Temp\conf9_45040228134234168928.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf9_45040228134234168928.c:3:32: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
                  signed int a = (signed int) foo();
                                 ^
 
@@ -2560,10 +3144,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf9_48633435510624816350.c:3:32: warning:
               }
                 """)
    }
+
+
    @Test def test_conf9_5() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf9_51050489486645598329.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf9_51050489486645598329.c:3:26: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
+C:\Users\ckaestne\AppData\Local\Temp\conf9_57381832201740846853.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf9_57381832201740846853.c:3:26: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
                  long a = (long) foo();
                           ^
 
@@ -2576,10 +3162,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf9_51050489486645598329.c:3:26: warning:
               }
                 """)
    }
+
+
    @Test def test_conf9_6() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf9_65630164396017996561.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf9_65630164396017996561.c:3:17: error: pointer value used where a floating point value was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf9_68165344987858802663.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf9_68165344987858802663.c:3:17: error: pointer value used where a floating point value was expected
                  float a = (float) foo();
                  ^
 
@@ -2592,10 +3180,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf9_65630164396017996561.c:3:17: error: p
               }
                 """)
    }
+
+
    @Test def test_conf9_7() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf9_71046649065904306413.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf9_71046649065904306413.c:3:17: error: pointer value used where a floating point value was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf9_74380783177874134807.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf9_74380783177874134807.c:3:17: error: pointer value used where a floating point value was expected
                  double a = (double) foo();
                  ^
 
@@ -2608,10 +3198,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf9_71046649065904306413.c:3:17: error: p
               }
                 """)
    }
+
+
    @Test def test_conf9_8() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf9_82153814169414775723.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf9_82153814169414775723.c:3:17: error: pointer value used where a floating point value was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf9_88343775917319730571.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf9_88343775917319730571.c:3:17: error: pointer value used where a floating point value was expected
                  long double a = (long double) foo();
                  ^
 
@@ -2624,6 +3216,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf9_82153814169414775723.c:3:17: error: p
               }
                 """)
    }
+
+
    @Test def test_conf9_9() {
         correct("""
               int * foo();
@@ -2633,6 +3227,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf9_82153814169414775723.c:3:17: error: p
               }
                 """)
    }
+
+
    @Test def test_conf9_10() {
         correct("""
               int * foo();
@@ -2642,6 +3238,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf9_82153814169414775723.c:3:17: error: p
               }
                 """)
    }
+
+
    @Test def test_conf9_11() {
         correct("""
               int * foo();
@@ -2651,10 +3249,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf9_82153814169414775723.c:3:17: error: p
               }
                 """)
    }
+
+
    @Test def test_conf9_12() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf9_12384893119255255287.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf9_12384893119255255287.c:5:38: error: conversion to non-scalar type requested
+C:\Users\ckaestne\AppData\Local\Temp\conf9_126700014865971398611.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf9_126700014865971398611.c:5:38: error: conversion to non-scalar type requested
                  struct S a = (struct S) foo();
                                       ^
 
@@ -2669,10 +3269,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf9_12384893119255255287.c:5:38: error: c
               }
                 """)
    }
+
+
    @Test def test_conf9_13() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf9_137730080935228796322.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf9_137730080935228796322.c:5:38: error: conversion to non-scalar type requested
+C:\Users\ckaestne\AppData\Local\Temp\conf9_138822907291819443804.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf9_138822907291819443804.c:5:38: error: conversion to non-scalar type requested
                  struct T a = (struct T) foo();
                                       ^
 
@@ -2687,16 +3289,18 @@ C:\Users\ckaestne\AppData\Local\Temp\conf9_137730080935228796322.c:5:38: error: 
               }
                 """)
    }
+
+
    @Test def test_conf9_14() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf9_145420324900309809932.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf9_145420324900309809932.c:3:47: error: conversion to non-scalar type requested
+C:\Users\ckaestne\AppData\Local\Temp\conf9_147826188719281328912.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf9_147826188719281328912.c:3:47: error: conversion to non-scalar type requested
                  struct { int a; } a = (struct { int a; }) foo();
                                                ^
-C:\Users\ckaestne\AppData\Local\Temp\conf9_145420324900309809932.c:4:17: error: incompatible types when returning type 'struct <anonymous>' but 'struct <anonymous>' was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf9_147826188719281328912.c:4:17: error: incompatible types when returning type 'struct <anonymous>' but 'struct <anonymous>' was expected
                  return a;
                  ^
-C:\Users\ckaestne\AppData\Local\Temp\conf9_145420324900309809932.c:5:15: warning: control reaches end of non-void function [-Wreturn-type]
+C:\Users\ckaestne\AppData\Local\Temp\conf9_147826188719281328912.c:5:15: warning: control reaches end of non-void function [-Wreturn-type]
                }
                ^
 
@@ -2709,16 +3313,18 @@ C:\Users\ckaestne\AppData\Local\Temp\conf9_145420324900309809932.c:5:15: warning
               }
                 """)
    }
+
+
    @Test def test_conf9_15() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf9_157114420180548770059.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf9_157114420180548770059.c:3:49: error: conversion to non-scalar type requested
+C:\Users\ckaestne\AppData\Local\Temp\conf9_151994128415301597659.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf9_151994128415301597659.c:3:49: error: conversion to non-scalar type requested
                  struct { float b; } a = (struct { float b; }) foo();
                                                  ^
-C:\Users\ckaestne\AppData\Local\Temp\conf9_157114420180548770059.c:4:17: error: incompatible types when returning type 'struct <anonymous>' but 'struct <anonymous>' was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf9_151994128415301597659.c:4:17: error: incompatible types when returning type 'struct <anonymous>' but 'struct <anonymous>' was expected
                  return a;
                  ^
-C:\Users\ckaestne\AppData\Local\Temp\conf9_157114420180548770059.c:5:15: warning: control reaches end of non-void function [-Wreturn-type]
+C:\Users\ckaestne\AppData\Local\Temp\conf9_151994128415301597659.c:5:15: warning: control reaches end of non-void function [-Wreturn-type]
                }
                ^
 
@@ -2731,10 +3337,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf9_157114420180548770059.c:5:15: warning
               }
                 """)
    }
+
+
    @Test def test_conf9_16() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf9_164899913807729232721.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf9_164899913807729232721.c:3:34: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
+C:\Users\ckaestne\AppData\Local\Temp\conf9_166141913250890396109.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf9_166141913250890396109.c:3:34: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
                  volatile int a = (volatile int) foo();
                                   ^
 
@@ -2747,10 +3355,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf9_164899913807729232721.c:3:34: warning
               }
                 """)
    }
+
+
    @Test def test_conf9_17() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf9_174917782347998170383.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf9_174917782347998170383.c:3:31: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
+C:\Users\ckaestne\AppData\Local\Temp\conf9_174731060045599652862.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf9_174731060045599652862.c:3:31: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
                  const int a = (const int) foo();
                                ^
 
@@ -2763,7 +3373,45 @@ C:\Users\ckaestne\AppData\Local\Temp\conf9_174917782347998170383.c:3:31: warning
               }
                 """)
    }
+
+
    @Test def test_conf9_18() {
+        /* gcc reports:
+C:\Users\ckaestne\AppData\Local\Temp\conf9_18623732390677944480.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf9_18623732390677944480.c:3:17: error: pointer value used where a floating point value was expected
+                 const double a = (const double) foo();
+                 ^
+
+        */
+        error("""
+              int * foo();
+              const double bar() {
+                const double a = (const double) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf9_19() {
+        /* gcc reports:
+C:\Users\ckaestne\AppData\Local\Temp\conf9_192418447723176295448.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf9_192418447723176295448.c:3:17: error: pointer value used where a floating point value was expected
+                 volatile double a = (volatile double) foo();
+                 ^
+
+        */
+        error("""
+              int * foo();
+              volatile double bar() {
+                volatile double a = (volatile double) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf9_20() {
         correct("""
               int * foo();
               int * bar() {
@@ -2772,7 +3420,9 @@ C:\Users\ckaestne\AppData\Local\Temp\conf9_174917782347998170383.c:3:31: warning
               }
                 """)
    }
-   @Test def test_conf9_19() {
+
+
+   @Test def test_conf9_21() {
         correct("""
               int * foo();
               const int * bar() {
@@ -2781,7 +3431,9 @@ C:\Users\ckaestne\AppData\Local\Temp\conf9_174917782347998170383.c:3:31: warning
               }
                 """)
    }
-   @Test def test_conf9_20() {
+
+
+   @Test def test_conf9_22() {
         correct("""
               int * foo();
               volatile int * bar() {
@@ -2790,10 +3442,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf9_174917782347998170383.c:3:31: warning
               }
                 """)
    }
+
+
    @Test def test_conf10_0() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf10_0474024758541959643.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf10_0474024758541959643.c:3:26: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
+C:\Users\ckaestne\AppData\Local\Temp\conf10_02402703419769420708.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf10_02402703419769420708.c:3:26: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
                  char a = (char) foo();
                           ^
 
@@ -2806,10 +3460,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf10_0474024758541959643.c:3:26: warning:
               }
                 """)
    }
+
+
    @Test def test_conf10_1() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf10_11504504459059804088.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf10_11504504459059804088.c:3:33: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
+C:\Users\ckaestne\AppData\Local\Temp\conf10_1118688270888807074.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf10_1118688270888807074.c:3:33: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
                  signed char a = (signed char) foo();
                                  ^
 
@@ -2822,10 +3478,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf10_11504504459059804088.c:3:33: warning
               }
                 """)
    }
+
+
    @Test def test_conf10_2() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf10_28672416037692081737.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf10_28672416037692081737.c:3:35: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
+C:\Users\ckaestne\AppData\Local\Temp\conf10_25329738120123887829.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf10_25329738120123887829.c:3:35: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
                  unsigned char a = (unsigned char) foo();
                                    ^
 
@@ -2838,10 +3496,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf10_28672416037692081737.c:3:35: warning
               }
                 """)
    }
+
+
    @Test def test_conf10_3() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf10_3375508037879228749.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf10_3375508037879228749.c:3:34: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
+C:\Users\ckaestne\AppData\Local\Temp\conf10_3447253280879274321.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf10_3447253280879274321.c:3:34: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
                  unsigned int a = (unsigned int) foo();
                                   ^
 
@@ -2854,10 +3514,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf10_3375508037879228749.c:3:34: warning:
               }
                 """)
    }
+
+
    @Test def test_conf10_4() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf10_42356114306874390322.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf10_42356114306874390322.c:3:32: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
+C:\Users\ckaestne\AppData\Local\Temp\conf10_4688422840389867537.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf10_4688422840389867537.c:3:32: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
                  signed int a = (signed int) foo();
                                 ^
 
@@ -2870,10 +3532,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf10_42356114306874390322.c:3:32: warning
               }
                 """)
    }
+
+
    @Test def test_conf10_5() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf10_54610123767313699442.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf10_54610123767313699442.c:3:26: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
+C:\Users\ckaestne\AppData\Local\Temp\conf10_54389042662831253619.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf10_54389042662831253619.c:3:26: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
                  long a = (long) foo();
                           ^
 
@@ -2886,10 +3550,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf10_54610123767313699442.c:3:26: warning
               }
                 """)
    }
+
+
    @Test def test_conf10_6() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf10_63127327813404365669.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf10_63127327813404365669.c:3:17: error: pointer value used where a floating point value was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf10_61522194517381870356.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf10_61522194517381870356.c:3:17: error: pointer value used where a floating point value was expected
                  float a = (float) foo();
                  ^
 
@@ -2902,10 +3568,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf10_63127327813404365669.c:3:17: error: 
               }
                 """)
    }
+
+
    @Test def test_conf10_7() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf10_71309577823355847564.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf10_71309577823355847564.c:3:17: error: pointer value used where a floating point value was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf10_77639575528746164168.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf10_77639575528746164168.c:3:17: error: pointer value used where a floating point value was expected
                  double a = (double) foo();
                  ^
 
@@ -2918,10 +3586,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf10_71309577823355847564.c:3:17: error: 
               }
                 """)
    }
+
+
    @Test def test_conf10_8() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf10_8770532189096398697.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf10_8770532189096398697.c:3:17: error: pointer value used where a floating point value was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf10_8571779672780065477.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf10_8571779672780065477.c:3:17: error: pointer value used where a floating point value was expected
                  long double a = (long double) foo();
                  ^
 
@@ -2934,6 +3604,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf10_8770532189096398697.c:3:17: error: p
               }
                 """)
    }
+
+
    @Test def test_conf10_9() {
         correct("""
               long * foo();
@@ -2943,6 +3615,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf10_8770532189096398697.c:3:17: error: p
               }
                 """)
    }
+
+
    @Test def test_conf10_10() {
         correct("""
               long * foo();
@@ -2952,6 +3626,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf10_8770532189096398697.c:3:17: error: p
               }
                 """)
    }
+
+
    @Test def test_conf10_11() {
         correct("""
               long * foo();
@@ -2961,10 +3637,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf10_8770532189096398697.c:3:17: error: p
               }
                 """)
    }
+
+
    @Test def test_conf10_12() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf10_12829550101132593621.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf10_12829550101132593621.c:5:38: error: conversion to non-scalar type requested
+C:\Users\ckaestne\AppData\Local\Temp\conf10_124879050438972849971.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf10_124879050438972849971.c:5:38: error: conversion to non-scalar type requested
                  struct S a = (struct S) foo();
                                       ^
 
@@ -2979,10 +3657,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf10_12829550101132593621.c:5:38: error: 
               }
                 """)
    }
+
+
    @Test def test_conf10_13() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf10_133207557755792317802.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf10_133207557755792317802.c:5:38: error: conversion to non-scalar type requested
+C:\Users\ckaestne\AppData\Local\Temp\conf10_132202418959428534064.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf10_132202418959428534064.c:5:38: error: conversion to non-scalar type requested
                  struct T a = (struct T) foo();
                                       ^
 
@@ -2997,16 +3677,18 @@ C:\Users\ckaestne\AppData\Local\Temp\conf10_133207557755792317802.c:5:38: error:
               }
                 """)
    }
+
+
    @Test def test_conf10_14() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf10_146813076346720976415.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf10_146813076346720976415.c:3:47: error: conversion to non-scalar type requested
+C:\Users\ckaestne\AppData\Local\Temp\conf10_145519920007512326530.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf10_145519920007512326530.c:3:47: error: conversion to non-scalar type requested
                  struct { int a; } a = (struct { int a; }) foo();
                                                ^
-C:\Users\ckaestne\AppData\Local\Temp\conf10_146813076346720976415.c:4:17: error: incompatible types when returning type 'struct <anonymous>' but 'struct <anonymous>' was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf10_145519920007512326530.c:4:17: error: incompatible types when returning type 'struct <anonymous>' but 'struct <anonymous>' was expected
                  return a;
                  ^
-C:\Users\ckaestne\AppData\Local\Temp\conf10_146813076346720976415.c:5:15: warning: control reaches end of non-void function [-Wreturn-type]
+C:\Users\ckaestne\AppData\Local\Temp\conf10_145519920007512326530.c:5:15: warning: control reaches end of non-void function [-Wreturn-type]
                }
                ^
 
@@ -3019,16 +3701,18 @@ C:\Users\ckaestne\AppData\Local\Temp\conf10_146813076346720976415.c:5:15: warnin
               }
                 """)
    }
+
+
    @Test def test_conf10_15() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf10_154842160840222649270.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf10_154842160840222649270.c:3:49: error: conversion to non-scalar type requested
+C:\Users\ckaestne\AppData\Local\Temp\conf10_157042285677051361983.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf10_157042285677051361983.c:3:49: error: conversion to non-scalar type requested
                  struct { float b; } a = (struct { float b; }) foo();
                                                  ^
-C:\Users\ckaestne\AppData\Local\Temp\conf10_154842160840222649270.c:4:17: error: incompatible types when returning type 'struct <anonymous>' but 'struct <anonymous>' was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf10_157042285677051361983.c:4:17: error: incompatible types when returning type 'struct <anonymous>' but 'struct <anonymous>' was expected
                  return a;
                  ^
-C:\Users\ckaestne\AppData\Local\Temp\conf10_154842160840222649270.c:5:15: warning: control reaches end of non-void function [-Wreturn-type]
+C:\Users\ckaestne\AppData\Local\Temp\conf10_157042285677051361983.c:5:15: warning: control reaches end of non-void function [-Wreturn-type]
                }
                ^
 
@@ -3041,10 +3725,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf10_154842160840222649270.c:5:15: warnin
               }
                 """)
    }
+
+
    @Test def test_conf10_16() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf10_168702267316642940104.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf10_168702267316642940104.c:3:34: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
+C:\Users\ckaestne\AppData\Local\Temp\conf10_168506519152450586469.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf10_168506519152450586469.c:3:34: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
                  volatile int a = (volatile int) foo();
                                   ^
 
@@ -3057,10 +3743,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf10_168702267316642940104.c:3:34: warnin
               }
                 """)
    }
+
+
    @Test def test_conf10_17() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf10_17355135269527276478.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf10_17355135269527276478.c:3:31: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
+C:\Users\ckaestne\AppData\Local\Temp\conf10_174204993420723502768.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf10_174204993420723502768.c:3:31: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
                  const int a = (const int) foo();
                                ^
 
@@ -3073,7 +3761,45 @@ C:\Users\ckaestne\AppData\Local\Temp\conf10_17355135269527276478.c:3:31: warning
               }
                 """)
    }
+
+
    @Test def test_conf10_18() {
+        /* gcc reports:
+C:\Users\ckaestne\AppData\Local\Temp\conf10_186194140085066909423.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf10_186194140085066909423.c:3:17: error: pointer value used where a floating point value was expected
+                 const double a = (const double) foo();
+                 ^
+
+        */
+        error("""
+              long * foo();
+              const double bar() {
+                const double a = (const double) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf10_19() {
+        /* gcc reports:
+C:\Users\ckaestne\AppData\Local\Temp\conf10_196960902341372253887.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf10_196960902341372253887.c:3:17: error: pointer value used where a floating point value was expected
+                 volatile double a = (volatile double) foo();
+                 ^
+
+        */
+        error("""
+              long * foo();
+              volatile double bar() {
+                volatile double a = (volatile double) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf10_20() {
         correct("""
               long * foo();
               int * bar() {
@@ -3082,7 +3808,9 @@ C:\Users\ckaestne\AppData\Local\Temp\conf10_17355135269527276478.c:3:31: warning
               }
                 """)
    }
-   @Test def test_conf10_19() {
+
+
+   @Test def test_conf10_21() {
         correct("""
               long * foo();
               const int * bar() {
@@ -3091,7 +3819,9 @@ C:\Users\ckaestne\AppData\Local\Temp\conf10_17355135269527276478.c:3:31: warning
               }
                 """)
    }
-   @Test def test_conf10_20() {
+
+
+   @Test def test_conf10_22() {
         correct("""
               long * foo();
               volatile int * bar() {
@@ -3100,10 +3830,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf10_17355135269527276478.c:3:31: warning
               }
                 """)
    }
+
+
    @Test def test_conf11_0() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf11_0472569741274321839.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf11_0472569741274321839.c:3:26: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
+C:\Users\ckaestne\AppData\Local\Temp\conf11_02062270856602044439.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf11_02062270856602044439.c:3:26: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
                  char a = (char) foo();
                           ^
 
@@ -3116,10 +3848,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf11_0472569741274321839.c:3:26: warning:
               }
                 """)
    }
+
+
    @Test def test_conf11_1() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf11_1668160451960042608.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf11_1668160451960042608.c:3:33: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
+C:\Users\ckaestne\AppData\Local\Temp\conf11_1136848919074274435.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf11_1136848919074274435.c:3:33: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
                  signed char a = (signed char) foo();
                                  ^
 
@@ -3132,10 +3866,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf11_1668160451960042608.c:3:33: warning:
               }
                 """)
    }
+
+
    @Test def test_conf11_2() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf11_23210520950854802998.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf11_23210520950854802998.c:3:35: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
+C:\Users\ckaestne\AppData\Local\Temp\conf11_23953842003428910719.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf11_23953842003428910719.c:3:35: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
                  unsigned char a = (unsigned char) foo();
                                    ^
 
@@ -3148,10 +3884,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf11_23210520950854802998.c:3:35: warning
               }
                 """)
    }
+
+
    @Test def test_conf11_3() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf11_35036320277266069361.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf11_35036320277266069361.c:3:34: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
+C:\Users\ckaestne\AppData\Local\Temp\conf11_33117035071668498293.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf11_33117035071668498293.c:3:34: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
                  unsigned int a = (unsigned int) foo();
                                   ^
 
@@ -3164,10 +3902,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf11_35036320277266069361.c:3:34: warning
               }
                 """)
    }
+
+
    @Test def test_conf11_4() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf11_46386803809604967629.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf11_46386803809604967629.c:3:32: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
+C:\Users\ckaestne\AppData\Local\Temp\conf11_43946658140886407776.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf11_43946658140886407776.c:3:32: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
                  signed int a = (signed int) foo();
                                 ^
 
@@ -3180,10 +3920,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf11_46386803809604967629.c:3:32: warning
               }
                 """)
    }
+
+
    @Test def test_conf11_5() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf11_5238248343908921929.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf11_5238248343908921929.c:3:26: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
+C:\Users\ckaestne\AppData\Local\Temp\conf11_51528631141901893788.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf11_51528631141901893788.c:3:26: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
                  long a = (long) foo();
                           ^
 
@@ -3196,10 +3938,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf11_5238248343908921929.c:3:26: warning:
               }
                 """)
    }
+
+
    @Test def test_conf11_6() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf11_62482332665113444193.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf11_62482332665113444193.c:3:17: error: pointer value used where a floating point value was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf11_61488768313577092341.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf11_61488768313577092341.c:3:17: error: pointer value used where a floating point value was expected
                  float a = (float) foo();
                  ^
 
@@ -3212,10 +3956,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf11_62482332665113444193.c:3:17: error: 
               }
                 """)
    }
+
+
    @Test def test_conf11_7() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf11_72301962422695920795.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf11_72301962422695920795.c:3:17: error: pointer value used where a floating point value was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf11_71355439915516637309.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf11_71355439915516637309.c:3:17: error: pointer value used where a floating point value was expected
                  double a = (double) foo();
                  ^
 
@@ -3228,10 +3974,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf11_72301962422695920795.c:3:17: error: 
               }
                 """)
    }
+
+
    @Test def test_conf11_8() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf11_85113981364744089239.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf11_85113981364744089239.c:3:17: error: pointer value used where a floating point value was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf11_85849923043476084163.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf11_85849923043476084163.c:3:17: error: pointer value used where a floating point value was expected
                  long double a = (long double) foo();
                  ^
 
@@ -3244,6 +3992,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf11_85113981364744089239.c:3:17: error: 
               }
                 """)
    }
+
+
    @Test def test_conf11_9() {
         correct("""
               double * foo();
@@ -3253,6 +4003,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf11_85113981364744089239.c:3:17: error: 
               }
                 """)
    }
+
+
    @Test def test_conf11_10() {
         correct("""
               double * foo();
@@ -3262,6 +4014,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf11_85113981364744089239.c:3:17: error: 
               }
                 """)
    }
+
+
    @Test def test_conf11_11() {
         correct("""
               double * foo();
@@ -3271,10 +4025,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf11_85113981364744089239.c:3:17: error: 
               }
                 """)
    }
+
+
    @Test def test_conf11_12() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf11_127177795423934911508.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf11_127177795423934911508.c:5:38: error: conversion to non-scalar type requested
+C:\Users\ckaestne\AppData\Local\Temp\conf11_122324645026505862451.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf11_122324645026505862451.c:5:38: error: conversion to non-scalar type requested
                  struct S a = (struct S) foo();
                                       ^
 
@@ -3289,10 +4045,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf11_127177795423934911508.c:5:38: error:
               }
                 """)
    }
+
+
    @Test def test_conf11_13() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf11_137845515129716280307.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf11_137845515129716280307.c:5:38: error: conversion to non-scalar type requested
+C:\Users\ckaestne\AppData\Local\Temp\conf11_13240599373184526695.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf11_13240599373184526695.c:5:38: error: conversion to non-scalar type requested
                  struct T a = (struct T) foo();
                                       ^
 
@@ -3307,16 +4065,18 @@ C:\Users\ckaestne\AppData\Local\Temp\conf11_137845515129716280307.c:5:38: error:
               }
                 """)
    }
+
+
    @Test def test_conf11_14() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf11_144857706295354985319.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf11_144857706295354985319.c:3:47: error: conversion to non-scalar type requested
+C:\Users\ckaestne\AppData\Local\Temp\conf11_141321018511104156547.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf11_141321018511104156547.c:3:47: error: conversion to non-scalar type requested
                  struct { int a; } a = (struct { int a; }) foo();
                                                ^
-C:\Users\ckaestne\AppData\Local\Temp\conf11_144857706295354985319.c:4:17: error: incompatible types when returning type 'struct <anonymous>' but 'struct <anonymous>' was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf11_141321018511104156547.c:4:17: error: incompatible types when returning type 'struct <anonymous>' but 'struct <anonymous>' was expected
                  return a;
                  ^
-C:\Users\ckaestne\AppData\Local\Temp\conf11_144857706295354985319.c:5:15: warning: control reaches end of non-void function [-Wreturn-type]
+C:\Users\ckaestne\AppData\Local\Temp\conf11_141321018511104156547.c:5:15: warning: control reaches end of non-void function [-Wreturn-type]
                }
                ^
 
@@ -3329,16 +4089,18 @@ C:\Users\ckaestne\AppData\Local\Temp\conf11_144857706295354985319.c:5:15: warnin
               }
                 """)
    }
+
+
    @Test def test_conf11_15() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf11_158107298149634691378.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf11_158107298149634691378.c:3:49: error: conversion to non-scalar type requested
+C:\Users\ckaestne\AppData\Local\Temp\conf11_155516510872796857561.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf11_155516510872796857561.c:3:49: error: conversion to non-scalar type requested
                  struct { float b; } a = (struct { float b; }) foo();
                                                  ^
-C:\Users\ckaestne\AppData\Local\Temp\conf11_158107298149634691378.c:4:17: error: incompatible types when returning type 'struct <anonymous>' but 'struct <anonymous>' was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf11_155516510872796857561.c:4:17: error: incompatible types when returning type 'struct <anonymous>' but 'struct <anonymous>' was expected
                  return a;
                  ^
-C:\Users\ckaestne\AppData\Local\Temp\conf11_158107298149634691378.c:5:15: warning: control reaches end of non-void function [-Wreturn-type]
+C:\Users\ckaestne\AppData\Local\Temp\conf11_155516510872796857561.c:5:15: warning: control reaches end of non-void function [-Wreturn-type]
                }
                ^
 
@@ -3351,10 +4113,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf11_158107298149634691378.c:5:15: warnin
               }
                 """)
    }
+
+
    @Test def test_conf11_16() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf11_168280677523527562079.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf11_168280677523527562079.c:3:34: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
+C:\Users\ckaestne\AppData\Local\Temp\conf11_165843227445379563923.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf11_165843227445379563923.c:3:34: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
                  volatile int a = (volatile int) foo();
                                   ^
 
@@ -3367,10 +4131,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf11_168280677523527562079.c:3:34: warnin
               }
                 """)
    }
+
+
    @Test def test_conf11_17() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf11_175760997134159085147.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf11_175760997134159085147.c:3:31: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
+C:\Users\ckaestne\AppData\Local\Temp\conf11_178643693347517970934.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf11_178643693347517970934.c:3:31: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
                  const int a = (const int) foo();
                                ^
 
@@ -3383,7 +4149,45 @@ C:\Users\ckaestne\AppData\Local\Temp\conf11_175760997134159085147.c:3:31: warnin
               }
                 """)
    }
+
+
    @Test def test_conf11_18() {
+        /* gcc reports:
+C:\Users\ckaestne\AppData\Local\Temp\conf11_183634473193012449623.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf11_183634473193012449623.c:3:17: error: pointer value used where a floating point value was expected
+                 const double a = (const double) foo();
+                 ^
+
+        */
+        error("""
+              double * foo();
+              const double bar() {
+                const double a = (const double) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf11_19() {
+        /* gcc reports:
+C:\Users\ckaestne\AppData\Local\Temp\conf11_195183074296529649265.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf11_195183074296529649265.c:3:17: error: pointer value used where a floating point value was expected
+                 volatile double a = (volatile double) foo();
+                 ^
+
+        */
+        error("""
+              double * foo();
+              volatile double bar() {
+                volatile double a = (volatile double) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf11_20() {
         correct("""
               double * foo();
               int * bar() {
@@ -3392,7 +4196,9 @@ C:\Users\ckaestne\AppData\Local\Temp\conf11_175760997134159085147.c:3:31: warnin
               }
                 """)
    }
-   @Test def test_conf11_19() {
+
+
+   @Test def test_conf11_21() {
         correct("""
               double * foo();
               const int * bar() {
@@ -3401,7 +4207,9 @@ C:\Users\ckaestne\AppData\Local\Temp\conf11_175760997134159085147.c:3:31: warnin
               }
                 """)
    }
-   @Test def test_conf11_20() {
+
+
+   @Test def test_conf11_22() {
         correct("""
               double * foo();
               volatile int * bar() {
@@ -3410,10 +4218,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf11_175760997134159085147.c:3:31: warnin
               }
                 """)
    }
+
+
    @Test def test_conf12_0() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf12_06674944542495993965.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf12_06674944542495993965.c:5:17: error: aggregate value used where an integer was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf12_03113072830541254741.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf12_03113072830541254741.c:5:17: error: aggregate value used where an integer was expected
                  char a = (char) foo();
                  ^
 
@@ -3428,10 +4238,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf12_06674944542495993965.c:5:17: error: 
               }
                 """)
    }
+
+
    @Test def test_conf12_1() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf12_19083618235101038169.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf12_19083618235101038169.c:5:17: error: aggregate value used where an integer was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf12_13921190139169001843.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf12_13921190139169001843.c:5:17: error: aggregate value used where an integer was expected
                  signed char a = (signed char) foo();
                  ^
 
@@ -3446,10 +4258,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf12_19083618235101038169.c:5:17: error: 
               }
                 """)
    }
+
+
    @Test def test_conf12_2() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf12_22678402278106202997.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf12_22678402278106202997.c:5:17: error: aggregate value used where an integer was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf12_21167848043678809988.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf12_21167848043678809988.c:5:17: error: aggregate value used where an integer was expected
                  unsigned char a = (unsigned char) foo();
                  ^
 
@@ -3464,10 +4278,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf12_22678402278106202997.c:5:17: error: 
               }
                 """)
    }
+
+
    @Test def test_conf12_3() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf12_34672069221237504286.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf12_34672069221237504286.c:5:17: error: aggregate value used where an integer was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf12_35645807242923575413.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf12_35645807242923575413.c:5:17: error: aggregate value used where an integer was expected
                  unsigned int a = (unsigned int) foo();
                  ^
 
@@ -3482,10 +4298,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf12_34672069221237504286.c:5:17: error: 
               }
                 """)
    }
+
+
    @Test def test_conf12_4() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf12_42286566268535085702.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf12_42286566268535085702.c:5:17: error: aggregate value used where an integer was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf12_47669182902705895992.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf12_47669182902705895992.c:5:17: error: aggregate value used where an integer was expected
                  signed int a = (signed int) foo();
                  ^
 
@@ -3500,10 +4318,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf12_42286566268535085702.c:5:17: error: 
               }
                 """)
    }
+
+
    @Test def test_conf12_5() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf12_58373755432163320485.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf12_58373755432163320485.c:5:17: error: aggregate value used where an integer was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf12_52341832125412384853.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf12_52341832125412384853.c:5:17: error: aggregate value used where an integer was expected
                  long a = (long) foo();
                  ^
 
@@ -3518,10 +4338,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf12_58373755432163320485.c:5:17: error: 
               }
                 """)
    }
+
+
    @Test def test_conf12_6() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf12_62332271128984554935.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf12_62332271128984554935.c:5:17: error: aggregate value used where a float was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf12_6875118447423558306.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf12_6875118447423558306.c:5:17: error: aggregate value used where a float was expected
                  float a = (float) foo();
                  ^
 
@@ -3536,10 +4358,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf12_62332271128984554935.c:5:17: error: 
               }
                 """)
    }
+
+
    @Test def test_conf12_7() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf12_75966980197056481523.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf12_75966980197056481523.c:5:17: error: aggregate value used where a float was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf12_72730068098172023066.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf12_72730068098172023066.c:5:17: error: aggregate value used where a float was expected
                  double a = (double) foo();
                  ^
 
@@ -3554,10 +4378,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf12_75966980197056481523.c:5:17: error: 
               }
                 """)
    }
+
+
    @Test def test_conf12_8() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf12_88890377591965777931.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf12_88890377591965777931.c:5:17: error: aggregate value used where a float was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf12_85522310431996384228.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf12_85522310431996384228.c:5:17: error: aggregate value used where a float was expected
                  long double a = (long double) foo();
                  ^
 
@@ -3572,10 +4398,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf12_88890377591965777931.c:5:17: error: 
               }
                 """)
    }
+
+
    @Test def test_conf12_9() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf12_96842229324272352448.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf12_96842229324272352448.c:5:17: error: cannot convert to a pointer type
+C:\Users\ckaestne\AppData\Local\Temp\conf12_97691364926435239997.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf12_97691364926435239997.c:5:17: error: cannot convert to a pointer type
                  int * a = (int *) foo();
                  ^
 
@@ -3590,10 +4418,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf12_96842229324272352448.c:5:17: error: 
               }
                 """)
    }
+
+
    @Test def test_conf12_10() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf12_105425209475002263835.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf12_105425209475002263835.c:5:17: error: cannot convert to a pointer type
+C:\Users\ckaestne\AppData\Local\Temp\conf12_105319449024308615286.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf12_105319449024308615286.c:5:17: error: cannot convert to a pointer type
                  long * a = (long *) foo();
                  ^
 
@@ -3608,10 +4438,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf12_105425209475002263835.c:5:17: error:
               }
                 """)
    }
+
+
    @Test def test_conf12_11() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf12_116392216541516226476.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf12_116392216541516226476.c:5:17: error: cannot convert to a pointer type
+C:\Users\ckaestne\AppData\Local\Temp\conf12_117672028389718125334.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf12_117672028389718125334.c:5:17: error: cannot convert to a pointer type
                  double * a = (double *) foo();
                  ^
 
@@ -3626,6 +4458,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf12_116392216541516226476.c:5:17: error:
               }
                 """)
    }
+
+
    @Test def test_conf12_12() {
         correct("""
               struct S { int x; int y; };
@@ -3637,10 +4471,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf12_116392216541516226476.c:5:17: error:
               }
                 """)
    }
+
+
    @Test def test_conf12_13() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf12_131124595255120646570.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf12_131124595255120646570.c:7:38: error: conversion to non-scalar type requested
+C:\Users\ckaestne\AppData\Local\Temp\conf12_139118131481285487663.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf12_139118131481285487663.c:7:38: error: conversion to non-scalar type requested
                  struct T a = (struct T) foo();
                                       ^
 
@@ -3657,16 +4493,18 @@ C:\Users\ckaestne\AppData\Local\Temp\conf12_131124595255120646570.c:7:38: error:
               }
                 """)
    }
+
+
    @Test def test_conf12_14() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf12_148767873517731090748.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf12_148767873517731090748.c:5:47: error: conversion to non-scalar type requested
+C:\Users\ckaestne\AppData\Local\Temp\conf12_142390949246563761014.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf12_142390949246563761014.c:5:47: error: conversion to non-scalar type requested
                  struct { int a; } a = (struct { int a; }) foo();
                                                ^
-C:\Users\ckaestne\AppData\Local\Temp\conf12_148767873517731090748.c:6:17: error: incompatible types when returning type 'struct <anonymous>' but 'struct <anonymous>' was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf12_142390949246563761014.c:6:17: error: incompatible types when returning type 'struct <anonymous>' but 'struct <anonymous>' was expected
                  return a;
                  ^
-C:\Users\ckaestne\AppData\Local\Temp\conf12_148767873517731090748.c:7:15: warning: control reaches end of non-void function [-Wreturn-type]
+C:\Users\ckaestne\AppData\Local\Temp\conf12_142390949246563761014.c:7:15: warning: control reaches end of non-void function [-Wreturn-type]
                }
                ^
 
@@ -3681,16 +4519,18 @@ C:\Users\ckaestne\AppData\Local\Temp\conf12_148767873517731090748.c:7:15: warnin
               }
                 """)
    }
+
+
    @Test def test_conf12_15() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf12_155179286626416896865.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf12_155179286626416896865.c:5:49: error: conversion to non-scalar type requested
+C:\Users\ckaestne\AppData\Local\Temp\conf12_15452155362338216146.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf12_15452155362338216146.c:5:49: error: conversion to non-scalar type requested
                  struct { float b; } a = (struct { float b; }) foo();
                                                  ^
-C:\Users\ckaestne\AppData\Local\Temp\conf12_155179286626416896865.c:6:17: error: incompatible types when returning type 'struct <anonymous>' but 'struct <anonymous>' was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf12_15452155362338216146.c:6:17: error: incompatible types when returning type 'struct <anonymous>' but 'struct <anonymous>' was expected
                  return a;
                  ^
-C:\Users\ckaestne\AppData\Local\Temp\conf12_155179286626416896865.c:7:15: warning: control reaches end of non-void function [-Wreturn-type]
+C:\Users\ckaestne\AppData\Local\Temp\conf12_15452155362338216146.c:7:15: warning: control reaches end of non-void function [-Wreturn-type]
                }
                ^
 
@@ -3705,10 +4545,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf12_155179286626416896865.c:7:15: warnin
               }
                 """)
    }
+
+
    @Test def test_conf12_16() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf12_161426128138396996897.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf12_161426128138396996897.c:5:17: error: aggregate value used where an integer was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf12_163941948370848497867.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf12_163941948370848497867.c:5:17: error: aggregate value used where an integer was expected
                  volatile int a = (volatile int) foo();
                  ^
 
@@ -3723,10 +4565,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf12_161426128138396996897.c:5:17: error:
               }
                 """)
    }
+
+
    @Test def test_conf12_17() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf12_174360201750154104056.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf12_174360201750154104056.c:5:17: error: aggregate value used where an integer was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf12_176217347798193008081.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf12_176217347798193008081.c:5:17: error: aggregate value used where an integer was expected
                  const int a = (const int) foo();
                  ^
 
@@ -3741,10 +4585,52 @@ C:\Users\ckaestne\AppData\Local\Temp\conf12_174360201750154104056.c:5:17: error:
               }
                 """)
    }
+
+
    @Test def test_conf12_18() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf12_187889515970389833307.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf12_187889515970389833307.c:5:17: error: cannot convert to a pointer type
+C:\Users\ckaestne\AppData\Local\Temp\conf12_188254532213658026073.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf12_188254532213658026073.c:5:17: error: aggregate value used where a float was expected
+                 const double a = (const double) foo();
+                 ^
+
+        */
+        error("""
+              struct S { int x; int y; };
+
+              struct S foo();
+              const double bar() {
+                const double a = (const double) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf12_19() {
+        /* gcc reports:
+C:\Users\ckaestne\AppData\Local\Temp\conf12_192960231938790821502.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf12_192960231938790821502.c:5:17: error: aggregate value used where a float was expected
+                 volatile double a = (volatile double) foo();
+                 ^
+
+        */
+        error("""
+              struct S { int x; int y; };
+
+              struct S foo();
+              volatile double bar() {
+                volatile double a = (volatile double) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf12_20() {
+        /* gcc reports:
+C:\Users\ckaestne\AppData\Local\Temp\conf12_201854019691472242200.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf12_201854019691472242200.c:5:17: error: cannot convert to a pointer type
                  int * a = (int *) foo();
                  ^
 
@@ -3759,10 +4645,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf12_187889515970389833307.c:5:17: error:
               }
                 """)
    }
-   @Test def test_conf12_19() {
+
+
+   @Test def test_conf12_21() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf12_191320732020878252867.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf12_191320732020878252867.c:5:17: error: cannot convert to a pointer type
+C:\Users\ckaestne\AppData\Local\Temp\conf12_211076149639502008155.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf12_211076149639502008155.c:5:17: error: cannot convert to a pointer type
                  const int * a = (const int *) foo();
                  ^
 
@@ -3777,10 +4665,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf12_191320732020878252867.c:5:17: error:
               }
                 """)
    }
-   @Test def test_conf12_20() {
+
+
+   @Test def test_conf12_22() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf12_208783928725077989148.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf12_208783928725077989148.c:5:17: error: cannot convert to a pointer type
+C:\Users\ckaestne\AppData\Local\Temp\conf12_228206640114067506016.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf12_228206640114067506016.c:5:17: error: cannot convert to a pointer type
                  volatile int * a = (volatile int *) foo();
                  ^
 
@@ -3795,10 +4685,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf12_208783928725077989148.c:5:17: error:
               }
                 """)
    }
+
+
    @Test def test_conf13_0() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf13_05651034571960305197.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf13_05651034571960305197.c:5:17: error: aggregate value used where an integer was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf13_03884302241758579839.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf13_03884302241758579839.c:5:17: error: aggregate value used where an integer was expected
                  char a = (char) foo();
                  ^
 
@@ -3813,10 +4705,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf13_05651034571960305197.c:5:17: error: 
               }
                 """)
    }
+
+
    @Test def test_conf13_1() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf13_15836794143558525855.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf13_15836794143558525855.c:5:17: error: aggregate value used where an integer was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf13_1343706106304304180.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf13_1343706106304304180.c:5:17: error: aggregate value used where an integer was expected
                  signed char a = (signed char) foo();
                  ^
 
@@ -3831,10 +4725,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf13_15836794143558525855.c:5:17: error: 
               }
                 """)
    }
+
+
    @Test def test_conf13_2() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf13_27567379652588004427.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf13_27567379652588004427.c:5:17: error: aggregate value used where an integer was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf13_26027877573054728033.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf13_26027877573054728033.c:5:17: error: aggregate value used where an integer was expected
                  unsigned char a = (unsigned char) foo();
                  ^
 
@@ -3849,10 +4745,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf13_27567379652588004427.c:5:17: error: 
               }
                 """)
    }
+
+
    @Test def test_conf13_3() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf13_37846684051606557838.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf13_37846684051606557838.c:5:17: error: aggregate value used where an integer was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf13_37532940029548317113.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf13_37532940029548317113.c:5:17: error: aggregate value used where an integer was expected
                  unsigned int a = (unsigned int) foo();
                  ^
 
@@ -3867,10 +4765,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf13_37846684051606557838.c:5:17: error: 
               }
                 """)
    }
+
+
    @Test def test_conf13_4() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf13_41805569730457513638.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf13_41805569730457513638.c:5:17: error: aggregate value used where an integer was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf13_44147788431497178709.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf13_44147788431497178709.c:5:17: error: aggregate value used where an integer was expected
                  signed int a = (signed int) foo();
                  ^
 
@@ -3885,10 +4785,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf13_41805569730457513638.c:5:17: error: 
               }
                 """)
    }
+
+
    @Test def test_conf13_5() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf13_53734546236015584063.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf13_53734546236015584063.c:5:17: error: aggregate value used where an integer was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf13_51597467777720049899.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf13_51597467777720049899.c:5:17: error: aggregate value used where an integer was expected
                  long a = (long) foo();
                  ^
 
@@ -3903,10 +4805,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf13_53734546236015584063.c:5:17: error: 
               }
                 """)
    }
+
+
    @Test def test_conf13_6() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf13_67526356848809677269.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf13_67526356848809677269.c:5:17: error: aggregate value used where a float was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf13_62488427173115678985.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf13_62488427173115678985.c:5:17: error: aggregate value used where a float was expected
                  float a = (float) foo();
                  ^
 
@@ -3921,10 +4825,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf13_67526356848809677269.c:5:17: error: 
               }
                 """)
    }
+
+
    @Test def test_conf13_7() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf13_78714199929062920191.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf13_78714199929062920191.c:5:17: error: aggregate value used where a float was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf13_7692787881041014916.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf13_7692787881041014916.c:5:17: error: aggregate value used where a float was expected
                  double a = (double) foo();
                  ^
 
@@ -3939,10 +4845,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf13_78714199929062920191.c:5:17: error: 
               }
                 """)
    }
+
+
    @Test def test_conf13_8() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf13_81939231187481057420.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf13_81939231187481057420.c:5:17: error: aggregate value used where a float was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf13_88131382307807934455.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf13_88131382307807934455.c:5:17: error: aggregate value used where a float was expected
                  long double a = (long double) foo();
                  ^
 
@@ -3957,10 +4865,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf13_81939231187481057420.c:5:17: error: 
               }
                 """)
    }
+
+
    @Test def test_conf13_9() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf13_95591692702710079958.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf13_95591692702710079958.c:5:17: error: cannot convert to a pointer type
+C:\Users\ckaestne\AppData\Local\Temp\conf13_91561649474635202985.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf13_91561649474635202985.c:5:17: error: cannot convert to a pointer type
                  int * a = (int *) foo();
                  ^
 
@@ -3975,10 +4885,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf13_95591692702710079958.c:5:17: error: 
               }
                 """)
    }
+
+
    @Test def test_conf13_10() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf13_10492140147174781365.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf13_10492140147174781365.c:5:17: error: cannot convert to a pointer type
+C:\Users\ckaestne\AppData\Local\Temp\conf13_101073268639202970190.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf13_101073268639202970190.c:5:17: error: cannot convert to a pointer type
                  long * a = (long *) foo();
                  ^
 
@@ -3993,10 +4905,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf13_10492140147174781365.c:5:17: error: 
               }
                 """)
    }
+
+
    @Test def test_conf13_11() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf13_116699733013891848489.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf13_116699733013891848489.c:5:17: error: cannot convert to a pointer type
+C:\Users\ckaestne\AppData\Local\Temp\conf13_116375445853405987988.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf13_116375445853405987988.c:5:17: error: cannot convert to a pointer type
                  double * a = (double *) foo();
                  ^
 
@@ -4011,10 +4925,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf13_116699733013891848489.c:5:17: error:
               }
                 """)
    }
+
+
    @Test def test_conf13_12() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf13_12467646443044140902.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf13_12467646443044140902.c:7:38: error: conversion to non-scalar type requested
+C:\Users\ckaestne\AppData\Local\Temp\conf13_124407640608421177969.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf13_124407640608421177969.c:7:38: error: conversion to non-scalar type requested
                  struct S a = (struct S) foo();
                                       ^
 
@@ -4031,6 +4947,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf13_12467646443044140902.c:7:38: error: 
               }
                 """)
    }
+
+
    @Test def test_conf13_13() {
         correct("""
               struct T { int x; int y; int z; };
@@ -4042,16 +4960,18 @@ C:\Users\ckaestne\AppData\Local\Temp\conf13_12467646443044140902.c:7:38: error: 
               }
                 """)
    }
+
+
    @Test def test_conf13_14() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf13_147241102847741927750.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf13_147241102847741927750.c:5:47: error: conversion to non-scalar type requested
+C:\Users\ckaestne\AppData\Local\Temp\conf13_141844483096162181849.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf13_141844483096162181849.c:5:47: error: conversion to non-scalar type requested
                  struct { int a; } a = (struct { int a; }) foo();
                                                ^
-C:\Users\ckaestne\AppData\Local\Temp\conf13_147241102847741927750.c:6:17: error: incompatible types when returning type 'struct <anonymous>' but 'struct <anonymous>' was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf13_141844483096162181849.c:6:17: error: incompatible types when returning type 'struct <anonymous>' but 'struct <anonymous>' was expected
                  return a;
                  ^
-C:\Users\ckaestne\AppData\Local\Temp\conf13_147241102847741927750.c:7:15: warning: control reaches end of non-void function [-Wreturn-type]
+C:\Users\ckaestne\AppData\Local\Temp\conf13_141844483096162181849.c:7:15: warning: control reaches end of non-void function [-Wreturn-type]
                }
                ^
 
@@ -4066,16 +4986,18 @@ C:\Users\ckaestne\AppData\Local\Temp\conf13_147241102847741927750.c:7:15: warnin
               }
                 """)
    }
+
+
    @Test def test_conf13_15() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf13_15843296488348198957.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf13_15843296488348198957.c:5:49: error: conversion to non-scalar type requested
+C:\Users\ckaestne\AppData\Local\Temp\conf13_157780704792799996167.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf13_157780704792799996167.c:5:49: error: conversion to non-scalar type requested
                  struct { float b; } a = (struct { float b; }) foo();
                                                  ^
-C:\Users\ckaestne\AppData\Local\Temp\conf13_15843296488348198957.c:6:17: error: incompatible types when returning type 'struct <anonymous>' but 'struct <anonymous>' was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf13_157780704792799996167.c:6:17: error: incompatible types when returning type 'struct <anonymous>' but 'struct <anonymous>' was expected
                  return a;
                  ^
-C:\Users\ckaestne\AppData\Local\Temp\conf13_15843296488348198957.c:7:15: warning: control reaches end of non-void function [-Wreturn-type]
+C:\Users\ckaestne\AppData\Local\Temp\conf13_157780704792799996167.c:7:15: warning: control reaches end of non-void function [-Wreturn-type]
                }
                ^
 
@@ -4090,10 +5012,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf13_15843296488348198957.c:7:15: warning
               }
                 """)
    }
+
+
    @Test def test_conf13_16() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf13_165026390878074544874.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf13_165026390878074544874.c:5:17: error: aggregate value used where an integer was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf13_167501374331548761535.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf13_167501374331548761535.c:5:17: error: aggregate value used where an integer was expected
                  volatile int a = (volatile int) foo();
                  ^
 
@@ -4108,10 +5032,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf13_165026390878074544874.c:5:17: error:
               }
                 """)
    }
+
+
    @Test def test_conf13_17() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf13_174316379208618657242.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf13_174316379208618657242.c:5:17: error: aggregate value used where an integer was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf13_179138174221174652882.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf13_179138174221174652882.c:5:17: error: aggregate value used where an integer was expected
                  const int a = (const int) foo();
                  ^
 
@@ -4126,11 +5052,13 @@ C:\Users\ckaestne\AppData\Local\Temp\conf13_174316379208618657242.c:5:17: error:
               }
                 """)
    }
+
+
    @Test def test_conf13_18() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf13_186550215619672306261.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf13_186550215619672306261.c:5:17: error: cannot convert to a pointer type
-                 int * a = (int *) foo();
+C:\Users\ckaestne\AppData\Local\Temp\conf13_183160914161049747244.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf13_183160914161049747244.c:5:17: error: aggregate value used where a float was expected
+                 const double a = (const double) foo();
                  ^
 
         */
@@ -4138,17 +5066,19 @@ C:\Users\ckaestne\AppData\Local\Temp\conf13_186550215619672306261.c:5:17: error:
               struct T { int x; int y; int z; };
 
               struct T foo();
-              int * bar() {
-                int * a = (int *) foo();
+              const double bar() {
+                const double a = (const double) foo();
                 return a;
               }
                 """)
    }
+
+
    @Test def test_conf13_19() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf13_196376216552544771122.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf13_196376216552544771122.c:5:17: error: cannot convert to a pointer type
-                 const int * a = (const int *) foo();
+C:\Users\ckaestne\AppData\Local\Temp\conf13_199170295516949752028.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf13_199170295516949752028.c:5:17: error: aggregate value used where a float was expected
+                 volatile double a = (volatile double) foo();
                  ^
 
         */
@@ -4156,16 +5086,58 @@ C:\Users\ckaestne\AppData\Local\Temp\conf13_196376216552544771122.c:5:17: error:
               struct T { int x; int y; int z; };
 
               struct T foo();
-              const int * bar() {
-                const int * a = (const int *) foo();
+              volatile double bar() {
+                volatile double a = (volatile double) foo();
                 return a;
               }
                 """)
    }
+
+
    @Test def test_conf13_20() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf13_203921742473773437153.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf13_203921742473773437153.c:5:17: error: cannot convert to a pointer type
+C:\Users\ckaestne\AppData\Local\Temp\conf13_201104136300197303179.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf13_201104136300197303179.c:5:17: error: cannot convert to a pointer type
+                 int * a = (int *) foo();
+                 ^
+
+        */
+        error("""
+              struct T { int x; int y; int z; };
+
+              struct T foo();
+              int * bar() {
+                int * a = (int *) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf13_21() {
+        /* gcc reports:
+C:\Users\ckaestne\AppData\Local\Temp\conf13_212786796828427330167.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf13_212786796828427330167.c:5:17: error: cannot convert to a pointer type
+                 const int * a = (const int *) foo();
+                 ^
+
+        */
+        error("""
+              struct T { int x; int y; int z; };
+
+              struct T foo();
+              const int * bar() {
+                const int * a = (const int *) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf13_22() {
+        /* gcc reports:
+C:\Users\ckaestne\AppData\Local\Temp\conf13_227302676041659518618.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf13_227302676041659518618.c:5:17: error: cannot convert to a pointer type
                  volatile int * a = (volatile int *) foo();
                  ^
 
@@ -4180,10 +5152,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf13_203921742473773437153.c:5:17: error:
               }
                 """)
    }
+
+
    @Test def test_conf14_0() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf14_01903241099264128053.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf14_01903241099264128053.c:3:17: error: aggregate value used where an integer was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf14_02050932855395287443.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf14_02050932855395287443.c:3:17: error: aggregate value used where an integer was expected
                  char a = (char) foo();
                  ^
 
@@ -4196,10 +5170,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf14_01903241099264128053.c:3:17: error: 
               }
                 """)
    }
+
+
    @Test def test_conf14_1() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf14_13832985637505983531.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf14_13832985637505983531.c:3:17: error: aggregate value used where an integer was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf14_15342343873530087977.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf14_15342343873530087977.c:3:17: error: aggregate value used where an integer was expected
                  signed char a = (signed char) foo();
                  ^
 
@@ -4212,10 +5188,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf14_13832985637505983531.c:3:17: error: 
               }
                 """)
    }
+
+
    @Test def test_conf14_2() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf14_21838705255544552215.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf14_21838705255544552215.c:3:17: error: aggregate value used where an integer was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf14_26163816621026551382.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf14_26163816621026551382.c:3:17: error: aggregate value used where an integer was expected
                  unsigned char a = (unsigned char) foo();
                  ^
 
@@ -4228,10 +5206,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf14_21838705255544552215.c:3:17: error: 
               }
                 """)
    }
+
+
    @Test def test_conf14_3() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf14_38966231869300095155.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf14_38966231869300095155.c:3:17: error: aggregate value used where an integer was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf14_32055196555904479379.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf14_32055196555904479379.c:3:17: error: aggregate value used where an integer was expected
                  unsigned int a = (unsigned int) foo();
                  ^
 
@@ -4244,10 +5224,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf14_38966231869300095155.c:3:17: error: 
               }
                 """)
    }
+
+
    @Test def test_conf14_4() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf14_45976121444355748253.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf14_45976121444355748253.c:3:17: error: aggregate value used where an integer was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf14_45958923639282096461.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf14_45958923639282096461.c:3:17: error: aggregate value used where an integer was expected
                  signed int a = (signed int) foo();
                  ^
 
@@ -4260,10 +5242,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf14_45976121444355748253.c:3:17: error: 
               }
                 """)
    }
+
+
    @Test def test_conf14_5() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf14_53119470931109876275.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf14_53119470931109876275.c:3:17: error: aggregate value used where an integer was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf14_51171032687044994463.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf14_51171032687044994463.c:3:17: error: aggregate value used where an integer was expected
                  long a = (long) foo();
                  ^
 
@@ -4276,10 +5260,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf14_53119470931109876275.c:3:17: error: 
               }
                 """)
    }
+
+
    @Test def test_conf14_6() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf14_67400857440119725263.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf14_67400857440119725263.c:3:17: error: aggregate value used where a float was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf14_66890018721733217476.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf14_66890018721733217476.c:3:17: error: aggregate value used where a float was expected
                  float a = (float) foo();
                  ^
 
@@ -4292,10 +5278,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf14_67400857440119725263.c:3:17: error: 
               }
                 """)
    }
+
+
    @Test def test_conf14_7() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf14_74693864945598814526.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf14_74693864945598814526.c:3:17: error: aggregate value used where a float was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf14_75256081648053302563.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf14_75256081648053302563.c:3:17: error: aggregate value used where a float was expected
                  double a = (double) foo();
                  ^
 
@@ -4308,10 +5296,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf14_74693864945598814526.c:3:17: error: 
               }
                 """)
    }
+
+
    @Test def test_conf14_8() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf14_84770566659571517128.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf14_84770566659571517128.c:3:17: error: aggregate value used where a float was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf14_84978593385077173584.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf14_84978593385077173584.c:3:17: error: aggregate value used where a float was expected
                  long double a = (long double) foo();
                  ^
 
@@ -4324,10 +5314,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf14_84770566659571517128.c:3:17: error: 
               }
                 """)
    }
+
+
    @Test def test_conf14_9() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf14_98501576889643602745.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf14_98501576889643602745.c:3:17: error: cannot convert to a pointer type
+C:\Users\ckaestne\AppData\Local\Temp\conf14_97391826674971080234.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf14_97391826674971080234.c:3:17: error: cannot convert to a pointer type
                  int * a = (int *) foo();
                  ^
 
@@ -4340,10 +5332,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf14_98501576889643602745.c:3:17: error: 
               }
                 """)
    }
+
+
    @Test def test_conf14_10() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf14_10937078019964455240.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf14_10937078019964455240.c:3:17: error: cannot convert to a pointer type
+C:\Users\ckaestne\AppData\Local\Temp\conf14_106887596592018247846.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf14_106887596592018247846.c:3:17: error: cannot convert to a pointer type
                  long * a = (long *) foo();
                  ^
 
@@ -4356,10 +5350,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf14_10937078019964455240.c:3:17: error: 
               }
                 """)
    }
+
+
    @Test def test_conf14_11() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf14_115714874639089890670.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf14_115714874639089890670.c:3:17: error: cannot convert to a pointer type
+C:\Users\ckaestne\AppData\Local\Temp\conf14_11377261597456041427.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf14_11377261597456041427.c:3:17: error: cannot convert to a pointer type
                  double * a = (double *) foo();
                  ^
 
@@ -4372,10 +5368,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf14_115714874639089890670.c:3:17: error:
               }
                 """)
    }
+
+
    @Test def test_conf14_12() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf14_128811664312748576436.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf14_128811664312748576436.c:5:38: error: conversion to non-scalar type requested
+C:\Users\ckaestne\AppData\Local\Temp\conf14_125228492876098904933.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf14_125228492876098904933.c:5:38: error: conversion to non-scalar type requested
                  struct S a = (struct S) foo();
                                       ^
 
@@ -4390,10 +5388,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf14_128811664312748576436.c:5:38: error:
               }
                 """)
    }
+
+
    @Test def test_conf14_13() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf14_132850509932957280646.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf14_132850509932957280646.c:5:38: error: conversion to non-scalar type requested
+C:\Users\ckaestne\AppData\Local\Temp\conf14_13613323911467186448.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf14_13613323911467186448.c:5:38: error: conversion to non-scalar type requested
                  struct T a = (struct T) foo();
                                       ^
 
@@ -4408,16 +5408,18 @@ C:\Users\ckaestne\AppData\Local\Temp\conf14_132850509932957280646.c:5:38: error:
               }
                 """)
    }
+
+
    @Test def test_conf14_14() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf14_143381487793547409604.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf14_143381487793547409604.c:3:47: error: conversion to non-scalar type requested
+C:\Users\ckaestne\AppData\Local\Temp\conf14_149163880305720553566.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf14_149163880305720553566.c:3:47: error: conversion to non-scalar type requested
                  struct { int a; } a = (struct { int a; }) foo();
                                                ^
-C:\Users\ckaestne\AppData\Local\Temp\conf14_143381487793547409604.c:4:17: error: incompatible types when returning type 'struct <anonymous>' but 'struct <anonymous>' was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf14_149163880305720553566.c:4:17: error: incompatible types when returning type 'struct <anonymous>' but 'struct <anonymous>' was expected
                  return a;
                  ^
-C:\Users\ckaestne\AppData\Local\Temp\conf14_143381487793547409604.c:5:15: warning: control reaches end of non-void function [-Wreturn-type]
+C:\Users\ckaestne\AppData\Local\Temp\conf14_149163880305720553566.c:5:15: warning: control reaches end of non-void function [-Wreturn-type]
                }
                ^
 
@@ -4430,16 +5432,18 @@ C:\Users\ckaestne\AppData\Local\Temp\conf14_143381487793547409604.c:5:15: warnin
               }
                 """)
    }
+
+
    @Test def test_conf14_15() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf14_155331037166973959953.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf14_155331037166973959953.c:3:49: error: conversion to non-scalar type requested
+C:\Users\ckaestne\AppData\Local\Temp\conf14_157807524980532498681.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf14_157807524980532498681.c:3:49: error: conversion to non-scalar type requested
                  struct { float b; } a = (struct { float b; }) foo();
                                                  ^
-C:\Users\ckaestne\AppData\Local\Temp\conf14_155331037166973959953.c:4:17: error: incompatible types when returning type 'struct <anonymous>' but 'struct <anonymous>' was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf14_157807524980532498681.c:4:17: error: incompatible types when returning type 'struct <anonymous>' but 'struct <anonymous>' was expected
                  return a;
                  ^
-C:\Users\ckaestne\AppData\Local\Temp\conf14_155331037166973959953.c:5:15: warning: control reaches end of non-void function [-Wreturn-type]
+C:\Users\ckaestne\AppData\Local\Temp\conf14_157807524980532498681.c:5:15: warning: control reaches end of non-void function [-Wreturn-type]
                }
                ^
 
@@ -4452,10 +5456,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf14_155331037166973959953.c:5:15: warnin
               }
                 """)
    }
+
+
    @Test def test_conf14_16() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf14_168841919989891607236.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf14_168841919989891607236.c:3:17: error: aggregate value used where an integer was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf14_168239078562273332813.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf14_168239078562273332813.c:3:17: error: aggregate value used where an integer was expected
                  volatile int a = (volatile int) foo();
                  ^
 
@@ -4468,10 +5474,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf14_168841919989891607236.c:3:17: error:
               }
                 """)
    }
+
+
    @Test def test_conf14_17() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf14_179160506343955766607.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf14_179160506343955766607.c:3:17: error: aggregate value used where an integer was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf14_17415499784104725077.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf14_17415499784104725077.c:3:17: error: aggregate value used where an integer was expected
                  const int a = (const int) foo();
                  ^
 
@@ -4484,10 +5492,48 @@ C:\Users\ckaestne\AppData\Local\Temp\conf14_179160506343955766607.c:3:17: error:
               }
                 """)
    }
+
+
    @Test def test_conf14_18() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf14_185233988589571981376.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf14_185233988589571981376.c:3:17: error: cannot convert to a pointer type
+C:\Users\ckaestne\AppData\Local\Temp\conf14_181262264023858743401.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf14_181262264023858743401.c:3:17: error: aggregate value used where a float was expected
+                 const double a = (const double) foo();
+                 ^
+
+        */
+        error("""
+              struct { int a; } foo();
+              const double bar() {
+                const double a = (const double) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf14_19() {
+        /* gcc reports:
+C:\Users\ckaestne\AppData\Local\Temp\conf14_192826156176791127305.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf14_192826156176791127305.c:3:17: error: aggregate value used where a float was expected
+                 volatile double a = (volatile double) foo();
+                 ^
+
+        */
+        error("""
+              struct { int a; } foo();
+              volatile double bar() {
+                volatile double a = (volatile double) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf14_20() {
+        /* gcc reports:
+C:\Users\ckaestne\AppData\Local\Temp\conf14_206373764880493649757.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf14_206373764880493649757.c:3:17: error: cannot convert to a pointer type
                  int * a = (int *) foo();
                  ^
 
@@ -4500,10 +5546,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf14_185233988589571981376.c:3:17: error:
               }
                 """)
    }
-   @Test def test_conf14_19() {
+
+
+   @Test def test_conf14_21() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf14_193702859440399576217.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf14_193702859440399576217.c:3:17: error: cannot convert to a pointer type
+C:\Users\ckaestne\AppData\Local\Temp\conf14_218684661485161548329.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf14_218684661485161548329.c:3:17: error: cannot convert to a pointer type
                  const int * a = (const int *) foo();
                  ^
 
@@ -4516,10 +5564,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf14_193702859440399576217.c:3:17: error:
               }
                 """)
    }
-   @Test def test_conf14_20() {
+
+
+   @Test def test_conf14_22() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf14_208388857707417039474.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf14_208388857707417039474.c:3:17: error: cannot convert to a pointer type
+C:\Users\ckaestne\AppData\Local\Temp\conf14_22296478280493031187.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf14_22296478280493031187.c:3:17: error: cannot convert to a pointer type
                  volatile int * a = (volatile int *) foo();
                  ^
 
@@ -4532,10 +5582,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf14_208388857707417039474.c:3:17: error:
               }
                 """)
    }
+
+
    @Test def test_conf15_0() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf15_03752114764061948572.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf15_03752114764061948572.c:3:17: error: aggregate value used where an integer was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf15_03637582129774680577.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf15_03637582129774680577.c:3:17: error: aggregate value used where an integer was expected
                  char a = (char) foo();
                  ^
 
@@ -4548,10 +5600,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf15_03752114764061948572.c:3:17: error: 
               }
                 """)
    }
+
+
    @Test def test_conf15_1() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf15_11546139161297254450.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf15_11546139161297254450.c:3:17: error: aggregate value used where an integer was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf15_12979260768525508334.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf15_12979260768525508334.c:3:17: error: aggregate value used where an integer was expected
                  signed char a = (signed char) foo();
                  ^
 
@@ -4564,10 +5618,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf15_11546139161297254450.c:3:17: error: 
               }
                 """)
    }
+
+
    @Test def test_conf15_2() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf15_23379202753229524113.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf15_23379202753229524113.c:3:17: error: aggregate value used where an integer was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf15_26191816023661135126.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf15_26191816023661135126.c:3:17: error: aggregate value used where an integer was expected
                  unsigned char a = (unsigned char) foo();
                  ^
 
@@ -4580,10 +5636,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf15_23379202753229524113.c:3:17: error: 
               }
                 """)
    }
+
+
    @Test def test_conf15_3() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf15_38606018827046734324.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf15_38606018827046734324.c:3:17: error: aggregate value used where an integer was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf15_33050718110775120069.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf15_33050718110775120069.c:3:17: error: aggregate value used where an integer was expected
                  unsigned int a = (unsigned int) foo();
                  ^
 
@@ -4596,10 +5654,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf15_38606018827046734324.c:3:17: error: 
               }
                 """)
    }
+
+
    @Test def test_conf15_4() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf15_48672858251968657064.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf15_48672858251968657064.c:3:17: error: aggregate value used where an integer was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf15_48014038489007664680.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf15_48014038489007664680.c:3:17: error: aggregate value used where an integer was expected
                  signed int a = (signed int) foo();
                  ^
 
@@ -4612,10 +5672,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf15_48672858251968657064.c:3:17: error: 
               }
                 """)
    }
+
+
    @Test def test_conf15_5() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf15_57634854607131230944.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf15_57634854607131230944.c:3:17: error: aggregate value used where an integer was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf15_52623949881873099854.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf15_52623949881873099854.c:3:17: error: aggregate value used where an integer was expected
                  long a = (long) foo();
                  ^
 
@@ -4628,10 +5690,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf15_57634854607131230944.c:3:17: error: 
               }
                 """)
    }
+
+
    @Test def test_conf15_6() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf15_6122447606261644247.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf15_6122447606261644247.c:3:17: error: aggregate value used where a float was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf15_61593037314094426787.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf15_61593037314094426787.c:3:17: error: aggregate value used where a float was expected
                  float a = (float) foo();
                  ^
 
@@ -4644,10 +5708,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf15_6122447606261644247.c:3:17: error: a
               }
                 """)
    }
+
+
    @Test def test_conf15_7() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf15_72913968069538886376.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf15_72913968069538886376.c:3:17: error: aggregate value used where a float was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf15_78815144776696931979.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf15_78815144776696931979.c:3:17: error: aggregate value used where a float was expected
                  double a = (double) foo();
                  ^
 
@@ -4660,10 +5726,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf15_72913968069538886376.c:3:17: error: 
               }
                 """)
    }
+
+
    @Test def test_conf15_8() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf15_85680863200261056150.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf15_85680863200261056150.c:3:17: error: aggregate value used where a float was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf15_86647985520103401631.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf15_86647985520103401631.c:3:17: error: aggregate value used where a float was expected
                  long double a = (long double) foo();
                  ^
 
@@ -4676,10 +5744,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf15_85680863200261056150.c:3:17: error: 
               }
                 """)
    }
+
+
    @Test def test_conf15_9() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf15_95971259485592186286.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf15_95971259485592186286.c:3:17: error: cannot convert to a pointer type
+C:\Users\ckaestne\AppData\Local\Temp\conf15_98560800709006676950.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf15_98560800709006676950.c:3:17: error: cannot convert to a pointer type
                  int * a = (int *) foo();
                  ^
 
@@ -4692,10 +5762,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf15_95971259485592186286.c:3:17: error: 
               }
                 """)
    }
+
+
    @Test def test_conf15_10() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf15_104359232155204685132.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf15_104359232155204685132.c:3:17: error: cannot convert to a pointer type
+C:\Users\ckaestne\AppData\Local\Temp\conf15_102042237971438179164.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf15_102042237971438179164.c:3:17: error: cannot convert to a pointer type
                  long * a = (long *) foo();
                  ^
 
@@ -4708,10 +5780,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf15_104359232155204685132.c:3:17: error:
               }
                 """)
    }
+
+
    @Test def test_conf15_11() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf15_116780193041331008736.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf15_116780193041331008736.c:3:17: error: cannot convert to a pointer type
+C:\Users\ckaestne\AppData\Local\Temp\conf15_117606444574778841740.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf15_117606444574778841740.c:3:17: error: cannot convert to a pointer type
                  double * a = (double *) foo();
                  ^
 
@@ -4724,10 +5798,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf15_116780193041331008736.c:3:17: error:
               }
                 """)
    }
+
+
    @Test def test_conf15_12() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf15_126703588023948415250.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf15_126703588023948415250.c:5:38: error: conversion to non-scalar type requested
+C:\Users\ckaestne\AppData\Local\Temp\conf15_125899135269073929394.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf15_125899135269073929394.c:5:38: error: conversion to non-scalar type requested
                  struct S a = (struct S) foo();
                                       ^
 
@@ -4742,10 +5818,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf15_126703588023948415250.c:5:38: error:
               }
                 """)
    }
+
+
    @Test def test_conf15_13() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf15_13777834579257991904.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf15_13777834579257991904.c:5:38: error: conversion to non-scalar type requested
+C:\Users\ckaestne\AppData\Local\Temp\conf15_138811461668977066015.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf15_138811461668977066015.c:5:38: error: conversion to non-scalar type requested
                  struct T a = (struct T) foo();
                                       ^
 
@@ -4760,16 +5838,18 @@ C:\Users\ckaestne\AppData\Local\Temp\conf15_13777834579257991904.c:5:38: error: 
               }
                 """)
    }
+
+
    @Test def test_conf15_14() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf15_1415632910895973988.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf15_1415632910895973988.c:3:47: error: conversion to non-scalar type requested
+C:\Users\ckaestne\AppData\Local\Temp\conf15_143658218413699484705.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf15_143658218413699484705.c:3:47: error: conversion to non-scalar type requested
                  struct { int a; } a = (struct { int a; }) foo();
                                                ^
-C:\Users\ckaestne\AppData\Local\Temp\conf15_1415632910895973988.c:4:17: error: incompatible types when returning type 'struct <anonymous>' but 'struct <anonymous>' was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf15_143658218413699484705.c:4:17: error: incompatible types when returning type 'struct <anonymous>' but 'struct <anonymous>' was expected
                  return a;
                  ^
-C:\Users\ckaestne\AppData\Local\Temp\conf15_1415632910895973988.c:5:15: warning: control reaches end of non-void function [-Wreturn-type]
+C:\Users\ckaestne\AppData\Local\Temp\conf15_143658218413699484705.c:5:15: warning: control reaches end of non-void function [-Wreturn-type]
                }
                ^
 
@@ -4782,16 +5862,18 @@ C:\Users\ckaestne\AppData\Local\Temp\conf15_1415632910895973988.c:5:15: warning:
               }
                 """)
    }
+
+
    @Test def test_conf15_15() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf15_154191070037785658737.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf15_154191070037785658737.c:3:49: error: conversion to non-scalar type requested
+C:\Users\ckaestne\AppData\Local\Temp\conf15_157923765429688235958.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf15_157923765429688235958.c:3:49: error: conversion to non-scalar type requested
                  struct { float b; } a = (struct { float b; }) foo();
                                                  ^
-C:\Users\ckaestne\AppData\Local\Temp\conf15_154191070037785658737.c:4:17: error: incompatible types when returning type 'struct <anonymous>' but 'struct <anonymous>' was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf15_157923765429688235958.c:4:17: error: incompatible types when returning type 'struct <anonymous>' but 'struct <anonymous>' was expected
                  return a;
                  ^
-C:\Users\ckaestne\AppData\Local\Temp\conf15_154191070037785658737.c:5:15: warning: control reaches end of non-void function [-Wreturn-type]
+C:\Users\ckaestne\AppData\Local\Temp\conf15_157923765429688235958.c:5:15: warning: control reaches end of non-void function [-Wreturn-type]
                }
                ^
 
@@ -4804,10 +5886,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf15_154191070037785658737.c:5:15: warnin
               }
                 """)
    }
+
+
    @Test def test_conf15_16() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf15_161473579870194782208.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf15_161473579870194782208.c:3:17: error: aggregate value used where an integer was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf15_162024644896276323382.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf15_162024644896276323382.c:3:17: error: aggregate value used where an integer was expected
                  volatile int a = (volatile int) foo();
                  ^
 
@@ -4820,10 +5904,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf15_161473579870194782208.c:3:17: error:
               }
                 """)
    }
+
+
    @Test def test_conf15_17() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf15_178783844389169615873.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf15_178783844389169615873.c:3:17: error: aggregate value used where an integer was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf15_178291842987526705142.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf15_178291842987526705142.c:3:17: error: aggregate value used where an integer was expected
                  const int a = (const int) foo();
                  ^
 
@@ -4836,10 +5922,48 @@ C:\Users\ckaestne\AppData\Local\Temp\conf15_178783844389169615873.c:3:17: error:
               }
                 """)
    }
+
+
    @Test def test_conf15_18() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf15_181609408325336448413.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf15_181609408325336448413.c:3:17: error: cannot convert to a pointer type
+C:\Users\ckaestne\AppData\Local\Temp\conf15_183036269055974066501.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf15_183036269055974066501.c:3:17: error: aggregate value used where a float was expected
+                 const double a = (const double) foo();
+                 ^
+
+        */
+        error("""
+              struct { float b; } foo();
+              const double bar() {
+                const double a = (const double) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf15_19() {
+        /* gcc reports:
+C:\Users\ckaestne\AppData\Local\Temp\conf15_193452488066993580154.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf15_193452488066993580154.c:3:17: error: aggregate value used where a float was expected
+                 volatile double a = (volatile double) foo();
+                 ^
+
+        */
+        error("""
+              struct { float b; } foo();
+              volatile double bar() {
+                volatile double a = (volatile double) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf15_20() {
+        /* gcc reports:
+C:\Users\ckaestne\AppData\Local\Temp\conf15_203646167121934802054.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf15_203646167121934802054.c:3:17: error: cannot convert to a pointer type
                  int * a = (int *) foo();
                  ^
 
@@ -4852,10 +5976,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf15_181609408325336448413.c:3:17: error:
               }
                 """)
    }
-   @Test def test_conf15_19() {
+
+
+   @Test def test_conf15_21() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf15_195025626330504123838.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf15_195025626330504123838.c:3:17: error: cannot convert to a pointer type
+C:\Users\ckaestne\AppData\Local\Temp\conf15_216847178751358839160.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf15_216847178751358839160.c:3:17: error: cannot convert to a pointer type
                  const int * a = (const int *) foo();
                  ^
 
@@ -4868,10 +5994,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf15_195025626330504123838.c:3:17: error:
               }
                 """)
    }
-   @Test def test_conf15_20() {
+
+
+   @Test def test_conf15_22() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf15_20491551807946364886.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf15_20491551807946364886.c:3:17: error: cannot convert to a pointer type
+C:\Users\ckaestne\AppData\Local\Temp\conf15_225786805798184388670.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf15_225786805798184388670.c:3:17: error: cannot convert to a pointer type
                  volatile int * a = (volatile int *) foo();
                  ^
 
@@ -4884,6 +6012,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf15_20491551807946364886.c:3:17: error: 
               }
                 """)
    }
+
+
    @Test def test_conf16_0() {
         correct("""
               volatile int foo();
@@ -4893,6 +6023,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf15_20491551807946364886.c:3:17: error: 
               }
                 """)
    }
+
+
    @Test def test_conf16_1() {
         correct("""
               volatile int foo();
@@ -4902,6 +6034,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf15_20491551807946364886.c:3:17: error: 
               }
                 """)
    }
+
+
    @Test def test_conf16_2() {
         correct("""
               volatile int foo();
@@ -4911,6 +6045,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf15_20491551807946364886.c:3:17: error: 
               }
                 """)
    }
+
+
    @Test def test_conf16_3() {
         correct("""
               volatile int foo();
@@ -4920,6 +6056,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf15_20491551807946364886.c:3:17: error: 
               }
                 """)
    }
+
+
    @Test def test_conf16_4() {
         correct("""
               volatile int foo();
@@ -4929,6 +6067,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf15_20491551807946364886.c:3:17: error: 
               }
                 """)
    }
+
+
    @Test def test_conf16_5() {
         correct("""
               volatile int foo();
@@ -4938,6 +6078,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf15_20491551807946364886.c:3:17: error: 
               }
                 """)
    }
+
+
    @Test def test_conf16_6() {
         correct("""
               volatile int foo();
@@ -4947,6 +6089,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf15_20491551807946364886.c:3:17: error: 
               }
                 """)
    }
+
+
    @Test def test_conf16_7() {
         correct("""
               volatile int foo();
@@ -4956,6 +6100,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf15_20491551807946364886.c:3:17: error: 
               }
                 """)
    }
+
+
    @Test def test_conf16_8() {
         correct("""
               volatile int foo();
@@ -4965,10 +6111,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf15_20491551807946364886.c:3:17: error: 
               }
                 """)
    }
+
+
    @Test def test_conf16_9() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf16_93014247758522649068.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf16_93014247758522649068.c:3:27: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
+C:\Users\ckaestne\AppData\Local\Temp\conf16_94206034349607592383.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf16_94206034349607592383.c:3:27: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
                  int * a = (int *) foo();
                            ^
 
@@ -4981,10 +6129,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf16_93014247758522649068.c:3:27: warning
               }
                 """)
    }
+
+
    @Test def test_conf16_10() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf16_108517170698235197815.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf16_108517170698235197815.c:3:28: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
+C:\Users\ckaestne\AppData\Local\Temp\conf16_108980150899284708199.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf16_108980150899284708199.c:3:28: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
                  long * a = (long *) foo();
                             ^
 
@@ -4997,10 +6147,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf16_108517170698235197815.c:3:28: warnin
               }
                 """)
    }
+
+
    @Test def test_conf16_11() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf16_11238869458200930065.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf16_11238869458200930065.c:3:30: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
+C:\Users\ckaestne\AppData\Local\Temp\conf16_114385237313792987158.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf16_114385237313792987158.c:3:30: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
                  double * a = (double *) foo();
                               ^
 
@@ -5013,10 +6165,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf16_11238869458200930065.c:3:30: warning
               }
                 """)
    }
+
+
    @Test def test_conf16_12() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf16_121337028798698281446.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf16_121337028798698281446.c:5:38: error: conversion to non-scalar type requested
+C:\Users\ckaestne\AppData\Local\Temp\conf16_12485284716360169662.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf16_12485284716360169662.c:5:38: error: conversion to non-scalar type requested
                  struct S a = (struct S) foo();
                                       ^
 
@@ -5031,10 +6185,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf16_121337028798698281446.c:5:38: error:
               }
                 """)
    }
+
+
    @Test def test_conf16_13() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf16_134700978129785505768.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf16_134700978129785505768.c:5:38: error: conversion to non-scalar type requested
+C:\Users\ckaestne\AppData\Local\Temp\conf16_13534832543240771471.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf16_13534832543240771471.c:5:38: error: conversion to non-scalar type requested
                  struct T a = (struct T) foo();
                                       ^
 
@@ -5049,16 +6205,18 @@ C:\Users\ckaestne\AppData\Local\Temp\conf16_134700978129785505768.c:5:38: error:
               }
                 """)
    }
+
+
    @Test def test_conf16_14() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf16_142798964239075240866.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf16_142798964239075240866.c:3:47: error: conversion to non-scalar type requested
+C:\Users\ckaestne\AppData\Local\Temp\conf16_146793210867391849736.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf16_146793210867391849736.c:3:47: error: conversion to non-scalar type requested
                  struct { int a; } a = (struct { int a; }) foo();
                                                ^
-C:\Users\ckaestne\AppData\Local\Temp\conf16_142798964239075240866.c:4:17: error: incompatible types when returning type 'struct <anonymous>' but 'struct <anonymous>' was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf16_146793210867391849736.c:4:17: error: incompatible types when returning type 'struct <anonymous>' but 'struct <anonymous>' was expected
                  return a;
                  ^
-C:\Users\ckaestne\AppData\Local\Temp\conf16_142798964239075240866.c:5:15: warning: control reaches end of non-void function [-Wreturn-type]
+C:\Users\ckaestne\AppData\Local\Temp\conf16_146793210867391849736.c:5:15: warning: control reaches end of non-void function [-Wreturn-type]
                }
                ^
 
@@ -5071,16 +6229,18 @@ C:\Users\ckaestne\AppData\Local\Temp\conf16_142798964239075240866.c:5:15: warnin
               }
                 """)
    }
+
+
    @Test def test_conf16_15() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf16_151666845616882403872.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf16_151666845616882403872.c:3:49: error: conversion to non-scalar type requested
+C:\Users\ckaestne\AppData\Local\Temp\conf16_159092856166802574842.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf16_159092856166802574842.c:3:49: error: conversion to non-scalar type requested
                  struct { float b; } a = (struct { float b; }) foo();
                                                  ^
-C:\Users\ckaestne\AppData\Local\Temp\conf16_151666845616882403872.c:4:17: error: incompatible types when returning type 'struct <anonymous>' but 'struct <anonymous>' was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf16_159092856166802574842.c:4:17: error: incompatible types when returning type 'struct <anonymous>' but 'struct <anonymous>' was expected
                  return a;
                  ^
-C:\Users\ckaestne\AppData\Local\Temp\conf16_151666845616882403872.c:5:15: warning: control reaches end of non-void function [-Wreturn-type]
+C:\Users\ckaestne\AppData\Local\Temp\conf16_159092856166802574842.c:5:15: warning: control reaches end of non-void function [-Wreturn-type]
                }
                ^
 
@@ -5093,6 +6253,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf16_151666845616882403872.c:5:15: warnin
               }
                 """)
    }
+
+
    @Test def test_conf16_16() {
         correct("""
               volatile int foo();
@@ -5102,6 +6264,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf16_151666845616882403872.c:5:15: warnin
               }
                 """)
    }
+
+
    @Test def test_conf16_17() {
         correct("""
               volatile int foo();
@@ -5111,10 +6275,34 @@ C:\Users\ckaestne\AppData\Local\Temp\conf16_151666845616882403872.c:5:15: warnin
               }
                 """)
    }
+
+
    @Test def test_conf16_18() {
+        correct("""
+              volatile int foo();
+              const double bar() {
+                const double a = (const double) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf16_19() {
+        correct("""
+              volatile int foo();
+              volatile double bar() {
+                volatile double a = (volatile double) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf16_20() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf16_183093155038119758602.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf16_183093155038119758602.c:3:27: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
+C:\Users\ckaestne\AppData\Local\Temp\conf16_205833779160943451330.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf16_205833779160943451330.c:3:27: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
                  int * a = (int *) foo();
                            ^
 
@@ -5127,10 +6315,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf16_183093155038119758602.c:3:27: warnin
               }
                 """)
    }
-   @Test def test_conf16_19() {
+
+
+   @Test def test_conf16_21() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf16_197947681024635888525.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf16_197947681024635888525.c:3:33: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
+C:\Users\ckaestne\AppData\Local\Temp\conf16_215212489733421905421.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf16_215212489733421905421.c:3:33: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
                  const int * a = (const int *) foo();
                                  ^
 
@@ -5143,10 +6333,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf16_197947681024635888525.c:3:33: warnin
               }
                 """)
    }
-   @Test def test_conf16_20() {
+
+
+   @Test def test_conf16_22() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf16_202747789850502356159.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf16_202747789850502356159.c:3:36: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
+C:\Users\ckaestne\AppData\Local\Temp\conf16_223411403490811922855.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf16_223411403490811922855.c:3:36: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
                  volatile int * a = (volatile int *) foo();
                                     ^
 
@@ -5159,6 +6351,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf16_202747789850502356159.c:3:36: warnin
               }
                 """)
    }
+
+
    @Test def test_conf17_0() {
         correct("""
               const int foo();
@@ -5168,6 +6362,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf16_202747789850502356159.c:3:36: warnin
               }
                 """)
    }
+
+
    @Test def test_conf17_1() {
         correct("""
               const int foo();
@@ -5177,6 +6373,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf16_202747789850502356159.c:3:36: warnin
               }
                 """)
    }
+
+
    @Test def test_conf17_2() {
         correct("""
               const int foo();
@@ -5186,6 +6384,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf16_202747789850502356159.c:3:36: warnin
               }
                 """)
    }
+
+
    @Test def test_conf17_3() {
         correct("""
               const int foo();
@@ -5195,6 +6395,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf16_202747789850502356159.c:3:36: warnin
               }
                 """)
    }
+
+
    @Test def test_conf17_4() {
         correct("""
               const int foo();
@@ -5204,6 +6406,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf16_202747789850502356159.c:3:36: warnin
               }
                 """)
    }
+
+
    @Test def test_conf17_5() {
         correct("""
               const int foo();
@@ -5213,6 +6417,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf16_202747789850502356159.c:3:36: warnin
               }
                 """)
    }
+
+
    @Test def test_conf17_6() {
         correct("""
               const int foo();
@@ -5222,6 +6428,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf16_202747789850502356159.c:3:36: warnin
               }
                 """)
    }
+
+
    @Test def test_conf17_7() {
         correct("""
               const int foo();
@@ -5231,6 +6439,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf16_202747789850502356159.c:3:36: warnin
               }
                 """)
    }
+
+
    @Test def test_conf17_8() {
         correct("""
               const int foo();
@@ -5240,10 +6450,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf16_202747789850502356159.c:3:36: warnin
               }
                 """)
    }
+
+
    @Test def test_conf17_9() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf17_97056518870897049416.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf17_97056518870897049416.c:3:27: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
+C:\Users\ckaestne\AppData\Local\Temp\conf17_91888495469027605697.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf17_91888495469027605697.c:3:27: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
                  int * a = (int *) foo();
                            ^
 
@@ -5256,10 +6468,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf17_97056518870897049416.c:3:27: warning
               }
                 """)
    }
+
+
    @Test def test_conf17_10() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf17_109045253714134932057.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf17_109045253714134932057.c:3:28: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
+C:\Users\ckaestne\AppData\Local\Temp\conf17_103053926878237123918.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf17_103053926878237123918.c:3:28: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
                  long * a = (long *) foo();
                             ^
 
@@ -5272,10 +6486,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf17_109045253714134932057.c:3:28: warnin
               }
                 """)
    }
+
+
    @Test def test_conf17_11() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf17_113667558066196538998.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf17_113667558066196538998.c:3:30: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
+C:\Users\ckaestne\AppData\Local\Temp\conf17_116639818228825480981.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf17_116639818228825480981.c:3:30: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
                  double * a = (double *) foo();
                               ^
 
@@ -5288,10 +6504,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf17_113667558066196538998.c:3:30: warnin
               }
                 """)
    }
+
+
    @Test def test_conf17_12() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf17_124566910733452031163.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf17_124566910733452031163.c:5:38: error: conversion to non-scalar type requested
+C:\Users\ckaestne\AppData\Local\Temp\conf17_124010234483294230176.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf17_124010234483294230176.c:5:38: error: conversion to non-scalar type requested
                  struct S a = (struct S) foo();
                                       ^
 
@@ -5306,10 +6524,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf17_124566910733452031163.c:5:38: error:
               }
                 """)
    }
+
+
    @Test def test_conf17_13() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf17_133247825963570000649.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf17_133247825963570000649.c:5:38: error: conversion to non-scalar type requested
+C:\Users\ckaestne\AppData\Local\Temp\conf17_13195031240430754657.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf17_13195031240430754657.c:5:38: error: conversion to non-scalar type requested
                  struct T a = (struct T) foo();
                                       ^
 
@@ -5324,16 +6544,18 @@ C:\Users\ckaestne\AppData\Local\Temp\conf17_133247825963570000649.c:5:38: error:
               }
                 """)
    }
+
+
    @Test def test_conf17_14() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf17_142716646538279351040.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf17_142716646538279351040.c:3:47: error: conversion to non-scalar type requested
+C:\Users\ckaestne\AppData\Local\Temp\conf17_144465614661402234891.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf17_144465614661402234891.c:3:47: error: conversion to non-scalar type requested
                  struct { int a; } a = (struct { int a; }) foo();
                                                ^
-C:\Users\ckaestne\AppData\Local\Temp\conf17_142716646538279351040.c:4:17: error: incompatible types when returning type 'struct <anonymous>' but 'struct <anonymous>' was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf17_144465614661402234891.c:4:17: error: incompatible types when returning type 'struct <anonymous>' but 'struct <anonymous>' was expected
                  return a;
                  ^
-C:\Users\ckaestne\AppData\Local\Temp\conf17_142716646538279351040.c:5:15: warning: control reaches end of non-void function [-Wreturn-type]
+C:\Users\ckaestne\AppData\Local\Temp\conf17_144465614661402234891.c:5:15: warning: control reaches end of non-void function [-Wreturn-type]
                }
                ^
 
@@ -5346,16 +6568,18 @@ C:\Users\ckaestne\AppData\Local\Temp\conf17_142716646538279351040.c:5:15: warnin
               }
                 """)
    }
+
+
    @Test def test_conf17_15() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf17_154536203494207071844.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf17_154536203494207071844.c:3:49: error: conversion to non-scalar type requested
+C:\Users\ckaestne\AppData\Local\Temp\conf17_152611400216298853656.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf17_152611400216298853656.c:3:49: error: conversion to non-scalar type requested
                  struct { float b; } a = (struct { float b; }) foo();
                                                  ^
-C:\Users\ckaestne\AppData\Local\Temp\conf17_154536203494207071844.c:4:17: error: incompatible types when returning type 'struct <anonymous>' but 'struct <anonymous>' was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf17_152611400216298853656.c:4:17: error: incompatible types when returning type 'struct <anonymous>' but 'struct <anonymous>' was expected
                  return a;
                  ^
-C:\Users\ckaestne\AppData\Local\Temp\conf17_154536203494207071844.c:5:15: warning: control reaches end of non-void function [-Wreturn-type]
+C:\Users\ckaestne\AppData\Local\Temp\conf17_152611400216298853656.c:5:15: warning: control reaches end of non-void function [-Wreturn-type]
                }
                ^
 
@@ -5368,6 +6592,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf17_154536203494207071844.c:5:15: warnin
               }
                 """)
    }
+
+
    @Test def test_conf17_16() {
         correct("""
               const int foo();
@@ -5377,6 +6603,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf17_154536203494207071844.c:5:15: warnin
               }
                 """)
    }
+
+
    @Test def test_conf17_17() {
         correct("""
               const int foo();
@@ -5386,10 +6614,34 @@ C:\Users\ckaestne\AppData\Local\Temp\conf17_154536203494207071844.c:5:15: warnin
               }
                 """)
    }
+
+
    @Test def test_conf17_18() {
+        correct("""
+              const int foo();
+              const double bar() {
+                const double a = (const double) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf17_19() {
+        correct("""
+              const int foo();
+              volatile double bar() {
+                volatile double a = (volatile double) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf17_20() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf17_183826424046905761366.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf17_183826424046905761366.c:3:27: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
+C:\Users\ckaestne\AppData\Local\Temp\conf17_20523718319586687928.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf17_20523718319586687928.c:3:27: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
                  int * a = (int *) foo();
                            ^
 
@@ -5402,10 +6654,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf17_183826424046905761366.c:3:27: warnin
               }
                 """)
    }
-   @Test def test_conf17_19() {
+
+
+   @Test def test_conf17_21() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf17_191729332989711206963.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf17_191729332989711206963.c:3:33: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
+C:\Users\ckaestne\AppData\Local\Temp\conf17_215076251425053512709.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf17_215076251425053512709.c:3:33: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
                  const int * a = (const int *) foo();
                                  ^
 
@@ -5418,10 +6672,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf17_191729332989711206963.c:3:33: warnin
               }
                 """)
    }
-   @Test def test_conf17_20() {
+
+
+   @Test def test_conf17_22() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf17_205110390487012733360.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf17_205110390487012733360.c:3:36: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
+C:\Users\ckaestne\AppData\Local\Temp\conf17_229167941472426331235.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf17_229167941472426331235.c:3:36: warning: cast to pointer from integer of different size [-Wint-to-pointer-cast]
                  volatile int * a = (volatile int *) foo();
                                     ^
 
@@ -5434,181 +6690,165 @@ C:\Users\ckaestne\AppData\Local\Temp\conf17_205110390487012733360.c:3:36: warnin
               }
                 """)
    }
-   @Test def test_conf18_0() {
-        /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf18_06015381478057232608.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf18_06015381478057232608.c:3:26: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
-                 char a = (char) foo();
-                          ^
 
-        */
+
+   @Test def test_conf18_0() {
         correct("""
-              int * foo();
+              const double foo();
               char bar() {
                 char a = (char) foo();
                 return a;
               }
                 """)
    }
-   @Test def test_conf18_1() {
-        /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf18_11899948746469570748.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf18_11899948746469570748.c:3:33: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
-                 signed char a = (signed char) foo();
-                                 ^
 
-        */
+
+   @Test def test_conf18_1() {
         correct("""
-              int * foo();
+              const double foo();
               signed char bar() {
                 signed char a = (signed char) foo();
                 return a;
               }
                 """)
    }
-   @Test def test_conf18_2() {
-        /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf18_22359526423607295699.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf18_22359526423607295699.c:3:35: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
-                 unsigned char a = (unsigned char) foo();
-                                   ^
 
-        */
+
+   @Test def test_conf18_2() {
         correct("""
-              int * foo();
+              const double foo();
               unsigned char bar() {
                 unsigned char a = (unsigned char) foo();
                 return a;
               }
                 """)
    }
-   @Test def test_conf18_3() {
-        /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf18_31984914254724932501.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf18_31984914254724932501.c:3:34: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
-                 unsigned int a = (unsigned int) foo();
-                                  ^
 
-        */
+
+   @Test def test_conf18_3() {
         correct("""
-              int * foo();
+              const double foo();
               unsigned int bar() {
                 unsigned int a = (unsigned int) foo();
                 return a;
               }
                 """)
    }
-   @Test def test_conf18_4() {
-        /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf18_41751928690396501873.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf18_41751928690396501873.c:3:32: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
-                 signed int a = (signed int) foo();
-                                ^
 
-        */
+
+   @Test def test_conf18_4() {
         correct("""
-              int * foo();
+              const double foo();
               signed int bar() {
                 signed int a = (signed int) foo();
                 return a;
               }
                 """)
    }
-   @Test def test_conf18_5() {
-        /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf18_52435527960109920941.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf18_52435527960109920941.c:3:26: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
-                 long a = (long) foo();
-                          ^
 
-        */
+
+   @Test def test_conf18_5() {
         correct("""
-              int * foo();
+              const double foo();
               long bar() {
                 long a = (long) foo();
                 return a;
               }
                 """)
    }
-   @Test def test_conf18_6() {
-        /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf18_67035912495450764835.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf18_67035912495450764835.c:3:17: error: pointer value used where a floating point value was expected
-                 float a = (float) foo();
-                 ^
 
-        */
-        error("""
-              int * foo();
+
+   @Test def test_conf18_6() {
+        correct("""
+              const double foo();
               float bar() {
                 float a = (float) foo();
                 return a;
               }
                 """)
    }
-   @Test def test_conf18_7() {
-        /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf18_77153392248561790750.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf18_77153392248561790750.c:3:17: error: pointer value used where a floating point value was expected
-                 double a = (double) foo();
-                 ^
 
-        */
-        error("""
-              int * foo();
+
+   @Test def test_conf18_7() {
+        correct("""
+              const double foo();
               double bar() {
                 double a = (double) foo();
                 return a;
               }
                 """)
    }
-   @Test def test_conf18_8() {
-        /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf18_85313670659374907833.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf18_85313670659374907833.c:3:17: error: pointer value used where a floating point value was expected
-                 long double a = (long double) foo();
-                 ^
 
-        */
-        error("""
-              int * foo();
+
+   @Test def test_conf18_8() {
+        correct("""
+              const double foo();
               long double bar() {
                 long double a = (long double) foo();
                 return a;
               }
                 """)
    }
+
+
    @Test def test_conf18_9() {
-        correct("""
-              int * foo();
+        /* gcc reports:
+C:\Users\ckaestne\AppData\Local\Temp\conf18_95447433006841723556.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf18_95447433006841723556.c:3:17: error: cannot convert to a pointer type
+                 int * a = (int *) foo();
+                 ^
+
+        */
+        error("""
+              const double foo();
               int * bar() {
                 int * a = (int *) foo();
                 return a;
               }
                 """)
    }
+
+
    @Test def test_conf18_10() {
-        correct("""
-              int * foo();
+        /* gcc reports:
+C:\Users\ckaestne\AppData\Local\Temp\conf18_102484510689982406303.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf18_102484510689982406303.c:3:17: error: cannot convert to a pointer type
+                 long * a = (long *) foo();
+                 ^
+
+        */
+        error("""
+              const double foo();
               long * bar() {
                 long * a = (long *) foo();
                 return a;
               }
                 """)
    }
+
+
    @Test def test_conf18_11() {
-        correct("""
-              int * foo();
+        /* gcc reports:
+C:\Users\ckaestne\AppData\Local\Temp\conf18_116597282649027548557.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf18_116597282649027548557.c:3:17: error: cannot convert to a pointer type
+                 double * a = (double *) foo();
+                 ^
+
+        */
+        error("""
+              const double foo();
               double * bar() {
                 double * a = (double *) foo();
                 return a;
               }
                 """)
    }
+
+
    @Test def test_conf18_12() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf18_128926729721467353199.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf18_128926729721467353199.c:5:38: error: conversion to non-scalar type requested
+C:\Users\ckaestne\AppData\Local\Temp\conf18_128541271632229666062.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf18_128541271632229666062.c:5:38: error: conversion to non-scalar type requested
                  struct S a = (struct S) foo();
                                       ^
 
@@ -5616,17 +6856,19 @@ C:\Users\ckaestne\AppData\Local\Temp\conf18_128926729721467353199.c:5:38: error:
         error("""
               struct S { int x; int y; };
 
-              int * foo();
+              const double foo();
               struct S bar() {
                 struct S a = (struct S) foo();
                 return a;
               }
                 """)
    }
+
+
    @Test def test_conf18_13() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf18_137700683155942819792.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf18_137700683155942819792.c:5:38: error: conversion to non-scalar type requested
+C:\Users\ckaestne\AppData\Local\Temp\conf18_133978745872799450723.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf18_133978745872799450723.c:5:38: error: conversion to non-scalar type requested
                  struct T a = (struct T) foo();
                                       ^
 
@@ -5634,291 +6876,1087 @@ C:\Users\ckaestne\AppData\Local\Temp\conf18_137700683155942819792.c:5:38: error:
         error("""
               struct T { int x; int y; int z; };
 
-              int * foo();
+              const double foo();
               struct T bar() {
                 struct T a = (struct T) foo();
                 return a;
               }
                 """)
    }
+
+
    @Test def test_conf18_14() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf18_146207402229712561567.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf18_146207402229712561567.c:3:47: error: conversion to non-scalar type requested
+C:\Users\ckaestne\AppData\Local\Temp\conf18_147578180878074672075.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf18_147578180878074672075.c:3:47: error: conversion to non-scalar type requested
                  struct { int a; } a = (struct { int a; }) foo();
                                                ^
-C:\Users\ckaestne\AppData\Local\Temp\conf18_146207402229712561567.c:4:17: error: incompatible types when returning type 'struct <anonymous>' but 'struct <anonymous>' was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf18_147578180878074672075.c:4:17: error: incompatible types when returning type 'struct <anonymous>' but 'struct <anonymous>' was expected
                  return a;
                  ^
-C:\Users\ckaestne\AppData\Local\Temp\conf18_146207402229712561567.c:5:15: warning: control reaches end of non-void function [-Wreturn-type]
+C:\Users\ckaestne\AppData\Local\Temp\conf18_147578180878074672075.c:5:15: warning: control reaches end of non-void function [-Wreturn-type]
                }
                ^
 
         */
         error("""
-              int * foo();
+              const double foo();
               struct { int a; } bar() {
                 struct { int a; } a = (struct { int a; }) foo();
                 return a;
               }
                 """)
    }
+
+
    @Test def test_conf18_15() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf18_158707679433894835789.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf18_158707679433894835789.c:3:49: error: conversion to non-scalar type requested
+C:\Users\ckaestne\AppData\Local\Temp\conf18_156490894758895423500.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf18_156490894758895423500.c:3:49: error: conversion to non-scalar type requested
                  struct { float b; } a = (struct { float b; }) foo();
                                                  ^
-C:\Users\ckaestne\AppData\Local\Temp\conf18_158707679433894835789.c:4:17: error: incompatible types when returning type 'struct <anonymous>' but 'struct <anonymous>' was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf18_156490894758895423500.c:4:17: error: incompatible types when returning type 'struct <anonymous>' but 'struct <anonymous>' was expected
                  return a;
                  ^
-C:\Users\ckaestne\AppData\Local\Temp\conf18_158707679433894835789.c:5:15: warning: control reaches end of non-void function [-Wreturn-type]
+C:\Users\ckaestne\AppData\Local\Temp\conf18_156490894758895423500.c:5:15: warning: control reaches end of non-void function [-Wreturn-type]
                }
                ^
 
         */
         error("""
-              int * foo();
+              const double foo();
               struct { float b; } bar() {
                 struct { float b; } a = (struct { float b; }) foo();
                 return a;
               }
                 """)
    }
-   @Test def test_conf18_16() {
-        /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf18_165104531938212464528.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf18_165104531938212464528.c:3:34: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
-                 volatile int a = (volatile int) foo();
-                                  ^
 
-        */
+
+   @Test def test_conf18_16() {
         correct("""
-              int * foo();
+              const double foo();
               volatile int bar() {
                 volatile int a = (volatile int) foo();
                 return a;
               }
                 """)
    }
-   @Test def test_conf18_17() {
-        /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf18_174646560386127021304.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf18_174646560386127021304.c:3:31: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
-                 const int a = (const int) foo();
-                               ^
 
-        */
+
+   @Test def test_conf18_17() {
         correct("""
-              int * foo();
+              const double foo();
               const int bar() {
                 const int a = (const int) foo();
                 return a;
               }
                 """)
    }
+
+
    @Test def test_conf18_18() {
         correct("""
-              int * foo();
-              int * bar() {
-                int * a = (int *) foo();
+              const double foo();
+              const double bar() {
+                const double a = (const double) foo();
                 return a;
               }
                 """)
    }
+
+
    @Test def test_conf18_19() {
         correct("""
-              int * foo();
-              const int * bar() {
-                const int * a = (const int *) foo();
+              const double foo();
+              volatile double bar() {
+                volatile double a = (volatile double) foo();
                 return a;
               }
                 """)
    }
+
+
    @Test def test_conf18_20() {
-        correct("""
-              int * foo();
-              volatile int * bar() {
-                volatile int * a = (volatile int *) foo();
-                return a;
-              }
-                """)
-   }
-   @Test def test_conf19_0() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf19_05816676508258285943.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf19_05816676508258285943.c:3:26: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
-                 char a = (char) foo();
-                          ^
-
-        */
-        correct("""
-              const int * foo();
-              char bar() {
-                char a = (char) foo();
-                return a;
-              }
-                """)
-   }
-   @Test def test_conf19_1() {
-        /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf19_19048090237601812886.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf19_19048090237601812886.c:3:33: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
-                 signed char a = (signed char) foo();
-                                 ^
-
-        */
-        correct("""
-              const int * foo();
-              signed char bar() {
-                signed char a = (signed char) foo();
-                return a;
-              }
-                """)
-   }
-   @Test def test_conf19_2() {
-        /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf19_27904745099519127457.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf19_27904745099519127457.c:3:35: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
-                 unsigned char a = (unsigned char) foo();
-                                   ^
-
-        */
-        correct("""
-              const int * foo();
-              unsigned char bar() {
-                unsigned char a = (unsigned char) foo();
-                return a;
-              }
-                """)
-   }
-   @Test def test_conf19_3() {
-        /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf19_3536320810483193430.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf19_3536320810483193430.c:3:34: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
-                 unsigned int a = (unsigned int) foo();
-                                  ^
-
-        */
-        correct("""
-              const int * foo();
-              unsigned int bar() {
-                unsigned int a = (unsigned int) foo();
-                return a;
-              }
-                """)
-   }
-   @Test def test_conf19_4() {
-        /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf19_47225223645170871334.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf19_47225223645170871334.c:3:32: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
-                 signed int a = (signed int) foo();
-                                ^
-
-        */
-        correct("""
-              const int * foo();
-              signed int bar() {
-                signed int a = (signed int) foo();
-                return a;
-              }
-                """)
-   }
-   @Test def test_conf19_5() {
-        /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf19_58541875368125854079.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf19_58541875368125854079.c:3:26: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
-                 long a = (long) foo();
-                          ^
-
-        */
-        correct("""
-              const int * foo();
-              long bar() {
-                long a = (long) foo();
-                return a;
-              }
-                """)
-   }
-   @Test def test_conf19_6() {
-        /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf19_62370872973521852568.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf19_62370872973521852568.c:3:17: error: pointer value used where a floating point value was expected
-                 float a = (float) foo();
+C:\Users\ckaestne\AppData\Local\Temp\conf18_202203252860130535577.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf18_202203252860130535577.c:3:17: error: cannot convert to a pointer type
+                 int * a = (int *) foo();
                  ^
 
         */
         error("""
-              const int * foo();
-              float bar() {
-                float a = (float) foo();
-                return a;
-              }
-                """)
-   }
-   @Test def test_conf19_7() {
-        /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf19_79007845080944873484.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf19_79007845080944873484.c:3:17: error: pointer value used where a floating point value was expected
-                 double a = (double) foo();
-                 ^
-
-        */
-        error("""
-              const int * foo();
-              double bar() {
-                double a = (double) foo();
-                return a;
-              }
-                """)
-   }
-   @Test def test_conf19_8() {
-        /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf19_84313588954693876686.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf19_84313588954693876686.c:3:17: error: pointer value used where a floating point value was expected
-                 long double a = (long double) foo();
-                 ^
-
-        */
-        error("""
-              const int * foo();
-              long double bar() {
-                long double a = (long double) foo();
-                return a;
-              }
-                """)
-   }
-   @Test def test_conf19_9() {
-        correct("""
-              const int * foo();
+              const double foo();
               int * bar() {
                 int * a = (int *) foo();
                 return a;
               }
                 """)
    }
-   @Test def test_conf19_10() {
+
+
+   @Test def test_conf18_21() {
+        /* gcc reports:
+C:\Users\ckaestne\AppData\Local\Temp\conf18_212248677761343928745.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf18_212248677761343928745.c:3:17: error: cannot convert to a pointer type
+                 const int * a = (const int *) foo();
+                 ^
+
+        */
+        error("""
+              const double foo();
+              const int * bar() {
+                const int * a = (const int *) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf18_22() {
+        /* gcc reports:
+C:\Users\ckaestne\AppData\Local\Temp\conf18_224159656329227428074.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf18_224159656329227428074.c:3:17: error: cannot convert to a pointer type
+                 volatile int * a = (volatile int *) foo();
+                 ^
+
+        */
+        error("""
+              const double foo();
+              volatile int * bar() {
+                volatile int * a = (volatile int *) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf19_0() {
         correct("""
-              const int * foo();
+              volatile double foo();
+              char bar() {
+                char a = (char) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf19_1() {
+        correct("""
+              volatile double foo();
+              signed char bar() {
+                signed char a = (signed char) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf19_2() {
+        correct("""
+              volatile double foo();
+              unsigned char bar() {
+                unsigned char a = (unsigned char) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf19_3() {
+        correct("""
+              volatile double foo();
+              unsigned int bar() {
+                unsigned int a = (unsigned int) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf19_4() {
+        correct("""
+              volatile double foo();
+              signed int bar() {
+                signed int a = (signed int) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf19_5() {
+        correct("""
+              volatile double foo();
+              long bar() {
+                long a = (long) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf19_6() {
+        correct("""
+              volatile double foo();
+              float bar() {
+                float a = (float) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf19_7() {
+        correct("""
+              volatile double foo();
+              double bar() {
+                double a = (double) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf19_8() {
+        correct("""
+              volatile double foo();
+              long double bar() {
+                long double a = (long double) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf19_9() {
+        /* gcc reports:
+C:\Users\ckaestne\AppData\Local\Temp\conf19_9592261852324175088.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf19_9592261852324175088.c:3:17: error: cannot convert to a pointer type
+                 int * a = (int *) foo();
+                 ^
+
+        */
+        error("""
+              volatile double foo();
+              int * bar() {
+                int * a = (int *) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf19_10() {
+        /* gcc reports:
+C:\Users\ckaestne\AppData\Local\Temp\conf19_10255045243538419180.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf19_10255045243538419180.c:3:17: error: cannot convert to a pointer type
+                 long * a = (long *) foo();
+                 ^
+
+        */
+        error("""
+              volatile double foo();
               long * bar() {
                 long * a = (long *) foo();
                 return a;
               }
                 """)
    }
+
+
    @Test def test_conf19_11() {
-        correct("""
-              const int * foo();
+        /* gcc reports:
+C:\Users\ckaestne\AppData\Local\Temp\conf19_117627555137821868894.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf19_117627555137821868894.c:3:17: error: cannot convert to a pointer type
+                 double * a = (double *) foo();
+                 ^
+
+        */
+        error("""
+              volatile double foo();
               double * bar() {
                 double * a = (double *) foo();
                 return a;
               }
                 """)
    }
+
+
    @Test def test_conf19_12() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf19_121499459922043561956.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf19_121499459922043561956.c:5:38: error: conversion to non-scalar type requested
+C:\Users\ckaestne\AppData\Local\Temp\conf19_128169629456424989174.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf19_128169629456424989174.c:5:38: error: conversion to non-scalar type requested
+                 struct S a = (struct S) foo();
+                                      ^
+
+        */
+        error("""
+              struct S { int x; int y; };
+
+              volatile double foo();
+              struct S bar() {
+                struct S a = (struct S) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf19_13() {
+        /* gcc reports:
+C:\Users\ckaestne\AppData\Local\Temp\conf19_13300412073325931077.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf19_13300412073325931077.c:5:38: error: conversion to non-scalar type requested
+                 struct T a = (struct T) foo();
+                                      ^
+
+        */
+        error("""
+              struct T { int x; int y; int z; };
+
+              volatile double foo();
+              struct T bar() {
+                struct T a = (struct T) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf19_14() {
+        /* gcc reports:
+C:\Users\ckaestne\AppData\Local\Temp\conf19_144334487011529510881.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf19_144334487011529510881.c:3:47: error: conversion to non-scalar type requested
+                 struct { int a; } a = (struct { int a; }) foo();
+                                               ^
+C:\Users\ckaestne\AppData\Local\Temp\conf19_144334487011529510881.c:4:17: error: incompatible types when returning type 'struct <anonymous>' but 'struct <anonymous>' was expected
+                 return a;
+                 ^
+C:\Users\ckaestne\AppData\Local\Temp\conf19_144334487011529510881.c:5:15: warning: control reaches end of non-void function [-Wreturn-type]
+               }
+               ^
+
+        */
+        error("""
+              volatile double foo();
+              struct { int a; } bar() {
+                struct { int a; } a = (struct { int a; }) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf19_15() {
+        /* gcc reports:
+C:\Users\ckaestne\AppData\Local\Temp\conf19_155099215697765939978.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf19_155099215697765939978.c:3:49: error: conversion to non-scalar type requested
+                 struct { float b; } a = (struct { float b; }) foo();
+                                                 ^
+C:\Users\ckaestne\AppData\Local\Temp\conf19_155099215697765939978.c:4:17: error: incompatible types when returning type 'struct <anonymous>' but 'struct <anonymous>' was expected
+                 return a;
+                 ^
+C:\Users\ckaestne\AppData\Local\Temp\conf19_155099215697765939978.c:5:15: warning: control reaches end of non-void function [-Wreturn-type]
+               }
+               ^
+
+        */
+        error("""
+              volatile double foo();
+              struct { float b; } bar() {
+                struct { float b; } a = (struct { float b; }) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf19_16() {
+        correct("""
+              volatile double foo();
+              volatile int bar() {
+                volatile int a = (volatile int) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf19_17() {
+        correct("""
+              volatile double foo();
+              const int bar() {
+                const int a = (const int) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf19_18() {
+        correct("""
+              volatile double foo();
+              const double bar() {
+                const double a = (const double) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf19_19() {
+        correct("""
+              volatile double foo();
+              volatile double bar() {
+                volatile double a = (volatile double) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf19_20() {
+        /* gcc reports:
+C:\Users\ckaestne\AppData\Local\Temp\conf19_201436919796944715777.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf19_201436919796944715777.c:3:17: error: cannot convert to a pointer type
+                 int * a = (int *) foo();
+                 ^
+
+        */
+        error("""
+              volatile double foo();
+              int * bar() {
+                int * a = (int *) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf19_21() {
+        /* gcc reports:
+C:\Users\ckaestne\AppData\Local\Temp\conf19_214529513178980887071.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf19_214529513178980887071.c:3:17: error: cannot convert to a pointer type
+                 const int * a = (const int *) foo();
+                 ^
+
+        */
+        error("""
+              volatile double foo();
+              const int * bar() {
+                const int * a = (const int *) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf19_22() {
+        /* gcc reports:
+C:\Users\ckaestne\AppData\Local\Temp\conf19_225685531268350187869.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf19_225685531268350187869.c:3:17: error: cannot convert to a pointer type
+                 volatile int * a = (volatile int *) foo();
+                 ^
+
+        */
+        error("""
+              volatile double foo();
+              volatile int * bar() {
+                volatile int * a = (volatile int *) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf20_0() {
+        /* gcc reports:
+C:\Users\ckaestne\AppData\Local\Temp\conf20_05276036493357283047.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf20_05276036493357283047.c:3:26: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
+                 char a = (char) foo();
+                          ^
+
+        */
+        correct("""
+              int * foo();
+              char bar() {
+                char a = (char) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf20_1() {
+        /* gcc reports:
+C:\Users\ckaestne\AppData\Local\Temp\conf20_13152091703717049714.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf20_13152091703717049714.c:3:33: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
+                 signed char a = (signed char) foo();
+                                 ^
+
+        */
+        correct("""
+              int * foo();
+              signed char bar() {
+                signed char a = (signed char) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf20_2() {
+        /* gcc reports:
+C:\Users\ckaestne\AppData\Local\Temp\conf20_28632653068210228993.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf20_28632653068210228993.c:3:35: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
+                 unsigned char a = (unsigned char) foo();
+                                   ^
+
+        */
+        correct("""
+              int * foo();
+              unsigned char bar() {
+                unsigned char a = (unsigned char) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf20_3() {
+        /* gcc reports:
+C:\Users\ckaestne\AppData\Local\Temp\conf20_3359931779464820317.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf20_3359931779464820317.c:3:34: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
+                 unsigned int a = (unsigned int) foo();
+                                  ^
+
+        */
+        correct("""
+              int * foo();
+              unsigned int bar() {
+                unsigned int a = (unsigned int) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf20_4() {
+        /* gcc reports:
+C:\Users\ckaestne\AppData\Local\Temp\conf20_41564692217494693659.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf20_41564692217494693659.c:3:32: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
+                 signed int a = (signed int) foo();
+                                ^
+
+        */
+        correct("""
+              int * foo();
+              signed int bar() {
+                signed int a = (signed int) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf20_5() {
+        /* gcc reports:
+C:\Users\ckaestne\AppData\Local\Temp\conf20_51646381443565515831.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf20_51646381443565515831.c:3:26: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
+                 long a = (long) foo();
+                          ^
+
+        */
+        correct("""
+              int * foo();
+              long bar() {
+                long a = (long) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf20_6() {
+        /* gcc reports:
+C:\Users\ckaestne\AppData\Local\Temp\conf20_62518632266527160957.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf20_62518632266527160957.c:3:17: error: pointer value used where a floating point value was expected
+                 float a = (float) foo();
+                 ^
+
+        */
+        error("""
+              int * foo();
+              float bar() {
+                float a = (float) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf20_7() {
+        /* gcc reports:
+C:\Users\ckaestne\AppData\Local\Temp\conf20_73297000652512742522.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf20_73297000652512742522.c:3:17: error: pointer value used where a floating point value was expected
+                 double a = (double) foo();
+                 ^
+
+        */
+        error("""
+              int * foo();
+              double bar() {
+                double a = (double) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf20_8() {
+        /* gcc reports:
+C:\Users\ckaestne\AppData\Local\Temp\conf20_83154294201034139234.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf20_83154294201034139234.c:3:17: error: pointer value used where a floating point value was expected
+                 long double a = (long double) foo();
+                 ^
+
+        */
+        error("""
+              int * foo();
+              long double bar() {
+                long double a = (long double) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf20_9() {
+        correct("""
+              int * foo();
+              int * bar() {
+                int * a = (int *) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf20_10() {
+        correct("""
+              int * foo();
+              long * bar() {
+                long * a = (long *) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf20_11() {
+        correct("""
+              int * foo();
+              double * bar() {
+                double * a = (double *) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf20_12() {
+        /* gcc reports:
+C:\Users\ckaestne\AppData\Local\Temp\conf20_121470582358939513837.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf20_121470582358939513837.c:5:38: error: conversion to non-scalar type requested
+                 struct S a = (struct S) foo();
+                                      ^
+
+        */
+        error("""
+              struct S { int x; int y; };
+
+              int * foo();
+              struct S bar() {
+                struct S a = (struct S) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf20_13() {
+        /* gcc reports:
+C:\Users\ckaestne\AppData\Local\Temp\conf20_134739035404554834350.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf20_134739035404554834350.c:5:38: error: conversion to non-scalar type requested
+                 struct T a = (struct T) foo();
+                                      ^
+
+        */
+        error("""
+              struct T { int x; int y; int z; };
+
+              int * foo();
+              struct T bar() {
+                struct T a = (struct T) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf20_14() {
+        /* gcc reports:
+C:\Users\ckaestne\AppData\Local\Temp\conf20_143459433990847287234.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf20_143459433990847287234.c:3:47: error: conversion to non-scalar type requested
+                 struct { int a; } a = (struct { int a; }) foo();
+                                               ^
+C:\Users\ckaestne\AppData\Local\Temp\conf20_143459433990847287234.c:4:17: error: incompatible types when returning type 'struct <anonymous>' but 'struct <anonymous>' was expected
+                 return a;
+                 ^
+C:\Users\ckaestne\AppData\Local\Temp\conf20_143459433990847287234.c:5:15: warning: control reaches end of non-void function [-Wreturn-type]
+               }
+               ^
+
+        */
+        error("""
+              int * foo();
+              struct { int a; } bar() {
+                struct { int a; } a = (struct { int a; }) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf20_15() {
+        /* gcc reports:
+C:\Users\ckaestne\AppData\Local\Temp\conf20_157131928599667608478.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf20_157131928599667608478.c:3:49: error: conversion to non-scalar type requested
+                 struct { float b; } a = (struct { float b; }) foo();
+                                                 ^
+C:\Users\ckaestne\AppData\Local\Temp\conf20_157131928599667608478.c:4:17: error: incompatible types when returning type 'struct <anonymous>' but 'struct <anonymous>' was expected
+                 return a;
+                 ^
+C:\Users\ckaestne\AppData\Local\Temp\conf20_157131928599667608478.c:5:15: warning: control reaches end of non-void function [-Wreturn-type]
+               }
+               ^
+
+        */
+        error("""
+              int * foo();
+              struct { float b; } bar() {
+                struct { float b; } a = (struct { float b; }) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf20_16() {
+        /* gcc reports:
+C:\Users\ckaestne\AppData\Local\Temp\conf20_166958319211057592595.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf20_166958319211057592595.c:3:34: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
+                 volatile int a = (volatile int) foo();
+                                  ^
+
+        */
+        correct("""
+              int * foo();
+              volatile int bar() {
+                volatile int a = (volatile int) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf20_17() {
+        /* gcc reports:
+C:\Users\ckaestne\AppData\Local\Temp\conf20_173912181285516313389.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf20_173912181285516313389.c:3:31: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
+                 const int a = (const int) foo();
+                               ^
+
+        */
+        correct("""
+              int * foo();
+              const int bar() {
+                const int a = (const int) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf20_18() {
+        /* gcc reports:
+C:\Users\ckaestne\AppData\Local\Temp\conf20_186033058945649968440.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf20_186033058945649968440.c:3:17: error: pointer value used where a floating point value was expected
+                 const double a = (const double) foo();
+                 ^
+
+        */
+        error("""
+              int * foo();
+              const double bar() {
+                const double a = (const double) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf20_19() {
+        /* gcc reports:
+C:\Users\ckaestne\AppData\Local\Temp\conf20_197441130005926897170.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf20_197441130005926897170.c:3:17: error: pointer value used where a floating point value was expected
+                 volatile double a = (volatile double) foo();
+                 ^
+
+        */
+        error("""
+              int * foo();
+              volatile double bar() {
+                volatile double a = (volatile double) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf20_20() {
+        correct("""
+              int * foo();
+              int * bar() {
+                int * a = (int *) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf20_21() {
+        correct("""
+              int * foo();
+              const int * bar() {
+                const int * a = (const int *) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf20_22() {
+        correct("""
+              int * foo();
+              volatile int * bar() {
+                volatile int * a = (volatile int *) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf21_0() {
+        /* gcc reports:
+C:\Users\ckaestne\AppData\Local\Temp\conf21_06470385810768610083.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf21_06470385810768610083.c:3:26: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
+                 char a = (char) foo();
+                          ^
+
+        */
+        correct("""
+              const int * foo();
+              char bar() {
+                char a = (char) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf21_1() {
+        /* gcc reports:
+C:\Users\ckaestne\AppData\Local\Temp\conf21_13586635809549417251.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf21_13586635809549417251.c:3:33: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
+                 signed char a = (signed char) foo();
+                                 ^
+
+        */
+        correct("""
+              const int * foo();
+              signed char bar() {
+                signed char a = (signed char) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf21_2() {
+        /* gcc reports:
+C:\Users\ckaestne\AppData\Local\Temp\conf21_23475664444242421881.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf21_23475664444242421881.c:3:35: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
+                 unsigned char a = (unsigned char) foo();
+                                   ^
+
+        */
+        correct("""
+              const int * foo();
+              unsigned char bar() {
+                unsigned char a = (unsigned char) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf21_3() {
+        /* gcc reports:
+C:\Users\ckaestne\AppData\Local\Temp\conf21_36886285099106025585.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf21_36886285099106025585.c:3:34: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
+                 unsigned int a = (unsigned int) foo();
+                                  ^
+
+        */
+        correct("""
+              const int * foo();
+              unsigned int bar() {
+                unsigned int a = (unsigned int) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf21_4() {
+        /* gcc reports:
+C:\Users\ckaestne\AppData\Local\Temp\conf21_41666433942425556244.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf21_41666433942425556244.c:3:32: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
+                 signed int a = (signed int) foo();
+                                ^
+
+        */
+        correct("""
+              const int * foo();
+              signed int bar() {
+                signed int a = (signed int) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf21_5() {
+        /* gcc reports:
+C:\Users\ckaestne\AppData\Local\Temp\conf21_58556082793077526320.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf21_58556082793077526320.c:3:26: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
+                 long a = (long) foo();
+                          ^
+
+        */
+        correct("""
+              const int * foo();
+              long bar() {
+                long a = (long) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf21_6() {
+        /* gcc reports:
+C:\Users\ckaestne\AppData\Local\Temp\conf21_65903858295456145740.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf21_65903858295456145740.c:3:17: error: pointer value used where a floating point value was expected
+                 float a = (float) foo();
+                 ^
+
+        */
+        error("""
+              const int * foo();
+              float bar() {
+                float a = (float) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf21_7() {
+        /* gcc reports:
+C:\Users\ckaestne\AppData\Local\Temp\conf21_77559225750136130248.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf21_77559225750136130248.c:3:17: error: pointer value used where a floating point value was expected
+                 double a = (double) foo();
+                 ^
+
+        */
+        error("""
+              const int * foo();
+              double bar() {
+                double a = (double) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf21_8() {
+        /* gcc reports:
+C:\Users\ckaestne\AppData\Local\Temp\conf21_85653744284866169508.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf21_85653744284866169508.c:3:17: error: pointer value used where a floating point value was expected
+                 long double a = (long double) foo();
+                 ^
+
+        */
+        error("""
+              const int * foo();
+              long double bar() {
+                long double a = (long double) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf21_9() {
+        correct("""
+              const int * foo();
+              int * bar() {
+                int * a = (int *) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf21_10() {
+        correct("""
+              const int * foo();
+              long * bar() {
+                long * a = (long *) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf21_11() {
+        correct("""
+              const int * foo();
+              double * bar() {
+                double * a = (double *) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf21_12() {
+        /* gcc reports:
+C:\Users\ckaestne\AppData\Local\Temp\conf21_124465228016462018058.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf21_124465228016462018058.c:5:38: error: conversion to non-scalar type requested
                  struct S a = (struct S) foo();
                                       ^
 
@@ -5933,10 +7971,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf19_121499459922043561956.c:5:38: error:
               }
                 """)
    }
-   @Test def test_conf19_13() {
+
+
+   @Test def test_conf21_13() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf19_132725587605026695192.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf19_132725587605026695192.c:5:38: error: conversion to non-scalar type requested
+C:\Users\ckaestne\AppData\Local\Temp\conf21_13933309400763492622.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf21_13933309400763492622.c:5:38: error: conversion to non-scalar type requested
                  struct T a = (struct T) foo();
                                       ^
 
@@ -5951,16 +7991,18 @@ C:\Users\ckaestne\AppData\Local\Temp\conf19_132725587605026695192.c:5:38: error:
               }
                 """)
    }
-   @Test def test_conf19_14() {
+
+
+   @Test def test_conf21_14() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf19_147127469865067779040.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf19_147127469865067779040.c:3:47: error: conversion to non-scalar type requested
+C:\Users\ckaestne\AppData\Local\Temp\conf21_149147261922477850780.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf21_149147261922477850780.c:3:47: error: conversion to non-scalar type requested
                  struct { int a; } a = (struct { int a; }) foo();
                                                ^
-C:\Users\ckaestne\AppData\Local\Temp\conf19_147127469865067779040.c:4:17: error: incompatible types when returning type 'struct <anonymous>' but 'struct <anonymous>' was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf21_149147261922477850780.c:4:17: error: incompatible types when returning type 'struct <anonymous>' but 'struct <anonymous>' was expected
                  return a;
                  ^
-C:\Users\ckaestne\AppData\Local\Temp\conf19_147127469865067779040.c:5:15: warning: control reaches end of non-void function [-Wreturn-type]
+C:\Users\ckaestne\AppData\Local\Temp\conf21_149147261922477850780.c:5:15: warning: control reaches end of non-void function [-Wreturn-type]
                }
                ^
 
@@ -5973,16 +8015,18 @@ C:\Users\ckaestne\AppData\Local\Temp\conf19_147127469865067779040.c:5:15: warnin
               }
                 """)
    }
-   @Test def test_conf19_15() {
+
+
+   @Test def test_conf21_15() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf19_15431515838610439496.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf19_15431515838610439496.c:3:49: error: conversion to non-scalar type requested
+C:\Users\ckaestne\AppData\Local\Temp\conf21_156907504598679405799.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf21_156907504598679405799.c:3:49: error: conversion to non-scalar type requested
                  struct { float b; } a = (struct { float b; }) foo();
                                                  ^
-C:\Users\ckaestne\AppData\Local\Temp\conf19_15431515838610439496.c:4:17: error: incompatible types when returning type 'struct <anonymous>' but 'struct <anonymous>' was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf21_156907504598679405799.c:4:17: error: incompatible types when returning type 'struct <anonymous>' but 'struct <anonymous>' was expected
                  return a;
                  ^
-C:\Users\ckaestne\AppData\Local\Temp\conf19_15431515838610439496.c:5:15: warning: control reaches end of non-void function [-Wreturn-type]
+C:\Users\ckaestne\AppData\Local\Temp\conf21_156907504598679405799.c:5:15: warning: control reaches end of non-void function [-Wreturn-type]
                }
                ^
 
@@ -5995,10 +8039,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf19_15431515838610439496.c:5:15: warning
               }
                 """)
    }
-   @Test def test_conf19_16() {
+
+
+   @Test def test_conf21_16() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf19_163024969578031669570.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf19_163024969578031669570.c:3:34: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
+C:\Users\ckaestne\AppData\Local\Temp\conf21_165144451872419857378.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf21_165144451872419857378.c:3:34: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
                  volatile int a = (volatile int) foo();
                                   ^
 
@@ -6011,10 +8057,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf19_163024969578031669570.c:3:34: warnin
               }
                 """)
    }
-   @Test def test_conf19_17() {
+
+
+   @Test def test_conf21_17() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf19_177029017930073942124.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf19_177029017930073942124.c:3:31: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
+C:\Users\ckaestne\AppData\Local\Temp\conf21_179170559383218937859.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf21_179170559383218937859.c:3:31: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
                  const int a = (const int) foo();
                                ^
 
@@ -6027,7 +8075,45 @@ C:\Users\ckaestne\AppData\Local\Temp\conf19_177029017930073942124.c:3:31: warnin
               }
                 """)
    }
-   @Test def test_conf19_18() {
+
+
+   @Test def test_conf21_18() {
+        /* gcc reports:
+C:\Users\ckaestne\AppData\Local\Temp\conf21_183861206252880040382.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf21_183861206252880040382.c:3:17: error: pointer value used where a floating point value was expected
+                 const double a = (const double) foo();
+                 ^
+
+        */
+        error("""
+              const int * foo();
+              const double bar() {
+                const double a = (const double) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf21_19() {
+        /* gcc reports:
+C:\Users\ckaestne\AppData\Local\Temp\conf21_195683944259743309966.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf21_195683944259743309966.c:3:17: error: pointer value used where a floating point value was expected
+                 volatile double a = (volatile double) foo();
+                 ^
+
+        */
+        error("""
+              const int * foo();
+              volatile double bar() {
+                volatile double a = (volatile double) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf21_20() {
         correct("""
               const int * foo();
               int * bar() {
@@ -6036,7 +8122,9 @@ C:\Users\ckaestne\AppData\Local\Temp\conf19_177029017930073942124.c:3:31: warnin
               }
                 """)
    }
-   @Test def test_conf19_19() {
+
+
+   @Test def test_conf21_21() {
         correct("""
               const int * foo();
               const int * bar() {
@@ -6045,7 +8133,9 @@ C:\Users\ckaestne\AppData\Local\Temp\conf19_177029017930073942124.c:3:31: warnin
               }
                 """)
    }
-   @Test def test_conf19_20() {
+
+
+   @Test def test_conf21_22() {
         correct("""
               const int * foo();
               volatile int * bar() {
@@ -6054,10 +8144,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf19_177029017930073942124.c:3:31: warnin
               }
                 """)
    }
-   @Test def test_conf20_0() {
+
+
+   @Test def test_conf22_0() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf20_06360782139691833391.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf20_06360782139691833391.c:3:26: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
+C:\Users\ckaestne\AppData\Local\Temp\conf22_06314842841115909857.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf22_06314842841115909857.c:3:26: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
                  char a = (char) foo();
                           ^
 
@@ -6070,10 +8162,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf20_06360782139691833391.c:3:26: warning
               }
                 """)
    }
-   @Test def test_conf20_1() {
+
+
+   @Test def test_conf22_1() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf20_16374694558938955885.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf20_16374694558938955885.c:3:33: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
+C:\Users\ckaestne\AppData\Local\Temp\conf22_11765576408481494695.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf22_11765576408481494695.c:3:33: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
                  signed char a = (signed char) foo();
                                  ^
 
@@ -6086,10 +8180,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf20_16374694558938955885.c:3:33: warning
               }
                 """)
    }
-   @Test def test_conf20_2() {
+
+
+   @Test def test_conf22_2() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf20_28658360982668055745.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf20_28658360982668055745.c:3:35: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
+C:\Users\ckaestne\AppData\Local\Temp\conf22_27529733369592936898.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf22_27529733369592936898.c:3:35: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
                  unsigned char a = (unsigned char) foo();
                                    ^
 
@@ -6102,10 +8198,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf20_28658360982668055745.c:3:35: warning
               }
                 """)
    }
-   @Test def test_conf20_3() {
+
+
+   @Test def test_conf22_3() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf20_34649869052693000026.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf20_34649869052693000026.c:3:34: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
+C:\Users\ckaestne\AppData\Local\Temp\conf22_36892532004620811779.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf22_36892532004620811779.c:3:34: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
                  unsigned int a = (unsigned int) foo();
                                   ^
 
@@ -6118,10 +8216,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf20_34649869052693000026.c:3:34: warning
               }
                 """)
    }
-   @Test def test_conf20_4() {
+
+
+   @Test def test_conf22_4() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf20_44321281209128258763.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf20_44321281209128258763.c:3:32: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
+C:\Users\ckaestne\AppData\Local\Temp\conf22_4354031740980523389.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf22_4354031740980523389.c:3:32: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
                  signed int a = (signed int) foo();
                                 ^
 
@@ -6134,10 +8234,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf20_44321281209128258763.c:3:32: warning
               }
                 """)
    }
-   @Test def test_conf20_5() {
+
+
+   @Test def test_conf22_5() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf20_58053371734962828137.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf20_58053371734962828137.c:3:26: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
+C:\Users\ckaestne\AppData\Local\Temp\conf22_53232446094734431725.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf22_53232446094734431725.c:3:26: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
                  long a = (long) foo();
                           ^
 
@@ -6150,10 +8252,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf20_58053371734962828137.c:3:26: warning
               }
                 """)
    }
-   @Test def test_conf20_6() {
+
+
+   @Test def test_conf22_6() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf20_66158786819547198411.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf20_66158786819547198411.c:3:17: error: pointer value used where a floating point value was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf22_65857181479305969719.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf22_65857181479305969719.c:3:17: error: pointer value used where a floating point value was expected
                  float a = (float) foo();
                  ^
 
@@ -6166,10 +8270,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf20_66158786819547198411.c:3:17: error: 
               }
                 """)
    }
-   @Test def test_conf20_7() {
+
+
+   @Test def test_conf22_7() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf20_74595127192942795617.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf20_74595127192942795617.c:3:17: error: pointer value used where a floating point value was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf22_78942973585654083071.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf22_78942973585654083071.c:3:17: error: pointer value used where a floating point value was expected
                  double a = (double) foo();
                  ^
 
@@ -6182,10 +8288,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf20_74595127192942795617.c:3:17: error: 
               }
                 """)
    }
-   @Test def test_conf20_8() {
+
+
+   @Test def test_conf22_8() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf20_87000144409972568736.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf20_87000144409972568736.c:3:17: error: pointer value used where a floating point value was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf22_84885049466526814962.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf22_84885049466526814962.c:3:17: error: pointer value used where a floating point value was expected
                  long double a = (long double) foo();
                  ^
 
@@ -6198,7 +8306,9 @@ C:\Users\ckaestne\AppData\Local\Temp\conf20_87000144409972568736.c:3:17: error: 
               }
                 """)
    }
-   @Test def test_conf20_9() {
+
+
+   @Test def test_conf22_9() {
         correct("""
               volatile int * foo();
               int * bar() {
@@ -6207,7 +8317,9 @@ C:\Users\ckaestne\AppData\Local\Temp\conf20_87000144409972568736.c:3:17: error: 
               }
                 """)
    }
-   @Test def test_conf20_10() {
+
+
+   @Test def test_conf22_10() {
         correct("""
               volatile int * foo();
               long * bar() {
@@ -6216,7 +8328,9 @@ C:\Users\ckaestne\AppData\Local\Temp\conf20_87000144409972568736.c:3:17: error: 
               }
                 """)
    }
-   @Test def test_conf20_11() {
+
+
+   @Test def test_conf22_11() {
         correct("""
               volatile int * foo();
               double * bar() {
@@ -6225,10 +8339,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf20_87000144409972568736.c:3:17: error: 
               }
                 """)
    }
-   @Test def test_conf20_12() {
+
+
+   @Test def test_conf22_12() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf20_123013474811633785040.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf20_123013474811633785040.c:5:38: error: conversion to non-scalar type requested
+C:\Users\ckaestne\AppData\Local\Temp\conf22_122358673735961639658.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf22_122358673735961639658.c:5:38: error: conversion to non-scalar type requested
                  struct S a = (struct S) foo();
                                       ^
 
@@ -6243,10 +8359,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf20_123013474811633785040.c:5:38: error:
               }
                 """)
    }
-   @Test def test_conf20_13() {
+
+
+   @Test def test_conf22_13() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf20_134132406171378752122.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf20_134132406171378752122.c:5:38: error: conversion to non-scalar type requested
+C:\Users\ckaestne\AppData\Local\Temp\conf22_135982005126937734936.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf22_135982005126937734936.c:5:38: error: conversion to non-scalar type requested
                  struct T a = (struct T) foo();
                                       ^
 
@@ -6261,16 +8379,18 @@ C:\Users\ckaestne\AppData\Local\Temp\conf20_134132406171378752122.c:5:38: error:
               }
                 """)
    }
-   @Test def test_conf20_14() {
+
+
+   @Test def test_conf22_14() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf20_143018869759434704671.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf20_143018869759434704671.c:3:47: error: conversion to non-scalar type requested
+C:\Users\ckaestne\AppData\Local\Temp\conf22_148104261673436264406.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf22_148104261673436264406.c:3:47: error: conversion to non-scalar type requested
                  struct { int a; } a = (struct { int a; }) foo();
                                                ^
-C:\Users\ckaestne\AppData\Local\Temp\conf20_143018869759434704671.c:4:17: error: incompatible types when returning type 'struct <anonymous>' but 'struct <anonymous>' was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf22_148104261673436264406.c:4:17: error: incompatible types when returning type 'struct <anonymous>' but 'struct <anonymous>' was expected
                  return a;
                  ^
-C:\Users\ckaestne\AppData\Local\Temp\conf20_143018869759434704671.c:5:15: warning: control reaches end of non-void function [-Wreturn-type]
+C:\Users\ckaestne\AppData\Local\Temp\conf22_148104261673436264406.c:5:15: warning: control reaches end of non-void function [-Wreturn-type]
                }
                ^
 
@@ -6283,16 +8403,18 @@ C:\Users\ckaestne\AppData\Local\Temp\conf20_143018869759434704671.c:5:15: warnin
               }
                 """)
    }
-   @Test def test_conf20_15() {
+
+
+   @Test def test_conf22_15() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf20_158491167256227737808.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf20_158491167256227737808.c:3:49: error: conversion to non-scalar type requested
+C:\Users\ckaestne\AppData\Local\Temp\conf22_155803775043573280083.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf22_155803775043573280083.c:3:49: error: conversion to non-scalar type requested
                  struct { float b; } a = (struct { float b; }) foo();
                                                  ^
-C:\Users\ckaestne\AppData\Local\Temp\conf20_158491167256227737808.c:4:17: error: incompatible types when returning type 'struct <anonymous>' but 'struct <anonymous>' was expected
+C:\Users\ckaestne\AppData\Local\Temp\conf22_155803775043573280083.c:4:17: error: incompatible types when returning type 'struct <anonymous>' but 'struct <anonymous>' was expected
                  return a;
                  ^
-C:\Users\ckaestne\AppData\Local\Temp\conf20_158491167256227737808.c:5:15: warning: control reaches end of non-void function [-Wreturn-type]
+C:\Users\ckaestne\AppData\Local\Temp\conf22_155803775043573280083.c:5:15: warning: control reaches end of non-void function [-Wreturn-type]
                }
                ^
 
@@ -6305,10 +8427,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf20_158491167256227737808.c:5:15: warnin
               }
                 """)
    }
-   @Test def test_conf20_16() {
+
+
+   @Test def test_conf22_16() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf20_166479943926843284028.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf20_166479943926843284028.c:3:34: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
+C:\Users\ckaestne\AppData\Local\Temp\conf22_167794250830830796115.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf22_167794250830830796115.c:3:34: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
                  volatile int a = (volatile int) foo();
                                   ^
 
@@ -6321,10 +8445,12 @@ C:\Users\ckaestne\AppData\Local\Temp\conf20_166479943926843284028.c:3:34: warnin
               }
                 """)
    }
-   @Test def test_conf20_17() {
+
+
+   @Test def test_conf22_17() {
         /* gcc reports:
-C:\Users\ckaestne\AppData\Local\Temp\conf20_173729913019407926323.c: In function 'bar':
-C:\Users\ckaestne\AppData\Local\Temp\conf20_173729913019407926323.c:3:31: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
+C:\Users\ckaestne\AppData\Local\Temp\conf22_175799359294990844565.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf22_175799359294990844565.c:3:31: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
                  const int a = (const int) foo();
                                ^
 
@@ -6337,7 +8463,45 @@ C:\Users\ckaestne\AppData\Local\Temp\conf20_173729913019407926323.c:3:31: warnin
               }
                 """)
    }
-   @Test def test_conf20_18() {
+
+
+   @Test def test_conf22_18() {
+        /* gcc reports:
+C:\Users\ckaestne\AppData\Local\Temp\conf22_183432014692955644489.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf22_183432014692955644489.c:3:17: error: pointer value used where a floating point value was expected
+                 const double a = (const double) foo();
+                 ^
+
+        */
+        error("""
+              volatile int * foo();
+              const double bar() {
+                const double a = (const double) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf22_19() {
+        /* gcc reports:
+C:\Users\ckaestne\AppData\Local\Temp\conf22_191072200787765572841.c: In function 'bar':
+C:\Users\ckaestne\AppData\Local\Temp\conf22_191072200787765572841.c:3:17: error: pointer value used where a floating point value was expected
+                 volatile double a = (volatile double) foo();
+                 ^
+
+        */
+        error("""
+              volatile int * foo();
+              volatile double bar() {
+                volatile double a = (volatile double) foo();
+                return a;
+              }
+                """)
+   }
+
+
+   @Test def test_conf22_20() {
         correct("""
               volatile int * foo();
               int * bar() {
@@ -6346,7 +8510,9 @@ C:\Users\ckaestne\AppData\Local\Temp\conf20_173729913019407926323.c:3:31: warnin
               }
                 """)
    }
-   @Test def test_conf20_19() {
+
+
+   @Test def test_conf22_21() {
         correct("""
               volatile int * foo();
               const int * bar() {
@@ -6355,7 +8521,9 @@ C:\Users\ckaestne\AppData\Local\Temp\conf20_173729913019407926323.c:3:31: warnin
               }
                 """)
    }
-   @Test def test_conf20_20() {
+
+
+   @Test def test_conf22_22() {
         correct("""
               volatile int * foo();
               volatile int * bar() {
@@ -6364,6 +8532,8 @@ C:\Users\ckaestne\AppData\Local\Temp\conf20_173729913019407926323.c:3:31: warnin
               }
                 """)
    }
+
+
 
 
 }

@@ -42,7 +42,7 @@ object AddExprTestGenerator extends App with AbstractGenerator {
     val configSpace = List(Opt(types.size), Opt(types.size), Opt(types.size))
 
 
-    def genTest(c: Config): String = {
+    def genTest(c: Config): List[String] = {
         val t1 = genType(c.vals(0))
         val t2 = genType(c.vals(1))
         val t3 = genType(c.vals(2))
@@ -59,7 +59,7 @@ object AddExprTestGenerator extends App with AbstractGenerator {
             t = "              struct S { int x; int y; };\n\n" + t
         if (t contains "struct T")
             t = "              struct T { int x; int y; int z; };\n\n" + t
-        t
+        List(t)
     }
 
 

@@ -14,13 +14,16 @@ trait AbstractGenerator {
 
     def configSpace: List[Opt]
 
+    protected def gccParam: List[String] = Nil
+    protected def considerWarnings: Boolean = false
+
     case class Config(vals: List[Int]) {
         override def toString = vals.mkString("conf", "_", "")
 
         def updated(idx: Int, v: Int) = Config(vals.updated(idx, v))
     }
 
-    def genTest(c: Config): String
+    def genTest(c: Config): List[String]
 
     private def pairs[A](elem: List[A]): Iterator[(A, A)] =
         for (a <- elem.tails.take(elem.size); b <- a.tail) yield (a.head, b)
@@ -77,27 +80,35 @@ trait AbstractGenerator {
              if !testedConfigs.contains(c)) {
             testedConfigs += c
 
-            val fileAddr = File.createTempFile(c.toString, ".c")
-            val file = fileAddr.getAbsolutePath
-            val w = new FileWriter(file)
-            val testBody = genTest(c)
-            w.write(testBody)
-            w.close()
-            var msg = ""
-            val log = new ProcessLogger {
-                override def buffer[T](f: => T): T = f
+            val s = "   @Test def test_" + c + "() {\n"
+            testFileWriter.write(s)
 
-                override def out(s: => String): Unit = msg += s + "\n"
 
-                override def err(s: => String): Unit = msg += s + "\n"
+            val testBodies = genTest(c)
+            for (testBody <- testBodies) {
+                val fileAddr = File.createTempFile(c.toString, ".c")
+                val file = fileAddr.getAbsolutePath
+                val w = new FileWriter(file)
+                w.write(testBody)
+                w.close()
+                var msg = ""
+                val log = new ProcessLogger {
+                    override def buffer[T](f: => T): T = f
+
+                    override def out(s: => String): Unit = msg += s + "\n"
+
+                    override def err(s: => String): Unit = msg += s + "\n"
+                }
+                val gccp = gccParam.mkString(" ")
+                val exitcode = s"gcc $gccp -c $file" ! log
+
+                println(c + ": " + exitcode)
+
+                writeTest(testFileWriter, c, testBody, msg, exitcode)
+                fileAddr.deleteOnExit()
             }
-            val exitcode = s"gcc -Wall -c $file" ! log
 
-            println(c + ": " + exitcode)
-
-            writeTest(testFileWriter, c, testBody, msg, exitcode)
-            fileAddr.deleteOnExit()
-
+            testFileWriter.write( "   }\n\n\n")
         }
         println("generated "+testedConfigs.size+" tests")
 
@@ -107,17 +118,16 @@ trait AbstractGenerator {
     }
 
     def writeTest(testFileWriter: FileWriter, c: Config, testBody: String, msg: String, exitcode: Int): Unit = {
-        val s = "   @Test def test_" + c + "() {\n"
-        testFileWriter.write(s)
         if (msg.nonEmpty)
             testFileWriter.write("        /* gcc reports:\n" +
                 msg + "\n        */\n")
 
 
+        var isWarning = msg contains "warning: "
         testFileWriter.write(
-            "        " + (if (exitcode == 0) "correct" else "error") +
+            "        " + (if (exitcode > 0) "error" else if (isWarning && considerWarnings) "warning" else "correct") +
                 "(\"\"\"\n" + testBody + "\n" +
-                "                \"\"\")\n" +
-                "   }\n")
+                "                \"\"\")\n"
+               )
     }
 }

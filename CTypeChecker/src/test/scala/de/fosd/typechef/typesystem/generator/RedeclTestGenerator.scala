@@ -16,6 +16,8 @@ object RedeclTestGenerator extends App with AbstractGenerator {
     override def configSpace = List(Opt(5), Opt(5), Opt(10), Opt(10), Opt(10), Opt(10), Opt(2), Opt(2), Opt(2))
 
 
+    override protected def gccParam: List[String] = "-Wall" :: super.gccParam
+
     val STRUCT = 3
     val ASTRUCT = 4
     val DEF = 1
@@ -40,7 +42,7 @@ object RedeclTestGenerator extends App with AbstractGenerator {
 
     def _call(c: Config): Boolean = c.vals(8) > 0
 
-    override def genTest(c: Config): String = {
+    override def genTest(c: Config): List[String] = {
 
         //first is [0 declaration, 1 definition, 2 variable, 3 struct, 4 abstract struct]
         //second is [declaration,definition,variable,struct]
@@ -62,7 +64,7 @@ object RedeclTestGenerator extends App with AbstractGenerator {
             t = "              struct S { int x; int y; };\n\n" + t
         if (t contains "struct T")
             t = "              struct T { int x; int y; int z; };\n\n" + t
-        t
+        List(t)
     }
 
     def genDecl(declKind: Int, returnType: Int, paramType: Int, extraParam: Boolean, renamedParam: Boolean) = {

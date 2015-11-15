@@ -717,10 +717,14 @@ trait CTypes extends COptionProvider {
         (t1, t2) match {
             //void pointer are compatible to all other pointers and to functions (or only pointers to functions??)
             case (CPointer(a), CPointer(b)) if pointerCompat(a) || pointerCompat(b) => return success
-            case (CPointer(a: CSignSpecifier), CPointer(b: CSignSpecifier)) if !opts.warning_pointer_sign && (a.basicType == b.basicType) => return success
+            case (CPointer(a: CSignSpecifier), CPointer(b: CSignSpecifier)) if !opts.warning_pointer_sign && (a.basicType == b.basicType) =>
+                if (foundType.isConstant && !expectedType.isConstant) return Some("assignment discards 'const' qualifier from pointer target type")
+                if (foundType.isVolatile && !expectedType.isVolatile) return Some("assignment discards 'volatile' qualifier from pointer target type")
+                return success
             //CCompound can be assigned to arrays and structs
             case (CPointer(_) /*incl array*/ , CCompound()) => return success
             case (CStruct(_, _), CCompound()) => return success
+            case (CAnonymousStruct(_, _), CAnonymousStruct(_,_)) => return error
             case (CAnonymousStruct(_, _), CCompound()) => return success
             case (a, CCompound()) if isScalar(a) => return success //works for literals as well
             case _ =>
@@ -746,6 +750,8 @@ trait CTypes extends COptionProvider {
         if (t1 == CBool() && isScalar(t2)) return success
 
         if (isIntegral(t1) && isPointer(t2)) return Some("assignment makes integer from pointer without a cast")
+        if (isIntegral(t2) && isPointer(t1)) return Some("assignment makes pointer from integer without a cast")
+        if (isPointer(t2) && isPointer(t1)) return Some("assignment from incompatible pointer type")
 
         error
     }

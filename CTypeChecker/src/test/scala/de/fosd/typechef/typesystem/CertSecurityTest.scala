@@ -32,7 +32,7 @@ class CertSecurityTest extends FunSuite with Matchers with TestHelper {
                 override def warning_const_assignment = true
                 override def warning_character_signed = true
             } else LinuxDefaultOptions
-        ).makeSilent().checkAST(false) == CheckResult.Correct
+        ).makeSilent().checkAST(false).isEmpty
     }
 
     def correct(code: String) {

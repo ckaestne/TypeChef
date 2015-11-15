@@ -30,16 +30,19 @@ object CastTestGenerator extends App with AbstractGenerator {
           |struct { float b; }
           |volatile int
           |const int
+          |const double
+          |volatile double
           |int *
           |const int *
           |volatile int *
         """.stripMargin.split("\n").map(_.trim).filter(_.nonEmpty)
 
+    override protected def gccParam: List[String] = "-Wall" :: super.gccParam
 
     val configSpace = List(Opt(types.size), Opt(types.size))
 
 
-    def genTest(c: Config): String = {
+    def genTest(c: Config): List[String] = {
         val t1 = genType(c.vals(0))
         val t2 = genType(c.vals(1))
         var t = s"              $t1 foo();\n" +
@@ -52,7 +55,7 @@ object CastTestGenerator extends App with AbstractGenerator {
             t = "              struct S { int x; int y; };\n\n" + t
         if (t contains "struct T")
             t = "              struct T { int x; int y; int z; };\n\n" + t
-        t
+        List(t)
     }
 
 
