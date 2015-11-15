@@ -34,7 +34,7 @@ trait CCFG extends ASTNavigation with ConditionalNavigation {
         paramAttr {
             case x@(env, res, ctx) =>
                 s =>
-                    val sn = nextASTElems(s, env).map(parentOpt(_, env)).asInstanceOf[List[Opt[Statement]]]
+                    val sn = nextASTElems(s, env).map(parentOpt(_, env)).asInstanceOf[List[Opt[Statement]]].tail
                     compStmtSucc(x)((parentAST(s, env).asInstanceOf[CompoundStatement], sn))
         }
     }
@@ -50,7 +50,7 @@ trait CCFG extends ASTNavigation with ConditionalNavigation {
                             if (ctx and env.featureExpr(x) isContradiction())
                                 {}
                             else if (!isComplete(ctx)(r)) {
-                                r = succComp(env, r, ctx)(x.entry)
+                                r = basicSucc(env, r, ctx)(x.entry)
                                 // filter elements with an equivalent annotation
                                 .foldLeft(List(): CFGStmts){
                                     (ul, nee) =>
@@ -96,7 +96,6 @@ trait CCFG extends ASTNavigation with ConditionalNavigation {
                 r =>
                     findPriorASTElem[FunctionDef](r, env) match {
                         case None =>
-                            assert(assertion = false, message = "return statement should always occur within a function statement")
                             List()
                         case Some(f) =>
                             val c = getCFGStmtCtx(res, ctx, env.featureExpr(f))
@@ -327,7 +326,11 @@ trait CCFG extends ASTNavigation with ConditionalNavigation {
                             succFollowing(x)(e)
 
                         case e: CompoundStatement =>
-                            succFollowing(x)(e)
+                            val r = stmtSucc(x)(se.asInstanceOf[Statement])
+                            if (!isComplete(ctx)(r))
+                                succFollowing(env, r, ctx)(e)
+                            else
+                                r
 
                         case e: FunctionDef =>
                             val c = env.featureExpr(e)
