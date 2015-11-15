@@ -101,7 +101,7 @@ return 1;
 
     test("typecheck return statements") {
         correct("void foo(){ return; }")
-        error("void foo(){ return 1; }")
+        warning("void foo(){ return 1; }")
         correct("int foo(){ return 1; }")
         warning("int * foo(){ return \"abc\"; }") //warning
         correct("int * foo(){ return 0; }")
