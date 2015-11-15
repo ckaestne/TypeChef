@@ -12,7 +12,7 @@ trait CCFG extends ASTNavigation with ConditionalNavigation {
 
     type CFGStmts = List[Opt[CFGStmt]]
 
-    private lazy val stmtSucc: Tuple3[ASTEnv, CFGStmts, FeatureExpr] => Statement => CFGStmts = {
+    private lazy val stmtSucc: ((ASTEnv, CFGStmts, FeatureExpr)) => Statement => CFGStmts = {
         paramAttr {
             case x@(env, res, ctx) =>
                 s =>
@@ -27,7 +27,7 @@ trait CCFG extends ASTNavigation with ConditionalNavigation {
         }
     }
 
-    private lazy val compStmtSucc: Tuple3[ASTEnv, CFGStmts, FeatureExpr] => Tuple2[CompoundStatement, List[Opt[Statement]]] => CFGStmts = {
+    private lazy val compStmtSucc: ((ASTEnv, CFGStmts, FeatureExpr)) => ((CompoundStatement, List[Opt[Statement]])) => CFGStmts = {
         paramAttr {
             case x@(env, res, ctx) => {
                 case (e, l) =>
@@ -57,7 +57,7 @@ trait CCFG extends ASTNavigation with ConditionalNavigation {
         }
     }
 
-    private lazy val condStmtSucc: Tuple3[ASTEnv, CFGStmts, FeatureExpr] => Conditional[Statement] => CFGStmts = {
+    private lazy val condStmtSucc: ((ASTEnv, CFGStmts, FeatureExpr)) => Conditional[Statement] => CFGStmts = {
         paramAttr {
             case x@(env, res, ctx) => {
                 case Choice(_, thenBranch, elseBranch) =>
@@ -70,7 +70,7 @@ trait CCFG extends ASTNavigation with ConditionalNavigation {
         }
     }
 
-    private lazy val condExprSucc: Tuple3[ASTEnv, CFGStmts, FeatureExpr] => Conditional[Expr] => CFGStmts = {
+    private lazy val condExprSucc: ((ASTEnv, CFGStmts, FeatureExpr)) => Conditional[Expr] => CFGStmts = {
         paramAttr {
             case x@(env, res, ctx) => {
                 case One(value) => exprSucc(x)(value)
@@ -81,7 +81,7 @@ trait CCFG extends ASTNavigation with ConditionalNavigation {
         }
     }
 
-    private lazy val retuStmtSucc: Tuple3[ASTEnv, CFGStmts, FeatureExpr] => AST => CFGStmts = {
+    private lazy val retuStmtSucc: ((ASTEnv, CFGStmts, FeatureExpr)) => AST => CFGStmts = {
         paramAttr {
             case (env, res, ctx) =>
                 r =>
@@ -98,7 +98,7 @@ trait CCFG extends ASTNavigation with ConditionalNavigation {
         }
     }
 
-    private lazy val exprSucc: Tuple3[ASTEnv, CFGStmts, FeatureExpr] => Expr => CFGStmts =
+    private lazy val exprSucc: ((ASTEnv, CFGStmts, FeatureExpr)) => Expr => CFGStmts =
         paramAttr {
             case x@(env, res, ctx) => {
                 case CompoundStatementExpr(compoundStatement) =>
@@ -130,7 +130,7 @@ trait CCFG extends ASTNavigation with ConditionalNavigation {
         }
     }
 
-    private lazy val basicSucc: Tuple3[ASTEnv, CFGStmts, FeatureExpr] => AST => CFGStmts =
+    private lazy val basicSucc: ((ASTEnv, CFGStmts, FeatureExpr)) => AST => CFGStmts =
         paramAttr {
             case x@(env, res, ctx) => {
                 // loops
@@ -172,7 +172,7 @@ trait CCFG extends ASTNavigation with ConditionalNavigation {
             }
         }
 
-    private lazy val succComp: Tuple3[ASTEnv, CFGStmts, FeatureExpr] => AST => CFGStmts =
+    private lazy val succComp: ((ASTEnv, CFGStmts, FeatureExpr)) => AST => CFGStmts =
         paramAttr {
             case x@(env, res, ctx) => {
                 case FunctionDef(_, _, _, stmt) => succComp(x)(stmt)
@@ -246,7 +246,7 @@ trait CCFG extends ASTNavigation with ConditionalNavigation {
         }
     }
 
-    private lazy val succFollowing: Tuple3[ASTEnv, CFGStmts, FeatureExpr] => AST => CFGStmts =
+    private lazy val succFollowing: ((ASTEnv, CFGStmts, FeatureExpr)) => AST => CFGStmts =
         paramAttr {
             case x@(env, res, ctx) => {
                 case se: ReturnStatement =>
