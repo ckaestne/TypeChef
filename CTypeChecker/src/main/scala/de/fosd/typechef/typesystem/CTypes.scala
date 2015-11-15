@@ -103,6 +103,13 @@ case class CType(
             this.isConstant == that.isConstant &&
             this.isVolatile == that.isVolatile
 
+    /**
+      * compares ATypes and const flag only
+      */
+    def equalsWithConst(that: CType) =
+        this.atype == that.atype &&
+            this.isConstant == that.isConstant
+
 
     override def hashCode() = atype.hashCode()
 
@@ -701,6 +708,8 @@ trait CTypes extends COptionProvider {
     }
 
     def isCompound(t: CType): Boolean = t.atype == CCompound()
+
+    def isVoid(t: CType): Boolean = t.atype == CVoid()
 
 
     /**

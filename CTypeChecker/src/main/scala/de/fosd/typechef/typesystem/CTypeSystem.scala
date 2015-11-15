@@ -103,8 +103,8 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
         ConditionalLib.vmapCombinationOp(ctype, prevTypes, fexpr, (f: FeatureExpr, newType: CType, prev: (CType, DeclarationKind, Int, Linkage)) => {
             if (!isValidRedeclaration(normalize(newType), kind, env.scope, normalize(prev._1), prev._2, prev._3))
                 reportTypeError(f, "Invalid redeclaration/redefinition of " + name +
-                    " (was: " + prev._1 + ":" + kind + ":" + env.scope +
-                    ", now: " + newType + ":" + prev._2 + ":" + prev._3 + ")",
+                    " (was: " + prev._1.toText + ":" + kind + ":" + env.scope +
+                    ", now: " + newType.toText + ":" + prev._2 + ":" + prev._3 + ")",
                     where, Severity.RedeclarationError)
         })
     }
@@ -123,14 +123,14 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
             case (a, b) if containsIgnore(a) || containsIgnore(b) => return true
 
             //two prototypes
-            case (CPointer(CFunction(newParam, newRet)), CPointer(CFunction(prevParam, prevRet))) if (newKind == KDeclaration && prevKind == KDeclaration) =>
+            case (CPointer(CFunction(newParam, newRet)), CPointer(CFunction(prevParam, prevRet))) if newKind == KDeclaration && prevKind == KDeclaration =>
                 //must have same return type and same parameters (for common parameters)
-                return (newRet == prevRet) && (newParam.zip(prevParam).forall(x => x._1 == x._2))
+                return (newRet equalsWithConst prevRet) && newParam.length==prevParam.length && newParam.zip(prevParam).forall(x => x._1 == x._2)
 
             //function overriding a prototype or vice versa
-            case (CPointer(CFunction(newParam, newRet)), CPointer(CFunction(prevParam, prevRet))) if ((newKind == KDefinition && prevKind == KDeclaration) || (newKind == KDeclaration && prevKind == KDefinition)) =>
-                //must have the exact same atype (ignoring const, volatile and object)
-                return newType.atype == prevType.atype
+            case (CPointer(CFunction(newParam, newRet)), CPointer(CFunction(prevParam, prevRet))) if (newKind == KDefinition && prevKind == KDeclaration) || (newKind == KDeclaration && prevKind == KDefinition) =>
+                //must have the exact same atype (ignoring const, volatile and object); return type must also match for const
+                return (newType.atype == prevType.atype) && (newRet equalsWithConst prevRet)
 
             case _ =>
         }
@@ -140,8 +140,8 @@ trait CTypeSystem extends CTypes with CEnv with CDeclTyping with CTypeEnv with C
         //for now, simple approximation here: if either the old or the new variable is not initialized, we are fine (that does not account for internal linkage etc but okay)
         //global variables
         if (newScope == 0 && prevScope == 0 && (newKind == KDeclaration || prevKind == KDeclaration)) {
-            //valid if exact same type
-            return newType.toValue == prevType.toValue
+            //valid if exact same type (except for volatile and object status)
+            return newType equalsWithConst prevType
         }
 
         //local variables (scope>0) may never be redeclared
