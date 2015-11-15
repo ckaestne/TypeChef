@@ -295,7 +295,7 @@ trait CCFG extends ASTNavigation with ConditionalNavigation {
 
                             if (!isComplete(ctx)(r)) {
                                 if (elseBranch.isDefined) r ++= condStmtSucc(x)(elseBranch.get)
-                                else r ++= succFollowing((env, r, ctx))(e)
+                                else r = succFollowing(env, r, ctx)(e)
                             }
                             r ++ condStmtSucc(x)(thenBranch)
 
@@ -317,9 +317,9 @@ trait CCFG extends ASTNavigation with ConditionalNavigation {
                             if (!isComplete(ctx)(r)) {
                                 parentAST(e, env) match {
                                     case tp@IfStatement(_, _, _, None)=>
-                                        r ++= succFollowing(env, r, ctx)(tp)
+                                        r = succFollowing(env, r, ctx)(tp)
                                     case IfStatement(_, _, _, Some(elseBranch)) =>
-                                        r ++= condStmtSucc(env, r, ctx)(elseBranch)
+                                        r = condStmtSucc(env, r, ctx)(elseBranch)
                                 }
                             }
                             r ++ condStmtSucc(x)(thenBranch)
