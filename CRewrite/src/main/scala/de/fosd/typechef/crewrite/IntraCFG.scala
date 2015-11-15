@@ -986,6 +986,25 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
         getCompoundSucc(snexts, s, ctx, oldres, env)
     }
 
+    private def filterForCFGStmtsDownTo(f: CFGStmt => Boolean, s: CFGStmt => Boolean, c: Conditional[Statement],
+            ctx: FeatureExpr, env: ASTEnv): CFGRes = {
+        def filterRecursive(a: Any): CFGRes = {
+            a match {
+                case e: CFGStmt if f(e) =>
+                    val efexp = env.featureExpr(e)
+                    if (!(efexp and ctx).isContradiction())
+                        List((efexp, efexp, e))
+                    else
+                        List()
+                case e: CFGStmt if s(e) => List()
+                case l: List[_] => l.flatMap(filterRecursive)
+                case x: Product => x.productIterator.toList.flatMap(filterRecursive)
+                case _ => List()
+            }
+        }
+        filterRecursive(c)
+    }
+
     // this method filters BreakStatements
     // a break belongs to next outer loop (for, while, do-while)
     // or a switch statement (see [2])

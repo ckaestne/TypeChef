@@ -9,12 +9,17 @@ class CCFGTest extends TestHelper with Matchers with CCFG with EnforceTreeHelper
     def cfgtest(code: String): Boolean = {
         val f = prepareAST[FunctionDef](parseFunctionDef(code))
         val env = CASTEnv.createASTEnv(f)
-        getAllSucc(f, env).foreach {
-            case (e, s) =>
-                println(e + "====>")
-                s.foreach { println(_) }
-                println("############")
+        println(f + "====>")
+        succ(env)(f).foreach {
+            println(_)
         }
+        println("############")
+//        getAllSucc(f, env).foreach {
+//            case (e, s) =>
+//                println(e + "====>")
+//                s.foreach { println(_) }
+//                println("############")
+//        }
         true
     }
 
@@ -22,13 +27,10 @@ class CCFGTest extends TestHelper with Matchers with CCFG with EnforceTreeHelper
         cfgtest( """
               void foo() {
               #ifdef A
-                int i;
-                int k;
+                a;
+                b;
+                c;
               #endif
-                while (j) {
-                  k;  // dead store
-                }
-                l;
               }
                     """.stripMargin) should be(true)
     }

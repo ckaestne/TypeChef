@@ -51,7 +51,7 @@ trait CCFG extends ASTNavigation with ConditionalNavigation {
                             if (ctx and env.featureExpr(x) isContradiction())
                                 {}
                             else if (!isComplete(ctx)(r)) {
-                                r = succH(env, r, ctx)(x.entry)
+                                r = succComp(env, r, ctx)(x.entry)
                                 // filter elements with an equivalent annotation
                                 .foldLeft(List(): CFGStmts){
                                     (ul, nee) =>
@@ -65,11 +65,7 @@ trait CCFG extends ASTNavigation with ConditionalNavigation {
                                 r
                             }
                     }
-
-                    if (isComplete(ctx)(r))
-                        r
-                    else
-                        succFollowing(env, r, ctx)(e)
+                    r
                 }
         }
     }
@@ -82,7 +78,7 @@ trait CCFG extends ASTNavigation with ConditionalNavigation {
                 case One(c: CompoundStatement) =>
                     compStmtSucc(x)(c, c.innerStatements)
                 case One(s: Statement) =>
-                    succH(x)(s)
+                    basicSucc(x)(s)
             }
         }
     }
@@ -105,10 +101,10 @@ trait CCFG extends ASTNavigation with ConditionalNavigation {
                             List()
                         case Some(f) =>
                             val c = getCFGStmtCtx(res, ctx, env.featureExpr(f))
-                            if (c.isContradiction())
-                                res
-                            else
+                            if (c.isSatisfiable())
                                 res ++ List(Opt(c, f))
+                            else
+                                res
                     }
         }
     }
@@ -121,11 +117,11 @@ trait CCFG extends ASTNavigation with ConditionalNavigation {
                 case e =>
                     val c = env.featureExpr(e)
                     if (ctx and c isSatisfiable()) {
-                        val cu = getCFGStmtCtx(res, ctx, c)
-                        if (cu.isContradiction())
-                            res
+                        val uc = getCFGStmtCtx(res, ctx, c)
+                        if (uc.isSatisfiable())
+                            res ++ List(Opt(uc, e))
                         else
-                            res ++ List(Opt(cu, e))
+                            res
                     } else
                         res
                 }
@@ -137,7 +133,7 @@ trait CCFG extends ASTNavigation with ConditionalNavigation {
                 s => {
                     val c = env.featureExpr(s)
                     if (c.isSatisfiable())
-                        succH(env, List(), c)(s)
+                        succComp(env, List(), c)(s)
                     else
                         List()
                 }
@@ -145,24 +141,20 @@ trait CCFG extends ASTNavigation with ConditionalNavigation {
         }
     }
 
-    private lazy val succH: Tuple3[ASTEnv, CFGStmts, FeatureExpr] => AST => CFGStmts =
+    private lazy val basicSucc: Tuple3[ASTEnv, CFGStmts, FeatureExpr] => AST => CFGStmts =
         paramAttr {
             case x@(env, res, ctx) => {
-                case FunctionDef(_, _, _, stmt) => res ++ compStmtSucc(x)(stmt, stmt.innerStatements)
-
                 // loops
-                case ForStatement(expr1, expr2, expr3, s) =>
+                case ForStatement(expr1, expr2, _, s) =>
                     if (expr1.isDefined)
                         exprSucc(x)(expr1.get)
                     else if (expr2.isDefined)
                         exprSucc(x)(expr2.get)
                     else
                         condStmtSucc(x)(s)
-
                 case WhileStatement(expr, _) =>
                     exprSucc(x)(expr)
-
-                case DoStatement(expr, s) =>
+                case DoStatement(_, s) =>
                     condStmtSucc(x)(s)
 
                 // conditional statements
@@ -175,16 +167,38 @@ trait CCFG extends ASTNavigation with ConditionalNavigation {
 
                 case e: CFGStmt =>
                     val c = env.featureExpr(e)
-                    if (c and ctx isSatisfiable())
-                        res ++ List(Opt(c, e))
-                    else
-                        res
+                    if (c and ctx isSatisfiable()) {
+                        val cu = getCFGStmtCtx(res, ctx, c)
+                        if (cu isSatisfiable())
+                            res ++ List(Opt(cu, e))
+                        else
+                            res
+                    } else
+                    res
+            }
+        }
 
+    private lazy val succComp: Tuple3[ASTEnv, CFGStmts, FeatureExpr] => AST => CFGStmts =
+        paramAttr {
+            case x@(env, res, ctx) => {
+                case FunctionDef(_, _, _, stmt) => succComp(x)(stmt)
+                case e@CompoundStatement(innerStatements) =>
+                    var r = res
+                    innerStatements.takeWhile {
+                        case _ => !isComplete(ctx)(r)
+                    }.foreach {
+                        case Opt(_, a) => r = basicSucc(env, r, ctx)(a)
+                    }
+
+                    if (!isComplete(ctx)(r))
+                        succFollowing(env, r, ctx)(e)
+                    else
+                        r
                 case e => succFollowing(x)(e)
             }
         }
 
-    // checks reference equality of e in a given structure t (either product or list)
+    // checks reference equality of e in a given structure
     private lazy val isPartOf: Product => Any => Boolean = {
         paramAttr {
             se => {
@@ -220,7 +234,7 @@ trait CCFG extends ASTNavigation with ConditionalNavigation {
                 case se: ReturnStatement =>
                     retuStmtSucc(x)(se)
                 case se =>
-                    env.parent(se) match {
+                    parentAST(se, env) match {
                         // loops
                         case ForStatement(Some(expr1), expr2, _, s) if isPartOf(se)(expr1) =>
                             if (expr2.isDefined) exprSucc(x)(expr2.get)
@@ -312,16 +326,18 @@ trait CCFG extends ASTNavigation with ConditionalNavigation {
                         case e: ElifStatement =>
                             succFollowing(x)(e)
 
-                        case e: CompoundStatement if e.innerStatements.map(_.entry).exists(_.eq(se)) =>
+                        case e: CompoundStatement =>
                             succFollowing(x)(e)
 
                         case e: FunctionDef =>
                             val c = env.featureExpr(e)
                             val uc = getCFGStmtCtx(res, ctx, c)
+                            var r = res
                             if (uc.isSatisfiable())
-                                res ++ List(Opt(c, e))
+                                r = res ++ List(Opt(uc, e))
                             else
-                                res
+                                r = res
+                            r
 
                         case _ => res
                     }
