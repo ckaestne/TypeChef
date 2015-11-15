@@ -650,7 +650,7 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
 
                         if (!succComplete(ctx, res)) {
                             if (elseBranch.isDefined) res ++= getCondStmtSucc(elseBranch.get, ctx, oldres, env)
-                            else res ++= getStmtSucc(t, ctx, res, env)
+                            else res = getStmtSucc(t, ctx, res, env)
                         }
                         res ++= getCondStmtSucc(thenBranch, ctx, oldres, env)
                         res
@@ -678,8 +678,8 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
 
                         if (!succComplete(ctx, res)) {
                             parentAST(t, env) match {
-                                case tp@IfStatement(_, _, _, None) => res ++= getStmtSucc(tp, ctx, res, env)
-                                case IfStatement(_, _, _, Some(elseBranch)) => res ++= getCondStmtSucc(elseBranch, ctx, res, env)
+                                case tp@IfStatement(_, _, _, None) => res = getStmtSucc(tp, ctx, res, env)
+                                case IfStatement(_, _, _, Some(elseBranch)) => res ++= getCondStmtSucc(elseBranch, ctx, oldres, env)
                             }
                         }
 
