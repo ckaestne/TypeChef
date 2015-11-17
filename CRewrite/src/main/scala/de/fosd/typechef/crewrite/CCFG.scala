@@ -146,6 +146,37 @@ trait CCFG extends ASTNavigation with ConditionalNavigation {
                 case DoStatement(_, s) =>
                     condStmtSucc(x)(s)
 
+                case e: BreakStatement =>
+                    getBreakStmtContext(e, env) match {
+                        case None =>
+                            assert(assertion = false, "break statement should always occur within a for, do-while, while or switch statement")
+                            res
+                        case Some(s) =>
+                            stmtSucc(x)(s)
+                    }
+                case e: ContinueStatement =>
+                    getContinueStmtContext(e, env) match {
+                        case None =>
+                            assert(assertion = false, "continue statement should always occur within a for, do-while, or while statement")
+                            res
+                        case Some(ForStatement(_, expr2, expr3, s)) =>
+                            if (expr3.isDefined)
+                                exprSucc(x)(expr3.get)
+                            else if (expr2.isDefined)
+                                exprSucc(x)(expr2.get)
+                            else
+                                condStmtSucc(x)(s)
+                        case Some(WhileStatement(expr, _)) =>
+                            exprSucc(x)(expr)
+                        case Some(DoStatement(expr, _)) =>
+                            exprSucc(x)(expr)
+                        case _ => List()
+                    }
+                case e: CaseStatement =>
+                    stmtSucc(x)(e)
+                case e: DefaultStatement =>
+                    stmtSucc(x)(e)
+
                 // conditional statements
                 case IfStatement(condition, _, _, _) =>
                     condExprSucc(x)(condition)
@@ -294,32 +325,6 @@ trait CCFG extends ASTNavigation with ConditionalNavigation {
                             rs ++ re ++ rt
                         case WhileStatement(expr, _) =>
                             exprSucc(x)(expr)
-                        case e: BreakStatement =>
-                            getBreakStmtContext(e, env) match {
-                                case None =>
-                                    assert(assertion = false, "break statement should always occur within a for, do-while, or while statement")
-                                    res
-                                case Some(ls) =>
-                                    stmtSucc(x)(ls)
-                            }
-                        case e: ContinueStatement =>
-                            getContinueStmtContext(e, env) match {
-                                case None =>
-                                    assert(assertion = false, "continue statement should always occur within a for, do-while, or while statement")
-                                    res
-                                case Some(ForStatement(_, expr2, expr3, s)) =>
-                                    if (expr3.isDefined)
-                                        exprSucc(x)(expr3.get)
-                                    else if (expr2.isDefined)
-                                        exprSucc(x)(expr2.get)
-                                    else
-                                        condStmtSucc(x)(s)
-                                case Some(WhileStatement(expr, _)) =>
-                                    exprSucc(x)(expr)
-                                case Some(DoStatement(expr, _)) =>
-                                    exprSucc(x)(expr)
-                                case _ => List()
-                            }
 
                         case e@DoStatement(expr, s) if isPartOf(se)(expr) =>
                             val rs = condStmtSucc(x)(s)
@@ -395,11 +400,14 @@ trait CCFG extends ASTNavigation with ConditionalNavigation {
                                         case Id(l) =>
                                             lstmts = lstmts.filter{ y => y.id.name == l }
 
+                                            @tailrec
                                             def pairwise[T](l: List[T], r: List[(T,T)] = List()): List[(T,T)] = {
-                                                case Nil => r
-                                                case y::ys => pairwise(ys, ys.map{ (y, _) })
-                                            }
+                                                l match {
+                                                    case Nil => r
+                                                    case y::ys => pairwise(ys, ys.map{ (y, _) })
+                                                }
 
+                                            }
                                             val pwcombs = pairwise(lstmts.map(env.featureExpr(_)))
                                             assert(assertion = pwcombs.forall{ case (a, b) => !(a equivalentTo b) }, "found label statements with equivalent annotation!")
                                         case _ =>
@@ -410,6 +418,22 @@ trait CCFG extends ASTNavigation with ConditionalNavigation {
                                     else
                                         res ++ lstmts.map { ls => Opt(env.featureExpr(ls), ls) }
                             }
+                        case e@SwitchStatement(expr, s) if isPartOf(se)(expr) =>
+                            var r = res
+                            // switch code (in s) before the first case statement is dead code
+                            // and can be used only to declare variables
+                            // see section 6.8.2.4 in the c standard
+                            val casstmts = filterCaseStatements(s, env.featureExpr(expr), env)
+                                .flatMap{ case Opt(_, a) => stmtSucc(x)(a.asInstanceOf[Statement]) }
+                            r ++= casstmts
+                            val defstmts = filterDefaultStatements(s, env.featureExpr(expr), env)
+                                .flatMap{ case Opt(_, a) => stmtSucc(x)(a.asInstanceOf[Statement]) }
+
+                            if (defstmts.isEmpty)
+                                r ++= stmtSucc(x)(e)
+                            else
+                                r ++= defstmts
+                            r
 
                         case e: CompoundStatement =>
                             val r = stmtSucc(x)(se.asInstanceOf[Statement])
@@ -437,5 +461,41 @@ trait CCFG extends ASTNavigation with ConditionalNavigation {
                     }
             }
         }
+
+    private def filterCaseStatements(c: Conditional[Statement], ctx: FeatureExpr, env: ASTEnv): CFG = {
+        def filterCaseStatementsHelper(a: Any): CFG = {
+            a match {
+                case _: SwitchStatement => List()
+                case t: CaseStatement =>
+                    val c = env.featureExpr(t)
+                    if (c and ctx isSatisfiable())
+                        List(Opt(c, t))
+                    else
+                        List()
+                case l: List[_] => l.flatMap(filterCaseStatementsHelper)
+                case x: Product => x.productIterator.toList.flatMap(filterCaseStatementsHelper)
+                case _ => List()
+            }
+        }
+        filterCaseStatementsHelper(c)
+    }
+
+    private def filterDefaultStatements(c: Conditional[Statement], ctx: FeatureExpr, env: ASTEnv): CFG = {
+        def filterDefaultStatementsHelper(a: Any): CFG = {
+            a match {
+                case _: SwitchStatement => List()
+                case t: DefaultStatement =>
+                    val c = env.featureExpr(t)
+                    if (!(c and ctx).isContradiction())
+                        List(Opt(c, t))
+                    else
+                        List()
+                case l: List[_] => l.flatMap(filterDefaultStatementsHelper)
+                case x: Product => x.productIterator.toList.flatMap(filterDefaultStatementsHelper)
+                case _ => List()
+            }
+        }
+        filterDefaultStatementsHelper(c)
+    }
 }
 
