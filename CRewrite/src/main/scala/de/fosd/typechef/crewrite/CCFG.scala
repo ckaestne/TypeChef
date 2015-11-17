@@ -386,6 +386,30 @@ trait CCFG extends ASTNavigation with ConditionalNavigation {
                             r ++ condStmtSucc(x)(thenBranch)
                         case e: ElifStatement =>
                             succFollowing(x)(e)
+                        case e@GotoStatement(g) =>
+                            findPriorASTElem[FunctionDef](e, env) match {
+                                case Some(f) =>
+                                    var lstmts = filterAllASTElems[LabelStatement](f, env.featureExpr(e), env)
+
+                                    g match {
+                                        case Id(l) =>
+                                            lstmts = lstmts.filter{ y => y.id.name == l }
+
+                                            def pairwise[T](l: List[T], r: List[(T,T)] = List()): List[(T,T)] = {
+                                                case Nil => r
+                                                case y::ys => pairwise(ys, ys.map{ (y, _) })
+                                            }
+
+                                            val pwcombs = pairwise(lstmts.map(env.featureExpr(_)))
+                                            assert(assertion = pwcombs.forall{ case (a, b) => !(a equivalentTo b) }, "found label statements with equivalent annotation!")
+                                        case _ =>
+                                    }
+
+                                    if (lstmts.isEmpty)
+                                        stmtSucc(x)(e)
+                                    else
+                                        res ++ lstmts.map { ls => Opt(env.featureExpr(ls), ls) }
+                            }
 
                         case e: CompoundStatement =>
                             val r = stmtSucc(x)(se.asInstanceOf[Statement])
@@ -407,6 +431,8 @@ trait CCFG extends ASTNavigation with ConditionalNavigation {
                                 r = res
                             r
 
+                        case e: Statement =>
+                            stmtSucc(x)(e)
                         case _ => res
                     }
             }
