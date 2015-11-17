@@ -40,6 +40,21 @@ class CCFGTest extends TestHelper with Matchers with CCFG with EnforceTreeHelper
         true
     }
 
+    @Test def test_fdef3() {
+        cfgtest( """
+              void foo() {
+                switch (a) {
+                 case 1: b;
+                 case 2: c;
+                 break;
+                 case 3: d;
+                 default: e;
+                 }
+                 f;
+              }
+                 """.stripMargin) should be(true)
+    }
+
     @Test def test_fdef2() {
         cfgtest( """
               void foo() {
