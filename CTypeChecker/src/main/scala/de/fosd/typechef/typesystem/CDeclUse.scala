@@ -1,17 +1,16 @@
 package de.fosd.typechef.typesystem
 
-import scala.collection.JavaConversions._
+import java.util
 import java.util.{Collections, IdentityHashMap}
 
+import de.fosd.typechef.conditional._
+import de.fosd.typechef.featureexpr.{FeatureExpr, FeatureExprFactory, FeatureModel}
+import de.fosd.typechef.lexer.FeatureExprLib
+import de.fosd.typechef.parser.c._
 import org.apache.logging.log4j.LogManager
 
-import de.fosd.typechef.conditional._
-import de.fosd.typechef.featureexpr.{FeatureModel, FeatureExprFactory, FeatureExpr}
-import de.fosd.typechef.parser.c._
-import java.util
+import scala.collection.JavaConversions._
 import scala.collection.mutable.ListBuffer
-import de.fosd.typechef.lexer.FeatureExprLib
-
 import scala.reflect.ClassTag
 
 
@@ -698,8 +697,8 @@ trait CDeclUse extends CDeclUseInterface with CEnv with CEnvCache {
         def get[T](a: Any)(implicit m: ClassTag[T]): List[Opt[T]] = {
             a match {
                 // TODO: Feature does not have to be true
-                case c: One[T] if (m.runtimeClass.isInstance(c.value)) => List(Opt(FeatureExprFactory.True, c.value))
-                case o: Opt[T] if (m.runtimeClass.isInstance(o.entry)) => List(o)
+                case c: One[_] if (m.runtimeClass.isInstance(c.value)) => List(Opt(FeatureExprFactory.True, c.value.asInstanceOf[T]))
+                case o: Opt[_] if (m.runtimeClass.isInstance(o.entry)) => List(o.asInstanceOf[Opt[T]])
                 case l: List[_] => l.flatMap(x => get[T](x))
                 case p: Product => p.productIterator.toList.flatMap(x => get[T](x))
                 case _ => List()
