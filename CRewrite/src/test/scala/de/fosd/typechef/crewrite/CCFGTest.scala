@@ -44,11 +44,10 @@ class CCFGTest extends TestHelper with Matchers with CCFG with EnforceTreeHelper
         cfgtest( """
               void foo() {
                 switch (a) {
-                 case 1: b;
-                 case 2: c;
-                 break;
-                 case 3: d;
-                 default: e;
+                 #ifdef A
+                 case 1:
+                 #endif
+                 b;
                  }
                  f;
               }
