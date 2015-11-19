@@ -1,6 +1,8 @@
 TypeChef
 ========
 
+[![Build Status](https://travis-ci.org/ckaestne/TypeChef.svg?branch=master)](https://travis-ci.org/ckaestne/TypeChef)
+
 TypeChef is a research project with the goal of analyzing 
 ifdef variability in C code with the goal of finding
 variability-induced bugs in large-scale real-world systems,
