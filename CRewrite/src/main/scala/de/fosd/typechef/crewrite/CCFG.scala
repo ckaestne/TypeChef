@@ -34,10 +34,11 @@ trait CCFG extends ASTNavigation with ConditionalNavigation {
                     var r = res
 
                     l.foreach {
-                        x =>
-                            if ((ctx and env.featureExpr(x) isSatisfiable())
+                        y =>
+                            val c = env.featureExpr(y.entry)
+                            if ((ctx and c isSatisfiable())
                                 && !isComplete(ctx)(r)) {
-                                r = basicSucc(env, r, ctx)(x.entry)
+                                r = basicSucc(env, r, ctx and c)(y.entry)
                                 // filter elements with an equivalent annotation
                                 .foldLeft(List(): CFGStmts){
                                     (ul, nee) =>
@@ -152,30 +153,31 @@ trait CCFG extends ASTNavigation with ConditionalNavigation {
                             assert(assertion = false, "break statement should always occur within a for, do-while, while or switch statement")
                             res
                         case Some(s) =>
-                            stmtSucc(x)(s)
+                            stmtSucc(env, res, ctx and env.featureExpr(e))(s)
                     }
                 case e: ContinueStatement =>
+                    lazy val y = (env, res, ctx and env.featureExpr(e))
                     getContinueStmtContext(e, env) match {
                         case None =>
                             assert(assertion = false, "continue statement should always occur within a for, do-while, or while statement")
                             res
                         case Some(ForStatement(_, expr2, expr3, s)) =>
                             if (expr3.isDefined)
-                                exprSucc(x)(expr3.get)
+                                exprSucc(y)(expr3.get)
                             else if (expr2.isDefined)
-                                exprSucc(x)(expr2.get)
+                                exprSucc(y)(expr2.get)
                             else
-                                condStmtSucc(x)(s)
+                                condStmtSucc(y)(s)
                         case Some(WhileStatement(expr, _)) =>
-                            exprSucc(x)(expr)
+                            exprSucc(y)(expr)
                         case Some(DoStatement(expr, _)) =>
-                            exprSucc(x)(expr)
+                            exprSucc(y)(expr)
                         case _ => List()
                     }
                 case e: CaseStatement =>
-                    stmtSucc(x)(e)
+                    stmtSucc(env, res, ctx and env.featureExpr(e))(e)
                 case e: DefaultStatement =>
-                    stmtSucc(x)(e)
+                    stmtSucc(env, res, ctx and env.featureExpr(e))(e)
 
                 // conditional statements
                 case IfStatement(condition, _, _, _) =>
@@ -393,6 +395,7 @@ trait CCFG extends ASTNavigation with ConditionalNavigation {
                             succFollowing(x)(e)
                         case e@GotoStatement(g) =>
                             findPriorASTElem[FunctionDef](e, env) match {
+                                case None => res // should never happen, as parser ensures that goto statements belong to functions
                                 case Some(f) =>
                                     var lstmts = filterAllASTElems[LabelStatement](f, env.featureExpr(e), env)
 
@@ -424,10 +427,10 @@ trait CCFG extends ASTNavigation with ConditionalNavigation {
                             // and can be used only to declare variables
                             // see section 6.8.2.4 in the c standard
                             val casstmts = filterCaseStatements(s, env.featureExpr(expr), env)
-                                .flatMap{ case Opt(_, a) => stmtSucc(x)(a.asInstanceOf[Statement]) }
+                                .flatMap{ case Opt(c, a) => stmtSucc(env, res, ctx and c)(a.asInstanceOf[Statement]) }
                             r ++= casstmts
                             val defstmts = filterDefaultStatements(s, env.featureExpr(expr), env)
-                                .flatMap{ case Opt(_, a) => stmtSucc(x)(a.asInstanceOf[Statement]) }
+                                .flatMap{ case Opt(c, a) => stmtSucc(env, res, ctx and c)(a.asInstanceOf[Statement]) }
 
                             if (defstmts.isEmpty)
                                 r ++= stmtSucc(x)(e)
