@@ -234,6 +234,11 @@ class ExprTypingTest extends FunSuite with CTypeSystem with CEnv with Matchers w
         expr("(double)ig") should be(CDouble().toCType)
     }
 
+    test("case of anonymous structs") {
+        //false positive in busybox
+        expr("((union { int __in; int __i; }) { .__in =1 }).__i") should be (CSigned(CInt()).toCType)
+    }
+
     //    @Ignore
     //    test("array access") {
     //        expr("arr[3]") should be(CDouble())
