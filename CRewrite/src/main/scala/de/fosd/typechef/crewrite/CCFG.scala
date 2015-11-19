@@ -393,6 +393,7 @@ trait CCFG extends ASTNavigation with ConditionalNavigation {
                             r ++ condStmtSucc(x)(thenBranch)
                         case e: ElifStatement =>
                             succFollowing(x)(e)
+
                         case e@GotoStatement(g) =>
                             findPriorASTElem[FunctionDef](e, env) match {
                                 case None => res // should never happen, as parser ensures that goto statements belong to functions
@@ -460,6 +461,7 @@ trait CCFG extends ASTNavigation with ConditionalNavigation {
 
                         case e: Statement =>
                             stmtSucc(x)(e)
+
                         case _ => res
                     }
             }
