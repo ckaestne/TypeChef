@@ -132,7 +132,7 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
 
                                 if (targetType == CVoid().toCType) targetType
                                 else if (sourceType.isIgnore || targetType.isIgnore || sourceType.isUnknown || targetType.isUnknown) targetType
-                                else if (isStruct(targetType) && isCompound(sourceType)) targetType
+                                else if (isCompound(sourceType) && (isStruct(targetType) || isArray(targetType))) targetType.toObj //workaround for array/struct initializers
                                 else if (isAnonymousStruct(targetType) && sourceType.atype!=targetType.atype) //cannot even cast an anonymous struct to itself unless it is from the same (typedef) definition
                                     reportTypeError(fexpr, "conversion to non-scalar type requested (" + sourceType + " to " + targetType+")", ce)
                                 else if (isIntegral(sourceType) && isPointer(targetType)) targetType
@@ -142,7 +142,6 @@ trait CExprTyping extends CTypes with CEnv with CDeclTyping with CTypeSystemInte
                                 else if (isArithmetic(sourceType) && isArithmetic(targetType)) targetType
                                 else if (targetType.atype == sourceType.atype) targetType // casting to the same type is fine
                                 else if (isIntegral(targetType) && isPointer(normalize(sourceType))) targetType //cast from pointer to long is valid
-                                else if (isCompound(sourceType) && (isStruct(targetType) || isArray(targetType))) targetType.toObj //workaround for array/struct initializers
                                 else if (isStruct(targetType))    //int -> struct is error // more specific error message
                                     reportTypeError(fexpr, "conversion to non-scalar type requested (" + sourceType + " to " + targetType+")", ce)
                                 else
