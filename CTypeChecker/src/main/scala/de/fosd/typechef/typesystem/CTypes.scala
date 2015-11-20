@@ -80,18 +80,26 @@ case class CType(
     def map(f: AType => AType) = copy(atype = f(this.atype))
 
     /**
-      * by default equals between two CTypes will only compare their ATypes (including the ATypes of nested CTypes)
+      * by default equals between two CTypes will only compare their ATypes and const, object and volatile modifier
       *
-      * that is, equality checking does not care about const, volatile, and object. to check equality
-      * of two CTypes including these parameters use equalsCType
+      * (changed Nov 20 2015 from equalsAType behavior)
       */
     override def equals(that: Any) = that match {
         case thattype: CType =>
-            (this.isUnknown && thattype.isUnknown) ||
-                (this.atype == thattype.atype)
+            (this.isUnknown && thattype.isUnknown) || equalsCType(thattype)
         case thattype: AType => throw new RuntimeException("comparison between CType and AType")
         case _ => super.equals(that)
     }
+
+    /**
+      * equals between two CTypes comparing only their ATypes (including the ATypes of nested CTypes)
+      *
+      * that is, this equality checking does not care about const, volatile, and object. to check equality
+      * of two CTypes including these parameters use equalsCType
+      */
+    def equalsAType(thattype: CType) =
+            (this.isUnknown && thattype.isUnknown) ||
+                (this.atype == thattype.atype)
 
     /**
       * note, this check currently only checks the top-level CTypes for equality, but uses the AType
@@ -403,7 +411,7 @@ class CFunction(val param: Seq[CType], val ret: CType) extends AType {
     override def hashCode() = param.hashCode() * ret.hashCode()
 
     override def equals(that: Any) = that match {
-        case thatf: CFunction => (this.param equals thatf.param) && (this.ret equals thatf.ret)
+        case thatf: CFunction => (this.param.length==thatf.param.length) && this.param.zip(thatf.param).forall(x => x._1 equalsAType x._2) && (this.ret equalsAType thatf.ret)
         case _ => super.equals(that)
     }
 
@@ -810,7 +818,7 @@ trait CTypes extends COptionProvider {
                 CUnsigned(CLongLong()), CSigned(CLongLong()), CSignUnspecified(CLongLong()),
                 CUnsigned(CLong()), CSigned(CLong()), CSignUnspecified(CLong()),
                 CUnsigned(CInt()))
-            def either(c: CType): Boolean = (a == c) || (b == c)
+            def either(c: CType): Boolean = (a equalsAType c) || (b equalsAType c)
             priority.foldRight[CType](CSigned(CInt()))((ctype, result) => if (either(ctype)) ctype else result)
         } else a
 

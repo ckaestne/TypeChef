@@ -1,6 +1,7 @@
 package de.fosd.typechef.typesystem
 
 
+import de.fosd.typechef.featureexpr.FeatureExprFactory
 import de.fosd.typechef.parser.c._
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
@@ -1141,6 +1142,19 @@ return 1;
             #endif
             }
               """        )
+    }
+
+    test("conditional const type") {
+        errorIf(
+            """
+              |void foo() {
+              |  #ifdef X
+              |  const
+              |  #endif
+              |  int i=0;
+              |  i=3;
+              |}
+            """.stripMargin, FeatureExprFactory.createDefinedExternal("X"))
     }
 }
 

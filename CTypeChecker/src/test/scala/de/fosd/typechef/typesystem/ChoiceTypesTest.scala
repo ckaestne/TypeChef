@@ -37,6 +37,12 @@ class ChoiceTypesTest extends FunSuite with Matchers with CTypeSystem with CEnvC
          c
          #endif
          ;
+
+         #ifdef X
+         const
+         #endif
+         double y;
+
          int end;""")
         typecheckTranslationUnit(ast)
         val env = lookupEnv(ast.defs.last.entry).varEnv
@@ -44,6 +50,8 @@ class ChoiceTypesTest extends FunSuite with Matchers with CTypeSystem with CEnvC
         env("a").map(_.atype) should be(Choice(fx.not, One(CDouble()), One(CSigned(CInt()))))
         env("x").map(_.atype) should be(Choice(fy, One(CDouble()), Choice(fx, One(CSigned(CInt())), One(CUndefined))))
         env("b").map(_.atype) should be(Choice(fx, One(CDouble()), One(CUndefined)))
+        env("y") should be(Choice(fx,
+            One(CType(CDouble(), false, false, true)), One(CType(CDouble(), false, false, false))))
     }
 
 

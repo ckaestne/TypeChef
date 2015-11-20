@@ -1,6 +1,7 @@
 package de.fosd.typechef.typesystem
 
 import de.fosd.typechef.error.TypeChefError
+import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureExpr}
 import de.fosd.typechef.parser.c.{TranslationUnit, TestHelper}
 
 
@@ -38,6 +39,12 @@ trait TestHelperTS extends TestHelper {
     def error(code: String) {
         val r = _check(code)
         assert(r.filter(!_.isWarning).nonEmpty, "False negative (expected error, but found none)")
+    }
+
+    def errorIf(code: String, expectedErrorCondition: FeatureExpr) {
+        val r = _check(code)
+        val foundErrorCondition = r.filter(!_.isWarning).foldRight(FeatureExprFactory.False)(_.condition or _)
+        assert(foundErrorCondition equivalentTo expectedErrorCondition, s"Expected error under condition $expectedErrorCondition, but found error under condition $foundErrorCondition")
     }
 
     def warning(code: String) {
