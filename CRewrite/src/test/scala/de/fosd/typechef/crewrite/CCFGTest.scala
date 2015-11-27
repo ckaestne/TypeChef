@@ -4,7 +4,7 @@ import de.fosd.typechef.parser.c._
 import org.junit.Test
 import org.scalatest.Matchers
 
-class CCFGTest extends TestHelper with Matchers with CCFG with EnforceTreeHelper {
+class CCFGTest extends TestHelper with Matchers with IntraCFG with EnforceTreeHelper {
 
     // determine recursively all succs check
     def getAllSucc(i: AST, env: ASTEnv) = {
@@ -26,12 +26,32 @@ class CCFGTest extends TestHelper with Matchers with CCFG with EnforceTreeHelper
         r
     }
 
+    // determine recursively all pred
+    def getAllPred(i: AST, env: ASTEnv) = {
+        var r = List[(AST, CFG)]()
+        var s = List(i)
+        var d = List[AST]()
+        var c: AST = null
+
+        while (s.nonEmpty) {
+            c = s.head
+            s = s.drop(1)
+
+            if (!d.exists(_.eq(c))) {
+                r = (c, pred(env)(c)) :: r
+                s = s ++ r.head._2.map(x => x.entry)
+                d = d ++ List(c)
+            }
+        }
+        r
+    }
+
     def cfgtest(code: String): Boolean = {
         val f = prepareAST[FunctionDef](parseFunctionDef(code))
         val env = CASTEnv.createASTEnv(f)
-        getAllSucc(f, env).foreach {
+        getAllPred(f, env).foreach {
             case (e, s) =>
-                println(e + "====>")
+                println(e + "\n====>")
                 s.foreach { println(_) }
                 println("############")
         }
@@ -40,15 +60,14 @@ class CCFGTest extends TestHelper with Matchers with CCFG with EnforceTreeHelper
 
     @Test def test_fdef3() {
         cfgtest( """
-              void foo() {
-                switch (a) {
-                 #ifdef A
-                 case 1:
-                 #endif
-                 b;
-                 }
-                 f;
-              }
+                   |void foo() {
+                   |    return (({
+                   |        if (a) goto l1;
+                   |        b;
+                   |    }));
+                   |    l1:
+                   |    return c;
+                   |}
                  """.stripMargin) should be(true)
     }
 

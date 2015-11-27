@@ -49,7 +49,7 @@ class ReachingDefinitions(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: Fea
             if (udm.containsKey(i))
                 for (x <- udm.get(i)) {
                     cachePGT.update(x, (x, System.identityHashCode(x)))
-                    if (! isPartOf(x, f.stmt))
+                    if (!isPartOf(x)(f.stmt))
                         fvs ::= cachePGT.lookup(x).get
                     getFreshDefinitionFromUsage(cachePGT.lookup(x).get)
                 }

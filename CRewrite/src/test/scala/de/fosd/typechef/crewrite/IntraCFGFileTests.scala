@@ -6,7 +6,7 @@ import de.fosd.typechef.parser.c._
 import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureModel}
 
 
-class IntraCFGFileTests extends TestHelper with EnforceTreeHelper with IntraCFG with ConditionalNavigation with CFGHelper {
+class IntraCFGFileTests extends TestHelper with EnforceTreeHelper with ConditionalNavigation with CFGHelper {
     val folder = "testfiles/"
 
     private def checkCFG(filename: String, fm: FeatureModel = FeatureExprFactory.default.featureModelFactory.empty) = {
@@ -23,7 +23,7 @@ class IntraCFGFileTests extends TestHelper with EnforceTreeHelper with IntraCFG 
         val family_env = CASTEnv.createASTEnv(family_ast)
 
         val family_function_defs = filterAllASTElems[FunctionDef](family_ast)
-        errorOccured |= family_function_defs.map(intraCfgFunctionDef(_, family_env)).exists(_ == true)
+        errorOccured |= family_function_defs.map(intraCfgFunctionDef(_, family_env)).contains(true)
 
         errorOccured
     }
@@ -33,10 +33,10 @@ class IntraCFGFileTests extends TestHelper with EnforceTreeHelper with IntraCFG 
         val p = getAllPred(f, env)
         val errors = CheckCFG.compareSuccWithPred(s, p, env)
 
-        if (errors.size > 0)
+        if (errors.nonEmpty)
             CFGErrorOutput.printCFGErrors(s, p, errors, env)
 
-        errors.size > 0
+        errors.nonEmpty
     }
 
     // gcc testsuite
@@ -48,7 +48,7 @@ class IntraCFGFileTests extends TestHelper with EnforceTreeHelper with IntraCFG 
     // interesting anyway
 
     @Test def test_20000105_1() {
-        assert(checkCFG("20000105-1.c") == false)
+        assert(!checkCFG("20000105-1.c"))
     }
 
     @Test def test_20000105_2() {

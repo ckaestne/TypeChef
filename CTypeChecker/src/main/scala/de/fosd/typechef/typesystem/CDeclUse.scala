@@ -699,7 +699,7 @@ trait CDeclUse extends CDeclUseInterface with CEnv with CEnvCache {
         def get[T](a: Any)(implicit m: ClassTag[T]): List[Opt[T]] = {
             a match {
                 // TODO: Feature does not have to be true
-                case c: One[_] if (m.runtimeClass.isInstance(c.value)) => List(Opt(FeatureExprFactory.True, c.value.asInstanceOf[T]))
+                case c: One[_] if (m.runtimeClass.isInstance(c.value)) => List(Opt(FeatureExprFactory.True, c.value).asInstanceOf[Opt[T]])
                 case o: Opt[_] if (m.runtimeClass.isInstance(o.entry)) => List(o.asInstanceOf[Opt[T]])
                 case l: List[_] => l.flatMap(x => get[T](x))
                 case p: Product => p.productIterator.toList.flatMap(x => get[T](x))

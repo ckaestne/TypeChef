@@ -3,7 +3,8 @@ package de.fosd.typechef.crewrite
 import de.fosd.typechef.featureexpr.FeatureExpr
 import de.fosd.typechef.conditional.{Opt, ConditionalMap, Conditional}
 import de.fosd.typechef.parser.c._
-import scala.Some
+
+import org.kiama.attribution.Attribution._
 
 // interprocedural control flow graph (cfg) implementation based on the
 // intraprocedural cfg implementation (see IntraCFG.scala)
@@ -44,22 +45,21 @@ trait InterCFG extends IntraCFG {
         functionDefs.getOrElse(name, None)
     }
 
-    override private[crewrite] def findMethodCalls(t: AST, env: ASTEnv, oldres: CFGRes, ctx: FeatureExpr, _res: CFGRes): CFGRes = {
-        var res: CFGRes = _res
+    override private[crewrite] def findMethodCalls(t: AST, env: ASTEnv, oldres: CFG, ctx: FeatureExpr, _res: CFG): CFG = {
+        var res = _res
         val postfixExprs = filterAllASTElems[PostfixExpr](t)
         for (pf@PostfixExpr(Id(funName), FunctionCall(_)) <- postfixExprs) {
             val fexpr = env.featureExpr(pf)
-            val newresctx = getNewResCtx(oldres, ctx, fexpr)
+            val newresctx = getCFGStmtCtx(oldres, ctx, fexpr)
             val targetFun = lookupFunctionDef(funName)
             targetFun.vmap(fexpr, {
-                case (f, Some(target)) => res = (newresctx and f, f, target) :: res
+                case (f, Some(target)) => res = Opt(newresctx and f, target) :: res
                 case _ =>
             })
         }
         res
     }
 
-    override def getExprSucc(exp: Expr, ctx: FeatureExpr, oldres: CFGRes, env: ASTEnv): CFGRes = {
-        findMethodCalls(exp, env, oldres, ctx, oldres) ++ super.getExprSucc(exp, ctx, oldres, env)
-    }
+    override def exprSucc(env: ASTEnv, res: CFGStmts, ctx: FeatureExpr)(e: Expr): CFGStmts =
+        findMethodCalls(e, env, res, ctx, res) ++ exprSucc(env, res, ctx)(e)
 }
