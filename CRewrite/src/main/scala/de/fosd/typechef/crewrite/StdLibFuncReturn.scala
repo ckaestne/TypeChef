@@ -113,7 +113,7 @@ sealed abstract class StdLibFuncReturn(env: ASTEnv, dum: DeclUseMap, udm: UseDec
                 // iterate errorreturn and check whether one of the elements in there occurs somewhere in the
                 // NAryExpr, i.e., we check "e" and "others" of NAryExpr
                 errorreturn.map(e => {
-                    if (! (ne.get.others.exists(sne => isPartOf(e, sne)) || isPartOf(e, ne.get.e))) erroreouscalls ::= c
+                    if (! (ne.get.others.exists(sne => isPartOf(e)(sne)) || isPartOf(e)(ne.get.e))) erroreouscalls ::= c
                 })
             } else {
                 erroreouscalls ::= c

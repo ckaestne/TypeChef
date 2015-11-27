@@ -92,7 +92,7 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
                 else out.find { case (t, _) => t == i } match {
                     case None => {
                         var idecls = getDecls(i)
-                        if (idecls.exists(isPartOf(_, fa._1)))
+                        if (idecls.exists(isPartOf(_)(fa._1)))
                             err ::= new TypeChefError(Severity.Warning, fi, "warning: Variable " + i.name + " is a dead store!", i, "")
                     }
                     case Some((x, z)) => {
@@ -102,7 +102,7 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
                             for (ei <- idecls) {
                                 // with isPartOf we reduce the number of false positives, since we only check local variables and function parameters.
                                 // an assignment to a global variable might be used in another function
-                                if (isPartOf(ei, fa._1) && xdecls.exists(_.eq(ei)))
+                                if (isPartOf(ei)(fa._1) && xdecls.exists(_.eq(ei)))
                                     err ::= new TypeChefError(Severity.Warning, z.not(), "warning: Variable " + i.name + " is a dead store!", i, "")
                             }
 

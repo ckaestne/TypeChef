@@ -1,12 +1,12 @@
 joe()
 {
-  int j;
+  a;
 
-  while( 1 )
+  while( b )
     {
-      for( j = 0; j < 4; j++ )
-	;
-      for( j = 0; j < 4; j++ )
-	;
+      for( c; d; e )
+	f;
+      for( g; h; i )
+	j;
     }
 }

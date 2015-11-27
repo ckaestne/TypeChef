@@ -18,7 +18,7 @@ class DanglingSwitchCode(env: ASTEnv) extends IntraCFG {
             case Opt(_, _: DefaultStatement) => true
 
             // filter out all elements that are not part of the switch
-            case Opt(_, x) => if (isPartOf(x, s)) false else true
+            case Opt(_, x) => if (isPartOf(x)(s)) false else true
         })
 
         wlist

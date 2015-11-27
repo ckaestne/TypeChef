@@ -1,4 +1,3 @@
-#if definedEx(A)
 void foo(void) {
   if (a) {
     b;
