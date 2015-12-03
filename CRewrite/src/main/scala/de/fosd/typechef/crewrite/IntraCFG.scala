@@ -259,8 +259,19 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
                 var r = res
                 if (elseBranch.isDefined)
                     r ++= condStmtPred(env, res, ctx)(elseBranch.get)
+                else
+                    elifs.reverse.takeWhile(_ => !isComplete(ctx)(r)).foreach {
+                        case Opt(_, ElifStatement(c, _)) =>
+                            val re = condExprPred(env, res, ctx)(c)
+
+                            re.filter {
+                                n => getUnsatisfiedCtx(r).and(n.condition).isSatisfiable()
+                            } foreach {
+                                n => r ++= List(n)
+                            }
+                    }
                 r ++= elifs.flatMap{
-                    case Opt(m, n) => basicPred(env, res, ctx and m)(n)
+                    case Opt(m, ElifStatement(_, tb)) => condStmtPred(env, res, ctx and m)(tb)
                 }
                 if (!isComplete(ctx)(r))
                     r ++= condExprPred(env, res, ctx)(condition)
@@ -339,7 +350,7 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
                         assert(assertion = false, "break statement should always occur within a for, do-while, while or switch statement")
                         res
                     case Some(s) =>
-                        stmtSucc(env, res, ctx and env.featureExpr(e))(s)
+                        stmtSucc(env, res, ctx and env.featureExpr(e))(s, false)
                 }
             case e: ContinueStatement =>
                 val y = ctx and env.featureExpr(e)
@@ -363,7 +374,7 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
             case CaseStatement(c) =>
                 exprSucc(env, res, ctx)(c)
             case e: DefaultStatement =>
-                stmtSucc(env, res, ctx and env.featureExpr(e))(e)
+                stmtSucc(env, res, ctx and env.featureExpr(e))(e, false)
             case IfStatement(condition, _, _, _) =>
                 condExprSucc(env, res, ctx)(condition)
             case ElifStatement(condition, _) =>
@@ -583,7 +594,7 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
                             r
                     case e@ElifStatement(condition, _) if isPartOf(se)(condition) =>
                         var r = res
-                        val elifs = prevASTElems(e, env).tail.asInstanceOf[List[ElifStatement]]
+                        val elifs = prevASTElems(e, env).reverse.tail.asInstanceOf[List[ElifStatement]]
 
                         elifs.takeWhile(_ => !isComplete(ctx)(r)).foreach {
                             case ElifStatement(c, _) =>
@@ -741,7 +752,7 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
                         r ++ condStmtSucc(env, res, ctx)(thenBranch)
                     // part of then branch, elifs, or else branch
                     case e@IfStatement(_, _, _, _) =>
-                        stmtSucc(env, res, ctx)(e)
+                        stmtSucc(env, res, ctx)(e, true)
                     // condition of the elif statement
                     case e@ElifStatement(condition, thenBranch) if isPartOf(se)(condition) =>
                         var r = res
@@ -797,7 +808,7 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
                                 }
 
                                 if (lstmts.isEmpty)
-                                    stmtSucc(env, res, ctx)(e)
+                                    stmtSucc(env, res, ctx)(e, true)
                                 else
                                     res ++ lstmts.flatMap { ls => basicSucc(env, res, ctx)(ls) }
                         }
@@ -813,17 +824,17 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
                         r ++= casstmts
                         val defstmts = filterDefaultStatements(s, env.featureExpr(expr), env)
                             .flatMap{
-                                case Opt(m, n) => stmtSucc(env, res, ctx and m)(n.asInstanceOf[Statement])
+                                case Opt(m, n) => stmtSucc(env, res, ctx and m)(n.asInstanceOf[Statement], true)
                             }
 
                         if (defstmts.isEmpty)
-                            r ++= stmtSucc(env, res, ctx)(e)
+                            r ++= stmtSucc(env, res, ctx)(e, true)
                         else
                             r ++= defstmts
                         r
 
                     case e: CompoundStatement =>
-                        val r = stmtSucc(env, res, ctx)(se.asInstanceOf[Statement])
+                        val r = stmtSucc(env, res, ctx)(se.asInstanceOf[Statement], true)
                         if (!isComplete(ctx)(r))
                             succFollowing(env, r, ctx)(e)
                         else
@@ -845,7 +856,7 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
                         r
 
                     case e: Statement =>
-                        stmtSucc(env, res, ctx)(e)
+                        stmtSucc(env, res, ctx)(e, true)
 
                     case _ => res
                 }
