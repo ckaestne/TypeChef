@@ -2646,8 +2646,9 @@ class IntraCFGFileTests extends TestHelper with EnforceTreeHelper with Condition
         assert(!checkCFG("bug67.c"))
     }
 
+    // succ != pred because of dangling switch code
     @Test def test_bug68() {
-        assert(!checkCFG("bug68.c"))
+        assert(checkCFG("bug68.c"))
     }
 
     @Test def test_bug69() {

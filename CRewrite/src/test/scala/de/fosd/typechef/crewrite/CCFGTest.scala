@@ -49,7 +49,7 @@ class CCFGTest extends TestHelper with Matchers with IntraCFG with EnforceTreeHe
     def cfgtest(code: String): Boolean = {
         val f = prepareAST[FunctionDef](parseFunctionDef(code))
         val env = CASTEnv.createASTEnv(f)
-        getAllPred(f, env).foreach {
+        getAllSucc(f, env).foreach {
             case (e, s) =>
                 println(e + "\n====>")
                 s.foreach { println(_) }
@@ -61,9 +61,12 @@ class CCFGTest extends TestHelper with Matchers with IntraCFG with EnforceTreeHe
     @Test def test_fdef3() {
         cfgtest( """
                    |void foo() {
-                   |    if (a) {
-                   |        b;
-                   |    }
+                   |    a;
+                   |    do {
+                   |    #ifdef A
+                   |    b;
+                   |    #endif
+                   |    } while (c);
                    |}
                  """.stripMargin) should be(true)
     }
@@ -88,17 +91,17 @@ class CCFGTest extends TestHelper with Matchers with IntraCFG with EnforceTreeHe
 
     @Test def test_fdef() {
         cfgtest( """
-              void foo() {
-                #ifdef A
-                a;
-                #endif
-                #ifdef B
-                b;
-                #endif
-                #ifdef A
-                c;
-                #endif
-              }
+                   |void foo() {
+                   |    e;
+                   |    do {
+                   |        #if definedEx(A)
+                   |        if (f) {
+                   |            h;
+                   |        }
+                   |        #endif
+                   |    } while (i);
+                   |    j;
+                   |}
                     """.stripMargin) should be(true)
     }
 
