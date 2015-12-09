@@ -46,8 +46,8 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
                     predFollowing(env, r, ctx)(e)
                 else
                     r
-            case e =>
-                predFollowing(env, res, ctx)(e)
+            case _ =>
+                predFollowing(env, res, ctx)(s)
         }
     }
 
@@ -115,7 +115,7 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
                                 ul
                             else
                                 ul ++ List(nee)
-                    }
+                        }
                         // filter unsatisfiable control-flow paths,
                         // i.e., feature expression is contradiction
                         .filter {_.condition and ctx isSatisfiable()}
@@ -290,7 +290,7 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
                 val c = env.featureExpr(expr)
                 val defstmts = filterDefaultStatements(s, c, env)
                 if (!isComplete(c)(defstmts))
-                    r ++= exprPred(env, r, ctx)(expr)
+                    r ++= exprPred(env, res, ctx)(expr)
                 val sstmts = condStmtPred(env, res, ctx)(s)
                     .flatMap {
                         case Opt(m, n: BreakStatement) => List()
@@ -340,8 +340,11 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
                     condStmtSucc(env, res, ctx)(s)
             case WhileStatement(expr, _) =>
                 exprSucc(env, res, ctx)(expr)
-            case DoStatement(_, s) =>
-                condStmtSucc(env, res, ctx)(s)
+            case DoStatement(expr, s) =>
+                var r = condStmtSucc(env, res, ctx)(s)
+                if (!isComplete(ctx)(r))
+                    r ++= exprPred(env, r, ctx)(expr)
+                r
 
             // conditional statements
             case e: BreakStatement =>
@@ -515,7 +518,8 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
             case e: DefaultStatement =>
                 switStmtPred(env, res, ctx)(e)
             case se =>
-                parentAST(se, env) match {
+                val sep = parentAST(se, env)
+                sep match {
                     // loops
                     case e@ForStatement(Some(expr1), _, _, _) if isPartOf(se)(expr1) =>
                         stmtPred(env, res, ctx)(e, f = true)
