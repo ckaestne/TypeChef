@@ -11,7 +11,7 @@ object BuildSettings {
     import Dependencies._
 
     val buildOrganization = "de.fosd.typechef"
-    val buildVersion = "0.4.0"
+    val buildVersion = "0.4.1"
     val buildScalaVersion = "2.11.7"
 
 
@@ -52,7 +52,7 @@ object BuildSettings {
             }
         },
 
-        parallelExecution := false, //run into memory problems on hudson otherwise
+        parallelExecution := false, //need to sequentially execute tests, because some tests may use BDDs and others may use SAT and they should not intermix through parallelism
 
         homepage := Some(url("https://github.com/ckaestne/TypeChef")),
         licenses := Seq("GNU Lesser General Public License v3.0" -> url("http://www.gnu.org/licenses/lgpl.txt")),
