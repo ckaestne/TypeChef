@@ -1,14 +1,16 @@
 package de.fosd.typechef.featureexpr.sat
 
-import LazyLib._
-import scala.ref.WeakReference
 import java.io.Writer
+import java.util.Collections
+
 import de.fosd.typechef.featureexpr._
-import collection.immutable._
-import collection.mutable.Map
-import collection.mutable.WeakHashMap
-import collection.mutable.ArrayBuffer
+import de.fosd.typechef.featureexpr.sat.LazyLib._
+
 import scala.Some
+import scala.collection.convert.decorateAsScala._
+import scala.collection.immutable._
+import scala.collection.mutable.{ArrayBuffer, Map}
+import scala.ref.WeakReference
 
 
 object FeatureExprHelper {
@@ -23,41 +25,41 @@ object FeatureExprHelper {
 }
 
 /**
- * Propositional (or boolean) feature expressions.
- *
- * Feature expressions are compared on object identity (comparing them for equivalence is
- * an additional but expensive operation). Connectives such as "and", "or" and "not"
- * memoize results, so that the operation yields identical results on identical parameters.
- * Classes And, Or and Not are made package-private, and their constructors wrapped
- * through companion objects, to prevent the construction of formulas in any other way.
- *
- * However, this is not yet enough to guarantee the 'maximal sharing' property, because the
- * and/or operators are also associative, but the memoization cannot be associative.
- * Papers on hash-consing explain that one needs to perform a further normalization step.
- *
- * More in general, one can almost prove a theorem called the weak-canonicalization guarantee:
- *
- * If at a given time during program execution, two formula objects represent structurally
- * equal formulas, i.e. which are deeply equal modulo the order of operands of "and" and "or",
- * then they are represented by the same object.
- *
- * XXX: HOWEVER, that the associative property does not hold with pointer equality:
- * (a and b) and c ne a and (b and c). Hopefully this is fixable through different caching.
- *
- * Note that this is not related to formula equivalence, rather to pointer equality.
- * This does not hold for formulas existing at different moments, because caches
- * are implemented using weak references, so if a formula disappears from the heap
- * it is recreated. However, this is not observable for the code.
- *
- * The weak canonicalization property, if true, should allows also ensuring the strong-canonicalization guarantee:
- * If at a given time during program execution, two formula objects a and b
- * represent equivalent formulas, then a.toCNF eq b.toCNF (where eq denotes pointer equality).
- *
- * CNF canonicalization, by construction, ensures that a.toCNF and b.toCNF are structurally equal.
- * The weak canonicalization property would also ensure that they are the same object.
- *
- * It would be interesting to see what happens for toEquiCNF.
- */
+  * Propositional (or boolean) feature expressions.
+  *
+  * Feature expressions are compared on object identity (comparing them for equivalence is
+  * an additional but expensive operation). Connectives such as "and", "or" and "not"
+  * memoize results, so that the operation yields identical results on identical parameters.
+  * Classes And, Or and Not are made package-private, and their constructors wrapped
+  * through companion objects, to prevent the construction of formulas in any other way.
+  *
+  * However, this is not yet enough to guarantee the 'maximal sharing' property, because the
+  * and/or operators are also associative, but the memoization cannot be associative.
+  * Papers on hash-consing explain that one needs to perform a further normalization step.
+  *
+  * More in general, one can almost prove a theorem called the weak-canonicalization guarantee:
+  *
+  * If at a given time during program execution, two formula objects represent structurally
+  * equal formulas, i.e. which are deeply equal modulo the order of operands of "and" and "or",
+  * then they are represented by the same object.
+  *
+  * XXX: HOWEVER, that the associative property does not hold with pointer equality:
+  * (a and b) and c ne a and (b and c). Hopefully this is fixable through different caching.
+  *
+  * Note that this is not related to formula equivalence, rather to pointer equality.
+  * This does not hold for formulas existing at different moments, because caches
+  * are implemented using weak references, so if a formula disappears from the heap
+  * it is recreated. However, this is not observable for the code.
+  *
+  * The weak canonicalization property, if true, should allows also ensuring the strong-canonicalization guarantee:
+  * If at a given time during program execution, two formula objects a and b
+  * represent equivalent formulas, then a.toCNF eq b.toCNF (where eq denotes pointer equality).
+  *
+  * CNF canonicalization, by construction, ensures that a.toCNF and b.toCNF are structurally equal.
+  * The weak canonicalization property would also ensure that they are the same object.
+  *
+  * It would be interesting to see what happens for toEquiCNF.
+  */
 sealed abstract class SATFeatureExpr extends FeatureExpr {
 
     import CastHelper._
@@ -85,58 +87,58 @@ sealed abstract class SATFeatureExpr extends FeatureExpr {
     def substitute(feature: SingleFeatureExpr, replacement: SATFeatureExpr): SATFeatureExpr
 
     def getSatisfiableAssignment(featureModel: FeatureModel, interestingFeatures : Set[SingleFeatureExpr],preferDisabledFeatures:Boolean): Option[(List[SingleFeatureExpr], List[SingleFeatureExpr])] = {
-    val fm = asSATFeatureModel(featureModel)
-    // optimization: if the interestingFeatures-Set is empty and this FeatureExpression is TRUE, we will always return empty sets
-    // here we assume that the featureModel is satisfiable (which is checked at FM-instantiation)
-    if (this.equals(FeatureExprFactory.True) && interestingFeatures.isEmpty) {
-        return Some((List(),List())) // is satisfiable, but no interesting features in solution
-    }
-
-    // get one satisfying assignment (a list of features set to true, and a list of features set to false)
-    val assignment : Option[(List[String], List[String])] = new SatSolver().getSatAssignment(fm, toCnfEquiSat)
-    // we will subtract from this set until all interesting features are handled
-    var remainingInterestingFeatures = interestingFeatures
-    assignment match {
-      case Some((trueFeatures, falseFeatures)) => {
-        if (preferDisabledFeatures) {
-            var enabledFeatures: Set[SingleFeatureExpr] = Set()
-            for (f <- trueFeatures) {
-                        remainingInterestingFeatures.find({
-                            fex: SingleFeatureExpr => fex.feature.equals(f)
-                        }) match {
-                case Some(fex : SingleFeatureExpr) => {
-                  remainingInterestingFeatures -= fex
-                    enabledFeatures += fex
-                }
-                case None => {}
-              }
-            }
-            return Some((enabledFeatures.toList, remainingInterestingFeatures.toList))
-        } else {
-            var disabledFeatures : Set[SingleFeatureExpr] = Set()
-            for (f <- falseFeatures) {
-                        remainingInterestingFeatures.find({
-                            fex: SingleFeatureExpr => fex.feature.equals(f)
-                        }) match {
-                    case Some(fex : SingleFeatureExpr) => {
-                        remainingInterestingFeatures -= fex
-                        disabledFeatures += fex
-                    }
-                    case None => {}
-                }
-            }
-            return Some((remainingInterestingFeatures.++(this.collectDistinctFeatureObjects).toList, disabledFeatures.toList))
+        val fm = asSATFeatureModel(featureModel)
+        // optimization: if the interestingFeatures-Set is empty and this FeatureExpression is TRUE, we will always return empty sets
+        // here we assume that the featureModel is satisfiable (which is checked at FM-instantiation)
+        if (this.equals(FeatureExprFactory.True) && interestingFeatures.isEmpty) {
+            return Some((List(), List())) // is satisfiable, but no interesting features in solution
         }
 
-      }
-      case None => return None
+        // get one satisfying assignment (a list of features set to true, and a list of features set to false)
+        val assignment: Option[(List[String], List[String])] = new SatSolver().getSatAssignment(fm, toCnfEquiSat)
+        // we will subtract from this set until all interesting features are handled
+        var remainingInterestingFeatures = interestingFeatures
+        assignment match {
+            case Some((trueFeatures, falseFeatures)) => {
+                if (preferDisabledFeatures) {
+                    var enabledFeatures: Set[SingleFeatureExpr] = Set()
+                    for (f <- trueFeatures) {
+                        remainingInterestingFeatures.find({
+                            fex: SingleFeatureExpr => fex.feature.equals(f)
+                        }) match {
+                            case Some(fex: SingleFeatureExpr) => {
+                                remainingInterestingFeatures -= fex
+                                enabledFeatures += fex
+                            }
+                            case None => {}
+                        }
+                    }
+                    return Some((enabledFeatures.toList, remainingInterestingFeatures.toList))
+                } else {
+                    var disabledFeatures: Set[SingleFeatureExpr] = Set()
+                    for (f <- falseFeatures) {
+                        remainingInterestingFeatures.find({
+                            fex: SingleFeatureExpr => fex.feature.equals(f)
+                        }) match {
+                            case Some(fex: SingleFeatureExpr) => {
+                                remainingInterestingFeatures -= fex
+                                disabledFeatures += fex
+                            }
+                            case None => {}
+                        }
+                    }
+                    return Some((remainingInterestingFeatures.++(this.collectDistinctFeatureObjects).toList, disabledFeatures.toList))
+                }
+
+            }
+            case None => return None
+        }
     }
-  }
 
     /**
-     * x.isSatisfiable(fm) is short for x.and(fm).isSatisfiable
-     * but is faster because FM is cached
-     */
+      * x.isSatisfiable(fm) is short for x.and(fm).isSatisfiable
+      * but is faster because FM is cached
+      */
     def isSatisfiable(fm: FeatureModel): Boolean = {
         val f = if (fm == null) SATNoFeatureModel
         else {
@@ -159,9 +161,9 @@ sealed abstract class SATFeatureExpr extends FeatureExpr {
     }
 
     /**
-     * Check structural equality, assuming that all component nodes have already been canonicalized.
-     * The default implementation checks for pointer equality.
-     */
+      * Check structural equality, assuming that all component nodes have already been canonicalized.
+      * The default implementation checks for pointer equality.
+      */
     private[featureexpr] def equal1Level(that: SATFeatureExpr) = this eq that
 
     final override def equals(that: Any) = super.equals(that)
@@ -169,25 +171,25 @@ sealed abstract class SATFeatureExpr extends FeatureExpr {
     protected def calcHashCode = super.hashCode
 
     /**
-     * heuristic to determine whether a feature expression is small
-     * (may be used to decide whether to inline it or not)
-     *
-     * use with care
-     */
+      * heuristic to determine whether a feature expression is small
+      * (may be used to decide whether to inline it or not)
+      *
+      * use with care
+      */
     def isSmall(): Boolean = size <= 10
 
     /**
-     * replaces all DefinedMacro tokens by their full expansion.
-     *
-     * the resulting feature expression contains only DefinedExternal nodes as leafs
-     * and can be printed and read again
-     */
+      * replaces all DefinedMacro tokens by their full expansion.
+      *
+      * the resulting feature expression contains only DefinedExternal nodes as leafs
+      * and can be printed and read again
+      */
     lazy val resolveToExternal: SATFeatureExpr = FExprBuilder.resolveToExternal(this)
 
     /**
-     * checks whether there is some unresolved macro (DefinedMacro) somewhere
-     * in the expression tree
-     */
+      * checks whether there is some unresolved macro (DefinedMacro) somewhere
+      * in the expression tree
+      */
     lazy val isResolved: Boolean = calcIsResolved
     private def calcIsResolved: Boolean = {
         //exception used to stop at the first found Macro
@@ -208,18 +210,18 @@ sealed abstract class SATFeatureExpr extends FeatureExpr {
     }
 
     /**
-     * map function that applies to all leafs in the feature expression (i.e. all DefinedExpr nodes)
-     */
+      * map function that applies to all leafs in the feature expression (i.e. all DefinedExpr nodes)
+      */
     def mapDefinedExpr(f: DefinedExpr => SATFeatureExpr, cache: Map[SATFeatureExpr, SATFeatureExpr]): SATFeatureExpr
 
     private var cache_cnf: SATFeatureExpr = null
     private var cache_cnfEquiSat: SATFeatureExpr = null
 
     /**
-     * creates an equivalent feature expression in CNF
-     *
-     * be aware of exponential explosion. consider using toCnfEquiSat instead if possible
-     */
+      * creates an equivalent feature expression in CNF
+      *
+      * be aware of exponential explosion. consider using toCnfEquiSat instead if possible
+      */
     def toCNF(): SATFeatureExpr = {
         if (cache_cnf == null) {
             cache_cnf = calcCNF;
@@ -232,13 +234,13 @@ sealed abstract class SATFeatureExpr extends FeatureExpr {
         cache_cnf
     }
     /**
-     * creates an equisatisfiable feature expression in CNF
-     *
-     * the result is not equivalent but will yield the same result
-     * in satisifiability tests with SAT solvers
-     *
-     * the algorithm introduces new variables and is faster than toCNF
-     */
+      * creates an equisatisfiable feature expression in CNF
+      *
+      * the result is not equivalent but will yield the same result
+      * in satisifiability tests with SAT solvers
+      *
+      * the algorithm introduces new variables and is faster than toCNF
+      */
     def toCnfEquiSat(): SATFeatureExpr = {
         if (cache_cnfEquiSat == null) cache_cnfEquiSat = calcCNFEquiSat
         assert(CNFHelper.isCNF(cache_cnfEquiSat))
@@ -249,20 +251,23 @@ sealed abstract class SATFeatureExpr extends FeatureExpr {
     protected def calcCNF: SATFeatureExpr
     protected def calcCNFEquiSat: SATFeatureExpr
 
-    private val cacheIsSatisfiable: WeakHashMap[SATFeatureModel, Boolean] = WeakHashMap()
+    private val cacheIsSatisfiable: Map[SATFeatureModel, Boolean] =
+        Collections.synchronizedMap(new java.util.WeakHashMap[SATFeatureModel, Boolean]()).asScala
     //only access these caches from FExprBuilder
-    private[sat] val andCache: WeakHashMap[SATFeatureExpr, WeakReference[SATFeatureExpr]] = new WeakHashMap()
-    private[sat] val orCache: WeakHashMap[SATFeatureExpr, WeakReference[SATFeatureExpr]] = new WeakHashMap()
+    private[sat] val andCache: Map[SATFeatureExpr, WeakReference[SATFeatureExpr]] =
+        Collections.synchronizedMap(new java.util.WeakHashMap[SATFeatureExpr, WeakReference[SATFeatureExpr]]()).asScala
+    private[sat] val orCache: Map[SATFeatureExpr, WeakReference[SATFeatureExpr]] =
+        Collections.synchronizedMap(new java.util.WeakHashMap[SATFeatureExpr, WeakReference[SATFeatureExpr]]()).asScala
     private[sat] var notCache: Option[NotReference[SATFeatureExpr]] = None
 
     /**
-     * Retrieves the memoized representation of this.not, if any exists; it is useful only to look for duplicated
-     * elements in a clause. Note that two non-trivial formula might be
-     * opposite, still using retrieveMemoizedNot for the test might
-     * fail; e.g., a and b and !a or !b might be built independently.
-     * XXX: Tillmann suggested transforming this into a boolean predicate,
-     * rather than using null as a meaningful value.
-     */
+      * Retrieves the memoized representation of this.not, if any exists; it is useful only to look for duplicated
+      * elements in a clause. Note that two non-trivial formula might be
+      * opposite, still using retrieveMemoizedNot for the test might
+      * fail; e.g., a and b and !a or !b might be built independently.
+      * XXX: Tillmann suggested transforming this into a boolean predicate,
+      * rather than using null as a meaningful value.
+      */
     private[featureexpr] def retrieveMemoizedNot = notCache match {
         case Some(NotRef(x)) => x
         case _ => null
@@ -273,9 +278,9 @@ sealed abstract class SATFeatureExpr extends FeatureExpr {
     private[featureexpr] val wrap = StructuralEqualityWrapper(this)
 
     /**
-     * helper function for statistics and such that determines which
-     * features are involved in this feature expression
-     */
+      * helper function for statistics and such that determines which
+      * features are involved in this feature expression
+      */
     def collectDistinctFeatures: Set[String] = {
         var result: Set[String] = Set()
         this.mapDefinedExpr(_ match {
@@ -286,29 +291,29 @@ sealed abstract class SATFeatureExpr extends FeatureExpr {
         result
     }
 
-  	def collectDistinctFeatures2: Set[DefinedExternal] = {
-    	var result: Set[DefinedExternal] = Set()
-    	this.mapDefinedExpr(_ match {
-      	case e: DefinedExternal => result += e; e
-      	case e => e
-    	}, Map())
-    	result
-  	}
+    def collectDistinctFeatures2: Set[DefinedExternal] = {
+        var result: Set[DefinedExternal] = Set()
+        this.mapDefinedExpr(_ match {
+            case e: DefinedExternal => result += e; e
+            case e => e
+        }, Map())
+        result
+    }
 
     def collectDistinctFeatureObjects: Set[SingleFeatureExpr] = {
-      var result: Set[SingleFeatureExpr] = Set()
-      this.mapDefinedExpr(_ match {
-        case e: DefinedExternal => result += e; e
-        case e: DefinedMacro => result += e; e
-        case e => e
-      }, Map())
-      result
+        var result: Set[SingleFeatureExpr] = Set()
+        this.mapDefinedExpr(_ match {
+            case e: DefinedExternal => result += e; e
+            case e: DefinedMacro => result += e; e
+            case e => e
+        }, Map())
+        result
     }
 
     /**
-     * counts the number of features in this expression for statistic
-     * purposes
-     */
+      * counts the number of features in this expression for statistic
+      * purposes
+      */
     def countDistinctFeatures: Int = collectDistinctFeatures.size
 
     def evaluate(selectedFeatures: Set[String]): Boolean
@@ -325,28 +330,34 @@ abstract class HashCachingFeatureExpr extends SATFeatureExpr {
 
 
 /**
- * Central builder class, responsible for simplification of expressions during creation
- * and for extensive caching.
- */
+  * Central builder class, responsible for simplification of expressions during creation
+  * and for extensive caching.
+  */
 private[sat] object FExprBuilder {
+
     private val featureCache: Map[String, WeakReference[DefinedExternal]] = Map()
     private var macroCache: Map[String, WeakReference[DefinedMacro]] = Map()
-    private val resolvedCache: WeakHashMap[SATFeatureExpr, SATFeatureExpr] = WeakHashMap()
-    private val hashConsingCache: WeakHashMap[StructuralEqualityWrapper, WeakReference[StructuralEqualityWrapper]] = WeakHashMap()
+    private val resolvedCache: Map[SATFeatureExpr, SATFeatureExpr] =
+        Collections.synchronizedMap(new java.util.WeakHashMap[SATFeatureExpr, SATFeatureExpr]()).asScala
+    private val hashConsingCache: Map[StructuralEqualityWrapper, WeakReference[StructuralEqualityWrapper]] =
+        Collections.synchronizedMap(new java.util.WeakHashMap[StructuralEqualityWrapper, WeakReference[StructuralEqualityWrapper]]()).asScala
 
     private def cacheGetOrElseUpdate[A, B <: AnyRef](map: Map[A, WeakReference[B]], key: A, op: => B): B = {
         def update() = {
-            val d = op;
-            map(key) = new WeakReference[B](d);
+            val d = op
+            map(key) = new WeakReference[B](d)
             d
         }
-        map.get(key) match {
+        val v = map.get(key)
+        if (v == null) update
+        else
+            v match {
             case Some(WeakRef(value)) => value
             case _ => update()
         }
     }
 
-    private def getFromCache(cache: WeakHashMap[SATFeatureExpr, WeakReference[SATFeatureExpr]], key: SATFeatureExpr): Option[SATFeatureExpr] = {
+    private def getFromCache(cache: Map[SATFeatureExpr, WeakReference[SATFeatureExpr]], key: SATFeatureExpr): Option[SATFeatureExpr] = {
         cache.get(key) match {
             case Some(WeakRef(f)) => Some(f)
             case _ => None
@@ -354,7 +365,7 @@ private[sat] object FExprBuilder {
     }
     private def binOpCacheGetOrElseUpdate(a: SATFeatureExpr,
                                           b: SATFeatureExpr,
-                                          getCache: SATFeatureExpr => WeakHashMap[SATFeatureExpr, WeakReference[SATFeatureExpr]],
+                                          getCache: SATFeatureExpr => Map[SATFeatureExpr, WeakReference[SATFeatureExpr]],
                                           featThunk: => SATFeatureExpr): SATFeatureExpr = {
         var result = getFromCache(getCache(a), b)
         if (result == None)
@@ -585,10 +596,10 @@ private[sat] object FExprBuilder {
             val (conditionName, conditionDef) = macroTable.getMacroConditionCNF(name)
 
             /**
-             * definedMacros are equal if they have the same Name and the same expansion! (otherwise they refer to
-             * the macro at different points in time and should not be considered equal)
-             * actually, we only check the expansion name which is unique for each DefinedMacro anyway
-             */
+              * definedMacros are equal if they have the same Name and the same expansion! (otherwise they refer to
+              * the macro at different points in time and should not be considered equal)
+              * actually, we only check the expansion name which is unique for each DefinedMacro anyway
+              */
             cacheGetOrElseUpdate(macroCache, conditionName,
                 new DefinedMacro(
                     name,
@@ -609,28 +620,28 @@ private[sat] object FExprBuilder {
 // propositional formulas //
 ////////////////////////////
 /**
- * True and False. They are represented as special cases of And and Or
- * with no clauses, as it is common practice, for instance in the resolution algorithm.
- *
- * True is the zero element for And, while False is the zero element for Or.
- * Therefore, True can be represented as an empty conjunction, while False
- * by an empty disjunction.
- *
- * One can imagine to build a disjunction incrementally, by having an empty one
- * be considered as false, so that each added operand can make the resulting
- * formula true. Dually, an empty conjunction is true, and and'ing clauses can
- * make it false.
- *
- * This avoids introducing two new leaf nodes to handle (avoiding some bugs causing NoLiteralException).
- *
- * Moreover, since those are valid formulas, they would otherwise be valid but
- * non-canonical representations, and avoiding the very existence of such things
- * simplifies ensuring that our canonicalization algorithms actually work.
- *
- * The use of only canonical representations for True and False is ensured thanks to the
- * apply methods of the And and Or companion objects, which convert any empty set of
- * clauses into the canonical True or False object.
- */
+  * True and False. They are represented as special cases of And and Or
+  * with no clauses, as it is common practice, for instance in the resolution algorithm.
+  *
+  * True is the zero element for And, while False is the zero element for Or.
+  * Therefore, True can be represented as an empty conjunction, while False
+  * by an empty disjunction.
+  *
+  * One can imagine to build a disjunction incrementally, by having an empty one
+  * be considered as false, so that each added operand can make the resulting
+  * formula true. Dually, an empty conjunction is true, and and'ing clauses can
+  * make it false.
+  *
+  * This avoids introducing two new leaf nodes to handle (avoiding some bugs causing NoLiteralException).
+  *
+  * Moreover, since those are valid formulas, they would otherwise be valid but
+  * non-canonical representations, and avoiding the very existence of such things
+  * simplifies ensuring that our canonicalization algorithms actually work.
+  *
+  * The use of only canonical representations for True and False is ensured thanks to the
+  * apply methods of the And and Or companion objects, which convert any empty set of
+  * clauses into the canonical True or False object.
+  */
 object True extends And(Set()) with DefaultPrint {
     override def toString = "True"
     override def toTextExpr = "1"
@@ -826,11 +837,11 @@ class Or(val clauses: Set[SATFeatureExpr]) extends BinaryLogicConnective[Or] {
 
 
     /**
-     * multiplies all clauses
-     *
-     * for n CNF expressions with e1, e2, .., en clauses
-     * this mechanism produces e1*e2*...*en clauses
-     */
+      * multiplies all clauses
+      *
+      * for n CNF expressions with e1, e2, .., en clauses
+      * this mechanism produces e1*e2*...*en clauses
+      */
     private def combineCNF(cnfchildren: Set[SATFeatureExpr]) =
         FExprBuilder.createAnd(
             if (cnfchildren.exists(_.isInstanceOf[And])) {
@@ -845,7 +856,7 @@ class Or(val clauses: Set[SATFeatureExpr]) extends BinaryLogicConnective[Or] {
                                     _ or conjunct))*/
                             conjuncts =
                                 for (conjunct <- conjuncts; c <- innerChildren)
-                                yield FExprBuilder.or(c, conjunct)
+                                    yield FExprBuilder.or(c, conjunct)
                         case _ =>
                             conjuncts = conjuncts.map(x => FExprBuilder.or(x, child))
                     }
@@ -859,18 +870,18 @@ class Or(val clauses: Set[SATFeatureExpr]) extends BinaryLogicConnective[Or] {
             })
 
     /**
-     * Produce a CNF formula equiSatisfiable to the disjunction of @param cnfchildren.
-     * Introduces new variables to avoid exponential behavior
-     *
-     * for n CNF expressions with e1, e2, .., en clauses
-     * this mechanism produces n new variables and results
-     * in e1+e2+..+en+1 clauses
-     *
-     * Algorithm: we need to represent Or(X_i, i=i..n), where X_i are subformulas in CNF. Each of them is a conjunction
-     * (or a literal, as a degenerate case).
-     * We produce a clause Or(Z_i) and clauses such that Z_i implies X_i, conjuncted together. For literals we just
-     * reuse the literal; if X_i = And(Y_ij, j=1..e_i), we produce clauses (Z_i implies Y_ij) for j=1..e_i.
-     */
+      * Produce a CNF formula equiSatisfiable to the disjunction of @param cnfchildren.
+      * Introduces new variables to avoid exponential behavior
+      *
+      * for n CNF expressions with e1, e2, .., en clauses
+      * this mechanism produces n new variables and results
+      * in e1+e2+..+en+1 clauses
+      *
+      * Algorithm: we need to represent Or(X_i, i=i..n), where X_i are subformulas in CNF. Each of them is a conjunction
+      * (or a literal, as a degenerate case).
+      * We produce a clause Or(Z_i) and clauses such that Z_i implies X_i, conjuncted together. For literals we just
+      * reuse the literal; if X_i = And(Y_ij, j=1..e_i), we produce clauses (Z_i implies Y_ij) for j=1..e_i.
+      */
     private def combineEquiCNF(cnfchildren: Set[SATFeatureExpr]) =
         if (cnfchildren.exists(_.isInstanceOf[And])) {
             var orClauses = ArrayBuffer[SATFeatureExpr]() //list of Or expressions
@@ -949,9 +960,9 @@ object Not {
 }
 
 /**
- * Leaf nodes of propositional feature expressions, either an external
- * feature defined by the user or another feature expression from a macro.
- */
+  * Leaf nodes of propositional feature expressions, either an external
+  * feature defined by the user or another feature expression from a macro.
+  */
 abstract class DefinedExpr extends SATFeatureExpr with SingleFeatureExpr {
     /*
      * This method is overriden by children case classes to return the name.
@@ -980,8 +991,8 @@ object DefinedExpr {
 }
 
 /**
- * external definition of a feature (cannot be decided to Base or Dead inside this file)
- */
+  * external definition of a feature (cannot be decided to Base or Dead inside this file)
+  */
 class DefinedExternal(name: String) extends DefinedExpr {
     DefinedExpr.checkFeatureName(name)
 
@@ -997,10 +1008,10 @@ class DefinedExternal(name: String) extends DefinedExpr {
 }
 
 /**
- * definition based on a macro, still to be resolved using the macro table
- * (the macro table may not contain DefinedMacro expressions, but only DefinedExternal)
- * assumption: expandedName is unique and may be used for comparison
- */
+  * definition based on a macro, still to be resolved using the macro table
+  * (the macro table may not contain DefinedMacro expressions, but only DefinedExternal)
+  * assumption: expandedName is unique and may be used for comparison
+  */
 class DefinedMacro(val name: String, val presenceCondition: SATFeatureExpr, val expandedName: String, val presenceConditionCNF: Susp[FeatureExpr /*CNF*/ ]) extends DefinedExpr {
     DefinedExpr.checkFeatureName(name)
 
@@ -1013,7 +1024,7 @@ class DefinedMacro(val name: String, val presenceCondition: SATFeatureExpr, val 
     /**TODO: This probably would be the correct way, but it breaks my product generation code, and i cannot fix it right now */
     //override def collectDistinctFeatures=presenceCondition.resolveToExternal.collectDistinctFeatures
     //override def collectDistinctFeatureObjects=presenceCondition.resolveToExternal.collectDistinctFeatureObjects
-	override def evaluate(selectedFeatures: Set[String]) = presenceCondition.evaluate(selectedFeatures)
+    override def evaluate(selectedFeatures: Set[String]) = presenceCondition.evaluate(selectedFeatures)
     override def substitute(feature: SingleFeatureExpr, replacement: SATFeatureExpr): SATFeatureExpr = this
     private def writeReplace(): Object = throw new RuntimeException("cannot serialize DefinedMacro")
 }
