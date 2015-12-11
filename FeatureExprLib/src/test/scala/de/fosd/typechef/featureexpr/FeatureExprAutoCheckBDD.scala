@@ -7,7 +7,7 @@ import FeatureExprFactory.bdd._
 import Prop.propBoolean
 import java.io._
 
-object FeatureExprAutoCheckBDD extends Properties("FeatureExpr") {
+object FeatureExprAutoCheckBDD extends Properties("FeatureExpr-BDD") {
     def feature(a: String) = createDefinedExternal(a)
     val featureNames = List("a", "b", "c", "d", "e", "f")
     val a = feature("a")
