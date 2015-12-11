@@ -255,6 +255,8 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
                 res
 
             // conditional statements
+            case IfStatement(condition, thenBranch, Nil, None) =>
+                condStmtPred(env, res, ctx)(thenBranch) ++ condExprPred(env, res, ctx)(condition)
             case IfStatement(condition, thenBranch, elifs, elseBranch) =>
                 var r = res
                 if (elseBranch.isDefined)
@@ -310,7 +312,7 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
             case _: ReturnStatement =>
                 res
             case GotoStatement(target) =>
-                res
+                exprPred(env, res, ctx)(target)
             case LabelStatement(id, _) =>
                 exprPred(env, res, ctx)(id)
             case e: CompoundStatement =>
@@ -391,6 +393,20 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
 
             case ReturnStatement(Some(expr)) =>
                 exprSucc(env, res, ctx)(expr)
+            case e@ReturnStatement(None) =>
+                findPriorASTElem[FunctionDef](e, env) match {
+                    case None => res
+                    case Some(f) =>
+                        val c = env.featureExpr(e)
+                        if (c and ctx isSatisfiable()) {
+                            val cu = getCFGStmtCtx(res, ctx, c)
+                            if (cu isSatisfiable())
+                                res ++ List(Opt(cu, f))
+                            else
+                                res
+                        } else
+                            res
+                }
             case e: CompoundStatement =>
                 compStmtSucc(env, res, ctx)(e, e.innerStatements)
 
