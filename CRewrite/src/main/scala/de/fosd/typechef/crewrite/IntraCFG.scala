@@ -580,8 +580,12 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
                         stmtPred(env, res, ctx)(e, f = true) ++ condStmtPred(env, res, ctx)(s)
                     case WhileStatement(expr, _) =>
                         exprPred(env, res, ctx)(expr)
-                    case DoStatement(expr, s) if isPartOf(se)(expr) =>
-                        condStmtPred(env, res, ctx)(s)
+                    case e@DoStatement(expr, s) if isPartOf(se)(expr) =>
+                        var r = condStmtPred(env, res, ctx)(s)
+                        if (!isComplete(ctx)(r))
+                            exprPred(env, r, ctx)(expr) ++ stmtPred(env, r, ctx)(e, f = true)
+                        else
+                            r
                     case e@DoStatement(expr, s) =>
                         exprPred(env, res, ctx)(expr) ++ stmtPred(env, res, ctx)(e, f = true)
 
