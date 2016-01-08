@@ -434,8 +434,7 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
                             exprPred(env, res, ctx and m)(expr)
                     }
                 r ++= retustmts
-                if (!isComplete(ctx)(r))
-                    r ++= predComp(env, res, ctx)(stmt)
+                r ++= predComp(env, res, ctx)(stmt)
                 r
             case e@CompoundStatement(innerStatements) =>
                 var r = res
@@ -581,7 +580,7 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
                     case WhileStatement(expr, _) =>
                         exprPred(env, res, ctx)(expr)
                     case e@DoStatement(expr, s) if isPartOf(se)(expr) =>
-                        var r = condStmtPred(env, res, ctx)(s)
+                        val r = condStmtPred(env, res, ctx)(s)
                         if (!isComplete(ctx)(r))
                             exprPred(env, r, ctx)(expr) ++ stmtPred(env, r, ctx)(e, f = true)
                         else
