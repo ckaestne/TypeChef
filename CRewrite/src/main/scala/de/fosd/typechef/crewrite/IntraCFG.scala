@@ -12,10 +12,15 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
 
     type CFGStmts = List[Opt[CFGStmt]]
 
+    var source: AST = null
+
+    def getSource = source
+
     lazy val succ: ASTEnv => AST => CFGStmts =
         paramAttr {
             env =>
                 s =>
+                    source = s
                     val c = env.featureExpr(s)
                     if (c.isSatisfiable())
                         succComp(env, List(), c)(s)
@@ -27,6 +32,7 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
         paramAttr {
             env =>
                 s =>
+                    source = s
                     val c = env.featureExpr(s)
                     if (c.isSatisfiable())
                         predComp(env, List(), c)(s)
@@ -429,12 +435,12 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
                 val retustmts = filterReturnStatements(stmt, ctx, env)
                     .flatMap{
                         case Opt(m, n@ReturnStatement(None)) =>
-                            stmtPred(env, res, ctx and m)(n, f = true)
+                            stmtPred(env, res, ctx and m)(n, f = false)
                         case Opt(m, ReturnStatement(Some(expr))) =>
                             exprPred(env, res, ctx and m)(expr)
                     }
                 r ++= retustmts
-                r ++= predComp(env, res, ctx)(stmt)
+                r ++= predComp(env, r, ctx)(stmt)
                 r
             case e@CompoundStatement(innerStatements) =>
                 var r = res
