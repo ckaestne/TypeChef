@@ -3,7 +3,7 @@ package de.fosd.typechef.crewrite
 import de.fosd.typechef.parser.c.{ASTEnv, AST}
 import de.fosd.typechef.featureexpr.FeatureExpr
 import de.fosd.typechef.conditional.Opt
-import java.io.{StringWriter, File, FileWriter}
+import java.io.StringWriter
 
 sealed abstract class CFGError
 
@@ -21,12 +21,12 @@ case class CFGErrorMis(msg: String, s: AST, sfexp: FeatureExpr) extends CFGError
 }
 
 object CFGErrorOutput {
-    def printCFGErrors(s: List[(AST, List[Opt[AST]])], p: List[(AST, List[Opt[AST]])], errors: List[CFGError], env: ASTEnv) {
+    def printCFGErrors(s: List[(AST, List[Opt[AST]])], p: List[(AST, List[Opt[AST]])], errors: List[CFGError], env: ASTEnv) = {
         val sw = new StringWriter()
         val dot = new DotGraphWithErrors(sw)
         dot.writeHeader("CFGErrorDump")
 
-        if (errors.size > 0) {
+        if (errors.nonEmpty) {
             val nodeErrorsOcc = errors.filter({_ match {case _: CFGErrorMis => true; case _ => false}})
             val connectionErrorsOcc = errors.filter({_ match {case _: CFGErrorDir => true; case _ => false}})
             val nodeErrors = nodeErrorsOcc.map(_.asInstanceOf[CFGErrorMis].s)
