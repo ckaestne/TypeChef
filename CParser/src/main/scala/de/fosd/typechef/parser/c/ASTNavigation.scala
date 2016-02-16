@@ -128,13 +128,24 @@ trait ASTNavigation {
         }
     }
 
+    // method recursively filters all AST elements for a given type and feature expression
+    // base case is the element of type T with feature expression ctx
+    def filterASTElems[T <: AST](a: Any, ctx: FeatureExpr, env: ASTEnv)(implicit m: ClassTag[T]): List[T] = {
+        a match {
+            case p: Product if (m.runtimeClass.isInstance(p) && (env.featureExpr(p) implies ctx isSatisfiable())) => List(p.asInstanceOf[T])
+            case l: List[_] => l.flatMap(filterASTElems[T](_, ctx, env))
+            case p: Product => p.productIterator.toList.flatMap(filterASTElems[T](_, ctx, env))
+            case _ => List()
+        }
+    }
+
     // in contrast to filterASTElems, filterAllASTElems visits all elements of the tree-wise input structure
     def filterAllASTElems[T <: AST](a: Any)(implicit m: ClassTag[T]): List[T] = {
         a match {
-            case p: Product if m.runtimeClass.isInstance(p) => List(p.asInstanceOf[T]) ++
-                p.productIterator.toList.flatMap(filterASTElems[T])
-            case l: List[_] => l.flatMap(filterASTElems[T])
-            case p: Product => p.productIterator.toList.flatMap(filterASTElems[T])
+            case p: Product if (m.runtimeClass.isInstance(p)) => List(p.asInstanceOf[T]) ++
+                p.productIterator.toList.flatMap(filterAllASTElems[T])
+            case l: List[_] => l.flatMap(filterAllASTElems[T])
+            case p: Product => p.productIterator.toList.flatMap(filterAllASTElems[T])
             case _ => List()
         }
     }
