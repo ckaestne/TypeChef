@@ -3,7 +3,7 @@ package de.fosd.typechef.parser.c
 import de.fosd.typechef.conditional._
 import de.fosd.typechef.featureexpr.FeatureExprFactory._
 import de.fosd.typechef.featureexpr._
-import org.junit.Ignore
+import org.junit.Test
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.{Matchers, Suite}
@@ -23,7 +23,40 @@ class ASTNavigationTest extends Matchers with ASTNavigation with ConditionalNavi
     private val gc = FeatureExprFactory.createDefinedExternal("c")
     private val gd = FeatureExprFactory.createDefinedExternal("d")
 
-    @Ignore
+    @Test
+    def test_filter_switch() {
+        val a = getAST(
+            """void foo() {
+              switch (a) {
+                case 1:
+                break;
+                case 2:
+                switch (b) {
+                  case 3:
+                  case 4:
+                }
+              }
+            }
+            """.stripMargin)
+
+        filterASTElems[SwitchStatement](a).size should be(1)
+        filterAllASTElems[SwitchStatement](a).size should be(1)
+    }
+
+    @Test
+    def test_filter_postfix() {
+        val a = getAST(
+            """void foo() {
+              free(a->b->c);
+            }
+            """.stripMargin)
+        println(a)
+        filterASTElems[PointerPostfixSuffix](a).size should be(2)
+        filterAllASTElems[PointerPostfixSuffix](a).size should be(2)
+    }
+
+
+    @Test
     def test_ast_navigtition_nextopt_onlytrue() {
         val stmt0 = LabelStatement(Id("stmt0"), None)
         val stmt1 = LabelStatement(Id("stmt1"), None)
@@ -37,7 +70,7 @@ class ASTNavigationTest extends Matchers with ASTNavigation with ConditionalNavi
         nextOpt(optstmt1, env) should be(optstmt2)
     }
 
-    @Ignore
+    @Test
     def test_ast_navigation_nextopt_conditionals() {
         val stmt0 = LabelStatement(Id("stmt0"), None)
         val stmt1 = LabelStatement(Id("stmt1"), None)
@@ -51,7 +84,7 @@ class ASTNavigationTest extends Matchers with ASTNavigation with ConditionalNavi
         nextOpt(optstmt0, env) should be(optstmt1)
     }
 
-    @Ignore
+    @Test
     def test_ast_navigation_prev_and_next_with_Opt_and_Choice_tree() {
         implicit def toOne[T](x: T): Conditional[T] = One(x)
         val stmt0 = LabelStatement(Id("stmt0"), None)
@@ -112,82 +145,5 @@ class ASTNavigationTest extends Matchers with ASTNavigation with ConditionalNavi
         nextOpt(optstmt6, env) should equal(optstmt7)
         nextOpt(optstmt7, env) should equal(optstmt8)
         nextOpt(nextOpt(optstmt6, env), env) should equal(optstmt8)
-
-        //      isVariable(stmt8, env) should equal(false)
-        //      isVariable(stmt9, env) should equal(false)
-        //      isVariable(optstmt6, env) should equal(true)
-        //      isVariable(optstmt7, env) should equal(true)
     }
-
-    //    test("ast navigation with Opt") {
-    //      foo -> parentAST should equal(ast)
-    //      bar -> parentAST should equal(ast)
-    //      bar -> prevAST -> prevAST should equal(foo)
-    //    }
-    //    test("ast navigation with Choice and Opt (flattened)") {
-    //        implicit def toOne[T](x: T): Conditional[T] = One(x)
-    //        val stmt0 = LabelStatement(Id("stmt0"), None)
-    //        val stmt1 = LabelStatement(Id("stmt1"), None)
-    //        val stmt2 = LabelStatement(Id("stmt2"), None)
-    //        val stmt3 = LabelStatement(Id("stmt3"), None)
-    //        val stmt4 = LabelStatement(Id("stmt4"), None)
-    //        val stmt5 = LabelStatement(Id("stmt5"), None)
-    //        val stmt6 = LabelStatement(Id("stmt6"), None)
-    //        val stmt7 = LabelStatement(Id("stmt7"), None)
-    //        val choicestmt = Choice(gc, stmt1, Choice(ga, Choice(gb, stmt2, stmt3), Choice(gb, stmt4, stmt5)))
-    //        val root = CompoundStatement(Conditional.flatten(List[Conditional[Statement]](stmt0, choicestmt, stmt6, stmt7).map(Opt(FeatureExprFactory.True, _))))
-    //        stmt0 -> prevAST should equal(null)
-    //        stmt1 -> prevAST should equal(stmt0)
-    //        stmt2 -> prevAST should equal(stmt1)
-    //        stmt3 -> prevAST should equal(stmt2)
-    //        stmt4 -> prevAST should equal(stmt3)
-    //        stmt5 -> prevAST should equal(stmt4)
-    //        stmt6 -> prevAST should equal(stmt5)
-    //        stmt7 -> prevAST should equal(stmt6)
-    //        stmt0 -> parentAST should equal(root)
-    //        stmt1 -> parentAST should equal(root)
-    //        stmt2 -> parentAST should equal(root)
-    //        stmt3 -> parentAST should equal(root)
-    //        stmt4 -> parentAST should equal(root)
-    //        stmt5 -> parentAST should equal(root)
-    //        stmt6 -> parentAST should equal(root)
-    //        stmt7 -> parentAST should equal(root)
-    //    }
-    //
-    //    test("ast navigation with Choice and Opt (tree)") {
-    //        implicit def toOne[T](x: T): Conditional[T] = One(x)
-    //        val stmt0 = LabelStatement(Id("stmt0"), None)
-    //        val stmt1 = LabelStatement(Id("stmt1"), None)
-    //        val stmt2 = LabelStatement(Id("stmt2"), None)
-    //        val stmt3 = LabelStatement(Id("stmt3"), None)
-    //        val stmt4 = LabelStatement(Id("stmt4"), None)
-    //        val stmt5 = LabelStatement(Id("stmt5"), None)
-    //        val stmt6 = LabelStatement(Id("stmt6"), None)
-    //        val stmt7 = LabelStatement(Id("stmt7"), None)
-    //        val choicestmt = Choice(gc, stmt1, Choice(ga, Choice(gb, stmt2, stmt3), Choice(gb, stmt4, stmt5)))
-    //        val exp = Constant("true")
-    //        val ifStmt = IfStatement(exp, choicestmt, List(), None)
-    //        val root = CompoundStatement(List(stmt0, ifStmt, stmt6, stmt7).map(Opt(FeatureExprFactory.True, _)))
-    //        stmt0 -> prevAST should equal(null)
-    //        exp -> prevAST should equal(null)
-    //        stmt1 -> prevAST should equal(exp)
-    //        ifStmt -> prevAST should equal(stmt0)
-    //        stmt2 -> prevAST should equal(stmt1)
-    //        stmt3 -> prevAST should equal(stmt2)
-    //        stmt4 -> prevAST should equal(stmt3)
-    //        stmt5 -> prevAST should equal(stmt4)
-    //        stmt6 -> prevAST should equal(ifStmt)
-    //        stmt7 -> prevAST should equal(stmt6)
-    //        stmt0 -> parentAST should equal(root)
-    //        ifStmt -> parentAST should equal(root)
-    //        stmt1 -> parentAST should equal(ifStmt)
-    //        stmt2 -> parentAST should equal(ifStmt)
-    //        stmt3 -> parentAST should equal(ifStmt)
-    //        stmt4 -> parentAST should equal(ifStmt)
-    //        stmt5 -> parentAST should equal(ifStmt)
-    //        stmt6 -> parentAST should equal(root)
-    //        stmt7 -> parentAST should equal(root)
-    //    }
-    //
-
 }
