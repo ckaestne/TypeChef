@@ -40,16 +40,15 @@ class XFree(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: FeatureModel, cas
         var res = l
         val variables = manytd(query[AST] {
             case InitDeclaratorI(AtomicNamedDeclarator(_, i: Id, _), _, None) => res ++= fromCache(i)
-            case InitDeclaratorI(AtomicNamedDeclarator(_, i: Id, _), _, Some(initializer)) => {
+            case InitDeclaratorI(AtomicNamedDeclarator(_, i: Id, _), _, Some(initializer)) =>
                 val pmallocs = filterASTElems[PostfixExpr](initializer)
 
                 if (pmallocs.isEmpty) res ++= fromCache(i)
-                else pmallocs.map {
+                else pmallocs.foreach {
                     case PostfixExpr(m: Id, _) if memcalls.contains(m.name) =>
                         if (! env.featureExpr(m) equivalentTo env.featureExpr(i)) res ++= fromCache(i)
                     case _ =>
                 }
-            }
         })
 
         variables(a)
@@ -60,15 +59,14 @@ class XFree(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: FeatureModel, cas
     def kill(a: AST): L = {
         var res = l
         val assignments = manytd(query[AST] {
-            case AssignExpr(target: Id, "=", source) => {
-                val pmallocs = filterASTElems[PostfixExpr](source)
+            case AssignExpr(target: Id, "=", s) =>
+                val pmallocs = filterASTElems[PostfixExpr](s)
 
-                pmallocs.map {
+                pmallocs.foreach {
                     case PostfixExpr(i: Id, _) if memcalls.contains(i.name) =>
                         if (! env.featureExpr(i) equivalentTo env.featureExpr(target)) res ++= fromCache(target, true)
                     case _ =>
                 }
-            }
         })
 
         assignments(a)
@@ -86,7 +84,7 @@ class XFree(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: FeatureModel, cas
         def addFreeTarget(e: Expr) {
             // free(a->b)
             val sp = filterAllASTElems[PointerPostfixSuffix](e)
-            if (!sp.isEmpty) {
+            if (sp.nonEmpty) {
                 for (spe <- filterAllASTElems[Id](sp.reverse.head))
                     res ::= spe
 
@@ -95,7 +93,7 @@ class XFree(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: FeatureModel, cas
 
             // free(a[b])
             val ap = filterAllASTElems[ArrayAccess](e)
-            if (!ap.isEmpty) {
+            if (ap.nonEmpty) {
                 for (ape <- filterAllASTElems[PostfixExpr](e)) {
                     ape match {
                         case PostfixExpr(i@Id(_), ArrayAccess(_)) => res ::= i
@@ -116,7 +114,7 @@ class XFree(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: FeatureModel, cas
 
         val freedvariables = manytd(query[AST] {
             // realloc(*ptr, size) is used for reallocation of memory
-            case PostfixExpr(i@Id("realloc"), FunctionCall(l)) => {
+            case PostfixExpr(i@Id("realloc"), FunctionCall(l)) =>
                 // realloc has two arguments but more than two elements may be passed to
                 // the function. this is the case when elements form alternative groups, such as,
                 // realloc(#ifdef A aptr #else naptr endif, ...)
@@ -143,17 +141,14 @@ class XFree(env: ASTEnv, dum: DeclUseMap, udm: UseDeclMap, fm: FeatureModel, cas
                     }
 
                 }
-
-            }
             // calls to free or to derivatives of free
-            case PostfixExpr(Id(n), FunctionCall(l)) => {
+            case PostfixExpr(Id(n), FunctionCall(l)) =>
 
                 if (freecalls.contains(n)) {
                     for (e <- l.exprs) {
                         addFreeTarget(e.entry)
                     }
                 }
-            }
 
         })
 
