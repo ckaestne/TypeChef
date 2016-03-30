@@ -27,13 +27,18 @@ object CFGErrorOutput {
         dot.writeHeader("CFGErrorDump")
 
         if (errors.nonEmpty) {
-            val nodeErrorsOcc = errors.filter({_ match {case _: CFGErrorMis => true; case _ => false}})
-            val connectionErrorsOcc = errors.filter({_ match {case _: CFGErrorDir => true; case _ => false}})
-            val nodeErrors = nodeErrorsOcc.map(_.asInstanceOf[CFGErrorMis].s)
-            val connectionErrors = connectionErrorsOcc.map({x => (x.asInstanceOf[CFGErrorDir].s, x.asInstanceOf[CFGErrorDir].t)})
+            val errNodes = errors.flatMap {
+                case e: CFGErrorMis => Some(e.s)
+                case _ => None
+            }
+            val errEdges = errors.flatMap {
+                case e: CFGErrorDir => Some((e.s, e.t))
+                case _ => None
+            }
 
-            println("succs: " + dot.writeMethodGraphWithErrors(s, env, nodeErrors, connectionErrors))
-            println("preds: " + dot.writeMethodGraphWithErrors(p, env, nodeErrors, connectionErrors))
+            println("succs: " + dot.writeNodes(s.map(_._1), env, errNodes))
+            println("preds: " + dot.writeNodes(p.map(_._1), env, errNodes))
+            println("edges: " + dot.writeFlows(s ++ p, errEdges))
             println(errors.fold("")(_.toString + _.toString))
         }
 
