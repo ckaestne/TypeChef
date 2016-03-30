@@ -17,7 +17,7 @@ object CheckCFG extends IntraCFG with CFGHelper {
         val errors = compareSuccWithPred(s, p, env)
         CFGErrorOutput.printCFGErrors(s, p, errors, env)
 
-        errors.size > 0
+        errors.nonEmpty
     }
 
     // given an ast element x and its successors lx: x should be in pred(lx)
@@ -31,11 +31,11 @@ object CheckCFG extends IntraCFG with CFGHelper {
         var pdiff = List[AST]()
 
         for (s <- lsuccsast)
-            if (lpredsast.filter(x => s.eq(x)).isEmpty)
+            if (!lpredsast.exists(s.eq(_)))
                 sdiff ::= s
 
         for (p <- lpredsast)
-            if (lsuccsast.filter(x => p.eq(x)).isEmpty)
+            if (!lsuccsast.exists(p.eq(_)))
                 pdiff ::= p
 
         for (sdelem <- sdiff)
