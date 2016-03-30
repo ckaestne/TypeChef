@@ -2710,4 +2710,8 @@ class IntraCFGFileTests extends TestHelper with EnforceTreeHelper with Condition
     @Test def test_bug83() {
         assert(!checkCFG("bug83.c"))
     }
+
+    @Test def test_bug84() {
+        assert(!checkCFG("bug84.c"))
+    }
 }
