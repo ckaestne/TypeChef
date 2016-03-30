@@ -38,7 +38,7 @@ trait ASTNavigation {
             case Opt(_, v: Choice[_]) => lastChoice(v)
             case Opt(_, v: One[_]) => v.value.asInstanceOf[AST]
             case Opt(_, v: AST) => v
-            case null => {
+            case null =>
                 val eparent = env.parent(e)
                 eparent match {
                     case o: Opt[_] => prevAST(o, env)
@@ -46,7 +46,6 @@ trait ASTNavigation {
                     case c: One[_] => prevAST(c, env)
                     case _ => null
                 }
-            }
         }
     }
 
@@ -60,7 +59,7 @@ trait ASTNavigation {
             case Opt(_, v: Choice[_]) => firstChoice(v)
             case Opt(_, v: One[_]) => v.value.asInstanceOf[AST]
             case Opt(_, v: AST) => v
-            case null => {
+            case null =>
                 val eparent = env.parent(e)
                 eparent match {
                     case o: Opt[_] => nextAST(o, env)
@@ -68,7 +67,6 @@ trait ASTNavigation {
                     case c: One[_] => nextAST(c, env)
                     case _ => null
                 }
-            }
         }
     }
 
@@ -114,7 +112,7 @@ trait ASTNavigation {
             case Opt(_, v: Choice[_]) => firstChoice(v)
             case x: One[_] => x.value.asInstanceOf[AST]
             case a: AST => a
-            case x: Option[_] if (x.isDefined) => childAST(x.get.asInstanceOf[Product])
+            case x: Option[_] if x.isDefined => childAST(x.get.asInstanceOf[Product])
             case _ => null
         }
     }
@@ -123,20 +121,9 @@ trait ASTNavigation {
     // base case is the element of type T
     def filterASTElems[T <: AST](a: Any)(implicit m: ClassTag[T]): List[T] = {
         a match {
-            case p: Product if (m.runtimeClass.isInstance(p)) => List(p.asInstanceOf[T])
+            case p: Product if m.runtimeClass.isInstance(p) => List(p.asInstanceOf[T])
             case l: List[_] => l.flatMap(filterASTElems[T])
             case p: Product => p.productIterator.toList.flatMap(filterASTElems[T])
-            case _ => List()
-        }
-    }
-
-    // method recursively filters all AST elements for a given type and feature expression
-    // base case is the element of type T with feature expression ctx
-    def filterASTElems[T <: AST](a: Any, ctx: FeatureExpr, env: ASTEnv)(implicit m: ClassTag[T]): List[T] = {
-        a match {
-            case p: Product if (m.runtimeClass.isInstance(p) && (env.featureExpr(p) implies ctx isSatisfiable())) => List(p.asInstanceOf[T])
-            case l: List[_] => l.flatMap(filterAllASTElems[T](_, ctx, env))
-            case p: Product => p.productIterator.toList.flatMap(filterAllASTElems[T](_, ctx, env))
             case _ => List()
         }
     }
@@ -144,7 +131,7 @@ trait ASTNavigation {
     // in contrast to filterASTElems, filterAllASTElems visits all elements of the tree-wise input structure
     def filterAllASTElems[T <: AST](a: Any)(implicit m: ClassTag[T]): List[T] = {
         a match {
-            case p: Product if (m.runtimeClass.isInstance(p)) => List(p.asInstanceOf[T]) ++
+            case p: Product if m.runtimeClass.isInstance(p) => List(p.asInstanceOf[T]) ++
                 p.productIterator.toList.flatMap(filterASTElems[T])
             case l: List[_] => l.flatMap(filterASTElems[T])
             case p: Product => p.productIterator.toList.flatMap(filterASTElems[T])
@@ -157,7 +144,7 @@ trait ASTNavigation {
     def filterAllASTElems[T <: AST](a: Any, ctx: FeatureExpr, env: ASTEnv)
                                    (implicit m: ClassTag[T]): List[T] = {
         a match {
-            case p: Product if (m.runtimeClass.isInstance(p) && (env.featureExpr(p) implies ctx isSatisfiable())) => List(p.asInstanceOf[T]) ++
+            case p: Product if m.runtimeClass.isInstance(p) && (env.featureExpr(p) implies ctx isSatisfiable()) => List(p.asInstanceOf[T]) ++
                 p.productIterator.toList.flatMap(filterAllASTElems[T](_, ctx, env))
             case l: List[_] => l.flatMap(filterAllASTElems[T](_, ctx, env))
             case p: Product => p.productIterator.toList.flatMap(filterAllASTElems[T](_, ctx, env))
@@ -168,7 +155,7 @@ trait ASTNavigation {
     // go up the AST hierarchy and look for a specific AST element with type T
     def findPriorASTElem[T <: AST](a: Product, env: ASTEnv)(implicit m: ClassTag[T]): Option[T] = {
         a match {
-            case x if (m.runtimeClass.isInstance(x)) => Some(x.asInstanceOf[T])
+            case x if m.runtimeClass.isInstance(x) => Some(x.asInstanceOf[T])
             case x: Product => findPriorASTElem[T](parentAST(x, env), env)
             case null => None
         }
@@ -177,13 +164,14 @@ trait ASTNavigation {
     // go up the AST hierarchy and loog for specific AST elements with type T
     def findPriorASTElems[T <: AST](a: Product, env: ASTEnv)(implicit m: ClassTag[T]): List[T] = {
         a match {
-            case x if (m.runtimeClass.isInstance(x)) => x.asInstanceOf[T] :: findPriorASTElems(parentAST(x, env), env)
+            case x if m.runtimeClass.isInstance(x) => x.asInstanceOf[T] :: findPriorASTElems(parentAST(x, env), env)
             case x: Product => findPriorASTElems(parentAST(x, env), env)
             case null => Nil
         }
     }
 
     // recursively walk right branch of Choice structure until we hit an AST element
+    @tailrec
     private def lastChoice(x: Choice[_]): AST = {
         x.elseBranch match {
             case c: Choice[_] => lastChoice(c)
@@ -192,6 +180,7 @@ trait ASTNavigation {
     }
 
     // recursively walk left branch of Choice structure until we hit an AST element
+    @tailrec
     private def firstChoice(x: Choice[_]): AST = {
         x.thenBranch match {
             case c: Choice[_] => firstChoice(c)
