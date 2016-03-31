@@ -64,7 +64,7 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
                     .tail.map(parentOpt(_, env)).asInstanceOf[List[Opt[Statement]]]
                 val r = compStmtSucc(env, res, ctx)(e, sn)
 
-                if (!isComplete(ctx)(r))
+                if (f && !isComplete(ctx)(r))
                     succFollowing(env, r, ctx)(e)
                 else
                     r
