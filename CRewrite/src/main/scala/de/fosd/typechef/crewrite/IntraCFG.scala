@@ -98,9 +98,6 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
                             else
                                 ul ++ List(nee)
                         }
-                        // filter unsatisfiable control-flow paths,
-                        // i.e., feature expression is contradiction
-                        .filter {_.condition and ctx isSatisfiable()}
                 }
         }
         (blck, r)
@@ -357,7 +354,7 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
                         assert(assertion = false, "break statement should always occur within a for, do-while, while or switch statement")
                         res
                     case Some(s) =>
-                        stmtSucc(env, res, ctx and env.featureExpr(e))(s, false)
+                        stmtSucc(env, res, ctx and env.featureExpr(e))(s, true)
                 }
             case e: ContinueStatement =>
                 val y = ctx and env.featureExpr(e)
@@ -453,14 +450,7 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
         a match {
             case FunctionDef(_, _, _, stmt) => succComp(env, res, ctx)(stmt)
             case e@CompoundStatement(innerStatements) =>
-                var r = res
-                innerStatements.takeWhile {
-                    case _ =>
-                        !isComplete(ctx)(r)
-                }.foreach {
-                    case Opt(_, n) =>
-                        r = basicSucc(env, r, ctx)(n)
-                }
+                val r = compStmtSucc(env, res, ctx)(e, innerStatements)
 
                 if (!isComplete(ctx)(r))
                     succFollowing(env, r, ctx)(e)
