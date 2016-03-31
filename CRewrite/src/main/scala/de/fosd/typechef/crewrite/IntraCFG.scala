@@ -526,16 +526,20 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
                         stmtPred(env, res, ctx)(e, f = true)
                     case e@ForStatement(expr1, Some(expr2), expr3, s) if isPartOf(se)(expr2) =>
                         var r = res
-                        if (expr1.isDefined)
-                            r ++= exprPred(env, res, ctx)(expr1.get)
-                        else
-                            r ++= stmtPred(env, res, ctx)(e, f = true)
                         if (expr3.isDefined)
                             r ++= exprPred(env, res, ctx)(expr3.get)
                         else {
                             r ++= condStmtPred(env, res, ctx)(s)
+
+                            if (!isComplete(ctx)(r))
+                                r ++= exprPred(env, r, ctx)(expr2)
+
                             r ++= filterContinueStatements(s, env.featureExpr(e), env)
                         }
+                        if (expr1.isDefined)
+                            r ++= exprPred(env, res, ctx)(expr1.get)
+                        else
+                            r ++= stmtPred(env, res, ctx)(e, f = true)
                         r
                     case e@ForStatement(_, Some(expr2), Some(expr3), s) if isPartOf(se)(expr3) =>
                         val rs = condStmtPred(env, res, ctx)(s)
