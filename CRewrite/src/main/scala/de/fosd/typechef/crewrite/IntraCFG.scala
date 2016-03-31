@@ -254,8 +254,6 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
                 res
 
             // conditional statements
-            case IfStatement(condition, thenBranch, Nil, None) =>
-                condStmtPred(env, res, ctx)(thenBranch) ++ condExprPred(env, res, ctx)(condition)
             case IfStatement(condition, thenBranch, elifs, elseBranch) =>
                 var r = res
                 if (elseBranch.isDefined)
