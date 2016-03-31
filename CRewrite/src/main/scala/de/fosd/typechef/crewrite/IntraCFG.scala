@@ -23,7 +23,7 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
                     source = s
                     val c = env.featureExpr(s)
                     if (c.isSatisfiable())
-                        succComp(env, List(), c)(s)
+                        succComp(env, List(), c)(s).filter( _.condition and c isSatisfiable())
                     else
                         List()
         }
@@ -35,7 +35,7 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
                     source = s
                     val c = env.featureExpr(s)
                     if (c.isSatisfiable())
-                        predComp(env, List(), c)(s)
+                        predComp(env, List(), c)(s).filter(_.condition and c isSatisfiable())
                     else
                         List()
         }
@@ -123,9 +123,6 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
                             else
                                 ul ++ List(nee)
                         }
-                        // filter unsatisfiable control-flow paths,
-                        // i.e., feature expression is contradiction
-                        .filter {_.condition and ctx isSatisfiable()}
                     r
                 }
         }
