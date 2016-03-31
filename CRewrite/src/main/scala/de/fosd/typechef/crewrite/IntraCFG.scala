@@ -85,7 +85,8 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
                 blck = blck or env.featureExpr(o)
             case y =>
                 val c = env.featureExpr(y.entry)
-                if (!(blck equivalentTo c)
+                if (blck.not().isSatisfiable()
+                    && !(blck equivalentTo c)
                     && (ctx and c isSatisfiable())
                     && !isComplete(ctx)(r)) {
                     r = basicPred(env, r, ctx and c)(y.entry)
@@ -225,8 +226,6 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
                     res
         }
 
-
-
     private def basicPred(env: ASTEnv, res: CFGStmts, ctx: FeatureExpr)(a: AST): CFGStmts =
         a match {
             case ForStatement(_, expr2, _, s) =>
@@ -317,8 +316,8 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
                 }
             case _: ReturnStatement =>
                 res
-            case GotoStatement(target) =>
-                exprPred(env, res, ctx)(target)
+            case _: GotoStatement =>
+                res
             case LabelStatement(id, _) =>
                 exprPred(env, res, ctx)(id)
             case e: CompoundStatement =>
@@ -440,19 +439,12 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
                             exprPred(env, res, ctx and m)(expr)
                     }
                 r ++= retustmts
-                r ++= predComp(env, r, ctx)(stmt)
+                r ++= predComp(env, res, ctx)(stmt)
                 r.distinct
             case e@CompoundStatement(innerStatements) =>
-                var r = res
-                innerStatements.reverse.takeWhile {
-                    case _ =>
-                        !isComplete(ctx)(r)
-                }.foreach {
-                    case Opt(_, n) =>
-                        r = basicPred(env, r, ctx)(n)
-                }
+                var (b, r) = compStmtPred(env, res, ctx)(e, innerStatements)
 
-                if (!isComplete(ctx)(r))
+                if (!(b equivalentTo ctx) && !isComplete(ctx)(r))
                     predFollowing(env, r, ctx)(e)
                 else
                     r
