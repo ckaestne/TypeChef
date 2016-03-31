@@ -306,8 +306,11 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
                     case Some(SwitchStatement(expr, s)) =>
                         r ++ exprPred(env, res, ctx)(expr)
                 }
-            case _: ReturnStatement =>
-                res
+            case ReturnStatement(expr) =>
+                source match {
+                    case _: FunctionDef if expr.isDefined => exprPred(env, res, ctx)(expr.get)
+                    case _ => res
+                }
             case _: GotoStatement =>
                 res
             case LabelStatement(id, _) =>
