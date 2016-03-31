@@ -1284,8 +1284,9 @@ class IntraCFGFileTests extends TestHelper with EnforceTreeHelper with Condition
         assert(!checkCFG("920501-9.c"))
     }
 
+    // goto label without a target
     @Test def test_920502_1() {
-        assert(!checkCFG("920502-1.c"))
+        assert(checkCFG("920502-1.c"))
     }
 
     @Test def test_920502_2() {
@@ -1416,8 +1417,9 @@ class IntraCFGFileTests extends TestHelper with EnforceTreeHelper with Condition
         assert(!checkCFG("920825-2.c"))
     }
 
+    // goto label without a target
     @Test def test_920826_1() {
-        assert(!checkCFG("920826-1.c"))
+        assert(checkCFG("920826-1.c"))
     }
 
     @Test def test_920828_1() {
@@ -1428,8 +1430,9 @@ class IntraCFGFileTests extends TestHelper with EnforceTreeHelper with Condition
         assert(!checkCFG("920829-1.c"))
     }
 
+    // goto label without a target
     @Test def test_920831_1() {
-        assert(!checkCFG("920831-1.c"))
+        assert(checkCFG("920831-1.c"))
     }
 
     @Test def test_920902_1() {
