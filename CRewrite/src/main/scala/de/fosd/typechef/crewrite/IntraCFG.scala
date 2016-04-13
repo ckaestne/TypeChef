@@ -77,7 +77,7 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
         var r = res
         var blck = FeatureExprFactory.False
         l.reverse.foreach {
-            case Opt(_, o: ReturnStatement) =>
+            case Opt(_, o: ReturnStatement) if !source.isInstanceOf[FunctionDef] =>
                 blck = blck or env.featureExpr(o)
             case Opt(_, o: GotoStatement) =>
                 blck = blck or env.featureExpr(o)
@@ -566,7 +566,12 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
                             r
                         }
                     case e@WhileStatement(expr, s) if isPartOf(se)(expr) =>
-                        stmtPred(env, res, ctx)(e, f = true) ++ condStmtPred(env, res, ctx)(s)
+                        val re = stmtPred(env, res, ctx)(e, f = true)
+                        var rs = condStmtPred(env, res, ctx)(s)
+
+                        if (!isComplete(ctx)(rs))
+                           rs ++= exprPred(env, rs, ctx)(expr)
+                        re ++ rs
                     case WhileStatement(expr, _) =>
                         exprPred(env, res, ctx)(expr)
                     case e@DoStatement(expr, s) if isPartOf(se)(expr) =>
