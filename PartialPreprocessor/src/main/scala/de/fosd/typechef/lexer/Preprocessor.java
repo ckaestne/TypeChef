@@ -155,7 +155,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable, VA
     PreprocessorListener listener;
 
     private List<MacroConstraint> macroConstraints = new ArrayList<MacroConstraint>();
-    private Map<VirtualFile, FeatureExpr> includedFileMap;
+    private Map<String, FeatureExpr> includedPragmaOnceFiles;
 
     public Preprocessor(MacroFilter macroFilter, FeatureModel fm) {
         this.featureModel = fm;
@@ -177,7 +177,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable, VA
         this.warnings = EnumSet.noneOf(Warning.class);
         this.filesystem = new JavaFileSystem();
         this.listener = null;
-        this.includedFileMap = new HashMap<VirtualFile, FeatureExpr>();
+        this.includedPragmaOnceFiles = new HashMap<String, FeatureExpr>();
     }
 
     public Preprocessor() {
@@ -1534,18 +1534,20 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable, VA
         if (getFeature(Feature.DEBUG_VERBOSE))
             System.err.println("pp: including " + file);
 
-		// include the file only if we have NOT already included the file under a condition
-		// which contains also the current condition
-        FeatureExpr condition = this.includedFileMap.get(file);
-        FeatureExpr currentCondition = this.state.getFullPresenceCondition();
+        if (this.includedPragmaOnceFiles.containsKey(file.getPath())) {
+            // This file has already been included once with the preprocessor directive #pragma once
+            // We include the file only if we have NOT already included the file under a condition
+            // which contains also the current condition
+            FeatureExpr condition = this.includedPragmaOnceFiles.get(file.getPath());
+            FeatureExpr currentCondition = this.state.getFullPresenceCondition();
 
-        if (condition == null) {
+            if (currentCondition.andNot(condition).isSatisfiable())
+                sourceManager.push_source(file.getSource(), true);
+
+        } else {
             sourceManager.push_source(file.getSource(), true);
-            this.includedFileMap.put(file, currentCondition);
-        } else if (currentCondition.andNot(condition).isSatisfiable()) {
-            sourceManager.push_source(file.getSource(), true);
-            this.includedFileMap.put(file, currentCondition.or(condition));
         }
+
 
         return true;
     }
@@ -1717,8 +1719,20 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable, VA
     protected void pragma(Token nameTok, List<Token> value) throws IOException,
             LexerException {
         String pragmaName = nameTok.getText();
-        if (!"pack".equals(pragmaName))
+
+        // found directive #pragma once -> add the current file with the current condition to a map containing all headers
+        // already included with the directive #pragma once to avoid duplicate header inclusion
+        if (pragmaName.equalsIgnoreCase("once"))
+            updateIncludedPragmaOnceFiles(sourceManager.getSource().getPath(), this.state.getFullPresenceCondition());
+        else if (!"pack".equals(pragmaName))
             warning(nameTok, "Unknown #" + "pragma: " + pragmaName);
+    }
+
+    private void updateIncludedPragmaOnceFiles(String path, FeatureExpr condition) {
+        if (this.includedPragmaOnceFiles.containsKey(path))
+            this.includedPragmaOnceFiles.put(path, condition.or(this.includedPragmaOnceFiles.get(path)));
+        else
+            this.includedPragmaOnceFiles.put(path, condition);
     }
 
     private Token parse_pragma() throws IOException, LexerException {
