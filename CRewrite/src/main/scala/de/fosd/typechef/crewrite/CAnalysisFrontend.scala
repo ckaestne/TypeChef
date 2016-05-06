@@ -277,10 +277,11 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
         val ds = new DanglingSwitchCode(env)
 
         ss.flatMap(s => {
-            ds.danglingSwitchCode(s).map(e => {
-                new TypeChefError(Severity.Warning, e.condition, "warning: switch statement has dangling code ", e.entry, "")
-            })
-
+            ds.danglingSwitchCode(s).map {
+                case x if x.condition.isSatisfiable(fm) =>
+                    new TypeChefError(Severity.Warning, x.condition,
+                        "warning: switch statement has dangling code ", x.entry, "")
+            }
         })
     }
 
@@ -300,9 +301,11 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
     private def cfgInNonVoidFunc(fa: (FunctionDef, List[(AST, List[Opt[AST]])])): List[TypeChefError] = {
         val cf = new CFGInNonVoidFunc(env, ts)
 
-        cf.cfgInNonVoidFunc(fa._1).map(
-            e => new TypeChefError(Severity.Warning, e.condition, "Control flow of non-void function ends here!", e.entry, "")
-        )
+        cf.cfgInNonVoidFunc(fa._1).map {
+            case x if x.condition.isSatisfiable(fm) =>
+                new TypeChefError(Severity.Warning, x.condition,
+                    "Control flow of non-void function ends here!", x.entry, "")
+        }
     }
 
     def caseTermination(): Boolean = {
@@ -324,7 +327,7 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
         val ct = new CaseTermination(env)
 
         casestmts.filterNot(ct.isTerminating).map {
-            x => {
+            case x if env.featureExpr(x).isSatisfiable(fm) => {
                 new TypeChefError(Severity.Warning, env.featureExpr(x),
                     "Case statement is not terminated by a break!", x, "")
             }
