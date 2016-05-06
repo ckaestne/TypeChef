@@ -91,18 +91,18 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
                 else out.find { case (t, _) => t == i } match {
                     case None =>
                         val idecls = getDecls(i)
-                        if (idecls.exists(isPartOf(_, fa._1)))
-                            err ::= new TypeChefError(Severity.Warning, fi, "warning: Variable " + i.name + " is a dead store!", i, "")
+                        if (idecls.exists(isPartOf(_, fa._1)) && fi.isSatisfiable(fm))
+                            err ::= new TypeChefError(Severity.Warning, fi,
+                                "warning: Variable " + i.name + " is a dead store!", i, "")
                     case Some((x, z)) =>
-                        if (fi.and(z.not()).isSatisfiable(fm)) {
-                            val xdecls = getDecls(x)
-                            val idecls = getDecls(i)
-                            for (ei <- idecls) {
-                                // with isPartOf we reduce the number of false positives, since we only check local variables and function parameters.
-                                // an assignment to a global variable might be used in another function
-                                if (isPartOf(ei, fa._1) && xdecls.exists(_.eq(ei)))
-                                    err ::= new TypeChefError(Severity.Warning, z.not(), "warning: Variable " + i.name + " is a dead store!", i, "")
-                            }
+                        val xdecls = getDecls(x)
+                        val idecls = getDecls(i)
+                        for (ei <- idecls) {
+                            // with isPartOf we reduce the number of false positives, since we only check local variables and function parameters.
+                            // an assignment to a global variable might be used in another function
+                            if (isPartOf(ei, fa._1) && xdecls.exists(_.eq(ei)) && fi.and(z.not()).isSatisfiable(fm))
+                                err ::= new TypeChefError(Severity.Warning, z.not(),
+                                    "warning: Variable " + i.name + " is a dead store!", i, "")
                         }
                 }
             }
@@ -151,13 +151,12 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
                 g.find { case ((t, _), _) => t == i } match {
                     case None =>
                     case Some(((x, _), _)) =>
-                        if (h.isSatisfiable(fm)) {
-                            val xdecls = getDecls(x)
-                            val idecls = getDecls(i)
-                            for (ei <- idecls)
-                                if (xdecls.exists(_.eq(ei)))
-                                    err ::= new TypeChefError(Severity.Warning, h, "warning: Variable " + x.name + " is freed multiple times!", x, "")
-                        }
+                        val xdecls = getDecls(x)
+                        val idecls = getDecls(i)
+                        for (ei <- idecls)
+                            if (xdecls.exists(_.eq(ei)) && h.isSatisfiable(fm))
+                                err ::= new TypeChefError(Severity.Warning, h,
+                                    "warning: Variable " + x.name + " is freed multiple times!", x, "")
                 }
             }
         }
@@ -190,15 +189,13 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
                 val in = um.in(s)
 
                 for (((i, _), h) <- in)
-                    g.find { case ((t, _), _) => t == i } match {
-                        case None =>
-                        case Some(((x, _), _)) =>
-                            if (h.isSatisfiable(fm)) {
-                                val xdecls = getDecls(x)
-                                val idecls = getDecls(i)
-                                for (ei <- idecls)
-                                    if (xdecls.exists(_.eq(ei)))
-                                        err ::= new TypeChefError(Severity.Warning, h, "warning: Variable " + x.name + " is used uninitialized!", x, "")
+                    for (((x, _), _) <- g if x == i) {
+                        val xdecls = getDecls(x)
+                        val idecls = getDecls(i)
+                        for (ei <- idecls)
+                            if (xdecls.exists(_.eq(ei)) && h.isSatisfiable(fm)) {
+                                err ::= new TypeChefError(Severity.Warning, h,
+                                    "warning: Variable " + x.name + " is used uninitialized!", x, "")
                             }
                     }
             }
@@ -236,13 +233,12 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
                     g.find(_ == i) match {
                         case None =>
                         case Some(x) =>
-                            if (h.isSatisfiable(fm)) {
-                                val xdecls = getDecls(x)
-                                val idecls = getDecls(i)
-                                for (ei <- idecls)
-                                    if (xdecls.exists(_.eq(ei)))
-                                        err ::= new TypeChefError(Severity.Warning, h, "warning: Variable " + x.name + " is freed although not dynamically allocated!", x, "")
-                            }
+                            val xdecls = getDecls(x)
+                            val idecls = getDecls(i)
+                            for (ei <- idecls)
+                                if (xdecls.exists(_.eq(ei)) && h.isSatisfiable(fm))
+                                    err ::= new TypeChefError(Severity.Warning, h,
+                                        "warning: Variable " + x.name + " is freed although not dynamically allocated!", x, "")
                     }
             }
         }
@@ -365,16 +361,14 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
                     g.find { case ((t, _), _) => t == e } match {
                         case None =>
                         case Some((k@(x, _), _)) =>
-                            if (fi.isSatisfiable(fm)) {
-                                val xdecls = getDecls(x)
-                                val edecls = getDecls(e)
+                            val xdecls = getDecls(x)
+                            val edecls = getDecls(e)
 
-                                for (ee <- edecls) {
-                                    val kills = cle.kill(s)
-                                    if (xdecls.exists(_.eq(ee)) && !kills.contains(k)) {
-                                        err ::= new TypeChefError(Severity.SecurityWarning, fi, "The value of " +
-                                            PrettyPrinter.print(e) + " is not properly checked for (" + errorvalues + ")!", e)
-                                    }
+                            for (ee <- edecls) {
+                                val kills = cle.kill(s)
+                                if (xdecls.exists(_.eq(ee)) && !kills.contains(k) && fi.isSatisfiable(fm)) {
+                                    err ::= new TypeChefError(Severity.SecurityWarning, fi, "The value of " +
+                                        PrettyPrinter.print(e) + " is not properly checked for (" + errorvalues + ")!", e)
                                 }
                             }
                     }
