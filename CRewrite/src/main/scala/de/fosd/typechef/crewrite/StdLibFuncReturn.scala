@@ -37,21 +37,18 @@ sealed abstract class StdLibFuncReturn(env: ASTEnv, dum: DeclUseMap, udm: UseDec
 
         // we track variables with the return value of a stdlib function call that is in function
         val retvar = manytd(query[AST] {
-            case AssignExpr(i@Id(_), "=", source) => {
-                filterAllASTElems[PostfixExpr](source).map(
-                    pfe => pfe match {
-                        case PostfixExpr(Id(name), FunctionCall(_)) => if (function.contains(name)) res ++= fromCache(i)
-                        case _ =>
-                    }
-                )
-            }
+            case AssignExpr(i@Id(_), "=", source) =>
+                filterAllASTElems[PostfixExpr](source).foreach {
+                    case PostfixExpr(Id(name), FunctionCall(_)) if function.contains(name) =>
+                        res ++= fromCache(i)
+                    case _ =>
+                }
             case InitDeclaratorI(AtomicNamedDeclarator(_, i: Id, _), _, Some(init)) =>
-                filterAllASTElems[PostfixExpr](init).map(
-                    pfe => pfe match {
-                        case PostfixExpr(Id(name), FunctionCall(_)) => if (function.contains(name)) res ++= fromCache(i)
-                        case _ =>
-                    }
-                )
+                filterAllASTElems[PostfixExpr](init).foreach {
+                    case PostfixExpr(Id(name), FunctionCall(_)) if function.contains(name) =>
+                        res ++= fromCache(i)
+                    case _ =>
+                }
         })
 
         retvar(a)
@@ -71,13 +68,12 @@ sealed abstract class StdLibFuncReturn(env: ASTEnv, dum: DeclUseMap, udm: UseDec
         var res = l
 
         val checkvar = manytd(query[AST] {
-            case NAryExpr(i: Id, others) => {
+            case NAryExpr(i: Id, others) =>
                 val existingerrchecks = errorreturn.flatMap { st => subtermIsPartOfTerm(st, others) }
                 val fexp = existingerrchecks.foldRight(FeatureExprFactory.False){ (x, y) => env.featureExpr(x) or y }
 
                 if (env.featureExpr(i).equivalentTo(fexp, fm))
                     res ++= fromCache(i, true)
-            }
         })
 
         checkvar(a)
@@ -90,7 +86,7 @@ sealed abstract class StdLibFuncReturn(env: ASTEnv, dum: DeclUseMap, udm: UseDec
     def checkForPotentialCalls(a: AST): List[Id] = {
         var potentialfcalls: List[Id] = List()
         val getfcalls = manytd(query[AST] {
-            case PostfixExpr(i@Id(name), FunctionCall(_)) => {
+            case PostfixExpr(i@Id(name), FunctionCall(_)) =>
                 // the function call is in our list of function calls we track
                 // and the call is not part of an AssignExpr or InitDeclarator, which will be handled with
                 // the dataflow variant of this analysis
@@ -98,7 +94,6 @@ sealed abstract class StdLibFuncReturn(env: ASTEnv, dum: DeclUseMap, udm: UseDec
                     && findPriorASTElem[AssignExpr](i, env).isEmpty
                     && findPriorASTElem[InitDeclaratorI](i, env).isEmpty)
                     potentialfcalls ::= i
-            }
         })
 
         getfcalls(a)
@@ -106,14 +101,15 @@ sealed abstract class StdLibFuncReturn(env: ASTEnv, dum: DeclUseMap, udm: UseDec
         // check for each tracked function call, whether it belongs to an NAryExpr and, if so,
         // whether errorReturn is part of that NAryExpr
         var erroreouscalls: List[Id] = List()
-        potentialfcalls.map(c => {
+        potentialfcalls.foreach(c => {
             val ne = findPriorASTElem[NAryExpr](c, env)
 
             if (ne.isDefined) {
                 // iterate errorreturn and check whether one of the elements in there occurs somewhere in the
                 // NAryExpr, i.e., we check "e" and "others" of NAryExpr
-                errorreturn.map(e => {
-                    if (! (ne.get.others.exists(sne => isPartOf(e, sne)) || isPartOf(e, ne.get.e))) erroreouscalls ::= c
+                errorreturn.foreach(e => {
+                    if (! (ne.get.others.exists(sne => isPartOf(e, sne)) || isPartOf(e, ne.get.e)))
+                        erroreouscalls ::= c
                 })
             } else {
                 erroreouscalls ::= c
