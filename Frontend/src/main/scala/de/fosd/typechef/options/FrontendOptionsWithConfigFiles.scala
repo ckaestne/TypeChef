@@ -52,6 +52,8 @@ class FrontendOptionsWithConfigFiles extends FrontendOptions {
 
 
     private final val SYSINCL: Char = Options.genOptionId()
+    private final val Op_preIncludes: Char = Options.genOptionId()
+    private final val Op_postIncludes: Char = Options.genOptionId()
 
     protected override def getOptionGroups() = {
         import Options.OptionGroup
@@ -66,6 +68,10 @@ class FrontendOptionsWithConfigFiles extends FrontendOptions {
                 "Header files with platform macros (create with 'cpp -dM -std=gnu99 -'). Default: 'platform.h'."),
             new Option("systemIncludes", LongOpt.REQUIRED_ARGUMENT, SYSINCL, "dir",
                 "System include directory. Default: '$systemRoot/usr/include'."),
+            new Option("preIncludes", LongOpt.REQUIRED_ARGUMENT, Op_preIncludes, "dir",
+                "Extra include directory, before all others"),
+            new Option("postIncludes", LongOpt.REQUIRED_ARGUMENT, Op_postIncludes, "dir",
+                "Extra include directory, after all others"),
             new Option("settingsFile", LongOpt.REQUIRED_ARGUMENT, 'c', "dir",
                 "Property file specifying system root, platform headers, and system include directories.")
         ))
@@ -88,6 +94,12 @@ class FrontendOptionsWithConfigFiles extends FrontendOptions {
         } else if (c == SYSINCL) {
             checkDirectoryExists(g.getOptarg)
             setSystemIncludes(g.getOptarg)
+            true
+        } else if (c == Op_preIncludes) {
+            preIncludeDirs = g.getOptarg.split(",") ++ preIncludeDirs
+            true
+        } else if (c == Op_postIncludes) {
+            postIncludeDirs = postIncludeDirs ++ g.getOptarg.split(",")
             true
         } else
             super.interpretOption(c, g)
