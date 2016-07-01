@@ -91,7 +91,7 @@ public class FrontendOptions extends CAnalysisOptions implements ParserOptions {
                         "Report times for all phases."),
 
                 new Option("filePC", LongOpt.REQUIRED_ARGUMENT, F_FILEPC, "file",
-                        "Presence condition for the file (format like --featureModelFExpr). Default 'file.pc'."),
+                        "Presence condition for the file, in a file (format like --featureModelFExpr). Default '$file.pc'."),
                 new Option("bdd", LongOpt.NO_ARGUMENT, F_BDD, null,
                         "Use BDD engine instead of SAT engine (provide as first parameter)."),
 

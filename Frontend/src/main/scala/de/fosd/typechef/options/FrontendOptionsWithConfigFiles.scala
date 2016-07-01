@@ -11,6 +11,9 @@ class FrontendOptionsWithConfigFiles extends FrontendOptions {
     // elsewhere.
     ////////////////////////////////////////
     val predefSettings = new Properties()
+    predefSettings.setProperty("systemRoot", File.separator)
+    predefSettings.setProperty("systemIncludes", "usr" + File.separator + "include")
+    predefSettings.setProperty("predefMacros", "")
     val settings = new Properties(predefSettings)
 
     def systemRoot = settings.getProperty("systemRoot")
@@ -28,32 +31,21 @@ class FrontendOptionsWithConfigFiles extends FrontendOptions {
     var preIncludeDirs: Seq[String] = Nil
     var postIncludeDirs: Seq[String] = Nil
 
-    def initSettings {
-        predefSettings.setProperty("systemRoot", File.separator)
-        predefSettings.setProperty("systemIncludes", "usr" + File.separator + "include")
-        predefSettings.setProperty("predefMacros", "")
-    }
 
     def loadPropList(key: String) = for (x <- settings.getProperty(key, "").split(",")) yield x.trim
 
     def loadSettings(configPath: String) = {
         settings.load(new FileInputStream(configPath))
         preIncludeDirs = loadPropList("preIncludes") ++ preIncludeDirs
-//        println("preIncludes: " + preIncludeDirs)
-//        println("systemIncludes: " + systemIncludes)
         postIncludeDirs = postIncludeDirs ++ loadPropList("postIncludes")
-//        println("postIncludes: " + postIncludeDirs)
     }
 
-    override def parseOptions(args: Array[String]) = {
-        initSettings
-        super.parseOptions(args)
-    }
 
 
     private final val SYSINCL: Char = Options.genOptionId()
     private final val Op_preIncludes: Char = Options.genOptionId()
     private final val Op_postIncludes: Char = Options.genOptionId()
+    private final val Op_predefMacros: Char = Options.genOptionId()
 
     protected override def getOptionGroups() = {
         import Options.OptionGroup
@@ -69,9 +61,11 @@ class FrontendOptionsWithConfigFiles extends FrontendOptions {
             new Option("systemIncludes", LongOpt.REQUIRED_ARGUMENT, SYSINCL, "dir",
                 "System include directory. Default: '$systemRoot/usr/include'."),
             new Option("preIncludes", LongOpt.REQUIRED_ARGUMENT, Op_preIncludes, "dir",
-                "Extra include directory, before all others"),
+                "Extra include directories, before system includes, relative to $systemRoot"),
             new Option("postIncludes", LongOpt.REQUIRED_ARGUMENT, Op_postIncludes, "dir",
-                "Extra include directory, after all others"),
+                "Extra include directories, after system includes, relative to $systemRoot"),
+            new Option("predefMacros", LongOpt.REQUIRED_ARGUMENT, Op_predefMacros, "file",
+                "Header with compiler-defined macros (e.g., generated with `gcc -dM   -x c - -E`)"),
             new Option("settingsFile", LongOpt.REQUIRED_ARGUMENT, 'c', "dir",
                 "Property file specifying system root, platform headers, and system include directories.")
         ))
@@ -100,6 +94,9 @@ class FrontendOptionsWithConfigFiles extends FrontendOptions {
             true
         } else if (c == Op_postIncludes) {
             postIncludeDirs = postIncludeDirs ++ g.getOptarg.split(",")
+            true
+        } else if (c == Op_predefMacros) {
+            setPredefMacroDef(g.getOptarg)
             true
         } else
             super.interpretOption(c, g)
