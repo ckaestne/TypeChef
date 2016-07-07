@@ -98,7 +98,7 @@ public class LexerFrontend {
 
         @Override
         public String toString() {
-            return "Lexer Error: "+getMessage();
+            return "Lexer Error: " + getMessage();
         }
     }
 
@@ -254,9 +254,18 @@ public class LexerFrontend {
             }
         } else if (result instanceof Choice) {
             Choice<LexerResult> choice = (Choice<LexerResult>) result;
-            return printLexingResult(choice.thenBranch(), feature.and(choice.condition())) + "\n" +
-                    printLexingResult(choice.elseBranch(), feature.andNot(choice.condition()));
-
+            FeatureExpr leftCond = feature.and(choice.condition());
+            boolean left = leftCond.isSatisfiable();
+            FeatureExpr rightCond = feature.andNot(choice.condition());
+            boolean right = rightCond.isSatisfiable();
+            String sresult = "";
+            if (left)
+                sresult += printLexingResult(choice.thenBranch(), leftCond);
+            if (left && right)
+                sresult += "\n";
+            if (right)
+                sresult += printLexingResult(choice.elseBranch(), feature.andNot(choice.condition()));
+            return sresult;
         }
         throw new UnsupportedOperationException("cannot be called with this parameter " + result);
     }
@@ -479,6 +488,7 @@ public class LexerFrontend {
         public FeatureModel getSmallFeatureModel() {
             return featureModel;
         }
+
         @Override
         public FeatureModel getFullFeatureModel() {
             return featureModel;
@@ -607,6 +617,7 @@ public class LexerFrontend {
         public FeatureModel getSmallFeatureModel() {
             return featureModel;
         }
+
         @Override
         public FeatureModel getFullFeatureModel() {
             return featureModel;
