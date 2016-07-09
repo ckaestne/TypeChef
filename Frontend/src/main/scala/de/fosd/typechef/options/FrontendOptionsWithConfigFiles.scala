@@ -103,16 +103,17 @@ class FrontendOptionsWithConfigFiles extends FrontendOptions {
     }
 
     override def getIncludePaths() = {
+        def adjustPath = (path: String) =>
+            if (path != null && !("" equals path))
+                List(systemRoot + File.separator + path)
+            else
+                List()
+
         val r = new ArrayList[String](super.getIncludePaths)
-        val r2 = (preIncludeDirs ++ List(systemIncludes) ++ postIncludeDirs).flatMap(
-            (path: String) =>
-                if (path != null && !("" equals path))
-                    List(systemRoot + File.separator + path)
-                else
-                    List()
-        )
-        for (a <- r2)
+        for (a <- (systemIncludes +: postIncludeDirs).flatMap(adjustPath))
             r.add(a)
+        for (a<-preIncludeDirs.reverse.flatMap(adjustPath))
+            r.add(0, a)
         r
     }
 
