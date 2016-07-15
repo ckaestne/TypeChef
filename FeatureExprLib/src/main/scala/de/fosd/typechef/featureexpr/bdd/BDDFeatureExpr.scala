@@ -426,6 +426,7 @@ class BDDFeatureExpr(private[featureexpr] val bdd: BDD) extends FeatureExpr {
         return Some(enabled, disabled)
     }
     private def writeReplace(): Object = new FeatureExprSerializationProxy(this.toTextExpr)
+    protected def indent(level: Int): String = "\t" * level
 }
 
 class SingleBDDFeatureExpr(id: Int) extends BDDFeatureExpr(lookupFeatureBDD(id)) with SingleFeatureExpr {
