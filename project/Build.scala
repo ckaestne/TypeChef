@@ -11,8 +11,8 @@ object BuildSettings {
     import Dependencies._
 
     val buildOrganization = "de.fosd.typechef"
-    val buildVersion = "0.4.1"
-    val buildScalaVersion = "2.11.7"
+    val buildVersion = "0.4.2"
+    val buildScalaVersion = "2.12.0"
 
 
     val buildSettings = Defaults.coreDefaultSettings ++ Seq(
@@ -22,7 +22,7 @@ object BuildSettings {
         shellPrompt := ShellPrompt.buildShellPrompt,
 
         javacOptions ++= Seq("-Xlint:unchecked", "-target", "1.7", "-source", "1.7"),
-        scalacOptions ++= Seq("-deprecation", "-unchecked", "-optimise", "-target:jvm-1.7"),
+        scalacOptions ++= Seq("-deprecation", "-unchecked"),
         testOptions += Tests.Argument(TestFrameworks.JUnit, "-q", "-v"),
 
         // suppress feature warnings in Scala 2.10.x
@@ -30,7 +30,6 @@ object BuildSettings {
         scalacOptions <++= scalaVersion map {
             sv =>
                 if (sv startsWith "2.1") List(
-                    "-Yinline-warnings",
                     "-feature",
                     "-language:postfixOps",
                     "-language:implicitConversions",
@@ -39,7 +38,7 @@ object BuildSettings {
                 else Nil
         },
 
-        crossScalaVersions := Seq("2.10.4", "2.11.4"),
+        crossScalaVersions := Seq("2.10.6", "2.11.8"),
 
         conflictWarning := ConflictWarning.disable,
 
@@ -119,10 +118,10 @@ object ShellPrompt {
 object Dependencies {
     val junit = "junit" % "junit" % "4.12" % "test"
     val junitInterface = "com.novocode" % "junit-interface" % "0.11" % "test"
-    val scalacheck = "org.scalacheck" %% "scalacheck" % "1.12.0" % "test"
-    val scalatest = "org.scalatest" %% "scalatest" % "2.2.5" % "test"
+    val scalacheck = "org.scalacheck" %% "scalacheck" % "1.13.4" % "test"
+    val scalatest = "org.scalatest" %% "scalatest" % "3.0.1" % "test"
     val scalaparsercombinators = "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.4"
-    val scalaxml = "org.scala-lang.modules" %% "scala-xml" % "1.0.5"
+    val scalaxml = "org.scala-lang.modules" %% "scala-xml" % "1.0.6"
 
     val testEnvironment = Seq(junit, junitInterface, scalatest, scalacheck)
     val scala211Libraries = Seq(scalaparsercombinators, scalaxml)
