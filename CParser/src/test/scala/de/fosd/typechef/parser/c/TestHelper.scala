@@ -21,16 +21,16 @@ trait TestHelper {
     val fx = FeatureExprFactory.createDefinedExternal("X")
     val fy = FeatureExprFactory.createDefinedExternal("Y")
 
-    import scala.collection.JavaConversions._
+    import scala.collection.JavaConverters._
 
     def lexFile(fileName: String, systemIncludePath: java.util.List[String], featureModel: FeatureModel = FeatureExprFactory.empty): TokenReader[TokenWrapper, CTypeContext] =
-        CLexerAdapter.prepareTokens(new LexerFrontend().parseFile(fileName, systemIncludePath, featureModel))
+        CLexerAdapter.prepareTokens(new LexerFrontend().parseFile(fileName, systemIncludePath, featureModel).asScala)
 
     def lexStream(stream: InputStream, filePath: String, systemIncludePath: java.util.List[String], featureModel: FeatureModel = FeatureExprFactory.empty): TokenReader[TokenWrapper, CTypeContext] =
-        CLexerAdapter.prepareTokens(new LexerFrontend().parseStream(stream, filePath, systemIncludePath, featureModel))
+        CLexerAdapter.prepareTokens(new LexerFrontend().parseStream(stream, filePath, systemIncludePath, featureModel).asScala)
 
     def lex(text: String, featureModel: FeatureModel = FeatureExprFactory.empty): TokenReader[TokenWrapper, CTypeContext] =
-        CLexerAdapter.prepareTokens(new LexerFrontend().parse(text, new java.util.ArrayList[String](), featureModel))
+        CLexerAdapter.prepareTokens(new LexerFrontend().parse(text, new java.util.ArrayList[String](), featureModel).asScala)
 
 
     def getAST(code: String): TranslationUnit = {

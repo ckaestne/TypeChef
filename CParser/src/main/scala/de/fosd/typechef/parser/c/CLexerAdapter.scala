@@ -19,7 +19,7 @@ import de.fosd.typechef.featureexpr.{FeatureExprFactory, FeatureModel}
 object CLexerAdapter {
     type TokenWrapper = CToken
 
-    import scala.collection.JavaConversions._
+    import scala.collection.JavaConverters._
 
 
     /**
@@ -45,14 +45,14 @@ object CLexerAdapter {
      */
     def prepareTokens(lexerResult: Conditional[LexerFrontend.LexerResult]): TokenReader[TokenWrapper, CTypeContext] = {
         val tokens = lexerResult.vmap(True, {
-            case (f, s: LexerSuccess) => s.getTokens.map(t => {t.setFeature(t.getFeature and f); t})
+            case (f, s: LexerSuccess) => s.getTokens.asScala.map(t => {t.setFeature(t.getFeature and f); t})
             case _ => Nil
         }).flatten((f,a,b)=>a ++ b)
         prepareTokens(tokens.toIterable)
     }
 
     def lexStream(stream: InputStream, filePath: String, systemIncludePath: java.util.List[String], featureModel: FeatureModel = FeatureExprFactory.empty): TokenReader[TokenWrapper, CTypeContext] =
-        CLexerAdapter.prepareTokens(new LexerFrontend().parseStream(stream, filePath, systemIncludePath, featureModel))
+        CLexerAdapter.prepareTokens(new LexerFrontend().parseStream(stream, filePath, systemIncludePath, featureModel).asScala)
 
 
 }

@@ -9,7 +9,7 @@ import de.fosd.typechef.lexer.FeatureExprLib
 import de.fosd.typechef.parser.c._
 import org.apache.logging.log4j.LogManager
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 import scala.collection.mutable.ListBuffer
 import scala.reflect.ClassTag
 
@@ -25,13 +25,13 @@ case class IdentityIdHashMap(iIdHashMap: util.IdentityHashMap[Id, List[Id]]) ext
 
     def containsKey(id: Id) = iIdHashMap.containsKey(id)
 
-    def keySet = iIdHashMap.keySet
+    def keySet = iIdHashMap.keySet.asScala
 
-    def keys = keySet.toArray(Array[Id]()).toList
+    def keys = keySet.toList
 
-    def values = iIdHashMap.values
+    def values = iIdHashMap.values.asScala
 
-    def iterator = iIdHashMap.iterator
+    def iterator = iIdHashMap.asScala.iterator
 }
 
 // this trait is a hook into the typesystem to preserve typing informations
@@ -88,7 +88,7 @@ trait CDeclUse extends CDeclUseInterface with CEnv with CEnvCache {
     private[typesystem] def clear() = clearDeclUseMap()
 
     private def putToDeclUseMap(decl: Id) = {
-        if (!declUseMap.contains(decl)) {
+        if (!declUseMap.containsKey(decl)) {
             declUseMap.put(decl, Collections.newSetFromMap[Id](new util.IdentityHashMap()))
         }
     }
@@ -105,7 +105,7 @@ trait CDeclUse extends CDeclUseInterface with CEnv with CEnvCache {
     }
 
     private def addToUseDeclMap(use: Id, decl: Id) = {
-        if (useDeclMap.contains(use)) {
+        if (useDeclMap.containsKey(use)) {
             useDeclMap.put(use, decl :: useDeclMap.get(use))
         } else {
             useDeclMap.put(use, List(decl))
@@ -131,7 +131,7 @@ trait CDeclUse extends CDeclUseInterface with CEnv with CEnvCache {
 
     def getDeclUseMap: IdentityIdHashMap = {
         val morphedDeclUsedMap = new util.IdentityHashMap[Id, List[Id]]()
-        declUseMap.keySet().foreach(x => morphedDeclUsedMap.put(x, declUseMap.get(x).toList))
+        declUseMap.keySet().asScala.foreach(x => morphedDeclUsedMap.put(x, declUseMap.get(x).asScala.toList))
         IdentityIdHashMap(morphedDeclUsedMap)
     }
 
@@ -154,7 +154,7 @@ trait CDeclUse extends CDeclUseInterface with CEnv with CEnvCache {
     override def addStructDefinition(definition: AST, env: Env, feature: FeatureExpr) {
         definition match {
             case id: Id =>
-                val relevantIds = structUsage.filter(x => x._2.equals(FeatureExprFactory.True) || x._2.implies(feature).isTautology())
+                val relevantIds = structUsage.asScala.filter(x => x._2.equals(FeatureExprFactory.True) || x._2.implies(feature).isTautology())
                 addDefinition(id, env, feature)
                 relevantIds.foreach(x => {
                     addToDeclUseMap(id, x._1)
@@ -170,7 +170,7 @@ trait CDeclUse extends CDeclUseInterface with CEnv with CEnvCache {
             if (!originalDecl.eq(newDecl)) {
                 putToDeclUseMap(newDecl)
                 addToDeclUseMap(newDecl, originalDecl)
-                declUseMap.get(originalDecl).foreach(x => addToDeclUseMap(newDecl, x))
+                declUseMap.get(originalDecl).asScala.foreach(x => addToDeclUseMap(newDecl, x))
                 declUseMap.remove(originalDecl)
             }
         }
@@ -212,8 +212,8 @@ trait CDeclUse extends CDeclUseInterface with CEnv with CEnvCache {
         def swapDeclaration(originalDecl: Id, newDecl: Id) = {
             putToDeclUseMap(newDecl)
             addToDeclUseMap(newDecl, originalDecl)
-            if (declUseMap.contains(originalDecl)) {
-                declUseMap.get(originalDecl).foreach(x => addToDeclUseMap(newDecl, x))
+            if (declUseMap.containsKey(originalDecl)) {
+                declUseMap.get(originalDecl).asScala.foreach(x => addToDeclUseMap(newDecl, x))
             }
             declUseMap.remove(originalDecl)
         }
@@ -258,7 +258,7 @@ trait CDeclUse extends CDeclUseInterface with CEnv with CEnvCache {
     override def addEnumUse(entry: AST, env: Env, feature: FeatureExpr) {
         entry match {
             case i@Id(name) =>
-                if (env.enumEnv.containsKey(name)) {
+                if (env.enumEnv.contains(name)) {
                     val enumDeclarationFeature = env.enumEnv.get(name).get._1
                     val enumDeclarationId = env.enumEnv.get(name).get._2
                     if (feature.equivalentTo(FeatureExprFactory.True) || (feature.implies(enumDeclarationFeature).isTautology())) {
@@ -408,13 +408,13 @@ trait CDeclUse extends CDeclUseInterface with CEnv with CEnvCache {
                         case idd@InitializerDesignatorD(i) =>
                             env.varEnv.getAstOrElse(i.name, null) match {
                                 case One(InitDeclaratorI(declarator, _, _)) =>
-                                    if (!declUseMap.contains(declarator.getId)) {
+                                    if (!declUseMap.containsKey(declarator.getId)) {
                                         putToDeclUseMap(declarator.getId)
                                     }
                                     addToDeclUseMap(declarator.getId, i)
                                 case One(AtomicNamedDeclarator(_, key, _)) => addToDeclUseMap(key, i)
                                 case One(FunctionDef(_, AtomicNamedDeclarator(_, key, _), _, _)) =>
-                                    if (!declUseMap.contains(key)) {
+                                    if (!declUseMap.containsKey(key)) {
                                         putToDeclUseMap(key)
                                     }
                                     addToDeclUseMap(key, i)
@@ -422,7 +422,7 @@ trait CDeclUse extends CDeclUseInterface with CEnv with CEnvCache {
                                 case One(NestedNamedDeclarator(_, nestedDecl, _, _)) => addToDeclUseMap(nestedDecl.getId, i)
                                 case c@Choice(_, _, _) => addChoice(c, feature, i, env, addUseOne)
                                 case One(null) =>
-                                    if (stringToIdMap.containsKey(i.name) && declUseMap.containsKey(stringToIdMap.get(i.name).get)) {
+                                    if (stringToIdMap.contains(i.name) && declUseMap.containsKey(stringToIdMap.get(i.name).get)) {
                                         addToDeclUseMap(stringToIdMap.get(i.name).get, i)
                                     } else if (!(typedefspecifier == null)) {
                                         env.typedefEnv.getAstOrElse(typedefspecifier.name, null) match {
@@ -487,11 +487,13 @@ trait CDeclUse extends CDeclUseInterface with CEnv with CEnvCache {
                             offsetDesignators.foreach(x => x match {
                                 case Opt(ft, OffsetofMemberDesignatorID(offsetId: Id)) =>
                                     addStructUse(offsetId, ft, env, name.name, false)
+                                case _=>
                             })
                         case Opt(ft, StructOrUnionSpecifier(isUnion, Some(i: Id), _, _, _)) =>
                             offsetDesignators.foreach(x => x match {
                                 case Opt(ft, OffsetofMemberDesignatorID(offsetId: Id)) =>
                                     addStructUse(offsetId, ft, env, offsetId.name, isUnion)
+                                case _=>
                             })
                             addStructDeclUse(i, env, isUnion, ft)
                         case _ =>
@@ -750,10 +752,10 @@ trait CDeclUse extends CDeclUseInterface with CEnv with CEnvCache {
         val missingLB: ListBuffer[Id] = ListBuffer()
         val duplicateLB: ListBuffer[Id] = ListBuffer()
         val allIds: IdentityHashMap[Id, Id] = new IdentityHashMap()
-        val defuseKeyList = declUseMap.keySet.toArray().toList
+        val defuseKeyList = declUseMap.keySet.toArray.toList
 
         declUseMap.flatMap(x => x._1 :: x._2).foreach(x => {
-            if (allIds.contains(x)) {
+            if (allIds.containsKey(x)) {
                 duplicateLB += x
             } else {
                 allIds.put(x, null)
@@ -763,7 +765,7 @@ trait CDeclUse extends CDeclUseInterface with CEnv with CEnvCache {
         val numberOfIdsInAst = relevantIds.size + numberOfBuiltinFunctions
         val numberOfIdsInDefuse = allIds.keySet().size()
 
-        relevantIds.foreach(x => {
+        relevantIds.asScala.foreach(x => {
             if (!allIds.containsKey(x._1)) {
                 missingLB += x._1
             }

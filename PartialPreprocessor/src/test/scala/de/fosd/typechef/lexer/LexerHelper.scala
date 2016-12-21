@@ -10,7 +10,7 @@ import de.fosd.typechef.lexer.macrotable.MacroFilter
 
 
 trait LexerHelper {
-    import scala.collection.JavaConversions._
+    import scala.collection.JavaConverters._
 
     protected def lex(file: File,
                       incDir: File,
@@ -48,10 +48,10 @@ trait LexerHelper {
                 return useMacroFilter
             }
             override def getDefinedMacros: java.util.Map[String, String] = {
-                return definedMacros
+                return definedMacros.asJava
             }
             override def getUndefMacros: java.util.Set[String] = {
-                return undefMacros
+                return undefMacros.asJava
             }
             override def printLexerErrorsToStdErr: Boolean = {
                 return false

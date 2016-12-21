@@ -21,7 +21,7 @@ import de.fosd.typechef.{LexerToken, VALexer}
  */
 trait DifferentialTestingFramework extends LexerHelper {
 
-    import scala.collection.JavaConversions._
+    import scala.collection.JavaConverters._
 
 
     def analyzeFile(file: File, inclDirectory: File, debug: Boolean = false, ignoreWarnings: Boolean = false): Unit = {
@@ -95,7 +95,7 @@ trait DifferentialTestingFramework extends LexerHelper {
 
     def getTokensFromResult(result: LexerResult): List[LexerToken] =
         if (result.isInstanceOf[LexerSuccess])
-            result.asInstanceOf[LexerSuccess].getTokens.toList.filter(_.isLanguageToken)
+            result.asInstanceOf[LexerSuccess].getTokens.asScala.toList.filter(_.isLanguageToken)
         else {
             List()
         }
@@ -129,7 +129,7 @@ trait DifferentialTestingFramework extends LexerHelper {
             val r = result.asInstanceOf[One[LexerResult]].value
             var failed = false
             if (r.isInstanceOf[LexerSuccess])
-                if (r.asInstanceOf[LexerSuccess].getTokens.toList.filter(_.isLanguageToken).isEmpty)
+                if (r.asInstanceOf[LexerSuccess].getTokens.asScala.toList.filter(_.isLanguageToken).isEmpty)
                     failed = true
             if (failed)
                 return tryAgainIfEmpty(cmd, nrTries-1)
@@ -168,7 +168,7 @@ trait DifferentialTestingFramework extends LexerHelper {
     private def getFeatures(initSet: Set[SingleFeatureExpr], conditional: Conditional[LexerResult]): Set[SingleFeatureExpr] = {
         var foundFeatures: Set[SingleFeatureExpr] = Set()
         conditional.foreach(x =>
-            if (x.isInstanceOf[LexerSuccess]) x.asInstanceOf[LexerSuccess].getTokens.foreach(t =>
+            if (x.isInstanceOf[LexerSuccess]) x.asInstanceOf[LexerSuccess].getTokens.asScala.foreach(t =>
                 foundFeatures ++= t.getFeature.collectDistinctFeatureObjects
             ))
 

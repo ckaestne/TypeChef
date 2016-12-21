@@ -25,7 +25,6 @@ package de.fosd.typechef.lexer
 ;
 
 import java.{util => jUtil, lang => jLang}
-import collection.JavaConversions._
 import collection.JavaConverters._
 import de.fosd.typechef.featureexpr.{FeatureModel, FeatureExprTree, FeatureExpr, FeatureExprFactory}
 import de.fosd.typechef.lexer.macrotable.MacroExpansion
@@ -37,7 +36,7 @@ import de.fosd.typechef.lexer.macrotable.MacroExpansion
  */
 object MacroArg {
     def omittedVariadicArgument: Argument = OmittedVariadicArgument
-    def create(toks: jUtil.List[Token]) = NormArgument(toks)
+    def create(toks: jUtil.List[Token]) = NormArgument(toks.asScala)
     //Untested.
     def fromSources(sources: jLang.Iterable[de.fosd.typechef.lexer.Source]) =
         NormArgument(sources.asScala.toSeq.flatMap(_.asScala))
@@ -57,7 +56,7 @@ object MacroExpander {
                 Seq[Source]() //XXX: Should be the unexpanded code, or 0, depending on inline. Ask it to the caller!
 
         macroExpansions.map(expansion => FeatureExprFactory.default.createValue[Seq[Source]](
-            pp.macro_expandAlternative(macroName, expansion, args, origInvokeTok, origArgTokens, inline))).zip(
+            pp.macro_expandAlternative(macroName, expansion, args.asJava, origInvokeTok, origArgTokens.asJava, inline).asScala)).zip(
             macroExpansions.map(_.getFeature)).foldRight[FeatureExprTree[Seq[Source]]](FeatureExprFactory.default.createValue(fallbackAlternative)) {
             case ((expanded, feature), tree) => FeatureExprFactory.default.createIf(feature, expanded, tree)
         }
@@ -69,7 +68,7 @@ sealed abstract class Argument(omitted: Boolean) {
     def tokens: Seq[Token]
     def jTokens = tokens.asJava
     def expandedTokens: Seq[Token]
-    def expansion: jUtil.Iterator[Token] = expandedTokens.iterator
+    def expansion: jUtil.Iterator[Token] = expandedTokens.iterator.asJava
 
     private[lexer] def expand(p: Preprocessor, inlineCppExpression: Boolean, macroName: String) {}
 
@@ -101,7 +100,7 @@ case class NormArgument(tokens: Seq[Token]) extends Argument(false) {
     private var omittedArg: Boolean = false
     override private[lexer] def expand(p: Preprocessor, inlineCppExpression: Boolean, macroName: String) {
         if (expanded.isEmpty)
-            this.expanded = p.macro_expandArgument(tokens, inlineCppExpression, macroName).asScala.toSeq
+            this.expanded = p.macro_expandArgument(tokens.asJava, inlineCppExpression, macroName).asScala.toSeq
     }
 
     def expandedTokens = expanded
