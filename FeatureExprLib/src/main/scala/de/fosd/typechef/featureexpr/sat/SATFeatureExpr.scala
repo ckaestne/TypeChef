@@ -6,8 +6,7 @@ import java.util.Collections
 import de.fosd.typechef.featureexpr._
 import de.fosd.typechef.featureexpr.sat.LazyLib._
 
-import scala.Some
-import scala.collection.convert.decorateAsScala._
+import scala.collection.JavaConverters._
 import scala.collection.immutable._
 import scala.collection.mutable.{ArrayBuffer, Map}
 import scala.ref.WeakReference
@@ -734,22 +733,14 @@ abstract class BinaryLogicConnective[This <: BinaryLogicConnective[This]] extend
     override def toString = clauses.mkString("(", operName, ")")
     override def toTextExpr = clauses.map(_.toTextExpr).mkString("(", " " + operName + operName + " ", ")")
     override def print(p: Writer) = {
-        trait PrintValue
-        case object NoPrint extends PrintValue
-        case object Printed extends PrintValue
-        case class ToPrint[T](x: T) extends PrintValue
         p write "("
-        clauses.map(x => ToPrint(x)).foldLeft[PrintValue](NoPrint)({
-            case (NoPrint, ToPrint(c)) => {
-                c.print(p);
-                Printed
-            }
-            case (Printed, ToPrint(c)) => {
-                p.write(" " + operName + operName + " ");
-                c.print(p);
-                Printed
-            }
-        })
+        if (clauses.nonEmpty) {
+            clauses.head.print(p)
+            clauses.tail.foreach(c => {
+                p.write(" " + operName + operName + " ")
+                c.print(p)
+            })
+        }
         p write ")"
     }
     override def debug_print(ind: Int) = indent(ind) + operName + "\n" + clauses.map(_.debug_print(ind + 1)).mkString

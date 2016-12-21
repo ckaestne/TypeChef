@@ -213,6 +213,7 @@ class CParser(featureModel: FeatureModel = null, debugOutput: Boolean = false) e
         repOpt(attributeDecl) ~ declarator ~ repOpt(attributeDecl) ~ opt((ASSIGN ~> initializer) | (COLON ~> expr)) ^^ {
             case attr1 ~ d ~ attr2 ~ Some(i: Initializer) => InitDeclaratorI(d, attr1 ++ attr2, Some(i));
             case attr1 ~ d ~ attr2 ~ Some(e: Expr) => InitDeclaratorE(d, attr1 ++ attr2, e);
+            case attr1 ~ d ~ attr2 ~ Some(_) => InitDeclaratorI(d, attr1 ++ attr2, None);//case should not happen
             case attr1 ~ d ~ attr2 ~ None => InitDeclaratorI(d, attr1 ++ attr2, None);
         }
 

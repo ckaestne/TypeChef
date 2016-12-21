@@ -22,6 +22,7 @@ class DigitListParser extends MultiFeatureParser {
             case ~(x, Some(One(DigitList(list: List[_])))) => One(DigitList(List(x) ++ list))
             case ~(x, Some(Choice(f, One(DigitList(listA: List[_])), One(DigitList(listB: List[_]))))) => Choice(f, One(DigitList(List(x) ++ listA)), One(DigitList(List(x) ++ listB)))
             case ~(x, None) => One(DigitList(List(x)))
+            case _ => throw new RuntimeException()
         }).map(ConditionalLib.combine(_))
 
     def t(text: String) = token(text, (x => x.t == text))
