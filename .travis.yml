@@ -4,5 +4,5 @@ sudo: false
 scala:
   - 2.12.0
 jdk: oraclejdk8
-script: java -Xms1536m -Xmx1536m -Xss30m -XX:MaxPermSize=384m -XX:ReservedCodeCacheSize=192m -jar sbt-launch.jar coverage test
+script: java -Xms1536m -Xmx1536m -Xss30m -XX:ReservedCodeCacheSize=192m -jar sbt-launch.jar coverage test
 after_success: "sbt coveralls"
