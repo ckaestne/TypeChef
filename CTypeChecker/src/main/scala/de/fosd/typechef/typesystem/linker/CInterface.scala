@@ -1,30 +1,28 @@
 package de.fosd.typechef.typesystem.linker
 
-import de.fosd.typechef.featureexpr.FeatureExprFactory.{True, False}
-import de.fosd.typechef.featureexpr.{FeatureModel, FeatureExprFactory, FeatureExpr}
-import de.fosd.typechef.typesystem._
 import de.fosd.typechef.error.Position
-import de.fosd.typechef.typesystem.CSigned
-import de.fosd.typechef.typesystem.CInt
+import de.fosd.typechef.featureexpr.FeatureExprFactory.{False, True}
+import de.fosd.typechef.featureexpr.{FeatureExpr, FeatureExprFactory, FeatureModel}
+import de.fosd.typechef.typesystem.{CInt, CSigned, _}
 
 
 /**
- * linking can be strict or less strict on what it considers a match to
- * an import.
- *
- * At the lowest level NAMEONLY, the linker checks only the names of symbols, not their types.
- *
- * At the highest level it expects that the signatures match exactly, including their types.
- * Only few equivalence rules are applied by type normalization in the type system (e.g., int foo(void) == int foo()).
- * Used pointers and structs must also match perfectly.
- *
- * At the medium level, which may be the most practical one, matches are determined (roughly) using
- * coercion rules. Here "int foo(* struct x)" is compatible with "int foo(*void)" and
- * "int foo(int)" is compatible with "int foo(short)"
- *
- * at less stricter comparisons, types and extraflags after merging are copied from one of
- * the sources, but (pseudo-randomly) from the first import.
- */
+  * linking can be strict or less strict on what it considers a match to
+  * an import.
+  *
+  * At the lowest level NAMEONLY, the linker checks only the names of symbols, not their types.
+  *
+  * At the highest level it expects that the signatures match exactly, including their types.
+  * Only few equivalence rules are applied by type normalization in the type system (e.g., int foo(void) == int foo()).
+  * Used pointers and structs must also match perfectly.
+  *
+  * At the medium level, which may be the most practical one, matches are determined (roughly) using
+  * coercion rules. Here "int foo(* struct x)" is compatible with "int foo(*void)" and
+  * "int foo(int)" is compatible with "int foo(short)"
+  *
+  * at less stricter comparisons, types and extraflags after merging are copied from one of
+  * the sources, but (pseudo-randomly) from the first import.
+  */
 sealed trait Strictness
 
 object LINK_STRICT extends Strictness
@@ -34,9 +32,9 @@ object LINK_RELAXED extends Strictness
 object LINK_NAMEONLY extends Strictness
 
 /**
- * describes the linker interface for a file, i.e. all imported (and used)
- * signatures and all exported signatures.
- */
+  * describes the linker interface for a file, i.e. all imported (and used)
+  * signatures and all exported signatures.
+  */
 case class CInterface(
                          featureModel: FeatureExpr,
                          importedFeatures: Set[String],
@@ -51,11 +49,14 @@ case class CInterface(
         "fm " + featureModel + "\n" +
             "features (" + importedFeatures.size + ")\n\t" + importedFeatures.toList.sorted.mkString(", ") +
             (if (declaredFeatures.isEmpty) "" else "declared features (" + declaredFeatures.size + ")\n\t" + declaredFeatures.toList.sorted.mkString(", ")) +
-            "\nimports (" + imports.size + ")\n" + imports.map("\t" + _.toString).sorted.mkString("\n") +
-            "\nexports (" + exports.size + ")\n" + exports.map("\t" + _.toString).sorted.mkString("\n") + "\n"
+            "\nimports (" + imports.size + ")\n" + sortedImports.map("\t" + _.toString).mkString("\n") +
+            "\nexports (" + exports.size + ")\n" + sortedExports.map("\t" + _.toString).mkString("\n") + "\n"
 
     lazy val importsByName = imports.groupBy(_.name)
     lazy val exportsByName = exports.groupBy(_.name)
+
+    def sortedImports = imports.sortWith((a, b) => a.name < b.name || (a.name == b.name && a.pos.toString < b.pos.toString))
+    def sortedExports = imports.sortWith((a, b) => a.name < b.name || (a.name == b.name && a.pos.toString < b.pos.toString))
 
 
     lazy val getInterfaceFeatures: Set[String] = {
@@ -73,66 +74,50 @@ case class CInterface(
     }
 
     /**
-     * removes duplicates by joining the corresponding conditions
-     * removes imports that are available as exports in the same file
-     * removes False imports
-     *
-     * how to determine whether two elements are duplicate depends on the strictness level (see above)
-     *
-     * exports are not packed beyond removing False exports.
-     * duplicate exports are used for error detection
-     */
+      * joins multiple exports with the same name
+      * removes imports that are available as exports in the same file
+      * removes False imports
+      * does NOT join multiple imports with the same name but from different locations (makes debugging difficult, use deduplicateImports instead)
+      *
+      * how to determine whether two elements are duplicate depends on the strictness level (see above)
+      *
+      * exports are not packed beyond removing False exports.
+      * duplicate exports are used for error detection
+      */
     def pack(strictness: Strictness = LINK_STRICT): CInterface = if (isPacked) this
     else
         CInterface(featureModel, importedFeatures -- declaredFeatures, declaredFeatures,
-            packImports(strictness), packExports).setPacked
+            packImports(true, strictness), packExports).setPacked
 
     def packWithOutElimination(strictness: Strictness = LINK_STRICT): CInterface = if (isPacked) this
     else
         CInterface(featureModel, importedFeatures -- declaredFeatures, declaredFeatures,
-            packImportsWithOutElimination(strictness), packExports).setPacked
+            packImports(false, strictness), packExports).setPacked
+
+
+    def deduplicateImports(strictness: Strictness = LINK_STRICT): CInterface = if (isDedupImport) this
+    else
+        CInterface(featureModel, importedFeatures, declaredFeatures,
+            _deduplicateImports(strictness), exports).setDedupImport
 
     private var isPacked = false;
-    private def setPacked() = {
+    protected def setPacked() = {
         isPacked = true;
         this
     }
+    private var isDedupImport = false;
+    protected def setDedupImport() = {
+        isDedupImport = true;
+        this
+    }
 
-    private def genComparisonKey(sig: CSignature, strictness: Strictness): Object = strictness match {
+    protected def genComparisonKey(sig: CSignature, strictness: Strictness): Object = strictness match {
         case LINK_STRICT => (sig.name, sig.ctype, sig.extraFlags)
         case LINK_NAMEONLY => sig.name
         case LINK_RELAXED => (sig.name, relaxType(sig.ctype))
     }
 
-    private def packImports(strictness: Strictness = LINK_STRICT): Seq[CSignature] = {
-        var importMap = Map[Object, (CSignature, FeatureExpr, Seq[Position])]()
-
-        //eliminate duplicates with a map
-        for (imp <- imports if ((featureModel and imp.fexpr).isSatisfiable())) {
-            val key = genComparisonKey(imp, strictness)
-            val old = importMap.getOrElse(key, (imp, False, Seq()))
-            importMap = importMap + (key ->(old._1, old._2 or imp.fexpr, old._3 ++ imp.pos))
-        }
-        //eliminate imports that have corresponding exports
-        for (exp <- exports) {
-            val key = genComparisonKey(exp, strictness)
-            if (importMap.contains(key)) {
-                val (oldSig, oldFexpr, oldPos) = importMap(key)
-                val newFexpr = oldFexpr andNot exp.fexpr
-                if ((featureModel and newFexpr).isSatisfiable())
-                    importMap = importMap + (key ->(oldSig, newFexpr, oldPos))
-                else
-                    importMap = importMap - key
-            }
-        }
-
-
-        val r = for (v <- importMap.values)
-        yield CSignature(v._1.name, v._1.ctype, v._2, v._3, v._1.extraFlags)
-        r.toSeq
-    }
-
-    private def packImportsWithOutElimination(strictness: Strictness = LINK_STRICT): Seq[CSignature] = {
+    protected def _deduplicateImports(strictness: Strictness = LINK_STRICT): Seq[CSignature] = {
         var importMap = Map[Object, (CSignature, FeatureExpr, Seq[Position])]()
 
         //eliminate duplicates with a map
@@ -143,19 +128,53 @@ case class CInterface(
         }
 
         val r = for (v <- importMap.values)
-        yield CSignature(v._1.name, v._1.ctype, v._2, v._3, v._1.extraFlags)
+            yield CSignature(v._1.name, v._1.ctype, v._2, v._3, v._1.extraFlags)
         r.toSeq
     }
-
-    private def packExports: Seq[CSignature] = exports.filter(_.fexpr.and(featureModel).isSatisfiable())
 
 
     /**
-     * rewrites a type for relatex matching with LINK_RELAXED
-     *
-     * this makes a number of simplifications in types, including considering all
-     * integers and structs and pointers as equivalent
-     */
+      * updates the conditions of imports by matching them against
+      * exports
+      *
+      * @param eliminateInfeasible if true, remove all imports that have infeasible conditions; otherwise
+      *                            they remain with updated but infeasible conditions
+      * @param strictness
+      * @return updated list of imports
+      */
+    protected def packImports(eliminateInfeasible: Boolean, strictness: Strictness = LINK_STRICT): Seq[CSignature] = {
+        var exportMap = Map[Object, FeatureExpr]()
+
+        //index all exports
+        for (exp <- exports) {
+            val key = genComparisonKey(exp, strictness)
+            exportMap += (key -> (exp.fexpr or exportMap.getOrElse(key, False)))
+        }
+
+        val newImports =
+            for (imp <- imports) yield {
+                val key = genComparisonKey(imp, strictness)
+                val exportCondition = exportMap.getOrElse(key, False)
+                val newFexpr = imp.fexpr andNot exportCondition
+                if (!eliminateInfeasible || (featureModel and newFexpr).isSatisfiable())
+                    Some(imp.copy(fexpr = newFexpr))
+                else
+                    None
+            }
+
+        newImports.flatten
+    }
+
+
+    protected def packExports: Seq[CSignature] = exports.filter(_.fexpr.and(featureModel).isSatisfiable())
+
+
+    /**
+      * rewrites a type for relatex matching with LINK_RELAXED
+      *
+      * this makes a number of simplifications in types, including considering all
+      * integers and structs and pointers as equivalent
+      */
     private def relaxType(ctype: CType): CType = ctype.atype match {
         case CFunction(p, r) => CFunction(p.map(_relaxType), _relaxType(r))
         case v => _relaxType(v)
@@ -186,15 +205,15 @@ case class CInterface(
     }
 
     /**
-     * ensures a couple of invariants.
-     *
-     * a module is illformed if
-     * (a) it exports the same signature twice in the same configuration
-     * (b) it imports the same signature twice in the same configuration
-     * (c) if it exports and imports a name in the same configuration
-     *
-     * by construction, this should not occur in inferred and linked interfaces
-     */
+      * ensures a couple of invariants.
+      *
+      * a module is illformed if
+      * (a) it exports the same signature twice in the same configuration
+      * (b) it imports the same signature twice in the same configuration
+      * (c) if it exports and imports a name in the same configuration
+      *
+      * by construction, this should not occur in inferred and linked interfaces
+      */
     def isWellformed: Boolean = {
         val exportsByName = exports.groupBy(_.name)
         val importsByName = imports.groupBy(_.name)
@@ -243,18 +262,18 @@ case class CInterface(
 
 
     /**
-     * determines conflicts and returns corresponding name, feature expression and involved signatures
-     *
-     * conflicts are:
-     * (a) both modules export the same name in the same configuration
-     * (b) both modules import the same name with different types in the same configuration
-     * (c) one module imports a name the other modules exports in the same configuration but with a different type
-     *
-     * returns any conflict (does not call a sat solver), even if the conditions are mutually exclusive.
-     * the condition is true if there is NO conflict (it describes configurations without conflict)
-     *
-     * public only for debugging purposes
-     */
+      * determines conflicts and returns corresponding name, feature expression and involved signatures
+      *
+      * conflicts are:
+      * (a) both modules export the same name in the same configuration
+      * (b) both modules import the same name with different types in the same configuration
+      * (c) one module imports a name the other modules exports in the same configuration but with a different type
+      *
+      * returns any conflict (does not call a sat solver), even if the conditions are mutually exclusive.
+      * the condition is true if there is NO conflict (it describes configurations without conflict)
+      *
+      * public only for debugging purposes
+      */
     def getConflicts(that: CInterface): List[(String, FeatureExpr, Seq[CSignature])] =
         CInterface.presenceConflicts(this.exportsByName, that.exportsByName) ++
             CInterface.typeConflicts(this.importsByName, that.importsByName) ++
@@ -262,9 +281,9 @@ case class CInterface(
             CInterface.typeConflicts(this.exportsByName, that.importsByName)
 
     /**
-     * when there is an overlap in the exports, infer constraints which must be satisfied
-     * to not have a problem
-     */
+      * when there is an overlap in the exports, infer constraints which must be satisfied
+      * to not have a problem
+      */
     private def inferConstraintsWith(that: CInterface): FeatureExpr =
         getConflicts(that).foldLeft(FeatureExprFactory.True)(_ and _._2)
 
@@ -283,10 +302,10 @@ case class CInterface(
 
 
     /**
-     * linking two well-formed models always yields a wellformed module, but it makes
-     * only sense if the resulting feature model is not void.
-     * hence compatibility is checked by checking the resulting feature model
-     */
+      * linking two well-formed models always yields a wellformed module, but it makes
+      * only sense if the resulting feature model is not void.
+      * hence compatibility is checked by checking the resulting feature model
+      */
     def isCompatibleTo(that: CInterface): Boolean =
         (this link that).featureModel.isSatisfiable() &&
             this.declaredFeatures.intersect(that.declaredFeatures).isEmpty
@@ -302,11 +321,11 @@ case class CInterface(
 
 
     /**
-     * A variability-aware module is complete if it has no remaining imports with
-     * satisfiable conditions and if the feature model is satisfiable (i.e., it allows to derive
-     * at least one variant). A complete and fully-configured module is the desired end
-     * result when configuring a product line for a specific use case.
-     */
+      * A variability-aware module is complete if it has no remaining imports with
+      * satisfiable conditions and if the feature model is satisfiable (i.e., it allows to derive
+      * at least one variant). A complete and fully-configured module is the desired end
+      * result when configuring a product line for a specific use case.
+      */
     def isComplete(strictness: Strictness = LINK_STRICT): Boolean = featureModel.isSatisfiable && pack(strictness).imports.isEmpty
 
     def isFullyConfigured(strictness: Strictness = LINK_STRICT): Boolean =
@@ -314,40 +333,40 @@ case class CInterface(
             pack(strictness).exports.forall(s => (featureModel implies s.fexpr).isTautology)
 
     /**
-     * we can use a global feature model to ensure that composing modules
-     * reflects the intended dependencies. This way, we can detect that we do not
-     * accidentally restrict the product line more than intended by the domain expert
-     * who designed the global feature model. We simply compare the feature model of
-     * the linker result with a global model.
-     */
+      * we can use a global feature model to ensure that composing modules
+      * reflects the intended dependencies. This way, we can detect that we do not
+      * accidentally restrict the product line more than intended by the domain expert
+      * who designed the global feature model. We simply compare the feature model of
+      * the linker result with a global model.
+      */
     def compatibleWithGlobalFeatureModel(globalFM: FeatureExpr): Boolean =
         (globalFM implies featureModel).isTautology
     def compatibleWithGlobalFeatureModel(globalFM: FeatureModel): Boolean =
         featureModel.isTautology(globalFM)
 
     /**
-     * turns the interface into a conditional interface (to emulate conditional
-     * linking/composition of interfaces).
-     *
-     *
-     * a.conditional(f) link b.conditional(g)
-     *
-     * is conceptually equivalent to
-     *
-     * if (f and g) a link b
-     * else if (f and not g) a
-     * else if (not f and g) b
-     * else empty
-     *
-     * see text on conditional composition
-     */
+      * turns the interface into a conditional interface (to emulate conditional
+      * linking/composition of interfaces).
+      *
+      *
+      * a.conditional(f) link b.conditional(g)
+      *
+      * is conceptually equivalent to
+      *
+      * if (f and g) a link b
+      * else if (f and not g) a
+      * else if (not f and g) b
+      * else empty
+      *
+      * see text on conditional composition
+      */
     def conditional(condition: FeatureExpr): CInterface =
         this.and(condition).mapFM(condition implies _)
 
     private def mutuallyExclusive(sigs: Seq[CSignature]): Boolean = if (sigs.size <= 1) true
     else {
         val pairs = for (a <- sigs.tails.take(sigs.size); b <- a.tail)
-        yield (a.head.fexpr, b.fexpr)
+            yield (a.head.fexpr, b.fexpr)
         val formula = featureModel implies pairs.foldLeft(True)((a, b) => a and (b._1 mex b._2))
         formula.isTautology
     }
@@ -360,8 +379,8 @@ object CInterface {
         CInterface(fm, Set(), Set(), imp, exp)
 
     /**
-     * signatures from a and b must not share a presence condition
-     */
+      * signatures from a and b must not share a presence condition
+      */
     private def presenceConflicts(a: Map[String, Seq[CSignature]], b: Map[String, Seq[CSignature]]): List[(String, FeatureExpr, Seq[CSignature])] = {
         var result: List[(String, FeatureExpr, Seq[CSignature])] = List()
 
@@ -376,8 +395,8 @@ object CInterface {
     }
 
     /**
-     * signatures from a and b must not differ in type for the same configuration
-     */
+      * signatures from a and b must not differ in type for the same configuration
+      */
     private def typeConflicts(a: Map[String, Seq[CSignature]], b: Map[String, Seq[CSignature]]): List[(String, FeatureExpr, Seq[CSignature])] = {
         var result: List[(String, FeatureExpr, Seq[CSignature])] = List()
 

@@ -41,12 +41,12 @@ class LinkerTest extends FunSuite with Matchers with TestHelper {
         ((i1 and fa) link (i1 and fa.not)).isWellformed should be(true)
 
         val ii = new CInterface(List(ffoo), List())
-        (ii link ii).pack() should be(ii)
-        ((ii and fa) link ii).pack() should be(ii)
-        (ii link ii).pack().isWellformed should be(true)
+        (ii link ii).pack().deduplicateImports() should be(ii)
+        ((ii and fa) link ii).pack().deduplicateImports() should be(ii)
+        (ii link ii).pack().deduplicateImports().isWellformed should be(true)
         (ii link new CInterface(List(fbar), List())).pack() should be(new CInterface(List(ffoo, fbar), List()))
 
-        (ii link i1).pack() should be(i1)
+        (ii link i1).pack().deduplicateImports() should be(i1)
 
         (CInterface(fa, List(), List()) link CInterface(fb, List(), List())).pack() should be(CInterface(fa and fb, List(), List()))
         (CInterface(fa, List(), List()) link CInterface(fa.not, List(), List())).pack() should be(CInterface(False, List(), List()))
