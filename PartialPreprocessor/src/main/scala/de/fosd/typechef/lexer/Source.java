@@ -113,7 +113,7 @@ public abstract class Source implements Iterable<Token>, Closeable {
     /**
      * Returns the File currently being lexed.
      * <p/>
-     * If this Source is not a {@link FileLexerSource}, then it will ask the
+     * If this Source is not a {FileLexerSource}, then it will ask the
      * parent Source, and so forth recursively. If no Source on the stack is a
      * FileLexerSource, returns null.
      */

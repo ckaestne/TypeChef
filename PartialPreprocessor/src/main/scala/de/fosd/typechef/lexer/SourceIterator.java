@@ -22,6 +22,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import static de.fosd.typechef.lexer.Token.EOF;
+import static java.lang.UnsupportedOperationException.*;
 
 /**
  * An Iterator for {@link Source Sources},
@@ -55,7 +56,7 @@ public class SourceIterator implements Iterator<Token> {
      * <p/>
      * The EOF token is never returned by the iterator.
      *
-     * @throws IllegalStateException if the Source
+     * throws IllegalStateException if the Source
      *                               throws a LexerException or IOException
      */
     public boolean hasNext() {
@@ -68,7 +69,7 @@ public class SourceIterator implements Iterator<Token> {
      * <p/>
      * The EOF token is never returned by the iterator.
      *
-     * @throws IllegalStateException if the Source
+     * throws IllegalStateException if the Source
      *                               throws a LexerException or IOException
      */
     public Token next() {
@@ -82,7 +83,7 @@ public class SourceIterator implements Iterator<Token> {
     /**
      * Not supported.
      *
-     * @throws UnsupportedOperationException.
+     * throws UnsupportedOperationException.
      */
     public void remove() {
         throw new UnsupportedOperationException();

@@ -27,7 +27,6 @@ import de.fosd.typechef.VALexer;
 import de.fosd.typechef.featureexpr.FeatureExpr;
 import de.fosd.typechef.featureexpr.FeatureExprTree;
 import de.fosd.typechef.featureexpr.FeatureModel;
-import de.fosd.typechef.lexer.MacroConstraint.MacroConstraintKind;
 import de.fosd.typechef.lexer.macrotable.MacroContext;
 import de.fosd.typechef.lexer.macrotable.MacroExpansion;
 import de.fosd.typechef.lexer.macrotable.MacroFilter;
@@ -67,8 +66,8 @@ import static de.fosd.typechef.lexer.Token.*;
 /**
  * A C Preprocessor. The Preprocessor outputs a token stream which does not need
  * re-lexing for C or C++. Alternatively, the output text may be reconstructed
- * by concatenating the {@link Token#getText() text} values of the returned
- * {@link Token Tokens}. (See {@link CppReader}, which does this.)
+ * by concatenating the {Token#getText() text} values of the returned
+ * {Token Tokens}. (See { CppReader}, which does this.)
  * XXX: the above is now incorrect, because getText is not a valid operation on tokens which would produce huge strings.
  */
 
@@ -190,7 +189,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable, VA
     }
 
     /**
-     * Equivalent to 'new Preprocessor(new {@link FileLexerSource}(file))'
+     * Equivalent to 'new Preprocessor(new {FileLexerSource}(file))'
      */
     public Preprocessor(MacroFilter macroFilter, File file, FeatureModel fm) throws IOException {
         this(macroFilter, new FileLexerSource(file), fm);
@@ -2040,7 +2039,7 @@ public class Preprocessor extends DebuggingPreprocessor implements Closeable, VA
         }
     }
 
-    public ExprOrValue parse_featureExprOrValue(int priority, boolean expectExpr) throws IOException,
+    private ExprOrValue parse_featureExprOrValue(int priority, boolean expectExpr) throws IOException,
             LexerException {
 
         /*

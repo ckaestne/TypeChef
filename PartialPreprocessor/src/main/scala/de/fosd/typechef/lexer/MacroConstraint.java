@@ -15,9 +15,5 @@ public class MacroConstraint {
         this.expr = featureExpression;
     }
 
-    public enum MacroConstraintKind {
-        NOTEXPANDING
-
-    }
 
 }

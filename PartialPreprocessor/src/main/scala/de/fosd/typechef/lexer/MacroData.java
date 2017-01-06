@@ -26,7 +26,7 @@ import java.util.List;
  * <p/>
  * This encapsulates a name, an argument count, and a token stream for
  * replacement. The replacement token stream may contain the extra tokens
- * {@link Token#M_ARG} and {@link Token#M_STRING}.
+ * {Token#M_ARG} and {Token#M_STRING}.
  */
 public class MacroData {
     private Source source;

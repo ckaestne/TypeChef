@@ -33,7 +33,7 @@ import static de.fosd.typechef.lexer.Token.*;
 /**
  * A Reader wrapper around the Preprocessor.
  * <p/>
- * This is a utility class to provide a transparent {@link Reader} which
+ * This is a utility class to provide a transparent {Reader} which
  * preprocesses the input text.
  *
  * @see Preprocessor

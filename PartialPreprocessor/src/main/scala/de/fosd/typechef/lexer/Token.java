@@ -451,7 +451,7 @@ public abstract class Token implements LexerToken {
      * "Lazily print" this token, i.e. print it without constructing a full in-memory representation. This is just a
      * default implementation, override it for tokens with a potentially huge string representation.
      *
-     * @param writer The {@link java.io.PrintWriter} to print onto.
+     * @param writer The { java.io.PrintWriter} to print onto.
      */
     public void lazyPrint(PrintWriter writer) {
         writer.append(getText());
