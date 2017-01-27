@@ -435,7 +435,7 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
                     }
                 r ++= retustmts
                 r ++= predComp(env, res, ctx)(stmt)
-                r.distinct
+                r
             case e@CompoundStatement(innerStatements) =>
                 val (b, r) = compStmtPred(env, res, ctx)(e, innerStatements)
 
@@ -768,7 +768,7 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
                                 r = succFollowing(env, r, ctx)(e)
                         }
                         r ++= condStmtSucc(env, res, ctx)(thenBranch)
-                        r.distinct
+                        r
                     // part of then branch, elifs, or else branch
                     case e@IfStatement(_, _, _, _) =>
                         stmtSucc(env, res, ctx)(e, true)
