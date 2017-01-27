@@ -68,8 +68,8 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
                     succFollowing(env, r, ctx)(e)
                 else
                     r
-            case e =>
-                succFollowing(env, res, ctx)(e)
+            case _ =>
+                succFollowing(env, res, ctx)(s)
         }
 
     private def compStmtPred(env: ASTEnv, res: CFGStmts, ctx: FeatureExpr)
@@ -437,7 +437,7 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
                 r ++= predComp(env, res, ctx)(stmt)
                 r.distinct
             case e@CompoundStatement(innerStatements) =>
-                var (b, r) = compStmtPred(env, res, ctx)(e, innerStatements)
+                val (b, r) = compStmtPred(env, res, ctx)(e, innerStatements)
 
                 if (!(b equivalentTo ctx) && !isComplete(ctx)(r))
                     predFollowing(env, r, ctx)(e)
