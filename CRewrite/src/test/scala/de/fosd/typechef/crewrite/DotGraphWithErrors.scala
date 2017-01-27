@@ -3,15 +3,15 @@ package de.fosd.typechef.crewrite
 import de.fosd.typechef.parser.c.{AST, ASTEnv, PrettyPrinter}
 import de.fosd.typechef.conditional.Opt
 import java.io.Writer
-
-import com.sun.javafx.image.PixelUtils
+import scala.collection.mutable.{HashMap,HashSet}
 
 class DotGraphWithErrors(fwriter: Writer) extends DotGraph(fwriter) {
 
     private val errorNodeFontName = "Calibri"
     private val errorNodeFontColor = "black"
     private val errorNodeFillColor = "#CD5200"
-    private val errorConnectionEdgeColor = "red"
+    private val errorConnectionPredEdgeColor = "purple"
+    private val errorConnectionSuccEdgeColor = "sienna"
     private val errorConnectionEdgeThickness = "setlinewidth(4)"
 
     def writeNodes(nodes: List[AST], env: ASTEnv, errNodes: List[AST] = List()) {
@@ -38,26 +38,28 @@ class DotGraphWithErrors(fwriter: Writer) extends DotGraph(fwriter) {
         }
     }
 
-    def writeFlows(flows: List[(AST, List[Opt[AST]])], errEdges: List[(AST, AST)] = List()) {
-        var coveredEdges: List[(AST, AST)] = List()
+    def writeFlows(flows: List[(AST, List[Opt[AST]])], errEdges: HashMap[(AST, AST), Boolean] = HashMap()) {
+        var coveredEdges: HashSet[(AST, AST)] = HashSet()
 
         for ((o, edges) <- flows)
             for (Opt(f, e) <- edges) {
-                if (! coveredEdges.exists{ x => x._1.equals(o) && x._2.equals(e)} ) {
-                    coveredEdges ::= (o,e)
+                if (! coveredEdges.contains((o,e))) {
+                    coveredEdges.+=((o,e))
                     fwriter.write("\"" + System.identityHashCode(o) + "\" -> \"" + System.identityHashCode(e) + "\"")
                     fwriter.write("[")
+                    fwriter.write("label=\"" + f.toTextExpr + "\", ")
 
                     // current connection is one of the erroneous connections
                     // apply specific formatting
-                    if (errEdges.exists { s => s._1.eq(e) && s._2.eq(o) }) {
-                        fwriter.write("label=\"" + f.toTextExpr + "\", ")
-                        fwriter.write("color=\"" + errorConnectionEdgeColor + "\", ")
-                        fwriter.write("style=\"" + errorConnectionEdgeThickness + "\"")
-                    } else {
-                        fwriter.write("label=\"" + f.toTextExpr + "\", ")
-                        fwriter.write("color=\"" + normalConnectionEdgeColor + "\", ")
-                        fwriter.write("style=\"" + normalConnectionEdgeThickness + "\"")
+                    errEdges.get((e,o)) match {
+                        case None =>
+                            fwriter.write("color=\"" + normalConnectionEdgeColor + "\", ")
+                            fwriter.write("style=\"" + normalConnectionEdgeThickness + "\"")
+                        case Some(d) =>
+                            fwriter.write("color=\"" + (
+                                if (d) errorConnectionPredEdgeColor
+                                else errorConnectionSuccEdgeColor) + "\", ")
+                            fwriter.write("style=\"" + errorConnectionEdgeThickness + "\"")
                     }
                     fwriter.write("];\n")
                 }

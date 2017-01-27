@@ -4,6 +4,7 @@ import de.fosd.typechef.parser.c.{ASTEnv, AST}
 import de.fosd.typechef.featureexpr.FeatureExpr
 import de.fosd.typechef.conditional.Opt
 import java.io.StringWriter
+import scala.collection.mutable.HashMap
 
 sealed abstract class CFGError
 
@@ -31,9 +32,10 @@ object CFGErrorOutput {
                 case e: CFGErrorMis => Some(e.s)
                 case _ => None
             }
-            val errEdges = errors.flatMap {
-                case e: CFGErrorDir => Some((e.s, e.t))
-                case _ => None
+            val errEdges: HashMap[(AST, AST), Boolean] = HashMap()
+            errors.foreach {
+                case e: CFGErrorDir => errEdges.put((e.s,e.t), e.msg.endsWith("preds"))
+                case _ =>
             }
 
             println("succs: " + dot.writeNodes(s.map(_._1), env, errNodes))

@@ -1,10 +1,12 @@
 package de.fosd.typechef.crewrite
 
-import de.fosd.typechef.parser.c.{CASTEnv, ASTEnv, FunctionDef, AST}
+import de.fosd.typechef.parser.c.{AST, ASTEnv, CASTEnv, FunctionDef}
+
+import scala.collection.mutable
 
 object CheckCFG extends IntraCFG with CFGHelper {
 
-    def checkCfG(tunit: AST) {
+    def checkCfG(tunit: AST) = {
         val fdefs = filterAllASTElems[FunctionDef](tunit)
         fdefs.map(intraCfGFunctionDef)
     }
@@ -52,9 +54,12 @@ object CheckCFG extends IntraCFG with CFGHelper {
         }
 
         var pred_edges: List[(AST, AST)] = List()
+        var pred_edges2: mutable.HashMap[AST,Set[AST]] = mutable.HashMap()
         for ((ast_elem, cpreds) <- lpreds) {
-            for (pred <- cpreds.map(_.entry))
+            for (pred <- cpreds.map(_.entry)) {
                 pred_edges = (ast_elem, pred) :: pred_edges
+                pred_edges2.put(ast_elem, pred_edges2.getOrElse(ast_elem, Set())+pred)
+            }
         }
 
         // check succ/pred connection and print out missing connections
