@@ -299,7 +299,7 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
                     r
             case CaseStatement(c) =>
                 exprPred(env, res, ctx)(c)
-            case e: DefaultStatement =>
+            case e: DefaultStatement if e == source =>
                 val r = stmtPred(env, res, ctx and env.featureExpr(e))(e, f = true)
                 findPriorASTElem[SwitchStatement](e, env) match {
                     case None => r
@@ -357,7 +357,7 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
                     case Some(s) =>
                         stmtSucc(env, res, ctx and env.featureExpr(e))(s, true)
                 }
-            case e: ContinueStatement =>
+            case e: ContinueStatement if e == source =>
                 val y = ctx and env.featureExpr(e)
                 getContinueStmtContext(e, env) match {
                     case None =>
@@ -378,7 +378,7 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
                 }
             case CaseStatement(c) =>
                 exprSucc(env, res, ctx)(c)
-            case e: DefaultStatement =>
+            case e: DefaultStatement if e == source =>
                 stmtSucc(env, res, ctx and env.featureExpr(e))(e, false)
             case IfStatement(condition, _, _, _) =>
                 condExprSucc(env, res, ctx)(condition)
@@ -842,9 +842,6 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
                             }
                         r ++= casstmts
                         val defstmts = filterDefaultStatements(s, env.featureExpr(expr), env)
-                            .flatMap{
-                                case Opt(m, n) => stmtSucc(env, res, ctx and m)(n.asInstanceOf[Statement], true)
-                            }
 
                         if (defstmts.isEmpty)
                             r ++= stmtSucc(env, res, ctx)(e, true)
