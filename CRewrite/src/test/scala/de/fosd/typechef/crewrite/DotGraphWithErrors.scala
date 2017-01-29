@@ -5,6 +5,8 @@ import de.fosd.typechef.conditional.Opt
 import java.io.Writer
 import scala.collection.mutable.{HashMap,HashSet}
 
+import com.sun.javafx.image.PixelUtils
+
 class DotGraphWithErrors(fwriter: Writer) extends DotGraph(fwriter) {
 
     private val errorNodeFontName = "Calibri"

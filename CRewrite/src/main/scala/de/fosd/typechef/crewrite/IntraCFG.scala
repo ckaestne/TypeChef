@@ -215,6 +215,7 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
         } else
             res
     }
+
     private def basicPred(env: ASTEnv, res: CFGStmts, ctx: FeatureExpr)(a: AST): CFGStmts =
         a match {
             case ForStatement(_, expr2, _, s) =>
@@ -235,6 +236,7 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
                         case Opt(m, n) => stmtPred(env, res, ctx and m)(n.asInstanceOf[Statement], f = true)
                     }
                 r ++ brkstmts
+
             case DoStatement(expr, s) =>
                 var r = res
                 r ++= exprPred(env, res, ctx)(expr)
