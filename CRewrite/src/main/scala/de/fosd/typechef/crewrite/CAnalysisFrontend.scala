@@ -89,12 +89,11 @@ class CIntraAnalysisFrontend(tunit: TranslationUnit, ts: CTypeSystemFrontend wit
                 // we filter them out by checking the declaration use map for usages
                 if (dum.containsKey(i) && dum.get(i).nonEmpty) {}
                 else out.find { case (t, _) => t == i } match {
-                    case None => {
+                    case None =>
                         var idecls = getDecls(i)
                         if (idecls.exists(isPartOf(_)(fa._1)))
                             err ::= new TypeChefError(Severity.Warning, fi, "warning: Variable " + i.name + " is a dead store!", i, "")
-                    }
-                    case Some((x, z)) => {
+                    case Some((x, z)) =>
                         if (fi.and(z.not()).isSatisfiable(fm)) {
                             var xdecls = getDecls(x)
                             var idecls = getDecls(i)
