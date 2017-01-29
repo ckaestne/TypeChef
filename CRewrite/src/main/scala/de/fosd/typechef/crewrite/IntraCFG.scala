@@ -247,10 +247,19 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
             case _: BreakStatement =>
                 res
             case c: ContinueStatement =>
-                if (getBreakStmtContext(c, env) != getBreakStmtContext(source, env))
-                    getCFGStmt(env, res, ctx, c)
-                else
-                    res
+                val ccontext = getContinueStmtContext(c, env)
+                ccontext match {
+                    case Some(WhileStatement(expr, _)) if expr == source =>
+                        getCFGStmt(env, res, ctx, c)
+                    case Some(DoStatement(expr, _)) if expr == source =>
+                        getCFGStmt(env, res, ctx, c)
+                    case Some(ForStatement(_, Some(expr2), _, _)) if expr2 == source =>
+                        getCFGStmt(env, res, ctx, c)
+                    case _ if ccontext != getContinueStmtContext(source, env) =>
+                        getCFGStmt(env, res, ctx, c)
+                    case _ =>
+                        res
+                }
 
             // conditional statements
             case IfStatement(condition, thenBranch, elifs, elseBranch) =>
