@@ -7,6 +7,8 @@ import net.sf.javabdd._
 import scala.annotation.tailrec
 import scala.collection.mutable.{Map, WeakHashMap}
 
+import scala.collection.JavaConverters._
+
 
 object FeatureExprHelper {
     private var freshFeatureNameCounter = 0
@@ -235,7 +237,7 @@ class BDDFeatureExpr(private[featureexpr] val bdd: BDD) extends FeatureExpr {
     private def bddAllSat: Iterator[Array[Byte]] = FExprBuilder.synchronized {toScalaAllSat(bdd.allsat())}
 
     private def toScalaAllSat(allsat: java.util.List[_]): Iterator[Array[Byte]] =
-        scala.collection.JavaConverters.asScalaIterator(allsat.asInstanceOf[java.util.List[Array[Byte]]].iterator())
+        allsat.asInstanceOf[java.util.List[Array[Byte]]].iterator().asScala
 
     /**
      * input allsat format
