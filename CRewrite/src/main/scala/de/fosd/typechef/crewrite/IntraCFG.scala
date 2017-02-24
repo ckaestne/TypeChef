@@ -951,8 +951,8 @@ trait IntraCFG extends ASTNavigation with ConditionalNavigation {
         filterBreakStatementsHelper(c)
     }
 
-    private def filterReturnStatements(c: CompoundStatement, ctx: FeatureExpr, env: ASTEnv): CFG = {
-        def filterReturnStatementsHelper(a: Any): CFG = {
+    private def filterReturnStatements(c: CompoundStatement, ctx: FeatureExpr, env: ASTEnv): List[Opt[ReturnStatement]] = {
+        def filterReturnStatementsHelper(a: Any): List[Opt[ReturnStatement]] = {
             a match {
                 case e: ReturnStatement =>
                     val c = env.featureExpr(e)
