@@ -47,8 +47,9 @@ class IntraCFGFileTests extends TestHelper with EnforceTreeHelper with Condition
     // we also ignore test cases that make use of assembler (prettyprinter fails here); these test cases are not
     // interesting anyway
 
+    // contains dead code "help: exit(0);"
     @Test def test_20000105_1 {
-        assert(!checkCFG("20000105-1.c"))
+        assert(checkCFG("20000105-1.c"))
     }
 
     @Test def test_20000105_2() {
