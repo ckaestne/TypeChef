@@ -2179,8 +2179,9 @@ class IntraCFGFileTests extends TestHelper with EnforceTreeHelper with Condition
         assert(!checkCFG("991213-2.c"))
     }
 
+    // contains a goto without a target
     @Test def test_991213_3() {
-        assert(!checkCFG("991213-3.c"))
+        assert(checkCFG("991213-3.c"))
     }
 
     @Test def test_991214_1() {
