@@ -48,7 +48,7 @@ object Frontend extends EnforceTreeHelper {
         var version = "development build"
         try {
             val cl = Class.forName("de.fosd.typechef.Version")
-            version = "version " + cl.newInstance().asInstanceOf[VersionInfo].getVersion
+            version = "version " + cl.getDeclaredConstructor().newInstance().asInstanceOf[VersionInfo].getVersion
         } catch {
             case e: ClassNotFoundException =>
         }
