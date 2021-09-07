@@ -35,7 +35,7 @@ It also evolved into a basis for a sound transformation and refactoring engine
 an import mechanism for [mbeddr](https://github.com/mbeddr).
 
 
-<a href="http://ckaestne.github.com/TypeChef/typechef-poster.png"><img alt="TypeChef Poster" src="http://ckaestne.github.com/TypeChef/typechef-poster-small.png" /></a>
+<a href="https://ckaestne.github.io/TypeChef/typechef-poster.png"><img alt="TypeChef Poster" src="https://ckaestne.github.io/TypeChef/typechef-poster-small.png" /></a>
 
 Architecture and Subprojects
 ----------------------------
@@ -107,7 +107,7 @@ and several helper libraries.
 Installation and Usage
 ----------------------
 
-You can download a .jar file including all necessary libraries [TypeChef.jar](http://ckaestne.github.com/TypeChef/deploy/TypeChef-0.3.7.jar). Run as usual
+You can download a .jar file including all necessary libraries [TypeChef.jar](http://ckaestne.github.io/TypeChef/deploy/TypeChef-0.3.7.jar). Run as usual
 
     java -jar TypeChef.jar ...
 
