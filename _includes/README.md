@@ -27,7 +27,7 @@ In all cases, the goal is to detect errors in all possible
 feature combinations, without resorting to a brute-force approach. 
 
 
-<a href="http://ckaestne.github.com/TypeChef/typechef-poster.png"><img alt="TypeChef Poster" src="http://ckaestne.github.com/TypeChef/typechef-poster-small.png" /></a>
+<a href="https://ckaestne.github.io/TypeChef/typechef-poster.png"><img alt="TypeChef Poster" src="https://ckaestne.github.io/TypeChef/typechef-poster-small.png" /></a>
 
 Architecture and Subprojects
 ----------------------------
@@ -87,7 +87,7 @@ Installation and Usage
 For simple experimentation, try our [online version](http://www.mathematik.uni-marburg.de/~kaestner/TypeChef/online/).
 
 Alternatively, you can download a .jar file including
-all necessary libraries [TypeChef.jar](http://ckaestne.github.com/TypeChef/deploy/TypeChef-0.3.4.jar). Run as usual
+all necessary libraries [TypeChef.jar](http://ckaestne.github.io/TypeChef/deploy/TypeChef-0.3.4.jar). Run as usual
 
     java -jar TypeChef.jar ...
 
